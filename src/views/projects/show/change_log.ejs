@@ -1,0 +1,108 @@
+<h4></h4>
+    <div class="panel panel-default" ng-show="change_log.length > 0">
+        <!-- Default panel contents -->
+        <div class="panel-heading">Versions</div>
+        <div class="panel-body">
+            <p>
+                Here you can see the recent changes made to this folder. The most recent changes are on top.
+            </p>
+        </div>
+
+        <!-- Table -->
+        <table class="table changelog-table">
+            <tr>
+                <th width="10%">
+
+                </th>
+                <th width="10%" class="table-centertext">
+                    Revision Number
+                </th>
+                <th width="10%">
+                    Time
+                </th>
+                <th width="13%">
+                    Author
+                </th>
+                <th width="57%">
+                    Summary
+                </th>
+            </tr>
+                <tr ng-repeat="version in change_log">
+                    <td>
+                        <button type="button"
+                                class="btn revert-button"
+                                ng-click="revert_to_version(version.ddr.versionNumber)"
+                                onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"
+                                ng-if="version.ddr.versionNumber < change_log[0].ddr.versionNumber">
+                            <i class="fa fa-undo"></i>
+                            Revert
+                        </button>
+
+                        <span class="label label-success"
+                              ng-if="version.ddr.versionNumber >= change_log[0].ddr.versionNumber">
+                            Current
+                        </span>
+
+                    </td>
+                    <td class="table-centertext">
+                        <b>{{version.ddr.versionNumber}}</b>
+                        <script type="text/javascript">
+                            $('.revert-button').tooltip({title : "<h1>Revert</h1>Restore the state of the annotations to version {{version.ddr.versionNumber}}", html:true, placement : "left"});
+                        </script>
+                    </td>
+                    <td>
+                        {{version.dcterms.created}}
+                    </td>
+                    <td>
+                        <a ng-if="version.ddr.versionCreator != null" ng-href="{{version.ddr.versionCreator.uri}}">{{version.ddr.versionCreator.foaf.firstName}} {{version.ddr.versionCreator.foaf.surname}}</a></li>
+                        <div ng-if="version.ddr.versionCreator == null">
+                            Anonymous
+                        </div>
+
+                    </td>
+                    <td>
+                        <div ng-repeat="change in version.changes">
+                            <div>
+                                <div ng-switch on="change.ddr.changeType" ng-if="change.ddr.changedDescriptor != null">
+
+                                    <div ng-switch-when="edit">
+                                        <span class="label label-info">Changed</span> <b>{{change.ddr.changedDescriptor.label}}</b> from <i>"{{change.ddr.oldValue}}"</i> to <i>"{{change.ddr.newValue}}"</i>.
+                                    </div>
+
+                                    <div ng-switch-when="delete">
+                                        <span  class="label label-danger">Removed</span> <b>{{change.ddr.changedDescriptor.label}}</b> with value <i>"{{change.ddr.oldValue}}"</i>.<span ng-if="change.ddr.newValue != null">New value is  <i>"{{change.ddr.newValue}}"</i>.</span>
+                                    </div>
+
+                                    <div ng-switch-when="add">
+                                        <span  class="label label-success">Added</span> <b>{{change.ddr.changedDescriptor.label}}</b> with value <i>"{{change.ddr.newValue}}"</i>.
+                                    </div>
+
+                                    <div ng-switch-when="add_edit">
+                                        <span  class="label label-success">Added</span><span class="label label-info">Changed</span><b>{{change.ddr.changedDescriptor.label}}</b> from <i>"{{change.ddr.oldValue}}"</i> to <i>"{{change.ddr.newValue}}"</i>.
+                                    </div>
+
+                                    <div ng-switch-when="delete_edit">
+                                        <span class="label label-danger">Deleted</span><span class="label label-info">Changed</span><b>{{change.ddr.changedDescriptor.label}}</b> from <i>"{{change.ddr.oldValue}}"</i> to <i>"{{change.ddr.newValue}}"</i>.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+
+        </table>
+
+        <div class="panel-footer">
+            <nav>
+                <ul class="pager">
+                    <li class="previous"><a href="#" ng-click="move_to_previous_page_in_change_log()" ng-show="change_log_page > 0"><span aria-hidden="true">&larr;</span>Previous Page</a></li>
+                    <li class="next"><a href="#" ng-click="move_to_next_page_in_change_log()">Next Page <span aria-hidden="true">&rarr;</span></a></li>
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+
+    <div class="alert alert-info" ng-if="getting_change_log == false && change_log.length == 0" >There is no past activity for this resource.</div>
+    <div class="alert alert-info" ng-if="getting_change_log" >Fetching Change Log...</div>
+

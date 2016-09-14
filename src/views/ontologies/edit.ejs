@@ -1,0 +1,26 @@
+<h1 class="page-header">
+    Editing ontologies
+</h1>
+
+<br/>
+<br/>
+
+<div class="panel panel-default" ng-repeat="ontology in ontologies">
+    <div class="panel-heading">
+        <h3>{{ontology.uri}}</h3>
+    </div>
+    <div class="panel-body">
+        <div class="form-group">
+            <label for="ontology_description_textbox">Description</label>
+            <input type="text" class="form-control" id="ontology_description_textbox" placeholder="Enter description" ng-model="ontology.description">
+        </div>
+        <div class="form-group">
+            <label for="ontology_research_domains_textbox">Research domains</label>
+            <tags-input id="ontology_research_domains_textbox" ng-model="ontology.domain" display-property="tag_face">
+                <auto-complete source="get_research_domains_by_text_search($query)"></auto-complete>
+            </tags-input>
+
+            <button class="btn btn-primary" ng-click="update_ontologies(ontology)">Save changes</button>
+        </div>
+    </div>
+</div>

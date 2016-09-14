@@ -1,0 +1,23 @@
+<div class="row">
+    <div class="controls col-lg-12">
+        <div class="input-group col-lg-10 col-lg-offset-1">
+            <input
+                    type="text"
+                    class="form-control urlbox"
+                    id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                    name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                    placeholder="{{descriptor.label}}"
+                    value="{{descriptor.value}}"
+                    ng-model="descriptor.value"
+                    ng-class="{
+                        just_added: descriptor.just_added,
+                        just_deleted: descriptor.just_deleted,
+                        just_inherited : descriptor.just_inherited ,
+                        just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
+                        favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
+                    }"
+                    ng-enter="save_metadata()"
+                    focus-me="descriptor.focused">
+        </div>
+    </div>
+</div>

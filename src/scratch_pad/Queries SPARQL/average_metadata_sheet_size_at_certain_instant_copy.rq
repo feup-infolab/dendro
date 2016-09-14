@@ -1,0 +1,44 @@
+SELECT "2015-03-06T18:04:54.404Z" AVG(?num_descriptors) as ?avg_num_descriptors
+{
+    SELECT ?latest_version ?date_last_version_created COUNT(?descriptor) as ?num_descriptors
+    {
+        SELECT ?latest_version ?descriptor ?date_last_version_created
+        FROM <http://dendro-prd.fe.up.pt:3005/dendro_graph>
+        WHERE
+        {
+            {
+                {
+                    ?resource rdf:type nfo:FileDataObject.
+                }
+                UNION
+                {
+                    ?resource rdf:type nfo:Folder.
+                }
+            }.
+            {
+                ?latest_version ddr:isVersionOf ?resource.
+                {
+                    SELECT ?resource MAX(?version_number) as ?latest_version_number
+                    FROM <http://dendro-prd.fe.up.pt:3005/dendro_graph>
+                    WHERE
+                    {
+                        ?version ddr:isVersionOf ?resource.
+                        ?version ddr:versionNumber ?version_number.
+                    }
+                }.
+
+                ?latest_version ddr:versionNumber ?latest_version_number.
+                ?latest_version dcterms:created ?date_last_version_created.
+                ?latest_version ?descriptor ?value.
+
+                FILTER
+                (
+                   STRSTARTS(STR(?descriptor), "http://purl.org/dc/terms/")
+                   &&
+                   xsd:dateTime(?date_last_version_created) < xsd:dateTime("2015-03-06T18:04:54.404Z")
+                )
+            }
+        }
+        ORDER BY DESC (?date_last_version_created)
+    }
+}

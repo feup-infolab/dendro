@@ -1,0 +1,28 @@
+SELECT ?date_of_interaction AVG(?num_descriptors) as ?avg_num_descriptors
+FROM <http://dendro-prd.fe.up.pt:3005/dendro_graph>
+WHERE 
+{
+	?s rdf:type ddr:Interaction.
+	?s dcterms:created ?date_of_interaction
+	{
+		SELECT ?archived_version COUNT(?descriptor) as ?num_descriptors
+		FROM <http://dendro-prd.fe.up.pt:3005/dendro_graph>
+		WHERE 
+		{
+			?archived_version ?descriptor ?value.
+			{
+				{?archived_version rdf:type nfo:ArchivedResource}
+				UNION
+				{?archived_version rdf:type nfo:Folder}	
+			}.
+			FILTER NOT EXISTS 
+			{ 
+				?record rdf:type ddr:Change
+			}.
+			FILTER NOT EXISTS 
+			{
+				?record rdf:type ddr:ArchivedResource
+			}
+		}
+	}
+}

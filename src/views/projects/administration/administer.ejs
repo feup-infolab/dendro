@@ -1,0 +1,227 @@
+<%- include ../../layout/header.ejs %>
+
+<div ng-controller="projectAdminCtrl">
+
+    <h1 class="page-header">Editing project "<%=locals.project.dcterms.title%>"</h1>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li class="active">
+            <a href="#information" role="tab" data-toggle="tab">Information</a>
+        </li>
+        <li>
+            <a href="#people" role="tab" data-toggle="tab">People</a>
+        </li>
+        <!--<li>
+            <a href="#actions" role="tab" data-toggle="tab">Actions</a>
+        </li>-->
+        <li >
+            <a href="#metadata_quality" role="tab" data-toggle="tab">Metadata Quality</a>
+        </li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+        <div class="tab-pane active" id="information">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>
+                        Project information
+                    </h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <form action="" method="POST">
+                        <div class="form-group">
+                            <label for="handle" class="col-sm-2 control-label">Handle</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="handle" placeholder="Handle" value="<%=locals.project.ddr.handle%>" name="handle" readonly="true" disabled>
+                                <p class="help-block">The handle cannot be changed once a project has been created </p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="title" class="col-sm-2 control-label">Title</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control" id="title" placeholder="Title" value="<%=locals.project.dcterms.title%>" name="title">
+                                <p class="help-block">Your project's title. Example: "Gravimetry run campaign over the Azores"</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="description" class="col-sm-2 control-label">Description</label>
+                            <div class="col-sm-10">
+                                <textarea class="form-control" id="description" rows="3" name="description"><%=locals.project.dcterms.description%></textarea>
+                                <p class="help-block">Your project's description, maybe the abstract of its public grant application? Example: "Results of the third Gravimetry run campaign over the Azores</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="privacy" class="col-sm-2 control-label">Privacy</label>
+                            <div class="col-sm-10">
+                                <input type="radio"
+                                       name="privacy"
+                                       value="publicStatus"
+                                       ng-checked="'<%=locals.privacy%>' == 'publicStatus'">Public: The project's metadata will be exposed and the project made publicly available, as read-only.
+                                </input>
+                                <br>
+                                <input type="radio"
+                                       name="privacy"
+                                       value="privateStatus"
+                                       ng-checked="'<%=locals.privacy%>' == 'privateStatus'">Private: Your project won't have any exposure.
+                                </input>
+                                <br>
+                                <input type="radio"
+                                       name="privacy"
+                                       value="metadataOnlyStatus"
+                                       ng-checked="'<%=locals.privacy%>' == 'metadataOnlyStatus'">Metadata Only: The project's metadata will be exposed, but access to the project will be required to you.
+                                </input>
+
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-offset-2 col-sm-10">
+                                <button class="btn btn-primary" type="submit" onclick="submit()">Update</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="people">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>
+                        Creator
+                    </h4>
+                    <a href="<%=locals.project.dcterms.creator%>">
+                        <%= locals.project.dcterms.creator %>
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <form action="" method="POST">
+                        <h4>
+                            Contributors
+                        </h4>
+                        <table class="table table-striped table-hover">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <%
+                            var i = 0;
+                            if(locals.project.dcterms.contributor != null)
+                            {
+                                if(typeof locals.project.dcterms.contributor == "string")
+                                {
+                                    locals.project.dcterms.contributor = [locals.project.dcterms.contributor]
+                                }
+
+                                    for(i = 0; i < locals.project.dcterms.contributor.length; i++)
+                            {
+                                var contributor = locals.project.dcterms.contributor[i];
+                            %>
+                            <tr>
+                                <td>
+                                    <div class="row">
+                                        <div class="col-xs-10">
+                                            <input type="text" class="form-control input-large" placeholder="Contributor URI" name="contributor[<%=i%>]" value="<%=contributor%>" readonly="true">
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <input type="button" class="btn btn-sm btn-danger fa fa-user" value="Remove" onclick="$(this).parent().parent().parent().remove(); submit();">
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <%
+                            }
+                            }
+                            %>
+                            <tr>
+                                <td>
+                                    <div class="row">
+                                        <div class="col-xs-10">
+                                            <input type="text" class="form-control input-large" placeholder="New Contributor URI" name="newContributor">
+                                        </div>
+                                        <div class="col-xs-2">
+                                            <input type="submit" class="btn btn-sm btn-primary fa fa-user" value="Add contributor" onclick="submit()"><i class="icon-file icon-white"></i>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="metadata_quality">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h4>
+                        Metadata Quality
+                    </h4>
+
+                    <div id="directory_tree" ng-if="project" ng-controller="projectTreeViewerCtrl">
+                        <!-- Nested node template -->
+                        <script type="text/ng-template" id="nodes_renderer.html">
+                            <div class="alert alert-info tree-node tree-node-content" >
+                                <table >
+                                    <tr>
+                                        <td>
+                                            <a class="btn btn-success btn-xs"
+                                               ng-if="node.hasLogicalParts && node.hasLogicalParts.length > 0"
+                                               nodrag
+                                               ng-click="toggle(this)">
+                                                <span class="glyphicon" ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span>
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a ng-href="{{node.uri}}">
+                                                <img src="{{node.uri+'?thumbnail&size=icon'}}"/>
+                                                <span>{{node.title}}</span>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <div class="progress" ng-if="node.metadata_quality != null && !node.root" >
+                                    <div class="progress-bar"
+                                         ng-class="{'progress-bar-danger': (node.metadata_quality <= 35),'progress-bar-warning':(node.metadata_quality <= 65),'progress-bar-success':(node.metadata_quality <= 100)}"
+                                         role="progressbar"
+                                         aria-valuenow="{{node.metadata_quality}}"
+                                         aria-valuemin="0" aria-valuemax="100"
+                                         ng-style="{width : node.metadata_quality+ '%'  }">
+                                        <span class="sr-only">{{node.metadata_quality}}%</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <ol ui-tree-nodes="" ng-if="node.hasLogicalParts" ng-model="node.hasLogicalParts" ng-init="parent_uri = node.uri"  ng-class="{hidden: collapsed}">
+                                <li
+                                    ng-repeat="node in node.hasLogicalParts"
+                                    ui-tree-node
+                                    ng-include="'nodes_renderer.html'"
+                                    ng-init="node.uri = parent_uri +'/'+ node.title">
+                                </li>
+                            </ol>
+                        </script>
+
+                        <div ui-tree data-drag-enabled="false">
+                            <ol ui-tree-nodes="" ng-model="project.hasLogicalParts" id="tree-root" ng-init="project_data_uri(project)">
+                                <li ng-repeat="node in project.hasLogicalParts"
+                                    ui-tree-node
+                                    ng-include="'nodes_renderer.html'"
+                                    ng-init="node.uri = project.uri; node.root = true" ></li>
+                            </ol>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

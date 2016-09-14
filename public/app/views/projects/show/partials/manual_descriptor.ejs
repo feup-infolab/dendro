@@ -1,0 +1,98 @@
+<div class="row">
+    <div class="col-xs-12">
+            <div class="btn-group">
+                <div class="btn-group" role="group">
+                    <button class="btn btn-sm recommendation-label add-descriptor"
+                            ng-class="{ 'button_of_present_descriptor' : descriptor_is_present(manual_descriptor), 'btn-success' : descriptor_is_filled_in(manual_descriptor)}"
+                            ng-click="accept_descriptor_from_quick_list(manual_descriptor, $index)"
+                            onclick="return false;"
+                            onmouseover="$(this).toggleClass('btn-info');"
+                            onmouseout="$(this).toggleClass('btn-info');"
+                            uib-tooltip="{{manual_descriptor.comment}}"
+                            tooltip-placement="top"
+                            tooltip-trigger="mouseenter">
+                        <i class="fa fa-plus fa-lg"></i>
+                            {{manual_descriptor.label}}
+                    </button>
+                </div>
+                <div class="btn-group" role="group">
+                    <button type="button"
+                            class="btn btn-sm btn-success dropdown-toggle"
+                            data-toggle="dropdown"
+                            aria-expanded="false">
+                        <span class="caret"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                    </button>
+                        <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                            <li>
+                                <a data-ng-click="multiple_accept_descriptor_from_quick_list(manual_descriptor, $index)"  href="#">
+                                    Add several at once
+                                </a>
+                            </li>
+                            <li ng-show="!manual_descriptor.recommendation_types['project_hidden']">
+                                <a data-ng-click="hide_descriptor_from_quick_list_for_project(manual_descriptor, $index)"  href="#">
+                                    Hide for project
+                                </a>
+                            </li>
+                            <li ng-show="!manual_descriptor.recommendation_types['user_hidden']">
+                                <a data-ng-click="hide_descriptor_from_quick_list_for_user(manual_descriptor, $index)"  href="#">
+                                    Hide descriptor for me (<%=locals.session.user.ddr.username%>)
+                                </a>
+                            </li>
+                            <li ng-show="manual_descriptor.recommendation_types['project_hidden']">
+                                <a data-ng-click="unhide_descriptor_from_quick_list_for_project(manual_descriptor, $index)"  href="#">
+                                    Undo hide for project
+                                </a>
+                            </li>
+                            <li ng-show="manual_descriptor.recommendation_types['user_hidden']">
+                                <a data-ng-click="unhide_descriptor_from_quick_list_for_user(manual_descriptor, $index)"  href="#">
+                                    Undo hide descriptor for me (<%=locals.session.user.ddr.username%>)
+                                </a>
+                            </li>
+                            <li ng-show="!manual_descriptor.recommendation_types['user_favorite']">
+                                <a data-ng-click="favorite_descriptor_from_quick_list_for_user(manual_descriptor, $index)"  href="#">
+                                    Add to my favorites (<%=locals.session.user.ddr.username%>)
+                                </a>
+                            </li>
+                            <li ng-show="!manual_descriptor.recommendation_types['project_favorite']">
+                                <a data-ng-click="favorite_descriptor_from_quick_list_for_project(manual_descriptor, $index)"  href="#">
+                                    Add to project favorites
+                                </a>
+                            </li>
+                            <li ng-show="manual_descriptor.recommendation_types['user_favorite']">
+                                <a data-ng-click="unfavorite_descriptor_from_quick_list_for_user(manual_descriptor, $index)"  href="#">
+                                    Remove from my favorites
+                                </a>
+                            </li>
+                            <li ng-show="manual_descriptor.recommendation_types['project_favorite']">
+                                <a data-ng-click="unfavorite_descriptor_from_quick_list_for_project(manual_descriptor, $index)"  href="#">
+                                    Remove from project favorites
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>
+
+<ng-include src="'/app/views/projects/show/partials/popup_and_icon_scripts.html'"></ng-include>
+
+<small class="recommendation-comment">
+    <%if(!locals.Config.recommendation.modes.none.active) { %>
+        <i ng-show="manual_descriptor.recommendation_types['frequently_used_overall']" class="fa fa-users most-frequent-badge"></i>
+        <i ng-show="manual_descriptor.recommendation_types['recently_used']" class="fa fa-user recent-badge"></i>
+        <i ng-show="manual_descriptor.recommendation_types['from_similar_resources']" class="fa fa-files-o from-textually-similar-badge"></i>
+        <i ng-show="manual_descriptor.recommendation_types['used_in_project']" class="fa fa-ambulance used-in-project-badge"></i>
+        <i ng-show="manual_descriptor.recommendation_types['random']" class="fa fa-random random-badge"></i>
+    <% } else { %>
+        <i ng-show="manual_descriptor.recommendation_types['dc_element_forced']" class="fa fa-check-circle dc-element-forced-badge"></i>
+    <% } %>
+
+    <i ng-show="manual_descriptor.recommendation_types['user_favorite']" class="fa fa-heart user_favorite-badge"></i>
+    <i ng-show="manual_descriptor.recommendation_types['project_favorite']" class="fa fa-star project_favorite-badge"></i>
+
+    <i ng-show="manual_descriptor.recommendation_types['project_hidden']" class="fa fa-eye-slash project_hidden-badge"></i>
+    <i ng-show="manual_descriptor.recommendation_types['user_hidden']" class="fa fa-eye user_hidden-badge"></i>
+
+</small>

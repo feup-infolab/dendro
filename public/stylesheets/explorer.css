@@ -1,0 +1,161 @@
+.explorer {
+  min-width: 10%;
+  float: top left;
+  vertical-align: top;
+  font-size: 10px;
+}
+.metadata-panel {
+  vertical-align: top;
+  min-width: 80%;
+}
+.suggestions-panel {
+  width: 20%;
+  text-align: center;
+  vertical-align: top;
+  position: relative;
+}
+.explorer-table {
+  -ms-word-break: break-all;
+  word-break: break-all;
+/* Non standard for webkit */
+  word-break: break-word;
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  -ms-hyphens: auto;
+  hyphens: auto;
+}
+.explorer-table h4 {
+  text-align: left;
+}
+.explorer-table td {
+  padding-left: 3px;
+  padding-right: 3px;
+}
+.spacer {
+  margin-top: 10px;
+/* define margin as you see fit */
+}
+.navbar-spacer {
+  margin-top: 20px;
+/* define margin as you see fit */
+}
+.changelog-table {
+  table-layout: fixed;
+  word-wrap: break-word;
+  width: 100%;
+}
+.table-centertext {
+  text-align: center;
+  vertical-align: middle;
+}
+.just_added {
+  color: #428bca;
+  font-weight: bold;
+}
+.just_deleted {
+  color: #cd5c5c;
+  text-decoration-style: line-through;
+  font-weight: bold;
+}
+.just_inherited {
+  color: #428bca;
+  font-weight: bold;
+}
+.label.just_added {
+  color: #428bca;
+}
+.just_recommended {
+  color: #ffa928;
+  font-weight: bold;
+}
+.favorite {
+  color: #28b62c;
+  font-weight: bold;
+}
+#metadataform .form-control[disabled],
+.form-control[readonly],
+fieldset[disabled] .form-control {
+  cursor: not-allowed;
+  background-color: #fff;
+  opacity: 1;
+}
+.full-width {
+  width: 100%;
+}
+.manual_recommendation_btn {
+  white-space: normal;
+  text-align: left;
+}
+.scrollable_recommendations {
+  height: 500px;
+  width: 100%;
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+.button_of_present_descriptor {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+.descriptor-comment {
+  font-size: 12px;
+  font-style: italic;
+}
+.version_description {
+  font-size: 9px;
+  font-style: italic;
+}
+.favorite_recommended_label {
+  background-color: #9e76ab;
+}
+.favorite_recommended_label:hover {
+  background-color: #e7a9ee;
+}
+favorite_recommended {
+  background-color: #9e76ab;
+}
+/*
+Animations (uncomment to have animations)
+*/
+/*.ng-enter
+
+  -webkit-transition: 1s;
+  transition: 1s;
+  opacity:0;
+
+.ng-enter-active
+  opacity:1;
+
+
+.ng-leave
+  -webkit-transition: 1s;
+  transition: 0.5s;
+
+.ng-leave-active
+  opacity:0;
+
+.ng-show
+  opacity:1;
+  -webkit-transition: 1s;
+  transition: 0.5s;
+
+.ng-hide
+  opacity:0;
+  -webkit-transition: 1s;
+  transition: 0.5s;*/
+/* Flexible iFrame */
+.Flexible-container {
+  position: relative;
+  padding-bottom: 56.25%;
+  padding-top: 30px;
+  height: 0;
+  overflow: hidden;
+}
+.Flexible-container iframe,
+.Flexible-container object,
+.Flexible-container embed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}

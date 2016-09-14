@@ -1,0 +1,143 @@
+<%- include ../descriptor_autocomplete.ejs %>
+
+<!-- ok all non rec -->
+
+<div id="manual_descriptor_selection">
+    <div ng-show="manually_selected_ontology == null">
+        <br/>
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="list-group">
+                    <a href="" onclick="return false;" ng-repeat="ontology in public_ontologies" class="list-group-item recommendation-item">
+                        <div class="row" ng-click="manually_select_ontology(ontology)">
+                            <%- include ontology_list_item.ejs %>
+                        </div>
+                    </a>
+                </ul>
+            </div>
+        </div>
+        <br/>
+    </div>
+
+    <div ng-show="fetching_descriptors_from_manual_ontology">
+        <br/>
+        <div class="panel panel-info" >
+            <div class="panel-heading">
+                <h3 class="panel-title">Please wait...</h3>
+            </div>
+            <div class="panel-body">
+                Fetching descriptors from ontology {{manually_selected_ontology.label}}...
+            </div>
+        </div>
+    </div>
+
+    <div ng-show="manually_selected_ontology != null && !fetching_descriptors_from_manual_ontology">
+        <br/>
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="tab-pane" id="overview">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <a href="" onclick="return false;">
+                                <div class="row" ng-click="clear_manually_selected_ontology()">
+                                    <div class="col-lg-1">
+                                        <i class="fa fa-backward"></i>
+                                    </div>
+                                    <div class="col-lg-10">
+                                        <h4 class="list-group-item-heading">
+                                            {{manually_selected_ontology.label}}<small>{{manually_selected_ontology.comment}}</small>
+                                        </h4>
+                                        <small>{{manually_selected_ontology.description}}</small>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="list-group">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <a class="list-group-item recommendation-item"
+                               ng-repeat="manual_descriptor in manual_descriptors"
+                               ng-show="manual_descriptor.label &&
+                                        manual_descriptor.comment &&
+                                        (
+                                            (
+                                                descriptor_filter === 'hidden'
+                                                &&
+                                                (
+                                                    manual_descriptor.recommendation_types['project_hidden']
+                                                    ||
+                                                    manual_descriptor.recommendation_types['user_hidden']
+                                                )
+                                            )
+                                            ||
+                                            (
+                                                descriptor_filter === 'favorites'
+                                                &&
+                                                (
+                                                    manual_descriptor.recommendation_types['project_favorite']
+                                                    ||
+                                                    manual_descriptor.recommendation_types['user_favorite']
+                                                )
+                                            )
+                                            ||
+                                            (
+                                                descriptor_filter === 'all' &&
+                                                !(manual_descriptor.recommendation_types['project_hidden'] == true) &&
+                                                !(manual_descriptor.recommendation_types['user_hidden'] == true)
+                                            )
+                                        )
+                            ">
+                                <%if(locals.Config.debug.debug_active && locals.Config.debug.views.show_all_buttons_in_recommendations) { %>
+                                    <ng-include src="'/app/views/projects/show/partials/manual_descriptor_debug.html'"></ng-include>
+                                <%} else {%>
+                                    <ng-include src="'/app/views/projects/show/partials/manual_descriptor.html'"></ng-include>
+                                <% } %>
+                            </a>
+                        </div>
+                    </div>
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-xs-12">
+                <div class="btn-group btn-group-justified" data-toggle="buttons">
+                    <label class="btn btn-default"
+                           ng-class="{'active' : descriptor_filter == 'all', 'btn-primary' : descriptor_filter == 'all'}"
+                           id="change_descriptor_selection_to_recommendation_button"
+                           ng-click="switch_descriptor_filter('all');">
+
+                        <input type="radio"
+                               name="options"
+                               ng-checked="descriptor_filter == 'all'">All
+                    </label>
+
+                    <label class="btn btn-default"
+                           ng-class="{'active' : descriptor_filter == 'favorites', 'btn-success' : descriptor_filter == 'favorites'}"
+                           id="change_descriptor_selection_to_manual_button"
+                           ng-click="switch_descriptor_filter('favorites');">
+
+                        <input type="radio"
+                               name="options"
+                               ng-checked="descriptor_filter == 'favorites'">Favorites
+                    </label>
+
+                    <label class="btn btn-default"
+                           ng-class="{'active' : descriptor_filter == 'hidden', 'btn-danger' : descriptor_filter == 'hidden'}"
+                           id="change_descriptor_selection_to_manual_button"
+                           ng-click="switch_descriptor_filter('hidden');">
+
+                        <input type="radio"
+                               name="options"
+                               ng-checked="descriptor_filter == 'hidden'">Hidden
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

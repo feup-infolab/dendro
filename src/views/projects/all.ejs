@@ -1,0 +1,53 @@
+<%- include ../layout/header.ejs %>
+
+    <%- include ../layout/pagination/start.ejs %>
+
+        <% if(!(typeof locals.projects === 'undefined'))
+        {
+        %>
+            <br/>
+            <table class="table">
+            <tr>
+                <th>Handle</th>
+                <th>Title</th>
+                <th>Description</th>
+                <th>Creator</th>
+            </tr>
+            <% for(var i = 0; i < locals.projects.length; i++) { %>
+            <tr>
+                <td>
+                    <a class="btn btn-primary" href="/project/<%=locals.projects[i].ddr.handle%>"><i class="icon-folder-close"></i><%=locals.projects[i].ddr.handle%></a>
+                </td>
+                <td>
+                    <b>
+                        <a href="./project/<%=locals.projects[i].ddr.handle%>">
+                            <%= locals.projects[i].dcterms.title %>
+                        </a>
+                    </b>
+                </td>
+                <td>
+                    <%= locals.projects[i].dcterms.description %>
+                </td>
+                <td>
+                    <a href="<%= locals.projects[i].dcterms.creator %>"><%=locals.projects[i].dcterms.creator%></a>
+                </td>
+                <!--
+                <td>
+                    <b>
+                        <a href="<%=locals.projects[i].dcterms.creator%>">
+                            <%= locals.projects[i].dcterms.creator %>
+                        </a>
+                    </b>
+                </td>
+                -->
+            </tr>
+
+        <% } %>
+
+        </table>
+
+    <% } %>
+
+    <%- include ../layout/pagination/end.ejs %>
+
+<%- include ../layout/footer.ejs %>

@@ -1,0 +1,129 @@
+    <%- include ../layout/header.ejs %>
+
+    <h1 class="page-header">
+        Create a new project
+    </h1>
+
+    <style type="text/css">
+    #loginError
+    {
+    color: #dd2929;
+    text-align: right;
+    padding-right: 3px;
+
+    }
+    </style>
+
+    <form class="form-horizontal well" role="form" action="new" method="POST">
+        <div class="form-group">
+            <label for="handle" class="col-sm-2 control-label">Handle *</label>
+            <div class="col-sm-10">
+                <input type="text"
+                       class="form-control"
+                       id="handle"
+                       placeholder="Handle"
+                        <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                            value="datanotes"
+                        <%}%>
+                       name="handle" required>
+                <p class="help-block">A unique handle in the system for your project. Example: "gravimetry01" </p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="title" class="col-sm-2 control-label">Title *</label>
+            <div class="col-sm-10">
+                <input type="text"
+                       class="form-control"
+                       id="title"
+                       placeholder="Title"
+                        <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                            value="Gravimetry experiments ABC"
+                       <%}%>
+                       name="title" required>
+                <p class="help-block">Your project's title. Example: "Gravimetry run campaign over the Azores"</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="description" class="col-sm-2 control-label">Description *</label>
+            <div class="col-sm-10">
+                <textarea
+                        class="form-control"
+                        id="description"
+                        rows="3"
+                        placeholder="Project description..."
+                        name="description" required><%if(locals.Config.debug.views.prefill_text_boxes){%>An experiment with an aeroplane and gravity recording devices<%}%></textarea>
+                <p class="help-block">Your project's description, maybe the abstract of its public grant application? Example: "Results of the third Gravimetry run campaign over the Azores</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="publisher" class="col-sm-2 control-label">Publisher</label>
+            <div class="col-sm-10">
+                <input type="text"
+                       class="form-control"
+                       id="publisher"
+                       placeholder="Publisher"
+                        <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                       value="University of Porto"
+                        <%}%>
+                       name="publisher">
+                <p class="help-block">An entity responsible for making the resource available. Example: "University of Porto"</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="language" class="col-sm-2 control-label">Language</label>
+            <div class="col-sm-10">
+                <input type="text"
+                       class="form-control"
+                       id="language"
+                       placeholder="Language"
+                        <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                       value="pt"
+                        <%}%>
+                       name="language">
+                <p class="help-block">A language of the resource. Example: "en"</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="coverage" class="col-sm-2 control-label">Coverage</label>
+            <div class="col-sm-10">
+                <input type="text"
+                       class="form-control"
+                       id="coverage"
+                       placeholder="Coverage"
+                        <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                       value="porto"
+                        <%}%>
+                       name="coverage">
+                <p class="help-block">The spatial or temporal topic of the resource, the spatial applicability of the resource, or the jurisdiction under which the resource is relevant.
+                    Example: "Porto"</p>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="privacy" class="col-sm-2 control-label">Privacy</label>
+            <div class="col-sm-10">
+                <input type="radio"
+                       name="privacy"
+                       value="public"
+                       checked>Public: The project's metadata will be exposed and the project made publicly available, as read-only.
+                </input>
+                <br>
+                <input type="radio"
+                       name="privacy"
+                       value="private">Private: Your project won't have any exposure.
+                </input>
+                <br>
+                <input type="radio"
+                       name="privacy"
+                       value="metadata">Metadata Only: The project's metadata will be exposed, but access to the project will be required to you.
+                </input>
+
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button class="btn btn-primary">Create</button>
+            </div>
+        </div>
+    </form>
+
+<%- include ../layout/footer.ejs %>

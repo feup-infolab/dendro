@@ -1,0 +1,41 @@
+<div class="row">
+    <div class="col-xs-12">
+        <div class="row">
+                <div class="col-xs-11 col-xs-offset-1">
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                        name="descriptors[{{descriptor.prefix}}][{{descriptor.shortName}}]"
+                        placeholder="{{descriptor.label}}"
+                        value="{{descriptor.value}}"
+                        ng-model="descriptor.value"
+                        ng-class="{
+                            just_added: descriptor.just_added,
+                            just_deleted: descriptor.just_deleted,
+                            just_inherited : descriptor.just_inherited ,
+                            just_recommended : descriptor.just_recommended && (editor_recommendations_mode == editor_recommendation_modes.smart),
+                            favorite : descriptor.favorite && (editor_recommendations_mode == editor_recommendation_modes.favorites)
+                        }"
+                        ng-enter="save_metadata()"
+                        focus-me="descriptor.focused">
+                </div>
+            </div>
+        </div>
+        <br/>
+        <br/>
+        <div class="row">
+            <div class="col-xs-10 col-xs-offset-1">
+                <iframe
+                        width="100%"
+                        height="<%=Config.maps.map_height%>"
+                        frameborder="0"
+                        scrolling="no"
+                        marginheight="0"
+                        marginwidth="0"
+                        ng-src="{{get_map_src(descriptor, '<%=Config.maps.gmaps_api_key%>') | trustAsResourceUrl}}"
+                        allowfullscreen>
+                </iframe>
+            </div>
+        </div>
+</div>

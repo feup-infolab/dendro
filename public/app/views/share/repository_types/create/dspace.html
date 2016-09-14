@@ -1,0 +1,82 @@
+<h1 class="page-header">Connect to a DSpace repository</h1>
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.dcterms.title}">
+    <label for="new_dspace_repository_title">Label</label>
+    <input type="text" ng-model="new_repository.dcterms.title" class="form-control" id="new_dspace_repository_title" placeholder="Title" required>
+    <p class="help-block">This will be used to label these credentials and address as one of your favorite repositories</p>
+    <span ng-show="new_repository.dcterms.title" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.dcterms.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
+</div>
+
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)}">
+    <label for="new_dspace_repository_url">External repository address</label>
+    <input type="text" ng-model="new_repository.ddr.hasExternalUrl" class="form-control" id="new_dspace_repository_url" placeholder="Title" required>
+    <p class="help-block">The base address of the repository you wish to upload to. Example: <a href="http://demo.dspace.org">http://demo.dspace.org</a> .</p>
+    <span ng-show="new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+</div>
+
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasUsername}">
+    <label for="dspace_username">Username</label>
+    <input type="text" ng-model="new_repository.ddr.hasUsername" class="form-control" id="dspace_username" placeholder="DSpace username" required>
+    <p class="help-block">The username is the email that you use in the target DSpace repository. </p>
+    <span ng-show="new_repository.ddr.hasUsername" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.hasUsername" class="glyphicon glyphicon-remove form-control-feedback"></span>
+</div>
+
+<div class="form-group">
+    <label for="dspace_repository_password">Password</label>
+    <input type="password" ng-model="new_repository.ddr.hasPassword" class="form-control" id="dspace_repository_password" placeholder="DSpace Password">
+    <p class="help-block">Your password for the DSpace repository (we will not store this password, we will just pass it on to DSpace for request collections).</p>
+</div>
+<div class="form-group">
+    <div><label>Collection</label></div>
+    <div class="row">
+        <div class="col-lg-8">
+            <button type="button" class="btn btn-primary"
+                    ng-disabled = "new_repository.ddr.hasPassword == null || new_repository.ddr.hasPassword == '' ||
+                    new_repository.ddr.hasUsername == null || new_repository.ddr.hasUsername == '' ||
+                    new_repository.ddr.hasExternalUrl == null || !valid_url(new_repository.ddr.hasExternalUrl)"
+                    ng-click="get_sword_workspaces(new_repository)" >
+                <span class="glyphicon glyphicon-refresh"></span>
+            </button>
+            <div class="btn-group">
+                <button type="button"
+                        class="btn btn-default dropdown-toggle"
+                        data-toggle="dropdown"
+                        ng-disabled="sword_workspaces == null||sword_workspaces.length == 0 ">
+                    Select a repository workspace<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat="sword_workspace in sword_workspaces">
+                        <a href="#" ng-click="set_sword_collections(sword_workspace.collections)">{{sword_workspace.title}}</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="btn-group">
+                <button type="button"
+                        class="btn btn-default dropdown-toggle"
+                        data-toggle="dropdown"
+                        ng-disabled="sword_collections == null || sword_collections.length == 0">
+                    Select a workspace collection<span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu">
+                    <li ng-repeat="sword_collection in sword_collections">
+                        <a href="#" ng-click="new_repository.ddr.hasSwordCollectionLabel = sword_collection.title;new_repository.ddr.hasSwordCollectionUri = sword_collection.href">
+                            {{sword_collection.title}}
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <input type="text" ng-model="new_repository.ddr.hasSwordCollectionLabel" class="form-control" id="dspace_repository_collection" placeholder="DSpace Collection">
+        </div>
+    </div>
+    <p class="help-block">Collection that you will use to export data to the target DSpace repository.</p>
+
+
+</div>
+
+<button type="cancel" ng-click="clear_repository_type()" class="btn">Cancel</button>
+<button type="submit" ng-click="create_new_repository_bookmark(new_repository)" class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg"></i>Save new bookmark</button>

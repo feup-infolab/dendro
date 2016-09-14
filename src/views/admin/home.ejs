@@ -1,0 +1,122 @@
+<%- include ../layout/header.ejs %>
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+    <li class="active">
+        <a href="#ontologies" role="tab" data-toggle="tab">Ontologies</a>
+    </li>
+    <li>
+        <a href="#research_domains" role="tab" data-toggle="tab">Research Domains</a>
+    </li>
+    <li>
+        <a href="#application_profiles" role="tab" data-toggle="tab">Application Profiles</a>
+    </li>
+    <li>
+        <a href="#actions" role="tab" data-toggle="tab">Actions</a>
+    </li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+    <div class="tab-pane active" id="ontologies" ng-controller="ontologiesCtrl">
+        <div class="row">
+            <div class="col-lg-12">
+                <%- include ../ontologies/edit.ejs %>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane" id="application_profiles" ng-controller="applicationProfilesCtrl">
+        <div class="row">
+            <div class="col-lg-12">
+                <%- include ../application_profiles/edit.ejs %>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane" id="research_domains" ng-controller="researchDomainsCtrl">
+        <div class="row">
+            <div class="col-lg-12">
+                <%- include ../research_domains/edit.ejs %>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane" id="actions">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="page-header">
+                    Actions
+                </h1>
+            </div>
+        </div>
+        <div class="tab-pane" id="actions">
+            <div class="well">
+                <h4>Load resources from locally stored datasets</h4>
+                <form action="/admin/reload" method="get">
+                    <p class="help-block">Select the graphs you want to reload</p>
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label class="checkbox">
+                                <input type="checkbox" name="graphs[dbpedia]" value="dbpedia" checked>DBpedia</input>
+                            </label>
+                        </div>
+                        <div class="col-lg-9">
+                            <label class="checkbox">
+                                <input type="checkbox" name="graphs_to_delete[dbpedia]" value="1" checked>Delete existing</input>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label class="checkbox">
+                                <input type="checkbox" name="graphs[dryad]" value="dryad" checked>Dryad</input>
+                            </label>
+                        </div>
+                        <div class="col-lg-9">
+                            <label class="checkbox">
+                                <input type="checkbox" name="graphs_to_delete[dryad]" value="1" checked>Delete existing</input>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label class="checkbox">
+                                <input type="checkbox" name="graphs[freebase]" value="freebase" checked>Freebase</input>
+                            </label>
+                        </div>
+                        <div class="col-lg-9">
+                            <label class="checkbox">
+                                <input type="checkbox" name="graphs_to_delete[freebase]" value="1" checked>Delete existing</input>
+                            </label>
+                        </div>
+                    </div>
+
+                    <input type="submit" value="Proceed" class="btn btn-primary">
+                </form>
+            </div>
+
+            <div class="well">
+                <h4>Reindex all resources from a graph (to enable free-text search)</h4>
+                <form action="/admin/reindex" method="get">
+                    <p class="help-block">Select the graphs you want to reindex</p>
+
+                    <div class="row">
+                        <div class="col-lg-3">
+                            <label class="checkbox">
+                                <input type="checkbox" name="graphs[dendro]" value="dendro" checked>Dendro (Working Graph)</input>
+                            </label>
+                        </div>
+                        <div class="col-lg-9">
+                            <label class="checkbox">
+                                <input type="checkbox" name="graphs_to_delete[dendro]" value="1" checked>Delete existing index (will not delete base data)</input>
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<%- include ../layout/footer.ejs %>

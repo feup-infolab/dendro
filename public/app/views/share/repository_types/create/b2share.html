@@ -1,0 +1,32 @@
+<h1 class="page-header">Connect to B2Share</h1>
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.dcterms.title}">
+    <label for="new_b2share_repository_title">Label</label>
+    <input type="text" ng-model="new_repository.dcterms.title" class="form-control" id="new_b2share_repository_title" placeholder="Title" required>
+    <p class="help-block">This will be used to label these credentials and address as one of your favorite repositories</p>
+    <span ng-show="new_repository.dcterms.title" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.dcterms.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
+</div>
+
+<div class="control-group has-feedback" ng-init="new_repository.ddr.hasExternalUrl = new_repository_type.foaf.homepage" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)}">
+    <label for="new_b2share_repository_url">External repository address</label>
+    <input type="text" ng-model="new_repository.ddr.hasExternalUrl"  value="" class="form-control" id="new_b2share_repository_url" placeholder="External Repository Address"  required disabled >
+    <p class="help-block">The base address of the repository you wish to upload to.</p>
+    <span ng-show="new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+</div>
+
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasAccessToken}">
+    <input type="radio" ng-model="data.ownAccessToken" ng-value="true">
+    Use personal B2Share account
+    <input type="radio" ng-model="data.ownAccessToken" ng-value="false">
+    Use Dendro's account
+    <label ng-show="data.ownAccessToken == true" for="b2share_access_token">Access Token</label>
+    <input ng-show="data.ownAccessToken == true" type="text" ng-model="new_repository.ddr.hasAccessToken" class="form-control" id="b2share_access_token" placeholder="B2Share access token" ng-required="ownAccessToken == true">
+    <p ng-show="data.ownAccessToken == true" class="help-block">Your B2Share token</p>
+    <span ng-show="new_repository.ddr.hasAccessToken" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.hasAccessToken && data.ownAccessToken == true" class="glyphicon glyphicon-remove form-control-feedback"></span>
+</div>
+
+<button type="cancel" ng-click="clear_repository_type()" class="btn">Cancel</button>
+<button type="submit" ng-click="create_new_repository_bookmark(new_repository)" class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg"></i>Save new bookmark</button>

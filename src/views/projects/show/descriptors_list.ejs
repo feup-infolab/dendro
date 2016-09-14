@@ -1,0 +1,73 @@
+<ul class="list-group">
+    <li class="list-group-item" ng-show="recommendations_page != null && recommendations_page > 0">
+        <a href="#" class="recommendation-previous-label" ng-click="get_previous_descriptor_recommendations()"><h4 class="list-group-item-heading"><i class="fa fa-angle-up"> Previous page</i></h4></a>
+        <script type="text/javascript">
+            $('.recommendation-previous-label').tooltip({title : "<h4>&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;More&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;</h4>Click to return to the previous recommendations", html: true, placement : "left"});
+        </script>
+    </li>
+
+    <div class="panel panel-warning" ng-show="(shared.recommender_offline && descriptor_selection_mode === 'recommendation')">
+        <div class="panel-heading">
+            <h3 class="panel-title">No recommendations available</h3>
+        </div>
+        <div class="panel-body">
+            The descriptor recommender system is currently offline.
+            <br/>
+            <br/>
+
+            <label class="btn btn-warning btn-block" id="change_descriptor_selection_to_recommendation_button_error" ng-click="switch_selection_mode('manual')">Switch to manual selection</label>
+
+        </div>
+    </div>
+
+    <a class="list-group-item recommendation-item"
+       ng-repeat="recommendation in recommendations"
+       ng-show="    recommendation.label &&
+                    recommendation.comment &&
+                    (
+                        (
+                            descriptor_filter == 'hidden'
+                            &&
+                            (
+                                recommendation.recommendation_types['<%=locals.Descriptor.recommendation_types.project_hidden.key%>']
+                                ||
+                                recommendation.recommendation_types['<%=locals.Descriptor.recommendation_types.user_hidden.key%>']
+                            )
+                        )
+                        ||
+                        (
+                            descriptor_filter == 'favorites'
+                            &&
+                            (
+                                recommendation.recommendation_types['<%=locals.Descriptor.recommendation_types.project_favorite.key%>']
+                                ||
+                                recommendation.recommendation_types['<%=locals.Descriptor.recommendation_types.user_favorite.key%>']
+                            )
+                        )
+                        ||
+                        (
+                            descriptor_filter == 'all' &&
+                            !(recommendation.recommendation_types['<%=locals.Descriptor.recommendation_types.project_hidden.key%>'] == true)&&
+                            !(recommendation.recommendation_types['<%=locals.Descriptor.recommendation_types.user_hidden.key%>'] == true)
+                        )
+                    )
+        ">
+
+        <%if(locals.Config.debug.debug_active && locals.Config.debug.views.show_all_buttons_in_recommendations) { %>
+            <ng-include src="'/app/views/projects/show/partials/recommendation_debug.html'"></ng-include>
+        <%} else {%>
+            <ng-include src="'/app/views/projects/show/partials/recommendation.html'"></ng-include>
+        <% } %>
+    </a>
+
+    <li class="list-group-item" ng-show="recommendations.length >= recommendations_page_size && recommendations.length > 0">
+        <div class="row">
+            <div class="col-xs-12">
+                <a href="#" class="recommendation-next-label" ng-click="get_next_descriptor_recommendations()"><h4 class="list-group-item-heading"><i class="fa fa-angle-down"> Next page</i></h4></a>
+                <script type="text/javascript">
+                    $('.recommendation-next-label').tooltip({title : "<h4>&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;More&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;</h4>Click to get another set suggestions", html: true, placement : "left"});
+                </script>
+            </div>
+        </div>
+    </li>
+</ul>

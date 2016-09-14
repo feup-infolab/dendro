@@ -1,0 +1,13 @@
+
+
+<% if(locals.currentPage != null) { %>
+    </form>
+
+    <% if( locals.currentPage > 0 ) {%>
+        <a href="?pageSize=&currentPage=<%= currentPage-1%>"> << Previous Page </a>
+    <% } %>
+
+    <a href="?pageSize=<%= pageSize%>&currentPage=<%= currentPage+1%>"> Next Page >> </a>
+<% } %>
+
+

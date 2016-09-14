@@ -1,0 +1,61 @@
+<h1>Recent changes</h1>
+<!-- Table -->
+<table class="table change_log_table">
+    <tr>
+        <th>
+            Time
+        </th>
+        <th>
+            Author
+        </th>
+        <th>
+            Summary
+        </th>
+        <th>
+            Resource
+        </th>
+    </tr>
+    <tr ng-repeat="recent_version in shared.recent_versions">
+        <td>
+            {{recent_version.dcterms.created}}
+        </td>
+        <td>
+            <a ng-show="recent_version.ddr.versionCreator != null" href="{{recent_version.ddr.versionCreator.uri}}">
+                {{recent_version.ddr.versionCreator.foaf.firstName}} {{recent_version.ddr.versionCreator.foaf.surname}}
+            </a>
+            <div ng-show="recent_version.ddr.versionCreator == null">
+                Anonymous
+            </div>
+        </td>
+        <td>
+            <div ng-repeat="change in recent_version.changes">
+                <div ng-show="change.ddr.changedDescriptor != null">
+                    <div ng-switch="change.ddr.changeType">
+                        <div ng-switch-when="edit">
+                            <span class="label label-info">Changed</span> <b>{{change.ddr.changedDescriptor.label}}</b> from <i>"{{change.ddr.oldValue}}"</i> to <i>"{{change.ddr.newValue}}"</i>.
+                        </div>
+                        <div ng-switch-when="delete">
+                            <span class="label label-danger">Removed</span> <b>{{change.ddr.changedDescriptor.label}}</b> with value <i>"{{change.ddr.oldValue}}"</i>. <div ng-show="change.ddr.newValue != null">New value is  <i>"{{change.ddr.newValue}}"</i>.</div>
+                        </div>
+                        <div ng-switch-when="add">
+                            <span class="label label-success">Added</span> <b>{{change.ddr.changedDescriptor.label}}</b> with value <i>"{{change.ddr.newValue}}"</i>. <div ng-show="change.ddr.oldValue != null">Old value was  <i>"{{change.ddr.oldValue}}"</i>.</div>
+                        </div>
+                        <div ng-switch-when="add_edit">
+                            <span class="label label-success">Added</span><span class="label label-info">Changed</span><b>{{change.ddr.changedDescriptor.label}}</b> from <i>"{{change.ddr.oldValue}}"</i> to <i>"{{change.ddr.newValue}}"</i>.
+                        </div>
+                        <div ng-switch-when="delete_edit">
+                            <span class="label label-danger">Deleted</span><span class="label label-info">Changed</span><b>{{change.ddr.changedDescriptor.label}}</b> from <i>"{{change.ddr.oldValue}}"</i> to <i>"{{change.ddr.newValue}}"</i>.
+                        </div>
+                    </div>
+                </div>
+                <br/>
+            </div>
+        </td>
+        <td>
+            <img src="{{recent_version.thumbnail}}"/>
+                <a href="{{recent_version.ddr.isVersionOf.uri}}">{{recent_version.ddr.isVersionOf.nie.title}}</a>
+        </td>
+    </tr>
+</table>
+
+

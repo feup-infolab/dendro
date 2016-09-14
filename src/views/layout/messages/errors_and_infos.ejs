@@ -1,0 +1,37 @@
+<% if(locals.error_messages != null) { %>
+    <div class="container">
+        <div id="error_messages" class="alert alert-danger">
+
+        <% for (var i = 0; i< locals.error_messages.length; i++) { %>
+             <p><%= locals.error_messages[i] %></p>
+
+            <%
+                console.log(locals.error_messages[i]);
+            %>
+        <% } %>
+
+        </div>
+    </div>
+<% } %>
+
+<% if(locals.info_messages != null) { %>
+    <div class="container">
+        <div id="info_messages" class="alert alert-info">
+
+        <% for (var i = 0; i< locals.info_messages.length; i++) { %>
+             <p><%= locals.info_messages[i]%></p>
+        <% } %>
+        </div>
+    </div>
+<% } %>
+
+<% if(locals.success_messages != null) { %>
+<div class="container">
+    <div id="success_messages" class="alert alert-success">
+
+        <% for (var i = 0; i< locals.success_messages.length; i++) { %>
+            <p><%= locals.success_messages[i]%></p>
+        <% } %>
+    </div>
+</div>
+<% } %>

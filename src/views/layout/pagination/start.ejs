@@ -1,0 +1,33 @@
+<%if(locals.currentPage != null && locals.pageSize != null) { %>
+
+    <form action="" method="get">
+        <div class="input-append">
+                <input type="hidden" id="currentPage" value="<%= currentPage %>"/>
+
+                Results per page :
+                <select name="pageSize" id="pageSizeComboBox">
+
+                    <% var pageSizes = [20, 50, 200]; %>
+                    <% for (var i = 0; i < pageSizes.length; i++) { %>
+
+                <option value="<%= pageSizes[i] %>"
+                    <% if(pageSizes[i] == locals.pageSize) { %>
+                selected="true"
+                    <% } %>
+                >
+                    <%= pageSizes[i] %></option>
+
+                    <% } %>
+
+
+                <option value="50">50</option>
+                <option value="200">300</option>
+                <option value="0">ALL nodes</option>
+                </select>
+
+                <input type=submit value="Update" class="btn"/>
+                </div>
+
+<%
+    }
+%>

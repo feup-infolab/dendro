@@ -1,0 +1,32 @@
+<%- include ../descriptor_autocomplete.ejs %>
+
+<!-- dc non rec ok -->
+
+<div id="manual_descriptor_selection">
+    <div>
+        <br/>
+        <div class="row">
+            <div class="col-lg-12">
+                <ul class="list-group">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <a class="list-group-item recommendation-item"
+                               ng-repeat="manual_descriptor in manual_descriptors"
+                               ng-hide="!manual_descriptor.label ||
+                                        !manual_descriptor.comment ||
+                                         manual_descriptor.recommendation_types['project_hidden'] ||
+                                         manual_descriptor.recommendation_types['user_hidden']">
+
+                                <%if(locals.Config.debug.debug_active && locals.Config.debug.views.show_all_buttons_in_recommendations) { %>
+                                    <ng-include src="'/app/views/projects/show/partials/manual_descriptor_debug.html'"></ng-include>
+                                <%} else {%>
+                                    <ng-include src="'/app/views/projects/show/partials/manual_descriptor.html'"></ng-include>
+                                <% } %>
+                            </a>
+                        </div>
+                    </div>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

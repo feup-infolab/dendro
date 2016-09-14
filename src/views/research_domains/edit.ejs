@@ -1,0 +1,51 @@
+<h1 class="page-header">
+    Editing research domains
+</h1>
+<div class="panel-body">
+    <button class="btn btn-primary" ng-click="add_research_domain()"><i class="glyphicon glyphicon-plus"></i>Add a new research domain</button>
+    <button class="btn pull-right" ng-click="update_research_domains()"><i class="glyphicon glyphicon-floppy-disk"></i>Save changes</button>
+</div>
+
+<div class="panel panel-default" ng-repeat="research_domain in research_domains">
+    <div class="panel-heading">
+        <h3 ng-show="research_domain.not_saved"><span class="label label-warning" ng-show="research_domain.not_saved">Unsaved</span></h3>
+        <h3 ng-hide="research_domain.not_saved">{{research_domain.uri}}</h3>
+    </div>
+    <div class="panel-body">
+
+        <div class="form-group">
+            <label for="research_domain_title_textbox">Title</label>
+            <input type="text"
+                   class="form-control"
+                   id="research_domain_title_textbox"
+                   placeholder="Enter title"
+                   ng-model="research_domain.dcterms.title">
+        </div>
+        <div class="form-group">
+            <label for="research_domain_description_textbox">Description</label>
+            <input type="text"
+                   class="form-control"
+                   id="research_domain_description_textbox"
+                   placeholder="Enter description"
+                   ng-model="research_domain.dcterms.description">
+        </div>
+
+        <a class="btn btn-small remove-research-domain-button pull-right"
+           ng-hide="research_domain.not_saved"
+           ng-click="remove_research_domain($index)"
+           onclick="return false;"
+           onmouseover="$(this).toggleClass('btn-danger');"
+           onmouseout="$(this).toggleClass('btn-danger');">
+            <i class="glyphicon glyphicon-remove"></i>Delete
+        </a>
+
+        <a class="btn btn-small btn-default pull-right"
+           ng-show="research_domain.not_saved"
+           ng-click="remove_research_domain($index)"
+           onclick="return false;"
+           onmouseover="$(this).toggleClass('btn-warning');"
+           onmouseout="$(this).toggleClass('btn-warning');">
+            <i class="glyphicon glyphicon-remove"></i>Cancel
+        </a>
+    </div>
+</div>

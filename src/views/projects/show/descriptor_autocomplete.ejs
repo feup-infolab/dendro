@@ -1,0 +1,19 @@
+<!--<pre>Model: {{asyncSelected | json}}</pre> -->
+
+<input type="text"
+       ng-model="asyncSelected"
+       placeholder="Search for descriptor..."
+       uib-typeahead="result.label for result in get_descriptors_by_text_search($viewValue)"
+       typeahead-template-url="/app/views/projects/show/partials/ac_template.html"
+       typeahead-show-hint="true"
+       typeahead-min-length="2"
+       typeahead-loading="loadingDescriptors"
+       typeahead-wait-ms="400"
+       typeahead-no-results="noResults"
+       typeahead-on-select="select_descriptor_from_autocomplete($item, $model, $label)"
+       class="form-control autocomplete-width">
+
+<i ng-show="loadingDescriptors" class="glyphicon glyphicon-refresh">Searching descriptors...</i>
+<div ng-show="noResults">
+    <i class="glyphicon glyphicon-remove"></i> No Results Found
+</div>

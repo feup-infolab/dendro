@@ -1,0 +1,46 @@
+	<%- include ../layout/header.ejs %>
+        <%- include ../layout/pagination/start.ejs %>
+
+            <% if(!(typeof locals.users === 'undefined'))
+            {
+            %>
+                <br/>
+                <table class="table">
+                    <tr>
+                        <th>
+                            Username
+                        </th>
+                        <th>
+                            First Name
+                        </th>
+                        <th>
+                            Surname
+                        </th>
+                    </tr>
+                <% for(var i=0; i < locals.users.length; i++)
+                {
+                    var user = locals.users[i];
+                %>
+                <tr>
+                    <td>
+                        <b>
+                            <a href="/user/<%=user.ddr.username%>"><%= user.ddr.username %></a>
+                        </b>
+                    </td>
+                    <td>
+                        <%= user.foaf.firstName %>
+                    </td>
+                    <td>
+                        <b><%= user.foaf.surname %></b>
+                    </td>
+                </tr>
+
+            <% } %>
+
+            </table>
+
+        <% } %>
+
+	<%- include ../layout/pagination/end.ejs %>
+
+	<%- include ../layout/footer.ejs %>

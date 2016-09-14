@@ -1,0 +1,36 @@
+<h1 class="page-header">Connect to a CKAN repository</h1>
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.dcterms.title}">
+    <label for="new_ckan_repository_title">Label</label>
+    <input type="text" ng-model="new_repository.dcterms.title" class="form-control" id="new_ckan_repository_title" placeholder="Title" required>
+    <p class="help-block">This will be used to label these credentials and address as one of your favorite repositories</p>
+    <span ng-show="new_repository.dcterms.title" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.dcterms.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
+</div>
+
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)}">
+    <label for="new_ckan_repository_url">External repository address</label>
+    <input type="text" ng-model="new_repository.ddr.hasExternalUrl" class="form-control" id="new_ckan_repository_url" placeholder="External repository address" required>
+    <p class="help-block">The base address of the repository you wish to upload to. Example: <a href="http://demo.ckan.org">http://demo.ckan.org</a> .</p>
+    <span ng-show="new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+</div>
+
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasUsername}">
+    <label for="ckan_username">Username</label>
+    <input type="text" ng-model="new_repository.ddr.hasUsername" class="form-control" id="ckan_username" placeholder="CKAN username" required>
+    <p class="help-block">The username you use in the target CKAN repository. </p>
+    <span ng-show="new_repository.ddr.hasUsername" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.hasUsername" class="glyphicon glyphicon-remove form-control-feedback"></span>
+</div>
+
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasOrganization}">
+    <label for="ckan_organization">Organization</label>
+    <input type="text" ng-model="new_repository.ddr.hasOrganization" class="form-control" id="ckan_organization" placeholder="CKAN organization" required>
+    <p class="help-block">Your Organization in the target CKAN repository (example: For the repository http://dendro-prd.fe.up.pt:5000/organization/<b>infolab-devs</b>, it is <b>infolab-devs</b>) .</p>
+    <span ng-show="new_repository.ddr.hasOrganization" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!new_repository.ddr.hasOrganization" class="glyphicon glyphicon-remove form-control-feedback"></span>
+</div>
+
+<button type="cancel" ng-click="clear_repository_type()" class="btn">Cancel</button>
+<button type="submit" ng-click="create_new_repository_bookmark(new_repository)" class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg"></i>Save new bookmark</button>

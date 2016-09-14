@@ -1,0 +1,69 @@
+<link rel="stylesheet" href="/stylesheets/share_bar.css" />
+
+<div class="btn-group">
+    <button
+            class="btn btn-default disabled"
+            >
+        Share:
+    </button>
+
+    <a
+            class="btn btn-default"
+            target="_blank"
+            title="Like On Facebook"
+            href="http://www.facebook.com/plugins/like.php?href={{currentUrl}}"
+            >
+        <i class="fa fa-thumbs-o-up fa-lg fb"></i>
+    </a>
+
+    <a
+            class="btn btn-default google-plus-one"
+            target="_blank"
+            title="+1 On Google"
+            href="https://apis.google.com/_/+1/fastbutton?usegapi=1&size=normal&hl=en&url={{currentUrl}}"
+            >
+        <i class="fa fa-google-plus fa-2x google"></i><span class="google">1</span>
+    </a>
+
+    <a
+            class="btn btn-default"
+            target="_blank"
+            title="On Facebook"
+            href="http://www.facebook.com/sharer.php?u={{currentUrl}}&t=My%20Dendro%20Project"
+            >
+        <i class="fa fa-facebook fa-lg fb"></i>
+    </a>
+
+    <a
+            class="btn btn-default"
+            target="_blank"
+            title="On Twitter"
+            href="http://twitter.com/share?url={{currentUrl}}&text=My%20Dendro%20Project"
+            >
+        <i class="fa fa-twitter fa-lg tw"></i>
+    </a>
+
+    <a
+            class="btn btn-default"
+            target="_blank"
+            title="On Google Plus"
+            href="https://plusone.google.com/_/+1/confirm?hl=en&url={{currentUrl}}"
+            >
+        <i class="fa fa-google-plus fa-lg google"></i>
+    </a>
+
+    <a
+            class="btn btn-default"
+            target="_blank"
+            title="On LinkedIn"
+            href="http://www.linkedin.com/shareArticle?mini=true&url={{currentUrl}}"
+            >
+        <i class="fa fa-linkedin fa-lg linkin"></i>
+    </a>
+
+    <a href="mailto:{{share_email_destination}}?subject=Dendro%20Project&amp;body=Check%20out%20my%20Dendro%20Project%20at%20{{currentUrl}}"
+       class="btn btn-default">
+        <i class="fa fa-envelope fa-lg mail"></i>Email
+    </a>
+
+</div>

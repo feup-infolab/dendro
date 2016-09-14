@@ -1,0 +1,20 @@
+	<%- include ../layout/header.ejs %>
+        <%- include ../layout/pagination/start.ejs %>
+
+        <table>
+        <% for(var i=0;i < vertexes.length; i++) { %>
+        <tr>
+            <td>
+                <b>
+                    <a href="/vertexes/show?vertex_uri=<%=encodeURI(vertexes[i].s)%>"><%= vertexes[i].s %></a>
+                </b>
+            </td>
+        </tr>
+
+        <% } %>
+
+	    </table>
+
+    <%- include ../layout/pagination/end.ejs %>
+
+<%- include ../layout/footer.ejs %>

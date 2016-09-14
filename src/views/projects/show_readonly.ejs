@@ -1,0 +1,17 @@
+<%- include ../layout/header.ejs %>
+
+
+<!--&nbsp;-->
+<div class="container" ng-controller="projectEditorCtrl" ng-init="init()">
+    <div class="row">
+        <div class="col-lg-9">
+            <%- include show/breadcrumbs.ejs %>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12">
+            <%- include show/file_explorer.ejs %>
+        </div>
+    </div>
+</div>

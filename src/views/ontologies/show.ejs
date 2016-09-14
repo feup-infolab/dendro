@@ -1,0 +1,37 @@
+<%- include ../layout/header.ejs %>
+
+<h1 class="page-header">
+    Viewing ontology <%= ontology.ddr.prefix %> (<%= ontology.uri %>)
+</h1>
+
+<br/>
+
+<table class="table">
+    <tr>
+        <td>
+            <b>Uri</b>
+        </td>
+        <td>
+            <%= ontology.uri %>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>Prefix</b>
+        </td>
+        <td>
+            <%= ontology.ddr.hasPrefix %>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>Domain (s)</b>
+        </td>
+        <td>
+            <%= ontology.ddr.hasResearchDomain %>
+        </td>
+    </tr>
+</table>
+
+
+<%- include ../layout/footer.ejs %>

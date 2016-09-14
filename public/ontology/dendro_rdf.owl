@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:p2="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/nfo_data.rdfs#"
+    xmlns:protege="http://protege.stanford.edu/plugins/owl/protege#"
+    xmlns:p1="http://www.semanticdesktop.org/ontologies/2007/01/19/nie/nie_data.rdfs#"
+    xmlns:xsp="http://www.owl-ontologies.com/2005/08/07/xsp.owl#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns:swrl="http://www.w3.org/2003/11/swrl#"
+    xmlns:swrlb="http://www.w3.org/2003/11/swrlb#"
+    xmlns:ddr="http://dendro.fe.up.pt/ontology/0.1/"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xml:base="http://dendro.fe.up.pt/ontology/0.1/">
+  <owl:Ontology rdf:about="">
+    <owl:imports rdf:resource="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo/nfo_data.rdfs"/>
+    <owl:imports rdf:resource="http://www.semanticdesktop.org/ontologies/2007/01/19/nie/nie_data.rdfs"/>
+    <owl:imports rdf:resource="http://xmlns.com/foaf/0.1/"/>
+    <owl:imports rdf:resource="http://protege.stanford.edu/plugins/owl/dc/protege-dc.owl"/>
+  </owl:Ontology>
+  <rdfs:Class rdf:about="http://dendro.fe.up.pt/ontology/0.1/Project">
+    <rdfs:subClassOf>
+      <rdfs:Class rdf:about="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+    </rdfs:subClassOf>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://dendro.fe.up.pt/ontology/0.1/HarvestedResource">
+    <rdfs:subClassOf rdf:resource="http://www.w3.org/2000/01/rdf-schema#Resource"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://www.semanticdesktop.org/ontologies/2007/03/22/nco#Contact"/>
+  <rdfs:Class rdf:about="http://dendro.fe.up.pt/ontology/0.1/Researcher">
+    <rdfs:subClassOf rdf:resource="http://xmlns.com/foaf/0.1/Person"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://dendro.fe.up.pt/ontology/0.1/Repository">
+    <rdfs:subClassOf rdf:resource="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Website"/>
+  </rdfs:Class>
+  <rdfs:Class rdf:about="http://dendro.fe.up.pt/ontology/0.1/ExternalRepository">
+    <rdfs:subClassOf rdf:resource="http://dendro.fe.up.pt/ontology/0.1/Repository"/>
+  </rdfs:Class>
+  <owl:ObjectProperty rdf:about="http://dendro.fe.up.pt/ontology/0.1/rootFolder">
+    <rdfs:range rdf:resource="http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder"/>
+    <rdfs:domain rdf:resource="http://dendro.fe.up.pt/ontology/0.1/Project"/>
+  </owl:ObjectProperty>
+  <rdf:Property rdf:about="http://purl.org/dc/terms/license"/>
+  <rdf:Property rdf:about="http://dendro.fe.up.pt/ontology/0.1/handle">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:subPropertyOf rdf:resource="http://purl.org/dc/elements/1.1/identifier"/>
+    <rdfs:domain rdf:resource="http://dendro.fe.up.pt/ontology/0.1/Project"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://www.semanticdesktop.org/ontologies/2007/08/15/nao#identifier"/>
+  <rdf:Property rdf:about="http://www.semanticdesktop.org/ontologies/2007/03/22/nco#creator"/>
+  <rdf:Property rdf:about="http://dendro.fe.up.pt/ontology/0.1/username">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://dendro.fe.up.pt/ontology/0.1/Researcher"/>
+    <rdfs:subPropertyOf rdf:resource="http://purl.org/dc/elements/1.1/identifier"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://dendro.fe.up.pt/ontology/0.1/last_harvested">
+    <rdfs:subPropertyOf rdf:resource="http://www.semanticdesktop.org/ontologies/2007/01/19/nie#lastRefreshed"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://dendro.fe.up.pt/ontology/0.1/password">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://dendro.fe.up.pt/ontology/0.1/Researcher"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://dendro.fe.up.pt/ontology/0.1/md5_checksum">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:subPropertyOf>
+      <rdf:Property rdf:about="http://dendro.fe.up.pt/ontology/0.1/checksum"/>
+    </rdfs:subPropertyOf>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/dc/terms/created"/>
+  <rdf:Property rdf:about="http://purl.org/dc/terms/creator"/>
+  <rdf:Property rdf:about="http://dendro.fe.up.pt/ontology/0.1/text_content">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:domain rdf:resource="http://www.semanticdesktop.org/ontologies/2007/01/19/nie#InformationElement"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://dendro.fe.up.pt/ontology/0.1/checksum">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
+    <rdfs:comment xml:lang="en">The file checksum of a given resource.</rdfs:comment>
+    <rdfs:label rdf:datatype="http://www.w3.org/2001/XMLSchema#string"
+    >File Checksum</rdfs:label>
+    <rdfs:domain rdf:resource="http://www.semanticdesktop.org/ontologies/2007/01/19/nie#InformationElement"/>
+  </rdf:Property>
+  <rdf:Property rdf:about="http://purl.org/dc/terms/accessRights"/>
+  <rdf:Property rdf:about="http://purl.org/dc/terms/hasVersion"/>
+  <rdf:Property rdf:about="http://purl.org/dc/terms/isPartOf"/>
+  <rdf:Property rdf:about="http://purl.org/dc/terms/hasPart"/>
+</rdf:RDF>
+
+<!-- Created with Protege (with OWL Plugin 3.5, Build 663)  http://protege.stanford.edu -->

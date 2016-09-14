@@ -1,0 +1,25 @@
+ola ola sou uma timeline
+
+<div ng-controller="timelineCtrl" ng-init="init()">
+
+    <div class="wall">
+        <label for="new_post_box">Novo post:</label>
+        <input ng-model="new_post_content" type="text" id="new_post_box"/>
+        <a ng-click="new_post()" class="btn btn-default btn-primary">Enviar</a>
+    </div>
+
+    <br/>
+
+    <div ng-repeat="post in posts">
+        Autor : {{post.dcterms.creator}}
+
+        <br/>
+
+        Conteúdo : {{post.ddr.hasContent}}
+
+        <br/>
+        <br/>
+        <br/>
+    </div>
+
+</div>

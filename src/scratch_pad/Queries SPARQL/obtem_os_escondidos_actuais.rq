@@ -1,0 +1,78 @@
+SELECT * 
+{ 
+	{ 
+		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden 
+		WHERE 
+		{ 
+			?hidden_descriptor rdfs:label ?label.  
+			?hidden_descriptor rdfs:comment ?comment.  
+			FILTER(    (str(?label) != "") && ( str(?comment) != "") ).  
+			FILTER(   lang(?label) = "" || lang(?label) = "en") .  
+			FILTER(   lang(?comment) = "" || lang(?comment) = "en")   
+			 
+			{ 
+				SELECT ?hidden_descriptor MAX(?date_hidden) as ?last_hidden 
+				FROM <http://127.0.0.1:3001/dendro_graph>  
+				WHERE  
+				{  
+				   	?hide_interaction rdf:type ddr:Interaction. 
+				   	?hide_interaction ddr:executedOver ?hidden_descriptor. 
+				   	?hide_interaction ddr:interactionType "hide_descriptor_from_quick_list". 
+				   	?hide_interaction ddr:performedBy <http://127.0.0.1:3001/user/jrocha> .  
+				   	?hide_interaction dcterms:created ?date_hidden. 
+					FILTER NOT EXISTS 
+					{ 
+						SELECT ?unhide_interaction MAX(?date_unhidden) as ?last_unhidden 
+						FROM <http://127.0.0.1:3001/dendro_graph>  
+						WHERE  
+						{  
+				   			?unhide_interaction rdf:type ddr:Interaction. 
+				   			?unhide_interaction ddr:executedOver ?hidden_descriptor. 
+				   			?unhide_interaction ddr:interactionType "unhide_descriptor_from_quick_list". 
+				   			?unhide_interaction ddr:performedBy <http://127.0.0.1:3001/user/jrocha> .  
+				   			?unhide_interaction dcterms:created ?date_unhidden. 
+						} 
+					} 
+				} 
+			} 
+		} 
+	} 
+	UNION 
+	{ 
+		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden 
+		WHERE 
+		{ 
+			?hidden_descriptor rdfs:label ?label.  
+			?hidden_descriptor rdfs:comment ?comment.  
+			FILTER(    (str(?label) != "") && ( str(?comment) != "") ).  
+			FILTER(   lang(?label) = "" || lang(?label) = "en") .  
+			FILTER(   lang(?comment) = "" || lang(?comment) = "en")   
+			 
+			{ 
+				SELECT ?hidden_descriptor MAX(?date_hidden) as ?last_hidden 
+				FROM <http://127.0.0.1:3001/dendro_graph>  
+				WHERE  
+				{  
+				   	?hide_interaction rdf:type ddr:Interaction. 
+				   	?hide_interaction ddr:executedOver ?hidden_descriptor. 
+				   	?hide_interaction ddr:interactionType "hide_descriptor_from_quick_list" . 
+				   	?hide_interaction ddr:performedBy <http://127.0.0.1:3001/user/jrocha> .  
+				   	?hide_interaction dcterms:created ?date_hidden. 
+				} 
+			}. 
+			{ 
+				SELECT ?hidden_descriptor MAX(?date_unhidden) as ?last_unhidden 
+				FROM <http://127.0.0.1:3001/dendro_graph>  
+				WHERE  
+				{  
+				   	?unhide_interaction rdf:type ddr:Interaction. 
+				   	?unhide_interaction ddr:executedOver ?hidden_descriptor. 
+				   	?unhide_interaction ddr:interactionType "unhide_descriptor_from_quick_list". 
+				   	?unhide_interaction ddr:performedBy <http://127.0.0.1:3001/user/jrocha> .  
+				   	?unhide_interaction dcterms:created ?date_unhidden. 
+				} 
+			} 
+		   	FILTER(bound(?last_unhidden) && ?last_hidden > ?last_unhidden) 
+		} 
+	} 
+} 

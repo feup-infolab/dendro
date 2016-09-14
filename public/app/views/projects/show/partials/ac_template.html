@@ -1,0 +1,11 @@
+<a>
+    <div class="autocomplete-width">
+        <b>
+            <span ng-bind-html="match.model.label | uibTypeaheadHighlight:query"></span>
+        </b>
+        <br/>
+        <small>
+            <span ng-bind-html="match.model.comment | uibTypeaheadHighlight:query"></span>
+        </small>
+    </div>
+</a>

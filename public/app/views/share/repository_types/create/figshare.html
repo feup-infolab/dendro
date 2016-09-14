@@ -1,0 +1,137 @@
+<h1 class="page-header">Connect to a Figshare repository</h1>
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+    <li class="active"><a href="#new_repository_figshare_informations" role="tab" data-toggle="tab">Figshare Information</a></li>
+    <li><a href="#new_repository_figshare_tutorial" role="tab" data-toggle="tab">Tutorial</a></li>
+</ul>
+
+<!-- Tab panes -->
+<div class="tab-content">
+    <div class="tab-pane active" id="new_repository_figshare_informations">
+
+        <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.dcterms.title}">
+            <label for="new_figshare_repository_title">Label</label>
+            <input type="text" ng-model="new_repository.dcterms.title" class="form-control" id="new_figshare_repository_title" placeholder="Title" required>
+            <p class="help-block">This will be used to label these credentials and address as one of your favorite repositories</p>
+            <span ng-show="new_repository.dcterms.title" class="glyphicon glyphicon-ok form-control-feedback"></span>
+            <span ng-show="!new_repository.dcterms.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
+        </div>
+
+        <div class="control-group has-feedback" ng-init="new_repository.ddr.hasExternalUrl = new_repository_type.foaf.homepage" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)}">
+            <label for="new_figshare_repository_url">External repository address</label>
+            <input type="text" ng-model="new_repository.ddr.hasExternalUrl"  value="" class="form-control" id="new_figshare_repository_url" placeholder="External Repository Address"  required disabled >
+            <p class="help-block">The base address of the repository you wish to upload to.</p>
+            <span ng-show="new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
+            <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>
+            <span ng-show="new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+        </div>
+
+        <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasConsumerKey}">
+            <label for="figshare_consumer_key">Consumer Key</label>
+            <input type="text" ng-model="new_repository.ddr.hasConsumerKey" class="form-control" id="figshare_consumer_key" placeholder="Figshare consumer key" required>
+            <p class="help-block">The consumer key of an application in Figshare repository. </p>
+            <span ng-show="new_repository.ddr.hasConsumerKey" class="glyphicon glyphicon-ok form-control-feedback"></span>
+            <span ng-show="!new_repository.ddr.hasConsumerKey" class="glyphicon glyphicon-remove form-control-feedback"></span>
+        </div>
+
+        <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasConsumerSecret}">
+            <label for="figshare_consumer_secret">Consumer Secret</label>
+            <input type="text" ng-model="new_repository.ddr.hasConsumerSecret" class="form-control" id="figshare_consumer_secret" placeholder="Figshare consumer secret" required>
+            <p class="help-block">The consumer secret of an application in Figshare repository. </p>
+            <span ng-show="new_repository.ddr.hasConsumerSecret" class="glyphicon glyphicon-ok form-control-feedback"></span>
+            <span ng-show="!new_repository.ddr.hasConsumerSecret" class="glyphicon glyphicon-remove form-control-feedback"></span>
+        </div>
+
+        <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasAccessToken}">
+            <label for="figshare_access_token">Access Token</label>
+            <input type="text" ng-model="new_repository.ddr.hasAccessToken" class="form-control" id="figshare_access_token" placeholder="Figshare access token" required>
+            <p class="help-block">The access token of an application in Figshare repository. </p>
+            <span ng-show="new_repository.ddr.hasAccessToken" class="glyphicon glyphicon-ok form-control-feedback"></span>
+            <span ng-show="!new_repository.ddr.hasAccessToken" class="glyphicon glyphicon-remove form-control-feedback"></span>
+        </div>
+
+        <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasAccessTokenSecret}">
+            <label for="figshare_access_token_secret">Access Token Secret</label>
+            <input type="text" ng-model="new_repository.ddr.hasAccessTokenSecret" class="form-control" id="figshare_access_token_secret" placeholder="Figshare access token secret" required>
+            <p class="help-block">The access token secret of an application in Figshare repository. </p>
+            <span ng-show="new_repository.ddr.hasAccessTokenSecret" class="glyphicon glyphicon-ok form-control-feedback"></span>
+            <span ng-show="!new_repository.ddr.hasAccessTokenSecret" class="glyphicon glyphicon-remove form-control-feedback"></span>
+        </div>
+
+        <button type="cancel" ng-click="clear_repository_type()" class="btn">Cancel</button>
+        <button type="submit" ng-click="create_new_repository_bookmark(new_repository)" class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg"></i>Save new bookmark</button>
+    </div>
+    <div class="tab-pane" id="new_repository_figshare_tutorial">
+        <div id="carousel-tutorial" class="carousel slide" data-ride="carousel">
+            <!-- Indicators -->
+            <ol class="carousel-indicators">
+                <li data-target="#carousel-tutorial" data-slide-to="0" class="active"></li>
+                <li data-target="#carousel-tutorial" data-slide-to="1"></li>
+                <li data-target="#carousel-tutorial" data-slide-to="2"></li>
+                <li data-target="#carousel-tutorial" data-slide-to="3"></li>
+                <li data-target="#carousel-tutorial" data-slide-to="4"></li>
+                <li data-target="#carousel-tutorial" data-slide-to="5"></li>
+                <li data-target="#carousel-tutorial" data-slide-to="6"></li>
+            </ol>
+
+            <!-- Wrapper for slides -->
+            <div class="carousel-inner">
+                <div class="item active">
+                    <img alt="First slide" ng-src="{{getBaseURL()}}/images/share_tutorial/figshare/1.jpg">
+                    <div class="carousel-caption">
+                        <h3>Login with a Figshare account</h3>
+                    </div>
+                </div>
+                <div class="item">
+                    <img alt="Second slide" ng-src="{{getBaseURL()}}/images/share_tutorial/figshare/2.jpg">
+                    <div class="carousel-caption">
+                        <h3>Access Applications Area</h3>
+                    </div>
+                </div>
+                <div class="item">
+                    <img alt="Third slide" ng-src="{{getBaseURL()}}/images/share_tutorial/figshare/3.jpg">
+                    <div class="carousel-caption">
+                        <h3>Create a new application</h3>
+                    </div>
+                </div>
+                <div class="item">
+                    <img alt="Fourth slide" ng-src="{{getBaseURL()}}/images/share_tutorial/figshare/4.jpg">
+                    <div class="carousel-caption">
+                        <h3>Fill all application details</h3>
+                    </div>
+                </div>
+                <div class="item">
+                    <img alt="Fifth slide" ng-src="{{getBaseURL()}}/images/share_tutorial/figshare/5.jpg">
+                    <div class="carousel-caption">
+                        <h3>Assign access permissions and save changes</h3>
+                    </div>
+                </div>
+                <div class="item">
+                    <img alt="Sixth slide" ng-src="{{getBaseURL()}}/images/share_tutorial/figshare/6.jpg">
+                    <div class="carousel-caption">
+                        <h3>Click 'View/Edit'</h3>
+                    </div>
+                </div>
+                <div class="item">
+                    <img alt="Seventh slide" ng-src="{{getBaseURL()}}/images/share_tutorial/figshare/7.jpg">
+                    <div class="carousel-caption">
+                        <h3>Use generated access codes to create your bookmark</h3>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Controls -->
+            <a class="left carousel-control" href="#carousel-tutorial" role="button" data-slide="prev">
+                <span class="glyphicon glyphicon-chevron-left"></span>
+            </a>
+            <a class="right carousel-control" href="#carousel-tutorial" role="button" data-slide="next">
+                <span class="glyphicon glyphicon-chevron-right"></span>
+            </a>
+        </div>
+    </div>
+</div>
+
+
+

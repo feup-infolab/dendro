@@ -1,0 +1,56 @@
+<%- include ../layout/header.ejs %>
+
+<div class="content" ng-controller="ontologiesCtrl">
+    <h1 class="header">
+        Descriptor Sets
+    </h1>
+
+    <div class="alert alert-info" ng-if="getting_ontologies == false && public_ontologies.length == 0">
+        There are no ontologies in this Dendro instance.
+    </div>
+
+    <div class="alert alert-info" ng-if="getting_ontologies" >
+        Fetching list of descriptor sets...
+    </div>
+
+    <table class="table table-striped" ng-if="getting_ontologies == false && all_ontologies.length > 0" style="table-layout:fixed">
+        <tr>
+            <th style="width:10%">
+                Prefix
+            </th>
+            <th style="width:30%">
+                URI
+            </th>
+            <th style="width:30%">
+                Description
+            </th>
+            <th style="width:30%">
+                Research Domains
+            </th>
+        </tr>
+
+        <tr ng-repeat="ontology in all_ontologies">
+            <td style="width:10%; word-wrap:break-word">
+                <b>
+                    <a href="/ontology/{{ontology.prefix}}">{{ontology.prefix}}</a>
+                </b>
+            </td>
+            <td style="width:30%; word-wrap:break-word">
+                <b>
+                    <a href="{{ontology.uri}}">{{ontology.uri}}</a>
+                </b>
+            </td>
+            <td style="width:30%; word-wrap:break-word">
+                <input
+                        type="text"
+                        class="form-control inputbox"
+                        ng-model="ontology.description">
+            </td>
+            <td style="width:30%; word-wrap:break-word">
+                <tags-input ng-model="ontology.domain"></tags-input>
+            </td>
+        </tr>
+    </table>
+</div>
+
+<%- include ../layout/footer.ejs %>

@@ -1,0 +1,197 @@
+#data-viewer {
+  border-style: solid;
+  border-color: #d3d3d3;
+  padding: 1em;
+  border-width: 1px 0px 1px 0px;
+}
+#data-viewer .recline-data-explorer {
+  font-size: 0.75em;
+}
+#data-viewer .recline-data-explorer a {
+  color: #000;
+}
+#data-viewer .recline-data-explorer .pagination {
+  margin: 20px 0;
+}
+#data-viewer .recline-data-explorer .pagination .action-pagination-update a {
+  background-color: #e6e6e6;
+}
+#data-viewer .recline-data-explorer .pagination ul {
+  display: inline-block;
+  margin-bottom: 0;
+  margin-left: 0;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  -moz-box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+#data-viewer .recline-data-explorer .pagination ul > li {
+  display: inline;
+}
+#data-viewer .recline-data-explorer li {
+  line-height: 20px;
+}
+#data-viewer .recline-data-explorer textarea,
+#data-viewer .recline-data-explorer input[type="text"],
+#data-viewer .recline-data-explorer input[type="password"],
+#data-viewer .recline-data-explorer input[type="datetime"],
+#data-viewer .recline-data-explorer input[type="datetime-local"],
+#data-viewer .recline-data-explorer input[type="date"],
+#data-viewer .recline-data-explorer input[type="month"],
+#data-viewer .recline-data-explorer input[type="time"],
+#data-viewer .recline-data-explorer input[type="week"],
+#data-viewer .recline-data-explorer input[type="number"],
+#data-viewer .recline-data-explorer input[type="email"],
+#data-viewer .recline-data-explorer input[type="url"],
+#data-viewer .recline-data-explorer input[type="search"],
+#data-viewer .recline-data-explorer input[type="tel"],
+#data-viewer .recline-data-explorer input[type="color"],
+#data-viewer .recline-data-explorer .uneditable-input {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+  -moz-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+  -webkit-transition: border linear 0.2s, box-shadow linear 0.2s;
+  -moz-transition: border linear 0.2s, box-shadow linear 0.2s;
+  -o-transition: border linear 0.2s, box-shadow linear 0.2s;
+  transition: border linear 0.2s, box-shadow linear 0.2s;
+}
+#data-viewer .recline-data-explorer select,
+#data-viewer .recline-data-explorer textarea,
+#data-viewer .recline-data-explorer input[type="text"],
+#data-viewer .recline-data-explorer input[type="password"],
+#data-viewer .recline-data-explorer input[type="datetime"],
+#data-viewer .recline-data-explorer input[type="datetime-local"],
+#data-viewer .recline-data-explorer input[type="date"],
+#data-viewer .recline-data-explorer input[type="month"],
+#data-viewer .recline-data-explorer input[type="time"],
+#data-viewer .recline-data-explorer input[type="week"],
+#data-viewer .recline-data-explorer input[type="number"],
+#data-viewer .recline-data-explorer input[type="email"],
+#data-viewer .recline-data-explorer input[type="url"],
+#data-viewer .recline-data-explorer input[type="search"],
+#data-viewer .recline-data-explorer input[type="tel"],
+#data-viewer .recline-data-explorer input[type="color"],
+#data-viewer .recline-data-explorer .uneditable-input {
+  display: inline-block;
+  height: 20px;
+  padding: 4px 6px;
+  font-size: 14px;
+  line-height: 20px;
+  color: #555;
+  vertical-align: middle;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  width: 3em;
+}
+#data-viewer .recline-data-explorer select,
+#data-viewer .recline-data-explorer input[type="file"] {
+  height: 30px;
+  line-height: 30px;
+}
+#data-viewer .recline-data-explorer select {
+  width: 100%;
+  background-color: #fff;
+  border: 1px solid #ccc;
+}
+#data-viewer .recline-data-explorer .pagination ul > li:last-child > a,
+#data-viewer .recline-data-explorer .pagination ul > li:last-child > span {
+  -webkit-border-top-right-radius: 4px;
+  border-top-right-radius: 4px;
+  -webkit-border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+  -moz-border-radius-topright: 4px;
+  -moz-border-radius-bottomright: 4px;
+}
+#data-viewer .recline-data-explorer .text-query {
+  display: inline-block;
+}
+#data-viewer .recline-data-explorer .text-query input {
+  display: block;
+  width: 100%;
+  height: 34px;
+  padding: 6px 12px;
+  font-size: 14px;
+  line-height: 1.42857143;
+  color: #555;
+  background-color: #fff;
+  background-image: none;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,0.075);
+  -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+  transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+}
+#data-viewer .recline-data-explorer .btn {
+  background-color: #e6e6e6;
+  color: #000;
+  text-decoration: none;
+}
+#data-viewer .recline-data-explorer .pagination a {
+  line-height: 26px;
+  padding: 0 6px;
+}
+#data-viewer .recline-data-explorer .pagination ul > li:first-child > a,
+#data-viewer .recline-data-explorer .pagination ul > li:first-child > span {
+  border-left-width: 1px;
+  -webkit-border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+  -webkit-border-top-left-radius: 4px;
+  border-top-left-radius: 4px;
+  -moz-border-radius-bottomleft: 4px;
+  -moz-border-radius-topleft: 4px;
+}
+#data-viewer .recline-data-explorer .pagination ul > li > a,
+#data-viewer .recline-data-explorer .pagination ul > li > span {
+  float: left;
+  padding: 4px 12px;
+  line-height: 20px;
+  text-decoration: none;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  border-left-width: 0;
+}
+#data-viewer .recline-data-explorer .recline-slickgrid {
+  overflow: auto !important;
+  max-height: 500px;
+}
+#data-viewer .recline-data-explorer .slick-viewport {
+  overflow-y: visible !important;
+  overflow-x: visible !important;
+}
+#data-viewer .recline-data-explorer .slick-header {
+  overflow: visible !important;
+}
+#data-viewer .recline-data-explorer .slick-header-column {
+  height: 2em;
+}
+#data-viewer .recline-data-explorer .alert-block {
+  background-image: -webkit-linear-gradient(top, #d9edf7 0, #b9def0 100%);
+  background-image: linear-gradient(to bottom, #d9edf7 0, #b9def0 100%);
+  background-repeat: repeat-x;
+  border-color: #9acfea;
+}
+#data-viewer #text-file-content {
+  max-height: 500px;
+  overflow: auto;
+}
+#data-viewer #image-file-preview,
+#data-viewer #audio-file-preview {
+  max-height: 500px;
+  margin: 0 auto;
+  display: block;
+}
+#data-viewer #video-file-preview {
+  height: 500px;
+  margin: 0 auto;
+  display: block;
+}
+#data-viewer #pdf-file-preview {
+  width: 100%;
+  height: 500px;
+}

@@ -1,0 +1,86 @@
+<script src='/js/jQueryFileUpload/js/vendor/jquery.ui.widget.js'></script>
+<script src='/js/jQueryFileUpload/js/jquery.iframe-transport.js'></script>
+<script src='/js/jQueryFileUpload/js/jquery.fileupload.js'></script>
+
+
+
+
+<ul class="list-group" id="file_explorer_area">
+        <%if(locals.breadcrumbs != null && locals.breadcrumbs.length > 1)
+        {
+        %>
+            <a href="#" ng-click="go_up_in_folder_explorer()" class="list-group-item">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h7 class="list-group-item-heading">
+                            <table class="explorer-table">
+                                <tr>
+                                    <td>
+                                        <%if(locals.breadcrumbs[0].show_home)
+                                        {
+                                        %>
+                                            <img src="/images/icons/house.png"/>
+                                        <%
+                                        }
+                                        else
+                                        {
+                                        %>
+                                            <img src="/images/icons/extensions/folder-up.png"/>
+                                        <%
+                                        }
+                                        %>
+
+                                    </td>
+                                    <td class="filename-tablecell">
+                                        Up to <%=locals.breadcrumbs[locals.breadcrumbs.length-2].title%>
+                                    </td>
+                                </tr>
+                            </table>
+                        </h7>
+                    </div>
+                </div>
+            </a>
+        <%
+        }
+        %>
+
+        <script type="text/javascript">
+            function noIcon(image){
+                var requestedDefaultImage;
+                if(requestedDefaultImage == false)
+                {
+                    image.src = "/images/icons/file.png";
+                    requestedDefaultImage = true;
+                }
+            }
+        </script>
+
+        <a ng-repeat="file in shared.folder_contents"
+           ng-show="shared.folder_contents != null && (!file.ddr.deleted || shared.showing_deleted_files)"
+           class="list-group-item ng-hide"
+           ng-click="clicked_file_explorer_node($index)"
+           nc-blur="clear_selected_files()"
+           ng-class="{active: file.selected}"
+           href="#">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <h7 class="list-group-item-heading">
+                            <table class="explorer-table">
+                                <tr>
+                                    <td ng-show="shared.multiple_selection_active">
+                                        <input  type="checkbox" ng-model="file.selected" multiple>
+                                    </td>
+                                    <td>
+                                        <img src="{{get_thumbnail_uri(file.uri)}}" onerror="noIcon(this);"/>
+                                    </td>
+                                    <td class="filename-tablecell">
+                                        <small>{{file.nie.title}}</small>
+                                        <span ng-show="file.ddr.deleted" class="label label-warning">Deleted</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </h7>
+                    </div>
+                </div>
+        </a>
+</ul>

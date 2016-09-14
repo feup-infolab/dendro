@@ -1,0 +1,149 @@
+<%- include ../layout/header.ejs %>
+
+<div>
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation" class="active"><a href="#list" aria-controls="home" role="tab" data-toggle="tab">Projects list</a></li>
+        <!-- <li role="presentation" class="active"><a href="#timeline" aria-controls="profile" role="tab" data-toggle="tab">Timeline</a></li> -->
+    </ul>
+    <div class="tab-content">
+        <div role="tabpanel" class="tab-pane active" id="list">
+            <h1 class="page-header">
+                Your projects
+            </h1>
+            <%- include options_head.ejs%>
+
+                    <% if(!(typeof locals.projects === 'undefined') && locals.projects instanceof Array)
+                    {
+                    %>
+                        <% if(locals.projects.length > 0)
+                        {
+                        %>
+                            <table class="table table-striped table-hover">
+
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Title</th>
+                                        <th>Description</th>
+                                        <th>Creator</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for(var i = 0; i < locals.projects.length; i++)
+                                        {
+                                        var project = locals.projects[i];
+                                    %>
+                                        <%if(!project.ddr.deleted == 1 || (locals.session != null && locals.session.user != null && locals.session.user.uri == project.dcterms.creator)) { %>
+                                            <tr
+                                                <%if(project.ddr.deleted == 1) {%>
+                                                    class="warning"
+                                                <%}%>
+                                                >
+                                                <td>
+                                                    <%=i%>
+                                                </td>
+
+                                                <td>
+                                                    <b>
+                                                        <a href="/project/<%=project.ddr.handle%>">
+                                                            <% if(project.ddr.deleted)
+                                                            {
+                                                            %>
+                                                                <s>
+                                                            <%
+                                                            }
+                                                            %>
+                                                                <%= project.dcterms.title %>
+                                                            <% if(!project.ddr.deleted)
+                                                            {
+                                                            %>
+                                                                </s>
+                                                            <%
+                                                            }
+                                                            %>
+                                                            <%if(locals.session != null && locals.session.user != null && locals.session.user.uri == project.dcterms.creator) {%>
+                                                                <span class="label label-success">Creator</span>
+                                                            <%}%>
+                                                            <%if(project.ddr.deleted == 1) {%>
+                                                                <span class="label label-danger">Deleted</span>
+                                                            <%}%>
+                                                        </a>
+                                                    </b>
+                                                </td>
+                                                <td>
+
+                                                    <% if(project.ddr.deleted)
+                                                    {
+                                                    %>
+                                                        <s>
+                                                    <%
+                                                    }
+                                                    %>
+                                                            <b><%= project.dcterms.description %>
+                                                    <% if(!project.ddr.deleted)
+                                                    {
+                                                    %>
+                                                        </s>
+                                                    <%
+                                                    }
+                                                    %>
+                                                </td>
+                                                <td>
+                                                    <b>
+                                                        <a href="<%=project.dcterms.creator%>">
+                                                            <%= project.dcterms.creator %>
+                                                        </a>
+                                                    </b>
+                                                </td>
+                                                <%
+                                                if(locals.session != null && locals.session.user != null && locals.session.user.uri == project.dcterms.creator)
+                                                {
+                                                %>
+                                                    <td>
+                                                        <a class="btn btn-sm btn-warning fa fa-cogs" href="/project/<%=project.ddr.handle%>?administer">Administer</a>
+                                                        <%
+                                                        if (project.ddr.deleted)
+                                                        {
+                                                        %>
+                                                            <form action="/project/<%=project.ddr.handle%>/undelete" method="POST">
+                                                                <button type="submit" class="btn btn-sm btn-info fa fa-undo">Show again</button>
+                                                            </form>
+                                                        <%
+                                                        } else {
+                                                        %>
+                                                            <form action="/project/<%=project.ddr.handle%>/delete" method="POST">
+                                                                <button type="submit" class="btn btn-sm btn-danger fa fa-eye-slash">Hide</button>
+                                                            </form>
+                                                        <%
+                                                        }
+                                                        %>
+                                                    </td>
+                                                <% } %>
+                                            </tr>
+                                            <% }  %>
+                                        <% } %>
+                                </tbody>
+                            </table>
+                        <% } else { %>
+                            <div class="row">
+                                <br/>
+                                <div class="col-xs-12">
+                                    <div class="alert alert-info">
+                                        You have not created any projects nor are registered as a contributor of any project.
+                                        <br/>
+                                        <br/>
+                                        Please create a project using the button you can see above this message or ask the creator of a project to add you as a contributor.
+                                    </div>
+                                </div>
+                            </div>
+                        <% }  %>
+                <% } %>
+        </div>
+        <!--<div role="tabpanel" class="tab-pane active" id="timeline">
+            <%- include ../social/timeline.ejs %>
+        </div> -->
+
+</div>
+<%- include ../layout/footer.ejs %>
+

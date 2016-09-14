@@ -1,0 +1,87 @@
+<h4 class="modal-title">Stats</h4>
+
+<div class="row col-lg-offset-1">
+    <div class="service-item">
+        <div class="row info">
+            <h4>
+                <div class="col-lg-2">
+                    <i class="service-icon fa fa-bar-chart-o"></i>
+                </div>
+                <div class="col-lg-6">
+                    <!-- Large modal -->
+                    <span class="label label-primary">{{shared.project_stats.revisions_count}}</span> Revisions
+                </div>
+            </h4>
+        </div>
+    </div>
+</div>
+<br/>
+<div class="row col-lg-offset-1">
+    <div class="service-item">
+        <div class="row">
+            <h4>
+                <div class="col-lg-2">
+                    <i class="service-icon fa fa-folder"></i>
+                </div>
+                <div class="col-lg-10">
+                    <span class="label label-primary">{{shared.project_stats.folders_count}}</span> Folders
+                </div>
+            </h4>
+        </div>
+    </div>
+</div>
+<br/>
+<div class="row col-lg-offset-1">
+    <div class="service-item">
+        <div class="row">
+            <h4>
+                <div class="col-lg-2">
+                    <i class="service-icon fa fa-file"></i>
+                </div>
+                <div class="col-lg-10">
+                    <span class="label label-primary">{{shared.project_stats.files_count}}</span> Files
+                </div>
+            </h4>
+        </div>
+    </div>
+</div>
+<br/>
+<div class="row col-lg-offset-1">
+    <div class="service-item">
+        <div class="row">
+            <h4>
+                <div class="col-lg-2">
+                    <i class="service-icon fa fa-user"></i>
+                </div>
+                <div class="col-lg-10">
+                    <span class="label label-primary">{{shared.project_stats.members_count}}</span> Members
+                </div>
+            </h4>
+        </div>
+    </div>
+</div>
+<br/>
+<div class="row col-lg-offset-1">
+    <div class="service-item">
+        <div class="row">
+            <h4>
+                <div class="col-lg-2">
+                    <i class="service-icon fa fa-tachometer"></i>
+                </div>
+                <div class="col-lg-6">
+                    Storage size used
+                </div>
+                <div class="col-lg-4">
+                    <div class="progress progress-striped">
+                        <div class="progress-bar"  role="progressbar" aria-valuenow="{{project_stats.size/project_stats.max_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{project_stats.percent_full}}%">
+                            <span class="sr-only">{{shared.project_stats.percent_full}}%</span>
+                        </div>
+                        {{shared.project_stats.percent_full}}%
+                    </div>
+                    {{shared.project_stats.size}} / {{shared.project_stats.max_size}}
+                </div>
+            </h4>
+        </div>
+    </div>
+</div>
+

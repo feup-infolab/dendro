@@ -1,0 +1,10 @@
+{
+  "name": "b2share",
+  "version": "0.0.1",
+  "main": "b2share.js",
+  "dependencies": {
+    "request": "^2.44.0"
+  }
+
+
+}

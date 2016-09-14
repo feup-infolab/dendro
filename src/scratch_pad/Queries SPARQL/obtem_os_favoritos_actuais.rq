@@ -1,0 +1,78 @@
+"SELECT * \n"+
+"{ \n"+
+"	{ \n"+
+"		SELECT ?favorited_descriptor as ?descriptor ?label ?comment ?last_favorited ?last_unfavorited \n"+
+"		WHERE \n"+
+"		{ \n"+
+"			?favorited_descriptor rdfs:label ?label.  \n"+
+"			?favorited_descriptor rdfs:comment ?comment.  \n"+
+"			FILTER(    (str(?label) != "") && ( str(?comment) != "") ).  \n"+
+"			FILTER(   lang(?label) = "" || lang(?label) = "en") .  \n"+
+"			FILTER(   lang(?comment) = "" || lang(?comment) = "en")   \n"+
+"			 \n"+
+"			{ \n"+
+"				SELECT ?favorited_descriptor MAX(?date_favorited) as ?last_favorited \n"+
+"				FROM <http://127.0.0.1:3001/dendro_graph>  \n"+
+"				WHERE  \n"+
+"				{  \n"+
+"				   	?favorite_interaction rdf:type ddr:Interaction. \n"+
+"				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n"+
+"				   	?favorite_interaction ddr:interactionType "favorite_descriptor_from_quick_list". \n"+
+"				   	?favorite_interaction ddr:performedBy <http://127.0.0.1:3001/user/jrocha> .  \n"+
+"				   	?favorite_interaction dcterms:created ?date_favorited. \n"+
+"					FILTER NOT EXISTS \n"+
+"					{ \n"+
+"						SELECT ?unfavorite_interaction MAX(?last_unfavorited) as ?last_unfavorited \n"+
+"						FROM <http://127.0.0.1:3001/dendro_graph>  \n"+
+"						WHERE  \n"+
+"						{  \n"+
+"				   			?unfavorite_interaction rdf:type ddr:Interaction. \n"+
+"				   			?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n"+
+"				   			?unfavorite_interaction ddr:interactionType "unfavorite_descriptor_from_quick_list". \n" +
+"				   			?unfavorite_interaction ddr:performedBy <http://127.0.0.1:3001/user/jrocha> .  \n" +
+"				   			?unfavorite_interaction dcterms:created ?date_unfavorited. \n" +
+"						} \n" +
+"					} \n" +
+"				} \n" +
+"			} \n" +
+"		} \n" +
+"	} \n" +
+"	UNION \n" +
+"	{ \n" +
+"		SELECT ?favorited_descriptor as ?descriptor ?label ?comment ?last_favorited ?last_unfavorited \n" +
+"		WHERE \n" +
+"		{ \n" +
+"			?favorited_descriptor rdfs:label ?label.  \n" +
+"			?favorited_descriptor rdfs:comment ?comment.  \n" +
+"			FILTER(    (str(?label) != "") && ( str(?comment) != "") ).  \n" +
+"			FILTER(   lang(?label) = "" || lang(?label) = "en") .  \n" +
+"			FILTER(   lang(?comment) = "" || lang(?comment) = "en")   \n" +
+"			 \n" +
+"			{ \n" +
+"				SELECT ?favorited_descriptor MAX(?date_favorited) as ?last_favorited \n" +
+"				FROM <http://127.0.0.1:3001/dendro_graph>  \n" +
+"				WHERE  \n" +
+"				{  \n" +
+"				   	?favorite_interaction rdf:type ddr:Interaction. \n" +
+"				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
+"				   	?favorite_interaction ddr:interactionType "favorite_descriptor_from_quick_list". \n" +
+"				   	?favorite_interaction ddr:performedBy <http://127.0.0.1:3001/user/jrocha> .  \n" +
+"				   	?favorite_interaction dcterms:created ?date_favorited. \n" +
+"				} \n" +
+"			}. \n" +
+"			{ \n" +
+"				SELECT ?favorited_descriptor MAX(?date_unfavorited) as ?last_unfavorited \n" +
+"				FROM <http://127.0.0.1:3001/dendro_graph>  \n" +
+"				WHERE  \n" +
+"				{  \n" +
+"				   	?unfavorite_interaction rdf:type ddr:Interaction. \n" +
+"				   	?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
+"				   	?unfavorite_interaction ddr:interactionType "unfavorite_descriptor_from_quick_list". \n" +
+"				   	?unfavorite_interaction ddr:performedBy <http://127.0.0.1:3001/user/jrocha> .  \n" +
+"				   	?unfavorite_interaction dcterms:created ?date_unfavorited. \n" +
+"				} \n" +
+"			} \n" +
+"		   	FILTER(bound(?last_unfavorited) && ?last_favorited > ?last_unfavorited) \n" +
+"		} \n" +
+"	} \n" +
+"} \n" +

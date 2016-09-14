@@ -1,0 +1,339 @@
+<%- include ../layout/header.ejs %>
+
+<script type="text/javascript">
+    var makeToolTipHtml = function(tooltipTitle, tooltipText)
+    {
+        return "<h4>"+tooltipTitle+"</h4>" + tooltipText;
+    }
+</script>
+<div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
+    <div class="row main-row">
+        <div class="col-md-9 col-sm-7 col-xs-6">
+            <%- include show/breadcrumbs.ejs %>
+        </div>
+
+        <%
+        if(locals.session != null && locals.session.user != null)
+        {
+        %>
+            <div class="col-md-3 col-sm-5 col-xs-6">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="btn-group">
+
+                            <button ng-click="toggle_edit_mode()"
+                                    type="button"
+                                    class="btn btn-sm"
+                                    ng-class='{"active": edit_mode, "btn-warning": edit_mode}'>
+                                <i class="fa fa-edit"></i>
+                                <span class="hidden-xs">
+                                    Edit mode <b ng-show="edit_mode">ON</b><b ng-show="!edit_mode">OFF</b>
+                                </span>
+                            </button>
+
+                            <button class="btn btn-sm" data-toggle="modal" data-target="#share-modal">
+                                <i class="fa fa-clock-o"></i>
+                                    <span class="hidden-xs">
+                                        Share
+                                    </span>
+                            </button>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-sm dropdown-toggle" type="button" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-download"></span>
+                                <span class="hidden-xs">
+                                    Save
+                                </span>
+                            </button>
+                            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                                <li><a data-ng-click="save_as('txt')" href="#">Save as Text</a></li>
+                                <li><a data-ng-click="save_as('json')"  href="#">Save as Json</a></li>
+                                <li><a data-ng-click="save_as('rdf')" href="#">Save as RDF</a></li>
+                            </ul>
+                        </div>
+
+                        <%- include share/popup.ejs %>
+
+                    </div>
+                </div>
+            </div>
+        <%
+        }else{
+        %>
+            <div class="col-md-9 col-sm-9 col-xs-9">
+                <%- include show/breadcrumbs.ejs %>
+            </div>
+        <%}%>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 col-xs-12 col-sm-3" ng-controller="fileBrowserCtrl" ng-init="init()">
+            <h4>Folder</h4>
+            <div class="row">
+                <div class="col-xs-12">
+                    <button id="new_folder_button" class="btn btn-sm fa fa-plus-square" data-loading-text="Creating folder..." ng-click="mkdir()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+                    <button id="upload_button" ng-hide="showing_project_root()" class="btn btn-sm fa fa-upload" data-loading-text="Uploading..." ng-click="toggle_upload_area()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+
+                    <button id="download_folder_button" class="btn btn-sm fa fa-download" data-loading-text="Preparing Package..." ng-click="download_folder()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+
+                    <button id="backup_button" ng-hide="showing_project_root()" class="btn btn-sm fa fa-archive" data-loading-text="Preparing Package..." ng-click="backup_folder()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+                    <button id="restore_button" ng-hide="showing_project_root()" class="btn btn-sm fa fa-undo" data-loading-text="Restoring..." ng-click="toggle_restore_area()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+
+                    <button id="show_deleted_files_button" ng-class="{active: shared.showing_deleted_files, 'btn-success': shared.showing_deleted_files}" class="btn btn-sm fa fa-eye" data-loading-text="Restoring..." ng-click="toggle_show_deleted_files()" onmouseover="$(this).addClass('btn-primary');" onmouseout="$(this).removeClass('btn-primary');"></button>
+                    <button id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-success': shared.multiple_selection_active}" class="btn btn-sm fa fa-check-square-o" ng-click="toggle_multiple_selection()" onmouseover="$(this).addClass('btn-primary');" onmouseout="$(this).removeClass('btn-primary');"></button>
+                </div>
+
+                <script type="text/javascript">
+                    $('#new_folder_button').tooltip({title : "<h1>Add folder</h1>Create a new folder here", html: true});
+                    $('#upload_button').tooltip({title : "<h1>Upload</h1>Upload files to the current folder", html: true});
+                    $('#download_folder_button').tooltip({title : "<h1>Download</h1>Download the current folder" , html: true});
+                    $('#backup_button').tooltip({title : "<h1>Backup</h1>Download the current folder, including information", html:true});
+                    $('#restore_button').tooltip({title : "<h1>Restore</h1>Replace the contents of the current folder with the contents of a backup package", html:true});
+                    $('#show_deleted_files_button').tooltip({title : "<h1>Show Deleted</h1>Show Deleted Files", html:true});
+                    $('#toggle_multiple_selection').tooltip({title : "<h1>Select several</h1>Select several files", html:true});
+                </script>
+            </div>
+
+            <br/>
+
+            <div>
+                <h4>Selection</h4>
+                <div class="row" readonly="true">
+                    <div class="col-xs-12">
+                        <button ng-show="shared.multiple_selection_active && file_explorer_selected_something()" id="clear_selection_button" class="btn btn-sm fa fa-ban" ng-click="clear_selection_and_get_parent_metadata()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+                        <button ng-disabled="!file_explorer_selected_something()"
+                                id="download_selection_button"
+                                class="btn btn-sm fa fa-download"
+                                ng-click="download_selected_items()"
+                                onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+                        <button ng-disabled="!file_explorer_selected_something()"
+                                id="backup_selection_button"
+                                class="btn btn-sm fa fa-archive"
+                                ng-click="backup_selected_items()"
+                                onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+
+                        <button id="delete_selection_button"
+                                ng-show="file_explorer_selected_something() && file_explorer_selected_contains_not_deleted()"
+                                class="pull-right btn  btn-sm fa fa-eraser"
+                                ng-click="delete_file_or_folder()"
+                                onmouseover="$(this).toggleClass('btn-danger');" onmouseout="$(this).toggleClass('btn-danger');">
+                        </button>
+
+                        <button id="undelete_selection_button"
+                                ng-show="file_explorer_selected_something() && file_explorer_selected_contains_deleted()"
+                                class="pull-right btn  btn-sm fa fa-undo"
+                                ng-click="undelete_file_or_folder()"
+                                onmouseover="$(this).toggleClass('btn-success');" onmouseout="$(this).toggleClass('btn-success');">
+                        </button>
+
+                        <button id="really_delete_selection_button"
+                                ng-show="file_explorer_selected_something() && file_explorer_selected_contains_deleted()"
+                                class="pull-right btn btn-sm fa fa-trash-o"
+                                ng-click="delete_file_or_folder()"
+                                onmouseover="$(this).toggleClass('btn-danger');" onmouseout="$(this).toggleClass('btn-danger');">
+                        </button>
+                    </div>
+                </div>
+
+                <br/>
+
+                <script type="text/javascript">
+                    $('#clear_selection_button').tooltip({title : "<h1>Deselect</h1>Deselect items", html:true});
+                    $('#delete_selection_button').tooltip({title : "<h1>Delete</h1>Delete the selected items" , html: true});
+                    $('#download_selection_button').tooltip({title : "<h1>Download</h1>Download the selected items" , html: true});
+                    $('#backup_selection_button').tooltip({title : "<h1>Backup</h1>Backup the selected items" , html: true});
+                    $('#undelete_selection_button').tooltip({title : "<h1>Undelete</h1>Undelete the selected items" , html: true});
+                    $('#really_delete_selection_button').tooltip({title : "<h1>Really delete</h1>Delete FOREVER" , html: true});
+                </script>
+            </div>
+
+            <link rel='stylesheet' href='/js/jQueryFileUpload/css/jquery.fileupload.css'/>
+
+            <div class="row ng-hide" id="file_upload_area" ng-show="upload_area_visible" ng-init="setup_upload_area('#file_upload_area', '#progress')">
+                <!-- The fileinput-button span is used to style the file input field as button -->
+                <div class="col-lg-10">
+                                <span class="btn btn-success fileinput-button">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>Select files to upload...</span>
+                                    <!-- The file input field used as target for the file upload widget -->
+                                    <input id="fileupload" type="file" name="files[]" multiple>
+                                </span>
+                </div>
+                <br>
+                <br>
+                <!-- The global progress bar -->
+                <div class="col-xs-12">
+                    <div id="progress" class="progress">
+                        <div class="progress-bar progress-bar-success"></div>
+                    </div>
+                </div>
+                <!-- The container for the uploaded files -->
+                <div id="uploaded_files" class="files"></div>
+            </div>
+
+            <div class="row ng-hide" id="restore_upload_area" ng-show="restore_area_visible" ng-init="setup_restore_area('#restore_upload_area', '#progress_restore')">
+                <!-- The fileinput-button span is used to style the file input field as button -->
+                <div class="col-lg-10">
+                                <span class="btn btn-warning fileinput-button">
+                                    <i class="glyphicon glyphicon-plus"></i>
+                                    <span>Select backup package</span>
+                                    <!-- The file input field used as target for the file upload widget -->
+                                    <input id="fileupload" type="file" name="files[]">
+                                </span>
+                </div>
+                <br>
+                <br>
+                <!-- The global progress bar -->
+                <div class="col-xs-12">
+                    <div id="progress_restore" class="progress">
+                        <div class="progress-bar progress-bar-success"></div>
+                    </div>
+                </div>
+                <!-- The container for the uploaded files -->
+                <div id="uploaded_files" class="files"></div>
+                <br>
+                <br>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <%- include show/file_explorer.ejs %>
+                </div>
+            </div>
+        </div>
+
+        <div ng-class="{'col-md-6 col-xs-12 col-sm-9': showing_descriptor_selection_area(), 'col-md-9 col-sm-9 col-xs-9': !showing_descriptor_selection_area()}"
+                 ng-show="!(shared.multiple_selection_active && file_explorer_selected_something())"
+                 ng-controller="metadataEditorCtrl">
+                <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
+                    <li class="active">
+                        <a href="#metadata-editor" data-toggle="tab" ng-click="load_metadata()">
+                            About <img height="16xp" src="{{get_calling_uri_thumbnail()}}" onerror="noIcon(this);"/> {{get_calling_uri_filename()}}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#change_log"
+                           data-toggle="tab"
+                           ng-controller="changeLogController"
+                           ng-click="get_recent_changes_of_resource()">
+                            <span class="label label-success">File</span>
+                            Changes
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#change_log_project"
+                           data-toggle="tab"
+                           ng-controller="changeLogController"
+                           ng-click="get_recent_changes_of_project()">
+                            <span class="label label-info">Project</span>
+                            Changes
+                        </a>
+                    </li>
+
+
+                    <li>
+                        <a href="#stats" data-toggle="tab" ng-controller="changeLogController" ng-click="get_project_stats()" ><span class="label label-info">Project</span> Stats</a>
+                    </li>
+                </ul>
+
+                <div>
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="metadata-editor" ng-init="init()">
+                                <br/>
+                                <div ng-switch="edit_mode" class="ng-hide" ng-show="edit_mode != null">
+                                    <div ng-switch-when="true">
+                                        <div ng-if="shared.selected_file != null">
+                                            <%- include show/metadata_editor.ejs %>
+                                        </div>
+                                        <div class="alert alert-info" ng-if="shared.selected_file == null">
+                                            Select one of the resource on the file explorer to edit its metadata.
+                                        </div>
+                                    </div>
+                                    <div ng-switch-when="false">
+                                        <div ng-if="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
+                                            <%- include show/file_preview.ejs %>
+                                        </div>
+                                        <div class="alert alert-info" ng-if="(shared.selected_file == null)">
+                                            Select one of the resource on the file explorer to view its metadata.
+                                        </div>
+
+                                        <%- include show/metadata_viewer.ejs %>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="change_log" ng-controller="changeLogController">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <%- include show/changelog_modal.ejs %>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="change_log_project" ng-controller="changeLogController">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <%- include show/changelog_modal.ejs %>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="tab-pane" id="stats" ng-controller="changeLogController">
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                        <%- include show/stats_modal.ejs %>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+        <div class="col-md-3 col-xs-12 col-sm-12" id="improvements" ng-show="showing_descriptor_selection_area()" ng-controller="descriptorListCtrl" ng-init="init()" ng-show="!(shared.multiple_selection_active && file_explorer_selected_something())">
+            <%if(locals.Config.baselines.dublin_core_only)
+            {
+            %>
+                <%if(locals.Config.recommendation.modes.none.active)
+                {
+                %>
+                    <%- include show/descriptor_selection_variants/descriptors_selection_area_dc_non_rec.ejs %>
+                <%
+                } else {
+                %>
+                    <%- include show/descriptor_selection_variants/descriptors_selection_area_dc_rec.ejs %>
+                <%
+                }
+                %>
+            <%
+            } else {
+            %>
+                <%if(locals.Config.recommendation.modes.none.active)
+                {
+                %>
+                    <%- include show/descriptor_selection_variants/descriptors_selection_area_non_rec.ejs %>
+                <%
+                } else {
+                %>
+                    <%- include show/descriptor_selection_variants/descriptors_selection_area_rec.ejs %>
+                <%
+                }
+                %>
+            <%
+            }
+            %>
+        </div>
+
+        <div ng-show="shared.multiple_selection_active && file_explorer_selected_something()" class="panel panel-warning">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Multiple files selected
+                </h3>
+            </div>
+            <div class="panel-body">
+                You cannot view or edit metadata while multiple file selection is active. Turn it off on the menu on the left <i class="fa fa-check-square-o"></i>.
+            </div>
+        </div>
+
+    </div>
+
+    <br/>
+
+<%- include ../layout/footer.ejs %>
