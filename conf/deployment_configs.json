@@ -133,7 +133,7 @@
     "startup" : {
       "reload_administrators_on_startup" : true,
       "reload_demo_users_on_startup" : true,
-      "reload_ontologies_on_startup": false
+      "reload_ontologies_on_startup": true
     },
     "baselines" : {
       "dublin_core_only" : false
