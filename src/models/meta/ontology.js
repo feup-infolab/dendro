@@ -3,6 +3,8 @@ var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
 var Elements = require(Config.absPathInProject("/models/meta/elements.js")).Elements;
 var ResearchDomain = require(Config.absPathInProject("/models/meta/research_domain.js")).ResearchDomain;
 var Interaction = require(Config.absPathInProject("/models/recommendation/interaction.js")).Interaction;
+var Class = require(Config.absPathInProject("/models/meta/class.js")).Class;
+var Resource = require(Config.absPathInProject("/models/resource.js")).Resource;
 
 var db = function() { return GLOBAL.db.default; }();
 
@@ -710,7 +712,6 @@ Ontology.prototype.save = function(callback)
     var newDescriptorsArray = [description, domain, type, prefix, modified];
 
 
-
     self.replaceDescriptorsInTripleStore(newDescriptorsArray, db.graphUri, function(err, result){
         if(!err)
         {
@@ -823,5 +824,7 @@ Ontology.findByPrefix = function(prefix, callback)
 };
 
 Ontology.prefixedRDFType = "ddr:Ontology";
+
+Ontology = Class.extend(Ontology, Resource);
 
 module.exports.Ontology = Ontology;
