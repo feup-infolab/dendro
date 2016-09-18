@@ -1,8 +1,8 @@
 var Config = require('../models/meta/config.js').Config;
 
-var DryadLoader = require(Config.absPathInProject("/kb/loaders/dryad/dryad_loader.js")).DryadLoader;
-var IndexConnection = require(Config.absPathInProject("/kb/index.js")).IndexConnection;
-var Resource = require(Config.absPathInProject("/models/resource.js")).Resource;
+var DryadLoader = require(Config.absPathInSrcFolder("/kb/loaders/dryad/dryad_loader.js")).DryadLoader;
+var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
 var db = function() { return GLOBAL.db.default; }();
 

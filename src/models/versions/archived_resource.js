@@ -1,10 +1,10 @@
 var Config = require("../meta/config.js").Config;
-var Class = require(Config.absPathInProject("/models/meta/class.js")).Class;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
-var Resource = require(Config.absPathInProject("/models/resource.js")).Resource;
-var Change = require(Config.absPathInProject("/models/versions/change.js")).Change;
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
-var User = require(Config.absPathInProject("/models/user.js")).User;
+var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+var Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
 var db = function() { return GLOBAL.db.default; }();
 var gfs = function() { return GLOBAL.gfs.default; }();

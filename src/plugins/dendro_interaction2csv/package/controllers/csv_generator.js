@@ -5,9 +5,9 @@ var _ = require('underscore');
 
 var Config = require("../../../../models/meta/config.js").Config;
 
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
-var Interaction = require(Config.absPathInProject("/models/recommendation/interaction.js")).Interaction;
-var File = require(Config.absPathInProject("/models/directory_structure/file.js")).File;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 var DendroInteraction2CSV = require("../../dendro_interaction2csv").DendroInteraction2CSV;
 var InteractionAnalyser = require("../models/interaction_analyser.js").InteractionAnalyser;

@@ -1,11 +1,11 @@
 var Config = require('../models/meta/config.js').Config;
 
-var Project = require(Config.absPathInProject("/models/project.js")).Project;
-var InformationElement = require(Config.absPathInProject("/models/directory_structure/information_element.js")).InformationElement;
-var Folder = require(Config.absPathInProject("/models/directory_structure/folder.js")).Folder;
-var File = require(Config.absPathInProject("/models/directory_structure/file.js")).File;
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
-var User = require(Config.absPathInProject("/models/user.js")).User;
+var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
 var db = function() { return GLOBAL.db.default; }();
 

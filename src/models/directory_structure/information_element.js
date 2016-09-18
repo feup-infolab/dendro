@@ -1,9 +1,9 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 var Config = require("../meta/config.js").Config;
-var Class = require(Config.absPathInProject("/models/meta/class.js")).Class;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
-var Resource = require(Config.absPathInProject("/models/resource.js")).Resource;
+var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
 var db = function() { return GLOBAL.db.default; }();
 var gfs = function() { return GLOBAL.gfs.default; }();
@@ -65,8 +65,8 @@ InformationElement.getType = function(resourceURI, callback)
             {
                 if(types instanceof Array)
                 {
-                    var Folder = require(Config.absPathInProject("/models/directory_structure/folder.js")).Folder;
-                    var File = require(Config.absPathInProject("/models/directory_structure/file.js")).File;
+                    var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                    var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
                     if(types.length == 0)
                     {
@@ -155,13 +155,13 @@ InformationElement.prototype.getParent = function(callback)
                         if(results[0].parent_folder != null)
                         {
                             result.uri = result.parent_folder;
-                            var Folder = require(Config.absPathInProject("/models/directory_structure/folder.js")).Folder;
+                            var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
                             var parent = new Folder(result);
                         }
                         else if(result[0].parent_project != null)
                         {
                             result.uri = result.parent_project;
-                            var Project = require(Config.absPathInProject("/models/project.js")).Project;
+                            var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
                             var parent = new Project(result);
                         }
 
@@ -241,7 +241,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
                 if(result instanceof Array && result.length == 1)
                 {
                     var result = result[0];
-                    var Project = require(Config.absPathInProject("/models/project.js")).Project;
+                    var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
                     var parent = new Project(result);
                     callback(null,parent);
                 }

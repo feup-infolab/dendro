@@ -1,6 +1,6 @@
 var Config = require('../models/meta/config.js').Config;
 
-var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
+var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
 var async = require('async');
 

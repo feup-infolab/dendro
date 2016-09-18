@@ -1,11 +1,11 @@
 var Config = require('../models/meta/config.js').Config;
 
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
-var InformationElement = require(Config.absPathInProject("/models/directory_structure/information_element.js")).InformationElement;
-var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
-var Project = require(Config.absPathInProject("/models/project.js")).Project;
-var Interaction = require(Config.absPathInProject("/models/recommendation/interaction.js")).Interaction;
-var User = require(Config.absPathInProject("/models/user.js")).User;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
 var async = require('async');
 var path = require('path');

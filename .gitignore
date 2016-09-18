@@ -32,6 +32,7 @@ build/Release
 node_modules/
 public/bower_components/
 conf/
+logs/
 jspm_packages
 
 # Optional npm cache directory

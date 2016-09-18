@@ -1,8 +1,8 @@
 var Config = require("../../../models/meta/config.js").Config;
 
-var Loader = require(Config.absPathInProject("/kb/loaders/loader.js")).Loader;
-var HarvestedResource = require(Config.absPathInProject("/models/harvesting/harvested_resource.js")).HarvestedResource;
-var ExternalRepository = require(Config.absPathInProject("/models/harvesting/external_repository.js")).ExternalRepository;
+var Loader = require(Config.absPathInSrcFolder("/kb/loaders/loader.js")).Loader;
+var HarvestedResource = require(Config.absPathInSrcFolder("/models/harvesting/harvested_resource.js")).HarvestedResource;
+var ExternalRepository = require(Config.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
 
 var db = function() { return GLOBAL.db.default; }();
 var gfs = function() { return GLOBAL.gfs.default; }();

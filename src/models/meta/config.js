@@ -419,12 +419,20 @@ Backup and restore
 Config.packageMetadataFileName = "metadata.json";
 Config.systemOrHiddenFilesRegexes = getConfigParameter("systemOrHiddenFilesRegexes");
 
-Config.absPathInProject = function(relativePath)
+Config.absPathInSrcFolder = function(relativePath)
 {
     var path = require('path'),
         appDir = path.dirname(require.main.filename);
 
     return path.join(appDir, relativePath);
+};
+
+Config.absPathInApp = function(relativePath)
+{
+    var path = require('path'),
+        appFolderPath = path.resolve(path.dirname(require.main.filename), "..");
+
+    return path.join(appFolderPath, relativePath);
 };
 
 Config.getPathToPublicFolder = function()
@@ -689,7 +697,7 @@ Config.swordConnection = {
     EprintsCollectionRef: "/id/contents"
 };
 
-var Serializers = require(Config.absPathInProject("/utils/serializers.js"));
+var Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
 
 Config.defaultMetadataSerializer = Serializers.dataToJSON;
 Config.defaultMetadataContentType = "text/json";

@@ -1,12 +1,12 @@
 var Config = require('../models/meta/config.js').Config;
 
-var Folder = require(Config.absPathInProject("/models/directory_structure/folder.js")).Folder;
-var InformationElement = require(Config.absPathInProject("/models/directory_structure/information_element.js")).InformationElement;
-var records = require(Config.absPathInProject("/controllers/records.js"));
-var Serializers = require(Config.absPathInProject("/utils/serializers.js"));
-var swordConnection = require(Config.absPathInProject("/export_libs/sword-connection/index.js"));
-var Figshare = require(Config.absPathInProject("/export_libs/figshare/figshare.js"));
-var B2Share = require(Config.absPathInProject("/export_libs/b2share/b2share.js"));
+var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+var records = require(Config.absPathInSrcFolder("/controllers/records.js"));
+var Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
+var swordConnection = require(Config.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
+var Figshare = require(Config.absPathInSrcFolder("/export_libs/figshare/figshare.js"));
+var B2Share = require(Config.absPathInSrcFolder("/export_libs/b2share/b2share.js"));
 
 var async = require('async');
 var nodemailer = require('nodemailer');

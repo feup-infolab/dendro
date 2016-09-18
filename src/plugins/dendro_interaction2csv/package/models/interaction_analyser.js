@@ -1,7 +1,7 @@
 var Config = require("../../../../models/meta/config.js").Config;
 
-var Interaction = require(Config.absPathInProject("/models/recommendation/interaction.js")).Interaction;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
+var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 var db = function() { return GLOBAL.db.default; }();
 var gfs = function() { return GLOBAL.gfs.default; }();

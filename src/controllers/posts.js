@@ -1,7 +1,7 @@
 var Config = require('../models/meta/config.js').Config;
 
-var Post = require(Config.absPathInProject("/models/social/post.js")).Post;
-var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
+var Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
+var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
 var db_social = function() { return GLOBAL.db.social; }();
 

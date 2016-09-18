@@ -2,7 +2,7 @@ var Config = require('../models/meta/config.js').Config;
 
 var db = function() { return GLOBAL.db.default; }();
 
-var User = require(Config.absPathInProject("/models/user.js")).User;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
 module.exports.login = function(req, res){
 

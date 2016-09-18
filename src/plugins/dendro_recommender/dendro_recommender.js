@@ -2,9 +2,9 @@ var path = require('path');
 
 var Config = require("../../models/meta/config.js").Config;
 
-var Class = require(Config.absPathInProject("/models/meta/class.js")).Class;
-var Plugin = require(Config.absPathInProject("/plugins/plugin.js")).Plugin;
-var Permissions = require(Config.absPathInProject("/models/meta/permissions.js")).Permissions;
+var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+var Plugin = require(Config.absPathInSrcFolder("/plugins/plugin.js")).Plugin;
+var Permissions = require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
 
 var DendroRecommender = function()
 {

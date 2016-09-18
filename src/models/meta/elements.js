@@ -1,5 +1,5 @@
 var Config = require("./config.js").Config;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 function Elements (){}
 

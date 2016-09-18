@@ -17,17 +17,19 @@ var express = require('express'),
     http = require('http'),
     path = require('path');
     fs = require('fs');
+    morgan = require('morgan');
 
 var app = express();
 
-var IndexConnection = require(Config.absPathInProject("/kb/index.js")).IndexConnection;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
-var GridFSConnection = require(Config.absPathInProject("/kb/gridfs.js")).GridFSConnection;
-var RedisConnection = require(Config.absPathInProject("/kb/redis.js")).RedisConnection;
-var Permissions = Object.create(require(Config.absPathInProject("/models/meta/permissions.js")).Permissions);
-var PluginManager = Object.create(require(Config.absPathInProject("/plugins/plugin_manager.js")).PluginManager);
-var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
+var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var GridFSConnection = require(Config.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
+var RedisConnection = require(Config.absPathInSrcFolder("/kb/redis.js")).RedisConnection;
+var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
+var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 var async = require('async');
 var util = require('util');
@@ -35,6 +37,48 @@ var util = require('util');
 var self = this;
 
 var appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::?=?)=)';
+
+
+if(Config.logging != null)
+{
+    var FileStreamRotator = require('file-stream-rotator');
+    var mkpath = require('mkpath');
+
+    if(Config.logging.format != null && Config.logging.app_logs_folder != null)
+    {
+        mkpath(Config.logging.app_logs_folder, function (err) {
+
+            var accessLogStream = FileStreamRotator.getStream({
+                date_format: 'YYYYMMDD',
+                filename: path.join(Config.logging.app_logs_folder, Config.logging.format + '-%DATE%.log'),
+                frequency: 'daily',
+                verbose: false
+            });
+
+            app.use(express.logger({
+                format : Config.logging.format,
+                stream: accessLogStream
+            }));
+        });
+    }
+
+    if(Config.logging.log_request_times && Config.logging.request_times_log_folder != null)
+    {
+        mkpath(Config.logging.request_times_log_folder, function (err) {
+            var accessLogStream = FileStreamRotator.getStream({
+                date_format: 'YYYYMMDD',
+                filename: path.join(Config.logging.request_times_log_folder, 'times-%DATE%.log'),
+                frequency: 'daily',
+                verbose: false
+            });
+
+            if(!err)
+            {
+                app.use(morgan('combined', {stream: accessLogStream}));
+            }
+        });
+    }
+}
 
 var appendIndexToRequest = function(req, res, next)
 {
@@ -246,7 +290,7 @@ async.waterfall([
     function(callback) {
         console.log("[INFO] Loading ontology parametrization from database... ");
 
-        var Ontology = require(Config.absPathInProject("./models/meta/ontology.js")).Ontology;
+        var Ontology = require(Config.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
 
         if(Config.startup.reload_ontologies_on_startup)
         {
@@ -524,7 +568,7 @@ async.waterfall([
         }
     },
     function(callback) {
-        var InformationElement = require(Config.absPathInProject("/models/directory_structure/information_element.js")).InformationElement;
+        var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
         var nfs = require('node-fs');
         var fs = require('fs');
 
@@ -560,7 +604,7 @@ async.waterfall([
 
         var deleteUser = function(demoUser, callback)
         {
-            var User = require(Config.absPathInProject("/models/user.js")).User;
+            var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
             User.findByUsername(demoUser.username, function(err, user){
 
                 if(!err)
@@ -593,7 +637,7 @@ async.waterfall([
                 {
                     if(Config.startup.reload_demo_users_on_startup)
                     {
-                        var User = require(Config.absPathInProject("/models/user.js")).User;
+                        var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
                         console.log("[INFO] Loading demo users. Demo users (in config.js file) -->" + JSON.stringify(Config.demo_mode.users));
 
                         var createUser = function(user, callback)
@@ -653,7 +697,7 @@ async.waterfall([
     function(callback) {
         if(Config.startup.reload_administrators_on_startup)
         {
-            var User = require(Config.absPathInProject("/models/user.js")).User;
+            var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
             console.log("[INFO] Loading default administrators. Admins (in config.js file) -->" + JSON.stringify(Config.administrators));
 
             async.series([
@@ -745,53 +789,48 @@ async.waterfall([
     function(callback)
     {
         //app's own requires
-        var index = require(Config.absPathInProject("/controllers/index"));
-        var users = require(Config.absPathInProject("/controllers/users"));
-        var vertexes = require(Config.absPathInProject("/controllers/vertexes"));
-        var admin = require(Config.absPathInProject("/controllers/admin"));
-        var projects = require(Config.absPathInProject("/controllers/projects"));
-        var files = require(Config.absPathInProject("/controllers/files"));
-        var records = require(Config.absPathInProject("/controllers/records"));
-        var interactions = require(Config.absPathInProject("/controllers/interactions"));
-        var descriptors = require(Config.absPathInProject("/controllers/descriptors"));
-        var evaluation = require(Config.absPathInProject("/controllers/evaluation"));
-        var ontologies = require(Config.absPathInProject("/controllers/ontologies"));
-        var research_domains = require(Config.absPathInProject("/controllers/research_domains"));
-        var repo_bookmarks = require(Config.absPathInProject("/controllers/repo_bookmarks"));
-        var datasets = require(Config.absPathInProject("/controllers/datasets"));
-        var sparql = require(Config.absPathInProject("/controllers/sparql"));
-        var posts = require(Config.absPathInProject("/controllers/posts"));
+        var index = require(Config.absPathInSrcFolder("/controllers/index"));
+        var users = require(Config.absPathInSrcFolder("/controllers/users"));
+        var vertexes = require(Config.absPathInSrcFolder("/controllers/vertexes"));
+        var admin = require(Config.absPathInSrcFolder("/controllers/admin"));
+        var projects = require(Config.absPathInSrcFolder("/controllers/projects"));
+        var files = require(Config.absPathInSrcFolder("/controllers/files"));
+        var records = require(Config.absPathInSrcFolder("/controllers/records"));
+        var interactions = require(Config.absPathInSrcFolder("/controllers/interactions"));
+        var descriptors = require(Config.absPathInSrcFolder("/controllers/descriptors"));
+        var evaluation = require(Config.absPathInSrcFolder("/controllers/evaluation"));
+        var ontologies = require(Config.absPathInSrcFolder("/controllers/ontologies"));
+        var research_domains = require(Config.absPathInSrcFolder("/controllers/research_domains"));
+        var repo_bookmarks = require(Config.absPathInSrcFolder("/controllers/repo_bookmarks"));
+        var datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
+        var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
+        var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
 
-        var auth = require(Config.absPathInProject("/controllers/auth"));
+        var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
 
         if(Config.recommendation.modes.dendro_recommender.active)
         {
-            var recommendation = require(Config.absPathInProject("/controllers/dr_recommendation"));
+            var recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation"));
         }
         else if(Config.recommendation.modes.standalone.active)
         {
-            var recommendation = require(Config.absPathInProject("/controllers/standalone_recommendation"));
+            var recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
         }
         else if(Config.recommendation.modes.none.active)
         {
-            recommendation = require(Config.absPathInProject("/controllers/no_recommendation"));
+            recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation"));
         }
 
         app.use(appendIndexToRequest);
 
         // all environments
         app.set('port', process.env.PORT || Config.port);
-        app.set('views', Config.absPathInProject('/views'));
+        app.set('views', Config.absPathInSrcFolder('/views'));
 
         app.set('view engine', 'ejs');
         app.set('etag', 'strong');
 
         app.use(express.favicon());
-
-        if(Config.logging != null && Config.logging.config != null)
-        {
-            app.use(express.logger(Config.logging.config));
-        }
 
         //app.use(express.logger('dev'));
 
@@ -846,9 +885,6 @@ async.waterfall([
         if ('development' == app.get('env')) {
             app.use(express.errorHandler());
         }
-
-        //record start of request timestamp
-        app.use(function(req, res, next) { req.start = Date.now(); next(); });
 
         app.get('/', index.index);
 
@@ -1292,9 +1328,6 @@ async.waterfall([
         /*app.get('*', function(req, res){
             res.render('errors/404', 404);
         });*/
-
-        //record end of request timestamp
-        app.use(function(req, res) { var time = Date.now() - req.start; });
 
         // Domain for the server (limits number of requests per second), auto restart after crash in certain cases
         serverDomain.run(function () {

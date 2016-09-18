@@ -1,8 +1,8 @@
 var Config = require('../models/meta/config.js').Config;
 
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
-var ExternalRepository = require(Config.absPathInProject("/models/harvesting/external_repository.js")).ExternalRepository;
-var RepositoryPlatform = require(Config.absPathInProject("/models/harvesting/repo_platform")).RepositoryPlatform;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var ExternalRepository = require(Config.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
+var RepositoryPlatform = require(Config.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
 
 var async = require('async');
 var _ = require('underscore');

@@ -1,7 +1,7 @@
 var Config = require("../meta/config.js").Config;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
-var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
-var Elements = require(Config.absPathInProject("/models/meta/elements.js")).Elements;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+var Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 var db = function() { return GLOBAL.db.default; }();
 var async = require('async');

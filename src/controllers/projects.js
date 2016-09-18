@@ -1,11 +1,11 @@
 var Config = require('../models/meta/config.js').Config;
 
-var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
-var Project = require(Config.absPathInProject("/models/project.js")).Project;
-var Folder = require(Config.absPathInProject("/models/directory_structure/folder.js")).Folder;
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
-var User = require(Config.absPathInProject("/models/user.js")).User;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
+var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 var nodemailer = require('nodemailer');
 var db = function() { return GLOBAL.db.default; }();

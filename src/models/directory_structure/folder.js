@@ -1,13 +1,13 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 var Config = require("../meta/config.js").Config;
-var Class = require(Config.absPathInProject("/models/meta/class.js")).Class;
-var InformationElement = require(Config.absPathInProject("/models/directory_structure/information_element.js")).InformationElement;
-var Resource = require(Config.absPathInProject("/models/resource.js")).Resource;
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
-var User = require(Config.absPathInProject("/models/user.js")).User;
-var File = require(Config.absPathInProject("/models/directory_structure/file.js")).File;
+var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 var slug = require('slug');
 var fs = require('fs');
@@ -1096,7 +1096,7 @@ Folder.prototype.undelete = function(callback, uriOfUserUnDeletingTheFolder, not
             uriOfUserUnDeletingTheFolder
         );
     }
-}
+};
 
 Folder.rdfType = "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder";
 Folder.prefixedRDFType = "nfo:Folder";

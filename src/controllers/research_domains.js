@@ -1,6 +1,6 @@
 var Config = require('../models/meta/config.js').Config;
 
-var ResearchDomain = require(Config.absPathInProject("/models/meta/research_domain.js")).ResearchDomain;
+var ResearchDomain = require(Config.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
 
 var async = require('async');
 var _ = require('underscore');

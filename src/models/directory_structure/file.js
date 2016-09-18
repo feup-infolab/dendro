@@ -1,10 +1,10 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 var Config = require("../meta/config.js").Config;
-var InformationElement = require(Config.absPathInProject("/models/directory_structure/information_element.js")).InformationElement;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
-var Class = require(Config.absPathInProject("/models/meta/class.js")).Class;
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
+var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
 var db = function() { return GLOBAL.db.default; }();
 var gfs = function() { return GLOBAL.gfs.default; }();
@@ -611,6 +611,45 @@ File.createBlankTempFile = function(fileName, callback)
             callback(err, tempFilePath);
         }
     );
+};
+
+File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
+{
+    var fs = require('fs');
+    
+    var absPathToFile = Config.absPathInApp(relativePathToFile);
+    var parentFolder = path.resolve(absPathToFile, "..");
+
+    fs.stat(absPathToFile, function(err, stat) {
+        if(err == null) {
+            callback(0, absPathToFile, parentFolder);
+        } else if(err.code == 'ENOENT') {
+            // file does not exist
+            var mkpath = require('mkpath');
+
+            mkpath(parentFolder, function (err) {
+                if (err)
+                {
+                    callback(1, "Error creating file " + err);
+                }
+                else
+                {
+                    var fs = require("fs");
+                    fs.open(absPathToFile, "wx", function (err, fd) {
+                        // handle error
+                        fs.close(fd, function (err) {
+                            console.log('Directory structure ' + parentFolder + ' created. File ' + absPathToFile + " also created.");
+                            callback(0, absPathToFile, parentFolder);
+                        });
+                    });
+                }
+            });
+        }
+        else
+        {
+            callback(1, "Error creating file " + err);
+        }
+    });
 };
 
 File.prefixedRDFType = "nfo:FileDataObject";

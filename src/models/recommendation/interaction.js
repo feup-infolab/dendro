@@ -1,7 +1,7 @@
 var Config = require("../meta/config.js").Config;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
-var Class = require(Config.absPathInProject("/models/meta/class.js")).Class;
-var Resource = require(Config.absPathInProject("/models/resource.js")).Resource;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
 var moment = require('moment');
 var async = require('async');
@@ -40,7 +40,7 @@ function Interaction (object, callback)
 
     if(self.uri == null)
     {
-        var User = require(Config.absPathInProject("/models/user.js")).User;
+        var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
         if(self.ddr.performedBy instanceof Object)
         {
             self.uri = db.baseURI+"/user/"+self.ddr.performedBy.ddr.username+"/interaction/"+self.dcterms.created;

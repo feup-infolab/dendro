@@ -1,8 +1,8 @@
 var Config = require('../models/meta/config.js').Config;
 
-var User = require(Config.absPathInProject("/models/user.js")).User;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 var db = function() { return GLOBAL.db.default; }();
 

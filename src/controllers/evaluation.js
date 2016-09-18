@@ -7,21 +7,21 @@ var recommendation;
 
 if(Config.recommendation.modes.dendro_recommender.active)
 {
-    recommendation = require(Config.absPathInProject("/controllers/dr_recommendation.js")).shared;
+    recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation.js")).shared;
 }
 else if(Config.recommendation.modes.standalone.active)
 {
-    recommendation = require(Config.absPathInProject("/controllers/standalone_recommendation.js")).shared;
+    recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
 }
 else if(Config.recommendation.modes.none.active)
 {
-    recommendation = require(Config.absPathInProject("/controllers/no_recommendation.js")).shared;
+    recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;
 }
 
-var records = require(Config.absPathInProject("/controllers/records.js"));
-var Resource = require(Config.absPathInProject("/models/resource.js")).Resource;
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
-var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
+var records = require(Config.absPathInSrcFolder("/controllers/records.js"));
+var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
 exports.metadata_evaluation = function(req, res)
 {

@@ -1,9 +1,9 @@
 var async = require('async');
 
 var Config = require("../meta/config.js").Config;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
-var Class = require(Config.absPathInProject("/models/meta/class.js")).Class;
-var Resource = require(Config.absPathInProject("/models/resource.js")).Resource;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
 var db = function() { return GLOBAL.db.default; }();
 

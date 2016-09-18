@@ -6,11 +6,11 @@ var _ = require('underscore');
 
 var Config = require("../../../../models/meta/config.js").Config;
 
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor
-var Interaction = require(Config.absPathInProject("/models/recommendation/interaction.js")).Interaction;
-var File = require(Config.absPathInProject("/models/directory_structure/file.js")).File;
-var Folder= require(Config.absPathInProject("/models/directory_structure/folder.js")).Folder;
-var User = require(Config.absPathInProject("/models/user.js")).User;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor
+var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+var Folder= require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
 var DendroRecommender = require("../../dendro_recommender.js").DendroRecommender;
 var DRConnection = require("../connection.js").DRConnection;

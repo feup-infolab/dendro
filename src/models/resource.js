@@ -1,8 +1,8 @@
 var Config = require("./meta/config.js").Config;
-var Class = require(Config.absPathInProject("/models/meta/class.js")).Class;
-var Elements = require(Config.absPathInProject("/models/meta/elements.js")).Elements;
-var DbConnection = require(Config.absPathInProject("/kb/db.js")).DbConnection;
-var IndexConnection = require(Config.absPathInProject("/kb/index.js")).IndexConnection;
+var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+var Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
 var db = function() { return GLOBAL.db.default; }();
 var redis = function() { return GLOBAL.redis.default; }();
@@ -27,7 +27,7 @@ function Resource (object)
 
 Resource.prototype.copyOrInitDescriptors = function(object)
 {
-    var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
+    var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     var self = this;
 
     var ontologyPrefixes = Ontology.getAllOntologyPrefixes();
@@ -348,7 +348,7 @@ Resource.prototype.clearOutgoingPropertiesFromOntologies = function(ontologyURIs
 
 Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, callback, customGraphUri)
 {
-    var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
+    var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
 
     var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
@@ -640,7 +640,7 @@ Resource.prototype.save = function
         customGraphUri
     )
 {
-    var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
+    var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
 
     var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
@@ -924,7 +924,7 @@ Resource.prototype.clearAllDescriptorsInMemory = function()
 
 Resource.prototype.clearAllAuthorizedDescriptorsInMemory = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
-    var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
+    var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
     var authorizedDescriptors = Descriptor.getAuthorizedDescriptors(excludedDescriptorTypes, exceptionedDescriptorTypes);
     var myDescriptors = self.getDescriptors(excludedDescriptorTypes, exceptionedDescriptorTypes);
@@ -1029,7 +1029,7 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function(ontologyURIsArr
 
 Resource.prototype.reindex = function(indexConnection, callback)
 {
-    var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
+    var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     var self = this;
     var infoMessages = [];
     var errorMessages = [];
@@ -1335,7 +1335,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri)
 
     var getFromTripleStore = function(uri, callback)
     {
-        var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
+        var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
         if (uri instanceof Object && uri.uri != null)
         {
@@ -1529,7 +1529,7 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
             {
                 var getVersionContents = function(versionRow, cb)
                 {
-                    var ArchivedResource = require(Config.absPathInProject("/models/versions/archived_resource.js")).ArchivedResource;
+                    var ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
                     ArchivedResource.findByUri(versionRow.uri, function(err, archivedResource)
                     {
                         cb(err, archivedResource)
@@ -1596,7 +1596,7 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
                 var newVersionNumber = latestArchivedVersion.ddr.versionNumber + 1;
             }
 
-            var ArchivedResource = require(Config.absPathInProject("/models/versions/archived_resource.js")).ArchivedResource;
+            var ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
 
             //create a clone of the object parameter (note that all functions of the original object are not cloned,
             // but we dont care in this case
@@ -1618,7 +1618,7 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
             }
             else
             {
-                var User = require(Config.absPathInProject("/models/user.js")).User;
+                var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
                 versionCreator = User.anonymous.uri;
             }
 
@@ -1662,7 +1662,7 @@ var groupPropertiesArrayIntoObject = function(results)
 
 Resource.prototype.getDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
-    var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
+    var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
     var descriptorsArray = [];
 
@@ -1702,8 +1702,8 @@ Resource.prototype.getDescriptors = function(excludedDescriptorTypes, exceptione
  */
 Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptorsToExclude)
 {
-    var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
-    var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
+    var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
     var self = this;
     var deltas = [];
@@ -1737,7 +1737,7 @@ Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptors
             }
         }
 
-        var Change = require(Config.absPathInProject("/models/versions/change.js")).Change;
+        var Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
 
         var newChange = new Change({
             ddr :
@@ -1861,7 +1861,7 @@ Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptors
 Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, value, callback, customGraphUri)
 {
     var self = this;
-    var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
+    var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
     var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
 
@@ -2094,8 +2094,8 @@ Resource.prototype.findMetadataRecursive = function(callback){
 };
 
 Resource.prototype.findMetadata = function(callback){
-    var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
-    var Folder = require(Config.absPathInProject("/models/directory_structure/folder")).Folder;
+    var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder")).Folder;
 
     var self = this;
     Resource.findByUri(self.uri, function(err, resource){
@@ -2556,7 +2556,7 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function(callback,
 
 Resource.arrayToCSVFile = function(resourceArray, fileName, callback)
 {
-    var File = require(Config.absPathInProject("/models/directory_structure/file.js")).File;
+    var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
     File.createBlankTempFile(fileName, function(err, tempFileAbsPath){
         callback(err, tempFileAbsPath);

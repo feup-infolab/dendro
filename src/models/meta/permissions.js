@@ -1,11 +1,11 @@
 var Config = Object.create(require("./config.js").Config);
 
-var Resource = require(Config.absPathInProject("/models/resource.js")).Resource;
-var InformationElement = require(Config.absPathInProject("/models/directory_structure/information_element.js")).InformationElement;
-var File = require(Config.absPathInProject("/models/directory_structure/file.js")).File;
-var Folder = require(Config.absPathInProject("/models/directory_structure/folder.js")).Folder;
-var User = require(Config.absPathInProject("/models/user.js")).User;
-var Project = require(Config.absPathInProject("/models/project.js")).Project;
+var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
 
 var async = require('async');
 var _ = require('underscore');

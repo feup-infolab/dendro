@@ -1,11 +1,11 @@
 var Config = require('../models/meta/config.js').Config;
 
-var Resource = require(Config.absPathInProject("/models/resource.js")).Resource;
-var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
-var ArchivedResource = require(Config.absPathInProject("/models/versions/archived_resource.js")).ArchivedResource;
-var InformationElement = require(Config.absPathInProject("/models/directory_structure/information_element.js")).InformationElement;
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
-var Project = require(Config.absPathInProject("/models/project.js")).Project;
+var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+var ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
 
 var db = function() { return GLOBAL.db.default; }();
 var gfs = function() { return GLOBAL.gfs.default; }();
@@ -258,7 +258,7 @@ exports.update = function(req, res) {
                                             if(!err)
                                             {
                                                 //Refresh metadata evaluation
-                                                require(Config.absPathInProject("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
+                                                require(Config.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
                                                 {
                                                     if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
                                                     {

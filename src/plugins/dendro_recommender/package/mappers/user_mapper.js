@@ -1,9 +1,9 @@
 var path = require('path');
 var Config = require(path.join(path.dirname(require.main.filename), "models", "meta", "config.js")).Config;
 
-var User = require(Config.absPathInProject("/models/user.js")).User;
-var Ontology = require(Config.absPathInProject("/models/meta/ontology.js")).Ontology;
-var Descriptor = require(Config.absPathInProject("/models/meta/descriptor.js")).Descriptor;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
 function UserMapper ()
 {
