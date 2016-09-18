@@ -72,7 +72,7 @@ if(Config.logging != null)
 
     if(Config.logging.log_request_times && Config.logging.request_times_log_folder != null)
     {
-        var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
+        var absPath = Config.absPathInApp(Config.logging.request_times_log_folder);
 
         mkpath(absPath, function (err) {
             var accessLogStream = FileStreamRotator.getStream({
