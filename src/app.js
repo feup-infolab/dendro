@@ -64,7 +64,7 @@ if(Config.logging != null)
             }
             else
             {
-                console.error("[ERROR] Unable to create folder for logs at " + absPath);
+                console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(err));
                 process.exit(1);
             }
         });
@@ -88,7 +88,7 @@ if(Config.logging != null)
             }
             else
             {
-                console.error("[ERROR] Unable to create folder for logs at " + absPath);
+                console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(err));
                 process.exit(1);
             }
         });
