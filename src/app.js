@@ -46,28 +46,38 @@ if(Config.logging != null)
 
     if(Config.logging.format != null && Config.logging.app_logs_folder != null)
     {
+        var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
         mkpath(Config.logging.app_logs_folder, function (err) {
+            if(!err)
+            {
+                var accessLogStream = FileStreamRotator.getStream({
+                    date_format: 'YYYYMMDD',
+                    filename: path.join(absPath, Config.logging.format + '-%DATE%.log'),
+                    frequency: 'daily',
+                    verbose: false
+                });
 
-            var accessLogStream = FileStreamRotator.getStream({
-                date_format: 'YYYYMMDD',
-                filename: path.join(Config.logging.app_logs_folder, Config.logging.format + '-%DATE%.log'),
-                frequency: 'daily',
-                verbose: false
-            });
-
-            app.use(express.logger({
-                format : Config.logging.format,
-                stream: accessLogStream
-            }));
+                app.use(express.logger({
+                    format: Config.logging.format,
+                    stream: accessLogStream
+                }));
+            }
+            else
+            {
+                console.error("[ERROR] Unable to create folder for logs at " + absPath);
+                process.exit(1);
+            }
         });
     }
 
     if(Config.logging.log_request_times && Config.logging.request_times_log_folder != null)
     {
+        var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
+
         mkpath(Config.logging.request_times_log_folder, function (err) {
             var accessLogStream = FileStreamRotator.getStream({
                 date_format: 'YYYYMMDD',
-                filename: path.join(Config.logging.request_times_log_folder, 'times-%DATE%.log'),
+                filename: path.join(absPath, 'times-%DATE%.log'),
                 frequency: 'daily',
                 verbose: false
             });
@@ -75,6 +85,11 @@ if(Config.logging != null)
             if(!err)
             {
                 app.use(morgan('combined', {stream: accessLogStream}));
+            }
+            else
+            {
+                console.error("[ERROR] Unable to create folder for logs at " + absPath);
+                process.exit(1);
             }
         });
     }
