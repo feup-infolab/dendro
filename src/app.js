@@ -47,7 +47,7 @@ if(Config.logging != null)
     if(Config.logging.format != null && Config.logging.app_logs_folder != null)
     {
         var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
-        mkpath(Config.logging.app_logs_folder, function (err) {
+        mkpath(absPath, function (err) {
             if(!err)
             {
                 var accessLogStream = FileStreamRotator.getStream({
@@ -74,7 +74,7 @@ if(Config.logging != null)
     {
         var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
 
-        mkpath(Config.logging.request_times_log_folder, function (err) {
+        mkpath(absPath, function (err) {
             var accessLogStream = FileStreamRotator.getStream({
                 date_format: 'YYYYMMDD',
                 filename: path.join(absPath, 'times-%DATE%.log'),
