@@ -280,7 +280,7 @@ export_to_repository_sword = function(req, res){
 };
 
 export_to_repository_ckan = function(req, res){
-
+    console.log("1");
     try{
         var ckan = require('node-ckan');
         var requestedResourceUri = req.params.requestedResource;
@@ -308,6 +308,7 @@ export_to_repository_ckan = function(req, res){
                         }
                         else
                         {
+                            console.log("2");
                             var jsonDescriptors = folder.getDescriptors([Config.types.private, Config.types.locked]);
 
                             var extrasJSONArray = [];
@@ -332,22 +333,29 @@ export_to_repository_ckan = function(req, res){
                             }
                             else
                             {
+                                console.log("3");
                                 ckan.showTimes();
                                 ckan.setServer(targetRepository.ddr.hasExternalUri);
                                 ckan.login(targetRepository.ddr.hasUsername, targetRepository.ddr.hasPassword, function(error){
-
+                                    console.log("4");
                                     if(!error)
                                     {
+                                        console.log("5");
                                         var slug = require('slug');
                                         var slugifiedTitle = slug(folder.dcterms.title, "-");
 
                                         slugifiedTitle = slugifiedTitle.replace(/[^A-Za-z0-9-]/g, "").replace(/\./g, "").toLowerCase();
 
+                                        console.log("6");
                                         folder.createTempFolderWithContents(false, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata){
+                                            console.log("7");
                                             if(!err){
                                                 createPackage(parentFolderPath, folder, function (err, files) {
+
+                                                    console.log("7");
                                                     if(!err)
                                                     {
+                                                        console.log("8");
                                                         files = InformationElement.removeInvalidFileNames(files);
 
                                                         if (typeof String.prototype.endsWith !== 'function') {
