@@ -177,7 +177,7 @@ angular.module('dendroApp.controllers')
             var url = $scope.get_calling_uri() + "?export_to_repository";
 
             $scope.show_popup("info", "Notice", "Exporting data to target repository");
-            //$scope.is_sending_data = true;
+            $scope.is_sending_data = true;
 
             $http({
                 method: 'POST',
