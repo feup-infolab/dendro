@@ -7,7 +7,7 @@
   },
   "dependencies": {
     "MD5": "1.1.0",
-    "archiver": "^0.11.0",
+    "archiver": "0.11.0",
     "async": "0.2.9",
     "base64-stream": "^0.1.2",
     "colors": "^1.1.2",
