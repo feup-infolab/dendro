@@ -39,7 +39,7 @@
     "mysql": "2.6.2",
     "n3": "0.1.1",
     "needle": "0.6.3",
-    "node-ckan": "https://github.com/feup-infolab-rdm/node-ckan",
+    "node-ckan": "https://github.com/feup-infolab-rdm/node-ckan/commit/da048519641d02589baab4b81b5777726af6144b",
     "node-fs": "0.1.7",
     "node-uuid": "*",
     "nodemailer": "0.7.1",
