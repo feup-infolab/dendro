@@ -56,7 +56,7 @@
     "textract": "0.8.0",
     "tmp": "0.0.21",
     "underscore": "1.5.2",
-    "unicode": "0.4.5",
+    "unicode": "0.6.1",
     "validator": "3.12.0",
     "xml-writer": "^1.4.1",
     "xml2js": "0.2.8",
