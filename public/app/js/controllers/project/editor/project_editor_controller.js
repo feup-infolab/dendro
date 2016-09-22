@@ -20,12 +20,12 @@ angular.module('dendroApp.controllers')
         interactionsService,
         ontologiesService,
         storageService,
-        recommendationService,
-        descriptorsService
+        recommendationService
     ) {
 
         $scope.shared = {
             metadata : null,
+            initial_metadata : null,
             selected_file : null,
             folder_contents : null,
             multiple_selection_active : null,
@@ -496,7 +496,7 @@ angular.module('dendroApp.controllers')
             metadataService.load_metadata($scope.get_calling_uri())
                 .then(function(metadata){
                     $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
-                    $scope.initial_metadata = metadataService.deserialize_metadata(metadata);
+                    $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
                 });
         };
 
@@ -515,7 +515,7 @@ angular.module('dendroApp.controllers')
                 console.log("Changing location from " + current + " to " + next);
                 $scope.change_location(next,
                     metadataService.dirty_metadata(
-                        $scope.initial_metadata,
+                        $scope.shared.initial_metadata,
                         $scope.shared.metadata
                 ));
             });

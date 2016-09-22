@@ -186,87 +186,106 @@ exports.update = function(req, res) {
                 {
                     if (!err)
                     {
-                        var itsAProject = (project != null);
-                        if (project != null)
+                        var updateResource = function (itsAProject)
                         {
-                            updateResource(itsAProject);
-                        }
-                    }
-                });
+                            var descriptors = [];
 
-                var updateResource = function (itsAProject)
-                {
-                    var descriptors = [];
-
-                    if(req.body instanceof Array)
-                    {
-                        for(var i = 0; i < req.body.length; i++)
-                        {
-                            var rawDescriptor = req.body[i];
-
-                            var descriptor = new Descriptor({
-                                prefix : rawDescriptor.prefix,
-                                shortName: rawDescriptor.shortName,
-                                value : rawDescriptor.value,
-                                uri : rawDescriptor.uri,
-                                prefixedForm : rawDescriptor.prefixedForm
-                            });
-
-                            if(!(descriptor instanceof Descriptor) && descriptor.error != null)
+                            if(req.body instanceof Array)
                             {
-                                res.status(400).json({
-                                    result : "Error",
-                                    message : descriptor.error
-                                });
+                                for(var i = 0; i < req.body.length; i++)
+                                {
+                                    var rawDescriptor = req.body[i];
 
-                                return;
-                            }
-                            else
-                            {
-                                //prevent changes on non-public/non-changeable descriptors
-                                if(!descriptor.private && !descriptor.locked && !(itsAProject && descriptor.locked_for_projects))
-                                {
-                                    descriptors.push(descriptor);
-                                }
-                            }
-                        }
+                                    var descriptor = new Descriptor({
+                                        prefix : rawDescriptor.prefix,
+                                        shortName: rawDescriptor.shortName,
+                                        value : rawDescriptor.value,
+                                        uri : rawDescriptor.uri,
+                                        prefixedForm : rawDescriptor.prefixedForm
+                                    });
 
-                        Descriptor.mergeDescriptors(descriptors, function(err, fusedDescriptors)
-                        {
-                            if(!err)
-                            {
-                                if(req.session.user != null)
-                                {
-                                    var changeAuthor = req.session.user.uri;
-                                }
-                                else
-                                {
-                                    var changeAuthor = null;
+                                    if(!(descriptor instanceof Descriptor) && descriptor.error != null)
+                                    {
+                                        res.status(400).json({
+                                            result : "Error",
+                                            message : descriptor.error
+                                        });
+
+                                        return;
+                                    }
+                                    else
+                                    {
+                                        //prevent changes on non-public/non-changeable descriptors
+                                        if(!descriptor.private && !descriptor.locked && !(itsAProject && descriptor.locked_for_projects))
+                                        {
+                                            descriptors.push(descriptor);
+                                        }
+                                    }
                                 }
 
-                                resource.replaceDescriptorsInMemory(
-                                    fusedDescriptors,
-                                    [Config.types.locked]
-                                );
-
-                                resource.save(function(err, record)
+                                Descriptor.mergeDescriptors(descriptors, function(err, fusedDescriptors)
                                 {
                                     if(!err)
                                     {
-                                        record.reindex(req.index, function(err, result)
+                                        if(req.session.user != null)
+                                        {
+                                            var changeAuthor = req.session.user.uri;
+                                        }
+                                        else
+                                        {
+                                            var changeAuthor = null;
+                                        }
+
+                                        if(!itsAProject)
+                                        {
+                                            resource.replaceDescriptorsInMemory(
+                                                fusedDescriptors,
+                                                [Config.types.locked]
+                                            );
+                                        }
+                                        else
+                                        {
+                                            resource.replaceDescriptorsInMemory(
+                                                fusedDescriptors,
+                                                [Config.types.locked, Config.types.locked_for_project]
+                                            );
+                                        }
+
+                                        resource.save(function(err, record)
                                         {
                                             if(!err)
                                             {
-                                                //Refresh metadata evaluation
-                                                require(Config.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
+                                                record.reindex(req.index, function(err, result)
                                                 {
-                                                    if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
+                                                    if(!err)
                                                     {
-
-                                                        resource.ddr.metadataQuality = evaluation.metadata_evaluation;
-                                                        resource.save(function (err, result)
+                                                        //Refresh metadata evaluation
+                                                        require(Config.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
                                                         {
-                                                            if (!err)
+                                                            if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
+                                                            {
+
+                                                                resource.ddr.metadataQuality = evaluation.metadata_evaluation;
+                                                                resource.save(function (err, result)
+                                                                {
+                                                                    if (!err)
+                                                                    {
+                                                                        res.json({
+                                                                            result: "OK",
+                                                                            message: "Updated successfully.",
+                                                                            new_metadata_quality_assessment: evaluation
+                                                                        });
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        res.status(500).json({
+                                                                            result: "Error",
+                                                                            message: "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body)
+                                                                        });
+                                                                    }
+                                                                });
+                                                            }
+                                                            else
                                                             {
                                                                 res.json({
                                                                     result: "OK",
@@ -274,21 +293,13 @@ exports.update = function(req, res) {
                                                                     new_metadata_quality_assessment: evaluation
                                                                 });
                                                             }
-                                                            else
-                                                            {
-                                                                res.status(500).json({
-                                                                    result: "Error",
-                                                                    message: "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body)
-                                                                });
-                                                            }
                                                         });
                                                     }
                                                     else
                                                     {
-                                                        res.json({
-                                                            result: "OK",
-                                                            message: "Updated successfully.",
-                                                            new_metadata_quality_assessment: evaluation
+                                                        res.status(500).json({
+                                                            result : "Error",
+                                                            message : "Error updating resource : unable to reindex new values. Error reported : " + result
                                                         });
                                                     }
                                                 });
@@ -296,40 +307,39 @@ exports.update = function(req, res) {
                                             else
                                             {
                                                 res.status(500).json({
-                                                    result : "Error",
-                                                    message : "Error updating resource : unable to reindex new values. Error reported : " + result
-                                                });
+                                                    result: "Error saving new record",
+                                                    message : record
+                                                })
                                             }
-                                        });
+                                        }, true, changeAuthor, [Config.types.locked], null, [Config.types.audit]);
                                     }
                                     else
                                     {
                                         res.status(500).json({
-                                            result: "Error saving new record",
-                                            message : record
+                                            result: "Error merging descriptors",
+                                            message : fusedDescriptors
                                         })
                                     }
-                                }, true, changeAuthor, [Config.types.locked], null, [Config.types.audit]);
+                                });
                             }
                             else
                             {
-                                res.status(500).json({
-                                    result: "Error merging descriptors",
-                                    message : fusedDescriptors
-                                })
+                                var error = "Unable to update metadata for : " + req.params.requestedResource + ". JSON metadata must be sent in the body of the POST request and the Content-Type header should be set to 'application/json'";
+                                console.error(error);
+                                res.status(400).json({
+                                    result : "Error",
+                                    message : error
+                                });
                             }
-                        });
+                        };
+
+                        var itsAProject = (project != null);
+                        if (project != null)
+                        {
+                            updateResource(itsAProject);
+                        }
                     }
-                    else
-                    {
-                        var error = "Unable to update metadata for : " + req.params.requestedResource + ". JSON metadata must be sent in the body of the POST request and the Content-Type header should be set to 'application/json'";
-                        console.error(error);
-                        res.status(400).json({
-                            result : "Error",
-                            message : error
-                        });
-                    }
-                }
+                });
             }
             else
             {

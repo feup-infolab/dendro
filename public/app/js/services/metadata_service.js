@@ -83,9 +83,13 @@ angular.module('dendroApp.factories')
 
             var deserialize = $q.defer();
 
-            $http
-                .get(requestUri)
-                .then(
+            $http({
+                method: 'GET',
+                url: requestUri,
+                data: JSON.stringify({}),
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            }).then(
                 function(response)
                 {
                     if(response.data != null && response.data instanceof Object)

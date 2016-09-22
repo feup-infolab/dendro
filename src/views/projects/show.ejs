@@ -31,7 +31,7 @@
                                 </span>
                             </button>
 
-                            <button class="btn btn-sm" data-toggle="modal" data-target="#share-modal">
+                            <button class="btn btn-sm" data-toggle="modal" data-target="#share-modal" ng-hide="showing_project_root()">
                                 <i class="fa fa-clock-o"></i>
                                     <span class="hidden-xs">
                                         Share
@@ -60,7 +60,7 @@
         <%
         }else{
         %>
-            <div class="col-md-9 col-sm-9 col-xs-9">
+            <div ng-class='{"col-md-9 col-sm-9 col-xs-9" : !showing_project_root, "col-md-10 col-sm-10 col-xs-10": showing_project_root}'>
                 <%- include show/breadcrumbs.ejs %>
             </div>
         <%}%>
@@ -204,7 +204,7 @@
 
         <div ng-class="{'col-md-6 col-xs-12 col-sm-9': showing_descriptor_selection_area(), 'col-md-9 col-sm-9 col-xs-9': !showing_descriptor_selection_area()}"
                  ng-show="!(shared.multiple_selection_active && file_explorer_selected_something())"
-                 ng-controller="metadataEditorCtrl">
+                 ng-controller="metadataEditorCtrl" ng-init="init()">
                 <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
                     <li class="active">
                         <a href="#metadata-editor" data-toggle="tab" ng-click="load_metadata()">
@@ -241,25 +241,23 @@
                         <div class="tab-content">
                             <div class="tab-pane active" id="metadata-editor" ng-init="init()">
                                 <br/>
-                                <div ng-switch="edit_mode" class="ng-hide" ng-show="edit_mode != null">
-                                    <div ng-switch-when="true">
-                                        <div ng-if="shared.selected_file != null">
-                                            <%- include show/metadata_editor.ejs %>
-                                        </div>
-                                        <div class="alert alert-info" ng-if="shared.selected_file == null">
-                                            Select one of the resource on the file explorer to edit its metadata.
-                                        </div>
+                                <div ng-show="edit_mode === true && !showing_project_root()">
+                                    <div ng-show="shared.metadata != null">
+                                        <%- include show/metadata_editor.ejs %>
                                     </div>
-                                    <div ng-switch-when="false">
-                                        <div ng-if="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
-                                            <%- include show/file_preview.ejs %>
-                                        </div>
-                                        <div class="alert alert-info" ng-if="(shared.selected_file == null)">
-                                            Select one of the resource on the file explorer to view its metadata.
-                                        </div>
+                                    <div class="alert alert-info" ng-show="(shared.selected_file == null && shared.metadata == null)">
+                                        Select one of the resource on the file explorer to view its metadata.
+                                    </div>
+                                </div>
+                                <div ng-show="edit_mode === false || edit_mode === null || showing_project_root()">
+                                    <div ng-if="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
+                                        <%- include show/file_preview.ejs %>
+                                    </div>
+                                    <div class="alert alert-info" ng-show="(shared.selected_file == null && shared.metadata == null)">
+                                        Select one of the resource on the file explorer to view its metadata.
+                                    </div>
 
-                                        <%- include show/metadata_viewer.ejs %>
-                                    </div>
+                                    <%- include show/metadata_viewer.ejs %>
                                 </div>
                             </div>
                             <div class="tab-pane" id="change_log" ng-controller="changeLogController">

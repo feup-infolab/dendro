@@ -269,7 +269,7 @@ angular.module('dendroApp.controllers')
                             $scope.change_location(
                                 $scope.shared.folder_contents[index].uri,
                                 metadataService.dirty_metadata(
-                                    $scope.initial_metadata,
+                                    $scope.shared.initial_metadata,
                                     $scope.shared.metadata
                                 )
                             );
@@ -344,7 +344,7 @@ angular.module('dendroApp.controllers')
             }
         },
             metadataService.dirty_metadata(
-                $scope.initial_metadata,
+                $scope.shared.initial_metadata,
                 $scope.shared.metadata
             )
         );
@@ -361,7 +361,14 @@ angular.module('dendroApp.controllers')
                     $scope.get_calling_uri()
                 );
 
-                metadataService.load_metadata();
+                metadataService.load_metadata()
+                    .then(
+                        function(metadata)
+                        {
+                            $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
+                            $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
+                        }
+                    );
 
                 if($scope.preview_available())
                 {
@@ -393,7 +400,7 @@ angular.module('dendroApp.controllers')
                             metadataService.load_metadata($scope.get_calling_uri())
                                 .then(function(metadata){
                                     $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
-                                    $scope.initial_metadata = metadataService.deserialize_metadata(metadata);
+                                    $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
                                 });
 
                             if ($scope.preview_available()) // && !is_chrome())

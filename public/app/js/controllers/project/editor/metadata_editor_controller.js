@@ -30,7 +30,7 @@ angular.module('dendroApp.controllers')
                             function(metadata)
                             {
                                 $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
-                                $scope.initial_metadata = metadataService.deserialize_metadata(metadata);
+                                $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
                             }
                         );
                 }
@@ -195,7 +195,7 @@ angular.module('dendroApp.controllers')
         $scope.dirty_metadata = function() {
 
             return metadataService.dirty_metadata(
-                $scope.initial_metadata,
+                $scope.shared.initial_metadata,
                 $scope.shared.metadata
             );
         };

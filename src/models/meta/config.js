@@ -409,7 +409,8 @@ Config.types = {
     api_readable : "api_readable",                      //accessible to the outside world via API calls
     api_writeable : "api_writeable",                    //modifiable from the outside world via API calls
     immutable : "immutable",                            //cannot be changed under ANY circumstance
-    unrevertable : "unrevertable"                       //cannot be fallen back in the a "restore previous version" operation
+    unrevertable : "unrevertable",                      //cannot be fallen back in the a "restore previous version" operation
+    locked_for_project : "locked_for_project"           //project metadata which cannot be modified using the metadata editor, has to go through the project administrator
 };
 
 /*

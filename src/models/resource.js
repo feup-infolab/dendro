@@ -1977,8 +1977,8 @@ Resource.prototype.restoreFromArchivedVersion = function(version, callback, uriO
 
 
 Resource.prototype.findMetadataRecursive = function(callback){
-    var Ontology = require('meta/ontology.js').Ontology;
-    var Folder = require('directory_structure/folder').Folder;
+    var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 
     var self = this;
     Resource.findByUri(self.uri, function(err, resource){

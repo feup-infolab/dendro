@@ -622,7 +622,8 @@ Elements.foaf =
 Elements.ddr = {
     handle :  {
         type : DbConnection.string,
-        control : Config.controls.input_box
+        control : Config.controls.input_box,
+        locked_for_projects : true
     },
     password :
     {
@@ -863,7 +864,8 @@ Elements.ddr = {
     {
         type: DbConnection.string,
         api_readable: true,
-        control: Config.controls.input_box
+        control: Config.controls.input_box,
+        locked_for_project : true
     },
     hasContent :
     {
