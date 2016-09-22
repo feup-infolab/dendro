@@ -333,7 +333,7 @@ export_to_repository_ckan = function(req, res){
                             }
                             else
                             {
-                                console.log("3");
+                                console.log("3" + targetRepository.ddr.hasExternalUri  + " " + targetRepository.ddr.hasUsername + " " + targetRepository.ddr.hasPassword);
                                 ckan.showTimes();
                                 ckan.setServer(targetRepository.ddr.hasExternalUri);
                                 ckan.login(targetRepository.ddr.hasUsername, targetRepository.ddr.hasPassword, function(error){
