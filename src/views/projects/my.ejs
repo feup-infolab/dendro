@@ -80,7 +80,7 @@
                                                     <%
                                                     }
                                                     %>
-                                                            <b><%= project.dcterms.description %>
+                                                            <b><%= project.dcterms.description %></b>
                                                     <% if(!project.ddr.deleted)
                                                     {
                                                     %>
@@ -100,24 +100,9 @@
                                                 if(locals.session != null && locals.session.user != null && locals.session.user.uri == project.dcterms.creator)
                                                 {
                                                 %>
-                                                    <td>
-                                                        <a class="btn btn-sm btn-warning fa fa-cogs" href="/project/<%=project.ddr.handle%>?administer">Administer</a>
-                                                        <%
-                                                        if (project.ddr.deleted)
-                                                        {
-                                                        %>
-                                                            <form action="/project/<%=project.ddr.handle%>/undelete" method="POST">
-                                                                <button type="submit" class="btn btn-sm btn-info fa fa-undo">Show again</button>
-                                                            </form>
-                                                        <%
-                                                        } else {
-                                                        %>
-                                                            <form action="/project/<%=project.ddr.handle%>/delete" method="POST">
-                                                                <button type="submit" class="btn btn-sm btn-danger fa fa-eye-slash">Hide</button>
-                                                            </form>
-                                                        <%
-                                                        }
-                                                        %>
+                                                    <td class="col-md-2 col-xs-4">
+                                                        <a class="btn btn-warning fa fa-cogs" href="/project/<%=project.ddr.handle%>?administer">Administer</a>
+                                                        <a class="btn btn-warning fa fa-file-zip-o" href="/project/<%=project.ddr.handle%>?bagit">BagIt!</a>
                                                     </td>
                                                 <% } %>
                                             </tr>

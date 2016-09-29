@@ -31,15 +31,64 @@ exports.download = function(req, res){
                 );
 
                 var includeMetadata = (req.query.backup != null);
+                var bagIt = (req.query.bagit != null);
 
-                folderToDownload.zipAndDownload(includeMetadata, function(err, writtenFilePath)
+                var async = require('async');
+
+                async.series([
+                    function(cb)
+                    {
+                        if(bagIt)
+                        {
+                            var bagitOptions = {
+                                cryptoMethod: 'sha256'
+                            };
+
+                            folderToDownload.bagit(bagitOptions, function(err, result, absolutePathOfFinishedFolder, parentFolderPath)
+                            {
+                                var path = require('path');
+
+                                var finishedZipFileName = "bagit_backup.zip";
+                                var finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
+
+                                Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function(err, zipFileFullPath){
+                                    cb(err, zipFileFullPath);
+                                }, finishedZipFileName, true);
+                            });
+                        }
+                        else
+                        {
+                            folderToDownload.zipAndDownload(includeMetadata, function(err, writtenFilePath)
+                            {
+                                cb(err, writtenFilePath);
+                            });
+                        }
+                    }
+                ],
+                function(err, results)
                 {
                     if(!err)
                     {
-                        if(writtenFilePath != null)
+                        if(results != null && results[0] != null)
                         {
+                            var writtenFilePath = results[0];
+
                             var fs = require('fs');
                             var fileStream = fs.createReadStream(writtenFilePath);
+
+                            res.on('end', function () {
+                                File.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
+                                    if(err)
+                                    {
+                                        console.error("Unable to delete " + writtenFilePath);
+                                    }
+                                    else
+                                    {
+                                        console.log("Deleted " + writtenFilePath);
+                                    }
+                                });
+                            });
+
                             fileStream.pipe(res);
                         }
                         else
@@ -118,6 +167,19 @@ exports.download = function(req, res){
                                                     'Content-disposition': 'attachment; filename="' + file.nie.title+"\"",
                                                     'Content-type': mimeType
                                                 });
+
+                                            res.on('end', function () {
+                                                Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
+                                                    if(err)
+                                                    {
+                                                        console.error("Unable to delete " + writtenFilePath);
+                                                    }
+                                                    else
+                                                    {
+                                                        console.log("Deleted " + writtenFilePath);
+                                                    }
+                                                });
+                                            });
 
                                             fileStream.pipe(res);
                                         }
@@ -213,8 +275,21 @@ exports.serve = function(req, res){
                         {
                             var fs = require('fs');
                             var fileStream = fs.createReadStream(writtenFilePath);
-                            fileStream.pipe(res);
 
+                            res.on('end', function () {
+                                Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
+                                    if(err)
+                                    {
+                                        console.error("Unable to delete " + writtenFilePath);
+                                    }
+                                    else
+                                    {
+                                        console.log("Deleted " + writtenFilePath);
+                                    }
+                                });
+                            });
+
+                            fileStream.pipe(res);
                         }
                         else
                         {
@@ -293,13 +368,20 @@ exports.serve = function(req, res){
                                                     'Content-type': mimeType
                                                 });
 
-                                            fileStream.on('end', function(){
-                                                console.log("close");
-                                                deleteTempFile(writtenFilePath);
+                                            res.on('end', function () {
+                                                Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
+                                                    if(err)
+                                                    {
+                                                        console.error("Unable to delete " + parentFolderPath);
+                                                    }
+                                                    else
+                                                    {
+                                                        console.log("Deleted " + parentFolderPath);
+                                                    }
+                                                });
                                             });
+
                                             fileStream.pipe(res);
-
-
                                         }
                                         else
                                         {
@@ -391,14 +473,26 @@ exports.serve_base64 = function(req, res){
                                         var fs = require('fs');
                                         var fileStream = fs.createReadStream(writtenFilePath);
 
-                                        fileStream.on('end', function(){
+                                        res.on('end', function(){
                                             console.log("close");
                                             deleteTempFile(writtenFilePath);
                                         });
                                         var base64 = require('base64-stream');
+
+                                        res.on('end', function () {
+                                            Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
+                                                if(err)
+                                                {
+                                                    console.error("Unable to delete " + writtenFilePath);
+                                                }
+                                                else
+                                                {
+                                                    console.log("Deleted " + writtenFilePath);
+                                                }
+                                            });
+                                        });
+
                                         fileStream.pipe(base64.encode()).pipe(res);
-
-
                                     }
                                     else
                                     {
@@ -1387,15 +1481,6 @@ textFileParser = function (req,res,filePath){
     });
 };
 
-deleteTempFile = function(filePath){
-    var fs = require('fs');
-
-    fs.unlink(filePath, function (err) {
-        if (err) throw err;
-        console.log('successfully deleted temporary file ' +filePath);
-    });
-}
-
 exports.dataParsers = {
     "xls" : xlsFileParser,
     "xlsx" : xlsFileParser,
@@ -1404,4 +1489,13 @@ exports.dataParsers = {
     "log" : textFileParser,
     "xml" : textFileParser
 
+}
+
+deleteTempFile = function(filePath){
+    var fs = require('fs');
+
+    fs.unlink(filePath, function (err) {
+        if (err) throw err;
+        console.log('successfully deleted temporary file ' +filePath);
+    });
 }

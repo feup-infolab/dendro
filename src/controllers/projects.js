@@ -769,6 +769,73 @@ exports.administer = function(req, res) {
     });
 };
 
+exports.bagit = function(req,res)
+{
+    var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+
+    Project.findByUri(requestedProjectURI, function(err, project){
+        if(!err)
+        {
+            if(project != null && project instanceof Project)
+            {
+                project.backup(function(err, baggedContentsZipFileAbsPath, parentFolderPath){
+                    if(!err)
+                    {
+                        if(baggedContentsZipFileAbsPath != null)
+                        {
+                            var fs = require('fs');
+                            var fileStream = fs.createReadStream(baggedContentsZipFileAbsPath);
+
+                            res.on('end', function () {
+                                Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
+                                    if(err)
+                                    {
+                                        console.error("Unable to delete " + parentFolderPath);
+                                    }
+                                    else
+                                    {
+                                        console.log("Deleted " + parentFolderPath);
+                                    }
+                                });
+                            });
+
+                            fileStream.pipe(res);
+                        }
+                        else
+                        {
+                            var error = "There was an error attempting to backup project : " + requestedProjectURI;
+                            console.error(error);
+                            res.write("500 Error : "+ error +"\n");
+                            res.end();
+                        }
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "error",
+                            message : "project " + requestedProjectURI + " was found but it was impossible to delete because of error : " + baggedContentsZipFileAbsPath
+                        })
+                    }
+                });
+            }
+            else
+            {
+                res.status(404).json({
+                    result : "error",
+                    message : "Unable to find project with handle : " + req.params.handle
+                });
+            }
+        }
+        else
+        {
+            res.status(500).json({
+                result : "error",
+                message : "Invalid project : " + requestedProjectURI + " : " + project
+            });
+        }
+    });
+};
+
 exports.delete = function(req,res)
 {
     var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;

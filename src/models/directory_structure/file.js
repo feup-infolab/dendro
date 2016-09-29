@@ -652,6 +652,16 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
     });
 };
 
+File.deleteOnLocalFileSystem = function(err, callback)
+{
+    var exec = require('child_process').exec;
+    var command = "rm absPath";
+    var rm = exec(command, {}, function (error, stdout, stderr)
+    {
+        callback(error, stdout, stderr);
+    });
+}
+
 File.prefixedRDFType = "nfo:FileDataObject";
 
 File = Class.extend(File, InformationElement);
