@@ -56,6 +56,69 @@ Project.prototype.undelete = function(callback)
     this.save(callback);
 };
 
+Project.prototype.backup = function(callback)
+{
+    var self = this;
+    self.ddr.beingBackedUp = true;
+
+    if(self.ddr.rootFolder == null && self.nie.hasLogicalPart != null)
+    {
+        self.ddr.rootFolder = self.nie.hasLogicalPart;
+    }
+
+    self.save(function(err, result){
+        if(!err && result instanceof Project)
+        {
+            if(self.ddr.rootFolder != null)
+            {
+                console.log("Started backup of project " + self.uri);
+                Folder.findByUri(self.ddr.rootFolder, function(err, folder){
+                    if(!err && folder instanceof Folder)
+                    {
+                        var bagItOptions = {
+                            cryptoMethod: 'sha256',
+                            sourceOrganization: self.dcterms.publisher,
+                            organizationAddress: '123 Street',
+                            contactName: 'Contact Name',
+                            contactPhone: '555-555-5555',
+                            contactEmail: 'test@example.org',
+                            externalDescription: 'An example description'
+                        };
+
+                        folder.bagit(
+                            bagItOptions,
+                            function(err, result, absolutePathOfFinishedFolder, parentFolderPath){
+                                if(!err)
+                                {
+                                    var path = require('path');
+
+                                    var finishedZipFileName = "bagit_backup.zip";
+                                    var finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
+                                    Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function(err, zipFileFullPath){
+                                        callback(err, zipFileFullPath, parentFolderPath);
+                                    }, finishedZipFileName, true);
+                                }
+                                else
+                                {
+                                    callback(1, "Unable to zip folder at " + finalBagItOptions.bagName + " \n " + finalBagItOptions);
+                                }
+                            }
+                        );
+                    }
+                    else
+                    {
+                        callback(1, "Folder with " + self.ddr.rootFolder + " does not exist: " + folder);
+                    }
+                });
+            }
+            else
+            {
+                callback(1, "Project : " + self.uri + " has no root folder.");
+            }
+        }
+    });
+};
+
 Project.all = function(callback) {
     var query =
             "SELECT * " +
@@ -427,7 +490,12 @@ Project.createAndInsertFromObject = function(object, callback) {
 
                 rootFolder.save(function(err, result)
                 {
-                    callback(err, result);
+                    newProject.ddr.rootFolder = rootFolder.uri;
+                    newProject.nie.hasLogicalPart = rootFolder.uri;
+
+                    newProject.save(function(err, result){
+                        callback(err, result);
+                    });
                 });
             }
             else

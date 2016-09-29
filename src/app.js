@@ -1035,7 +1035,7 @@ async.waterfall([
 
                 if(req.originalMethod == "GET")
                 {
-                    if(req.query.download != null || req.query.backup != null)
+                    if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
                     {
                         req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
                         files.download(req, res);
@@ -1140,7 +1140,7 @@ async.waterfall([
 
                 if(req.originalMethod == "GET")
                 {
-                    if(req.query.download != null || req.query.backup != null)
+                    if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
                     {
                         files.download(req, res);
                         return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!

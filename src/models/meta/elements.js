@@ -673,7 +673,8 @@ Elements.ddr = {
     rootFolder :
     {
         type : DbConnection.resource,
-        control : Config.controls.url_box
+        control : Config.controls.url_box,
+        locked : true
     },
     checksum :
     {
@@ -872,7 +873,14 @@ Elements.ddr = {
         type : DbConnection.string,
         api_readable: true,
         control : Config.controls.input_box
-    }
+    },
+    beingBackedUp :
+    {
+        type : DbConnection.boolean,
+        api_readable: true,
+        locked : true,
+        control : Config.controls.input_box
+    },
 };
 
 /**

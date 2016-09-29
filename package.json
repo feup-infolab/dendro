@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "preinstall": "npm i -g gladstone"
   },
   "dependencies": {
     "MD5": "1.1.0",
@@ -25,6 +26,7 @@
     "express": "3.2.6",
     "eyes": "0.1.8",
     "file-stream-rotator": "0.0.7",
+    "gladstone": "git+https://github.com/little9/gladstone.git",
     "gridfs-stream": "0.4.0",
     "humanize": "0.0.9",
     "jade": "*",
