@@ -1,6 +1,0 @@
-Contact-Phone: 555-555-5555
-Contact-Email: test@example.org
-Source-Organization: FEUP
-External-Description: An example description
-Contact-Name: Contact Name
-Organization-Address: 123 Street
