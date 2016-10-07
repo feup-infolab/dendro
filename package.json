@@ -25,6 +25,7 @@
     "expect": "^1.20.2",
     "express": "3.2.6",
     "eyes": "0.1.8",
+    "file-size": "^1.0.0",
     "file-stream-rotator": "0.0.7",
     "gladstone": "git+https://github.com/little9/gladstone.git",
     "gridfs-stream": "0.4.0",

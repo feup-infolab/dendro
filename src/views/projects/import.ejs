@@ -4,10 +4,59 @@
     <%=locals.title %>
 </h1>
 
-<script type="text/javascript" src="/app/js/controllers/social/timeline_controller.js"></script>
+<script type="text/javascript" src="/app/js/controllers/project/import/import_project_controller.js"></script>
 
 <div ng-controller="importProjectCtrl">
 
+    <div class="alert alert-info">
+        This page allows you to import a project produced by another Dendro. We will guide you through the process.
+        <br>
+        Start by uploading a <strong>ZIP file</strong> produced by the "Backup" operation in the projects list of your original Dendro installation.
+    </div>
+
+    <div class="panel panel-default" ng-show="!uploading">
+        <div class="panel-body">
+            <div class="upload-area"
+                 ngf-select
+                 ngf-drop
+                 ng-model="file"
+                 ngf-multiple="false"
+                 ngf-pattern="application/zip"
+                 ngf-drag-over-class="dragClass"
+                >
+                Click here or drag and drop to upload a <b style="font-size:3rem">ZIP file</b> containing a <b style="font-size:3rem">project backup</b>
+            </div>
+        </div>
+        <div class="panel-footer">Maximum zip file size : <%= locals.maxUploadSize %> </div>
+    </div>
+
+    <div class="progress" ng-show="uploading">
+        <div class="progress-bar progress-bar-striped"
+             role="progressbar"
+             aria-valuenow="{{file.progress}}"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             ng-class="{animated: uploading}"
+             style="width: {{file.progress}}%">
+            <span class="sr-only">{{file.progress}}% Complete</span>
+        </div>
+    </div>
+
+    File:
+    <ul>
+        <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$errorParam}}
+        <span class="progress" ng-show="f.progress >= 0">
+            <div style="width:{{f.progress}}%"
+                 ng-bind="f.progress + '%'">
+            </div>
+        </span>
+        </li>
+        <li ng-repeat="f in errFiles" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}
+        </li>
+    </ul>
+    {{errorMsg}}
+
+    <div ngf-no-file-drop>File Drag/drop is not supported</div>
 </div>
 
 <%- include ../layout/footer.ejs %>

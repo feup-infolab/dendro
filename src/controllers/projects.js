@@ -1269,9 +1269,12 @@ exports.requestAccess = function(req, res){
 exports.import = function(req, res) {
     if(req.originalMethod == "GET")
     {
+        var filesize = require('file-size');
+
         res.render('projects/import',
             {
-                title: "Import a project"
+                title: "Import a project",
+                maxUploadSize : filesize(Config.maxUploadSize).human('jedec')
             }
         );
     }

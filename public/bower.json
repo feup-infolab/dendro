@@ -56,13 +56,14 @@
     "angular-moment": "^0.10.3",
     "angular-highlightjs": "^0.5.1",
     "angular-tree-control": "^0.2.28",
-    "async": "^2.0.1"
+    "async": "^2.0.1",
+    "ng-file-upload-shim": "^12.2.12"
   },
   "resolutions": {
     "angular": "1.5.8",
     "async": "2.0.1",
     "bootstrap": "^3.3.6",
     "moment": "^2.12.0",
-    "jquery" : "2.2.4"
+    "jquery": "2.2.4"
   }
 }
