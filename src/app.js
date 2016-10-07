@@ -1301,7 +1301,16 @@ async.waterfall([
 
         //      social
         app.get('/posts/all', async.apply(Permissions.require, [Permissions.acl.user]), posts.all);
+        app.post('/posts/post', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPost_controller);
         app.post('/posts/new', async.apply(Permissions.require, [Permissions.acl.user]), posts.new);
+        app.post('/posts/like', async.apply(Permissions.require, [Permissions.acl.user]), posts.like);
+        app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.acl.user]), posts.checkIfPostIsLikedByUser);
+        app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.acl.user]), posts.postLikesInfo);
+        app.post('/posts/comment', async.apply(Permissions.require, [Permissions.acl.user]), posts.comment);
+        app.post('/posts/comments', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostComments);
+        app.post('/posts/share', async.apply(Permissions.require, [Permissions.acl.user]), posts.share);
+        app.post('/posts/shares', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostShares);
+        app.get('/posts/loggedUser', async.apply(Permissions.require, [Permissions.acl.user]), posts.getLoggedUser);
 
         //serve angularjs ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,

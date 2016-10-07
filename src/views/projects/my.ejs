@@ -3,11 +3,11 @@
 <div>
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation" class="active"><a href="#list" aria-controls="home" role="tab" data-toggle="tab">Projects list</a></li>
-        <!-- <li role="presentation" class="active"><a href="#timeline" aria-controls="profile" role="tab" data-toggle="tab">Timeline</a></li> -->
+        <li role="presentation"><a href="#list" aria-controls="home" role="tab" data-toggle="tab">Projects list</a></li>
+        <li role="presentation" class="active"><a href="#timeline" aria-controls="profile" role="tab" data-toggle="tab">Timeline</a></li>
     </ul>
     <div class="tab-content">
-        <div role="tabpanel" class="tab-pane active" id="list">
+        <div role="tabpanel" class="tab-pane" id="list">
             <h1 class="page-header">
                 Your projects
             </h1>
@@ -125,10 +125,11 @@
                         <% }  %>
                 <% } %>
         </div>
-        <!--<div role="tabpanel" class="tab-pane active" id="timeline">
+        <div role="tabpanel" class="tab-pane active" id="timeline">
             <%- include ../social/timeline.ejs %>
-        </div> -->
+        </div>
 
 </div>
 <%- include ../layout/footer.ejs %>
 
+</div>

@@ -1,25 +1,132 @@
-ola ola sou uma timeline
-
-<div ng-controller="timelineCtrl" ng-init="init()">
-
-    <div class="wall">
+<div ng-controller="timelineCtrl" ng-init="init(); get_logged_user()" xmlns="http://www.w3.org/1999/html">
+    <p>LOGGED USER IS : {{loggedUser}}</p>
+    <!--<div class="wall">
         <label for="new_post_box">Novo post:</label>
         <input ng-model="new_post_content" type="text" id="new_post_box"/>
         <a ng-click="new_post()" class="btn btn-default btn-primary">Enviar</a>
+    </div>-->
+    <div class="container">
+        <h3>Social Dendro</h3>
+        <ul class="list-group">
+            <!--<li class="list-group-item" ng-repeat="postURI in posts | limitTo:5">-->
+            <!--<li dir-paginate="postURI in posts | filter:q | itemsPerPage: pageSize" current-page="currentPage">{{ postURI.uri }}</li>-->
+
+            <!--
+            <button ng-click="getPost(postURI.uri, null)">
+                Increment
+            </button>
+            <span>
+              currentPost: {{postList[postURI.uri]}}
+            </span>-->
+
+            <!--<div ng-init="waitForPostInfo(postURI.uri);getPost(postURI, null)">
+                <script>
+                    console.log('AQUI ASSIM');
+                    var socket = io('http://127.0.0.1:3001');
+                    socket.on('postURI:', function (postData) {
+                        console.log('this was the data:');
+                        console.log(postData);
+                    });
+                    var waitForPostInfo = function (uri) {
+                        console.log('TOU AQUI');
+                        var socket = io('http://127.0.0.1:3001');
+                        socket.on('chat message', function (msg) {
+                            console.log('this was the message: ', msg);
+                        });
+                        socket.on('postURI:'+uri, function (postData) {
+                            console.log('this was the ' + uri + ' data:');
+                            console.log(postData);
+                        });
+                    };*/
+                </script>
+                {{postList[postURI]}}
+            </div>-->
+            <div dir-paginate="postURI in posts | filter:q | itemsPerPage: pageSize" current-page="currentPage">
+                URI is : {{ postURI.uri }}
+                <div ng-init="getPost(postURI.uri, null);postLikesInfo(postURI.uri);getCommentsFromPost(postURI.uri);getSharesFromPost(postURI.uri)">
+                    <!--<div ng-if="!postList[postURI].rdf.isShare">-->
+                    <!--cenas: {{postList[postURI.uri]}}-->
+                    <div>
+                        <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+                        <table class="table changelog-table">
+                            <tr>
+                                <th width="14%">
+
+                                </th>
+                                <th width="14%" class="table-centertext">
+                                    Author
+                                </th>
+                                <th width="14%">
+                                    Change Type
+                                </th>
+                                <th width="14%">
+                                    File
+                                </th>
+                                <th width="14%">
+                                    Descriptor
+                                </th>
+                                <th width="14%">
+                                    Value
+                                </th>
+
+                                <th width="14%">
+
+                                </th>
+                            </tr>
+
+                            <tr>
+                                <td> </td>
+                                <td> <a ng-href="{{postList[postURI.uri].dcterms.creator}}"> {{postList[postURI.uri].dcterms.creator.split('/').pop()}} </a> </td>
+                                <td> {{postList[postURI.uri].ddr.changeType}} </td>
+                                <td> <a ng-href="{{postList[postURI.uri].ddr.hasContent.split('/version/')[0]}}"> {{postList[postURI.uri].ddr.hasContent.split('/version/')[0]}} </a> </td>
+                                <td> {{postList[postURI.uri].ddr.changedDescriptor}} </td>
+                                <td> {{postList[postURI.uri].ddr.newValue}} </td>
+                                <td> </td>
+                            </tr>
+                        </table>
+
+                        <!--<p> {{postList[postURI.uri].ddr.numLikes}} likes, n comments, n shares</p>-->
+                        <p> {{likesPostInfo[postURI.uri].numLikes}} likes, {{commentList[postURI.uri].length}} comments, {{shareList[postURI.uri].length}} shares</p>
+                        <div class="btn-group">
+                            <!--indexOf(substring) > -1-->
+                            <!--<label ng-model="checkModel.left" ng-class="postList[postURI.uri].ddr.usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="likePost(postList[postURI.uri].uri)">Like</label>-->
+                            <label ng-model="checkModel.left" ng-class="likesPostInfo[postURI.uri].usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="likePost(postList[postURI.uri].uri)">Like</label>
+                            <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; getCommentsFromPost(postList[postURI.uri].uri);isShareFormOpen = false;">Comment</label>
+                            <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen; getSharesFromPost(postList[postURI.uri].uri);isReplyFormOpen = false;">Share</label>
+                        </div>
+
+                        <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
+                            <div class="wall">
+                                <div ng-repeat="comment in commentList[postList[postURI.uri].uri] | orderBy: 'dcterms.created'">
+                                    <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
+                                    <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
+                                    <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+                                    <hr>
+                                </div>
+                                <label for="new_post_box">{{loggedUser.split('/').pop()}} :</label>
+                                <input ng-model="comment_content" type="text" id="new_post_box"/>
+                                <a ng-click="commentPost(postList[postURI.uri].uri,comment_content)" class="btn btn-default btn-primary">Enviar</a>
+                            </div>
+                        </div>
+
+                        <div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare">
+                            <div class="wall">
+                                <label for="new_post_box_share">Insira uma share message:</label>
+                                <input ng-model="share_content" type="text" id="new_post_box_share"/>
+                                <a ng-click="sharePost(postList[postURI.uri].uri,share_content)" class="btn btn-default btn-primary">Enviar shareMessage</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </li>
+        </ul>
     </div>
+</div>
 
-    <br/>
-
-    <div ng-repeat="post in posts">
-        Autor : {{post.dcterms.creator}}
-
-        <br/>
-
-        Conteúdo : {{post.ddr.hasContent}}
-
-        <br/>
-        <br/>
-        <br/>
+<div ng-controller="nextPageCtrl" class="other-controller">
+    <small>this is in "next_page_controller"</small>
+    <div class="text-center">
+        <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/bower_components/angularUtils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
     </div>
-
 </div>

@@ -27,6 +27,8 @@ function Post (object)
 
     self.rdf.type = "ddr:Post";
 
+    self.ddr.numLikes = 0;
+
     return self;
 }
 

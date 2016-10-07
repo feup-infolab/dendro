@@ -874,6 +874,54 @@ Elements.ddr = {
         api_readable: true,
         control : Config.controls.input_box
     },
+    numLikes :
+    {
+        type : DbConnection.int,
+        api_readable : true,
+        control : Config.controls.input_box
+    },
+    userWhoLiked :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
+    postURI :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
+    userWhoCommented :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
+    commentMsg :
+    {
+        type : DbConnection.string,
+        api_readable: true,
+        control : Config.controls.input_box
+    },
+    shareMsg :
+    {
+        type : DbConnection.string,
+        api_readable: true,
+        control : Config.controls.input_box
+    },
+    userWhoShared :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
+    usersWhoLiked :
+    {
+        type : DbConnection.string,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
     beingBackedUp :
     {
         type : DbConnection.boolean,
@@ -923,6 +971,11 @@ Elements.rdf = {
     value :
     {
         type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    isShare :
+    {
+        type : DbConnection.boolean,
         control : Config.controls.input_box
     }
 }
