@@ -101,8 +101,18 @@
                                                 {
                                                 %>
                                                     <td class="col-md-2 col-xs-4">
-                                                        <a class="btn btn-warning fa fa-cogs" href="/project/<%=project.ddr.handle%>?administer">Administer</a>
-                                                        <a class="btn btn-warning fa fa-file-zip-o" href="/project/<%=project.ddr.handle%>?bagit">BagIt!</a>
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Operations
+                                                                <span class="caret"></span></button>
+                                                            <ul class="dropdown-menu">
+                                                                <li>
+                                                                    <a href="/project/<%=project.ddr.handle%>?administer"><i class="fa fa-cog"></i>Administer</a>
+                                                                </li>
+                                                                <li>
+                                                                    <a href="/project/<%=project.ddr.handle%>?bagit"><i class="fa fa-file-zip-o"></i>Backup</a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
                                                     </td>
                                                 <% } %>
                                             </tr>

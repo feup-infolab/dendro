@@ -963,6 +963,9 @@ async.waterfall([
         app.get('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
         app.post('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
 
+        app.get('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
+        app.post('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
+
         app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);
         app.get('/project/:handle/view', projects.show);
         app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);

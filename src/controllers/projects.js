@@ -1265,3 +1265,18 @@ exports.requestAccess = function(req, res){
         });
     }
 };
+
+exports.import = function(req, res) {
+    if(req.originalMethod == "GET")
+    {
+        res.render('projects/import',
+            {
+                title: "Import a project"
+            }
+        );
+    }
+    else if (req.originalMethod == "POST")
+    {
+
+    }
+};
