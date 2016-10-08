@@ -10,32 +10,37 @@ angular.module('dendroApp.controllers')
         $log,
         $localStorage,
         $timeout,
-        Upload
+        uploadsService,
+        windowService
     )
     {
         $scope.validate = {size: {max: '20MB', min: '10B'}, height: {max: 12000}, width: {max: 12000}, duration: {max: '5m'}};
         $scope.dragClass= {pattern: 'application/zip', accept:'upload-area-dropped-accept', reject:'upload-area-dropped-reject', delay:100};
 
-        $scope.uploadFiles = function(files, errFiles) {
-            $scope.files = files;
-            $scope.errFiles = errFiles;
-            angular.forEach(files, function(file) {
-                file.upload = Upload.upload({
-                    url: 'https://angular-file-upload-cors-srv.appspot.com/upload',
-                    data: {file: file}
-                });
+        $scope.upload_for_importing = function(file) {
+            $scope.file = file;
+            $scope.uploading = true;
 
-                file.upload.then(function (response) {
+            uploadsService.upload (file, '/projects/import')
+                .then(function (response) {
                     $timeout(function () {
                         file.result = response.data;
+                        $scope.uploading = false;
                     });
                 }, function (response) {
                     if (response.status > 0)
+                    {
                         $scope.errorMsg = response.status + ': ' + response.data;
+                        windowService.show_popup("error", "Unable to upload.", "Error reported: " + $scope.errorMsg );
+                    }
+                    $scope.uploading = false;
                 }, function (evt) {
-                    file.progress = Math.min(100, parseInt(100.0 *
-                        evt.loaded / evt.total));
+                    file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                    $scope.upload_progress = file.progress;
+                })
+                .catch(function(e){
+                    windowService.show_popup("error", "Unable to upload. Error reported: " + JSON.stringify(e));
+                    $scope.uploading = false;
                 });
-            });
         }
     });

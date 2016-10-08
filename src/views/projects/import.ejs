@@ -18,7 +18,7 @@
         <div class="panel-body">
             <div class="upload-area"
                  ngf-select
-                 ngf-drop
+                 ngf-drop="upload_for_importing($file)"
                  ng-model="file"
                  ngf-multiple="false"
                  ngf-pattern="application/zip"
@@ -38,23 +38,9 @@
              aria-valuemax="100"
              ng-class="{animated: uploading}"
              style="width: {{file.progress}}%">
-            <span class="sr-only">{{file.progress}}% Complete</span>
+            <span class="sr-only">{{file.upload_progress}}% Complete</span>
         </div>
     </div>
-
-    File:
-    <ul>
-        <li ng-repeat="f in files" style="font:smaller">{{f.name}} {{f.$errorParam}}
-        <span class="progress" ng-show="f.progress >= 0">
-            <div style="width:{{f.progress}}%"
-                 ng-bind="f.progress + '%'">
-            </div>
-        </span>
-        </li>
-        <li ng-repeat="f in errFiles" style="font:smaller">{{f.name}} {{f.$error}} {{f.$errorParam}}
-        </li>
-    </ul>
-    {{errorMsg}}
 
     <div ngf-no-file-drop>File Drag/drop is not supported</div>
 </div>
