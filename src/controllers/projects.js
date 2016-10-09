@@ -1290,16 +1290,13 @@ exports.import = function(req, res) {
 
             if(path.extname(tempFilePath) == ".zip")
             {
-                project.restoreFromLocalBackupZipFile(tempFilePath, user, function(err, result){
+                Project.getStructureFromBagItZipFolder(tempFilePath, function(err, result){
                     if(!err)
                     {
-                        var msg = "Successfully restored zip file to folder : " + result;
-                        console.log(msg);
-
                         res.status(200).json(
                             {
                                 "result" : "success",
-                                "message" : msg
+                                "backup_contents" : result
                             }
                         );
                     }

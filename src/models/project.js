@@ -1153,6 +1153,197 @@ Project.privacy = function (projectUri, callback) {
     });
 };
 
+Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
+{
+    var fs = require('fs');
+    fs.stat(absPathOfRootFolder, function(err, stat)
+    {
+        if (err == null)
+        {
+            if(stat.isDirectory())
+            {
+                var dataFolder = path.join(absPathOfRootFolder, "data");
+                fs.stat(dataFolder, function(err, stat)
+                {
+                    if (err == null)
+                    {
+                        if(stat.isDirectory())
+                        {
+                            fs.readdir(dataFolder, function (err, folderContents) {
+                                if(!err)
+                                {
+                                    if(folderContents instanceof Array && folderContents.length == 1)
+                                    {
+                                        var childOfDataFolderAbsPath = path.join(dataFolder, folderContents[0]);
+
+                                        fs.stat(childOfDataFolderAbsPath, function(err, stat)
+                                        {
+                                            if (err == null)
+                                            {
+                                                if (stat.isDirectory())
+                                                {
+                                                    fs.readdir(childOfDataFolderAbsPath, function (err, folderContents)
+                                                    {
+                                                        if (err == null)
+                                                        {
+                                                            if(folderContents.indexOf(Config.packageMetadataFileName) >= 0)
+                                                            {
+                                                                callback(null, true, childOfDataFolderAbsPath);
+                                                            }
+                                                            else
+                                                            {
+                                                                callback(null, false, "There is no " + Config.packageMetadataFileName + " inside the /data subdirectory.");
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            callback(err, false, "child of /data contains only one element but is not a directory.");
+                                                        }
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    callback(0, false, "child of /data contains only one element but is not a directory.");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                callback(err, false, "/data contains only one element but is not a directory.");
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        callback(0, false, "/data folder should contain exactly one directory.");
+                                    }
+                                }
+                                else
+                                {
+                                    callback(err, false, "/data exists but is not a directory.");
+                                }
+                            });
+                        }
+                        else
+                        {
+                            callback(0, false, "/data exists but is not a directory.");
+                        }
+                    }
+                    else if (err.code == 'ENOENT')
+                    {
+                        callback(0, false, "/data subfolder does not exist.");
+                    }
+                });
+            }
+            else
+            {
+                callback(0, false, absPathOfRootFolder + " is not a directory");
+            }
+        }
+        else if (err.code == 'ENOENT')
+        {
+            callback(0, false);
+        }
+    });
+}
+
+Project.getStructureFromBagItZipFolder = function(absPathOfRootFolder, callback)
+{
+    var path = require('path');
+
+    Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
+    {
+        if(!err)
+        {
+            if(valid)
+            {
+                var metadataFileAbsPath = path.join(pathToFolderToRestore, Config.packageMetadataFileName);
+                var metadata = require(metadataFileAbsPath);
+
+                callback(true, metadata);
+            }
+            else
+            {
+                callback(true, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+            }
+        }
+        else
+        {
+            callback(err, pathToFolderToRestore);
+        }
+    });
+};
+
+Project.restoreFromFolder = function(absPathOfRootFolder,
+                                              entityLoadingTheMetadata,
+                                              attemptToRestoreMetadata,
+                                              replaceExistingFolder,
+                                              callback,
+                                              runningOnRoot)
+{
+    var self = this;
+    var path = require('path');
+
+    if(entityLoadingTheMetadata != null && entityLoadingTheMetadata instanceof User)
+    {
+        var entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
+    }
+    else
+    {
+        var entityLoadingTheMetadataUri = User.anonymous.uri;
+    }
+
+    self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function(err, result){
+        if(!err)
+        {
+            if(runningOnRoot)
+            {
+                /**
+                 * Restore metadata values from metadata.json file
+                 */
+                var metadataFileLocation = path.join(absPathOfRootFolder,  Config.packageMetadataFileName);
+                var fs = require('fs');
+
+                fs.exists(metadataFileLocation, function (existsMetadataFile) {
+                    if(attemptToRestoreMetadata && existsMetadataFile)
+                    {
+                        fs.readFile(metadataFileLocation, 'utf8', function (err, data) {
+                            if (err) {
+                                console.log('Error: ' + err);
+                                return;
+                            }
+
+                            var node = JSON.parse(data);
+
+                            self.loadMetadata(node, function(err, result){
+                                if(!err)
+                                {
+                                    callback(null, "Data and metadata restored successfully. Result : " + result);
+                                }
+                                else
+                                {
+                                    callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
+                                }
+                            }, entityLoadingTheMetadataUri, [Config.types.locked],[Config.types.restorable])
+                        });
+                    }
+                    else
+                    {
+                        callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
+                    }
+                });
+            }
+            else
+            {
+                callback(null, result);
+            }
+        }
+        else
+        {
+            callback(err, result);
+        }
+    }, runningOnRoot);
+};
+
 Project = Class.extend(Project, Resource);
 
 module.exports.Project = Project;
