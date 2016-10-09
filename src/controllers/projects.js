@@ -1272,10 +1272,11 @@ exports.import = function(req, res) {
     {
         var filesize = require('file-size');
 
-        res.render('projects/import',
+        res.render('projects/import/import',
             {
                 title: "Import a project",
-                maxUploadSize : filesize(Config.maxUploadSize).human('jedec')
+                maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
+                maxProjectSize : filesize(Config.maxProjectSize).human('jedec')
             }
         );
     }
@@ -1290,13 +1291,13 @@ exports.import = function(req, res) {
 
             if(path.extname(tempFilePath) == ".zip")
             {
-                Project.getStructureFromBagItZipFolder(tempFilePath, function(err, result){
+                Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function(err, result, structure){
                     if(!err)
                     {
                         res.status(200).json(
                             {
                                 "result" : "success",
-                                "backup_contents" : result
+                                "backup_contents" : structure
                             }
                         );
                     }

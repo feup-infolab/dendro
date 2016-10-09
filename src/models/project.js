@@ -6,6 +6,7 @@ var Config = require("./meta/config.js").Config;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
@@ -1156,13 +1157,15 @@ Project.privacy = function (projectUri, callback) {
 Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
 {
     var fs = require('fs');
-    fs.stat(absPathOfRootFolder, function(err, stat)
+    var path = require('path');
+
+    fs.stat(absPathOfBagItFolder, function(err, stat)
     {
         if (err == null)
         {
             if(stat.isDirectory())
             {
-                var dataFolder = path.join(absPathOfRootFolder, "data");
+                var dataFolder = path.join(absPathOfBagItFolder, "data");
                 fs.stat(dataFolder, function(err, stat)
                 {
                     if (err == null)
@@ -1236,7 +1239,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
             }
             else
             {
-                callback(0, false, absPathOfRootFolder + " is not a directory");
+                callback(0, false, absPathOfBagItFolder + " is not a directory");
             }
         }
         else if (err.code == 'ENOENT')
@@ -1246,31 +1249,70 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
     });
 }
 
-Project.getStructureFromBagItZipFolder = function(absPathOfRootFolder, callback)
+Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSize, callback)
 {
     var path = require('path');
 
-    Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
+    File.estimateUnzippedSize(absPathToZipFile, function(err, size)
     {
         if(!err)
         {
-            if(valid)
+            if(size < maxStorageSize)
             {
-                var metadataFileAbsPath = path.join(pathToFolderToRestore, Config.packageMetadataFileName);
-                var metadata = require(metadataFileAbsPath);
+                File.unzip(absPathToZipFile, function(err, absPathOfRootFolder){
+                    if(!err)
+                    {
+                        Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
+                        {
+                            if(!err)
+                            {
+                                if(valid)
+                                {
+                                    var metadataFileAbsPath = path.join(pathToFolderToRestore, Config.packageMetadataFileName);
+                                    var metadata = require(metadataFileAbsPath);
 
-                callback(true, metadata);
+                                    callback(null, true, metadata);
+                                }
+                                else
+                                {
+                                    callback(1, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                }
+                            }
+                            else
+                            {
+                                callback(err, pathToFolderToRestore);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        var msg = "Unable to unzip file "+ absPathToZipFile +". Error reported: " + absPathToZipFile;
+                        callback(err, msg);
+                    }
+                });
             }
             else
             {
-                callback(true, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                var filesize = require('file-size');
+                var difference = maxStorageSize - size;
+
+                var humanSizeDifference = filesize(difference).human('jedec');
+                var humanZipFileSize = filesize(size).human('jedec');
+                var humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
+
+                var msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
+                callback(err, msg);
             }
+
         }
         else
         {
-            callback(err, pathToFolderToRestore);
+            var msg = "Unable to estimate size of the zip file sent in as the project backup. Error reported: " + absPathToZipFile;
+            callback(err, msg);
         }
     });
+
+
 };
 
 Project.restoreFromFolder = function(absPathOfRootFolder,

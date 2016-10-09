@@ -398,6 +398,34 @@ File.prototype.extract_text = function(callback)
     }
 }
 
+File.estimateUnzippedSize = function(pathOfZipFile, callback)
+{
+    var path = require('path');
+    var exec = require('child_process').exec;
+
+    var command = 'unzip -l ' + pathOfZipFile + " | tail -n 1";
+    var parentFolderPath = path.resolve(pathOfZipFile, "..");
+
+
+    exec(command, {cwd : parentFolderPath},  function (error, stdout, stderr) {
+        if(!error)
+        {
+            var regex = new RegExp(" *[0-9]* [0-9]* file[s]?");
+
+            var size = stdout.replace(regex, "");
+            size = size.replace(/ /g, "");
+            size = size.replace(/\n/g, "");
+            console.log("Estimated unzipped file size is " + size);
+            callback(null, Number.parseInt(size));
+
+        } else {
+            var errorMessage = "[INFO] There was an error estimating unzipped file size with command "+ command +". Code Returned by Zip Command " + JSON.stringify(error);
+            console.error(errorMessage);
+            callback(1, errorMessage);
+        }
+    });
+}
+
 /**
  * unzip a file into a directory
  * @param pathOfFile absolute path of file to be unzipped

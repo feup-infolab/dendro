@@ -33,6 +33,9 @@ var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.j
 
 var async = require('async');
 var util = require('util');
+var multiparty = require('connect-multiparty');
+var multipartyMiddleware = multiparty();
+
 
 var self = this;
 
@@ -964,7 +967,7 @@ async.waterfall([
         app.post('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
 
         app.get('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
-        app.post('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
+        app.post('/projects/import', multipartyMiddleware, async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
 
         app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);
         app.get('/project/:handle/view', projects.show);
