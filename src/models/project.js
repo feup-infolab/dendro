@@ -76,6 +76,7 @@ Project.prototype.backup = function(callback)
                 Folder.findByUri(self.ddr.rootFolder, function(err, folder){
                     if(!err && folder instanceof Folder)
                     {
+                        //TODO Add this information
                         var bagItOptions = {
                             cryptoMethod: 'sha256',
                             sourceOrganization: self.dcterms.publisher,
