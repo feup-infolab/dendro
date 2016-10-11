@@ -447,7 +447,7 @@ angular.module('dendroApp.controllers')
 
                             if(childExtension === "folder")
                             {
-                                var grandChildren = getStructure(child);
+                                var grandChildren = JSON.parse(JSON.stringify(getStructure(child)));
                                 transformedChild.children = transformedChild.children.concat(grandChildren);
                             }
 
