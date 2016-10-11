@@ -20,7 +20,7 @@ exports.all = function(req, res){
     var acceptsJSON = req.accepts('json');
     var username = currentUser.uri;
 
-    var pingForNewPosts = false;
+    var pingForNewPosts = true;
 
     /*if(acceptsJSON && !acceptsHTML)
      {
@@ -306,10 +306,13 @@ function pingNewPosts(sessionUser, cb) {
             console.log('projects.length is:', projects.length);
             async.map(projects, function (project, cb1) {
                     console.log('Project title is: ', project.dcterms.title);
-                    project.getRecentProjectWideChanges(function(err, changes){
+                    //2016-10-11T15:50:24.586Z
+                    project.getRecentProjectWideChangesSocial(function(err, changes){
+                    //project.getRecentProjectWideChanges(function(err, changes){
                         //console.log('changes are:', JSON.stringify(changes[1].changes));
                         //console.log('changes are:', JSON.stringify(changes[1].changes));
                         console.log('changes.length are: ', changes.length);
+                        console.log('change:');
                         if(changes.length > 0)
                         {
                             //console.log('Item changed:', changes[0].uri);
@@ -382,7 +385,7 @@ function pingNewPosts(sessionUser, cb) {
                         {
                             cb1(null,null);
                         }
-                    });
+                    },null,null,'2015-09-21T19:27:46.578Z');//TODO remove these configurations
                 },
                 function (err, fullProjects) {
                     console.log('fullProjects.length is:', fullProjects.length);

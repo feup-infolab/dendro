@@ -535,6 +535,71 @@ Project.prototype.getFirstLevelDirectoryContents = function(callback)
     });
 };
 
+Project.prototype.getRecentProjectWideChangesSocial = function (callback, startingResultPosition, maxResults, createdAfterDate) {
+    var self = this;
+    console.log('createdAfterDate:', createdAfterDate);
+
+    var query =
+        "WITH [0] \n" +
+        "SELECT ?version \n" +
+        "WHERE { \n" +
+        "?version dcterms:created ?date. \n" +
+        "filter ( \n" +
+        "xsd:dateTime(?date) >= [2]" + "^^xsd:dateTime" + " ). \n" +
+        "?version rdf:type ddr:ArchivedResource . \n" +
+        " filter ( \n" +
+        "STRSTARTS(STR(?version), [1]) \n" +
+        " ) \n" +
+        "} \n" +
+        "ORDER BY DESC(?date) \n";
+
+    query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.stringNoEscape,
+                value : self.uri
+            },
+            {
+                type : DbConnection.date,
+                value: createdAfterDate
+            }
+        ], startingResultPosition, maxResults),
+        function(err, results) {
+            if(!err)
+            {
+                var getVersionDetails = function(result, callback){
+                    ArchivedResource.findByUri(result.version, function(err, result){
+                        if(!err)
+                        {
+                            result.getDetailedInformation(function(err, versionWithDetailedInfo)
+                            {
+                                callback(err, versionWithDetailedInfo);
+                            });
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
+                    });
+                };
+
+                async.map(results, getVersionDetails, function(err, fullVersions){
+                    callback(err, fullVersions);
+                })
+            }
+            else
+            {
+                callback(1, "Error fetching children of project root folder");
+            }
+        });
+};
+
 Project.prototype.getRecentProjectWideChanges = function(callback, startingResultPosition, maxResults)
 {
     var self = this;
