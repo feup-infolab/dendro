@@ -34,7 +34,7 @@ angular.module('dendroApp.controllers')
             $scope.init = function()
             {
                 var test = {
-                    "resource": "http://rdm-demo.up.pt:3000/project/thesisphd/data",
+                    "resource": "http://127.0.0.1:3001/project/testeaimaria/data",
                     "metadata": [
                         {
                             "prefix": "ddr",
@@ -62,9 +62,10 @@ angular.module('dendroApp.controllers')
                             "locked": true,
                             "backuppable": true,
                             "value": [
-                                "http://rdm-demo.up.pt:3000/project/thesisphd/data/dcb2.owl",
-                                "http://rdm-demo.up.pt:3000/project/thesisphd/data/dl20140_submission_53.pdf",
-                                "http://rdm-demo.up.pt:3000/project/thesisphd/data/Ontologies"
+                                "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons",
+                                "http://127.0.0.1:3001/project/testeaimaria/data/teste fantastico2",
+                                "http://127.0.0.1:3001/project/testeaimaria/data/e mais uns",
+                                "http://127.0.0.1:3001/project/testeaimaria/data/teste fantastico"
                             ]
                         },
                         {
@@ -78,53 +79,118 @@ angular.module('dendroApp.controllers')
                             "private": true,
                             "locked": true,
                             "backuppable": true,
-                            "value": "http://rdm-demo.up.pt:3000/project/thesisphd"
+                            "value": "http://127.0.0.1:3001/project/testeaimaria"
+                        },
+                        {
+                            "prefix": "nie",
+                            "shortName": "title",
+                            "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+                            "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
+                            "prefixedForm": "nie:title",
+                            "type": 8,
+                            "control": "input_box",
+                            "private": true,
+                            "locked": true,
+                            "backuppable": true,
+                            "value": "testeaimaria"
                         }
                     ],
                     "children": [
                         {
-                            "resource": "http://rdm-demo.up.pt:3000/project/thesisphd/data/Ontologies",
+                            "resource": "http://127.0.0.1:3001/project/testeaimaria/data/teste fantastico",
                             "metadata": [
                                 {
-                                    "prefix": "dcterms",
-                                    "shortName": "accessRights",
-                                    "ontology": "http://purl.org/dc/terms/",
-                                    "uri": "http://purl.org/dc/terms/accessRights",
-                                    "prefixedForm": "dcterms:accessRights",
+                                    "prefix": "ddr",
+                                    "shortName": "fileExtension",
+                                    "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
+                                    "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
+                                    "prefixedForm": "ddr:fileExtension",
                                     "type": 3,
                                     "control": "input_box",
-                                    "value": "Creative Commons"
+                                    "private": true,
+                                    "locked": true,
+                                    "restorable": true,
+                                    "backuppable": true,
+                                    "value": "folder"
                                 },
                                 {
-                                    "prefix": "dcterms",
-                                    "shortName": "creator",
-                                    "ontology": "http://purl.org/dc/terms/",
-                                    "uri": "http://purl.org/dc/terms/creator",
-                                    "prefixedForm": "dcterms:creator",
+                                    "prefix": "nie",
+                                    "shortName": "isLogicalPartOf",
+                                    "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+                                    "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
+                                    "prefixedForm": "nie:isLogicalPartOf",
                                     "type": 1,
                                     "control": "url_box",
-                                    "value": "João Aguiar Castro"
+                                    "private": true,
+                                    "locked": true,
+                                    "backuppable": true,
+                                    "value": "http://127.0.0.1:3001/project/testeaimaria/data"
                                 },
                                 {
-                                    "prefix": "dcterms",
-                                    "shortName": "description",
-                                    "ontology": "http://purl.org/dc/terms/",
-                                    "uri": "http://purl.org/dc/terms/description",
-                                    "prefixedForm": "dcterms:description",
-                                    "type": 3,
-                                    "control": "markdown_box",
-                                    "value": "A collection of domain-specific lightweight ontologies for research data description. These ontologies can be combined with each other, or with others, like Dublin Core or FOAF, for a more comprehensive description. The ontologies were created in collaboration with researchers from scientific domains such as Computational Fluid Dynamics, Analytical Chemistry, Biodiversity among others."
-                                },
-                                {
-                                    "prefix": "dcterms",
+                                    "prefix": "nie",
                                     "shortName": "title",
-                                    "ontology": "http://purl.org/dc/terms/",
-                                    "uri": "http://purl.org/dc/terms/title",
-                                    "prefixedForm": "dcterms:title",
+                                    "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+                                    "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
+                                    "prefixedForm": "nie:title",
+                                    "type": 8,
+                                    "control": "input_box",
+                                    "private": true,
+                                    "locked": true,
+                                    "backuppable": true,
+                                    "value": "teste fantastico"
+                                }
+                            ],
+                            "children": []
+                        },
+                        {
+                            "resource": "http://127.0.0.1:3001/project/testeaimaria/data/teste fantastico2",
+                            "metadata": [
+                                {
+                                    "prefix": "ddr",
+                                    "shortName": "fileExtension",
+                                    "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
+                                    "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
+                                    "prefixedForm": "ddr:fileExtension",
                                     "type": 3,
                                     "control": "input_box",
-                                    "value": "Lightweight ontologies for research data description"
+                                    "private": true,
+                                    "locked": true,
+                                    "restorable": true,
+                                    "backuppable": true,
+                                    "value": "folder"
                                 },
+                                {
+                                    "prefix": "nie",
+                                    "shortName": "isLogicalPartOf",
+                                    "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+                                    "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
+                                    "prefixedForm": "nie:isLogicalPartOf",
+                                    "type": 1,
+                                    "control": "url_box",
+                                    "private": true,
+                                    "locked": true,
+                                    "backuppable": true,
+                                    "value": "http://127.0.0.1:3001/project/testeaimaria/data"
+                                },
+                                {
+                                    "prefix": "nie",
+                                    "shortName": "title",
+                                    "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+                                    "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
+                                    "prefixedForm": "nie:title",
+                                    "type": 8,
+                                    "control": "input_box",
+                                    "private": true,
+                                    "locked": true,
+                                    "backuppable": true,
+                                    "value": "teste fantastico2"
+                                }
+                            ],
+                            "children": []
+                        },
+                        {
+                            "resource": "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons",
+                            "metadata": [
                                 {
                                     "prefix": "ddr",
                                     "shortName": "fileExtension",
@@ -151,8 +217,8 @@ angular.module('dendroApp.controllers')
                                     "locked": true,
                                     "backuppable": true,
                                     "value": [
-                                        "http://rdm-demo.up.pt:3000/project/thesisphd/data/Ontologies/achem.owl",
-                                        "http://rdm-demo.up.pt:3000/project/thesisphd/data/Ontologies/BIODIV_17Jun_1557.owl"
+                                        "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons/ensaio nº 2",
+                                        "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons/ensaio 3 e 4"
                                     ]
                                 },
                                 {
@@ -166,12 +232,25 @@ angular.module('dendroApp.controllers')
                                     "private": true,
                                     "locked": true,
                                     "backuppable": true,
-                                    "value": "http://rdm-demo.up.pt:3000/project/thesisphd/data"
+                                    "value": "http://127.0.0.1:3001/project/testeaimaria/data"
+                                },
+                                {
+                                    "prefix": "nie",
+                                    "shortName": "title",
+                                    "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+                                    "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
+                                    "prefixedForm": "nie:title",
+                                    "type": 8,
+                                    "control": "input_box",
+                                    "private": true,
+                                    "locked": true,
+                                    "backuppable": true,
+                                    "value": "datasets muito bons"
                                 }
                             ],
                             "children": [
                                 {
-                                    "resource": "http://rdm-demo.up.pt:3000/project/thesisphd/data/Ontologies/achem.owl",
+                                    "resource": "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons/ensaio nº 2",
                                     "metadata": [
                                         {
                                             "prefix": "ddr",
@@ -185,7 +264,7 @@ angular.module('dendroApp.controllers')
                                             "locked": true,
                                             "restorable": true,
                                             "backuppable": true,
-                                            "value": "owl"
+                                            "value": "folder"
                                         },
                                         {
                                             "prefix": "nie",
@@ -198,13 +277,47 @@ angular.module('dendroApp.controllers')
                                             "private": true,
                                             "locked": true,
                                             "backuppable": true,
-                                            "value": "http://rdm-demo.up.pt:3000/project/thesisphd/data/Ontologies"
+                                            "value": "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons"
+                                        },
+                                        {
+                                            "prefix": "nie",
+                                            "shortName": "title",
+                                            "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+                                            "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
+                                            "prefixedForm": "nie:title",
+                                            "type": 8,
+                                            "control": "input_box",
+                                            "private": true,
+                                            "locked": true,
+                                            "backuppable": true,
+                                            "value": "ensaio nº 2"
                                         }
-                                    ]
+                                    ],
+                                    "children": []
                                 },
                                 {
-                                    "resource": "http://rdm-demo.up.pt:3000/project/thesisphd/data/Ontologies/BIODIV_17Jun_1557.owl",
+                                    "resource": "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons/ensaio 3 e 4",
                                     "metadata": [
+                                        {
+                                            "prefix": "dcterms",
+                                            "shortName": "abstract",
+                                            "ontology": "http://purl.org/dc/terms/",
+                                            "uri": "http://purl.org/dc/terms/abstract",
+                                            "prefixedForm": "dcterms:abstract",
+                                            "type": 3,
+                                            "control": "markdown_box",
+                                            "value": "Ensaio 2 e 3"
+                                        },
+                                        {
+                                            "prefix": "dcterms",
+                                            "shortName": "title",
+                                            "ontology": "http://purl.org/dc/terms/",
+                                            "uri": "http://purl.org/dc/terms/title",
+                                            "prefixedForm": "dcterms:title",
+                                            "type": 3,
+                                            "control": "input_box",
+                                            "value": "Título muito bom - Ensaios 3 e 4"
+                                        },
                                         {
                                             "prefix": "ddr",
                                             "shortName": "fileExtension",
@@ -217,7 +330,7 @@ angular.module('dendroApp.controllers')
                                             "locked": true,
                                             "restorable": true,
                                             "backuppable": true,
-                                            "value": "owl"
+                                            "value": "folder"
                                         },
                                         {
                                             "prefix": "nie",
@@ -230,119 +343,79 @@ angular.module('dendroApp.controllers')
                                             "private": true,
                                             "locked": true,
                                             "backuppable": true,
-                                            "value": "http://rdm-demo.up.pt:3000/project/thesisphd/data/Ontologies"
+                                            "value": "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons"
+                                        },
+                                        {
+                                            "prefix": "nie",
+                                            "shortName": "title",
+                                            "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+                                            "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
+                                            "prefixedForm": "nie:title",
+                                            "type": 8,
+                                            "control": "input_box",
+                                            "private": true,
+                                            "locked": true,
+                                            "backuppable": true,
+                                            "value": "ensaio 3 e 4"
                                         }
-                                    ]
+                                    ],
+                                    "children": []
                                 }
                             ]
                         },
                         {
-                            "resource": "http://rdm-demo.up.pt:3000/project/thesisphd/data/dcb2.owl",
+                            "resource": "http://127.0.0.1:3001/project/testeaimaria/data/e mais uns",
                             "metadata": [
                                 {
-                                    "prefix": "dcterms",
-                                    "shortName": "audience",
-                                    "ontology": "http://purl.org/dc/terms/",
-                                    "uri": "http://purl.org/dc/terms/audience",
-                                    "prefixedForm": "dcterms:audience",
+                                    "prefix": "ddr",
+                                    "shortName": "fileExtension",
+                                    "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
+                                    "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
+                                    "prefixedForm": "ddr:fileExtension",
                                     "type": 3,
                                     "control": "input_box",
-                                    "value": "Researchers; Librarians"
+                                    "private": true,
+                                    "locked": true,
+                                    "restorable": true,
+                                    "backuppable": true,
+                                    "value": "folder"
                                 },
                                 {
-                                    "prefix": "dcterms",
-                                    "shortName": "description",
-                                    "ontology": "http://purl.org/dc/terms/",
-                                    "uri": "http://purl.org/dc/terms/description",
-                                    "prefixedForm": "dcterms:description",
-                                    "type": 3,
-                                    "control": "markdown_box",
-                                    "value": "This ontology model concepts that can be used to describe datasets created in Double Cantilever Beam experiments. The list of descriptors include concepts like temperature, moisture, velocity test. The concepts are not exclusive to this domain, meaning that the concepts can be reuse to describe datasets from other experiments, or research configuration. This ontology is not expected to fully represent the concepts that can be used to describe DCB´s experiments datasets. For a more detailed description elements can be drawn from other description resources (e.g. Dublin Core elements)."
+                                    "prefix": "nie",
+                                    "shortName": "isLogicalPartOf",
+                                    "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+                                    "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
+                                    "prefixedForm": "nie:isLogicalPartOf",
+                                    "type": 1,
+                                    "control": "url_box",
+                                    "private": true,
+                                    "locked": true,
+                                    "backuppable": true,
+                                    "value": "http://127.0.0.1:3001/project/testeaimaria/data"
                                 },
                                 {
-                                    "prefix": "dcterms",
+                                    "prefix": "nie",
                                     "shortName": "title",
-                                    "ontology": "http://purl.org/dc/terms/",
-                                    "uri": "http://purl.org/dc/terms/title",
-                                    "prefixedForm": "dcterms:title",
-                                    "type": 3,
-                                    "control": "input_box",
-                                    "value": "Double Cantilver Beam experiments ontology"
-                                },
-                                {
-                                    "prefix": "ddr",
-                                    "shortName": "fileExtension",
-                                    "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
-                                    "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
-                                    "prefixedForm": "ddr:fileExtension",
-                                    "type": 3,
-                                    "control": "input_box",
-                                    "private": true,
-                                    "locked": true,
-                                    "restorable": true,
-                                    "backuppable": true,
-                                    "value": "owl"
-                                },
-                                {
-                                    "prefix": "nie",
-                                    "shortName": "isLogicalPartOf",
                                     "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                    "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
-                                    "prefixedForm": "nie:isLogicalPartOf",
-                                    "type": 1,
-                                    "control": "url_box",
-                                    "private": true,
-                                    "locked": true,
-                                    "backuppable": true,
-                                    "value": "http://rdm-demo.up.pt:3000/project/thesisphd/data"
-                                },
-                                {
-                                    "prefix": "bdv",
-                                    "shortName": "metadataPointOfContactEmail",
-                                    "ontology": "http://dendro.fe.up.pt/ontology/BIODIV/0.1#",
-                                    "uri": "http://dendro.fe.up.pt/ontology/BIODIV/0.1#metadataPointOfContactEmail",
-                                    "prefixedForm": "bdv:metadataPointOfContactEmail",
-                                    "type": 3,
-                                    "control": "input_box",
-                                    "value": "joaoaguiarcastro@gmail.com"
-                                }
-                            ]
-                        },
-                        {
-                            "resource": "http://rdm-demo.up.pt:3000/project/thesisphd/data/dl20140_submission_53.pdf",
-                            "metadata": [
-                                {
-                                    "prefix": "ddr",
-                                    "shortName": "fileExtension",
-                                    "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
-                                    "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
-                                    "prefixedForm": "ddr:fileExtension",
-                                    "type": 3,
+                                    "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
+                                    "prefixedForm": "nie:title",
+                                    "type": 8,
                                     "control": "input_box",
                                     "private": true,
                                     "locked": true,
-                                    "restorable": true,
                                     "backuppable": true,
-                                    "value": "pdf"
-                                },
-                                {
-                                    "prefix": "nie",
-                                    "shortName": "isLogicalPartOf",
-                                    "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                    "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
-                                    "prefixedForm": "nie:isLogicalPartOf",
-                                    "type": 1,
-                                    "control": "url_box",
-                                    "private": true,
-                                    "locked": true,
-                                    "backuppable": true,
-                                    "value": "http://rdm-demo.up.pt:3000/project/thesisphd/data"
+                                    "value": "e mais uns"
                                 }
-                            ]
+                            ],
+                            "children": []
                         }
                     ]
                 };
-                $scope.transformForTreeControl(test);
+                $scope.backup_contents = $scope.transformForTreeControl(test);
+
+                console.log($scope.backup_contents);
+                $scope.uploading = false;
+                $scope.stage = {analyse : true};
             }
 
             $scope.transformForTreeControl = function(metadataJSON)
@@ -351,7 +424,11 @@ angular.module('dendroApp.controllers')
 
                 var getStructure = function(node)
                 {
-                    var treeNode = [];
+                    var nodeTitle = jsonPath(node, "$.metadata[?(@.prefixedForm=='nie:title')]")[0].value;
+                    var nodeExtension = jsonPath(node, "$.metadata[?(@.prefixedForm=='ddr:fileExtension')]")[0].value;
+
+                    var treeNode = { label: nodeTitle, id: node.resource, children: [] };
+
                     if(node.children != null && node.children.length && node.children.length == 0)
                     {
                         return [];
@@ -361,28 +438,31 @@ angular.module('dendroApp.controllers')
                         for(var i = 0; i < node.children.length; i++)
                         {
                             var child = node.children[i];
-                            var childTitle = jsonPath(child, "$.metadata[?(@.prefixedForm=='dcterms:title')]")[0].value;
+                            var childTitle = jsonPath(child, "$.metadata[?(@.prefixedForm=='nie:title')]")[0].value;
+                            console.log(childTitle);
+
                             var childExtension = jsonPath(child, "$.metadata[?(@.prefixedForm=='ddr:fileExtension')]")[0].value;
 
                             var transformedChild = { label: childTitle, id: child.resource, children: [] };
-                            transformedTree.push(transformedChild);
 
                             if(childExtension === "folder")
                             {
-                                var children = getStructure(child);
-                                transformedChild.children.concat(children);
+                                var grandChildren = getStructure(child);
+                                transformedChild.children = transformedChild.children.concat(grandChildren);
                             }
+
+                            transformedTree.push(transformedChild);
                         }
+
+                        treeNode.children = transformedTree;
                     }
+
+                    return treeNode;
                 };
 
-                var children = getStructure(metadataJSON);
+                var transformed = getStructure(metadataJSON);
 
-                $scope.treeView = {
-                    label: "New Project",
-                    id: metadataJSON["resource"],
-                    children: children
-                };
+                return transformed;
             }
 
             $scope.upload_for_importing = function(file) {
