@@ -4,16 +4,14 @@
     <%=locals.title %>
 </h1>
 
+<script type="text/javascript" src="/bower_components/angular-recursion/angular-recursion.min.js"></script>
+<script type="text/javascript" src="/bower_components/angular-tree-widget/dist/angular-tree-widget.js"></script>
+<link rel="stylesheet" type="text/css" href="/bower_components/angular-tree-widget/dist/angular-tree-widget.min.css">
+
+
 <script type="text/javascript" src="/app/js/controllers/project/import/import_project_controller.js"></script>
 
-<script type="text/javascript" src="/bower_components/angular-tree-control/angular-tree-control.js"></script>
-<!-- link for CSS when using the tree as a Dom element -->
-<link rel="stylesheet" type="text/css" href="/bower_components/angular-tree-control/css/tree-control.css">
-<!-- link for CSS when using the tree as an attribute -->
-<link rel="stylesheet" type="text/css" href="/bower_components/angular-tree-control/css/tree-control-attribute.css">
-
 <div ng-controller="importProjectCtrl" ng-init="init()">
-
     <div class="alert alert-info">
         This page allows you to import a project produced by another Dendro. We will guide you through the process.
         <br>

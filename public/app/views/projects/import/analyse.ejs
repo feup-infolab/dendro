@@ -1,7 +1,5 @@
 <h3>Preview your imported project</h3>
 
-{{backup_contents}}
-
-<treecontrol class="tree-classic" tree-model="backup_contents" on-selection="showSelected(node)">
-    <button ng-click="buttonClick($event, node)">Click Me!</button> label: {{node.label}} ({{node.id}} ) {{$index}}
-</treecontrol>
+<tree nodes='treedata'>
+    {{treedata}}
+</tree>
