@@ -41,10 +41,15 @@ angular.module('dendroApp.controllers')
                     delay: 100
                 };
 
+                $scope.$on('selection-changed', function (e, node) {
+                    //node - selected node in tree
+                    $scope.selectedNode = node;
+                });
+
                 $scope.init = function ()
                 {
                     var test = {
-                        "resource": "http://127.0.0.1:3001/project/testeaimaria/data",
+                        "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data",
                         "metadata": [
                             {
                                 "prefix": "ddr",
@@ -72,10 +77,10 @@ angular.module('dendroApp.controllers')
                                 "locked": true,
                                 "backuppable": true,
                                 "value": [
-                                    "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons",
-                                    "http://127.0.0.1:3001/project/testeaimaria/data/teste fantastico2",
-                                    "http://127.0.0.1:3001/project/testeaimaria/data/e mais uns",
-                                    "http://127.0.0.1:3001/project/testeaimaria/data/teste fantastico"
+                                    "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons",
+                                    "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/teste fantastico2",
+                                    "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/e mais uns",
+                                    "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/teste fantastico"
                                 ]
                             },
                             {
@@ -89,7 +94,7 @@ angular.module('dendroApp.controllers')
                                 "private": true,
                                 "locked": true,
                                 "backuppable": true,
-                                "value": "http://127.0.0.1:3001/project/testeaimaria"
+                                "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria"
                             },
                             {
                                 "prefix": "nie",
@@ -107,7 +112,7 @@ angular.module('dendroApp.controllers')
                         ],
                         "children": [
                             {
-                                "resource": "http://127.0.0.1:3001/project/testeaimaria/data/teste fantastico",
+                                "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/teste fantastico",
                                 "metadata": [
                                     {
                                         "prefix": "ddr",
@@ -134,7 +139,7 @@ angular.module('dendroApp.controllers')
                                         "private": true,
                                         "locked": true,
                                         "backuppable": true,
-                                        "value": "http://127.0.0.1:3001/project/testeaimaria/data"
+                                        "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data"
                                     },
                                     {
                                         "prefix": "nie",
@@ -153,7 +158,7 @@ angular.module('dendroApp.controllers')
                                 "children": []
                             },
                             {
-                                "resource": "http://127.0.0.1:3001/project/testeaimaria/data/teste fantastico2",
+                                "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/teste fantastico2",
                                 "metadata": [
                                     {
                                         "prefix": "ddr",
@@ -180,7 +185,7 @@ angular.module('dendroApp.controllers')
                                         "private": true,
                                         "locked": true,
                                         "backuppable": true,
-                                        "value": "http://127.0.0.1:3001/project/testeaimaria/data"
+                                        "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data"
                                     },
                                     {
                                         "prefix": "nie",
@@ -199,7 +204,7 @@ angular.module('dendroApp.controllers')
                                 "children": []
                             },
                             {
-                                "resource": "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons",
+                                "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons",
                                 "metadata": [
                                     {
                                         "prefix": "ddr",
@@ -227,8 +232,8 @@ angular.module('dendroApp.controllers')
                                         "locked": true,
                                         "backuppable": true,
                                         "value": [
-                                            "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons/ensaio nº 2",
-                                            "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons/ensaio 3 e 4"
+                                            "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons/ensaio nº 2",
+                                            "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons/ensaio 3 e 4"
                                         ]
                                     },
                                     {
@@ -242,7 +247,7 @@ angular.module('dendroApp.controllers')
                                         "private": true,
                                         "locked": true,
                                         "backuppable": true,
-                                        "value": "http://127.0.0.1:3001/project/testeaimaria/data"
+                                        "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data"
                                     },
                                     {
                                         "prefix": "nie",
@@ -260,7 +265,7 @@ angular.module('dendroApp.controllers')
                                 ],
                                 "children": [
                                     {
-                                        "resource": "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons/ensaio nº 2",
+                                        "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons/ensaio nº 2",
                                         "metadata": [
                                             {
                                                 "prefix": "ddr",
@@ -287,7 +292,7 @@ angular.module('dendroApp.controllers')
                                                 "private": true,
                                                 "locked": true,
                                                 "backuppable": true,
-                                                "value": "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons"
+                                                "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons"
                                             },
                                             {
                                                 "prefix": "nie",
@@ -306,7 +311,7 @@ angular.module('dendroApp.controllers')
                                         "children": []
                                     },
                                     {
-                                        "resource": "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons/ensaio 3 e 4",
+                                        "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons/ensaio 3 e 4",
                                         "metadata": [
                                             {
                                                 "prefix": "dcterms",
@@ -353,7 +358,7 @@ angular.module('dendroApp.controllers')
                                                 "private": true,
                                                 "locked": true,
                                                 "backuppable": true,
-                                                "value": "http://127.0.0.1:3001/project/testeaimaria/data/datasets muito bons"
+                                                "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons"
                                             },
                                             {
                                                 "prefix": "nie",
@@ -374,7 +379,7 @@ angular.module('dendroApp.controllers')
                                 ]
                             },
                             {
-                                "resource": "http://127.0.0.1:3001/project/testeaimaria/data/e mais uns",
+                                "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/e mais uns",
                                 "metadata": [
                                     {
                                         "prefix": "ddr",
@@ -401,7 +406,7 @@ angular.module('dendroApp.controllers')
                                         "private": true,
                                         "locked": true,
                                         "backuppable": true,
-                                        "value": "http://127.0.0.1:3001/project/testeaimaria/data"
+                                        "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data"
                                     },
                                     {
                                         "prefix": "nie",
@@ -421,27 +426,61 @@ angular.module('dendroApp.controllers')
                             }
                         ]
                     };
-                    //$scope.backup_contents = $scope.transformForTreeControl(test);
+                    $scope.backup_contents = $scope.transformForTreeControl(test);
 
-                    $scope.treedata = [{
-                        name: "Node 1",
-                        children: [{
-                            name: "Node 1.1",
-                            children:[
-                                {name:"Node 1.1.1"},
-                                {name: "Node 1.1.2"}]
-                        }]
-                    },{
-                        name: "Node 2",
-                        children: [
-                            {name: "Node 2.1"},
-                            {name: "Node 2.2"}
-                        ]
-                    }];
+                    // $scope.treedata = [{
+                    //     name: "Node 1",
+                    //     id : "#Node 1",
+                    //     children: [{
+                    //         name: "Node 1.1",
+                    //         id : "#Node 1.1",
+                    //         children:[
+                    //             {
+                    //                 id : "#Node 1.1.1",
+                    //                 name:"Node 1.1.1"
+                    //             },
+                    //             {
+                    //                 id: "#Node 1.1.2",
+                    //                 name: "Node 1.1.2"
+                    //             }]
+                    //     }]
+                    // },{
+                    //     name: "Node 2",
+                    //     id: "#Node 2",
+                    //     children: [
+                    //         {
+                    //             id: "#Node 2.1",
+                    //             name: "Node 2.1"
+                    //         },
+                    //         {
+                    //             id: "#Node 2.2",
+                    //             name: "Node 2.2"
+                    //         }
+                    //     ]
+                    // }];
 
-                    console.log($scope.treedata);
+                    console.log($scope.backup_contents);
                     $scope.uploading = false;
                     $scope.stage = {analyse: true};
+                }
+
+                $scope.hasChangedDescriptors = function(node)
+                {
+                    if(node == null)
+                    {
+                        return false;
+                    }
+
+                    for (var i = 0; i < node.metadata.length; i++)
+                    {
+                        var descriptor = node.metadata[i];
+                        if(!descriptor.locked && descriptor.value !== descriptor.newValue)
+                        {
+                            return true;
+                        }
+                    }
+
+                    return false;
                 }
 
                 $scope.showSelected = function(sel) {
@@ -457,14 +496,30 @@ angular.module('dendroApp.controllers')
                         var nodeTitle = jsonPath(node, "$.metadata[?(@.prefixedForm=='nie:title')]")[0].value;
                         var nodeExtension = jsonPath(node, "$.metadata[?(@.prefixedForm=='ddr:fileExtension')]")[0].value;
 
-                        var treeNode = {label: nodeTitle, id: node.resource, children: []};
+                        var treeNode = {
+                            id: node.resource,
+                            metadata : node.metadata,
+                            has_changed_descriptors : $scope.hasChangedDescriptors(node),
+                            children: []
+                        };
 
-                        if (node.children != null && node.children.length && node.children.length == 0)
+                        if($scope.hasChangedDescriptors(node))
+                        {
+                            treeNode.name = '<span class="glyphicon glyphicon-exclamation-sign"></span>' + nodeTitle + "UIUI";
+                        }
+                        else
+                        {
+                            treeNode.name = nodeTitle;
+                        }
+
+                        if (node.children != null && node.children instanceof Array && node.children.length == 0)
                         {
                             return [];
                         }
                         else
                         {
+                            var transformedChildren = [];
+
                             for (var i = 0; i < node.children.length; i++)
                             {
                                 var child = node.children[i];
@@ -472,7 +527,21 @@ angular.module('dendroApp.controllers')
 
                                 var childExtension = jsonPath(child, "$.metadata[?(@.prefixedForm=='ddr:fileExtension')]")[0].value;
 
-                                var transformedChild = {label: childTitle, id: child.resource, children: []};
+                                var transformedChild = {
+                                    id: child.resource,
+                                    metadata : child.metadata,
+                                    has_changed_descriptors : $scope.hasChangedDescriptors(node),
+                                    children: []
+                                };
+
+                                if($scope.hasChangedDescriptors(node))
+                                {
+                                    transformedChild.name = '<span class="glyphicon glyphicon-exclamation-sign"></span>' + childTitle + "UIUI";
+                                }
+                                else
+                                {
+                                    transformedChild.name = childTitle;
+                                }
 
                                 if (childExtension === "folder")
                                 {
@@ -480,18 +549,17 @@ angular.module('dendroApp.controllers')
                                     transformedChild.children = transformedChild.children.concat(grandChildren);
                                 }
 
-                                transformedTree.push(transformedChild);
+                                transformedChildren.push(transformedChild);
                             }
 
-                            treeNode.children = transformedTree;
+                            treeNode.children = transformedChildren;
+                            return treeNode;
                         }
-
-                        return treeNode;
                     };
 
-                    var transformed = getStructure(metadataJSON);
+                    var transformedTree = [getStructure(metadataJSON)];
 
-                    return transformed;
+                    return transformedTree;
                 }
 
                 $scope.upload_for_importing = function (file)

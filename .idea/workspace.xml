@@ -6,12 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="37a74947-2fdb-4da4-b1fb-85b8b233ca6b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/js/app.js" afterPath="$PROJECT_DIR$/public/app/js/app.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/js/controllers/project/import/import_project_controller.js" afterPath="$PROJECT_DIR$/public/app/js/controllers/project/import/import_project_controller.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/views/projects/import/analyse.ejs" afterPath="$PROJECT_DIR$/public/app/views/projects/import/analyse.ejs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/bower.json" afterPath="$PROJECT_DIR$/public/bower.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/layout/includes.ejs" afterPath="$PROJECT_DIR$/src/views/layout/includes.ejs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/projects/import/import.ejs" afterPath="$PROJECT_DIR$/src/views/projects/import/import.ejs" />
     </list>
     <ignored path="dendro.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -44,34 +40,26 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="import_project_controller.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="import_project_controller.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/import/import_project_controller.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="330">
-              <caret line="437" column="46" selection-start-line="437" selection-start-column="46" selection-end-line="437" selection-end-column="46" />
+            <state relative-caret-position="195">
+              <caret line="505" column="58" selection-start-line="505" selection-start-column="58" selection-end-line="505" selection-end-column="58" />
               <folding>
-                <element signature="e#1314#26064#0" expanded="false" />
+                <element signature="e#1470#27982#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="folder.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/models/directory_structure/folder.js">
+      <file leaf-file-name="angular-tree-widget.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/public/bower_components/angular-tree-widget/dist/angular-tree-widget.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2010">
-              <caret line="134" column="108" selection-start-line="134" selection-start-column="108" selection-end-line="134" selection-end-column="108" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="config.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6090">
-              <caret line="406" column="30" selection-start-line="406" selection-start-column="19" selection-end-line="406" selection-end-column="30" />
-              <folding />
+            <state relative-caret-position="156">
+              <caret line="87" column="71" selection-start-line="87" selection-start-column="66" selection-end-line="87" selection-end-column="71" />
+              <folding>
+                <element signature="n#!!doc" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -79,9 +67,21 @@
       <file leaf-file-name="analyse.ejs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/app/views/projects/import/analyse.ejs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="30">
-              <caret line="2" column="32" selection-start-line="2" selection-start-column="23" selection-end-line="2" selection-end-column="23" />
+            <state relative-caret-position="128">
+              <caret line="27" column="40" selection-start-line="27" selection-start-column="40" selection-end-line="27" selection-end-column="40" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="map.ejs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls/map.ejs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="525">
+              <caret line="35" column="92" selection-start-line="35" selection-start-column="92" selection-end-line="35" selection-end-column="92" />
+              <folding>
+                <marker date="1475509680000" expanded="true" signature="616:1125" placeholder="{...}" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -106,11 +106,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/app/js/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="25" column="19" selection-start-line="25" selection-start-column="19" selection-end-line="25" selection-end-column="19" />
+            <state relative-caret-position="345">
+              <caret line="26" column="29" selection-start-line="26" selection-start-column="11" selection-end-line="26" selection-end-column="29" />
               <folding />
             </state>
           </provider>
@@ -183,10 +183,10 @@
         <option value="$PROJECT_DIR$/public/js/utils.js" />
         <option value="$PROJECT_DIR$/src/views/layout/includes.ejs" />
         <option value="$PROJECT_DIR$/public/bower.json" />
-        <option value="$PROJECT_DIR$/public/app/views/projects/import/analyse.ejs" />
-        <option value="$PROJECT_DIR$/public/app/js/controllers/project/import/import_project_controller.js" />
         <option value="$PROJECT_DIR$/src/views/projects/import/import.ejs" />
         <option value="$PROJECT_DIR$/public/app/js/app.js" />
+        <option value="$PROJECT_DIR$/public/app/views/projects/import/analyse.ejs" />
+        <option value="$PROJECT_DIR$/public/app/js/controllers/project/import/import_project_controller.js" />
       </list>
     </option>
   </component>
@@ -350,6 +350,36 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bower_components" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="angular-tree-widget" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dist" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="img" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
       <pane id="Scratches" />
@@ -367,15 +397,15 @@
     <property name="js-jscs-nodeInterpreter" value="/usr/local/bin/node" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="prop_add_unversioned_files" value="true" />
-    <property name="SearchEverywhereHistoryKey" value="dendro&#9;null&#9;null&#10;dendroA&#9;null&#9;null&#10;dendroApp&#9;null&#9;null&#10;includes&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/views/layout/includes.ejs&#10;dendroAp&#9;null&#9;null&#10;bagit&#9;null&#9;null&#10;backup&#9;null&#9;null&#10;projects&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/controllers/projects.js&#10;my&#9;null&#9;null&#10;export&#9;null&#9;null&#10;ckan&#9;null&#9;null&#10;share_&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/public/app/js/controllers/project/editor/share_controller.js&#10;export_to&#9;null&#9;null&#10;absPathInSrcFolder&#9;null&#9;null&#10;.my&#9;null&#9;null&#10;isAutho&#9;null&#9;null&#10;click_&#9;null&#9;null&#10;export_to_repository&#9;null&#9;null&#10;dirty_&#9;null&#9;null&#10;select_item&#9;null&#9;null" />
+    <property name="SearchEverywhereHistoryKey" value="trustAsRe&#9;null&#9;null&#10;dendro&#9;null&#9;null&#10;dendroA&#9;null&#9;null&#10;dendroApp&#9;null&#9;null&#10;includes&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/views/layout/includes.ejs&#10;dendroAp&#9;null&#9;null&#10;bagit&#9;null&#9;null&#10;backup&#9;null&#9;null&#10;projects&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/controllers/projects.js&#10;my&#9;null&#9;null&#10;export&#9;null&#9;null&#10;ckan&#9;null&#9;null&#10;share_&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/public/app/js/controllers/project/editor/share_controller.js&#10;export_to&#9;null&#9;null&#10;absPathInSrcFolder&#9;null&#9;null&#10;.my&#9;null&#9;null&#10;isAutho&#9;null&#9;null&#10;click_&#9;null&#9;null&#10;export_to_repository&#9;null&#9;null&#10;dirty_&#9;null&#9;null&#10;select_item&#9;null&#9;null" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/views/projects/administration" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/public/app/views/projects/import" />
       <recent name="$PROJECT_DIR$/src/views/projects/import" />
-    </key>
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/views/projects/administration" />
     </key>
   </component>
   <component name="RunManager" selected="Node.js.Unnamed">
@@ -483,12 +513,12 @@
       <workItem from="1476109218445" duration="9801000" />
       <workItem from="1476180443106" duration="4336000" />
       <workItem from="1476358153099" duration="2082000" />
-      <workItem from="1476384257539" duration="6194000" />
+      <workItem from="1476384257539" duration="16859000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="148815000" />
+    <option name="totallyTimeSpent" value="159480000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -530,8 +560,8 @@
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296582" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2887417" sideWeight="0.48062015" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32407406" sideWeight="0.4947146" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.28741723" sideWeight="0.48062015" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3231788" sideWeight="0.4947146" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18111347" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32406417" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -557,7 +587,7 @@
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="506" />
+      <option name="time" value="509" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="NodeJSConfigurationType">
@@ -573,62 +603,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/node_modules/gladstone/index.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="42" selection-start-line="5" selection-start-column="34" selection-end-line="5" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/gladstone/lib/strings.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="20" selection-start-line="10" selection-start-column="4" selection-end-line="10" selection-end-column="20" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/views/index.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="780">
-          <caret line="52" column="47" selection-start-line="52" selection-start-column="47" selection-end-line="52" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/gladstone/lib/lastdirpath.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="6" selection-start-line="4" selection-start-column="6" selection-end-line="4" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/gladstone/gladstone.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="175">
-          <caret line="66" column="3" selection-start-line="66" selection-start-column="3" selection-end-line="66" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="40" column="21" selection-start-line="40" selection-start-column="21" selection-end-line="40" selection-end-column="21" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/meta/permissions.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="13" selection-start-line="5" selection-start-column="13" selection-end-line="5" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/tmp/README.md">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="160">
-          <caret line="32" column="10" selection-start-line="32" selection-start-column="10" selection-end-line="32" selection-end-column="10" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/node_modules/tmp/lib/tmp.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="226">
@@ -885,38 +859,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/bower_components/angular-tree-widget/dist/angular-tree-widget.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="49" selection-start-line="11" selection-start-column="20" selection-end-line="11" selection-end-column="20" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/public/bower_components/angular-tree-widget/bower.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="360">
           <caret line="24" column="48" selection-start-line="24" selection-start-column="36" selection-end-line="24" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/import/import_project_controller.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="330">
-          <caret line="437" column="46" selection-start-line="437" selection-start-column="46" selection-end-line="437" selection-end-column="46" />
-          <folding>
-            <element signature="e#1314#26064#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/views/projects/import/analyse.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" column="32" selection-start-line="2" selection-start-column="23" selection-end-line="2" selection-end-column="23" />
           <folding />
         </state>
       </provider>
@@ -937,11 +883,107 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/public/bower_components/ng-file-upload-shim/ng-file-upload.min.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="170">
+          <caret line="1" column="18320" selection-start-line="1" selection-start-column="18320" selection-end-line="1" selection-end-column="18320" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/js/controllers/window_controller.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.$sce.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="331" column="40" selection-start-line="331" selection-start-column="40" selection-end-line="331" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" column="19" selection-start-line="25" selection-start-column="19" selection-end-line="25" selection-end-column="19" />
+        <state relative-caret-position="345">
+          <caret line="26" column="29" selection-start-line="26" selection-start-column="11" selection-end-line="26" selection-end-column="29" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls/url_box.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <marker date="1475509680000" expanded="true" signature="570:1055" placeholder="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls/map.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="525">
+          <caret line="35" column="92" selection-start-line="35" selection-start-column="92" selection-end-line="35" selection-end-column="92" />
+          <folding>
+            <marker date="1475509680000" expanded="true" signature="616:1125" placeholder="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/bower_components/angular-tree-control/css/tree-control.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="215">
+          <caret line="57" column="60" selection-start-line="57" selection-start-column="56" selection-end-line="57" selection-end-column="56" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/bower_components/angular-tree-widget/dist/angular-tree-widget.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1089">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/views/projects/import/analyse.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="128">
+          <caret line="27" column="40" selection-start-line="27" selection-start-column="40" selection-end-line="27" selection-end-column="40" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/bower_components/angular-tree-widget/dist/angular-tree-widget.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="156">
+          <caret line="87" column="71" selection-start-line="87" selection-start-column="66" selection-end-line="87" selection-end-column="71" />
+          <folding>
+            <element signature="n#!!doc" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/bower_components/angular-tree-control/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="1063" column="52" selection-start-line="1063" selection-start-column="52" selection-end-line="1063" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/import/import_project_controller.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="195">
+          <caret line="505" column="58" selection-start-line="505" selection-start-column="58" selection-end-line="505" selection-end-column="58" />
+          <folding>
+            <element signature="e#1470#27982#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
