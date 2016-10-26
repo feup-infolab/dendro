@@ -52,6 +52,19 @@ angular.module('dendroApp.controllers')
             return regexp.test(url);
         };
 
+        $scope.valid_organization = function(organization)
+        {
+            if(organization == null || organization.length == 0)
+            {
+                return false;
+            }
+            else
+            {
+                var regexp = /[a-zA-Z0-9-]+$/;
+                return regexp.test(organization);
+            }
+        };
+
         $scope.create_new_repository_bookmark = function(new_repository)
         {
             if(new_repository.ddr == null)
