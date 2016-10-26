@@ -24,13 +24,22 @@
     <span ng-show="!new_repository.ddr.hasUsername" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
-<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasOrganization}">
+<div class="control-group has-feedback" ng-class="{'has-success' : valid_organization(new_repository.ddr.hasOrganization), 'has-warning' : new_repository.ddr.hasOrganization && !valid_organization(new_repository.ddr.hasOrganization)}">
     <label for="ckan_organization">Organization</label>
     <input type="text" ng-model="new_repository.ddr.hasOrganization" class="form-control" id="ckan_organization" placeholder="CKAN organization" required>
     <p class="help-block">Your Organization in the target CKAN repository (example: For the repository http://dendro-prd.fe.up.pt:5000/organization/<b>infolab-devs</b>, it is <b>infolab-devs</b>) .</p>
-    <span ng-show="new_repository.ddr.hasOrganization" class="glyphicon glyphicon-ok form-control-feedback"></span>
-    <span ng-show="!new_repository.ddr.hasOrganization" class="glyphicon glyphicon-remove form-control-feedback"></span>
+    <span ng-show="valid_organization(new_repository.ddr.hasOrganization)" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <span ng-show="!valid_organization(new_repository.ddr.hasOrganization)" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
-<button type="cancel" ng-click="clear_repository_type()" class="btn">Cancel</button>
-<button type="submit" ng-click="create_new_repository_bookmark(new_repository)" class="btn btn-primary pull-right"><i class="fa fa-bookmark fa-lg"></i>Save new bookmark</button>
+<button type="cancel"
+        ng-click="clear_repository_type()"
+        class="btn">
+    Cancel
+</button>
+<button type="submit"
+        ng-click="create_new_repository_bookmark(new_repository)"
+        ng-disabled="!(new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl) && new_repository.ddr.hasUsername && valid_organization(new_repository.ddr.hasOrganization))"
+        class="btn btn-primary pull-right">
+    <i class="fa fa-bookmark fa-lg"></i>Save new bookmark
+</button>
