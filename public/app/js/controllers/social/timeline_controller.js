@@ -5,14 +5,25 @@ angular.module('dendroApp.controllers')
     .controller('timelineCtrl', function ($scope, $http, $filter, timelineService)
     {
 
-        $scope.get_all_posts = function()
+        $scope.posts = [];
+
+        $scope.get_all_posts = function(currentPage)
         {
             $scope.getting_posts = true;
 
-            timelineService.get_all_posts()
+            console.log('at $scope.get_all_posts, currentPage: ', currentPage);
+            timelineService.get_all_posts(currentPage)
                 .then(function(response)
                 {
-                    $scope.posts = response.data;
+                    //$scope.posts = response.data;
+                    console.log('response.data: ');
+                    console.log(response.data);
+                    console.log('----Posts Before-----');
+                    console.log($scope.posts);
+                    //$scope.posts = $scope.posts.concat(response.data);
+                    $scope.posts = $scope.posts.concat(response.data);
+                    console.log('----Posts After-----');
+                    console.log($scope.posts);
                     $scope.getting_posts = false;
                 })
                 .catch(function(error){
@@ -233,17 +244,21 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function()
         {
+            console.log('NA INIT');
+            //$scope.posts = [];//TODO cuidado com isto
+            //For pagination purposes
+            $scope.currentPage = 1;
+            $scope.pageSize = 5;
+            $scope.countCenas = 1;
+
             $scope.new_post_content = "";
             $scope.commentList = [];
             $scope.shareList = [];
             $scope.likedPosts = [];
             $scope.postList = [];
-            $scope.get_all_posts();
+            //$scope.get_all_posts();
+            $scope.get_all_posts($scope.currentPage);
             $scope.likesPostInfo = [];
-
-            //For pagination purposes
-            $scope.currentPage = 1;
-            $scope.pageSize = 5;
         };
 
         $scope.show_popup = function(type, title, message)
@@ -301,5 +316,7 @@ angular.module('dendroApp.controllers')
 
         $scope.pageChangeHandler = function(num) {
             console.log('posts page changed to ' + num);
+            $scope.currentPage = num;
+            //$scope.get_all_posts($scope.currentPage);
         };
     });

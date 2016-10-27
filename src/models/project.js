@@ -538,6 +538,8 @@ Project.prototype.getFirstLevelDirectoryContents = function(callback)
 Project.prototype.getRecentProjectWideChangesSocial = function (callback, startingResultPosition, maxResults, createdAfterDate) {
     var self = this;
     console.log('createdAfterDate:', createdAfterDate);
+    console.log('startingResultPosition: ', startingResultPosition);
+    console.log('maxResults: ', maxResults);
 
     var query =
         "WITH [0] \n" +

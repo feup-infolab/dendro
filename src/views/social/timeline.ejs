@@ -1,5 +1,7 @@
 <div ng-controller="timelineCtrl" ng-init="init(); get_logged_user()" xmlns="http://www.w3.org/1999/html">
     <p>LOGGED USER IS : {{loggedUser}}</p>
+    <p>CURRENT PAGE IS : {{currentPage}}</p>
+    <p>CountCenas: {{countCenas}}</p>
     <!--<div class="wall">
         <label for="new_post_box">Novo post:</label>
         <input ng-model="new_post_content" type="text" id="new_post_box"/>
@@ -124,8 +126,15 @@
     </div>
 </div>
 
-<div ng-controller="nextPageCtrl" class="other-controller">
+<!--<div ng-controller="nextPageCtrl" class="other-controller">
     <small>this is in "next_page_controller"</small>
+    <div class="text-center">
+        <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/bower_components/angularUtils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
+    </div>
+</div>-->
+
+<div ng-controller="timelineCtrl" class="other-controller">
+    <small>this is in "timelineCtrl"</small>
     <div class="text-center">
         <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/bower_components/angularUtils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
     </div>

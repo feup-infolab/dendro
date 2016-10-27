@@ -243,6 +243,11 @@ Elements.dcterms =
         type : DbConnection.string,
         control : Config.controls.input_box
     },
+    socialUpdatedAt:
+    {
+        type : DbConnection.date,
+        control : Config.controls.input_box
+    },
     hasVersion :
     {
         type : DbConnection.resource,

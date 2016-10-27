@@ -1,6 +1,7 @@
 var Config = require("../meta/config.js").Config;
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var uuid = require('node-uuid');
 
 var db = function() { return GLOBAL.db.default; }();

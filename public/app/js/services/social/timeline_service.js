@@ -3,7 +3,7 @@
 angular.module('dendroApp.services')
     .service('timelineService', ['$http', function ($http) {
 
-        this.get_all_posts = function()
+        this.get_all_posts = function(currentPage)
         {
             var requestUri = "/posts/all";
 
@@ -11,7 +11,8 @@ angular.module('dendroApp.services')
                 method: 'GET',
                 url: requestUri,
                 contentType: "application/json",
-                headers: {'Accept': "application/json"}
+                headers: {'Accept': "application/json"},
+                params: {currentPage: currentPage}
             });
         };
 

@@ -21,6 +21,11 @@ exports.all = function(req, res){
     var username = currentUser.uri;
 
     var pingForNewPosts = true;
+    var currentPage = req.query.currentPage;
+    console.log('currentPage: ', currentPage);
+    var index = currentPage == 1? 0 : currentPage*5;
+    console.log('index is: ', index);
+    var maxResults = 10;
 
     /*if(acceptsJSON && !acceptsHTML)
      {
@@ -94,59 +99,45 @@ exports.all = function(req, res){
                 }
                 else
                 {
-                    Post.all(req, function (err, posts)
+                    //TODO create a new function that only gets the like uri's ordered by date and with pagination
+                    //TODO base implementation on project.getChangesSocial
+                    //getAllPosts(callback, startingResultPosition, maxResults);
+                    getAllPosts(function (err, results) {
+                        if(!err)
+                        {
+                            console.log('vai mandar os results');
+                            console.log('results.length: ' , results.length);
+                            res.json(results);
+                        }
+                        else{
+                            console.log('err at getAllPosts: ', err);
+                            res.status(500).json({
+                                result : "Error",
+                                message : "Error getting posts. " + JSON.stringify(err)
+                            });
+                        }
+                    }, index, maxResults);
+                    /*Post.all(req, function (err, posts)
                     {
                         if (!err)
                         {
                             console.log('posts.length is:', posts.length);
                             async.map(posts, function(post, callback){
-                                Post.findByUri(post.uri, function(err, loadedPost){
-                                    if(!err)
-                                    {
-                                        var updatedPost = loadedPost;
-
-                                        getNumLikesForAPost(loadedPost.uri, function (err, likesArray) {
-                                            //loadedPost.ddr.numLikes = numLikes;
-                                            if(likesArray.length)
-                                            {
-                                                updatedPost.ddr.numLikes = likesArray.length;
-                                                var usersWhoLiked = _.pluck(likesArray, 'userURI');
-                                                console.log('usersWhoLiked is:');
-                                                console.log(usersWhoLiked);
-                                                updatedPost.ddr.usersWhoLiked = usersWhoLiked.toString();
-                                            }
-
-                                            if(!err)
-                                            {
-                                                updateResource(loadedPost, updatedPost, db_social.graphUri, function (error, data) {
-                                                    if(!error)
-                                                    {
-                                                        console.log('atualizou o numLikes com sucesso');
-                                                        callback(null, loadedPost);
-                                                    }
-                                                    else
-                                                    {
-                                                        callback(err, null);
-                                                    }
-                                                });
-
-                                            }
-                                            else
-                                            {
-                                                callback(err, null);
-                                            }
-
-                                        });
-                                    }
+                                Post.findByUri(post.uri, function (err, loadedPost) {
+                                    if(err)
+                                        callback(err, null);
                                     else
                                     {
-                                        callback(err, null);
+                                        console.log('loadedPost is: ', loadedPost);
+                                        callback(null, loadedPost);
                                     }
-                                }, Ontology.getAllOntologiesUris(), db_social.graphUri);
+
+                                }, Ontology.getAllOntologiesUris(), db_social.graphUri)
                             }, function(err, loadedPosts){
                                 if(!err)
                                 {
                                     console.log('vai mandar os loadedPosts');
+                                    loadedPosts.sort(sortPostsByModifiedDate);//sort posts by modified date
                                     res.json(loadedPosts);
                                 }
                                 else
@@ -167,6 +158,7 @@ exports.all = function(req, res){
                             });
                         }
                     }, db_social.graphUri, false);
+                    */
                 }
             });
         }
@@ -296,6 +288,7 @@ function sortPostsByModifiedDate(postA, postB) {
 function pingNewPosts(sessionUser, cb) {
 
     console.log('in getNewPosts function');
+    console.log('in pingNewPostsFunction');
     var currentUserUri = sessionUser.uri;
     var numPostsCreated = 0;
     Project.findByCreatorOrContributor(currentUserUri, function(err, projects) {
@@ -306,7 +299,10 @@ function pingNewPosts(sessionUser, cb) {
             console.log('projects.length is:', projects.length);
             async.map(projects, function (project, cb1) {
                     console.log('Project title is: ', project.dcterms.title);
+                    var socialUpdatedAt = project.dcterms.socialUpdatedAt ? project.dcterms.socialUpdatedAt : '1970-09-21T19:27:46.578Z';
                     //2016-10-11T15:50:24.586Z
+                    console.log('socialUpdatedAt from project is: ', socialUpdatedAt);
+
                     project.getRecentProjectWideChangesSocial(function(err, changes){
                     //project.getRecentProjectWideChanges(function(err, changes){
                         //console.log('changes are:', JSON.stringify(changes[1].changes));
@@ -378,14 +374,34 @@ function pingNewPosts(sessionUser, cb) {
                                 },
                                 function(err, fullDescriptors)
                                 {
-                                    cb1(err, fullDescriptors);
+                                    //TODO update socialUpdatedAt
+                                    var updatedProject = project;
+                                    updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
+                                    updateResource(project, updatedProject, db.graphUri, function (error, data) {
+                                        console.log('updated project');
+                                        cb1(err, fullDescriptors);
+                                    });
+                                    //cb1(err, fullDescriptors);
                                 });
                         }
                         else
                         {
-                            cb1(null,null);
+                            console.log('no changes detected');
+                            //TODO update socialUpdatedAt
+                            //HERE
+                            var updatedProject = project;
+                            updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
+                            updateResource(project, updatedProject, db.graphUri, function (error, data) {
+                                console.log('updated project');
+                                console.log('data is: ');
+                                console.log(data);
+                                cb1(null,null);
+                            });
+
+                            //cb1(null,null);
                         }
-                    },null,null,'2015-09-21T19:27:46.578Z');//TODO remove these configurations
+                    //},null,null,'2015-09-21T19:27:46.578Z');
+                    },null,null,socialUpdatedAt);
                 },
                 function (err, fullProjects) {
                     console.log('fullProjects.length is:', fullProjects.length);
@@ -676,13 +692,27 @@ exports.like = function (req, res) {
     });
 };
 
-var updateResource = function(currentResource, newResource, graphUri, cb)
+/*var updateResource = function(currentResource, newResource, graphUri, cb)
 {
     var descriptors = newResource.getDescriptors();
 
     db.connection.replaceDescriptorsOfSubject(
         currentResource.uri,
         descriptors,
+        graphUri,
+        function(err, result)
+        {
+            cb(err, result);
+        }
+    );
+};*/
+
+var updateResource = function(currentResource, newResource, graphUri, cb)
+{
+    var newDescriptors= newResource.getDescriptors();
+
+    currentResource.replaceDescriptorsInTripleStore(
+        newDescriptors,
         graphUri,
         function(err, result)
         {
@@ -1053,4 +1083,54 @@ var getNumLikesForAPost = function(postID, cb)
                 cb(true, "Error fetching children of project root folder");
             }
         });
+};
+
+/**
+ * Gets all the posts ordered by modified date and using pagination
+ * @param callback the function callback
+ * @param startingResultPosition the starting position to start the query
+ * @param maxResults the limit for the query
+ */
+var getAllPosts = function (callback, startingResultPosition, maxResults) {
+    //based on getRecentProjectWideChangesSocial
+    var self = this;
+    console.log('startingResultPosition: ', startingResultPosition);
+    console.log('maxResults: ', maxResults);
+
+    var query =
+        "WITH [0] \n" +
+        "SELECT DISTINCT ?uri \n" +
+        "WHERE { \n" +
+        "?uri dcterms:modified ?date. \n" +
+        "?uri rdf:type ddr:Post. \n" +
+        "} \n "+
+        "ORDER BY DESC(?date) \n";
+
+    query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            }
+        ]),
+        function(err, results) {
+            if(!err)
+            {
+                console.log('executed getPosts query successfully');
+                if(results.length > 0)
+                {
+                    console.log('has post results:');
+                    console.log(results);
+                }
+                callback(err,results);
+            }
+            else
+            {
+                console.log('DEU ERRO A PROCURAR');
+                callback(true, "Error fetching posts in getAllPosts");
+            }
+        });
+
 };
