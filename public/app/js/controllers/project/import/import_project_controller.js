@@ -428,38 +428,7 @@ angular.module('dendroApp.controllers')
                     };
                     $scope.backup_contents = $scope.transformForTreeControl(test);
 
-                    // $scope.treedata = [{
-                    //     name: "Node 1",
-                    //     id : "#Node 1",
-                    //     children: [{
-                    //         name: "Node 1.1",
-                    //         id : "#Node 1.1",
-                    //         children:[
-                    //             {
-                    //                 id : "#Node 1.1.1",
-                    //                 name:"Node 1.1.1"
-                    //             },
-                    //             {
-                    //                 id: "#Node 1.1.2",
-                    //                 name: "Node 1.1.2"
-                    //             }]
-                    //     }]
-                    // },{
-                    //     name: "Node 2",
-                    //     id: "#Node 2",
-                    //     children: [
-                    //         {
-                    //             id: "#Node 2.1",
-                    //             name: "Node 2.1"
-                    //         },
-                    //         {
-                    //             id: "#Node 2.2",
-                    //             name: "Node 2.2"
-                    //         }
-                    //     ]
-                    // }];
-
-                    console.log($scope.backup_contents);
+                    //console.log($scope.backup_contents);
                     $scope.uploading = false;
                     $scope.stage = {analyse: true};
                 }
@@ -499,17 +468,14 @@ angular.module('dendroApp.controllers')
                         var treeNode = {
                             id: node.resource,
                             metadata : node.metadata,
-                            has_changed_descriptors : $scope.hasChangedDescriptors(node),
+                            name : nodeTitle,
                             children: []
                         };
 
                         if($scope.hasChangedDescriptors(node))
                         {
-                            treeNode.name = '<span class="glyphicon glyphicon-exclamation-sign"></span>' + nodeTitle + "UIUI";
-                        }
-                        else
-                        {
-                            treeNode.name = nodeTitle;
+                            treeNode.iconclasses = { "true" : "glyphicon glyphicon-exclamation-sign" };
+                            console.log("Node " + treeNode.name + " has changed descriptors.222");
                         }
 
                         if (node.children != null && node.children instanceof Array && node.children.length == 0)
@@ -531,16 +497,14 @@ angular.module('dendroApp.controllers')
                                     id: child.resource,
                                     metadata : child.metadata,
                                     has_changed_descriptors : $scope.hasChangedDescriptors(node),
+                                    name : childTitle,
                                     children: []
                                 };
 
                                 if($scope.hasChangedDescriptors(node))
                                 {
-                                    transformedChild.name = '<span class="glyphicon glyphicon-exclamation-sign"></span>' + childTitle + "UIUI";
-                                }
-                                else
-                                {
-                                    transformedChild.name = childTitle;
+                                    treeNode.iconclasses = { "true" : "glyphicon glyphicon-exclamation-sign" };
+                                    console.log("Node " + transformedChild.name + " has changed descriptors.111");
                                 }
 
                                 if (childExtension === "folder")
@@ -603,4 +567,4 @@ angular.module('dendroApp.controllers')
                     console.log(JSON.stringify(event));
                 };
             }
-    ]);
+        ]);

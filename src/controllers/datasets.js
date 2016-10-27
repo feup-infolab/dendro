@@ -285,6 +285,16 @@ export_to_repository_ckan = function(req, res){
         var requestedResourceUri = req.params.requestedResource;
         var targetRepository = req.body.repository;
 
+        var overwrite = false;
+
+        try{
+            overwrite = JSON.parse(req.body.overwrite);
+        }
+        catch(e)
+        {
+            console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
+        }
+
         if(req.body.repository != null && req.body.repository.ddr != null)
         {
             var organization = req.body.repository.ddr.hasOrganization;
@@ -338,19 +348,18 @@ export_to_repository_ckan = function(req, res){
                                     {
                                         var slug = require('slug');
                                         var slugifiedTitle = slug(folder.dcterms.title, "-");
+                                        var slugifiedUri = slug(folder.uri, "-");
 
+                                        //ckan only accepts alphanumeric characters and dashes for the dataset ids
                                         slugifiedTitle = slugifiedTitle.replace(/[^A-Za-z0-9-]/g, "").replace(/\./g, "").toLowerCase();
+                                        slugifiedUri = slugifiedUri.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
 
-                                        console.log("6");
                                         folder.createTempFolderWithContents(false, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata){
-                                            console.log("7");
                                             if(!err){
                                                 createPackage(parentFolderPath, folder, function (err, files) {
 
-                                                    console.log("7");
                                                     if(!err)
                                                     {
-                                                        console.log("8");
                                                         files = InformationElement.removeInvalidFileNames(files);
 
                                                         if (typeof String.prototype.endsWith !== 'function') {
@@ -388,8 +397,8 @@ export_to_repository_ckan = function(req, res){
                                                                 if (!err) {
                                                                     var packageContents = [
                                                                         {
-                                                                            name: slugifiedTitle,
-                                                                            package_id: slugifiedTitle,
+                                                                            name: slugifiedUri,
+                                                                            package_id: slugifiedUri,
                                                                             title: folder.dcterms.title,
                                                                             description: folder.dcterms.description,
                                                                             extras: extrasJSONArray,
@@ -405,56 +414,71 @@ export_to_repository_ckan = function(req, res){
                                                                         function (err, result) {
                                                                             if (!err && result.success) {
 
-                                                                                async.each(result.result.resources, function( resource, callback) {
+                                                                                if(!overwrite)
+                                                                                {
+                                                                                    deleteFolderRecursive(parentFolderPath);
 
-                                                                                    callback(false);
+                                                                                    var datasetLocationOnCkan =  targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
+                                                                                    var msg = "This dataset was already exported to this CKAN instance and is available at: <a href=\"" + datasetLocationOnCkan +"\">"+datasetLocationOnCkan + "</a> <br/><br/> Activate the Overwrite option to force an update."
+                                                                                    res.status(500).json(
+                                                                                        {
+                                                                                            "result": "error",
+                                                                                            "message": msg
+                                                                                        }
+                                                                                    );
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    async.each(result.result.resources, function( resource, callback) {
 
-                                                                                    /*ckan.exec("resource_delete", {id:resource.id }, function (err, result) {
-                                                                                     if (!err) {
-                                                                                     callback(false)
-                                                                                     }
-                                                                                     else {
-                                                                                     callback(true);
-                                                                                     }
-                                                                                     });*/
+                                                                                        callback(false);
 
-                                                                                }, function(err){
-                                                                                    // if any of the file processing produced an error, err would equal that error
-                                                                                    if (!err) {
-                                                                                        ckan.import({
-                                                                                            // verbose output
-                                                                                            debug: true,
+                                                                                        /*ckan.exec("resource_delete", {id:resource.id }, function (err, result) {
+                                                                                         if (!err) {
+                                                                                         callback(false)
+                                                                                         }
+                                                                                         else {
+                                                                                         callback(true);
+                                                                                         }
+                                                                                         });*/
 
-                                                                                            // by default if a package or resource already exists, it will be ignored
-                                                                                            // set the update flag to force updates of packages and resources
-                                                                                            update: true,
-                                                                                            // list of packages you want to import.
-                                                                                            packages: packageContents,
+                                                                                    }, function(err){
+                                                                                        // if any of the file processing produced an error, err would equal that error
+                                                                                        if (!err) {
+                                                                                            ckan.import({
+                                                                                                // verbose output
+                                                                                                debug: true,
 
-                                                                                            callback: function (response) {
-                                                                                                deleteFolderRecursive(parentFolderPath);
-                                                                                                res.json(
-                                                                                                    {
-                                                                                                        "result": "OK",
-                                                                                                        "message": "Dataset successfully exported!"
-                                                                                                    }
-                                                                                                );
-                                                                                            }
-                                                                                        });
-                                                                                    } else {
-                                                                                        deleteFolderRecursive(parentFolderPath);
-                                                                                        var msg = "Error deleting old dataset for " + requestedResourceUri + " Error reported : " + result;
-                                                                                        console.error(msg);
+                                                                                                // by default if a package or resource already exists, it will be ignored
+                                                                                                // set the update flag to force updates of packages and resources
+                                                                                                update: overwrite,
+                                                                                                // list of packages you want to import.
+                                                                                                packages: packageContents,
 
-                                                                                        res.status(500).json(
-                                                                                            {
-                                                                                                "result": "error",
-                                                                                                "message": msg
-                                                                                            }
-                                                                                        );
-                                                                                    }
-                                                                                });
+                                                                                                callback: function (response) {
+                                                                                                    deleteFolderRecursive(parentFolderPath);
+                                                                                                    res.json(
+                                                                                                        {
+                                                                                                            "result": "OK",
+                                                                                                            "message": "Dataset successfully exported!"
+                                                                                                        }
+                                                                                                    );
+                                                                                                }
+                                                                                            });
+                                                                                        } else {
+                                                                                            deleteFolderRecursive(parentFolderPath);
+                                                                                            var msg = "Error deleting old dataset for " + requestedResourceUri + " Error reported : " + result;
+                                                                                            console.error(msg);
 
+                                                                                            res.status(500).json(
+                                                                                                {
+                                                                                                    "result": "error",
+                                                                                                    "message": msg
+                                                                                                }
+                                                                                            );
+                                                                                        }
+                                                                                    });
+                                                                                }
                                                                             }
                                                                             else if (err || !result.success) {
 
@@ -465,7 +489,7 @@ export_to_repository_ckan = function(req, res){
 
                                                                                         // by default if a package or resource already exists, it will be ignored
                                                                                         // set the update flag to force updates of packages and resources
-                                                                                        update: true,
+                                                                                        //update: true,
 
                                                                                         // user key, you can authenticate using the setKey() and login() methods as well
                                                                                         //key: "fe90fb70-34f7-4194-849a-32317f0b1760",
