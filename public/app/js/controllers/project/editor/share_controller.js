@@ -178,12 +178,17 @@ angular.module('dendroApp.controllers')
          * @param uri
          */
 
-        $scope.upload_to_repository = function(target_repository)
+        $scope.upload_to_repository = function(target_repository, overwrite)
         {
             var payload = {
                 repository : target_repository,
                 new_dataset : $scope.new_dataset
             };
+
+            if(overwrite != null)
+            {
+                payload.overwrite = overwrite;
+            }
 
             var requestString = JSON.stringify(payload);
 
@@ -199,11 +204,21 @@ angular.module('dendroApp.controllers')
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             }).success(function(e,data) {
-                $scope.show_popup("success", "Success", e.message);
+                if(e!= null)
+                {
+                    $scope.show_popup("success", "Success", e.message);
+                }
+                else
+                {
+                    $scope.show_popup("error", "Connection lost", "Connection lost during dataset deposit. Please try again.");
+                }
                 $scope.is_sending_data = false;
                 $scope.clear_recalled_repository();
             }).error(function(e,data){
-                $scope.show_popup("error", "Error", e.message);
+                if(e != null)
+                {
+                    $scope.show_popup("error", "Error", e.message);
+                }
                 $scope.is_sending_data = false;
             });
 
@@ -305,5 +320,6 @@ angular.module('dendroApp.controllers')
         $scope.get_repository_types();
         $scope.new_dataset = {};
         $scope.is_sending_data = false;
+        $scope.overwrite = false;
     });
 
