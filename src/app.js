@@ -1311,6 +1311,7 @@ async.waterfall([
         app.post('/posts/share', async.apply(Permissions.require, [Permissions.acl.user]), posts.share);
         app.post('/posts/shares', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostShares);
         app.get('/posts/loggedUser', async.apply(Permissions.require, [Permissions.acl.user]), posts.getLoggedUser);
+        app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.acl.user]), posts.numPostsDatabase);
 
         //serve angularjs ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,

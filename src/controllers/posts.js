@@ -14,6 +14,24 @@ var db_social = function() { return GLOBAL.db.social; }();
 //NELSON
 var app = require('../app');
 
+exports.numPostsDatabase = function (req, res) {
+    numPostsDatabaseAux(function (err, count) {
+       if(!err)
+       {
+           console.log('count is: ', count);
+           res.json(count);
+       }
+        else{
+           console.log('error receiving count');
+           console.log(err);
+           res.status(500).json({
+               result : "Error",
+               message : "Error counting posts. " + JSON.stringify(err)
+           });
+       }
+    });
+};
+
 exports.all = function(req, res){
     var currentUser = req.session.user;
     var acceptsHTML = req.accepts('html');
@@ -23,9 +41,11 @@ exports.all = function(req, res){
     var pingForNewPosts = true;
     var currentPage = req.query.currentPage;
     console.log('currentPage: ', currentPage);
+    //var index = currentPage == 1? 0 : currentPage*5;
     var index = currentPage == 1? 0 : currentPage*5;
     console.log('index is: ', index);
-    var maxResults = 10;
+    //var maxResults = 10;
+    var maxResults = 5;
 
     /*if(acceptsJSON && !acceptsHTML)
      {
@@ -706,6 +726,44 @@ exports.like = function (req, res) {
         }
     );
 };*/
+
+var numPostsDatabaseAux = function (callback) {
+    /*WITH <http://127.0.0.1:3001/social_dendro>
+    SELECT (COUNT(DISTINCT ?postURI) AS ?count)
+    WHERE {
+        ?postURI rdf:type ddr:Post.
+    }*/
+
+    console.log('In numPostsDatabaseAux');
+    var query =
+        "WITH [0] \n" +
+        "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
+        "WHERE { \n" +
+        "?uri rdf:type ddr:Post. \n" +
+        "} \n ";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            }
+        ]),
+        function(err, results) {
+            if(!err)
+            {
+                console.log('executed numPosts query successfully');
+                console.log('results: ', results[0].count);
+                callback(err,results[0].count);
+            }
+            else
+            {
+                console.log('DEU ERRO A PROCURAR');
+                callback(true, "Error fetching numPosts in numPostsDatabaseAux");
+            }
+        });
+
+};
 
 var updateResource = function(currentResource, newResource, graphUri, cb)
 {

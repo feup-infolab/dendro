@@ -2,6 +2,11 @@
     <p>LOGGED USER IS : {{loggedUser}}</p>
     <p>CURRENT PAGE IS : {{currentPage}}</p>
     <p>CountCenas: {{countCenas}}</p>
+    <p>Posts: {{posts}}</p>
+    <p>postsPerPage: {{postsPerPage}}</p>
+    <p>totalPosts: {{totalPosts}}</p>
+    <p>pagination.current: {{pagination.current}}</p>
+
     <!--<div class="wall">
         <label for="new_post_box">Novo post:</label>
         <input ng-model="new_post_content" type="text" id="new_post_box"/>
@@ -43,7 +48,8 @@
                 </script>
                 {{postList[postURI]}}
             </div>-->
-            <div dir-paginate="postURI in posts | filter:q | itemsPerPage: pageSize" current-page="currentPage">
+            <!--<div dir-paginate="postURI in posts | filter:q | itemsPerPage: pageSize" total-items="numPosts" current-page="currentPage">-->
+            <div dir-paginate="postURI in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">
                 URI is : {{ postURI.uri }}
                 <div ng-init="getPost(postURI.uri, null);postLikesInfo(postURI.uri);getCommentsFromPost(postURI.uri);getSharesFromPost(postURI.uri)">
                     <!--<div ng-if="!postList[postURI].rdf.isShare">-->
@@ -124,6 +130,13 @@
             </li>
         </ul>
     </div>
+
+    <div>
+        <small>this is in "timelineCtrl"</small>
+        <div class="text-center">
+            <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/bower_components/angularUtils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
+        </div>
+    </div>
 </div>
 
 <!--<div ng-controller="nextPageCtrl" class="other-controller">
@@ -133,9 +146,10 @@
     </div>
 </div>-->
 
+<!--
 <div ng-controller="timelineCtrl" class="other-controller">
     <small>this is in "timelineCtrl"</small>
     <div class="text-center">
         <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/bower_components/angularUtils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
     </div>
-</div>
+</div>-->

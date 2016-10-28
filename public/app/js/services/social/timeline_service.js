@@ -3,6 +3,17 @@
 angular.module('dendroApp.services')
     .service('timelineService', ['$http', function ($http) {
 
+        this.countNumPosts = function () {
+            var requestUri = "/posts/countNum";
+
+            return $http({
+                method: 'GET',
+                url: requestUri,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
         this.get_all_posts = function(currentPage)
         {
             var requestUri = "/posts/all";
@@ -98,7 +109,6 @@ angular.module('dendroApp.services')
 
         this.postLikesInfo = function(postURI)
         {
-            console.log('HERE1');
             var requestUri = "/posts/post/likesInfo";
             var params = {
                 postURI : postURI
@@ -153,8 +163,6 @@ angular.module('dendroApp.services')
         {
             var requestUri = "/posts/comments";
 
-            console.log('postID here is:', postID);
-
             var params = {
                 postID : postID
             };
@@ -171,8 +179,6 @@ angular.module('dendroApp.services')
         this.getSharesFromPost = function(postID)
         {
             var requestUri = "/posts/shares";
-
-            console.log('postID here is:', postID);
 
             var params = {
                 postID : postID
