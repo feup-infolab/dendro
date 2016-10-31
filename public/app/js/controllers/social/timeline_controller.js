@@ -2,7 +2,7 @@ angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
      */
-    .controller('timelineCtrl', function ($scope, $http, $filter, timelineService)
+    .controller('timelineCtrl', function ($scope, $http, $filter, timelineService, $window)
     {
 
         $scope.posts = [];
@@ -337,5 +337,6 @@ angular.module('dendroApp.controllers')
             //$scope.$apply();
             //$scope.get_all_posts($scope.currentPage);
             $scope.get_all_posts(num);
+            $window.scrollTo(0, 0);//to scroll up to the top on page change
         };
     });
