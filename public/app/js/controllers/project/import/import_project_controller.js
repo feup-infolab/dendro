@@ -27,6 +27,7 @@ angular.module('dendroApp.controllers')
                 jsonPath
             )
             {
+
                 //$scope.stage = {upload: true};
                 $scope.validate = {
                     size: {max: '20MB', min: '10B'},
@@ -46,11 +47,182 @@ angular.module('dendroApp.controllers')
                     $scope.selectedNode = node;
                 });
 
+                $scope.hasChangedDescriptors = function(node)
+                {
+                    if(node == null)
+                    {
+                        return false;
+                    }
+
+                    for (var i = 0; i < node.metadata.length; i++)
+                    {
+                        var descriptor = node.metadata[i];
+                        if(!descriptor.locked)
+                        {
+                            if(descriptor.value !== descriptor.newValue)
+                            {
+                                return true;
+                            }
+                        }
+                    }
+
+                    return false;
+                }
+
+                $scope.showSelected = function(sel) {
+                    $scope.selectedNode = sel;
+                };
+
+                $scope.transformForTreeControl = function (metadataJSON)
+                {
+                    var transformedTree = [];
+
+                    var getStructure = function (node)
+                    {
+                        var nodeTitle = jsonPath(node, "$.metadata[?(@.prefixedForm=='nie:title')]")[0].value;
+                        var nodeExtension = jsonPath(node, "$.metadata[?(@.prefixedForm=='ddr:fileExtension')]")[0].value;
+
+                        var treeNode = {
+                            id: node.resource,
+                            metadata : node.metadata,
+                            name : nodeTitle,
+                            children: []
+                        };
+
+                        if($scope.hasChangedDescriptors(node))
+                        {
+                            treeNode.badge = {
+                                "type" : "label-warning",
+                                "title" : "Changed Metadata"
+                            };
+                        }
+
+                        if (node.children != null && node.children instanceof Array && node.children.length == 0)
+                        {
+                            return treeNode;
+                        }
+                        else
+                        {
+                            var transformedChildren = [];
+
+                            for (var i = 0; i < node.children.length; i++)
+                            {
+                                var child = node.children[i];
+                                var childTitle = jsonPath(child, "$.metadata[?(@.prefixedForm=='nie:title')]")[0].value;
+
+                                var childExtension = jsonPath(child, "$.metadata[?(@.prefixedForm=='ddr:fileExtension')]")[0].value;
+
+                                var transformedChild = {
+                                    id: child.resource,
+                                    metadata : child.metadata,
+                                    has_changed_descriptors : $scope.hasChangedDescriptors(node),
+                                    name : childTitle,
+                                    children: []
+                                };
+
+                                if($scope.hasChangedDescriptors(child))
+                                {
+                                    transformedChild.badge = {
+                                        "type" : "label-warning",
+                                        "title" : "Changed Metadata"
+                                    };
+                                }
+
+                                if (child.children != null && child.children instanceof Array && child.children.length > 0)
+                                {
+                                    var grandChildren = JSON.parse(JSON.stringify(getStructure(child)));
+                                    transformedChild.children = transformedChild.children.concat(grandChildren);
+                                }
+                                else
+                                {
+                                    transformedChild.children = [];
+                                }
+
+                                transformedChildren.push(transformedChild);
+                            }
+
+                            treeNode.children = transformedChildren;
+                            return treeNode;
+                        }
+                    };
+
+                    var transformedTree = [getStructure(metadataJSON)];
+
+                    return transformedTree;
+                }
+
+                $scope.upload_for_importing = function (file)
+                {
+                    $scope.file = file;
+                    $scope.uploading = true;
+
+                    uploadsService.upload(file, '/projects/import')
+                        .then(function (response)
+                        {
+                            $timeout(function ()
+                            {
+                                file.result = response.data;
+                                $scope.backup_contents = response.data.backup_contents;
+                                $scope.preview = $scope.transformForTreeControl($scope.backup_contents);
+                                $scope.uploading = false;
+                                $scope.stage = {analyse: true};
+                            });
+                        }, function (response)
+                        {
+                            if (response.status > 0)
+                            {
+                                $scope.errorMsg = response.status + ': ' + response.data;
+                                windowService.show_popup("error", "Unable to upload.", "Error reported: " + $scope.errorMsg);
+                            }
+                            $scope.uploading = false;
+                        }, function (evt)
+                        {
+                            file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                            $scope.upload_progress = file.progress;
+                        })
+                        .catch(function (e)
+                        {
+                            windowService.show_popup("error", "Unable to upload. Error reported: " + JSON.stringify(e));
+                            $scope.uploading = false;
+                        });
+                }
+
+                $scope.buttonClick = function (event, node)
+                {
+                    console.log(JSON.stringify(event));
+                };
+
+                $scope.switch = function(targetStage)
+                {
+                    $scope.stage = {};
+                    $scope.stage[targetStage] = true;
+                }
+
                 $scope.init = function ()
                 {
                     var test = {
                         "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data",
                         "metadata": [
+                            {
+                                "prefix": "dcterms",
+                                "shortName": "abstract",
+                                "ontology": "http://purl.org/dc/terms/",
+                                "uri": "http://purl.org/dc/terms/abstract",
+                                "prefixedForm": "dcterms:abstract",
+                                "type": 3,
+                                "control": "markdown_box",
+                                "value": "Ensaio 2 e 3"
+                            },
+                            {
+                                "prefix": "dcterms",
+                                "shortName": "title",
+                                "ontology": "http://purl.org/dc/terms/",
+                                "uri": "http://purl.org/dc/terms/title",
+                                "prefixedForm": "dcterms:title",
+                                "type": 3,
+                                "control": "input_box",
+                                "value": "Título muito bom - Ensaios 3 e 4"
+                            },
                             {
                                 "prefix": "ddr",
                                 "shortName": "fileExtension",
@@ -432,139 +604,5 @@ angular.module('dendroApp.controllers')
                     $scope.uploading = false;
                     $scope.stage = {analyse: true};
                 }
-
-                $scope.hasChangedDescriptors = function(node)
-                {
-                    if(node == null)
-                    {
-                        return false;
-                    }
-
-                    for (var i = 0; i < node.metadata.length; i++)
-                    {
-                        var descriptor = node.metadata[i];
-                        if(!descriptor.locked && descriptor.value !== descriptor.newValue)
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                }
-
-                $scope.showSelected = function(sel) {
-                    $scope.selectedNode = sel;
-                };
-
-                $scope.transformForTreeControl = function (metadataJSON)
-                {
-                    var transformedTree = [];
-
-                    var getStructure = function (node)
-                    {
-                        var nodeTitle = jsonPath(node, "$.metadata[?(@.prefixedForm=='nie:title')]")[0].value;
-                        var nodeExtension = jsonPath(node, "$.metadata[?(@.prefixedForm=='ddr:fileExtension')]")[0].value;
-
-                        var treeNode = {
-                            id: node.resource,
-                            metadata : node.metadata,
-                            name : nodeTitle,
-                            children: []
-                        };
-
-                        if($scope.hasChangedDescriptors(node))
-                        {
-                            treeNode.iconclasses = { "true" : "glyphicon glyphicon-exclamation-sign" };
-                            console.log("Node " + treeNode.name + " has changed descriptors.222");
-                        }
-
-                        if (node.children != null && node.children instanceof Array && node.children.length == 0)
-                        {
-                            return [];
-                        }
-                        else
-                        {
-                            var transformedChildren = [];
-
-                            for (var i = 0; i < node.children.length; i++)
-                            {
-                                var child = node.children[i];
-                                var childTitle = jsonPath(child, "$.metadata[?(@.prefixedForm=='nie:title')]")[0].value;
-
-                                var childExtension = jsonPath(child, "$.metadata[?(@.prefixedForm=='ddr:fileExtension')]")[0].value;
-
-                                var transformedChild = {
-                                    id: child.resource,
-                                    metadata : child.metadata,
-                                    has_changed_descriptors : $scope.hasChangedDescriptors(node),
-                                    name : childTitle,
-                                    children: []
-                                };
-
-                                if($scope.hasChangedDescriptors(node))
-                                {
-                                    treeNode.iconclasses = { "true" : "glyphicon glyphicon-exclamation-sign" };
-                                    console.log("Node " + transformedChild.name + " has changed descriptors.111");
-                                }
-
-                                if (childExtension === "folder")
-                                {
-                                    var grandChildren = JSON.parse(JSON.stringify(getStructure(child)));
-                                    transformedChild.children = transformedChild.children.concat(grandChildren);
-                                }
-
-                                transformedChildren.push(transformedChild);
-                            }
-
-                            treeNode.children = transformedChildren;
-                            return treeNode;
-                        }
-                    };
-
-                    var transformedTree = [getStructure(metadataJSON)];
-
-                    return transformedTree;
-                }
-
-                $scope.upload_for_importing = function (file)
-                {
-                    $scope.file = file;
-                    $scope.uploading = true;
-
-                    uploadsService.upload(file, '/projects/import')
-                        .then(function (response)
-                        {
-                            $timeout(function ()
-                            {
-                                file.result = response.data;
-                                $scope.backup_contents = response.data.backup_contents;
-                                $scope.preview = $scope.transformForTreeControl($scope.backup_contents);
-                                $scope.uploading = false;
-                                $scope.stage = {analyse: true};
-                            });
-                        }, function (response)
-                        {
-                            if (response.status > 0)
-                            {
-                                $scope.errorMsg = response.status + ': ' + response.data;
-                                windowService.show_popup("error", "Unable to upload.", "Error reported: " + $scope.errorMsg);
-                            }
-                            $scope.uploading = false;
-                        }, function (evt)
-                        {
-                            file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                            $scope.upload_progress = file.progress;
-                        })
-                        .catch(function (e)
-                        {
-                            windowService.show_popup("error", "Unable to upload. Error reported: " + JSON.stringify(e));
-                            $scope.uploading = false;
-                        });
-                }
-
-                $scope.buttonClick = function (event, node)
-                {
-                    console.log(JSON.stringify(event));
-                };
             }
         ]);

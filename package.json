@@ -59,6 +59,7 @@
     "stylus": "0.32.1",
     "textract": "0.8.0",
     "tmp": "0.0.21",
+    "ui-router": "^1.0.0-alpha.3",
     "underscore": "1.5.2",
     "unicode": "0.6.1",
     "validator": "3.12.0",

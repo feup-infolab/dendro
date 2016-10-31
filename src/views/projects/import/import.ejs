@@ -17,10 +17,12 @@
     </div>
 
     <ul class="nav nav-pills">
-        <li ng-class="{ active: stage.upload }"><a href="#">1. Upload Backup ZIP</a></li>
-        <li ng-class="{ active: stage.analyse }"><a href="#">2. Analyse changes</a></li>
-        <li ng-class="{ active: stage.confirm }"><a href="#">3. Confirm Import</a></li>
+        <li ng-class="{ active: stage.upload }"><a href="#" ng-click="switch('upload')">1. Upload Backup ZIP</a></li>
+        <li ng-class="{ active: stage.analyse }"><a href="#" ng-click="switch('analyse')">2. Analyse changes</a></li>
+        <li ng-class="{ active: stage.confirm }"><a href="#" ng-click="switch('confirm')">3. Confirm Import</a></li>
     </ul>
+
+    <div ng-view></div>
 
     <ng-include ng-show="stage.upload" src="'/app/views/projects/import/upload.html'"></ng-include>
     <ng-include ng-show="stage.analyse" src="'/app/views/projects/import/analyse.html'"></ng-include>
