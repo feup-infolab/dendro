@@ -144,10 +144,9 @@ angular.module('dendroApp.controllers')
                             treeNode.children = transformedChildren;
                             return treeNode;
                         }
-                    };
+                    }
 
                     var transformedTree = [getStructure(metadataJSON)];
-
                     return transformedTree;
                 }
 
@@ -161,18 +160,25 @@ angular.module('dendroApp.controllers')
                         {
                             $timeout(function ()
                             {
-                                file.result = response.data;
-                                $scope.backup_contents = response.data.backup_contents;
-                                $scope.preview = $scope.transformForTreeControl($scope.backup_contents);
-                                $scope.uploading = false;
-                                $scope.stage = {analyse: true};
+                                try{
+                                    $scope.uploading = false;
+                                    file.result = response.data;
+                                    var received_contents = response.data.backup_contents;
+                                    $scope.backup_contents = $scope.transformForTreeControl(received_contents);
+                                    $scope.stage = {analyse: true};
+                                }
+                                catch(e)
+                                {
+                                    $scope.backup_contents = null;
+                                    windowService.show_popup("warning", "Error. ", "There was an error processing your backup file \n" + e.message);
+                                }
                             });
                         }, function (response)
                         {
                             if (response.status > 0)
                             {
                                 $scope.errorMsg = response.status + ': ' + response.data;
-                                windowService.show_popup("error", "Unable to upload.", "Error reported: " + $scope.errorMsg);
+                                windowService.show_popup("error", "Unable to upload due to timeout.", "Error reported: " + $scope.errorMsg);
                             }
                             $scope.uploading = false;
                         }, function (evt)
@@ -194,415 +200,50 @@ angular.module('dendroApp.controllers')
 
                 $scope.switch = function(targetStage)
                 {
-                    $scope.stage = {};
-                    $scope.stage[targetStage] = true;
+                    function setStage(targetStage)
+                    {
+                        $scope.stage = {};
+                        $scope.stage[targetStage] = true;
+                    }
+
+                    switch(targetStage)
+                    {
+                        case 'upload' :
+                        {
+                            setStage(targetStage);
+                            break;
+                        }
+                        case 'analyse' :
+                        {
+                            if ($scope.backup_contents != null)
+                            {
+                                setStage(targetStage);
+                            }
+                            else
+                            {
+                                windowService.show_popup('warning', 'No file uploaded', 'Please upload a backup file');
+                            }
+                            break;
+                        }
+                        case 'confirm' :
+                        {
+                            if ($scope.backup_contents != null)
+                            {
+                                setStage(targetStage);
+                            }
+                            else
+                            {
+                                windowService.show_popup('warning', 'No file uploaded', 'Please upload a backup file')
+                            }
+                            break;
+                        }
+                    }
                 }
 
                 $scope.init = function ()
                 {
-                    var test = {
-                        "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data",
-                        "metadata": [
-                            {
-                                "prefix": "dcterms",
-                                "shortName": "abstract",
-                                "ontology": "http://purl.org/dc/terms/",
-                                "uri": "http://purl.org/dc/terms/abstract",
-                                "prefixedForm": "dcterms:abstract",
-                                "type": 3,
-                                "control": "markdown_box",
-                                "value": "Ensaio 2 e 3"
-                            },
-                            {
-                                "prefix": "dcterms",
-                                "shortName": "title",
-                                "ontology": "http://purl.org/dc/terms/",
-                                "uri": "http://purl.org/dc/terms/title",
-                                "prefixedForm": "dcterms:title",
-                                "type": 3,
-                                "control": "input_box",
-                                "value": "Título muito bom - Ensaios 3 e 4"
-                            },
-                            {
-                                "prefix": "ddr",
-                                "shortName": "fileExtension",
-                                "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
-                                "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
-                                "prefixedForm": "ddr:fileExtension",
-                                "type": 3,
-                                "control": "input_box",
-                                "private": true,
-                                "locked": true,
-                                "restorable": true,
-                                "backuppable": true,
-                                "value": "folder"
-                            },
-                            {
-                                "prefix": "nie",
-                                "shortName": "hasLogicalPart",
-                                "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#hasLogicalPart",
-                                "prefixedForm": "nie:hasLogicalPart",
-                                "type": 1,
-                                "control": "url_box",
-                                "private": true,
-                                "locked": true,
-                                "backuppable": true,
-                                "value": [
-                                    "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons",
-                                    "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/teste fantastico2",
-                                    "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/e mais uns",
-                                    "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/teste fantastico"
-                                ]
-                            },
-                            {
-                                "prefix": "nie",
-                                "shortName": "isLogicalPartOf",
-                                "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
-                                "prefixedForm": "nie:isLogicalPartOf",
-                                "type": 1,
-                                "control": "url_box",
-                                "private": true,
-                                "locked": true,
-                                "backuppable": true,
-                                "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria"
-                            },
-                            {
-                                "prefix": "nie",
-                                "shortName": "title",
-                                "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
-                                "prefixedForm": "nie:title",
-                                "type": 8,
-                                "control": "input_box",
-                                "private": true,
-                                "locked": true,
-                                "backuppable": true,
-                                "value": "testeaimaria"
-                            }
-                        ],
-                        "children": [
-                            {
-                                "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/teste fantastico",
-                                "metadata": [
-                                    {
-                                        "prefix": "ddr",
-                                        "shortName": "fileExtension",
-                                        "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
-                                        "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
-                                        "prefixedForm": "ddr:fileExtension",
-                                        "type": 3,
-                                        "control": "input_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "restorable": true,
-                                        "backuppable": true,
-                                        "value": "folder"
-                                    },
-                                    {
-                                        "prefix": "nie",
-                                        "shortName": "isLogicalPartOf",
-                                        "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                        "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
-                                        "prefixedForm": "nie:isLogicalPartOf",
-                                        "type": 1,
-                                        "control": "url_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "backuppable": true,
-                                        "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data"
-                                    },
-                                    {
-                                        "prefix": "nie",
-                                        "shortName": "title",
-                                        "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                        "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
-                                        "prefixedForm": "nie:title",
-                                        "type": 8,
-                                        "control": "input_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "backuppable": true,
-                                        "value": "teste fantastico"
-                                    }
-                                ],
-                                "children": []
-                            },
-                            {
-                                "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/teste fantastico2",
-                                "metadata": [
-                                    {
-                                        "prefix": "ddr",
-                                        "shortName": "fileExtension",
-                                        "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
-                                        "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
-                                        "prefixedForm": "ddr:fileExtension",
-                                        "type": 3,
-                                        "control": "input_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "restorable": true,
-                                        "backuppable": true,
-                                        "value": "folder"
-                                    },
-                                    {
-                                        "prefix": "nie",
-                                        "shortName": "isLogicalPartOf",
-                                        "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                        "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
-                                        "prefixedForm": "nie:isLogicalPartOf",
-                                        "type": 1,
-                                        "control": "url_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "backuppable": true,
-                                        "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data"
-                                    },
-                                    {
-                                        "prefix": "nie",
-                                        "shortName": "title",
-                                        "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                        "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
-                                        "prefixedForm": "nie:title",
-                                        "type": 8,
-                                        "control": "input_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "backuppable": true,
-                                        "value": "teste fantastico2"
-                                    }
-                                ],
-                                "children": []
-                            },
-                            {
-                                "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons",
-                                "metadata": [
-                                    {
-                                        "prefix": "ddr",
-                                        "shortName": "fileExtension",
-                                        "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
-                                        "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
-                                        "prefixedForm": "ddr:fileExtension",
-                                        "type": 3,
-                                        "control": "input_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "restorable": true,
-                                        "backuppable": true,
-                                        "value": "folder"
-                                    },
-                                    {
-                                        "prefix": "nie",
-                                        "shortName": "hasLogicalPart",
-                                        "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                        "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#hasLogicalPart",
-                                        "prefixedForm": "nie:hasLogicalPart",
-                                        "type": 1,
-                                        "control": "url_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "backuppable": true,
-                                        "value": [
-                                            "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons/ensaio nº 2",
-                                            "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons/ensaio 3 e 4"
-                                        ]
-                                    },
-                                    {
-                                        "prefix": "nie",
-                                        "shortName": "isLogicalPartOf",
-                                        "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                        "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
-                                        "prefixedForm": "nie:isLogicalPartOf",
-                                        "type": 1,
-                                        "control": "url_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "backuppable": true,
-                                        "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data"
-                                    },
-                                    {
-                                        "prefix": "nie",
-                                        "shortName": "title",
-                                        "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                        "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
-                                        "prefixedForm": "nie:title",
-                                        "type": 8,
-                                        "control": "input_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "backuppable": true,
-                                        "value": "datasets muito bons"
-                                    }
-                                ],
-                                "children": [
-                                    {
-                                        "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons/ensaio nº 2",
-                                        "metadata": [
-                                            {
-                                                "prefix": "ddr",
-                                                "shortName": "fileExtension",
-                                                "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
-                                                "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
-                                                "prefixedForm": "ddr:fileExtension",
-                                                "type": 3,
-                                                "control": "input_box",
-                                                "private": true,
-                                                "locked": true,
-                                                "restorable": true,
-                                                "backuppable": true,
-                                                "value": "folder"
-                                            },
-                                            {
-                                                "prefix": "nie",
-                                                "shortName": "isLogicalPartOf",
-                                                "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                                "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
-                                                "prefixedForm": "nie:isLogicalPartOf",
-                                                "type": 1,
-                                                "control": "url_box",
-                                                "private": true,
-                                                "locked": true,
-                                                "backuppable": true,
-                                                "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons"
-                                            },
-                                            {
-                                                "prefix": "nie",
-                                                "shortName": "title",
-                                                "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                                "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
-                                                "prefixedForm": "nie:title",
-                                                "type": 8,
-                                                "control": "input_box",
-                                                "private": true,
-                                                "locked": true,
-                                                "backuppable": true,
-                                                "value": "ensaio nº 2"
-                                            }
-                                        ],
-                                        "children": []
-                                    },
-                                    {
-                                        "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons/ensaio 3 e 4",
-                                        "metadata": [
-                                            {
-                                                "prefix": "dcterms",
-                                                "shortName": "abstract",
-                                                "ontology": "http://purl.org/dc/terms/",
-                                                "uri": "http://purl.org/dc/terms/abstract",
-                                                "prefixedForm": "dcterms:abstract",
-                                                "type": 3,
-                                                "control": "markdown_box",
-                                                "value": "Ensaio 2 e 3"
-                                            },
-                                            {
-                                                "prefix": "dcterms",
-                                                "shortName": "title",
-                                                "ontology": "http://purl.org/dc/terms/",
-                                                "uri": "http://purl.org/dc/terms/title",
-                                                "prefixedForm": "dcterms:title",
-                                                "type": 3,
-                                                "control": "input_box",
-                                                "value": "Título muito bom - Ensaios 3 e 4"
-                                            },
-                                            {
-                                                "prefix": "ddr",
-                                                "shortName": "fileExtension",
-                                                "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
-                                                "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
-                                                "prefixedForm": "ddr:fileExtension",
-                                                "type": 3,
-                                                "control": "input_box",
-                                                "private": true,
-                                                "locked": true,
-                                                "restorable": true,
-                                                "backuppable": true,
-                                                "value": "folder"
-                                            },
-                                            {
-                                                "prefix": "nie",
-                                                "shortName": "isLogicalPartOf",
-                                                "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                                "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
-                                                "prefixedForm": "nie:isLogicalPartOf",
-                                                "type": 1,
-                                                "control": "url_box",
-                                                "private": true,
-                                                "locked": true,
-                                                "backuppable": true,
-                                                "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/datasets muito bons"
-                                            },
-                                            {
-                                                "prefix": "nie",
-                                                "shortName": "title",
-                                                "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                                "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
-                                                "prefixedForm": "nie:title",
-                                                "type": 8,
-                                                "control": "input_box",
-                                                "private": true,
-                                                "locked": true,
-                                                "backuppable": true,
-                                                "value": "ensaio 3 e 4"
-                                            }
-                                        ],
-                                        "children": []
-                                    }
-                                ]
-                            },
-                            {
-                                "resource": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data/e mais uns",
-                                "metadata": [
-                                    {
-                                        "prefix": "ddr",
-                                        "shortName": "fileExtension",
-                                        "ontology": "http://dendro.fe.up.pt/ontology/0.1/",
-                                        "uri": "http://dendro.fe.up.pt/ontology/0.1/fileExtension",
-                                        "prefixedForm": "ddr:fileExtension",
-                                        "type": 3,
-                                        "control": "input_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "restorable": true,
-                                        "backuppable": true,
-                                        "value": "folder"
-                                    },
-                                    {
-                                        "prefix": "nie",
-                                        "shortName": "isLogicalPartOf",
-                                        "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                        "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#isLogicalPartOf",
-                                        "prefixedForm": "nie:isLogicalPartOf",
-                                        "type": 1,
-                                        "control": "url_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "backuppable": true,
-                                        "value": "http://dendro-prd.fe.up.pt:3007/project/testeaimaria/data"
-                                    },
-                                    {
-                                        "prefix": "nie",
-                                        "shortName": "title",
-                                        "ontology": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-                                        "uri": "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#title",
-                                        "prefixedForm": "nie:title",
-                                        "type": 8,
-                                        "control": "input_box",
-                                        "private": true,
-                                        "locked": true,
-                                        "backuppable": true,
-                                        "value": "e mais uns"
-                                    }
-                                ],
-                                "children": []
-                            }
-                        ]
-                    };
-                    $scope.backup_contents = $scope.transformForTreeControl(test);
-
-                    //console.log($scope.backup_contents);
                     $scope.uploading = false;
-                    $scope.stage = {analyse: true};
+                    $scope.stage = {upload: true};
                 }
             }
         ]);

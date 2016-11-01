@@ -1350,29 +1350,29 @@ async.waterfall([
             res.render('errors/404', 404);
         });*/
 
-        // Domain for the server (limits number of requests per second), auto restart after crash in certain cases
-        serverDomain.run(function () {
 
-            http.createServer(function (req, res) {
+        http.createServer(function (req, res) {
 
-                var reqd = domain.create();
-                reqd.add(req);
-                reqd.add(res);
+            var reqd = domain.create();
+            reqd.add(req);
+            reqd.add(res);
 
-                // On error dispose of the domain
-                reqd.on('error', function (error) {
-                    console.error('Error', error.code, error.message, req.url);
-                    console.error('Stack Trace : ', error.stack);
-                    reqd.dispose();
-                });
-
-                // Pass the request to express  
-                app(req, res)
-
-            }).listen(app.get('port'), function() {
-                console.log('Express server listening on port ' + app.get('port'));
+            // On error dispose of the domain
+            reqd.on('error', function (error) {
+                console.error('Error', error.code, error.message, req.url);
+                console.error('Stack Trace : ', error.stack);
+                reqd.dispose();
             });
 
+            // Pass the request to express
+            app(req, res)
+
+        }).listen(app.get('port'), function() {
+            console.log('Express server listening on port ' + app.get('port'));
+        });
+
+        // Domain for the server (limits number of requests per second), auto restart after crash in certain cases
+        serverDomain.run(function () {
         });
 
 

@@ -22,8 +22,6 @@
         <li ng-class="{ active: stage.confirm }"><a href="#" ng-click="switch('confirm')">3. Confirm Import</a></li>
     </ul>
 
-    <div ng-view></div>
-
     <ng-include ng-show="stage.upload" src="'/app/views/projects/import/upload.html'"></ng-include>
     <ng-include ng-show="stage.analyse" src="'/app/views/projects/import/analyse.html'"></ng-include>
     <ng-include ng-show="stage.confirm" src="'/app/views/projects/import/confirm.html'"></ng-include>

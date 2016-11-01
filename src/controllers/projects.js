@@ -1294,6 +1294,8 @@ exports.import = function(req, res) {
                 Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function(err, result, structure){
                     if(!err)
                     {
+                        console.log(JSON.stringify(structure, 4));
+
                         res.status(200).json(
                             {
                                 "result" : "success",
