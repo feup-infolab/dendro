@@ -1294,12 +1294,14 @@ exports.import = function(req, res) {
                 Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function(err, result, structure){
                     if(!err)
                     {
-                        console.log(JSON.stringify(structure, 4));
+                        var rebased_structure = JSON.parse(JSON.stringify(structure));
+                        Project.rebaseAllUris(rebased_structure, Config.baseUri);
 
                         res.status(200).json(
                             {
                                 "result" : "success",
-                                "backup_contents" : structure
+                                "original_contents" : structure,
+                                "modified_contents" : rebased_structure
                             }
                         );
                     }

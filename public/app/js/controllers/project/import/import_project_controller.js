@@ -27,7 +27,6 @@ angular.module('dendroApp.controllers')
                 jsonPath
             )
             {
-
                 //$scope.stage = {upload: true};
                 $scope.validate = {
                     size: {max: '20MB', min: '10B'},
@@ -47,7 +46,7 @@ angular.module('dendroApp.controllers')
                     $scope.selectedNode = node;
                 });
 
-                $scope.hasChangedDescriptors = function(node)
+                $scope.hasChangedDescriptors = function(node, transformedNode)
                 {
                     if(node == null)
                     {
@@ -56,10 +55,12 @@ angular.module('dendroApp.controllers')
 
                     for (var i = 0; i < node.metadata.length; i++)
                     {
-                        var descriptor = node.metadata[i];
-                        if(!descriptor.locked)
+                        var oldDescriptor = node.metadata[i];
+                        var newDescriptor = transformedNode.metadata[i];
+
+                        if(!oldDescriptor.locked && newDescriptor.locked)
                         {
-                            if(descriptor.value !== descriptor.newValue)
+                            if(oldDescriptor.value !== newDescriptor.value)
                             {
                                 return true;
                             }
@@ -73,23 +74,32 @@ angular.module('dendroApp.controllers')
                     $scope.selectedNode = sel;
                 };
 
-                $scope.transformForTreeControl = function (metadataJSON)
+                $scope.transformForTreeControl = function (originalMetadataJSON, transformedMetadataJSON)
                 {
-                    var transformedTree = [];
+                    var addMigratedValues = function(nodeMetadata, migratedNodeMetadata)
+                    {
+                        for(var i = 0; i < nodeMetadata.length; i++)
+                        {
+                            nodeMetadata[i].newValue = migratedNodeMetadata[i].value;
+                        }
+                    }
 
-                    var getStructure = function (node)
+                    var getStructure = function (node, migratedNode)
                     {
                         var nodeTitle = jsonPath(node, "$.metadata[?(@.prefixedForm=='nie:title')]")[0].value;
                         var nodeExtension = jsonPath(node, "$.metadata[?(@.prefixedForm=='ddr:fileExtension')]")[0].value;
+
+                        addMigratedValues(node.metadata, migratedNode.metadata);
 
                         var treeNode = {
                             id: node.resource,
                             metadata : node.metadata,
                             name : nodeTitle,
-                            children: []
+                            children: [],
+                            image : $scope.get_extension_icon(nodeExtension)
                         };
 
-                        if($scope.hasChangedDescriptors(node))
+                        if($scope.hasChangedDescriptors(node, migratedNode))
                         {
                             treeNode.badge = {
                                 "type" : "label-warning",
@@ -108,19 +118,23 @@ angular.module('dendroApp.controllers')
                             for (var i = 0; i < node.children.length; i++)
                             {
                                 var child = node.children[i];
+                                var migratedChild = migratedNode.children[i];
+                                
                                 var childTitle = jsonPath(child, "$.metadata[?(@.prefixedForm=='nie:title')]")[0].value;
-
                                 var childExtension = jsonPath(child, "$.metadata[?(@.prefixedForm=='ddr:fileExtension')]")[0].value;
+
+                                addMigratedValues(child.metadata, migratedChild.metadata);
 
                                 var transformedChild = {
                                     id: child.resource,
                                     metadata : child.metadata,
-                                    has_changed_descriptors : $scope.hasChangedDescriptors(node),
+                                    has_changed_descriptors : $scope.hasChangedDescriptors(node, migratedNode),
                                     name : childTitle,
-                                    children: []
+                                    children: [],
+                                    image : $scope.get_extension_icon(childExtension)
                                 };
 
-                                if($scope.hasChangedDescriptors(child))
+                                if($scope.hasChangedDescriptors(child, migratedChild))
                                 {
                                     transformedChild.badge = {
                                         "type" : "label-warning",
@@ -130,7 +144,7 @@ angular.module('dendroApp.controllers')
 
                                 if (child.children != null && child.children instanceof Array && child.children.length > 0)
                                 {
-                                    var grandChildren = JSON.parse(JSON.stringify(getStructure(child)));
+                                    var grandChildren = JSON.parse(JSON.stringify(getStructure(child, migratedChild)));
                                     transformedChild.children = transformedChild.children.concat(grandChildren);
                                 }
                                 else
@@ -146,7 +160,7 @@ angular.module('dendroApp.controllers')
                         }
                     }
 
-                    var transformedTree = [getStructure(metadataJSON)];
+                    var transformedTree = [getStructure(originalMetadataJSON, transformedMetadataJSON)];
                     return transformedTree;
                 }
 
@@ -160,18 +174,17 @@ angular.module('dendroApp.controllers')
                         {
                             $timeout(function ()
                             {
-                                try{
+                                //try{
                                     $scope.uploading = false;
                                     file.result = response.data;
-                                    var received_contents = response.data.backup_contents;
-                                    $scope.backup_contents = $scope.transformForTreeControl(received_contents);
+                                    $scope.backup_contents = $scope.transformForTreeControl(response.data.original_contents, response.data.modified_contents);
                                     $scope.stage = {analyse: true};
-                                }
-                                catch(e)
-                                {
-                                    $scope.backup_contents = null;
-                                    windowService.show_popup("warning", "Error. ", "There was an error processing your backup file \n" + e.message);
-                                }
+                                //}
+                                //catch(e)
+                                //{
+                                //    $scope.backup_contents = null;
+                                //    windowService.show_popup("warning", "Error. ", "There was an error processing your backup file, because it does not have the expected structure.\n" + e.message);
+                                //}
                             });
                         }, function (response)
                         {

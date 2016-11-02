@@ -4,6 +4,7 @@
 
 var Config = require("./meta/config.js").Config;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Utils = require(Config.absPathInPublicFolder("/js/utils.js")).Utils;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
@@ -1271,7 +1272,6 @@ Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSi
                                 {
                                     var metadataFileAbsPath = path.join(pathToFolderToRestore, Config.packageMetadataFileName);
                                     var metadata = require(metadataFileAbsPath);
-
                                     callback(null, true, metadata);
                                 }
                                 else
@@ -1317,11 +1317,12 @@ Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSi
 };
 
 Project.restoreFromFolder = function(absPathOfRootFolder,
-                                              entityLoadingTheMetadata,
-                                              attemptToRestoreMetadata,
-                                              replaceExistingFolder,
-                                              callback,
-                                              runningOnRoot)
+                                     entityLoadingTheMetadata,
+                                     attemptToRestoreMetadata,
+                                     replaceExistingFolder,
+                                     callback,
+                                     runningOnRoot
+                            )
 {
     var self = this;
     var path = require('path');
@@ -1385,6 +1386,45 @@ Project.restoreFromFolder = function(absPathOfRootFolder,
             callback(err, result);
         }
     }, runningOnRoot);
+};
+
+Project.rebaseAllUris = function(structure, newBaseUri)
+{
+    var modifyNode = function(node)
+    {
+        node.resource = Utils.replaceBaseUri(node.resource, newBaseUri);
+
+        for(var i = 0; i < node.metadata.length; i++)
+        {
+            var value = node.metadata[i].value;
+
+            if(value instanceof Array)
+            {
+                for(var j = 0; j < value.length; j++)
+                {
+                    if(Utils.valid_url(value[j]))
+                    {
+                        value[j] = Utils.replaceBaseUri(value[j], newBaseUri);
+                    }
+                }
+            }
+            else if(typeof value === "string" && Utils.valid_url(value))
+            {
+                value = Utils.replaceBaseUri(value, newBaseUri);
+            }
+        }
+
+        if(node.children != null && node.children instanceof Array)
+        {
+            for(var i = 0; i < node.children.length; i++)
+            {
+                var child = node.children[i];
+                modifyNode(child);
+            }
+        }
+    }
+
+    modifyNode(structure);
 };
 
 Project = Class.extend(Project, Resource);

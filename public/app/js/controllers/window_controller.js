@@ -23,6 +23,16 @@ angular.module('dendroApp.controllers')
         return newURL;
     };
 
+    $scope.get_thumbnail_uri = function(uri)
+    {
+        return uri+'?thumbnail&size=icon';
+    };
+
+    $scope.get_extension_icon = function(extension)
+    {
+        return "/images/icons/extensions/file_extension_"+extension+".png";
+    };
+
     $scope.get_last_section_of_url = function(url)
     {
         return url.substr(url.lastIndexOf('/') + 1);

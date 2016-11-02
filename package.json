@@ -32,6 +32,7 @@
     "gridfs-stream": "0.4.0",
     "humanize": "0.0.9",
     "jade": "*",
+    "jsonpath": "^0.2.7",
     "karma-coverage": "^1.1.1",
     "line-reader": "0.2.3",
     "memcached": "^2.2.2",

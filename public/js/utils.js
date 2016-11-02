@@ -182,3 +182,22 @@ Utils.isCyclic = function(obj) {
     return detect(obj);
 }
 
+Utils.extractEverythingAfterBaseUri = function(url)
+{
+    var URL = require('url');
+    var parsed = URL.parse(url);
+
+    return parsed.pathname;
+}
+
+Utils.replaceBaseUri = function(uri, newBaseUri)
+{
+    var URL = require('url');
+    var relativeResource = Utils.extractEverythingAfterBaseUri(uri);
+    return URL.resolve(newBaseUri, relativeResource);
+}
+
+if(typeof exports != "undefined")
+{
+    exports.Utils = Utils;
+}

@@ -81,11 +81,6 @@ angular.module('dendroApp.controllers')
             return uri;
         };
 
-        $scope.get_thumbnail_uri = function(uri)
-        {
-            return uri+'?thumbnail&size=icon';
-        };
-
         $scope.get_calling_uri_thumbnail = function()
         {
             return $scope.get_thumbnail_uri($scope.get_calling_uri());
