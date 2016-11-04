@@ -3,24 +3,23 @@
     <p>totalPosts: {{totalPosts}}</p>
     <p>pagination.current: {{pagination.current}}</p>
 
-    <p>POSTS: {{posts}} </p>
-
     <div class="container">
         <h3>Social Dendro</h3>
+        <hr>
         <ul class="list-group">
             <div dir-paginate="postURI in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">
+
                 URI is : {{ postURI.uri }}
                 <div ng-init="getPost(postURI.uri, null);postLikesInfo(postURI.uri);getCommentsFromPost(postURI.uri);getSharesFromPost(postURI.uri)">
                     <div>
                         <div ng-if="postList[postURI.uri].rdf.isShare">
                             <p>IS A SHARE</p>
-                            {{postList[postURI.uri]}}
+                            <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+                            <p> {{postList[postURI.uri].ddr.userWhoShared.split('/').pop()}} : "{{postList[postURI.uri].ddr.shareMsg}}"</p>
                             <!-- obtain the original post information-->
-                            <div ng-init="getPost(postList[postURI.uri].ddr.postURI, null);">
-                                <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
-                                <p> {{postList[postURI.uri].ddr.userWhoShared.split('/').pop()}} : "{{postList[postURI.uri].ddr.shareMsg}}"</p>
+                            <div ng-init="getPost(postList[postURI.uri].ddr.postURI, null);" style="padding-left: 2%">
                                 <!-- The info from the original post-->
-                                <div class="btn-group" style="background-color:yellowgreen; border-style: dashed; border-width:2px;">
+                                <div class="btn-group" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
                                     <table class="table changelog-table">
                                         <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
                                         <tr>

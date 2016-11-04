@@ -1,6 +1,7 @@
 angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
+     *  Project administration controller
      */
     .controller('timelineCtrl', function ($scope, $http, $filter, timelineService, $window)
     {
@@ -17,20 +18,11 @@ angular.module('dendroApp.controllers')
         $scope.get_all_posts = function(currentPage)
         {
             $scope.getting_posts = true;
-
-            console.log('at $scope.get_all_posts, currentPage: ', $scope.pagination.current);
             timelineService.get_all_posts(currentPage)
                 .then(function(response)
                 {
-                    //$scope.posts = $scope.posts.concat(response.data);
-                    //$scope.posts = $scope.posts.concat(response.data);
                     $scope.posts = response.data;
-                    //$scope.totalPosts = response.data.length;//AQUI CENAS ALTERACAO
-                    console.log('posts are:');
-                    console.log($scope.posts);
                     $scope.getting_posts = false;
-                    console.log('AQUI DUDE');
-                    //$scope.$apply();
                 })
                 .catch(function(error){
                     console.error("Error getting posts " + JSON.stringify(error));
@@ -57,8 +49,6 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.likePost = function (postID) {
-            console.log('postID to like is:', postID);
-
             $scope.doing_likePost = true;
 
             timelineService.likePost(postID)
@@ -77,19 +67,13 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.postIsLiked = function (postID) {
-            console.log('postID to check like is:', postID);
-
             $scope.doing_postIsLiked = true;
 
             timelineService.postIsLiked(postID)
                 .then(function(response)
                 {
-                    console.log('timeLine_controller postIsLiked:', response.data);
                     $scope.show_popup(response.data.message);
-
-                    //$scope.get_all_posts();
                     $scope.doing_postIsLiked = false;
-                    //$scope.likedPosts[postID] = response.data;
                     return response.data;
                 })
                 .catch(function(error){
@@ -161,8 +145,6 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.commentPost = function (postID, commentMsg) {
-            console.log('postID to like is:', postID);
-            console.log('commentMsg is:', commentMsg);
 
             $scope.doing_commentPost = true;
 
@@ -182,17 +164,12 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.sharePost = function (postID, shareMsg) {
-            console.log('postID to share is:', postID);
-            console.log('shareMsg is:', shareMsg);
-
             $scope.doing_sharePost = true;
 
             timelineService.sharePost(postID, shareMsg)
                 .then(function(response)
                 {
                     $scope.show_popup(response.data.message);
-
-                    //$scope.get_all_posts($scope.currentPage);//TODO remove this function call???
                     $scope.get_all_posts($scope.pagination.current);//TODO remove this function call???
                     $scope.doing_sharePost = false;
                 })
@@ -240,8 +217,6 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function()
         {
-            console.log('NA INIT');
-            //$scope.posts = [];//TODO cuidado com isto
             //For pagination purposes
             /*$scope.currentPage = 1;
             $scope.pageSize = 5;
@@ -317,10 +292,7 @@ angular.module('dendroApp.controllers')
             timelineService.countNumPosts()
                 .then(function(response)
                 {
-                    //$scope.numPosts = response.data;
-                    //console.log('$scope.numPosts: ', $scope.numPosts);
                     $scope.totalPosts = response.data;
-                    console.log('$scope.totalPosts: ', $scope.totalPosts);
                 })
                 .catch(function(error){
                     console.error("Error number of posts" + JSON.stringify(error));
@@ -328,14 +300,6 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.pageChangeHandler = function(num) {
-            console.log('posts page changed to ' + num);
-            console.log('Posts.length: ', $scope.posts.length);
-            //$scope.currentPage = num;
-            $scope.countCenas = num;
-            console.log('countCenas aqui: ', $scope.countCenas);
-            //$scope.posts = [];
-            //$scope.$apply();
-            //$scope.get_all_posts($scope.currentPage);
             $scope.get_all_posts(num);
             $window.scrollTo(0, 0);//to scroll up to the top on page change
         };
