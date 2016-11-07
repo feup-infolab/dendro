@@ -197,6 +197,11 @@ Utils.replaceBaseUri = function(uri, newBaseUri)
     return URL.resolve(newBaseUri, relativeResource);
 }
 
+Utils.copyFromObjectToObject = function(fromObject, toObject)
+{
+    for (var attrname in fromObject) { toObject[attrname] = fromObject[attrname]; }
+}
+
 if(typeof exports != "undefined")
 {
     exports.Utils = Utils;

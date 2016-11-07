@@ -7,6 +7,7 @@ var Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
 var swordConnection = require(Config.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
 var Figshare = require(Config.absPathInSrcFolder("/export_libs/figshare/figshare.js"));
 var B2Share = require(Config.absPathInSrcFolder("/export_libs/b2share/b2share.js"));
+var Utils = require(Config.absPathInPublicFolder("/js/utils.js")).Utils;
 
 var async = require('async');
 var nodemailer = require('nodemailer');
@@ -409,12 +410,12 @@ export_to_repository_ckan = function(req, res){
 
                                                                     ckan.exec("package_show",
                                                                         {
-                                                                            id: slugifiedTitle
+                                                                            id: slugifiedUri
                                                                         },
                                                                         function (err, result) {
-                                                                            if (!err && result.success) {
-
-                                                                                if(!overwrite)
+                                                                            if (!err && result.success)
+                                                                            {
+                                                                                if(!overwrite) //package was found and we are not overwriting
                                                                                 {
                                                                                     deleteFolderRecursive(parentFolderPath);
 
@@ -427,25 +428,14 @@ export_to_repository_ckan = function(req, res){
                                                                                         }
                                                                                     );
                                                                                 }
-                                                                                else
+                                                                                else //package was found BUT we are OVERWRITING
                                                                                 {
-                                                                                    async.each(result.result.resources, function( resource, callback) {
+                                                                                    Utils.copyFromObjectToObject(packageContents[0], result.result);
 
-                                                                                        callback(false);
+                                                                                    //result.result.metadata_modified = new Date(1331209044000).toISOString();
 
-                                                                                        /*ckan.exec("resource_delete", {id:resource.id }, function (err, result) {
-                                                                                         if (!err) {
-                                                                                         callback(false)
-                                                                                         }
-                                                                                         else {
-                                                                                         callback(true);
-                                                                                         }
-                                                                                         });*/
-
-                                                                                    }, function(err){
-                                                                                        // if any of the file processing produced an error, err would equal that error
-                                                                                        if (!err) {
-                                                                                            ckan.import({
+                                                                                    ckan.import(
+                                                                                        {
                                                                                                 // verbose output
                                                                                                 debug: true,
 
@@ -453,67 +443,79 @@ export_to_repository_ckan = function(req, res){
                                                                                                 // set the update flag to force updates of packages and resources
                                                                                                 update: overwrite,
                                                                                                 // list of packages you want to import.
-                                                                                                packages: packageContents,
+                                                                                                packages: [result.result],
 
                                                                                                 callback: function (response) {
                                                                                                     deleteFolderRecursive(parentFolderPath);
+
+                                                                                                    var datasetLocationOnCkan =  targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
+                                                                                                    var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + datasetLocationOnCkan +"\">"+datasetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten."
+
                                                                                                     res.json(
                                                                                                         {
                                                                                                             "result": "OK",
-                                                                                                            "message": "Dataset successfully exported!"
+                                                                                                            "message": msg
                                                                                                         }
                                                                                                     );
                                                                                                 }
-                                                                                            });
-                                                                                        } else {
-                                                                                            deleteFolderRecursive(parentFolderPath);
-                                                                                            var msg = "Error deleting old dataset for " + requestedResourceUri + " Error reported : " + result;
-                                                                                            console.error(msg);
-
-                                                                                            res.status(500).json(
-                                                                                                {
-                                                                                                    "result": "error",
-                                                                                                    "message": msg
-                                                                                                }
-                                                                                            );
                                                                                         }
-                                                                                    });
+                                                                                    );
                                                                                 }
                                                                             }
-                                                                            else if (err || !result.success) {
+                                                                            else if (err != null)
+                                                                            {
+                                                                                if(err.status == 404 && err.body != null)
+                                                                                {
+                                                                                    var jsonBody = JSON.parse(err.body);
 
-                                                                                if(err.status == 404){
-                                                                                    ckan.import({
-                                                                                        // verbose output
-                                                                                        debug: true,
+                                                                                    if(jsonBody.error != null && jsonBody.error.__type === "Not Found Error")
+                                                                                    {
+                                                                                        ckan.import({
+                                                                                            // verbose output
+                                                                                            debug: true,
 
-                                                                                        // by default if a package or resource already exists, it will be ignored
-                                                                                        // set the update flag to force updates of packages and resources
-                                                                                        //update: true,
+                                                                                            // by default if a package or resource already exists, it will be ignored
+                                                                                            // set the update flag to force updates of packages and resources
+                                                                                            //update: true,
 
-                                                                                        // user key, you can authenticate using the setKey() and login() methods as well
-                                                                                        //key: "fe90fb70-34f7-4194-849a-32317f0b1760",
+                                                                                            // user key, you can authenticate using the setKey() and login() methods as well
+                                                                                            //key: "fe90fb70-34f7-4194-849a-32317f0b1760",
 
-                                                                                        // server you wish to connect to
-                                                                                        //server : "http://10.0.37.23:5000",
+                                                                                            // server you wish to connect to
+                                                                                            //server : "http://10.0.37.23:5000",
 
-                                                                                        // list of packages you want to import.
+                                                                                            // list of packages you want to import.
 
-                                                                                        packages: packageContents,
-                                                                                        callback: function (response) {
-                                                                                            deleteFolderRecursive(parentFolderPath);
-                                                                                            res.json(
-                                                                                                {
-                                                                                                    "result": "OK",
-                                                                                                    "message": "Dataset successfully exported!"
-                                                                                                }
-                                                                                            );
-                                                                                        }
-                                                                                    });
+                                                                                            packages: packageContents,
+                                                                                            callback: function (response) {
+                                                                                                deleteFolderRecursive(parentFolderPath);
+
+                                                                                                var datasetLocationOnCkan =  targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
+                                                                                                var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + datasetLocationOnCkan +"\">"+datasetLocationOnCkan + "</a> <br/><br/>"
+
+                                                                                                res.json(
+                                                                                                    {
+                                                                                                        "result": "OK",
+                                                                                                        "message": msg
+                                                                                                    }
+                                                                                                );
+                                                                                            }
+                                                                                        });
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        res.status(401).json(
+                                                                                            {
+                                                                                                "result": "error",
+                                                                                                "message": "Unable to parse response from CKAN repository."
+                                                                                            }
+                                                                                        );
+                                                                                    }
                                                                                 }
-                                                                                else if(err.error != null && err.error.__type == 'Authorization Error'){
+                                                                                else if(err.error != null && err.error.__type == 'Authorization Error')
+                                                                                {
                                                                                     deleteFolderRecursive(parentFolderPath);
-                                                                                    var msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " +  err.error.__type +":"+err.error.message;;
+                                                                                    var msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " +  err.error.__type +":"+err.error.message;
                                                                                     if(err.error.__type == 'Authorization Error')
                                                                                     {
                                                                                         msg = "Already exists a dataset with same ID in CKAN, please change title of your dataset."
@@ -527,9 +529,10 @@ export_to_repository_ckan = function(req, res){
                                                                                         }
                                                                                     );
                                                                                 }
-                                                                                else{
+                                                                                else
+                                                                                {
                                                                                     deleteFolderRecursive(parentFolderPath);
-                                                                                    var msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : ";
+                                                                                    var msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " + JSON.stringify(err);
                                                                                     console.error(msg);
 
                                                                                     res.status(500).json(
@@ -542,7 +545,8 @@ export_to_repository_ckan = function(req, res){
 
 
                                                                             }
-                                                                            else {
+                                                                            else
+                                                                            {
                                                                                 deleteFolderRecursive(parentFolderPath);
                                                                                 var msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " + result;
                                                                                 console.error(msg);
