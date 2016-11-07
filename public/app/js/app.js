@@ -21,7 +21,8 @@ angular.module('dendroApp', [
         'codemwnci.markdown-edit-preview',
         'angularMoment',
         'hljs',
-        'angularUtils.directives.dirPagination'//NELSON
+        'angularUtils.directives.dirPagination',//NELSON
+        'ngImgCrop'//NELSON
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
             return $sce.trustAsResourceUrl(val);
