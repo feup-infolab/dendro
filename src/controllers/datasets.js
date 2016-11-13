@@ -30,113 +30,113 @@ createPackage = function(parentFolderPath, folder, callback){
     var absPathToChild;
 
     async.series([
-        function(cb)
-        {
-            fs.readdir(folderToZip, function (err, files)
+            function(cb)
             {
-                if (!err)
+                fs.readdir(folderToZip, function (err, files)
                 {
-                    async.map(files, function (file, callback)
+                    if (!err)
                     {
-                        var absPathToChild = path.join(folderToZip, file);
-                        fs.stat(absPathToChild, function (err, stats)
+                        async.map(files, function (file, callback)
                         {
-                            if (!stats.isDirectory())
+                            var absPathToChild = path.join(folderToZip, file);
+                            fs.stat(absPathToChild, function (err, stats)
                             {
-                                filesToIncludeInPackage.push(absPathToChild);
-                            }
-                            callback(err, stats);
-                        });
-                    }, function (err, results)
-                    {
-                        cb(err);
-                    })
-                }
-                else
-                {
-                    cb(err, files);
-                }
-            })
-        },
-        function(cb)
-        {
-            var archiver = require('archiver');
-
-            var output = fs.createWriteStream(outputFilenameZip);
-            var zipArchive = archiver('zip');
-
-            zipArchive.pipe(output);
-
-            zipArchive.bulk([
-                { expand: true,src:["**"], cwd: folderToZip}
-            ]);
-
-            zipArchive.finalize(function(err, bytes) {
-
-                if (err) {
-                    throw err;
-                }
-            });
-
-            output.on('close', function() {
-                console.log('done with the zip', folderToZip);
-                filesToIncludeInPackage.push(outputFilenameZip);
-
-                folder.findMetadataRecursive( function(err, result) {
-                    if (!err) {
-
-                        var metadataRDF = require(Config.absPathInPublicFolder('js/pretty-data')).pd.xml(Serializers.metadataToRDF(result));
-
-
-                        fs.writeFile(outputFilenameRDF, metadataRDF, function(err) {
-
-                            if (!err) {
-                                console.log("The file " + outputFilenameRDF + " was saved!");
-                                filesToIncludeInPackage.push(outputFilenameRDF);
-
-                                var metadataTXT = Serializers.metadataToText(result);
-
-                                fs.writeFile(outputFilenameTXT, metadataTXT, function(err) {
-
-                                    if (!err) {
-                                        console.log("The file " + outputFilenameTXT + " was saved!");
-                                        filesToIncludeInPackage.push(outputFilenameTXT);
-
-                                        var metadataJSON = require(Config.absPathInPublicFolder('js/pretty-data')).pd.json(JSON.stringify(result));
-
-                                        fs.writeFile(outputFilenameJSON, metadataJSON, function(err) {
-                                            if (!err) {
-                                                console.log("The file " + outputFilenameJSON  + " was saved!");
-                                                cb(null, null);
-                                            } else {
-                                                console.log(err);
-                                                cb(true, null);
-                                            }
-                                        });
-
-                                    } else {
-                                        console.log(err);
-                                        cb(true, null);
-                                    }
-
-                                });
-
-                            } else {
-                                console.log(err);
-                                cb(true, null);
-                            }
-
-                        });
+                                if (!stats.isDirectory())
+                                {
+                                    filesToIncludeInPackage.push(absPathToChild);
+                                }
+                                callback(err, stats);
+                            });
+                        }, function (err, results)
+                        {
+                            cb(err);
+                        })
                     }
-                    else {
-                        var msg = "Error finding metadata in " + folder.uri;
-                        console.error(msg);
-                        cb(true, null);
+                    else
+                    {
+                        cb(err, files);
+                    }
+                })
+            },
+            function(cb)
+            {
+                var archiver = require('archiver');
 
+                var output = fs.createWriteStream(outputFilenameZip);
+                var zipArchive = archiver('zip');
+
+                zipArchive.pipe(output);
+
+                zipArchive.bulk([
+                    { expand: true,src:["**"], cwd: folderToZip}
+                ]);
+
+                zipArchive.finalize(function(err, bytes) {
+
+                    if (err) {
+                        throw err;
                     }
                 });
-            });
-        }
+
+                output.on('close', function() {
+                    console.log('done with the zip', folderToZip);
+                    filesToIncludeInPackage.push(outputFilenameZip);
+
+                    folder.findMetadataRecursive( function(err, result) {
+                        if (!err) {
+
+                            var metadataRDF = require(Config.absPathInPublicFolder('js/pretty-data')).pd.xml(Serializers.metadataToRDF(result));
+
+
+                            fs.writeFile(outputFilenameRDF, metadataRDF, function(err) {
+
+                                if (!err) {
+                                    console.log("The file " + outputFilenameRDF + " was saved!");
+                                    filesToIncludeInPackage.push(outputFilenameRDF);
+
+                                    var metadataTXT = Serializers.metadataToText(result);
+
+                                    fs.writeFile(outputFilenameTXT, metadataTXT, function(err) {
+
+                                        if (!err) {
+                                            console.log("The file " + outputFilenameTXT + " was saved!");
+                                            filesToIncludeInPackage.push(outputFilenameTXT);
+
+                                            var metadataJSON = require(Config.absPathInPublicFolder('js/pretty-data')).pd.json(JSON.stringify(result));
+
+                                            fs.writeFile(outputFilenameJSON, metadataJSON, function(err) {
+                                                if (!err) {
+                                                    console.log("The file " + outputFilenameJSON  + " was saved!");
+                                                    cb(null, null);
+                                                } else {
+                                                    console.log(err);
+                                                    cb(true, null);
+                                                }
+                                            });
+
+                                        } else {
+                                            console.log(err);
+                                            cb(true, null);
+                                        }
+
+                                    });
+
+                                } else {
+                                    console.log(err);
+                                    cb(true, null);
+                                }
+
+                            });
+                        }
+                        else {
+                            var msg = "Error finding metadata in " + folder.uri;
+                            console.error(msg);
+                            cb(true, null);
+
+                        }
+                    });
+                });
+            }
         ],
         function(err, results)
         {
@@ -282,7 +282,9 @@ export_to_repository_sword = function(req, res){
 
 export_to_repository_ckan = function(req, res){
     try{
-        var ckan = require('node-ckan');
+        var CKAN = require('ckan');
+        var ckan_auth = require('node-ckan');
+
         var requestedResourceUri = req.params.requestedResource;
         var targetRepository = req.body.repository;
 
@@ -342,11 +344,13 @@ export_to_repository_ckan = function(req, res){
                             }
                             else
                             {
-                                ckan.showTimes();
-                                ckan.setServer(targetRepository.ddr.hasExternalUri);
-                                ckan.login(targetRepository.ddr.hasUsername, targetRepository.ddr.hasPassword, function(error){
+                                ckan_auth.setServer(targetRepository.ddr.hasExternalUri);
+                                ckan_auth.login(targetRepository.ddr.hasUsername, targetRepository.ddr.hasPassword, function(error){
                                     if(!error)
                                     {
+                                        var apiKey = ckan_auth;
+                                        var client = new CKAN.Client(targetRepository.ddr.hasExternalUri);
+
                                         var slug = require('slug');
                                         var slugifiedTitle = slug(folder.dcterms.title, "-");
                                         var slugifiedUri = slug(folder.uri, "-");
@@ -436,28 +440,28 @@ export_to_repository_ckan = function(req, res){
 
                                                                                     ckan.import(
                                                                                         {
-                                                                                                // verbose output
-                                                                                                debug: true,
+                                                                                            // verbose output
+                                                                                            debug: true,
 
-                                                                                                // by default if a package or resource already exists, it will be ignored
-                                                                                                // set the update flag to force updates of packages and resources
-                                                                                                update: overwrite,
-                                                                                                // list of packages you want to import.
-                                                                                                packages: [result.result],
+                                                                                            // by default if a package or resource already exists, it will be ignored
+                                                                                            // set the update flag to force updates of packages and resources
+                                                                                            update: overwrite,
+                                                                                            // list of packages you want to import.
+                                                                                            packages: [result.result],
 
-                                                                                                callback: function (response) {
-                                                                                                    deleteFolderRecursive(parentFolderPath);
+                                                                                            callback: function (response) {
+                                                                                                deleteFolderRecursive(parentFolderPath);
 
-                                                                                                    var datasetLocationOnCkan =  targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
-                                                                                                    var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + datasetLocationOnCkan +"\">"+datasetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten."
+                                                                                                var datasetLocationOnCkan =  targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
+                                                                                                var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + datasetLocationOnCkan +"\">"+datasetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten."
 
-                                                                                                    res.json(
-                                                                                                        {
-                                                                                                            "result": "OK",
-                                                                                                            "message": msg
-                                                                                                        }
-                                                                                                    );
-                                                                                                }
+                                                                                                res.json(
+                                                                                                    {
+                                                                                                        "result": "OK",
+                                                                                                        "message": msg
+                                                                                                    }
+                                                                                                );
+                                                                                            }
                                                                                         }
                                                                                     );
                                                                                 }
@@ -715,89 +719,89 @@ export_to_repository_figshare = function(req, res){
                                         console.log("Package for export " + requestedResourceUri + " created.");
 
 
-                                            try {
-                                                var accessCodes = {
-                                                    consumer_key: targetRepository.ddr.hasConsumerKey,
-                                                    consumer_secret: targetRepository.ddr.hasConsumerSecret,
-                                                    access_token: targetRepository.ddr.hasAccessToken,
-                                                    access_token_secret: targetRepository.ddr.hasAccessTokenSecret
-                                                };
+                                        try {
+                                            var accessCodes = {
+                                                consumer_key: targetRepository.ddr.hasConsumerKey,
+                                                consumer_secret: targetRepository.ddr.hasConsumerSecret,
+                                                access_token: targetRepository.ddr.hasAccessToken,
+                                                access_token_secret: targetRepository.ddr.hasAccessTokenSecret
+                                            };
 
-                                                var title;
-                                                if (Array.isArray(folder.dcterms.title)) {
-                                                    title = folder.dcterms.title[0]
+                                            var title;
+                                            if (Array.isArray(folder.dcterms.title)) {
+                                                title = folder.dcterms.title[0]
+                                            }
+                                            else {
+                                                title = folder.dcterms.title;
+                                            }
+                                            var description;
+                                            if (Array.isArray(folder.dcterms.description)) {
+                                                description = folder.dcterms.description[0]
+                                            }
+                                            else {
+                                                description = folder.dcterms.description;
+                                            }
+
+                                            var article_data = {
+                                                title: title,
+                                                description: description
+                                            };
+
+                                            var figshare = new Figshare(accessCodes);
+                                            figshare.createArticle(article_data, function (err, article) {
+                                                if (err) {
+                                                    deleteFolderRecursive(parentFolderPath);
+                                                    var msg = "Error creating article on figshare";
+                                                    console.error(msg);
+                                                    res.status(500).json(
+                                                        {
+                                                            "result": "error",
+                                                            "message": msg
+                                                        }
+                                                    );
                                                 }
                                                 else {
-                                                    title = folder.dcterms.title;
+                                                    figshare.addMultipleFilesToArticle(article.article_id, files, function (err) {
+                                                        if (err) {
+                                                            deleteFolderRecursive(parentFolderPath);
+                                                            var msg = "Error adding files to article on figshare";
+                                                            console.error(msg);
+                                                            res.status(500).json(
+                                                                {
+                                                                    "result": "error",
+                                                                    "message": msg
+                                                                }
+                                                            );
+                                                        }
+                                                        else {
+                                                            deleteFolderRecursive(parentFolderPath);
+                                                            var msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. ";
+                                                            console.log(msg);
+                                                            res.json(
+                                                                {
+                                                                    "result": "OK",
+                                                                    "message": msg
+                                                                }
+                                                            );
+                                                        }
+                                                    });
+
+
                                                 }
-                                                var description;
-                                                if (Array.isArray(folder.dcterms.description)) {
-                                                    description = folder.dcterms.description[0]
-                                                }
-                                                else {
-                                                    description = folder.dcterms.description;
-                                                }
+                                            });
 
-                                                var article_data = {
-                                                    title: title,
-                                                    description: description
-                                                };
-
-                                                var figshare = new Figshare(accessCodes);
-                                                figshare.createArticle(article_data, function (err, article) {
-                                                    if (err) {
-                                                        deleteFolderRecursive(parentFolderPath);
-                                                        var msg = "Error creating article on figshare";
-                                                        console.error(msg);
-                                                        res.status(500).json(
-                                                            {
-                                                                "result": "error",
-                                                                "message": msg
-                                                            }
-                                                        );
-                                                    }
-                                                    else {
-                                                        figshare.addMultipleFilesToArticle(article.article_id, files, function (err) {
-                                                            if (err) {
-                                                                deleteFolderRecursive(parentFolderPath);
-                                                                var msg = "Error adding files to article on figshare";
-                                                                console.error(msg);
-                                                                res.status(500).json(
-                                                                    {
-                                                                        "result": "error",
-                                                                        "message": msg
-                                                                    }
-                                                                );
-                                                            }
-                                                            else {
-                                                                deleteFolderRecursive(parentFolderPath);
-                                                                var msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. ";
-                                                                console.log(msg);
-                                                                res.json(
-                                                                    {
-                                                                        "result": "OK",
-                                                                        "message": msg
-                                                                    }
-                                                                );
-                                                            }
-                                                        });
-
-
-                                                    }
-                                                });
-
-                                            }
-                                            catch (err) {
-                                                deleteFolderRecursive(parentFolderPath);
-                                                console.error(err);
-                                                res.status(500).json(
-                                                    {
-                                                        "result": "error",
-                                                        "message": err
-                                                    }
-                                                );
-                                            }
                                         }
+                                        catch (err) {
+                                            deleteFolderRecursive(parentFolderPath);
+                                            console.error(err);
+                                            res.status(500).json(
+                                                {
+                                                    "result": "error",
+                                                    "message": err
+                                                }
+                                            );
+                                        }
+                                    }
                                     else {
                                         var msg = "Error creating package for export folder " + folder.nie.title + " from the Dendro platform.";
                                         console.error(msg);
@@ -1103,7 +1107,7 @@ export_to_repository_b2share = function(req, res){
                                             else{
                                                 subject = folder.dcterms.subject;
                                             }
-                                            
+
                                             data["keywords"] = subject;
                                         }
 
