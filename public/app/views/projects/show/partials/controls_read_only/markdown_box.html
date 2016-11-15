@@ -1,7 +1,7 @@
 <div class="row">
-    <div class="controls col-lg-12">
-        <div class="input-group col-lg-offset-1">
-            <p class="lead spacer input-group col-lg-12"
+    <div class="controls col-xs-12">
+        <div class="input-group">
+            <p class="lead spacer input-group"
                ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted, just_inherited : descriptor.just_inherited, just_recommended : descriptor.just_recommended }">
                 {{descriptor.label}}
                 <span ng-show="descriptor.just_added"
@@ -26,8 +26,8 @@
     </div>
 </div>
 <div class="row">
-    <div class="controls col-lg-12">
-        <div class="input-group col-lg-10 col-lg-offset-1">
+    <div class="controls col-xs-12">
+        <div class="input-group col-lg-11">
             <div class="control-value-read-only" ng-bind-html="descriptor.value | markdown">
             </div>
         </div>
