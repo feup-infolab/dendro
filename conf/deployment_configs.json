@@ -2,6 +2,10 @@
   "dev" : {
     "port" : 3001,
     "host" : "127.0.0.1:3001",
+    "crypto" :
+    {
+      "secret" : "THF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzH"
+    },
     "baseUri" : "http://127.0.0.1:3001",
     "crypto" :
     {
@@ -91,7 +95,7 @@
     "debug" : {
       "active": true,
       "database" :{
-        "log_all_queries": true
+        "log_all_queries": false
       },
       "session": {
         "auto_login": true,
@@ -126,9 +130,9 @@
         "prefill_text_boxes" : false
       },
       "cache" : {
-        "log_cache_hits" : true,
-        "log_cache_writes" : true,
-        "log_cache_deletes" : true
+        "log_cache_hits" : false,
+        "log_cache_writes" : false,
+        "log_cache_deletes" : false
       },
       "diagnostics" :
       {
