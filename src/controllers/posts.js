@@ -303,6 +303,82 @@ function sortPostsByModifiedDate(postA, postB) {
     return (a.getTime() - b.getTime());
 }
 
+function getProjectWideFolderFileCreationEvents(projectUri) {
+    console.log('In getProjectWideFolderFileCreationEvents');
+    console.log('the projectUri is:');
+    console.log(projectUri);
+    //<http://127.0.0.1:3001/project/testproject3/data>
+    var projectData = projectUri + '/data'; //TODO this is probably wrong
+
+    /*WITH <http://127.0.0.1:3001/dendro_graph>
+    SELECT ?dataUri
+        WHERE {
+        ?dataUri dcterms:modified ?date.
+        <http://127.0.0.1:3001/project/testproject3/data> <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#hasLogicalPart> ?dataUri.
+    }
+    ORDER BY DESC(?date)
+    OFFSET 0
+    LIMIT 5*/
+
+    //TODO test query first
+    var query =
+        "WITH [0] \n" +
+        "SELECT ?dataUri \n" +
+        "WHERE { \n" +
+        "?dataUri dcterms:modified ?date. \n" +
+        "filter ( \n" +
+        "xsd:dateTime(?date) >= [2]" + "^^xsd:dateTime" + " ). \n" +
+        "projectData haslogicalpartCenas ?dataUri . \n" +
+        "} \n" +
+        "ORDER BY DESC(?date) \n";
+
+    query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.stringNoEscape,
+                value : self.uri
+            },
+            {
+                type : DbConnection.date,
+                value: createdAfterDate
+            }
+        ], startingResultPosition, maxResults),
+        function(err, results) {
+            if(!err)
+            {
+                var getVersionDetails = function(result, callback){
+                    ArchivedResource.findByUri(result.version, function(err, result){
+                        if(!err)
+                        {
+                            result.getDetailedInformation(function(err, versionWithDetailedInfo)
+                            {
+                                callback(err, versionWithDetailedInfo);
+                            });
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
+                    });
+                };
+
+                async.map(results, getVersionDetails, function(err, fullVersions){
+                    callback(err, fullVersions);
+                })
+            }
+            else
+            {
+                callback(1, "Error fetching children of project root folder");
+            }
+        });
+
+}
 
 //function that pings metadata changes from dendro_graph to build the posts in social_dendro graph
 function pingNewPosts(sessionUser, cb) {
@@ -323,6 +399,7 @@ function pingNewPosts(sessionUser, cb) {
                     //2016-10-11T15:50:24.586Z
                     console.log('socialUpdatedAt from project is: ', socialUpdatedAt);
 
+                    //TODO here introduce code to check file/folder adding
                     project.getRecentProjectWideChangesSocial(function(err, changes){
                     //project.getRecentProjectWideChanges(function(err, changes){
                         //console.log('changes are:', JSON.stringify(changes[1].changes));
