@@ -6,6 +6,8 @@ var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/fold
 var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var FileVersions = require(Config.absPathInSrcFolder("/models/versions/file_versions.js")).FileVersions;
+var MongoClient = require('mongodb').MongoClient;
 
 var db = function() { return GLOBAL.db.default; }();
 
@@ -646,6 +648,41 @@ exports.get_thumbnail = function(req, res) {
     });
 };
 
+//Temp function
+var connectToMongo = function (callback) {
+    var MongoClient = require('mongodb').MongoClient;
+    var url = 'mongodb://192.168.56.101:27017/dendro_data_dev';
+    MongoClient.connect(url, function(err, db) {
+        if(!err)
+        {
+            console.log("Connected successfully to MongoDB");
+            callback(null, db);
+        }
+        else
+        {
+            var msg = 'Error connecting to MongoDB';
+            callback(true, msg);
+        }
+    });
+};
+
+var findFileInMongo = function (db, fileUri, callback) {
+    var collection = db.collection('fs.files');
+    collection.find({filename: fileUri}).toArray(function(err, files) {
+        console.log("Found the following Files");
+        console.log(files);
+        if(!err)
+        {
+            callback(null, files);
+        }
+        else
+        {
+            var msg = 'Error findind document with uri: ' + fileUri + ' in Mongo';
+            callback(true, msg);
+        }
+    });
+};
+
 exports.upload = function(req, res){
    if (req.originalMethod == "GET")
     {
@@ -687,6 +724,56 @@ exports.upload = function(req, res){
                             if(err == null)
                             {
                                 console.log("File " + newFile.uri + " is now saved in GridFS");
+                                //TODO get info from mongo for that fileUri
+                                //TODO build a new file_versions for that file
+                                connectToMongo(function (err, db) {
+                                   if(!err)
+                                   {
+                                       findFileInMongo(db, newFile.uri, function (error, filesInfo) {
+                                           if(!error)
+                                           {
+                                                console.log(filesInfo);
+                                               //TODO check array length-> there is repeated files
+                                               /*
+                                               "filename" : "http://127.0.0.1:3001/project/datanotes2/data/Nielsen[1994].pdf", -> nfo.fileName
+                                               "contentType" : "binary/octet-stream",
+                                               "length" : 259713, -> nie.byteSize
+                                               "chunkSize" : 262144,
+                                               "uploadDate" : ISODate("2015-01-09T20:39:49.050Z"), nie.created
+                                               "metadata" : {
+                                               "project" : "http://127.0.0.1:3001/project/datanotes2",
+                                                   "type" : "nie:File",
+                                                   creator: "user uri of the creator" nco.creator
+                                                },
+                                               "md5" : "b3bbe77e563bd4784c21db08bbc3066a" -> nfo.hashValue*/
+                                               var newFileVersion = new FileVersions({
+                                                   nfo: {
+                                                       fileName: filesInfo.filename,
+                                                       hashValue: filesInfo.md5,
+                                                       hashAlgorithm: 'md5'
+                                                   },
+                                                   nie: {
+                                                       contentLastModified: filesInfo.uploadDate,
+                                                       byteSize: filesInfo.length
+                                                   }
+                                               });
+                                           }
+                                           else
+                                           {
+                                               
+                                           }
+                                       });
+                                   }
+                                    else
+                                   {
+                                       res.status(500).json({
+                                           result : "error",
+                                           message : "Error submitting file : " + result,
+                                           files : files
+                                       });
+                                   }
+                                });
+                                /*
                                 newFile.generateThumbnails(function(err, result){
                                     if(!err)
                                     {
@@ -704,7 +791,7 @@ exports.upload = function(req, res){
                                             files : files
                                         });
                                     }
-                                });
+                                });*/
                             }
                             else
                             {
