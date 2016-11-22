@@ -17,7 +17,7 @@ var fs = require('fs');
 var path = require('path');
 
 
-createPackage = function(parentFolderPath, folder, callback){
+var createPackage = function(parentFolderPath, folder, callback){
 
     var folderToZip = path.join(parentFolderPath, folder.nie.title);
     var outputFilenameZip = path.join(parentFolderPath,folder.nie.title + ".zip");
@@ -298,6 +298,57 @@ export_to_repository_ckan = function(req, res){
             console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
         }
 
+        var createOrUpdateFilesInPackage = function(files, parentFolder, ckanPackageId, callback, overwrite)
+        {
+            var createFileList = function(files, folderDescription)
+            {
+                files = InformationElement.removeInvalidFileNames(files);
+
+                if (typeof String.prototype.endsWith !== 'function')
+                {
+                    String.prototype.endsWith = function (suffix)
+                    {
+                        return this.indexOf(suffix, this.length - suffix.length) !== -1;
+                    };
+                }
+
+                if (files.length > 0)
+                {
+                    var buildFileRecord = function (file)
+                    {
+                        var fileExtensionRE = /(?:\.([^.]+))?$/;
+                        var fileExtension = fileExtensionRE.exec(file)[1];
+                        var record =
+                        {
+                            file: file,
+                            description: folderDescription || '< no description available >',
+                            name: path.basename(file),
+                            mimetype: Config.mimeTypes[fileExtension]
+                        };
+
+                        return record;
+                    };
+
+                    var resources = _.map(files, buildFileRecord);
+                    resources = _.compact(resources);
+                    return resources;
+                }
+                else
+                {
+                    return [];
+                }
+            };
+
+            var uploadFileIntoPackage = function(packageID, file, callback)
+            {
+
+            }
+
+            var fileList = createFileList(files, folder.ddr.description);
+
+
+        }
+
         if(req.body.repository != null && req.body.repository.ddr != null)
         {
             var organization = req.body.repository.ddr.hasOrganization;
@@ -345,61 +396,35 @@ export_to_repository_ckan = function(req, res){
                             else
                             {
                                 ckan_auth.setServer(targetRepository.ddr.hasExternalUri);
-                                ckan_auth.login(targetRepository.ddr.hasUsername, targetRepository.ddr.hasPassword, function(error){
+                                ckan_auth.login(targetRepository.ddr.hasUsername, targetRepository.ddr.hasPassword, function(error, response){
                                     if(!error)
                                     {
-                                        var apiKey = ckan_auth;
-                                        var client = new CKAN.Client(targetRepository.ddr.hasExternalUri);
+                                        var apiKey = ckan_auth.getAPIKey();
+                                        var client = new CKAN.Client(targetRepository.ddr.hasExternalUri, apiKey);
 
-                                        var slug = require('slug');
-                                        var slugifiedTitle = slug(folder.dcterms.title, "-");
-                                        var slugifiedUri = slug(folder.uri, "-");
+                                        /**Check if organization exists**/
+                                        client.action("organization_show",
+                                            {
+                                                id: targetRepository.ddr.hasOrganization
+                                            },
+                                            function(err, info)
+                                            {
+                                                if(!err)
+                                                {
+                                                    var slug = require('slug');
+                                                    var slugifiedTitle = slug(folder.dcterms.title, "-");
+                                                    var slugifiedUri = slug(folder.uri, "-");
 
-                                        //ckan only accepts alphanumeric characters and dashes for the dataset ids
-                                        slugifiedTitle = slugifiedTitle.replace(/[^A-Za-z0-9-]/g, "").replace(/\./g, "").toLowerCase();
-                                        slugifiedUri = slugifiedUri.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
+                                                    //ckan only accepts alphanumeric characters and dashes for the dataset ids
+                                                    slugifiedTitle = slugifiedTitle.replace(/[^A-Za-z0-9-]/g, "").replace(/\./g, "").toLowerCase();
+                                                    slugifiedUri = slugifiedUri.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
 
-                                        folder.createTempFolderWithContents(false, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata){
-                                            if(!err){
-                                                createPackage(parentFolderPath, folder, function (err, files) {
-
-                                                    if(!err)
-                                                    {
-                                                        files = InformationElement.removeInvalidFileNames(files);
-
-                                                        if (typeof String.prototype.endsWith !== 'function') {
-                                                            String.prototype.endsWith = function(suffix) {
-                                                                return this.indexOf(suffix, this.length - suffix.length) !== -1;
-                                                            };
-                                                        }
-
-                                                        //function isExportable(element) {
-                                                        //    return element.endsWith('.rdf')||element.endsWith('.txt')||element.endsWith('.zip')
-                                                        //}
-
-                                                        //files = files.filter(isExportable);
-
-                                                        if (files.length > 0) {
-                                                            var buildFileRecord = function (file, callback) {
-                                                                var fileExtensionRE = /(?:\.([^.]+))?$/;
-                                                                var fileExtension = fileExtensionRE.exec(file)[1];
-                                                                var record =
+                                                    folder.createTempFolderWithContents(false, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata){
+                                                        if(!err){
+                                                            createPackage(parentFolderPath, folder, function (err, files)
+                                                            {
+                                                                if (!err)
                                                                 {
-                                                                    file: file,
-                                                                    description: folder.ddr.description || '< no description available >',
-                                                                    name: path.basename(file),
-                                                                    mimetype: Config.mimeTypes[fileExtension]
-                                                                };
-
-                                                                callback(false, record);
-                                                            };
-
-
-                                                            async.map(files, buildFileRecord, function (err, resources) {
-
-                                                                resources = _.compact(resources);
-
-                                                                if (!err) {
                                                                     var packageContents = [
                                                                         {
                                                                             name: slugifiedUri,
@@ -407,24 +432,25 @@ export_to_repository_ckan = function(req, res){
                                                                             title: folder.dcterms.title,
                                                                             description: folder.dcterms.description,
                                                                             extras: extrasJSONArray,
-                                                                            resources: resources,
                                                                             owner_org: organization
                                                                         }
                                                                     ];
 
-                                                                    ckan.exec("package_show",
+                                                                    client.action("package_show",
                                                                         {
                                                                             id: slugifiedUri
                                                                         },
-                                                                        function (err, result) {
-                                                                            if (!err && result.success)
+                                                                        function (err, result)
+                                                                        {
+                                                                            //dataset was found, do we want to update or not?
+                                                                            if (result.success)
                                                                             {
-                                                                                if(!overwrite) //package was found and we are not overwriting
+                                                                                if (!overwrite) //package was found and we are not overwriting
                                                                                 {
                                                                                     deleteFolderRecursive(parentFolderPath);
 
-                                                                                    var datasetLocationOnCkan =  targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
-                                                                                    var msg = "This dataset was already exported to this CKAN instance and is available at: <a href=\"" + datasetLocationOnCkan +"\">"+datasetLocationOnCkan + "</a> <br/><br/> Activate the Overwrite option to force an update."
+                                                                                    var datasetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
+                                                                                    var msg = "This dataset was already exported to this CKAN instance and is available at: <a href=\"" + datasetLocationOnCkan + "\">" + datasetLocationOnCkan + "</a> <br/><br/> Activate the Overwrite option to force an update."
                                                                                     res.status(500).json(
                                                                                         {
                                                                                             "result": "error",
@@ -434,122 +460,74 @@ export_to_repository_ckan = function(req, res){
                                                                                 }
                                                                                 else //package was found BUT we are OVERWRITING
                                                                                 {
+
                                                                                     Utils.copyFromObjectToObject(packageContents[0], result.result);
 
-                                                                                    //result.result.metadata_modified = new Date(1331209044000).toISOString();
-
-                                                                                    ckan.import(
+                                                                                    client.action(
+                                                                                        "package_update",
+                                                                                        result.result,
+                                                                                        function (response)
                                                                                         {
-                                                                                            // verbose output
-                                                                                            debug: true,
+                                                                                            deleteFolderRecursive(parentFolderPath);
 
-                                                                                            // by default if a package or resource already exists, it will be ignored
-                                                                                            // set the update flag to force updates of packages and resources
-                                                                                            update: overwrite,
-                                                                                            // list of packages you want to import.
-                                                                                            packages: [result.result],
+                                                                                            var datasetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
+                                                                                            var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + datasetLocationOnCkan + "\">" + datasetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten."
 
-                                                                                            callback: function (response) {
-                                                                                                deleteFolderRecursive(parentFolderPath);
-
-                                                                                                var datasetLocationOnCkan =  targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
-                                                                                                var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + datasetLocationOnCkan +"\">"+datasetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten."
-
-                                                                                                res.json(
-                                                                                                    {
-                                                                                                        "result": "OK",
-                                                                                                        "message": msg
-                                                                                                    }
-                                                                                                );
-                                                                                            }
+                                                                                            res.json(
+                                                                                                {
+                                                                                                    "result": "OK",
+                                                                                                    "message": msg
+                                                                                                }
+                                                                                            );
                                                                                         }
                                                                                     );
                                                                                 }
                                                                             }
-                                                                            else if (err != null)
+                                                                            //dataset not found
+                                                                            else if (!result.success && result.error.__type === "Not Found Error")
                                                                             {
-                                                                                if(err.status == 404 && err.body != null)
-                                                                                {
-                                                                                    var jsonBody = JSON.parse(err.body);
-
-                                                                                    if(jsonBody.error != null && jsonBody.error.__type === "Not Found Error")
+                                                                                client.action(
+                                                                                    "package_create",
+                                                                                    packageContents[0],
+                                                                                    function (response, result)
                                                                                     {
-                                                                                        ckan.import({
-                                                                                            // verbose output
-                                                                                            debug: true,
+                                                                                        if (result.success)
+                                                                                        {
+                                                                                            var datasetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
+                                                                                            var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + datasetLocationOnCkan + "\">" + datasetLocationOnCkan + "</a> <br/><br/>"
 
-                                                                                            // by default if a package or resource already exists, it will be ignored
-                                                                                            // set the update flag to force updates of packages and resources
-                                                                                            //update: true,
+                                                                                            res.json(
+                                                                                                {
+                                                                                                    "result": "OK",
+                                                                                                    "message": msg
+                                                                                                }
+                                                                                            );
 
-                                                                                            // user key, you can authenticate using the setKey() and login() methods as well
-                                                                                            //key: "fe90fb70-34f7-4194-849a-32317f0b1760",
-
-                                                                                            // server you wish to connect to
-                                                                                            //server : "http://10.0.37.23:5000",
-
-                                                                                            // list of packages you want to import.
-
-                                                                                            packages: packageContents,
-                                                                                            callback: function (response) {
-                                                                                                deleteFolderRecursive(parentFolderPath);
-
-                                                                                                var datasetLocationOnCkan =  targetRepository.ddr.hasExternalUri + "/dataset/" + slugifiedUri;
-                                                                                                var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + datasetLocationOnCkan +"\">"+datasetLocationOnCkan + "</a> <br/><br/>"
-
-                                                                                                res.json(
-                                                                                                    {
-                                                                                                        "result": "OK",
-                                                                                                        "message": msg
-                                                                                                    }
-                                                                                                );
-                                                                                            }
-                                                                                        });
-                                                                                    }
-                                                                                    else
-                                                                                    {
-                                                                                        res.status(401).json(
+                                                                                            deleteFolderRecursive(parentFolderPath);
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            var msg = "Error exporting dataset to CKAN.";
+                                                                                            if (response != null)
                                                                                             {
-                                                                                                "result": "error",
-                                                                                                "message": "Unable to parse response from CKAN repository."
+                                                                                                msg += " Error returned : " + response;
                                                                                             }
-                                                                                        );
-                                                                                    }
-                                                                                }
-                                                                                else if(err.error != null && err.error.__type == 'Authorization Error')
-                                                                                {
-                                                                                    deleteFolderRecursive(parentFolderPath);
-                                                                                    var msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " +  err.error.__type +":"+err.error.message;
-                                                                                    if(err.error.__type == 'Authorization Error')
-                                                                                    {
-                                                                                        msg = "Already exists a dataset with same ID in CKAN, please change title of your dataset."
-                                                                                    }
-                                                                                    console.error(msg);
 
-                                                                                    res.status(500).json(
-                                                                                        {
-                                                                                            "result": "error",
-                                                                                            "message": msg
+                                                                                            res.json(
+                                                                                                {
+                                                                                                    "result": "Error",
+                                                                                                    "message": msg
+                                                                                                }
+                                                                                            );
+
+                                                                                            deleteFolderRecursive(parentFolderPath);
                                                                                         }
-                                                                                    );
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    deleteFolderRecursive(parentFolderPath);
-                                                                                    var msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " + JSON.stringify(err);
-                                                                                    console.error(msg);
 
-                                                                                    res.status(500).json(
-                                                                                        {
-                                                                                            "result": "error",
-                                                                                            "message": msg
-                                                                                        }
-                                                                                    );
-                                                                                }
-
-
+                                                                                    }
+                                                                                );
                                                                             }
-                                                                            else
+                                                                            //dataset not found and error occurred
+                                                                            else if (!result.success && result.error.__type != "Not Found Error")
                                                                             {
                                                                                 deleteFolderRecursive(parentFolderPath);
                                                                                 var msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " + result;
@@ -562,11 +540,21 @@ export_to_repository_ckan = function(req, res){
                                                                                     }
                                                                                 );
                                                                             }
-                                                                        });
+                                                                            else
+                                                                            {
+                                                                                res.status(401).json(
+                                                                                    {
+                                                                                        "result": "error",
+                                                                                        "message": "Unable to parse response from CKAN repository."
+                                                                                    }
+                                                                                );
+                                                                            }
+                                                                        }
+                                                                    );
                                                                 }
-                                                                else {
-                                                                    deleteFolderRecursive(parentFolderPath);
-                                                                    var msg = "Error building file records for deposit when dumping " + requestedResourceUri + " from the Dendro platform. Error reported : " + resources;
+                                                                else
+                                                                {
+                                                                    var msg = "Error creating package for export folder " + folder.nie.title + " from the Dendro platform.";
                                                                     console.error(msg);
                                                                     res.status(500).json(
                                                                         {
@@ -579,7 +567,7 @@ export_to_repository_ckan = function(req, res){
                                                         }
                                                         else
                                                         {
-                                                            var msg = "Error compressing package for exporting folder " + folder.nie.title + " from the Dendro platform.";
+                                                            var msg = "Error creating temporary folder for export folder " + folder.nie.title + " from the Dendro platform.";
                                                             console.error(msg);
                                                             res.status(500).json(
                                                                 {
@@ -588,32 +576,27 @@ export_to_repository_ckan = function(req, res){
                                                                 }
                                                             );
                                                         }
-                                                    }
-                                                    else
-                                                    {
-                                                        var msg = "Error creating package for export folder " + folder.nie.title + " from the Dendro platform.";
-                                                        console.error(msg);
-                                                        res.status(500).json(
-                                                            {
-                                                                "result": "error",
-                                                                "message": msg
-                                                            }
-                                                        );
-                                                    }
-                                                });
-                                            }
-                                            else{
-                                                var msg = "Error creating temporary folder for export folder " + folder.nie.title + " from the Dendro platform.";
-                                                console.error(msg);
-                                                res.status(500).json(
-                                                    {
-                                                        "result": "error",
-                                                        "message": msg
-                                                    }
-                                                );
-                                            }
 
-                                        });
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    var msg = "Unable to check if organization "+targetRepository.ddr.hasOrganization+"  exists.";
+
+                                                    if(info != null && info.error != null && (typeof info.error.message == "string"))
+                                                    {
+                                                        msg += " Error returned : " + info.error.message;
+                                                    }
+
+                                                    console.error(msg);
+                                                    res.status(401).json(
+                                                        {
+                                                            "result" : "error",
+                                                            "message" : msg
+                                                        }
+                                                    );
+                                                }
+                                            });
                                     }
                                     else
                                     {
