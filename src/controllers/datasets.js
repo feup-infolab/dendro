@@ -298,7 +298,7 @@ export_to_repository_ckan = function(req, res){
             console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
         }
 
-        var createOrUpdateFilesInPackage = function(files, parentFolder, ckanPackageId, callback, overwrite)
+        var createOrUpdateFilesInPackage = function(files, parentFolder, ckanClient, ckanPackageId, callback, overwrite)
         {
             var createFileList = function(files, folderDescription)
             {
@@ -339,15 +339,38 @@ export_to_repository_ckan = function(req, res){
                 }
             };
 
-            var uploadFileIntoPackage = function(packageID, file, callback)
+            var uploadFileIntoPackage = function(file, cb)
             {
+                var newResourcePayload = {
+                    package_id: ckanPackageId
+                };
 
+                if(file.dcterms.description != null)
+                    newResourcePayload.description = file.dcterms.description;
+
+                if(file.dcterms.title != null)
+                    newResourcePayload.name = file.dcterms.title;
+
+                if(file.nie.mimetype != null)
+                    newResourcePayload.mimetype = file.foaf.mimetype;
+
+                ckanClient.action("resource_create",
+                    newResourcePayload,
+                    function (err, result)
+                    {
+                        if (result.success)
+                        {
+
+                        }
+                    });
             }
 
             var fileList = createFileList(files, folder.ddr.description);
 
-
-        }
+            async.map(fileList, uploadFileIntoPackage, function(err, results){
+                callback(err);
+            });
+        };
 
         if(req.body.repository != null && req.body.repository.ddr != null)
         {
