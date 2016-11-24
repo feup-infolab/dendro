@@ -11,6 +11,7 @@ var gfs = function() { return GLOBAL.gfs.default; }();
 
 var _ = require('underscore');
 var async = require('async');
+var uuid = require('node-uuid');
 
 //NFO ontology or NIE ontology
 /*
@@ -34,32 +35,19 @@ function FileVersions (object)
     FileVersions.baseConstructor.call(this, object);
     var self = this;
 
-    self.copyOrInitDescriptors(object);
-
-    if(object.rdf.type != null)
+    if(object.uri != null)
     {
-        if(object.rdf.type instanceof Array)
-        {
-            //self.rdf.type.push("ddr:ArchivedResource");
-            self.rdf.type.push("ddr:FileVersions");
-        }
-        else
-        {
-            //self.rdf.type = [self.rdf.type, "ddr:ArchivedResource"];
-            self.rdf.type = [self.rdf.type, "ddr:FileVersions"];
-        }
+        self.uri = object.uri;
     }
     else
     {
-        //self.rdf.type = "ddr:ArchivedResource";
-        self.rdf.type = "ddr:FileVersions";
+        self.uri = Config.baseUri + "/fileVersions/" + uuid.v4();
     }
 
-    var now = new Date();
-    if(object.dcterms.created == null)
-    {
-        self.dcterms.created = now.toISOString();
-    }
+    self.copyOrInitDescriptors(object);
+
+    self.rdf.type = "ddr:FileVersions";
+
 
     return self;
 }

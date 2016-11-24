@@ -820,6 +820,7 @@ async.waterfall([
         var datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
         var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
         var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
+        var fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
 
@@ -1312,6 +1313,11 @@ async.waterfall([
         app.post('/posts/shares', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostShares);
         app.get('/posts/loggedUser', async.apply(Permissions.require, [Permissions.acl.user]), posts.getLoggedUser);
         app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.acl.user]), posts.numPostsDatabase);
+
+        //file versions
+        app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.all);
+        app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.numFileVersionsInDatabase);
+        app.get('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.getFileVersion);
 
         //serve angularjs ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,

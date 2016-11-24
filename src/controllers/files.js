@@ -8,8 +8,10 @@ var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var FileVersions = require(Config.absPathInSrcFolder("/models/versions/file_versions.js")).FileVersions;
 var MongoClient = require('mongodb').MongoClient;
+var async = require('async');
 
 var db = function() { return GLOBAL.db.default; }();
+var db_social = function() { return GLOBAL.db.social; }();
 
 exports.download = function(req, res){
     var self = this;
@@ -734,33 +736,89 @@ exports.upload = function(req, res){
                                            {
                                                 console.log(filesInfo);
                                                //TODO check array length-> there is repeated files
-                                               /*
-                                               "filename" : "http://127.0.0.1:3001/project/datanotes2/data/Nielsen[1994].pdf", -> nfo.fileName
-                                               "contentType" : "binary/octet-stream",
-                                               "length" : 259713, -> nie.byteSize
-                                               "chunkSize" : 262144,
-                                               "uploadDate" : ISODate("2015-01-09T20:39:49.050Z"), nie.created
-                                               "metadata" : {
-                                               "project" : "http://127.0.0.1:3001/project/datanotes2",
-                                                   "type" : "nie:File",
-                                                   creator: "user uri of the creator" nco.creator
-                                                },
-                                               "md5" : "b3bbe77e563bd4784c21db08bbc3066a" -> nfo.hashValue*/
-                                               var newFileVersion = new FileVersions({
-                                                   nfo: {
-                                                       fileName: filesInfo.filename,
-                                                       hashValue: filesInfo.md5,
-                                                       hashAlgorithm: 'md5'
-                                                   },
-                                                   nie: {
-                                                       contentLastModified: filesInfo.uploadDate,
-                                                       byteSize: filesInfo.length
+                                               async.map(filesInfo, function (fileInfo, cb) {
+                                                   var newFileVersion = new FileVersions({
+                                                       nfo: {
+                                                           fileName: fileInfo.filename,
+                                                           hashValue: fileInfo.md5,
+                                                           hashAlgorithm: 'md5'
+                                                       },
+                                                       nie: {
+                                                           contentLastModified: fileInfo.uploadDate,
+                                                           byteSize: fileInfo.length
+                                                       },
+                                                       ddr: {
+                                                           contentType: fileInfo.contentType,
+                                                           chunkSize: fileInfo.chunkSize,
+                                                           projectUri: fileInfo.metadata.project,
+                                                           itemType: fileInfo.metadata.type,
+                                                           creatorUri: fileInfo.metadata.creator
+                                                       }
+                                                   });
+
+                                                   newFileVersion.save(function (err, fileVersion) {
+                                                       if(!err)
+                                                       {
+                                                           newFile.generateThumbnails(function(err, result){
+                                                               if(!err)
+                                                               {
+                                                                   /*
+                                                                   res.json({
+                                                                       result : "success",
+                                                                       message : "File submitted successfully. Message returned : " + result,
+                                                                       files : files
+                                                                   });*/
+                                                                   cb(null, result);
+                                                               }
+                                                               else
+                                                               {
+                                                                   /*
+                                                                   res.json({
+                                                                       result : "success",
+                                                                       message : "File submitted successfully. However, there was an error generating the thumbnails: " + result,
+                                                                       files : files
+                                                                   });
+                                                                   */
+                                                                   cb(true, result);
+                                                               }
+                                                           });
+                                                       }
+                                                       else
+                                                       {
+                                                           /*
+                                                           res.status(500).json({
+                                                               result : "error",
+                                                               message : "Error saving file version",
+                                                           });
+                                                           */
+                                                           cb(true, fileVersion);
+                                                       }
+                                                   }, false,null,null,null,null,db_social.graphUri)
+                                               }, function (err, allFilesInfo) {
+                                                   if(!err)
+                                                   {
+                                                       res.json({
+                                                           result : "success",
+                                                           message : "File submitted successfully",
+                                                           files : files
+                                                       });
+                                                   }
+                                                   else
+                                                   {
+                                                       var msg = "Error saving file version";
+                                                       res.status(500).json({
+                                                           result : "error",
+                                                           message : msg,
+                                                       });
                                                    }
                                                });
                                            }
                                            else
                                            {
-                                               
+                                               res.status(500).json({
+                                                   result : "error",
+                                                   message : "Database error",
+                                               });
                                            }
                                        });
                                    }

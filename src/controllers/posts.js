@@ -322,12 +322,6 @@ function pingNewPosts(sessionUser, cb) {
                     //2016-10-11T15:50:24.586Z
                     console.log('socialUpdatedAt from project is: ', socialUpdatedAt);
 
-                    //TODO here introduce code to check file/folder adding
-                    project.getProjectWideFolderFileCreationEvents(function (err, itemChanges) {
-                        console.log('At getProjectWideFolderFileCreationEvents');
-                    });
-                    return;
-
                     project.getRecentProjectWideChangesSocial(function(err, changes){
                     //project.getRecentProjectWideChanges(function(err, changes){
                         //console.log('changes are:', JSON.stringify(changes[1].changes));
@@ -763,11 +757,9 @@ var numPostsDatabaseAux = function (callback) {
             }
             else
             {
-                console.log('DEU ERRO A PROCURAR');
                 callback(true, "Error fetching numPosts in numPostsDatabaseAux");
             }
         });
-
 };
 
 var updateResource = function(currentResource, newResource, graphUri, cb)

@@ -1,0 +1,22 @@
+<div ng-controller="fileVersionsCtrl" ng-init="init()" xmlns="http://www.w3.org/1999/html">
+    <p> This is file versions timeline </p>
+    <p> Number of file versions {{totalFileVersions}} </p>
+
+    {{fileVersions}}
+    <div class="container">
+        <h3>File Versions Timeline</h3>
+        <hr>
+        <ul class="list-group">
+            <div dir-paginate="fileVersionUri in fileVersions | itemsPerPage: fileVersionsPerPage" total-items="totalFileVersions" current-page="pagination.current">
+                <p>Uri is : {{fileVersionUri}}</p>
+            </div>
+        </ul>
+    </div>
+
+    <div>
+        <small>this is in "fileVersionsCtrl"</small>
+        <div class="text-center">
+            <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/bower_components/angularUtils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
+        </div>
+    </div>
+</div>

@@ -5,6 +5,7 @@
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation"><a href="#list" aria-controls="home" role="tab" data-toggle="tab">Projects list</a></li>
         <li role="presentation" class="active"><a href="#timeline" aria-controls="profile" role="tab" data-toggle="tab">Timeline</a></li>
+        <li role="presentation"><a href="#fileVersions" aria-controls="home" role="tab" data-toggle="tab">File versions timeline</a></li>
     </ul>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane" id="list">
@@ -127,6 +128,9 @@
         </div>
         <div role="tabpanel" class="tab-pane active" id="timeline">
             <%- include ../social/timeline.ejs %>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="fileVersions">
+            <%- include ../social/timelineFileVersions.ejs %>
         </div>
 
 </div>

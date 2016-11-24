@@ -652,6 +652,33 @@ Elements.ddr = {
         type : DbConnection.string,
         control : Config.controls.input_box
     },
+    contentType :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    chunkSize :
+    {
+        type : DbConnection.int,
+        control : Config.controls.input_box
+    },
+    projectUri :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
+    itemType :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    creatorUri :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
     fileExtension :
     {
         type : DbConnection.string,
