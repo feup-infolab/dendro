@@ -120,15 +120,15 @@ Folder.prototype.getLogicalParts = function(final_callback)
     });
 };
 
-Folder.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, callback)
+Folder.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback)
 {
     var self = this;
 
-    var saveIntoFolder = function(node, destinationFolderAbsPath, includeMetadata, callback)
+    var saveIntoFolder = function(node, destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback)
     {
         if(node instanceof File)
         {
-            node.saveIntoFolder(destinationFolderAbsPath, includeMetadata, function(err, message)
+            node.saveIntoFolder(destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, function(err, absPathOfFinishedFile)
             {
                 if(!err)
                 {
@@ -138,7 +138,13 @@ Folder.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMeta
                         metadata : descriptors
                     };
 
-                    callback(0, message, fileNode);
+                    if(includeOriginalNodes)
+                        fileNode.original_node = node
+
+                    if(includeTempFilesLocations)
+                        fileNode.temp_location = absPathOfFinishedFile;
+
+                    callback(0, absPathOfFinishedFile, fileNode);
                 }
                 else
                 {
@@ -167,7 +173,7 @@ Folder.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMeta
                             {
                                 var saveChild = function(child, callback)
                                 {
-                                    saveIntoFolder(child, destinationFolder, includeMetadata, function(err, message, childNode){
+                                    saveIntoFolder(child, destinationFolder, includeMetadata, includeTempFilesLocations, includeOriginalNodes, function(err, message, childNode){
                                         if(!err)
                                         {
                                             if(includeMetadata)
@@ -200,17 +206,23 @@ Folder.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMeta
                                         {
                                             var descriptors = node.getDescriptors([Config.types.locked],[Config.types.backuppable]);
 
-                                            var fileOrFolderNode = {
+                                            var folderNode = {
                                                 resource : node.uri,
                                                 metadata : descriptors
                                             };
 
                                             if(childrenNodes != null)
                                             {
-                                                fileOrFolderNode.children = childrenNodes;
+                                                folderNode.children = childrenNodes;
                                             }
 
-                                            callback(null, destinationFolder, fileOrFolderNode);
+                                            if(includeTempFilesLocations)
+                                                folderNode.temp_location = destinationFolder;
+
+                                            if(includeOriginalNodes)
+                                                folderNode.original_node = node
+
+                                            callback(null, destinationFolder, folderNode);
                                         }
                                         else
                                         {
@@ -235,6 +247,9 @@ Folder.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMeta
                                     metadata : node.getDescriptors([Config.types.locked],[Config.types.backuppable]),
                                     children : []
                                 };
+
+                                if(includeOriginalNodes)
+                                    selfMetadata.original_node = node
 
                                 if(includeMetadata)
                                 {
@@ -268,10 +283,10 @@ Folder.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMeta
         }
     };
 
-    saveIntoFolder(self, destinationFolderAbsPath, includeMetadata, callback);
+    saveIntoFolder(self, destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback);
 };
 
-Folder.prototype.createTempFolderWithContents = function(includeMetadata, callback)
+Folder.prototype.createTempFolderWithContents = function(includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback)
 {
     var self = this;
     var fs = require('fs');
@@ -290,7 +305,7 @@ Folder.prototype.createTempFolderWithContents = function(includeMetadata, callba
                 {
                     if(!err)
                     {
-                        self.saveIntoFolder(tempFolderPath, includeMetadata, function(err, pathOfFinishedFolder, metadata)
+                        self.saveIntoFolder(tempFolderPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, function(err, pathOfFinishedFolder, metadata)
                         {
                             callback(0, tempFolderPath, pathOfFinishedFolder, metadata);
                         });
@@ -423,7 +438,7 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
                     self.nie.title = "bagit_backup";
                 }
 
-                self.createTempFolderWithContents(true, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
+                self.createTempFolderWithContents(true, false, false, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
                 {
                     if (!err)
                     {

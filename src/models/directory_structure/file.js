@@ -195,7 +195,7 @@ File.prototype.undelete = function(callback, uriOfUserUnDeletingTheFile)
     }, true, uriOfUserUnDeletingTheFile);
 };
 
-File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, callback)
+File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, includeTempFileLocations, includeOriginalNodes, callback)
 {
     var self = this;
     var fs = require('fs');
@@ -214,7 +214,7 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
             gfs.connection.get(self.uri, writeStream, function(err, result){
                 if(!err)
                 {
-                    callback(0, path);
+                    callback(0, tempFilePath);
                 }
                 else
                 {
