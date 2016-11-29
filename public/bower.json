@@ -62,7 +62,7 @@
     "angular-tree-widget": "feup-infolab-rdm/angular-tree-widget"
   },
   "resolutions": {
-    "angular": "1.5.8",
+    "angular": "1.5.9",
     "async": "2.0.1",
     "bootstrap": "^3.3.6",
     "moment": "^2.12.0",
