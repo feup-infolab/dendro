@@ -27,8 +27,7 @@ var createPackage = function(parentFolderPath, folder, callback){
     var outputFilenameJSON = path.join(parentFolderPath,folder.nie.title + ".json");
 
     var filesToIncludeInPackage = [];
-
-    var absPathToChild;
+    var extraFiles = [];
 
     async.series([
             function(cb)
@@ -80,34 +79,36 @@ var createPackage = function(parentFolderPath, folder, callback){
                 });
 
                 output.on('close', function() {
-                    console.log('done with the zip', folderToZip);
+                    console.log('Done with the zip', folderToZip);
                     filesToIncludeInPackage.push(outputFilenameZip);
+                    extraFiles.push(outputFilenameZip);
 
-                    folder.findMetadataRecursive( function(err, result) {
+                    folder.findMetadataRecursive(function(err, result) {
                         if (!err) {
-
                             var metadataRDF = require(Config.absPathInPublicFolder('js/pretty-data')).pd.xml(Serializers.metadataToRDF(result));
 
-
                             fs.writeFile(outputFilenameRDF, metadataRDF, function(err) {
-
                                 if (!err) {
                                     console.log("The file " + outputFilenameRDF + " was saved!");
                                     filesToIncludeInPackage.push(outputFilenameRDF);
+                                    extraFiles.push(outputFilenameRDF);
 
                                     var metadataTXT = Serializers.metadataToText(result);
 
                                     fs.writeFile(outputFilenameTXT, metadataTXT, function(err) {
-
                                         if (!err) {
                                             console.log("The file " + outputFilenameTXT + " was saved!");
                                             filesToIncludeInPackage.push(outputFilenameTXT);
+                                            extraFiles.push(outputFilenameTXT);
 
                                             var metadataJSON = require(Config.absPathInPublicFolder('js/pretty-data')).pd.json(JSON.stringify(result));
 
                                             fs.writeFile(outputFilenameJSON, metadataJSON, function(err) {
                                                 if (!err) {
                                                     console.log("The file " + outputFilenameJSON  + " was saved!");
+                                                    filesToIncludeInPackage.push(outputFilenameJSON);
+                                                    extraFiles.push(outputFilenameJSON);
+
                                                     cb(null, null);
                                                 } else {
                                                     console.log(err);
@@ -143,7 +144,7 @@ var createPackage = function(parentFolderPath, folder, callback){
         {
             if (!err)
             {
-                callback(err, filesToIncludeInPackage);
+                callback(err, filesToIncludeInPackage, extraFiles);
             }
             else
             {
@@ -297,7 +298,7 @@ export_to_repository_ckan = function(req, res){
             console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
         }
 
-        var createOrUpdateFilesInPackage = function(datasetFolderMetadata, client, callback)
+        var createOrUpdateFilesInPackage = function(datasetFolderMetadata, packageId, client, callback, overwrite, extraFiles)
         {
             var files = [];
             var locations = [];
@@ -327,19 +328,52 @@ export_to_repository_ckan = function(req, res){
 
                 var record =
                 {
-                    absolute_path : location,
+                    absolute_file_path : location,
                     url : targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,
                     package_id : packageId,
                     description: file.dcterms.description || '< no description available >',
-                    name: fileName,
-                    mimetype: Config.mimeTypes[fileExtension],
-                    extension : fileExtension
+                    filename : fileName,
+                    mimetype: Config.mimeType(fileExtension),
+                    extension : fileExtension,
+                    format : fileExtension.toUpperCase(),
+                    overwrite_if_exists : overwrite
                 };
 
                 resources.push(record);
             }
 
-            client.upload_files_into_package(resources, function(err, result){
+            for(var i = 0; i < extraFiles.length; i++)
+            {
+                var location = extraFiles[i];
+
+                var fileExtension = path.extname(location).substr(1);
+                var fileName = path.basename(location);
+
+                var record =
+                {
+                    absolute_file_path : location,
+                    url : targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,
+                    package_id : packageId,
+                    filename : fileName,
+                    mimetype: Config.mimeType(fileExtension),
+                    extension : fileExtension,
+                    format : fileExtension.toUpperCase(),
+                    overwrite_if_exists : overwrite
+                };
+
+                if(Config.exporting.generated_files_metadata[fileExtension] != null)
+                {
+                    record.description = Config.exporting.generated_files_metadata[fileExtension].dcterms.description;
+                }
+                else
+                {
+                    record.description = '< no description available >';
+                }
+
+                resources.push(record);
+            }
+
+            client.upload_files_into_package(resources, packageId, function(err, result){
                 callback(err, result);
             });
         };
@@ -356,6 +390,17 @@ export_to_repository_ckan = function(req, res){
                         if(folder.dcterms.title == null)
                         {
                             var msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
+                            console.error(msg);
+                            res.status(400).json(
+                                {
+                                    "result" : "error",
+                                    "message" : msg
+                                }
+                            );
+                        }
+                        else if(folder.dcterms.description == null)
+                        {
+                            var msg = "Folder " + folder.uri + " has no description! Please set the Description property (from the dcterms metadata schema) and try the exporting process again.";
                             console.error(msg);
                             res.status(400).json(
                                 {
@@ -408,16 +453,16 @@ export_to_repository_ckan = function(req, res){
                                                 if(!err)
                                                 {
                                                     var slug = require('slug');
-                                                    var slugifiedTitle = slug(folder.dcterms.title, "-");
+                                                    //var slugifiedTitle = slug(folder.dcterms.title, "-");
                                                     var packageId = slug(folder.uri, "-");
 
                                                     //ckan only accepts alphanumeric characters and dashes for the dataset ids
-                                                    slugifiedTitle = slugifiedTitle.replace(/[^A-Za-z0-9-]/g, "").replace(/\./g, "").toLowerCase();
+                                                    //slugifiedTitle = slugifiedTitle.replace(/[^A-Za-z0-9-]/g, "").replace(/\./g, "").toLowerCase();
                                                     packageId = packageId.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
 
                                                     folder.createTempFolderWithContents(true, true, true, function(err, parentFolderPath, absolutePathOfFinishedFolder, datasetFolderMetadata){
                                                         if(!err){
-                                                            createPackage(parentFolderPath, folder, function (err, files)
+                                                            createPackage(parentFolderPath, folder, function (err, files, extraFiles)
                                                             {
                                                                 if (!err)
                                                                 {
@@ -465,7 +510,7 @@ export_to_repository_ckan = function(req, res){
                                                                                         {
                                                                                             if (result.success)
                                                                                             {
-                                                                                                createOrUpdateFilesInPackage(datasetFolderMetadata, client, packageId, function (err, response)
+                                                                                                createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function (err, response)
                                                                                                 {
                                                                                                     if (!err)
                                                                                                     {
@@ -494,7 +539,7 @@ export_to_repository_ckan = function(req, res){
 
                                                                                                         deleteFolderRecursive(parentFolderPath);
                                                                                                     }
-                                                                                                });
+                                                                                                }, overwrite, extraFiles);
                                                                                             }
                                                                                             else
                                                                                             {
@@ -529,7 +574,7 @@ export_to_repository_ckan = function(req, res){
                                                                                     {
                                                                                         if (result.success)
                                                                                         {
-                                                                                            createOrUpdateFilesInPackage(datasetFolderMetadata, client, packageId, function(err, response){
+                                                                                            createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function(err, response){
                                                                                                 if(!err)
                                                                                                 {
                                                                                                     var dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
@@ -560,7 +605,7 @@ export_to_repository_ckan = function(req, res){
                                                                                                 }
 
                                                                                                 deleteFolderRecursive(parentFolderPath);
-                                                                                            });
+                                                                                            }, overwrite, extraFiles);
                                                                                         }
                                                                                         else
                                                                                         {
@@ -620,7 +665,7 @@ export_to_repository_ckan = function(req, res){
                                                                         }
                                                                     );
                                                                 }
-                                                            });
+                                                            }, datasetFolderMetadata);
                                                         }
                                                         else
                                                         {

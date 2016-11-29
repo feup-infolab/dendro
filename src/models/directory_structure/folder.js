@@ -120,15 +120,32 @@ Folder.prototype.getLogicalParts = function(final_callback)
     });
 };
 
-Folder.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback)
+Folder.prototype.saveIntoFolder = function(
+    destinationFolderAbsPath,
+    includeMetadata,
+    includeTempFilesLocations,
+    includeOriginalNodes,
+    callback)
 {
     var self = this;
 
-    var saveIntoFolder = function(node, destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback)
+    var saveIntoFolder = function
+        (
+            node,
+            destinationFolderAbsPath,
+            includeMetadata,
+            includeTempFilesLocations,
+            includeOriginalNodes,
+            callback)
     {
         if(node instanceof File)
         {
-            node.saveIntoFolder(destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, function(err, absPathOfFinishedFile)
+            node.saveIntoFolder(
+                destinationFolderAbsPath,
+                includeMetadata,
+                includeTempFilesLocations,
+                includeOriginalNodes,
+                function(err, absPathOfFinishedFile)
             {
                 if(!err)
                 {
@@ -286,7 +303,11 @@ Folder.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMeta
     saveIntoFolder(self, destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback);
 };
 
-Folder.prototype.createTempFolderWithContents = function(includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback)
+Folder.prototype.createTempFolderWithContents = function(
+    includeMetadata,
+    includeTempFilesLocations,
+    includeOriginalNodes,
+    callback)
 {
     var self = this;
     var fs = require('fs');
@@ -305,7 +326,12 @@ Folder.prototype.createTempFolderWithContents = function(includeMetadata, includ
                 {
                     if(!err)
                     {
-                        self.saveIntoFolder(tempFolderPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, function(err, pathOfFinishedFolder, metadata)
+                        self.saveIntoFolder(
+                            tempFolderPath,
+                            includeMetadata,
+                            includeTempFilesLocations,
+                            includeOriginalNodes,
+                            function(err, pathOfFinishedFolder, metadata)
                         {
                             callback(0, tempFolderPath, pathOfFinishedFolder, metadata);
                         });

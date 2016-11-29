@@ -510,8 +510,6 @@ File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata,
     }
 };
 
-File.mimeTypes = Config.mimeTypes;
-
 File.rdfType = "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject";
 
 File.prototype.generateThumbnails = function(callback)

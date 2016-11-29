@@ -37,6 +37,7 @@
     "karma-coverage": "^1.1.1",
     "line-reader": "0.2.3",
     "memcached": "^2.2.2",
+    "mime-types": "^2.1.13",
     "mkpath": "^1.0.0",
     "mocha": "^3.0.2",
     "moment": "2.5.0",
