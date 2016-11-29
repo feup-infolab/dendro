@@ -105,5 +105,10 @@ Utils.valid_url = function(url)
     return regexp.test(url);
 };
 
+if(typeof exports != "undefined")
+{
+    exports.Utils = Utils;
+}
+
 
 

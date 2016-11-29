@@ -33,6 +33,9 @@ var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.j
 
 var async = require('async');
 var util = require('util');
+var multiparty = require('connect-multiparty');
+var multipartyMiddleware = multiparty();
+
 
 var self = this;
 
@@ -963,6 +966,9 @@ async.waterfall([
         app.get('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
         app.post('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
 
+        app.get('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
+        app.post('/projects/import', multipartyMiddleware, async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
+
         app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);
         app.get('/project/:handle/view', projects.show);
         app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);
@@ -1344,29 +1350,29 @@ async.waterfall([
             res.render('errors/404', 404);
         });*/
 
-        // Domain for the server (limits number of requests per second), auto restart after crash in certain cases
-        serverDomain.run(function () {
 
-            http.createServer(function (req, res) {
+        http.createServer(function (req, res) {
 
-                var reqd = domain.create();
-                reqd.add(req);
-                reqd.add(res);
+            var reqd = domain.create();
+            reqd.add(req);
+            reqd.add(res);
 
-                // On error dispose of the domain
-                reqd.on('error', function (error) {
-                    console.error('Error', error.code, error.message, req.url);
-                    console.error('Stack Trace : ', error.stack);
-                    reqd.dispose();
-                });
-
-                // Pass the request to express  
-                app(req, res)
-
-            }).listen(app.get('port'), function() {
-                console.log('Express server listening on port ' + app.get('port'));
+            // On error dispose of the domain
+            reqd.on('error', function (error) {
+                console.error('Error', error.code, error.message, req.url);
+                console.error('Stack Trace : ', error.stack);
+                reqd.dispose();
             });
 
+            // Pass the request to express
+            app(req, res)
+
+        }).listen(app.get('port'), function() {
+            console.log('Express server listening on port ' + app.get('port'));
+        });
+
+        // Domain for the server (limits number of requests per second), auto restart after crash in certain cases
+        serverDomain.run(function () {
         });
 
 

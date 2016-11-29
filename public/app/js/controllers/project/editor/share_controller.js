@@ -52,6 +52,11 @@ angular.module('dendroApp.controllers')
             return regexp.test(url);
         };
 
+        $scope.valid_base_address = function(baseAddress)
+        {
+            return baseAddress != null && $scope.valid_url(baseAddress) && !baseAddress.endsWith("/");
+        }
+
         $scope.valid_organization = function(organization)
         {
             if(organization == null || organization.length == 0)

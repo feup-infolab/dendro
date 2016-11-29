@@ -20,9 +20,12 @@ angular.module('dendroApp', [
         'ui.bootstrap',
         'codemwnci.markdown-edit-preview',
         'angularMoment',
-        'hljs'
+        'hljs',
+        'ngFileUpload',
+        'ngJSONPath',
+        'TreeWidget'
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
-            return $sce.trustAsResourceUrl(val);
+        return $sce.trustAsResourceUrl(val);
     };
 }]);

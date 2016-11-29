@@ -1161,7 +1161,8 @@ Elements.nie = {
         type : DbConnection.date,
         control : Config.controls.input_box,
         private : true,
-        locked : true
+        locked : true,
+        backuppable: true
     }
 };
 

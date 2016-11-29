@@ -7,13 +7,13 @@
     <span ng-show="!new_repository.dcterms.title" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
 
-<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)}">
+<div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_base_address(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_base_address(new_repository.ddr.hasExternalUrl)}">
     <label for="new_ckan_repository_url">External repository address</label>
     <input type="text" ng-model="new_repository.ddr.hasExternalUrl" class="form-control" id="new_ckan_repository_url" placeholder="External repository address" required>
-    <p class="help-block">The base address of the repository you wish to upload to. Example: <a href="http://demo.ckan.org">http://demo.ckan.org</a> .</p>
-    <span ng-show="new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
+    <p class="help-block">The base address of the repository you wish to upload to. Example: <a href="http://demo.ckan.org">http://demo.ckan.org</a> No forwards slashes at the end (/) are allowed.</p>
+    <span ng-show="new_repository.ddr.hasExternalUrl && valid_base_address(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
     <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>
-    <span ng-show="new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
+    <span ng-show="new_repository.ddr.hasExternalUrl && !valid_base_address(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
 </div>
 
 <div class="control-group has-feedback" ng-class="{'has-success' : new_repository.ddr.hasUsername}">

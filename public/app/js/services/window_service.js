@@ -20,6 +20,19 @@ angular.module('dendroApp.services')
                     stack: stack_topright
                 });
             }
+            if(type == "warning")
+            {
+                new PNotify({
+                    title: title,
+                    text: message,
+                    type: 'warning',
+                    opacity: 1.0,
+                    delay: 2000,
+                    addclass: "stack-bar-top",
+                    cornerclass: "",
+                    stack: stack_topright
+                });
+            }
             else if(type == "error")
             {
                 new PNotify({

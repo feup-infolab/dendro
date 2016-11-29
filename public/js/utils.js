@@ -160,3 +160,49 @@ Utils.display_name = function()
     console.log(myName + " not implemented yet.");
 };
 
+Utils.isCyclic = function(obj) {
+    var seenObjects = [];
+
+    function detect (obj) {
+        if (obj && typeof obj === 'object') {
+            if (seenObjects.indexOf(obj) !== -1) {
+                return true;
+            }
+            seenObjects.push(obj);
+            for (var key in obj) {
+                if (obj.hasOwnProperty(key) && detect(obj[key])) {
+                    console.log(obj, 'cycle at ' + key);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    return detect(obj);
+}
+
+Utils.extractEverythingAfterBaseUri = function(url)
+{
+    var URL = require('url');
+    var parsed = URL.parse(url);
+
+    return parsed.pathname;
+}
+
+Utils.replaceBaseUri = function(uri, newBaseUri)
+{
+    var URL = require('url');
+    var relativeResource = Utils.extractEverythingAfterBaseUri(uri);
+    return URL.resolve(newBaseUri, relativeResource);
+}
+
+Utils.copyFromObjectToObject = function(fromObject, toObject)
+{
+    for (var attrname in fromObject) { toObject[attrname] = fromObject[attrname]; }
+}
+
+if(typeof exports != "undefined")
+{
+    exports.Utils = Utils;
+}

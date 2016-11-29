@@ -1,0 +1,36 @@
+<%- include ../../layout/header.ejs %>
+
+<h1 class="page-header">
+    <%=locals.title %>
+</h1>
+
+<link rel="stylesheet" type="text/css" href="/bower_components/angular-tree-widget/dist/angular-tree-widget.min.css">
+
+
+<script type="text/javascript" src="/app/js/controllers/project/import/import_project_controller.js"></script>
+
+<div ng-controller="importProjectCtrl" ng-init="init()">
+    <div class="alert alert-info">
+        This page allows you to import a project produced by another Dendro. We will guide you through the process.
+        <br>
+        Start by uploading a <strong>ZIP file</strong> produced by the "Backup" operation in the projects list of your original Dendro installation.
+    </div>
+
+    <ul class="nav nav-pills">
+        <li ng-class="{ active: stage.upload }"><a href="#" ng-click="switch('upload')">1. Upload Backup ZIP</a></li>
+        <li ng-class="{ active: stage.analyse }"><a href="#" ng-click="switch('analyse')">2. Analyse changes</a></li>
+        <li ng-class="{ active: stage.confirm }"><a href="#" ng-click="switch('confirm')">3. Confirm Import</a></li>
+    </ul>
+
+    <ng-include ng-show="stage.upload" src="'/app/views/projects/import/upload.html'"></ng-include>
+    <ng-include ng-show="stage.analyse" src="'/app/views/projects/import/analyse.html'"></ng-include>
+    <ng-include ng-show="stage.confirm" src="'/app/views/projects/import/confirm.html'"></ng-include>
+
+    <div class="panel-footer" ng-show="stage.upload">
+        Maximum zip file size : <%= locals.maxUploadSize %>.
+        <br>
+        Maximum project size after unzipping : <%= locals.maxProjectSize %>
+    </div>
+</div>
+
+<%- include ../../layout/footer.ejs %>

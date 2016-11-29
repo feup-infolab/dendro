@@ -195,7 +195,7 @@ File.prototype.undelete = function(callback, uriOfUserUnDeletingTheFile)
     }, true, uriOfUserUnDeletingTheFile);
 };
 
-File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, callback)
+File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, includeTempFileLocations, includeOriginalNodes, callback)
 {
     var self = this;
     var fs = require('fs');
@@ -214,7 +214,7 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
             gfs.connection.get(self.uri, writeStream, function(err, result){
                 if(!err)
                 {
-                    callback(0, path);
+                    callback(0, tempFilePath);
                 }
                 else
                 {
@@ -398,6 +398,34 @@ File.prototype.extract_text = function(callback)
     }
 }
 
+File.estimateUnzippedSize = function(pathOfZipFile, callback)
+{
+    var path = require('path');
+    var exec = require('child_process').exec;
+
+    var command = 'unzip -l ' + pathOfZipFile + " | tail -n 1";
+    var parentFolderPath = path.resolve(pathOfZipFile, "..");
+
+
+    exec(command, {cwd : parentFolderPath},  function (error, stdout, stderr) {
+        if(!error)
+        {
+            var regex = new RegExp(" *[0-9]* [0-9]* file[s]?");
+
+            var size = stdout.replace(regex, "");
+            size = size.replace(/ /g, "");
+            size = size.replace(/\n/g, "");
+            console.log("Estimated unzipped file size is " + size);
+            callback(null, Number.parseInt(size));
+
+        } else {
+            var errorMessage = "[INFO] There was an error estimating unzipped file size with command "+ command +". Code Returned by Zip Command " + JSON.stringify(error);
+            console.error(errorMessage);
+            callback(1, errorMessage);
+        }
+    });
+}
+
 /**
  * unzip a file into a directory
  * @param pathOfFile absolute path of file to be unzipped
@@ -481,8 +509,6 @@ File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata,
         callback(1, "Cannot load metadata from an empty node.");
     }
 };
-
-File.mimeTypes = Config.mimeTypes;
 
 File.rdfType = "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject";
 

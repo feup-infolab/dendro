@@ -20,7 +20,7 @@ exports.download = function(req, res){
         {
             if(!err)
             {
-                var mimeType = File.mimeTypes["zip"];
+                var mimeType = Config.mimeType("zip");
                 var fileName = folderToDownload.nie.title + ".zip";
 
                 res.writeHead(200,
@@ -143,15 +143,7 @@ exports.download = function(req, res){
                         File.findByUri(requestedResourceURI, function(err, file){
                             if(!err)
                             {
-                                var mimeType = null;
-                                if(File.mimeTypes.hasOwnProperty(file.ddr.fileExtension))
-                                {
-                                    mimeType = File.mimeTypes[file.ddr.fileExtension];
-                                }
-                                else
-                                {
-                                    mimeType = File.mimeTypes.default;
-                                }
+                                var mimeType = Config.mimeType(file.ddr.fileExtension);;
 
                                 file.writeToTempFile(function(err, writtenFilePath)
                                 {
@@ -255,7 +247,7 @@ exports.serve = function(req, res){
         {
             if(!err)
             {
-                var mimeType = File.mimeTypes["zip"];
+                var mimeType = Config.mimeType("zip");
                 var fileName = folderToDownload.nie.title + ".zip";
 
                 res.writeHead(200,
@@ -343,15 +335,7 @@ exports.serve = function(req, res){
                         File.findByUri(requestedResourceURI, function(err, file){
                             if(!err)
                             {
-                                var mimeType = null;
-                                if(File.mimeTypes.hasOwnProperty(file.ddr.fileExtension))
-                                {
-                                    mimeType = File.mimeTypes[file.ddr.fileExtension];
-                                }
-                                else
-                                {
-                                    mimeType = File.mimeTypes.default;
-                                }
+                                var mimeType = Config.mimeType(file.ddr.fileExtension);
 
                                 file.writeToTempFile(function(err, writtenFilePath)
                                 {
@@ -454,15 +438,7 @@ exports.serve_base64 = function(req, res){
                     File.findByUri(requestedResourceURI, function(err, file){
                         if(!err)
                         {
-                            var mimeType = null;
-                            if(File.mimeTypes.hasOwnProperty(file.ddr.fileExtension))
-                            {
-                                mimeType = File.mimeTypes[file.ddr.fileExtension];
-                            }
-                            else
-                            {
-                                mimeType = File.mimeTypes.default;
-                            }
+                            var mimeType = Config.mimeType(file.ddr.fileExtension);
 
                             file.writeToTempFile(function(err, writtenFilePath)
                             {
@@ -562,15 +538,7 @@ exports.get_thumbnail = function(req, res) {
     File.findByUri(requestedResourceURI, function(err, file){
         if(!err)
         {
-            var mimeType = null;
-            if(File.mimeTypes.hasOwnProperty(file.ddr.fileExtension))
-            {
-                mimeType = File.mimeTypes[file.ddr.fileExtension];
-            }
-            else
-            {
-                mimeType = File.mimeTypes.default;
-            }
+            var mimeType = Config.mimeType(file.ddr.fileExtension);
 
             if(Config.thumbnailableExtensions[file.ddr.fileExtension] != null)
             {
@@ -1290,7 +1258,7 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
     {
         var fileName = path.basename(pathOfIntendedFileRelativeToProjectRoot);
         var extension = path.extname(pathOfIntendedFileRelativeToProjectRoot).replace(".", "");
-        var mimeType = Config.mimeTypes[extension];
+        var mimeType = Config.mimeType(extension);
         var absPathOfFileToServe = Config.absPathInPublicFolder(pathOfIntendedFileRelativeToProjectRoot);
 
         fs.exists(absPathOfFileToServe, function(exists){
@@ -1369,15 +1337,7 @@ exports.data = function(req, res){
     File.findByUri(resourceURI, function(err, file){
         if(!err)
         {
-            var mimeType = null;
-            if(File.mimeTypes.hasOwnProperty(file.ddr.fileExtension))
-            {
-                mimeType = File.mimeTypes[file.ddr.fileExtension];
-            }
-            else
-            {
-                mimeType = File.mimeTypes.default;
-            }
+            var mimeType = Config.mimeType(file.ddr.fileExtension);
 
             file.writeToTempFile(function(err, writtenFilePath)
             {

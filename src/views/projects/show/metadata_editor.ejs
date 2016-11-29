@@ -112,29 +112,27 @@
                 <div class="row">
                     <ng-include src="'/app/views/projects/show/partials/controls/descriptor_toolbar.html'"></ng-include>
                 </div>
-                <div class="row">
-                    <div ng-switch="descriptor.control">
-                        <div ng-switch-when="combo_box">
-                            <ng-include src="'/app/views/projects/show/partials/controls/combo_box.html'"></ng-include>
-                        </div>
-                        <div ng-switch-when="regex_checking_input_box">
-                            <ng-include src="'/app/views/projects/show/partials/controls/regex_checking_input_box.html'"></ng-include>
-                        </div>
-                        <div ng-switch-when="input_box">
-                            <ng-include src="'/app/views/projects/show/partials/controls/input_box.html'"></ng-include>
-                        </div>
-                        <div ng-switch-when="date_picker">
-                            <ng-include src="'/app/views/projects/show/partials/controls/date_picker.html'"></ng-include>
-                        </div>
-                        <div ng-switch-when="map">
-                            <ng-include src="'/app/views/projects/show/partials/controls/map.html'"></ng-include>
-                        </div>
-                        <div ng-switch-when="markdown_box">
-                            <ng-include src="'/app/views/projects/show/partials/controls/markdown_box.html'"></ng-include>
-                        </div>
-                        <div ng-switch-when="url_box">
-                            <ng-include src="'/app/views/projects/show/partials/controls/url_box.html'"></ng-include>
-                        </div>
+                <div ng-switch="descriptor.control">
+                    <div ng-switch-when="combo_box">
+                        <ng-include src="'/app/views/projects/show/partials/controls/combo_box.html'"></ng-include>
+                    </div>
+                    <div ng-switch-when="regex_checking_input_box">
+                        <ng-include src="'/app/views/projects/show/partials/controls/regex_checking_input_box.html'"></ng-include>
+                    </div>
+                    <div ng-switch-when="input_box">
+                        <ng-include src="'/app/views/projects/show/partials/controls/input_box.html'"></ng-include>
+                    </div>
+                    <div ng-switch-when="date_picker">
+                        <ng-include src="'/app/views/projects/show/partials/controls/date_picker.html'"></ng-include>
+                    </div>
+                    <div ng-switch-when="map">
+                        <ng-include src="'/app/views/projects/show/partials/controls/map.html'"></ng-include>
+                    </div>
+                    <div ng-switch-when="markdown_box">
+                        <ng-include src="'/app/views/projects/show/partials/controls/markdown_box.html'"></ng-include>
+                    </div>
+                    <div ng-switch-when="url_box">
+                        <ng-include src="'/app/views/projects/show/partials/controls/url_box.html'"></ng-include>
                     </div>
                 </div>
                 <p/>
