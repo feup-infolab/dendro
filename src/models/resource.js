@@ -1436,8 +1436,6 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri)
                 }
                 else
                 {
-                    
-
                     getFromTripleStore(uri, function(err, object)
                     {
                         saveToCache(uri, object);
