@@ -12,12 +12,14 @@ Config.initGlobals();
 
 var express = require('express'),
     domain = require('domain'),
-    serverDomain = domain.create(),
     flash = require('connect-flash'),
     http = require('http'),
     path = require('path');
     fs = require('fs');
     morgan = require('morgan');
+    Q = require('q');
+
+var bootupPromise = Q.defer();
 
 var app = express();
 
@@ -29,7 +31,6 @@ var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/
 var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 var async = require('async');
 var util = require('util');
@@ -1379,23 +1380,22 @@ async.waterfall([
 
         }).listen(app.get('port'), function() {
             console.log('Express server listening on port ' + app.get('port'));
+            bootupPromise.resolve(app);
         });
 
-        // Domain for the server (limits number of requests per second), auto restart after crash in certain cases
-        serverDomain.run(function () {
-        });
-
-
-        setInterval(function () {
-            var pretty = require('prettysize');
-
-            if(Config.debug.diagnostics.ram_usage_reports)
+        if(Config.debug.diagnostics.ram_usage_reports)
+        {
+            setInterval(function ()
             {
+                var pretty = require('prettysize');
                 console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
-            }
-            if (typeof gc === 'function') {
-                gc();
-            }
-        }, 2000);
+                if (typeof gc === 'function')
+                {
+                    gc();
+                }
+            }, 2000);
+        }
     }
 ]);
+
+exports.bootup = bootupPromise.promise;

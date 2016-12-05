@@ -6,10 +6,18 @@ function Config (){}
 
 var fs = require('fs');
 var path = require('path');
-var appDir = path.resolve(path.dirname(require.main.filename), "..");
 
-var configs_file_path = path.join(appDir, "conf", "deployment_configs.json");
-var active_config_file_path = path.join(appDir, "conf", "active_deployment_config.json");
+if(process.env.NODE_ENV == 'test')
+{
+    Config.appDir = path.resolve(path.dirname(require.main.filename), "../../..");
+}
+else
+{
+    Config.appDir = path.resolve(path.dirname(require.main.filename), "..");
+}
+
+var configs_file_path = path.join(Config.appDir, "conf", "deployment_configs.json");
+var active_config_file_path = path.join(Config.appDir, "conf", "active_deployment_config.json");
 
 var configs = JSON.parse(fs.readFileSync(configs_file_path, 'utf8'));
 var active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
@@ -429,23 +437,19 @@ Config.systemOrHiddenFilesRegexes = getConfigParameter("systemOrHiddenFilesRegex
 
 Config.absPathInSrcFolder = function(relativePath)
 {
-    var path = require('path'),
-        appDir = path.dirname(require.main.filename);
-
-    return path.join(appDir, relativePath);
+    var path = require('path');
+    return path.join(Config.appDir, "src", relativePath);
 };
 
 Config.absPathInApp = function(relativePath)
 {
-    var path = require('path'),
-        appFolderPath = path.resolve(path.dirname(require.main.filename), "..");
-
-    return path.join(appFolderPath, relativePath);
+    var path = require('path');
+    return path.join(Config.appDir, relativePath);
 };
 
 Config.getPathToPublicFolder = function()
 {
-    return path.join(path.resolve(path.dirname(require.main.filename), '..'), "public");
+    return path.join(Config.appDir, "public");
 };
 
 Config.absPathInPublicFolder = function(relativePath)
