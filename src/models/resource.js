@@ -484,25 +484,25 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
     }
 
     var query =
-        " SELECT DISTINCT ?uri ?value ?label ?comment \n"+
-        " FROM [0] \n"+
-        fromString + "\n" +
-        " WHERE \n" +
-        " { \n"+
-        " [1] ?uri ?value .\n" +
-        " OPTIONAL \n" +
-        "{  \n" +
-        "?uri    rdfs:label  ?label .\n " +
-        "FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
-        "} .\n" +
-        " OPTIONAL " +
-        "{  \n" +
-        "?uri  rdfs:comment   ?comment. \n" +
-        "FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
-        "} .\n" +
-
-        filterString +
-        " } \n";
+            " SELECT DISTINCT ?uri ?value ?label ?comment \n"+
+            " FROM [0] \n"+
+            fromString + "\n" +
+            " WHERE \n" +
+            " { \n"+
+                " [1] ?uri ?value .\n" +
+                " OPTIONAL \n" +
+                "{  \n" +
+                    "?uri    rdfs:label  ?label .\n " +
+                    "FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
+                 "} .\n" +
+                " OPTIONAL " +
+                "{  \n" +
+                    "?uri  rdfs:comment   ?comment. \n" +
+                    "FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
+                "} .\n" +
+            
+                filterString +
+            " } \n";
 
     db.connection.execute(query,
         argumentsArray,

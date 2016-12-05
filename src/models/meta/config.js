@@ -89,6 +89,9 @@ Config.logging = getConfigParameter("logging");
 //load version description
 Config.version = getConfigParameter("version");
 
+//secrets
+Config.crypto = getConfigParameter("crypto");
+
 //load recommendation settings
 Config.recommendation = getConfigParameter("recommendation");
 Config.recommendation.getTargetTable = function()
