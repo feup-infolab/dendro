@@ -346,6 +346,111 @@ Resource.prototype.clearOutgoingPropertiesFromOntologies = function(ontologyURIs
  * @param customGraphUri
  */
 
+Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, callback, customGraphUri)
+{
+    var self = this;
+
+    var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
+
+    //build arguments string from the requested ontologies,
+    // as well as the FROM string with the parameter placeholders
+    var argumentsArray = [
+        {
+            type : DbConnection.resourceNoEscape,
+            value : graphUri
+        },
+        {
+            type : DbConnection.resource,
+            value : self.uri
+        }
+    ];
+
+    var fromString = "";
+    var filterString = "";
+
+    if(ontologyURIsArray != null)
+    {
+        var fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(ontologyURIsArray, argumentsArray.length);
+        filterString = DbConnection.buildFilterStringForOntologies(ontologyURIsArray, "uri");
+
+        argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
+        fromString = fromString + fromElements.fromString;
+    }
+
+    var query =
+        " SELECT DISTINCT ?uri ?value ?label ?comment \n"+
+        " FROM [0] \n"+
+        fromString + "\n" +
+        " WHERE \n" +
+        " { \n"+
+        " [1] ?uri ?value .\n" +
+        " OPTIONAL \n" +
+        "{  \n" +
+        "?uri    rdfs:label  ?label .\n " +
+        "FILTER (lang(?label) = \"\" || lang(?label) = \"en\")" +
+        "} .\n" +
+        " OPTIONAL " +
+        "{  \n" +
+        "?uri  rdfs:comment   ?comment. \n" +
+        "FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
+        "} .\n" +
+
+        filterString +
+        " } \n";
+
+    db.connection.execute(query,
+        argumentsArray,
+        function(err, descriptors) {
+            if(!err)
+            {
+                var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+                for (var i = 0; i < descriptors.length; i++)
+                {
+                    var descriptor = new Descriptor(descriptors[i]);
+                    var prefix = descriptor.prefix;
+                    var shortName = descriptor.shortName;
+                    if (prefix != null && shortName != null)
+                    {
+                        if (self[prefix] == null)
+                        {
+                            self[prefix] = {};
+                        }
+
+                        if (self[prefix][shortName] != null)
+                        {
+                            //if there is already a value for this object, put it in an array
+                            if (!(self[prefix][shortName] instanceof Array))
+                            {
+                                self[prefix][shortName] = [self[prefix][shortName]];
+
+                            }
+
+                            self[prefix][shortName].push(descriptor.value);
+                        }
+                        else
+                        {
+                            self[prefix][shortName] = descriptor.value;
+                        }
+                    }
+                }
+
+                callback(null, self);
+            }
+            else
+            {
+                console.error("Error fetching descriptors from ontologies : "+ JSON.stringify(ontologyURIsArray)+ ". Error returned : " + descriptors);
+                callback(1, descriptors);
+            }
+        });
+}
+
+/**
+ * Retrieves properties of this resource object as array of descriptors
+ * @param ontologyURIsArray
+ * @param callback
+ * @param customGraphUri
+ */
+
 Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, callback, customGraphUri)
 {
     var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
@@ -395,7 +500,7 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
                     "?uri  rdfs:comment   ?comment. \n" +
                     "FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
                 "} .\n" +
-
+            
                 filterString +
             " } \n";
 
@@ -1282,29 +1387,30 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
  * @param callback callback function
  */
 
-Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri)
+Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri, skipCache)
 {
     var self = this;
-
     var getFromCache = function (uri, callback)
     {
         redis.connection.get(uri, function(err, result)
         {
-            var resource = Object.create(self.prototype);
-            //initialize all ontology namespaces in the new object as blank objects
-            // if they are not already present
-
-            resource.uri = uri;
-
             if (!err)
             {
                 if (result != null)
                 {
+                    var resource = Object.create(self.prototype);
+
+                    resource.uri = uri;
+
+                    //initialize all ontology namespaces in the new object as blank objects
+                    // if they are not already present
+                    resource.copyOrInitDescriptors(result);
+
                     callback(err, result);
                 }
                 else
                 {
-                    callback(null)
+                    callback(null, null);
                 }
             }
             else
@@ -1342,74 +1448,55 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri)
             uri = uri.uri;
         }
 
-        var resource = Object.create(self.prototype);
-        //initialize all ontology namespaces in the new object as blank objects
-        // if they are not already present
-        resource.copyOrInitDescriptors(self);
-
-        resource.uri = uri;
-
-        var ontologiesArray;
-
         if (allowedGraphsArray != null && allowedGraphsArray instanceof Array)
         {
-            ontologiesArray = allowedGraphsArray;
+            var ontologiesArray = allowedGraphsArray;
         }
         else
         {
-            ontologiesArray = Ontology.getAllOntologiesUris();
+            var ontologiesArray = Ontology.getAllOntologiesUris();
         }
 
-
-        resource.getPropertiesFromOntologies(ontologiesArray, function (err, descriptors)
-        {
-            if (!err)
+        Resource.exists(uri, function(err, exists){
+            if(!err)
             {
-                if (descriptors.length == 0)
+                if(exists)
                 {
-                    callback(null, null);
+                    var resource = Object.create(self.prototype);
+                    //initialize all ontology namespaces in the new object as blank objects
+                    // if they are not already present
+
+                    resource.uri = uri;
+
+                    resource.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject)
+                    {
+                        if (!err)
+                        {
+                            resource.baseConstructor(loadedObject);
+                            callback(null, resource);
+                        }
+                        else
+                        {
+                            var msg = "Error " + resource + " while trying to retrieve resource with uri " + uri + " from triple store.";
+                            console.error(msg);
+                            callback(1, msg);
+                        }
+                    });
                 }
                 else
                 {
-                    for (var i = 0; i < descriptors.length; i++)
-                    {
-                        var descriptor = descriptors[i];
-                        var prefix = descriptor.prefix;
-                        var shortName = descriptor.shortName;
-                        if (prefix != null && shortName != null)
-                        {
-                            if (resource[prefix] == null)
-                            {
-                                resource[prefix] = {};
-                            }
-
-                            if (resource[prefix][shortName] != null)
-                            {
-                                //if there is already a value for this object, put it in an array
-                                if (!(resource[prefix][shortName] instanceof Array))
-                                {
-                                    resource[prefix][shortName] = [resource[prefix][shortName]];
-
-                                }
-
-                                resource[prefix][shortName].push(descriptor.value);
-                            }
-                            else
-                            {
-                                resource[prefix][shortName] = descriptor.value;
-                            }
-                        }
-                    }
-
-                    callback(null, resource);
+                    var msg = uri + " does not exist in Dendro.";
+                    console.log(msg);
+                    callback(0, null);
                 }
             }
             else
             {
-                var msg = "Error occurred retrieving value of " + uri + " from triple store : " + JSON.stringify(err) + "\n"  + JSON.stringify(descriptors);
+                var msg = "Error " + exists + " while trying to check existence of resource with uri " + uri + " from triple store.";
+                console.error(msg);
                 callback(1, msg);
             }
-        }, customGraphUri);
+        });
     };
 
 
@@ -1436,12 +1523,19 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri)
                 }
                 else
                 {
-                    
-
                     getFromTripleStore(uri, function(err, object)
                     {
-                        saveToCache(uri, object);
-                        cb(err, object);
+                        if(!err)
+                        {
+                            saveToCache(uri, object);
+                            cb(err, object);
+                        }
+                        else
+                        {
+                            var msg = "Unable to get resource with uri " + uri + " from triple store."
+                            console.error(msg);
+                            console.error(err);
+                        }
                     });
                 }
             }
@@ -1872,8 +1966,6 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
 
     if(descriptorToCheck instanceof Descriptor)
     {
-        //TODO CACHE DONE
-
         var checkInTripleStore = function(callback)
         {
             var query =
@@ -1930,7 +2022,10 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
            {
                var namespace = descriptorToCheck.getNamespacePrefix();
                var element = descriptorToCheck.getShortName();
-               if(cachedDescriptor[namespace][element] != null && cachedDescriptor[namespace][element] === value)
+               if(
+                   cachedDescriptor[namespace] != null &&
+                   cachedDescriptor[namespace][element] != null &&
+                   cachedDescriptor[namespace][element] === value)
                {
                    callback(null, true);
                }
@@ -2580,6 +2675,44 @@ Resource.arrayToCSVFile = function(resourceArray, fileName, callback)
          }); */
     });
 };
+
+Resource.exists = function(uri, callback, customGraphUri)
+{
+    var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
+
+    db.connection.execute(
+        "WITH [0]\n"+
+        "ASK \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   {\n" +
+        "       [1] ?p ?o. \n" +
+        "   }\n" +
+        "} \n",
+
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : uri
+            }
+        ],
+        function(err, result) {
+            if(!err)
+            {
+                callback(null, result);
+            }
+            else
+            {
+                var msg = "Error checking for the existence of resource with uri : " + uri;
+                console.error(msg);
+                callback(err, msg);
+            }
+        });
+}
 
 Resource = Class.extend(Resource, Class);
 

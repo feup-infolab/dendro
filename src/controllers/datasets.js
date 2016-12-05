@@ -572,7 +572,7 @@ export_to_repository_ckan = function(req, res){
                                                                                     packageContents[0],
                                                                                     function (response, result)
                                                                                     {
-                                                                                        if (result.success)
+                                                                                        if(result.success)
                                                                                         {
                                                                                             createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function(err, response){
                                                                                                 if(!err)
