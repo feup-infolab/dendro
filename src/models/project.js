@@ -1145,7 +1145,7 @@ Project.privacy = function (projectUri, callback) {
                 }
                 else
                 {
-                    callback(null, "http://dendro.fe.up.pt/ontology/0.1/privateStatus");
+                    callback(null, null);
                 }
             }
         }

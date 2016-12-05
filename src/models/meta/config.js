@@ -454,7 +454,6 @@ Config.absPathInPublicFolder = function(relativePath)
 };
 
 
-
 /**
  * Thumbnail Generation
  */
