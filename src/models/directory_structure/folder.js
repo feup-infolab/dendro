@@ -366,7 +366,7 @@ Folder.prototype.createTempFolderWithContents = function(
 Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptions)
 {
     var self = this;
-    self.createTempFolderWithContents(includeMetadata, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
+    self.createTempFolderWithContents(includeMetadata, false, false, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
     {
         if(!err)
         {

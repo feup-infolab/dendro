@@ -275,7 +275,8 @@ async.waterfall([
     function(callback) {
 
         var redisConn = new RedisConnection(
-            Config.cache.redis.options
+            Config.cache.redis.options,
+            Config.cache.redis.database_number
         );
 
         GLOBAL.redis.default.connection = redisConn;
@@ -292,10 +293,19 @@ async.waterfall([
                 {
                     console.log("[OK] Connected to Redis cache service at " + Config.cache.redis.options.host + ":" + Config.cache.redis.options.port);
 
-                    //set default connection. If you want to add other connections, add them in succession.
 
-
-                    callback(null);
+                    redisConn.deleteAll(function(err, result){
+                        if(!err)
+                        {
+                            console.log("[INFO] Deleted all cache records during bootup.");
+                            callback(null);
+                        }
+                        else
+                        {
+                            console.log("[ERROR] Unable to delete all cache records during bootup");
+                            process.exit(1);
+                        }
+                    });
                 }
             });
         }
@@ -1033,7 +1043,7 @@ async.waterfall([
 
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?$/,
-            async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]),
+            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
@@ -1135,7 +1145,7 @@ async.waterfall([
         //      files and folders (data)
         //      downloads
         app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]),
+            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
