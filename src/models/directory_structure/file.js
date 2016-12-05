@@ -195,7 +195,7 @@ File.prototype.undelete = function(callback, uriOfUserUnDeletingTheFile)
     }, true, uriOfUserUnDeletingTheFile);
 };
 
-File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, callback)
+File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, includeTempFileLocations, includeOriginalNodes, callback)
 {
     var self = this;
     var fs = require('fs');
@@ -214,7 +214,7 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
             gfs.connection.get(self.uri, writeStream, function(err, result){
                 if(!err)
                 {
-                    callback(0, path);
+                    callback(0, tempFilePath);
                 }
                 else
                 {
@@ -509,8 +509,6 @@ File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata,
         callback(1, "Cannot load metadata from an empty node.");
     }
 };
-
-File.mimeTypes = Config.mimeTypes;
 
 File.rdfType = "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject";
 
