@@ -1,4 +1,4 @@
-var Config = Object.create(require("./config.js").Config);
+var Config = function() { return GLOBAL.Config; }();
 
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;

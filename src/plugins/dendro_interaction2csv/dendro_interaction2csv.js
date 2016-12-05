@@ -1,7 +1,6 @@
 var path = require('path');
 
-var Config = require("../../models/meta/config.js").Config;
-var Config = require(path.join(path.dirname(require.main.filename), "models", "meta", "config.js")).Config;
+var Config = function() { return GLOBAL.Config; }();
 var Class = require(path.join(path.dirname(require.main.filename), "models", "meta", "class.js")).Class;
 var Plugin = require(path.join(path.dirname(require.main.filename), "plugins", "plugin.js")).Plugin;
 var Permissions = require(path.join(path.dirname(require.main.filename), "models", "meta", "permissions.js")).Permissions;

@@ -1,6 +1,6 @@
 //DCTerms ontology : "http://purl.org/dc/elements/1.1/"
 
-var Config = require("../meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;

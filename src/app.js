@@ -3,7 +3,7 @@
  *
  * @type {Function}
  */
-var Config = Object.create(require("./models/meta/config.js").Config);
+var Config = GLOBAL.Config = Object.create(require("./models/meta/config.js").Config);
 Config.initGlobals();
 
 /**

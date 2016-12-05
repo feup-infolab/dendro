@@ -1,7 +1,7 @@
 var path = require('path');
 var async = require('async');
 
-var Config = require(path.join(path.dirname(require.main.filename), "models", "meta", "config.js")).Config;
+var Config = function() { return GLOBAL.Config; }();
 var Permissions = require(path.join(path.dirname(require.main.filename), "models", "meta", "permissions.js")).Permissions;
 var PluginManager = require(path.join(Config.getAbsolutePathToPluginsFolder(), "plugin_manager.js")).PluginManager;
 

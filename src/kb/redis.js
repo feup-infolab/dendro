@@ -1,6 +1,6 @@
 var util = require('util');
 var redis = require('redis');
-var Config = require("../models/meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var colors = require('colors');
 
 function RedisConnection (options, databaseNumber)

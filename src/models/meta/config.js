@@ -437,13 +437,11 @@ Config.systemOrHiddenFilesRegexes = getConfigParameter("systemOrHiddenFilesRegex
 
 Config.absPathInSrcFolder = function(relativePath)
 {
-    var path = require('path');
     return path.join(Config.appDir, "src", relativePath);
 };
 
 Config.absPathInApp = function(relativePath)
 {
-    var path = require('path');
     return path.join(Config.appDir, relativePath);
 };
 
@@ -454,10 +452,7 @@ Config.getPathToPublicFolder = function()
 
 Config.absPathInPublicFolder = function(relativePath)
 {
-    var path = require('path'),
-        publicFolderPath = Config.getPathToPublicFolder();
-
-    return path.join(publicFolderPath, relativePath);
+    return path.join(Config.getPathToPublicFolder(), relativePath);
 };
 
 
@@ -547,9 +542,7 @@ Config.metadataContentTypes ={
 Config.getAbsolutePathToPluginsFolder = function()
 {
     var path = require('path');
-    var applicationRootFolder = path.dirname(require.main.filename);
-
-    return path.join(applicationRootFolder, Config.plugins.folderName);
+    return path.join(Config.appDir, "src", Config.plugins.folderName);
 };
 
 Config.theme = getConfigParameter("theme");

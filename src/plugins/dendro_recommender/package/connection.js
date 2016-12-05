@@ -1,6 +1,6 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-var Config = require("../integration/config.json");
+var Config = function() { return GLOBAL.Config; }();
 
 function Connection ()
 {

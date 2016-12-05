@@ -1,4 +1,4 @@
-var Config = require('../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
