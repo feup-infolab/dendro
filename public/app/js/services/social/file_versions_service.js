@@ -31,12 +31,13 @@ angular.module('dendroApp.services')
         this.getFileVersion = function (fileVersionUri)
         {
             var requestUri = "/fileVersions/fileVersion";
+
             var params = {
                 fileVersionUri : fileVersionUri
             };
 
             return $http({
-                method: 'GET',
+                method: 'POST',
                 url: requestUri,
                 data: params,
                 contentType: "application/json",
@@ -44,5 +45,39 @@ angular.module('dendroApp.services')
             });
         };
 
+        this.like_file_version = function (fileVersionUri)
+        {
+            console.log('at service.likeVersion');
+            var requestUri = "/fileVersions/like";
+
+            var params = {
+                fileVersionUri : fileVersionUri
+            };
+
+            return $http({
+                method: 'POST',
+                url: requestUri,
+                data: params,
+                contentType: "application/json",
+                headers: {'Accept': "aplication/json"}
+            });
+        }
+
+
+        this.fileVersionLikesInfo = function(fileVersionUri)
+        {
+            var requestUri = "/fileVersions/fileVersion/likesInfo";
+            var params = {
+                fileVersionUri : fileVersionUri
+            };
+
+            return $http({
+                method: 'POST',
+                url: requestUri,
+                data: params,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        };
 
     }]);

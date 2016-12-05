@@ -697,6 +697,7 @@ exports.upload = function(req, res){
     else if (req.originalMethod == "POST")
     {
         var requestedResourceURI = req.params.requestedResource;
+        var currentUserUri = req.session.user.uri;
 
         var processFiles = function()
         {
@@ -737,6 +738,7 @@ exports.upload = function(req, res){
                                                 console.log(filesInfo);
                                                //TODO check array length-> there is repeated files
                                                async.map(filesInfo, function (fileInfo, cb) {
+                                                   console.log('FileinfoFromMongo: ', fileInfo);
                                                    var newFileVersion = new FileVersions({
                                                        nfo: {
                                                            fileName: fileInfo.filename,
@@ -752,7 +754,7 @@ exports.upload = function(req, res){
                                                            chunkSize: fileInfo.chunkSize,
                                                            projectUri: fileInfo.metadata.project,
                                                            itemType: fileInfo.metadata.type,
-                                                           creatorUri: fileInfo.metadata.creator
+                                                           creatorUri: currentUserUri
                                                        }
                                                    });
 

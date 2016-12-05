@@ -7,8 +7,54 @@
         <h3>File Versions Timeline</h3>
         <hr>
         <ul class="list-group">
-            <div dir-paginate="fileVersionUri in fileVersions | itemsPerPage: fileVersionsPerPage" total-items="totalFileVersions" current-page="pagination.current">
-                <p>Uri is : {{fileVersionUri}}</p>
+            <div dir-paginate="fVersion in fileVersions | itemsPerPage: fileVersionsPerPage" total-items="totalFileVersions" current-page="pagination.current">
+                <div ng-init="getFileVersion(fVersion.fileVersion);fileVersionLikesInfo(fVersion.fileVersion);">
+                    <!--<p> Author : {{fileVersionsList[fVersion.fileVersion].ddr.creatorUri}}</p>
+                    <p>Change type : add </p>
+                    <p>Item type : {{fileVersionsList[fVersion.fileVersion].ddr.itemType}} </p>
+                    <p>Link : {{fileVersionsList[fVersion.fileVersion].uri}}</p>
+                    <hr>-->
+                    <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+                    <table class="table changelog-table">
+                        <tr>
+                            <th width="14%">
+
+                            </th>
+                            <th width="14%" class="table-centertext">
+                                Author
+                            </th>
+                            <th width="14%">
+                                Change Type
+                            </th>
+                            <th width="14%">
+                                Item Type
+                            </th>
+                            <th width="14%">
+                                Link
+                            </th>
+
+                            <th width="14%">
+
+                            </th>
+                        </tr>
+
+                        <tr>
+                            <td> </td>
+                            <td> {{fileVersionsList[fVersion.fileVersion].ddr.creatorUri}} </td>
+                            <td> add </td>
+                            <td> {{fileVersionsList[fVersion.fileVersion].ddr.itemType}} </td>
+                            <td> {{fileVersionsList[fVersion.fileVersion].uri}} </td>
+                            <td> </td>
+                        </tr>
+                    </table>
+                </div>
+                <p> {{likesFileVersionInfo[fVersion.fileVersion].numLikes}} likes, n comments, n shares</p>
+                <div class="btn-group">
+                    <!--indexOf(substring) > -1-->
+                    <label ng-model="checkModel.left" class="btn btn-primary" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="like_file_version(fVersion.fileVersion)">Like</label>
+                    <!--<label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; getCommentsFromPost(postList[postURI.uri].uri);isShareFormOpen = false;">Comment</label>
+                    <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen; getSharesFromPost(postList[postURI.uri].uri);isReplyFormOpen = false;">Share</label>-->
+                </div>
             </div>
         </ul>
     </div>

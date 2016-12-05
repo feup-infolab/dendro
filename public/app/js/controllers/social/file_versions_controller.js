@@ -30,6 +30,36 @@ angular.module('dendroApp.controllers')
                 });
         };
 
+        $scope.like_file_version = function (fileVersionUri) {
+            console.log('at scope.likeVersion');
+            $scope.liking_file_version = true;
+            fileVersionsService.like_file_version(fileVersionUri)
+                .then(function (response) {
+                    console.log('likeVersion response is:');
+                    console.log(response);
+                    $scope.fileVersionLikesInfo(fileVersionUri);
+                    $scope.liking_file_version = false;
+                })
+                .catch(function (error) {
+                    console.error("Error Liking FileVersion " + JSON.stringify(error));
+                    $scope.liking_file_version = false;
+                });
+        };
+
+        $scope.fileVersionLikesInfo = function (fileVersionUri) {
+            $scope.doing_fileVersionLikesInfo = true;
+
+            fileVersionsService.fileVersionLikesInfo(fileVersionUri).then(function (response) {
+                $scope.doing_fileVersionLikesInfo = false;
+                $scope.likesFileVersionInfo[fileVersionUri] = response.data;
+                return response.data;
+            }).catch(function (error) {
+                console.error("Error at file_versions_controller fileVersionLikesInfo" + JSON.stringify(error));
+                $scope.doing_fileVersionLikesInfo = false;
+                return false;
+            });
+        };
+
         //TODO change this to a user controller
         $scope.get_logged_user = function () {
 
@@ -60,6 +90,7 @@ angular.module('dendroApp.controllers')
             $scope.shareList = [];
             $scope.likedFileVersions = [];
             $scope.fileVersionsList = [];
+            $scope.likesFileVersionInfo = [];
             $scope.countNumFileVersions();
             $scope.get_all_file_versions($scope.pagination.current);
         };
