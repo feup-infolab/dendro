@@ -1,9 +1,9 @@
 var path = require('path');
 
 var Config = function() { return GLOBAL.Config; }();
-var Class = require(path.join(path.dirname(require.main.filename), "models", "meta", "class.js")).Class;
-var Plugin = require(path.join(path.dirname(require.main.filename), "plugins", "plugin.js")).Plugin;
-var Permissions = require(path.join(path.dirname(require.main.filename), "models", "meta", "permissions.js")).Permissions;
+var Class = require(Config.absPathInSrcFolder("models/meta/class.js")).Class;
+var Plugin = require(Config.absPathInSrcFolder("plugins/plugin.js")).Plugin;
+var Permissions = require(Config.absPathInSrcFolder("models/meta/permissions.js")).Permissions;
 
 var DendroInteraction2CSV = function()
 {

@@ -7,65 +7,12 @@
     <list default="true" id="37a74947-2fdb-4da4-b1fb-85b8b233ca6b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app.js" afterPath="$PROJECT_DIR$/src/app.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/admin.js" afterPath="$PROJECT_DIR$/src/controllers/admin.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/auth.js" afterPath="$PROJECT_DIR$/src/controllers/auth.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/datasets.js" afterPath="$PROJECT_DIR$/src/controllers/datasets.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/descriptors.js" afterPath="$PROJECT_DIR$/src/controllers/descriptors.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/dr_recommendation.js" afterPath="$PROJECT_DIR$/src/controllers/dr_recommendation.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/evaluation.js" afterPath="$PROJECT_DIR$/src/controllers/evaluation.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/files.js" afterPath="$PROJECT_DIR$/src/controllers/files.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/interactions.js" afterPath="$PROJECT_DIR$/src/controllers/interactions.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/no_recommendation.js" afterPath="$PROJECT_DIR$/src/controllers/no_recommendation.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/ontologies.js" afterPath="$PROJECT_DIR$/src/controllers/ontologies.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/posts.js" afterPath="$PROJECT_DIR$/src/controllers/posts.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/projects.js" afterPath="$PROJECT_DIR$/src/controllers/projects.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/records.js" afterPath="$PROJECT_DIR$/src/controllers/records.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/repo_bookmarks.js" afterPath="$PROJECT_DIR$/src/controllers/repo_bookmarks.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/research_domains.js" afterPath="$PROJECT_DIR$/src/controllers/research_domains.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/sparql.js" afterPath="$PROJECT_DIR$/src/controllers/sparql.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/standalone_recommendation.js" afterPath="$PROJECT_DIR$/src/controllers/standalone_recommendation.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/users.js" afterPath="$PROJECT_DIR$/src/controllers/users.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/vertexes.js" afterPath="$PROJECT_DIR$/src/controllers/vertexes.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/export_libs/b2share/b2share.js" afterPath="$PROJECT_DIR$/src/export_libs/b2share/b2share.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kb/db.js" afterPath="$PROJECT_DIR$/src/kb/db.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kb/index.js" afterPath="$PROJECT_DIR$/src/kb/index.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kb/loaders/dryad/dryad_loader.js" afterPath="$PROJECT_DIR$/src/kb/loaders/dryad/dryad_loader.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/kb/redis.js" afterPath="$PROJECT_DIR$/src/kb/redis.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/directory_structure/file.js" afterPath="$PROJECT_DIR$/src/models/directory_structure/file.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/directory_structure/folder.js" afterPath="$PROJECT_DIR$/src/models/directory_structure/folder.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/directory_structure/information_element.js" afterPath="$PROJECT_DIR$/src/models/directory_structure/information_element.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/harvesting/external_repository.js" afterPath="$PROJECT_DIR$/src/models/harvesting/external_repository.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/harvesting/harvested_resource.js" afterPath="$PROJECT_DIR$/src/models/harvesting/harvested_resource.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/harvesting/repo_platform.js" afterPath="$PROJECT_DIR$/src/models/harvesting/repo_platform.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/config.js" afterPath="$PROJECT_DIR$/src/models/meta/config.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/descriptor.js" afterPath="$PROJECT_DIR$/src/models/meta/descriptor.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/elements.js" afterPath="$PROJECT_DIR$/src/models/meta/elements.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/ontology.js" afterPath="$PROJECT_DIR$/src/models/meta/ontology.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/permissions.js" afterPath="$PROJECT_DIR$/src/models/meta/permissions.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/research_domain.js" afterPath="$PROJECT_DIR$/src/models/meta/research_domain.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/project.js" afterPath="$PROJECT_DIR$/src/models/project.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/recommendation/interaction.js" afterPath="$PROJECT_DIR$/src/models/recommendation/interaction.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/resource.js" afterPath="$PROJECT_DIR$/src/models/resource.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/social/comment.js" afterPath="$PROJECT_DIR$/src/models/social/comment.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/social/event.js" afterPath="$PROJECT_DIR$/src/models/social/event.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/social/post.js" afterPath="$PROJECT_DIR$/src/models/social/post.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/user.js" afterPath="$PROJECT_DIR$/src/models/user.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/versions/archived_resource.js" afterPath="$PROJECT_DIR$/src/models/versions/archived_resource.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/versions/change.js" afterPath="$PROJECT_DIR$/src/models/versions/change.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/dendro_interaction2csv.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/dendro_interaction2csv.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/integration/setup.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/integration/setup.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/package/controllers/csv_generator.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/package/controllers/csv_generator.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/package/models/interaction_analyser.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/package/models/interaction_analyser.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_recommender/dendro_recommender.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_recommender/dendro_recommender.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_recommender/integration/setup.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_recommender/integration/setup.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/connection.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/connection.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/controllers/interactions.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/controllers/interactions.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/descriptor_mapper.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/descriptor_mapper.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/interaction_mapper.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/interaction_mapper.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/user_mapper.js" afterPath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/user_mapper.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/plugin.js" afterPath="$PROJECT_DIR$/src/plugins/plugin.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/plugin_manager.js" afterPath="$PROJECT_DIR$/src/plugins/plugin_manager.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/scratch_pad/recommendation/recommendation_selfcontained.js" afterPath="$PROJECT_DIR$/src/scratch_pad/recommendation/recommendation_selfcontained.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test/homepage.Test.js" afterPath="$PROJECT_DIR$/test/homepage.Test.js" />
     </list>
     <ignored path="dendro.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -86,21 +33,21 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="user.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/models/user.js">
+      <file leaf-file-name="resource.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/models/resource.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="1" column="60" selection-start-line="1" selection-start-column="60" selection-end-line="1" selection-end-column="68" />
+            <state relative-caret-position="22920">
+              <caret line="1528" column="25" selection-start-line="1528" selection-start-column="25" selection-end-line="1528" selection-end-column="25" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="dendro_interaction2csv.js" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/plugins/dendro_interaction2csv/dendro_interaction2csv.js">
+      <file leaf-file-name="plugin_manager.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/plugins/plugin_manager.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="117" selection-start-line="5" selection-start-column="117" selection-end-line="5" selection-end-column="117" />
+            <state relative-caret-position="348">
+              <caret line="50" column="45" selection-start-line="50" selection-start-column="45" selection-end-line="50" selection-end-column="45" />
               <folding />
             </state>
           </provider>
@@ -109,8 +56,28 @@
       <file leaf-file-name="config.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="165">
-              <caret line="11" column="3" selection-start-line="11" selection-start-column="3" selection-end-line="11" selection-end-column="3" />
+            <state relative-caret-position="135">
+              <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="34" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="db.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/kb/db.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="525">
+              <caret line="35" column="26" selection-start-line="35" selection-start-column="26" selection-end-line="35" selection-end-column="26" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="plugin.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/plugins/plugin.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="157">
+              <caret line="71" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -119,68 +86,48 @@
       <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="93">
-              <caret line="773" column="57" selection-start-line="773" selection-start-column="57" selection-end-line="773" selection-end-column="57" />
+            <state relative-caret-position="99">
+              <caret line="1395" column="11" selection-start-line="1395" selection-start-column="11" selection-end-line="1395" selection-end-column="11" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="elements.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/models/meta/elements.js">
+      <file leaf-file-name="setup.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/integration/setup.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="45">
-              <caret line="3" column="7" selection-start-line="3" selection-start-column="7" selection-end-line="3" selection-end-column="7" />
+            <state relative-caret-position="210">
+              <caret line="14" column="33" selection-start-line="14" selection-start-column="33" selection-end-line="14" selection-end-column="33" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="resource.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/models/resource.js">
+      <file leaf-file-name="dendro_recommender.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/dendro_recommender.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="94">
-              <caret line="396" column="83" selection-start-line="396" selection-start-column="0" selection-end-line="396" selection-end-column="0" />
+            <state relative-caret-position="113">
+              <caret line="32" column="3" selection-start-line="32" selection-start-column="3" selection-end-line="32" selection-end-column="3" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="admin.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/controllers/admin.js">
+      <file leaf-file-name="homepage.Test.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/test/homepage.Test.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="203">
+              <caret line="17" column="80" selection-start-line="17" selection-start-column="79" selection-end-line="17" selection-end-column="79" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="interactions.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/package/controllers/interactions.js">
+      <file leaf-file-name="user.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/models/user.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" column="51" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="auth.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/controllers/auth.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="datasets.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/controllers/datasets.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+            <state relative-caret-position="17535">
+              <caret line="1169" column="37" selection-start-line="1169" selection-start-column="37" selection-end-line="1169" selection-end-column="37" />
               <folding />
             </state>
           </provider>
@@ -199,8 +146,6 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/src/views/projects/show/metadata_editor.ejs" />
-        <option value="$PROJECT_DIR$/src/views/projects/show/metadata_viewer.ejs" />
         <option value="$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/input_box.html" />
         <option value="$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/url_box.html" />
         <option value="$PROJECT_DIR$/public/js/utils.js" />
@@ -214,14 +159,12 @@
         <option value="$PROJECT_DIR$/test/routes/homepage.Test.js" />
         <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/test/index.js" />
-        <option value="$PROJECT_DIR$/test/homepage.Test.js" />
         <option value="$PROJECT_DIR$/src/models/meta/research_domain.js" />
         <option value="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/interaction_mapper.js" />
         <option value="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/descriptor_mapper.js" />
         <option value="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/user_mapper.js" />
         <option value="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/package/models/interaction_analyser.js" />
         <option value="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/package/controllers/csv_generator.js" />
-        <option value="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/integration/setup.js" />
         <option value="$PROJECT_DIR$/src/controllers/vertexes.js" />
         <option value="$PROJECT_DIR$/src/controllers/users.js" />
         <option value="$PROJECT_DIR$/src/controllers/evaluation.js" />
@@ -246,10 +189,14 @@
         <option value="$PROJECT_DIR$/src/kb/loaders/dryad/dryad_loader.js" />
         <option value="$PROJECT_DIR$/src/models/project.js" />
         <option value="$PROJECT_DIR$/src/controllers/auth.js" />
-        <option value="$PROJECT_DIR$/src/app.js" />
-        <option value="$PROJECT_DIR$/src/models/meta/config.js" />
         <option value="$PROJECT_DIR$/src/models/user.js" />
         <option value="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/dendro_interaction2csv.js" />
+        <option value="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/integration/setup.js" />
+        <option value="$PROJECT_DIR$/src/plugins/plugin.js" />
+        <option value="$PROJECT_DIR$/src/plugins/dendro_recommender/integration/setup.js" />
+        <option value="$PROJECT_DIR$/src/models/meta/config.js" />
+        <option value="$PROJECT_DIR$/src/app.js" />
+        <option value="$PROJECT_DIR$/test/homepage.Test.js" />
       </list>
     </option>
   </component>
@@ -346,6 +293,24 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="plugins" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -482,7 +447,7 @@
       <pass-parent-env>true</pass-parent-env>
       <envs />
       <ui>bdd</ui>
-      <extra-mocha-options />
+      <extra-mocha-options>--timeout 15000</extra-mocha-options>
       <test-kind>TEST_FILE</test-kind>
       <test-file>$PROJECT_DIR$/test/index.js</test-file>
       <method />
@@ -534,44 +499,45 @@
       <workItem from="1480440366105" duration="117000" />
       <workItem from="1480441361772" duration="146000" />
       <workItem from="1480518972155" duration="3000" />
-      <workItem from="1480956559158" duration="10827000" />
+      <workItem from="1480956559158" duration="12908000" />
+      <workItem from="1480977185739" duration="2903000" />
     </task>
     <servers />
   </component>
   <component name="TestHistory">
-    <history-entry file="Run_Tests - 2016.12.05 at 20h 10m 43s.xml">
+    <history-entry file="Run_Tests - 2016.12.06 at 14h 10m 47s.xml">
       <configuration name="Run Tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="Run_Tests - 2016.12.05 at 20h 12m 11s.xml">
+    <history-entry file="Run_Tests - 2016.12.06 at 14h 10m 49s.xml">
       <configuration name="Run Tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="Run_Tests - 2016.12.05 at 20h 14m 04s.xml">
+    <history-entry file="Run_Tests - 2016.12.06 at 14h 11m 00s.xml">
       <configuration name="Run Tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="Run_Tests - 2016.12.05 at 20h 16m 02s.xml">
+    <history-entry file="Run_Tests - 2016.12.06 at 14h 11m 05s.xml">
       <configuration name="Run Tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="Run_Tests - 2016.12.05 at 20h 17m 08s.xml">
+    <history-entry file="Run_Tests - 2016.12.06 at 14h 12m 00s.xml">
       <configuration name="Run Tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="Run_Tests - 2016.12.05 at 20h 19m 14s.xml">
+    <history-entry file="Run_Tests - 2016.12.06 at 14h 12m 02s.xml">
       <configuration name="Run Tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="Run_Tests - 2016.12.05 at 20h 20m 30s.xml">
+    <history-entry file="Run_Tests - 2016.12.06 at 14h 12m 52s.xml">
       <configuration name="Run Tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="Run_Tests - 2016.12.05 at 20h 21m 42s.xml">
+    <history-entry file="Run_Tests - 2016.12.06 at 14h 15m 13s.xml">
       <configuration name="Run Tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="Run_Tests - 2016.12.05 at 20h 22m 46s.xml">
+    <history-entry file="Run_Tests - 2016.12.06 at 14h 15m 16s.xml">
       <configuration name="Run Tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
-    <history-entry file="Run_Tests - 2016.12.05 at 20h 22m 58s.xml">
+    <history-entry file="Run_Tests - 2016.12.06 at 14h 15m 24s.xml">
       <configuration name="Run Tests" configurationId="mocha-javascript-test-runner" />
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="161134000" />
+    <option name="totallyTimeSpent" value="166118000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -589,14 +555,14 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19379845" sideWeight="0.5972603" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3271523" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3271523" sideWeight="0.5081043" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25960264" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25827813" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19379845" sideWeight="0.40273973" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296582" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.6357616" sideWeight="0.48062015" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38278145" sideWeight="0.48062015" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24947146" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3271523" sideWeight="0.4918957" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26004228" sideWeight="0.50554675" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5152318" sideWeight="0.48625794" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5139073" sideWeight="0.48625794" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -611,17 +577,17 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3271523" sideWeight="0.5081043" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
-      <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19379845" sideWeight="0.40273973" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19379845" sideWeight="0.40273973" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3296582" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.6357616" sideWeight="0.48062015" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38278145" sideWeight="0.48062015" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3271523" sideWeight="0.4918957" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.19379845" sideWeight="0.5972603" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19379845" sideWeight="0.5972603" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25960264" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25827813" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24947146" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26004228" sideWeight="0.50554675" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.51655626" sideWeight="0.48625794" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5139073" sideWeight="0.48625794" order="3" side_tool="false" content_ui="tabs" />
     </layout-to-restore>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -659,16 +625,16 @@
           <option name="timeStamp" value="450" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/src/models/user.js</url>
-          <line>1</line>
+          <url>file://$PROJECT_DIR$/test/homepage.Test.js</url>
+          <line>17</line>
           <properties />
-          <option name="timeStamp" value="547" />
+          <option name="timeStamp" value="556" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="548" />
+      <option name="time" value="557" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="NodeJSConfigurationType">
@@ -687,59 +653,18 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls/markdown_box.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="90">
-          <caret line="6" column="36" selection-start-line="6" selection-start-column="36" selection-end-line="6" selection-end-column="36" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/conf/deployment_configs.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
-          <caret line="13" column="43" selection-start-line="13" selection-start-column="43" selection-end-line="13" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/markdown_box.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="4" selection-end-column="194" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/map.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="17" selection-start-line="20" selection-start-column="17" selection-end-line="20" selection-end-column="17" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/input_box.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="420">
           <caret line="28" column="43" selection-start-line="28" selection-start-column="43" selection-end-line="28" selection-end-column="43" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/test/mock_test.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" column="4" selection-start-line="5" selection-start-column="0" selection-end-line="23" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/test/mock_test.js" />
     <entry file="file://$PROJECT_DIR$/.travis.yml">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
           <caret line="2" column="26" selection-start-line="2" selection-start-column="10" selection-end-line="2" selection-end-column="10" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -747,7 +672,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
           <caret line="9" column="19" selection-start-line="9" selection-start-column="19" selection-end-line="9" selection-end-column="19" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -755,7 +679,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="30" selection-start-line="0" selection-start-column="30" selection-end-line="0" selection-end-column="30" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -763,23 +686,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="194">
           <caret line="254" column="90" selection-start-line="254" selection-start-column="25" selection-end-line="254" selection-end-column="25" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/test/homepage.Test.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" column="107" selection-start-line="21" selection-start-column="11" selection-end-line="21" selection-end-column="11" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/plugins/plugin_manager.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="57" selection-start-line="12" selection-start-column="57" selection-end-line="12" selection-end-column="57" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -787,7 +693,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="145">
           <caret line="836" column="31" selection-start-line="836" selection-start-column="31" selection-end-line="836" selection-end-column="31" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -795,7 +700,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
           <caret line="2" column="0" selection-start-line="2" selection-start-column="0" selection-end-line="2" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -827,7 +731,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -839,19 +742,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/plugins/dendro_interaction2csv/integration/setup.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="60">
-          <caret line="4" column="0" selection-start-line="4" selection-start-column="0" selection-end-line="4" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/controllers/vertexes.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -859,7 +753,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -915,7 +808,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -923,7 +815,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -931,7 +822,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -939,7 +829,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="60">
           <caret line="4" column="52" selection-start-line="4" selection-start-column="52" selection-end-line="4" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -955,7 +844,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
           <caret line="2" column="52" selection-start-line="2" selection-start-column="52" selection-end-line="2" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -963,7 +851,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -979,7 +866,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
           <caret line="2" column="52" selection-start-line="2" selection-start-column="52" selection-end-line="2" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -987,15 +873,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kb/db.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="52" selection-start-line="1" selection-start-column="52" selection-end-line="1" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1003,7 +880,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1027,7 +903,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1035,7 +910,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1047,50 +921,110 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/plugins/dendro_interaction2csv/dendro_interaction2csv.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="75">
+          <caret line="5" column="65" selection-start-line="5" selection-start-column="65" selection-end-line="5" selection-end-column="65" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/plugins/dendro_interaction2csv/integration/setup.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/models/meta/elements.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="45">
           <caret line="3" column="7" selection-start-line="3" selection-start-column="7" selection-end-line="3" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/kb/db.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="525">
+          <caret line="35" column="26" selection-start-line="35" selection-start-column="26" selection-end-line="35" selection-end-column="26" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/app.js">
+    <entry file="file://$PROJECT_DIR$/node_modules/expect/node_modules/is-equal/html/shimmed.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="93">
-          <caret line="773" column="57" selection-start-line="773" selection-start-column="57" selection-end-line="773" selection-end-column="57" />
+        <state relative-caret-position="242">
+          <caret line="14198" column="0" selection-start-line="14198" selection-start-column="0" selection-end-line="14198" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/user.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17535">
+          <caret line="1169" column="37" selection-start-line="1169" selection-start-column="37" selection-end-line="1169" selection-end-column="37" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/models/resource.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="94">
-          <caret line="396" column="83" selection-start-line="396" selection-start-column="0" selection-end-line="396" selection-end-column="0" />
+        <state relative-caret-position="22920">
+          <caret line="1528" column="25" selection-start-line="1528" selection-start-column="25" selection-end-line="1528" selection-end-column="25" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/plugins/plugin.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="157">
+          <caret line="71" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/plugins/plugin_manager.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="348">
+          <caret line="50" column="45" selection-start-line="50" selection-start-column="45" selection-end-line="50" selection-end-column="45" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/dendro_recommender.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="113">
+          <caret line="32" column="3" selection-start-line="32" selection-start-column="3" selection-end-line="32" selection-end-column="3" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="165">
-          <caret line="11" column="3" selection-start-line="11" selection-start-column="3" selection-end-line="11" selection-end-column="3" />
+        <state relative-caret-position="135">
+          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="34" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/user.js">
+    <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/integration/setup.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="60" selection-start-line="1" selection-start-column="60" selection-end-line="1" selection-end-column="68" />
+        <state relative-caret-position="210">
+          <caret line="14" column="33" selection-start-line="14" selection-start-column="33" selection-end-line="14" selection-end-column="33" />
           <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/plugins/dendro_interaction2csv/dendro_interaction2csv.js">
+    <entry file="file://$PROJECT_DIR$/src/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="75">
-          <caret line="5" column="117" selection-start-line="5" selection-start-column="117" selection-end-line="5" selection-end-column="117" />
+        <state relative-caret-position="99">
+          <caret line="1395" column="11" selection-start-line="1395" selection-start-column="11" selection-end-line="1395" selection-end-column="11" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/test/homepage.Test.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="203">
+          <caret line="17" column="80" selection-start-line="17" selection-start-column="79" selection-end-line="17" selection-end-column="79" />
           <folding />
         </state>
       </provider>

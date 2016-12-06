@@ -1362,7 +1362,7 @@ async.waterfall([
         });*/
 
 
-        http.createServer(function (req, res) {
+        var server = http.createServer(function (req, res) {
 
             var reqd = domain.create();
             reqd.add(req);
@@ -1378,10 +1378,23 @@ async.waterfall([
             // Pass the request to express
             app(req, res)
 
-        }).listen(app.get('port'), function() {
-            console.log('Express server listening on port ' + app.get('port'));
-            bootupPromise.resolve(app);
         });
+
+        //dont start server twice (for testing)
+        //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
+
+        if(process.env.NODE_ENV != 'test')
+        {
+            server.listen(app.get('port'), function() {
+                console.log('Express server listening on port ' + app.get('port'));
+                bootupPromise.resolve(app);
+            });
+        }
+        else
+        {
+            console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
+            bootupPromise.resolve(app);
+        }
 
         if(Config.debug.diagnostics.ram_usage_reports)
         {

@@ -435,6 +435,17 @@ Backup and restore
 Config.packageMetadataFileName = "metadata.json";
 Config.systemOrHiddenFilesRegexes = getConfigParameter("systemOrHiddenFilesRegexes");
 
+Config.getAbsolutePathToPluginsFolder = function()
+{
+    var path = require('path');
+    return path.join(Config.appDir, "src", Config.plugins.folderName);
+};
+
+Config.absPathInPluginsFolder = function(relativePath)
+{
+    return path.join(Config.getAbsolutePathToPluginsFolder(), relativePath);
+};
+
 Config.absPathInSrcFolder = function(relativePath)
 {
     return path.join(Config.appDir, "src", relativePath);
@@ -537,12 +548,6 @@ Config.metadataContentTypes ={
     "application/rdf" : "text/xml",
     "application/xml" : "text/xml",
     "application/json" : "text/json"
-};
-
-Config.getAbsolutePathToPluginsFolder = function()
-{
-    var path = require('path');
-    return path.join(Config.appDir, "src", Config.plugins.folderName);
 };
 
 Config.theme = getConfigParameter("theme");
