@@ -3,7 +3,7 @@ angular.module('dendroApp.controllers')
      *  Project administration controller
      *  Project administration controller
      */
-    .controller('fileVersionsCtrl', function ($scope, $http, $filter, fileVersionsService, $window)
+    .controller('fileVersionsCtrl', function ($scope, $http, $filter, fileVersionsService, timelineService, $window)
     {
 
         $scope.fileVersions = [];
@@ -150,6 +150,24 @@ angular.module('dendroApp.controllers')
                 });
         };
 
+        $scope.get_logged_user = function () {
+
+            $scope.doing_get_logged_user = true;
+
+            timelineService.get_logged_user()
+                .then(function(response)
+                {
+                    //$scope.show_popup(response.data.message);
+                    $scope.loggedUser = response.data.uri;
+
+                    $scope.doing_get_logged_user = false;
+                })
+                .catch(function(error){
+                    console.error("Error getting logged in user" + JSON.stringify(error));
+                    $scope.doing_get_logged_user = false;
+                });
+        };
+
         $scope.getFileVersion = function (fileVersionUri) {
             fileVersionsService.getFileVersion(fileVersionUri)
                 .then(function (response) {
@@ -163,5 +181,74 @@ angular.module('dendroApp.controllers')
         $scope.pageChangeHandler = function(num) {
             $scope.get_all_file_versions(num);
             $window.scrollTo(0, 0);//to scroll up to the top on page change
+        };
+
+
+        $scope.getCommentsFromFileVersion = function (fileVersionUri) {
+
+            $scope.doing_getCommentsFromFileVersion = true;
+
+            timelineService.getCommentsFromPost(fileVersionUri)
+                .then(function(response)
+                {
+                    $scope.show_popup(response.data);
+                    $scope.commentList[fileVersionUri] = response.data;
+                    $scope.doing_getCommentsFromFileVersion = false;
+                })
+                .catch(function(error){
+                    console.error("Error getting comments from a FileVersion" + JSON.stringify(error));
+                    $scope.doing_getCommentsFromFileVersion = false;
+                });
+        };
+
+        $scope.commentFileVersion = function (fileVersionUri, commentMsg) {
+
+            $scope.doing_commentFileVersion = true;
+
+            fileVersionsService.commentFileVersion(fileVersionUri, commentMsg)
+                .then(function(response)
+                {
+                    $scope.show_popup(response.data.message);
+
+                    $scope.getCommentsFromFileVersion(fileVersionUri);
+                    $scope.doing_commentFileVersion = false;
+                })
+                .catch(function(error){
+                    console.error("Error commenting a fileVersion" + JSON.stringify(error));
+                    $scope.doing_commentFileVersion = false;
+                });
+        };
+
+        $scope.shareFileVersion = function (fileVersionUri, shareMsg) {
+            $scope.doing_shareFileVersion = true;
+
+            fileVersionsService.shareFileVersion(fileVersionUri, shareMsg)
+                .then(function(response)
+                {
+                    $scope.show_popup(response.data.message);
+                    $scope.get_all_file_versions($scope.pagination.current);//TODO remove this function call???
+                    $scope.doing_shareFileVersion = false;
+                })
+                .catch(function(error){
+                    console.error("Error sharing a FileVersion" + JSON.stringify(error));
+                    $scope.doing_shareFileVersion = false;
+                });
+        };
+
+        $scope.getSharesFromFileVersion = function (fileVersionUri) {
+
+            $scope.doing_getSharesFromFileVersion = true;
+
+            fileVersionsService.getSharesFromFileVersion(fileVersionUri)
+                .then(function(response)
+                {
+                    $scope.show_popup(response.data);
+                    $scope.shareList[fileVersionUri] = response.data;
+                    $scope.doing_getSharesFromFileVersion = false;
+                })
+                .catch(function(error){
+                    console.error("Error getting shares from a fileVersion" + JSON.stringify(error));
+                    $scope.doing_getSharesFromFileVersion = false;
+                });
         };
     });

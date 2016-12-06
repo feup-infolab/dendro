@@ -1321,7 +1321,8 @@ async.waterfall([
         app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.like);
         app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.comment);
         app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.share);
-        app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.fileVersionLikesInfo)
+        app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.fileVersionLikesInfo);
+        app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.getFileVersionShares);
 
         //serve angularjs ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,

@@ -1,4 +1,4 @@
-<div ng-controller="fileVersionsCtrl" ng-init="init()" xmlns="http://www.w3.org/1999/html">
+<div ng-controller="fileVersionsCtrl" ng-init="init(); get_logged_user();" xmlns="http://www.w3.org/1999/html">
     <p> This is file versions timeline </p>
     <p> Number of file versions {{totalFileVersions}} </p>
 
@@ -8,12 +8,11 @@
         <hr>
         <ul class="list-group">
             <div dir-paginate="fVersion in fileVersions | itemsPerPage: fileVersionsPerPage" total-items="totalFileVersions" current-page="pagination.current">
-                <div ng-init="getFileVersion(fVersion.fileVersion);fileVersionLikesInfo(fVersion.fileVersion);">
-                    <!--<p> Author : {{fileVersionsList[fVersion.fileVersion].ddr.creatorUri}}</p>
-                    <p>Change type : add </p>
-                    <p>Item type : {{fileVersionsList[fVersion.fileVersion].ddr.itemType}} </p>
-                    <p>Link : {{fileVersionsList[fVersion.fileVersion].uri}}</p>
-                    <hr>-->
+                <div ng-init="getFileVersion(fVersion.fileVersion);fileVersionLikesInfo(fVersion.fileVersion);getCommentsFromFileVersion(fVersion.fileVersion);getSharesFromFileVersion(fVersion.fileVersion)">
+                    data : {{fileVersionsList[fVersion.fileVersion]}}
+                    <div ng-if="fileVersionsList[fVersion.fileVersion].rdf.isShare">
+                        <p>Found a share </p>
+                    </div>
                     <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
                     <table class="table changelog-table">
                         <tr>
@@ -34,6 +33,10 @@
                             </th>
 
                             <th width="14%">
+                                Name
+                            </th>
+
+                            <th width="14%">
 
                             </th>
                         </tr>
@@ -44,17 +47,40 @@
                             <td> add </td>
                             <td> {{fileVersionsList[fVersion.fileVersion].ddr.itemType}} </td>
                             <td> {{fileVersionsList[fVersion.fileVersion].uri}} </td>
+                            <td> {{fileVersionsList[fVersion.fileVersion].nfo.fileName}} </td>
                             <td> </td>
                         </tr>
                     </table>
                 </div>
-                <p> {{likesFileVersionInfo[fVersion.fileVersion].numLikes}} likes, n comments, n shares</p>
+                <p> {{likesFileVersionInfo[fVersion.fileVersion].numLikes}} likes, {{commentList[fVersion.fileVersion].length}} comments, {{shareList[fVersion.fileVersion].length}} shares</p>
                 <div class="btn-group">
                     <!--indexOf(substring) > -1-->
-                    <label ng-model="checkModel.left" class="btn btn-primary" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="like_file_version(fVersion.fileVersion)">Like</label>
-                    <!--<label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; getCommentsFromPost(postList[postURI.uri].uri);isShareFormOpen = false;">Comment</label>
-                    <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen; getSharesFromPost(postList[postURI.uri].uri);isReplyFormOpen = false;">Share</label>-->
+                    <label ng-model="checkModel.left" ng-class="likesFileVersionInfo[fVersion.fileVersion].usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="like_file_version(fVersion.fileVersion)">Like</label>
+                    <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="isReplyFormOpen = !isReplyFormOpen; getCommentsFromFileVersion(fVersion.fileVersion);isShareFormOpen = false;">Comment</label>
+                    <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="isShareFormOpen = !isShareFormOpen; getSharesFromFileVersion(fVersion.fileVersion);isReplyFormOpen = false;">Share</label>
                 </div>
+                <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
+                    <div class="wall">
+                        <div ng-repeat="comment in commentList[fVersion.fileVersion] | orderBy: 'dcterms.created'">
+                            <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
+                            <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
+                            <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+                            <hr>
+                        </div>
+                        <label for="new_comment_box">{{loggedUser.split('/').pop()}} :</label>
+                        <input ng-model="comment_content" type="text" id="new_comment_box"/>
+                        <a ng-click="commentFileVersion(fVersion.fileVersion,comment_content)" class="btn btn-default btn-primary">Enviar</a>
+                    </div>
+                </div>
+
+                <div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare">
+                    <div class="wall">
+                        <label for="new_fileVersion_box_share">Insira uma share message:</label>
+                        <input ng-model="share_content" type="text" id="new_fileVersion_box_share"/>
+                        <a ng-click="shareFileVersion(fVersion.fileVersion,share_content)" class="btn btn-default btn-primary">Enviar shareMessage</a>
+                    </div>
+                </div>
+
             </div>
         </ul>
     </div>

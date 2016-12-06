@@ -80,4 +80,56 @@ angular.module('dendroApp.services')
             });
         };
 
+        this.commentFileVersion = function (fileVersionUri, commentMsg) {
+            var requestUri = "/fileVersions/comment";
+
+            var params = {
+                fileVersionUri : fileVersionUri,
+                commentMsg: commentMsg
+            };
+
+            return $http({
+                method: 'POST',
+                url: requestUri,
+                data: params,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
+        this.shareFileVersion = function(fileVersionUri, shareMsg)
+        {
+            var requestUri = "/fileVersions/share";
+
+            var params = {
+                fileVersionUri : fileVersionUri,
+                shareMsg: shareMsg
+            };
+
+            return $http({
+                method: 'POST',
+                url: requestUri,
+                data: params,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        }
+
+        this.getSharesFromFileVersion = function(fileVersionUri)
+        {
+            var requestUri = "/fileVersions/shares";
+
+            var params = {
+                fileVersionUri : fileVersionUri
+            };
+
+            return $http({
+                method: 'POST',
+                url: requestUri,
+                data: params,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        }
+
     }]);

@@ -24,6 +24,18 @@ function Share (object)
     self.rdf.isShare = true;
 
 
+
+    var objectType;
+    if(object.ddr.postURI)
+    {
+        console.log('is postURI')
+        objectType = "ddr:Post";
+    }
+    else if(object.ddr.fileVersionUri){
+        console.log('is fileVersionURI');
+        objectType = "ddr:FileVersions";
+    }
+
     if(object.uri != null)
     {
         self.uri = object.uri;
@@ -36,7 +48,8 @@ function Share (object)
     var descriptor = new Descriptor ({
         prefixedForm : "rdf:type",
         type : DbConnection.prefixedResource,
-        value : "ddr:Post"
+        //value : "ddr:Post"
+        value : objectType
     });
 
     /*var newAdminDescriptor = new Descriptor({

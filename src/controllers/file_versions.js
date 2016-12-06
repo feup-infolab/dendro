@@ -97,7 +97,7 @@ var getProjectFileVersions = function (projectsUri, startingResultPosition, maxR
             "WITH [0] \n" +
             "SELECT DISTINCT ?fileVersion \n" +
             "WHERE { \n" +
-            "?fileVersion nie:contentLastModified ?date. \n" +
+            "{?fileVersion nie:contentLastModified ?date} UNION {?fileVersion dcterms:modified ?date} \n" +
             "?fileVersion rdf:type ddr:FileVersions. \n" +
             "} \n "+
             "ORDER BY DESC(?date) \n";
@@ -121,6 +121,7 @@ var getProjectFileVersions = function (projectsUri, startingResultPosition, maxR
                 {
                     if(results.length > 0)
                     {
+                        console.log('results at fileVersions')
                         console.log(results);
                     }
                     callback(err,results);
@@ -437,9 +438,155 @@ var removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) {
 };
 
 exports.comment = function (req, res) {
-    
+    var currentUser = req.session.user;
+    var fileVersionUri = req.body.fileVersionUri;
+    var commentMsg = req.body.commentMsg;
+    FileVersion.findByUri(fileVersionUri, function(err, fileVersion)
+    {
+        var newComment = new Comment({
+            ddr: {
+                userWhoCommented : currentUser.uri,
+                postURI: fileVersion.uri,
+                commentMsg: commentMsg
+            }
+        });
+
+        newComment.save(function(err, resultComment)
+        {
+            if(!err)
+            {
+                console.log('Saved a comment');
+                console.log('result comment is:');
+                console.log(resultComment);
+
+                res.json({
+                    result : "OK",
+                    message : "FileVersion commented successfully"
+                });
+            }
+            else
+            {
+                console.log('err is:');
+                console.log(err);
+                res.status(500).json({
+                    result: "Error",
+                    message: "Error Commenting a FileVersion. " + JSON.stringify(resultComment)
+                });
+            }
+
+        }, false, null, null, null, null, db_social.graphUri);
+
+    }, null, db_social.graphUri);
 };
 
 exports.share = function (req, res) {
-    
+    var currentUser = req.session.user;
+    var fileVersionUri = req.body.fileVersionUri;
+    var shareMsg = req.body.shareMsg;
+    FileVersion.findByUri(fileVersionUri, function(err, fileVersion)
+    {
+        var newShare = new Share({
+            ddr: {
+                userWhoShared : currentUser.uri,
+                fileVersionUri: fileVersion.uri,
+                shareMsg: shareMsg
+            },
+            rdf: {
+                isShare : true
+            }
+        });
+
+        newShare.save(function(err, resultShare)
+        {
+            if(!err)
+            {
+                console.log('new share was saved');
+                console.log('result newShare is:');
+                console.log(resultShare);
+
+                res.json({
+                    result : "OK",
+                    message : "FileVersion shared successfully"
+                });
+            }
+            else
+            {
+                console.log('err is:');
+                console.log(err);
+                res.status(500).json({
+                    result: "Error",
+                    message: "Error sharing a fileVersion. " + JSON.stringify(resultShare)
+                });
+            }
+
+        }, false, null, null, null, null, db_social.graphUri);
+
+    }, null, db_social.graphUri);
+};
+
+exports.getFileVersionShares = function (req, res) {
+    var currentUser = req.session.user;
+
+    var fileVersionUri = req.body.fileVersionUri;
+
+
+    getSharesForAFileVersion(fileVersionUri, function (err, shares) {
+        if(err)
+        {
+            console.log('there was an error getting the shares');
+            console.log(shares);
+            res.status(500).json({
+                result: "Error",
+                message: "Error getting shares from a FileVersion " + JSON.stringify(shares)
+            });
+        }
+        else
+        {
+            console.log('The shares are:');
+            console.log(shares);
+            res.json(shares);
+        }
+    });
+
+};
+
+var getSharesForAFileVersion = function (fileVersionUri, cb) {
+    var self = this;
+
+    var query =
+        "SELECT ?shareURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?shareURI rdf:type ddr:Share. \n" +
+        "?shareURI ddr:fileVersionUri [1]. \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : fileVersionUri
+            }
+        ]),
+        function(err, results) {
+            if(!err)
+            {
+                async.map(results, function(shareObject, callback){
+                    Share.findByUri(shareObject.shareURI, function(err, share)
+                    {
+                        callback(false,share);
+                    }, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                }, function (err, shares) {
+                    cb(false, shares);
+                });
+            }
+            else
+            {
+                cb(true, "Error shares for a FileVersion");
+            }
+        });
 };

@@ -924,6 +924,12 @@ Elements.ddr = {
         control : Config.controls.url_box,
         locked_for_projects : true
     },
+    fileVersionUri :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
     userWhoCommented :
     {
         type : DbConnection.resource,
