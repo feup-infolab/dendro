@@ -1,4 +1,4 @@
-var Config = require("./config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 function Elements (){}

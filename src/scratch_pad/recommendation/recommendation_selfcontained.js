@@ -1,5 +1,5 @@
 var Descriptor = require('../../models/meta/descriptor.js').Descriptor;
-var Config = require('../../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 var Ontology = require('../../models/meta/ontology.js').Ontology;
 var Interaction = require('../../models/recommendation/interaction.js').Interaction;
 var Resource = require('../../models/resource.js').Resource;

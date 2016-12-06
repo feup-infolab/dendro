@@ -1,6 +1,6 @@
 var path = require('path');
 
-var Config = require("../../models/meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Plugin = require(Config.absPathInSrcFolder("/plugins/plugin.js")).Plugin;

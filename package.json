@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "preinstall": "npm i -g gladstone"
+    "preinstall": "npm i -g gladstone",
+    "test": "node node_modules/.bin/_mocha"
   },
   "dependencies": {
     "MD5": "1.1.0",
@@ -51,6 +52,7 @@
     "nodemailer": "0.7.1",
     "oboe": "2.0.2",
     "prettysize": "0.0.3",
+    "q": "^1.4.1",
     "qs": "^6.1.0",
     "redis": "^2.6.2",
     "request": "*",
@@ -69,5 +71,10 @@
     "xml-writer": "^1.4.1",
     "xml2js": "0.2.8",
     "xmlhttprequest": "1.5.0"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "chai-http": "^3.0.0",
+    "mocha": "^3.2.0"
   }
 }

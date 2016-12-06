@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
-var Config = require("../models/meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 
 function PluginManager ()
 {

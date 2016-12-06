@@ -1,4 +1,4 @@
-var Config = require("../../../../models/meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;

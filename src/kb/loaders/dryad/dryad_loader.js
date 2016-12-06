@@ -1,4 +1,4 @@
-var Config = require("../../../models/meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var Loader = require(Config.absPathInSrcFolder("/kb/loaders/loader.js")).Loader;
 var HarvestedResource = require(Config.absPathInSrcFolder("/models/harvesting/harvested_resource.js")).HarvestedResource;

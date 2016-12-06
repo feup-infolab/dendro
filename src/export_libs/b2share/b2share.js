@@ -2,7 +2,7 @@
  * Created by Fábio on 31/03/2016.
  */
 
-var Config = require('../../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 
 B2Share.apiURL = Config.eudatBaseUrl + "/api";
 B2Share.depositionURL = B2Share.apiURL + "/deposition/";

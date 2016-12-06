@@ -3,7 +3,7 @@
  *
  * @type {Function}
  */
-var Config = Object.create(require("./models/meta/config.js").Config);
+var Config = GLOBAL.Config = Object.create(require("./models/meta/config.js").Config);
 Config.initGlobals();
 
 /**
@@ -12,12 +12,14 @@ Config.initGlobals();
 
 var express = require('express'),
     domain = require('domain'),
-    serverDomain = domain.create(),
     flash = require('connect-flash'),
     http = require('http'),
     path = require('path');
     fs = require('fs');
     morgan = require('morgan');
+    Q = require('q');
+
+var bootupPromise = Q.defer();
 
 var app = express();
 
@@ -29,7 +31,6 @@ var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/
 var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 var async = require('async');
 var util = require('util');
@@ -1361,7 +1362,7 @@ async.waterfall([
         });*/
 
 
-        http.createServer(function (req, res) {
+        var server = http.createServer(function (req, res) {
 
             var reqd = domain.create();
             reqd.add(req);
@@ -1377,25 +1378,37 @@ async.waterfall([
             // Pass the request to express
             app(req, res)
 
-        }).listen(app.get('port'), function() {
-            console.log('Express server listening on port ' + app.get('port'));
         });
 
-        // Domain for the server (limits number of requests per second), auto restart after crash in certain cases
-        serverDomain.run(function () {
-        });
+        //dont start server twice (for testing)
+        //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
 
+        if(process.env.NODE_ENV != 'test')
+        {
+            server.listen(app.get('port'), function() {
+                console.log('Express server listening on port ' + app.get('port'));
+                bootupPromise.resolve(app);
+            });
+        }
+        else
+        {
+            console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
+            bootupPromise.resolve(app);
+        }
 
-        setInterval(function () {
-            var pretty = require('prettysize');
-
-            if(Config.debug.diagnostics.ram_usage_reports)
+        if(Config.debug.diagnostics.ram_usage_reports)
+        {
+            setInterval(function ()
             {
+                var pretty = require('prettysize');
                 console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
-            }
-            if (typeof gc === 'function') {
-                gc();
-            }
-        }, 2000);
+                if (typeof gc === 'function')
+                {
+                    gc();
+                }
+            }, 2000);
+        }
     }
 ]);
+
+exports.bootup = bootupPromise.promise;
