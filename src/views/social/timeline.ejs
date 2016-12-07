@@ -13,7 +13,6 @@
                 <div ng-init="getPost(postURI.uri, null);postLikesInfo(postURI.uri);getCommentsFromPost(postURI.uri);getSharesFromPost(postURI.uri)">
                     <div>
                         <div ng-if="postList[postURI.uri].rdf.isShare">
-                            <p>IS A SHARE</p>
                             <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
                             <p> {{postList[postURI.uri].ddr.userWhoShared.split('/').pop()}} : "{{postList[postURI.uri].ddr.shareMsg}}"</p>
                             <!-- obtain the original post information-->

@@ -9,48 +9,94 @@
         <ul class="list-group">
             <div dir-paginate="fVersion in fileVersions | itemsPerPage: fileVersionsPerPage" total-items="totalFileVersions" current-page="pagination.current">
                 <div ng-init="getFileVersion(fVersion.fileVersion);fileVersionLikesInfo(fVersion.fileVersion);getCommentsFromFileVersion(fVersion.fileVersion);getSharesFromFileVersion(fVersion.fileVersion)">
-                    data : {{fileVersionsList[fVersion.fileVersion]}}
                     <div ng-if="fileVersionsList[fVersion.fileVersion].rdf.isShare">
-                        <p>Found a share </p>
+                        <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+                        <p> {{fileVersionsList[fVersion.fileVersion].ddr.userWhoShared.split('/').pop()}} : "{{fileVersionsList[fVersion.fileVersion].ddr.shareMsg}}"</p>
+                        <!-- obtain the original post information-->
+                        <div ng-init="getFileVersion(fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri)" style="padding-left: 2%">
+                            <!-- The info from the original post-->
+                            <div class="btn-group" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
+                                <table class="table changelog-table">
+                                    <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
+                                    <tr>
+                                        <th width="14%">
+
+                                        </th>
+                                        <th width="14%" class="table-centertext">
+                                            Author
+                                        </th>
+                                        <th width="14%">
+                                            Change Type
+                                        </th>
+                                        <th width="14%">
+                                            Item Type
+                                        </th>
+                                        <th width="14%">
+                                            Link
+                                        </th>
+
+                                        <th width="14%">
+                                            Name
+                                        </th>
+
+                                        <th width="14%">
+
+                                        </th>
+                                    </tr>
+
+                                    <tr>
+                                        <td> </td>
+                                        <td> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri}} </td>
+                                        <td> add </td>
+                                        <td> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.itemType}} </td>
+                                        <td> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].uri}} </td>
+                                        <td> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].nfo.fileName}} </td>
+                                        <td> </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
                     </div>
-                    <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
-                    <table class="table changelog-table">
-                        <tr>
-                            <th width="14%">
+                    <div ng-if="!fileVersionsList[fVersion.fileVersion].rdf.isShare">
+                        <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+                        <table class="table changelog-table">
+                            <tr>
+                                <th width="14%">
 
-                            </th>
-                            <th width="14%" class="table-centertext">
-                                Author
-                            </th>
-                            <th width="14%">
-                                Change Type
-                            </th>
-                            <th width="14%">
-                                Item Type
-                            </th>
-                            <th width="14%">
-                                Link
-                            </th>
+                                </th>
+                                <th width="14%" class="table-centertext">
+                                    Author
+                                </th>
+                                <th width="14%">
+                                    Change Type
+                                </th>
+                                <th width="14%">
+                                    Item Type
+                                </th>
+                                <th width="14%">
+                                    Link
+                                </th>
 
-                            <th width="14%">
-                                Name
-                            </th>
+                                <th width="14%">
+                                    Name
+                                </th>
 
-                            <th width="14%">
+                                <th width="14%">
 
-                            </th>
-                        </tr>
+                                </th>
+                            </tr>
 
-                        <tr>
-                            <td> </td>
-                            <td> {{fileVersionsList[fVersion.fileVersion].ddr.creatorUri}} </td>
-                            <td> add </td>
-                            <td> {{fileVersionsList[fVersion.fileVersion].ddr.itemType}} </td>
-                            <td> {{fileVersionsList[fVersion.fileVersion].uri}} </td>
-                            <td> {{fileVersionsList[fVersion.fileVersion].nfo.fileName}} </td>
-                            <td> </td>
-                        </tr>
-                    </table>
+                            <tr>
+                                <td> </td>
+                                <td> {{fileVersionsList[fVersion.fileVersion].ddr.creatorUri}} </td>
+                                <td> add </td>
+                                <td> {{fileVersionsList[fVersion.fileVersion].ddr.itemType}} </td>
+                                <td> {{fileVersionsList[fVersion.fileVersion].uri}} </td>
+                                <td> {{fileVersionsList[fVersion.fileVersion].nfo.fileName}} </td>
+                                <td> </td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
                 <p> {{likesFileVersionInfo[fVersion.fileVersion].numLikes}} likes, {{commentList[fVersion.fileVersion].length}} comments, {{shareList[fVersion.fileVersion].length}} shares</p>
                 <div class="btn-group">
@@ -80,7 +126,7 @@
                         <a ng-click="shareFileVersion(fVersion.fileVersion,share_content)" class="btn btn-default btn-primary">Enviar shareMessage</a>
                     </div>
                 </div>
-
+                <hr>
             </div>
         </ul>
     </div>
