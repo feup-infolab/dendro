@@ -14,17 +14,35 @@ var db_social = function() { return GLOBAL.db.social; }();
 var app = require('../app');
 
 exports.numPostsDatabase = function (req, res) {
-    numPostsDatabaseAux(function (err, count) {
-       if(!err)
-       {
-           res.json(count);
-       }
-        else{
-           res.status(500).json({
-               result : "Error",
-               message : "Error counting posts. " + JSON.stringify(err)
-           });
-       }
+    var currentUserUri = req.session.user.uri;
+    Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
+        if(!err)
+        {
+            async.map(projects, function (project, cb1) {
+                cb1(null, '<'+project.uri+ '>');
+            }, function (err, fullProjects) {
+                var projectsUris = fullProjects.join(" ");
+                numPostsDatabaseAux(projectsUris,function (err, count) {
+                    if(!err)
+                    {
+                        res.json(count);
+                    }
+                    else{
+                        res.status(500).json({
+                            result : "Error",
+                            message : "Error counting posts. " + JSON.stringify(err)
+                        });
+                    }
+                });
+            })
+        }
+        else
+        {
+            res.status(500).json({
+                result : "Error",
+                message : "Error finding user projects"
+            });
+        }
     });
 };
 
@@ -53,6 +71,36 @@ exports.all = function(req, res){
                 }
                 else
                 {
+                    Project.findByCreatorOrContributor(currentUser.uri, function (err, projects) {
+                        if(!err)
+                        {
+                            async.map(projects, function (project, cb1) {
+                                cb1(null, '<'+project.uri+ '>');
+                            }, function (err, fullProjects) {
+                                var projectsUris = fullProjects.join(" ");
+                                getAllPosts(projectsUris,function (err, results) {
+                                    if(!err)
+                                    {
+                                        res.json(results);
+                                    }
+                                    else{
+                                        res.status(500).json({
+                                            result : "Error",
+                                            message : "Error getting posts. " + JSON.stringify(err)
+                                        });
+                                    }
+                                }, index, maxResults);
+                            })
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result : "Error",
+                                message : "Error finding user projects"
+                            });
+                        }
+                    });
+                    /*
                     getAllPosts(function (err, results) {
                         if(!err)
                         {
@@ -64,7 +112,7 @@ exports.all = function(req, res){
                                 message : "Error getting posts. " + JSON.stringify(err)
                             });
                         }
-                    }, index, maxResults);
+                    }, index, maxResults);*/
                 }
             });
         }
@@ -153,7 +201,8 @@ function pingNewPosts(sessionUser, cb) {
                                                         newValue: change.changes[0].ddr.newValue,
                                                         changedDescriptor: change.changes[0].ddr.changedDescriptor? change.changes[0].ddr.changedDescriptor.label : 'undefined',
                                                         hasContent: change.changes[0].uri,
-                                                        numLikes: 0
+                                                        numLikes: 0,
+                                                        projectUri: project.uri
                                                     },
                                                     dcterms: {
                                                         creator : currentUserUri,
@@ -318,7 +367,8 @@ exports.share = function (req, res) {
             ddr: {
                 userWhoShared : currentUser.uri,
                 postURI: post.uri,
-                shareMsg: shareMsg
+                shareMsg: shareMsg,
+                projectUri: post.ddr.projectUri
             }
         });
 
@@ -477,7 +527,7 @@ exports.like = function (req, res) {
     );
 };*/
 
-var numPostsDatabaseAux = function (callback) {
+var numPostsDatabaseAux = function (projectUris, callback) {
     /*WITH <http://127.0.0.1:3001/social_dendro>
     SELECT (COUNT(DISTINCT ?postURI) AS ?count)
     WHERE {
@@ -487,7 +537,11 @@ var numPostsDatabaseAux = function (callback) {
         "WITH [0] \n" +
         "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
         "WHERE { \n" +
+        "VALUES ?project { \n" +
+        projectUris +
+        "} \n" +
         "?uri rdf:type ddr:Post. \n" +
+        "?uri ddr:projectUri ?project. \n" +
         "} \n ";
 
     db.connection.execute(query,
@@ -849,7 +903,7 @@ var getNumLikesForAPost = function(postID, cb)
  * @param startingResultPosition the starting position to start the query
  * @param maxResults the limit for the query
  */
-var getAllPosts = function (callback, startingResultPosition, maxResults) {
+var getAllPosts = function (projectUris, callback, startingResultPosition, maxResults) {
     //based on getRecentProjectWideChangesSocial
     var self = this;
 
@@ -857,8 +911,12 @@ var getAllPosts = function (callback, startingResultPosition, maxResults) {
         "WITH [0] \n" +
         "SELECT DISTINCT ?uri \n" +
         "WHERE { \n" +
+        "VALUES ?project { \n" +
+        projectUris +
+        "} \n" +
         "?uri dcterms:modified ?date. \n" +
         "?uri rdf:type ddr:Post. \n" +
+        "?uri ddr:projectUri ?project. \n" +
         "} \n "+
         "ORDER BY DESC(?date) \n";
 
