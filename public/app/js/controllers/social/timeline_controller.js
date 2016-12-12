@@ -1,7 +1,6 @@
 angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
-     *  Project administration controller
      */
     .controller('timelineCtrl', function ($scope, $http, $filter, timelineService, $window)
     {
@@ -56,8 +55,6 @@ angular.module('dendroApp.controllers')
                 .then(function(response)
                 {
                     $scope.show_popup(response.data.message);
-
-                    //$scope.get_all_posts();
                     $scope.postLikesInfo(postID);
                     $scope.doing_likePost = false;
                 })
@@ -106,7 +103,6 @@ angular.module('dendroApp.controllers')
             timelineService.get_logged_user()
                 .then(function(response)
                 {
-                    //$scope.show_popup(response.data.message);
                     $scope.loggedUser = response.data.uri;
 
                     $scope.doing_get_logged_user = false;
@@ -125,7 +121,6 @@ angular.module('dendroApp.controllers')
             timelineService.getPost_Service(postURI)
                 .then(function(response)
                 {
-                    //$scope.queriedPost = response.data;
                     if(sharePostURI)
                     {
                         //using for share service
@@ -153,8 +148,6 @@ angular.module('dendroApp.controllers')
                 .then(function(response)
                 {
                     $scope.show_popup(response.data.message);
-
-                    //$scope.get_all_posts();
                     $scope.getCommentsFromPost(postID);
                     $scope.doing_commentPost = false;
                 })
@@ -188,7 +181,6 @@ angular.module('dendroApp.controllers')
                 .then(function(response)
                 {
                     $scope.show_popup(response.data);
-                    //$scope.commentList = response.data;
                     $scope.shareList[postID] = response.data;
                     $scope.doing_getSharesFromPost = false;
                 })
@@ -206,7 +198,6 @@ angular.module('dendroApp.controllers')
                 .then(function(response)
                 {
                     $scope.show_popup(response.data);
-                    //$scope.commentList = response.data;
                     $scope.commentList[postID] = response.data;
                     $scope.doing_getCommentsFromPost = false;
                 })
@@ -218,19 +209,12 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function()
         {
-            //For pagination purposes
-            /*$scope.currentPage = 1;
-            $scope.pageSize = 5;
-            $scope.numPosts = 0;*/
-
             $scope.new_post_content = "";
             $scope.commentList = [];
             $scope.shareList = [];
             $scope.likedPosts = [];
             $scope.postList = [];
-            //$scope.get_all_posts();
             $scope.countNumPosts();
-            //$scope.get_all_posts($scope.currentPage);
             $scope.get_all_posts($scope.pagination.current);
             $scope.likesPostInfo = [];
         };
@@ -280,12 +264,12 @@ angular.module('dendroApp.controllers')
 
         $scope.waitForPostInfo = function (postURI) {
             console.log('in waitForPostInfo');
-            var socket = io('http://127.0.0.1:3001');
+            /*var socket = io('http://127.0.0.1:3001');
             socket.on('postURI:'+ postURI, function (postData) {
                 console.log('session for: ', postURI);
                 console.log('this was the data:');
                 console.log(postData);
-            });
+            });*/
         };
 
         $scope.countNumPosts = function () {

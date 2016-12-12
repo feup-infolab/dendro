@@ -47,7 +47,6 @@ angular.module('dendroApp.services')
 
         this.like_file_version = function (fileVersionUri)
         {
-            console.log('at service.likeVersion');
             var requestUri = "/fileVersions/like";
 
             var params = {
@@ -61,7 +60,7 @@ angular.module('dendroApp.services')
                 contentType: "application/json",
                 headers: {'Accept': "aplication/json"}
             });
-        }
+        };
 
 
         this.fileVersionLikesInfo = function(fileVersionUri)
@@ -113,7 +112,7 @@ angular.module('dendroApp.services')
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             });
-        }
+        };
 
         this.getSharesFromFileVersion = function(fileVersionUri)
         {

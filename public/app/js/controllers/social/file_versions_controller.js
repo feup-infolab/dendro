@@ -31,12 +31,9 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.like_file_version = function (fileVersionUri) {
-            console.log('at scope.likeVersion');
             $scope.liking_file_version = true;
             fileVersionsService.like_file_version(fileVersionUri)
                 .then(function (response) {
-                    console.log('likeVersion response is:');
-                    console.log(response);
                     $scope.fileVersionLikesInfo(fileVersionUri);
                     $scope.liking_file_version = false;
                 })
@@ -68,9 +65,7 @@ angular.module('dendroApp.controllers')
             timelineService.get_logged_user()
                 .then(function(response)
                 {
-                    //$scope.show_popup(response.data.message);
                     $scope.loggedUser = response.data.uri;
-
                     $scope.doing_get_logged_user = false;
                 })
                 .catch(function(error){
@@ -81,11 +76,6 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function()
         {
-            //For pagination purposes
-            /*$scope.currentPage = 1;
-             $scope.pageSize = 5;
-             $scope.numPosts = 0;*/
-
             $scope.commentList = [];
             $scope.shareList = [];
             $scope.likedFileVersions = [];
@@ -157,9 +147,7 @@ angular.module('dendroApp.controllers')
             timelineService.get_logged_user()
                 .then(function(response)
                 {
-                    //$scope.show_popup(response.data.message);
                     $scope.loggedUser = response.data.uri;
-
                     $scope.doing_get_logged_user = false;
                 })
                 .catch(function(error){
@@ -185,9 +173,7 @@ angular.module('dendroApp.controllers')
 
 
         $scope.getCommentsFromFileVersion = function (fileVersionUri) {
-
             $scope.doing_getCommentsFromFileVersion = true;
-
             timelineService.getCommentsFromPost(fileVersionUri)
                 .then(function(response)
                 {
@@ -202,9 +188,7 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.commentFileVersion = function (fileVersionUri, commentMsg) {
-
             $scope.doing_commentFileVersion = true;
-
             fileVersionsService.commentFileVersion(fileVersionUri, commentMsg)
                 .then(function(response)
                 {

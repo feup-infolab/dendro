@@ -5,7 +5,6 @@ angular.module('dendroApp.controllers')
     .controller('nextPageCtrl', function ($scope)
     {
         $scope.pageChangeHandler = function(num) {
-            console.log('ESTOU AQUI');
             console.log('going to page ' + num);
         };
     });

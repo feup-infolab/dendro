@@ -48,12 +48,9 @@ exports.numFileVersionsInDatabase = function (req, res) {
     numFileVersionsDatabaseAux(function (err, count) {
         if(!err)
         {
-            console.log('count is: ', count);
             res.json(count);
         }
         else{
-            console.log('error receiving count');
-            console.log(err);
             res.status(500).json({
                 result : "Error",
                 message : "Error counting FileVersions. " + JSON.stringify(err)
@@ -119,11 +116,6 @@ var getProjectFileVersions = function (projectsUri, startingResultPosition, maxR
             function(err, results) {
                 if(!err)
                 {
-                    if(results.length > 0)
-                    {
-                        console.log('results at fileVersions')
-                        console.log(results);
-                    }
                     callback(err,results);
                 }
                 else
@@ -179,10 +171,7 @@ exports.all = function (req, res) {
 
 exports.getFileVersion = function (req, res) {
     var currentUser = req.session.user;
-    console.log('req.body is: ', req.body);
     var fileVersionUri = req.body.fileVersionUri;
-
-    console.log('fileVersionUri: ', fileVersionUri);
 
     FileVersion.findByUri(fileVersionUri, function (err, fileVersion) {
         if(!err)
@@ -205,7 +194,6 @@ exports.fileVersionLikesInfo = function (req, res) {
     var fileVersionUri = req.body.fileVersionUri;
     var resultInfo;
 
-    console.log('at fileVersionLikesInfo in fileVersions controller');
     getNumLikesForAFileVersion(fileVersionUri, function (err, likesArray) {
         if(!err)
         {
@@ -221,7 +209,6 @@ exports.fileVersionLikesInfo = function (req, res) {
                     fileVersionUri: fileVersionUri, numLikes : 0, usersWhoLiked : 'undefined'
                 };
             }
-            console.log('resultInfo: ', resultInfo);
             res.json(resultInfo);
         }
         else
@@ -273,13 +260,7 @@ var getNumLikesForAFileVersion = function(fileVersionUri, cb)
 
 exports.like = function (req, res) {
     var fileVersionUri = req.body.fileVersionUri;
-    console.log('fileVersionUri:', fileVersionUri);
     var currentUser = req.session.user;
-
-    /*
-    removeOrAdLike(fileVersionUri, currentUser.uri, function (err, likeExists) {
-
-    }*/
 
     removeOrAdLikeFileVersion(fileVersionUri, currentUser.uri, function (err, likeExists) {
         if(!err)
@@ -296,7 +277,6 @@ exports.like = function (req, res) {
             {
                 FileVersion.findByUri(fileVersionUri, function(err, fileVersion)
                 {
-                    console.log('fileVersion.uri:', fileVersion.uri);
                     var newLike = new Like({
                         ddr: {
                             userWhoLiked : currentUser.uri,
@@ -308,9 +288,6 @@ exports.like = function (req, res) {
                     {
                         if(!err)
                         {
-                            console.log('Olha gravou o like');
-                            console.log('result like is:');
-                            console.log(resultLike);
                             res.json({
                                 result : "OK",
                                 message : "FileVersion liked successfully"
@@ -318,8 +295,6 @@ exports.like = function (req, res) {
                         }
                         else
                         {
-                            console.log('err is:');
-                            console.log(err);
                             res.status(500).json({
                                 result: "Error",
                                 message: "Error Liking a FileVersion. " + JSON.stringify(resultLike)
@@ -365,17 +340,14 @@ var removeLikeInFileVersion = function (likeUri, currentUserUri, cb) {
             if(!err)
             {
                 var likeExists = false;
-                console.log('results of delete:', results);
                 if(results.length > 0)
                 {
-                    console.log('tem results delete');
                     likeExists = true;
                 }
                 cb(false, likeExists);
             }
             else
             {
-                console.log('DEU ERRO A PROCURAR');
                 cb(true, "Error Liking a fileVersion");
             }
         });
@@ -393,8 +365,6 @@ var removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) {
         "?likeURI ddr:postURI [1]. \n" +//TODO this could be wrong
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
-
-    //query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
@@ -415,23 +385,18 @@ var removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) {
             if(!err)
             {
                 var likeExists = false;
-                console.log('results:', results);
                 if(results.length > 0)
                 {
-                    console.log('tem results');
                     removeLikeInFileVersion(results[0].likeURI, currentUserUri, function (err, data) {
-                        console.log('removeLike DEBUG:', data);
                         likeExists = true;
                         cb(err, likeExists);
                     });
-                    //likeExists = true;
                 }
                 else
                     cb(err, likeExists);
             }
             else
             {
-                console.log('DEU ERRO A PROCURAR');
                 cb(true, "Error Liking FileVersion");
             }
         });
@@ -455,10 +420,6 @@ exports.comment = function (req, res) {
         {
             if(!err)
             {
-                console.log('Saved a comment');
-                console.log('result comment is:');
-                console.log(resultComment);
-
                 res.json({
                     result : "OK",
                     message : "FileVersion commented successfully"
@@ -466,8 +427,6 @@ exports.comment = function (req, res) {
             }
             else
             {
-                console.log('err is:');
-                console.log(err);
                 res.status(500).json({
                     result: "Error",
                     message: "Error Commenting a FileVersion. " + JSON.stringify(resultComment)
@@ -500,10 +459,6 @@ exports.share = function (req, res) {
         {
             if(!err)
             {
-                console.log('new share was saved');
-                console.log('result newShare is:');
-                console.log(resultShare);
-
                 res.json({
                     result : "OK",
                     message : "FileVersion shared successfully"
@@ -511,8 +466,6 @@ exports.share = function (req, res) {
             }
             else
             {
-                console.log('err is:');
-                console.log(err);
                 res.status(500).json({
                     result: "Error",
                     message: "Error sharing a fileVersion. " + JSON.stringify(resultShare)
@@ -526,15 +479,12 @@ exports.share = function (req, res) {
 
 exports.getFileVersionShares = function (req, res) {
     var currentUser = req.session.user;
-
     var fileVersionUri = req.body.fileVersionUri;
 
 
     getSharesForAFileVersion(fileVersionUri, function (err, shares) {
         if(err)
         {
-            console.log('there was an error getting the shares');
-            console.log(shares);
             res.status(500).json({
                 result: "Error",
                 message: "Error getting shares from a FileVersion " + JSON.stringify(shares)
@@ -542,8 +492,6 @@ exports.getFileVersionShares = function (req, res) {
         }
         else
         {
-            console.log('The shares are:');
-            console.log(shares);
             res.json(shares);
         }
     });

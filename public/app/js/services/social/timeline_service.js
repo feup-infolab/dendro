@@ -139,7 +139,7 @@ angular.module('dendroApp.services')
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             });
-        }
+        };
 
         this.sharePost = function(postID, shareMsg)
         {
@@ -157,7 +157,7 @@ angular.module('dendroApp.services')
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             });
-        }
+        };
 
         this.getCommentsFromPost = function(postID)
         {
@@ -174,7 +174,7 @@ angular.module('dendroApp.services')
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             });
-        }
+        };
 
         this.getSharesFromPost = function(postID)
         {
