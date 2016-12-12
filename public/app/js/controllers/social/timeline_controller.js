@@ -17,6 +17,7 @@ angular.module('dendroApp.controllers')
 
         $scope.get_all_posts = function(currentPage)
         {
+            $scope.countNumPosts();
             $scope.getting_posts = true;
             timelineService.get_all_posts(currentPage)
                 .then(function(response)
@@ -285,6 +286,7 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.pageChangeHandler = function(num) {
+            console.log("Im here going to page: ", num);
             $scope.get_all_posts(num);
             $window.scrollTo(0, 0);//to scroll up to the top on page change
         };

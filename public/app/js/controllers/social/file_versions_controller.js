@@ -167,6 +167,7 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.pageChangeHandler = function(num) {
+            $scope.countNumFileVersions();
             $scope.get_all_file_versions(num);
             $window.scrollTo(0, 0);//to scroll up to the top on page change
         };

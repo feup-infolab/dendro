@@ -15,36 +15,83 @@ var db_social = function() { return GLOBAL.db.social; }();
 //NELSON
 var app = require('../app');
 
-var numFileVersionsDatabaseAux = function (callback) {
-    var query =
-        "WITH [0] \n" +
-        "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
-        "WHERE { \n" +
-        "?uri rdf:type ddr:FileVersions. \n" +
-        "} \n ";
+var numFileVersionsDatabaseAux = function (projectUris, callback) {
+    if(projectUris && projectUris.length > 0)
+    {
+        var query =
+            "WITH [0] \n" +
+            "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
+            "WHERE { \n" +
+            "VALUES ?project { \n" +
+            projectUris+
+            "}\n" +
+            "?uri rdf:type ddr:FileVersions. \n" +
+            "?uri ddr:projectUri ?project. \n"+
+            "} \n ";
 
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            }
-        ]),
-        function(err, results) {
-            if(!err)
-            {
-                callback(err,results[0].count);
-            }
-            else
-            {
-                var msg = "Error fetching number of fileVersions in graph";
-                callback(true, msg);
-            }
-        });
+        db.connection.execute(query,
+            DbConnection.pushLimitsArguments([
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value: db_social.graphUri
+                }
+            ]),
+            function(err, results) {
+                if(!err)
+                {
+                    callback(err,results[0].count);
+                }
+                else
+                {
+                    var msg = "Error fetching number of fileVersions in graph";
+                    callback(true, msg);
+                }
+            });
+    }
+    else
+    {
+        //User has no projects
+        var results = [];
+        callback(null, results);
+    }
 };
 
 exports.numFileVersionsInDatabase = function (req, res) {
     //TODO get user projects
+
+    var currentUserUri = req.session.user.uri;
+
+    Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
+        if(!err)
+        {
+            async.map(projects, function (project, cb1) {
+                cb1(null, '<'+project.uri+ '>');
+            }, function (err, fullProjects) {
+                var projectsUris = fullProjects.join(" ");
+                numFileVersionsDatabaseAux(projectsUris, function (err, count) {
+                    if(!err)
+                    {
+                        res.json(count);
+                    }
+                    else{
+                        res.status(500).json({
+                            result : "Error",
+                            message : "Error counting FileVersions. " + JSON.stringify(err)
+                        });
+                    }
+                });
+            })
+        }
+        else
+        {
+            res.status(500).json({
+                result : "Error",
+                message : "Error finding user projects"
+            });
+        }
+    });
+
+    /*
     numFileVersionsDatabaseAux(function (err, count) {
         if(!err)
         {
@@ -56,40 +103,32 @@ exports.numFileVersionsInDatabase = function (req, res) {
                 message : "Error counting FileVersions. " + JSON.stringify(err)
             });
         }
-    });
+    });*/
 };
 
 var getProjectFileVersions = function (projectsUri, startingResultPosition, maxResults, callback) {
     var self = this;
 
-    //TODO uncomment this if after implementation of likes/comments/shares is done
-    /*if(projectsUri && projectsUri.length > 0)
-    {*/
-        //TODO put this again after rest of implementation finished
-        /*
+    if(projectsUri && projectsUri.length > 0)
+    {
+
         var query =
             "WITH [0] \n" +
             "SELECT DISTINCT ?fileVersion \n" +
             "WHERE { \n" +
             "VALUES ?project { \n" +
-            //"[1] \n" +
             projectsUri + "\n" +
             "}. \n" +
-            "?fileVersion nie:contentLastModified ?date. \n" +
+            //"?fileVersion nie:contentLastModified ?date. \n" +
+            //"{?fileVersion nie:contentLastModified ?date} UNION {?fileVersion dcterms:modified ?date} \n" +
+            "?fileVersion dcterms:modified ?date. \n" +
             "?fileVersion rdf:type ddr:FileVersions. \n" +
             "?fileVersion ddr:projectUri ?project. \n" +
             "} \n "+
             "ORDER BY DESC(?date) \n";
-        */
 
-        /*WITH <http://127.0.0.1:3001/social_dendro>
-        SELECT DISTINCT ?fileVersion
-        WHERE {
-        ?fileVersion nie:contentLastModified ?date.
-            ?fileVersion rdf:type ddr:FileVersions.
-        }
-        ORDER BY DESC(?date)*/
 
+        /*
         var query =
             "WITH [0] \n" +
             "SELECT DISTINCT ?fileVersion \n" +
@@ -97,7 +136,7 @@ var getProjectFileVersions = function (projectsUri, startingResultPosition, maxR
             "{?fileVersion nie:contentLastModified ?date} UNION {?fileVersion dcterms:modified ?date} \n" +
             "?fileVersion rdf:type ddr:FileVersions. \n" +
             "} \n "+
-            "ORDER BY DESC(?date) \n";
+            "ORDER BY DESC(?date) \n";*/
 
         query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
@@ -106,12 +145,7 @@ var getProjectFileVersions = function (projectsUri, startingResultPosition, maxR
                 {
                     type : DbConnection.resourceNoEscape,
                     value: db_social.graphUri
-                }/*,
-                 {
-                 //type : DbConnection.resourceNoEscape,
-                 type : DbConnection.stringNoEscape,
-                 value: projectsUri
-                 }*/
+                }
             ]),
             function(err, results) {
                 if(!err)
@@ -124,15 +158,13 @@ var getProjectFileVersions = function (projectsUri, startingResultPosition, maxR
                     callback(true, msg);
                 }
             });
-    //TODO uncomment this after the implementation is done
-    /*
     }
     else
     {
         //User has no projects
         var results = [];
         callback(null, results);
-    }*/
+    }
 };
 
 exports.all = function (req, res) {
@@ -143,6 +175,9 @@ exports.all = function (req, res) {
         //paginate results
 
     var currentUserUri = req.session.user.uri;
+    var currentPage = req.query.currentPage;
+    var index = currentPage == 1? 0 : (currentPage*5) - 5;
+    var maxResults = 5;
     
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
        if(!err)
@@ -151,7 +186,7 @@ exports.all = function (req, res) {
                cb1(null, '<'+project.uri+ '>');
            }, function (err, fullProjects) {
                var projectsUris = fullProjects.join(" ");
-               getProjectFileVersions(projectsUris, null, null, function (err, fileVersions) {
+               getProjectFileVersions(projectsUris, index, maxResults, function (err, fileVersions) {
                    if(!err)
                    {
                        res.json(fileVersions);
@@ -448,7 +483,8 @@ exports.share = function (req, res) {
             ddr: {
                 userWhoShared : currentUser.uri,
                 fileVersionUri: fileVersion.uri,
-                shareMsg: shareMsg
+                shareMsg: shareMsg,
+                projectUri: fileVersion.ddr.projectUri
             },
             rdf: {
                 isShare : true

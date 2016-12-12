@@ -36,7 +36,7 @@ exports.all = function(req, res){
 
     var pingForNewPosts = true;
     var currentPage = req.query.currentPage;
-    var index = currentPage == 1? 0 : currentPage*5;
+    var index = currentPage == 1? 0 : (currentPage*5) - 5;
     var maxResults = 5;
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
@@ -133,78 +133,104 @@ function pingNewPosts(sessionUser, cb) {
     var currentUserUri = sessionUser.uri;
     var numPostsCreated = 0;
     Project.findByCreatorOrContributor(currentUserUri, function(err, projects) {
-        if(projects.length > 0)
+        if(!err)
         {
-            async.map(projects, function (project, cb1) {
-                    var socialUpdatedAt = project.dcterms.socialUpdatedAt ? project.dcterms.socialUpdatedAt : '1970-09-21T19:27:46.578Z';
-                    project.getRecentProjectWideChangesSocial(function(err, changes){
-                        if(changes.length > 0)
-                        {
-                            async.map(changes, function(change, callback){
-                                    if(change.changes && change.changes[0])// change.changes[0])
-                                    {
-                                        var newPost = new Post({
-                                            ddr: {
-                                                changeType: change.changes[0].ddr.changeType,
-                                                newValue: change.changes[0].ddr.newValue,
-                                                changedDescriptor: change.changes[0].ddr.changedDescriptor? change.changes[0].ddr.changedDescriptor.label : 'undefined',
-                                                hasContent: change.changes[0].uri,
-                                                numLikes: 0
-                                            },
-                                            dcterms: {
-                                                creator : currentUserUri,
-                                                title: project.dcterms.title
-                                            }
-                                        });
-
-                                        newPost.save(function(err, post)
-                                        {
-                                            if (!err)
+            if(projects.length > 0)
+            {
+                async.map(projects, function (project, cb1) {
+                        var socialUpdatedAt = project.dcterms.socialUpdatedAt ? project.dcterms.socialUpdatedAt : '1970-09-21T19:27:46.578Z';
+                        project.getRecentProjectWideChangesSocial(function(err, changes){
+                            if(!err)
+                            {
+                                if(changes.length > 0)
+                                {
+                                    async.map(changes, function(change, callback){
+                                            if(change.changes && change.changes[0])// change.changes[0])
                                             {
-                                                numPostsCreated++;
-                                                callback(err, post);
+                                                var newPost = new Post({
+                                                    ddr: {
+                                                        changeType: change.changes[0].ddr.changeType,
+                                                        newValue: change.changes[0].ddr.newValue,
+                                                        changedDescriptor: change.changes[0].ddr.changedDescriptor? change.changes[0].ddr.changedDescriptor.label : 'undefined',
+                                                        hasContent: change.changes[0].uri,
+                                                        numLikes: 0
+                                                    },
+                                                    dcterms: {
+                                                        creator : currentUserUri,
+                                                        title: project.dcterms.title
+                                                    }
+                                                });
+
+                                                newPost.save(function(err, post)
+                                                {
+                                                    if (!err)
+                                                    {
+                                                        numPostsCreated++;
+                                                        callback(err, post);
+                                                    }
+                                                    else
+                                                    {
+                                                        callback(err, post);
+                                                    }
+                                                }, false, null, null, null, null, db_social.graphUri);
                                             }
                                             else
                                             {
-                                                callback(err, post);
+                                                callback(null,null);
                                             }
-                                        }, false, null, null, null, null, db_social.graphUri);
-                                    }
-                                    else
-                                    {
-                                        callback(null,null);
-                                    }
-                                },
-                                function(err, fullDescriptors)
+                                        },
+                                        function(err, fullDescriptors)
+                                        {
+                                            if(!err)
+                                            {
+                                                var updatedProject = project;
+                                                updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
+                                                updateResource(project, updatedProject, db.graphUri, function (error, data) {
+                                                    cb1(error, fullDescriptors);
+                                                });
+                                            }
+                                            else
+                                            {
+                                                var errorMsg = "Error at project changes";
+                                                console.log(errorMsg);
+                                                cb1(err, errorMsg);
+                                            }
+                                        });
+                                }
+                                else
                                 {
+                                    //no changes detected
                                     var updatedProject = project;
                                     updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
                                     updateResource(project, updatedProject, db.graphUri, function (error, data) {
-                                        cb1(err, fullDescriptors);
+                                        cb1(error,data);
                                     });
-                                });
-                        }
-                        else
-                        {
-                            //no changes detected
-                            var updatedProject = project;
-                            updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
-                            updateResource(project, updatedProject, db.graphUri, function (error, data) {
-                                cb1(null,null);
-                            });
-                        }
-                    },null,null,socialUpdatedAt);
-                },
-                function (err, fullProjects) {
-                    //fullProjects.length is fullProjects.length
-                    //numPostCreated is numPostsCreated
-                    cb(err, fullProjects);
-                });
+                                }
+                            }
+                            else
+                            {
+                                var errorMsg = "Error getting recent project wide social changes";
+                                cb1(err,errorMsg);
+                            }
+                        },null,null,socialUpdatedAt);
+                    },
+                    function (err, fullProjects) {
+                        //fullProjects.length is fullProjects.length
+                        //numPostCreated is numPostsCreated
+                        cb(err, fullProjects);
+                    });
+            }
+            else
+            {
+                cb(null,null);
+            }
         }
         else
         {
-            cb(null,null);
+            var errorMsg = "Error finding projects by creator or contributor";
+            callback(err, errorMsg);
         }
+
     });
 
 }
