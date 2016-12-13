@@ -51,7 +51,7 @@ var numFileVersionsDatabaseAux = function (projectUris, callback) {
     else
     {
         //User has no projects
-        var results = [];
+        var results = 0;
         callback(null, results);
     }
 };

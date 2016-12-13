@@ -668,6 +668,23 @@ Elements.ddr = {
         api_readable: true,
         control : Config.controls.url_box
     },
+    authorUri :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
+    userWhoActed :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
+    actionType :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    },
     itemType :
     {
         type : DbConnection.string,

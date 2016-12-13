@@ -1,5 +1,6 @@
 var Post = require('../models/social/post.js').Post;
 var Like = require('../models/social/like.js').Like;
+var Notification = require('../models/social/notification.js').Notification;
 var Comment = require('../models/social/comment.js').Comment;
 var Share = require('../models/social/share.js').Share;
 var Ontology = require('../models/meta/ontology.js').Ontology;
@@ -487,15 +488,36 @@ exports.like = function (req, res) {
                             postURI: post.uri
                         }
                     });
+                    
+                    var newNotification = new Notification({
+                       ddr: {
+                           userWhoActed : currentUser.uri,
+                           postURI: post.uri,
+                           actionType: "Like",
+                           authorUri: post.dcterms.creator
+                       }
+                    });
 
                     newLike.save(function(err, resultLike)
                     {
                         if(!err)
                         {
-                            res.json({
-                                result : "OK",
-                                message : "Post liked successfully"
-                            });
+                            newNotification.save(function (error, resultNotification) {
+                                if(!error)
+                                {
+                                    res.json({
+                                        result : "OK",
+                                        message : "Post liked successfully"
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json({
+                                        result: "Error",
+                                        message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
+                                    });
+                                }
+                            }, false, null, null, null, null, db_social.graphUri);
                         }
                         else
                         {
@@ -533,34 +555,43 @@ var numPostsDatabaseAux = function (projectUris, callback) {
     WHERE {
         ?postURI rdf:type ddr:Post.
     }*/
-    var query =
-        "WITH [0] \n" +
-        "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
-        "WHERE { \n" +
-        "VALUES ?project { \n" +
-        projectUris +
-        "} \n" +
-        "?uri rdf:type ddr:Post. \n" +
-        "?uri ddr:projectUri ?project. \n" +
-        "} \n ";
+    if(projectUris && projectUris.length > 0)
+    {
+        var query =
+            "WITH [0] \n" +
+            "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
+            "WHERE { \n" +
+            "VALUES ?project { \n" +
+            projectUris +
+            "} \n" +
+            "?uri rdf:type ddr:Post. \n" +
+            "?uri ddr:projectUri ?project. \n" +
+            "} \n ";
 
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            }
-        ]),
-        function(err, results) {
-            if(!err)
-            {
-                callback(err,results[0].count);
-            }
-            else
-            {
-                callback(true, "Error fetching numPosts in numPostsDatabaseAux");
-            }
-        });
+        db.connection.execute(query,
+            DbConnection.pushLimitsArguments([
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value: db_social.graphUri
+                }
+            ]),
+            function(err, results) {
+                if(!err)
+                {
+                    callback(err,results[0].count);
+                }
+                else
+                {
+                    callback(true, "Error fetching numPosts in numPostsDatabaseAux");
+                }
+            });
+    }
+    else
+    {
+        //User has no projects
+        var results = 0;
+        callback(null, results);
+    }
 };
 
 var updateResource = function(currentResource, newResource, graphUri, cb)
@@ -907,37 +938,45 @@ var getAllPosts = function (projectUris, callback, startingResultPosition, maxRe
     //based on getRecentProjectWideChangesSocial
     var self = this;
 
-    var query =
-        "WITH [0] \n" +
-        "SELECT DISTINCT ?uri \n" +
-        "WHERE { \n" +
-        "VALUES ?project { \n" +
-        projectUris +
-        "} \n" +
-        "?uri dcterms:modified ?date. \n" +
-        "?uri rdf:type ddr:Post. \n" +
-        "?uri ddr:projectUri ?project. \n" +
-        "} \n "+
-        "ORDER BY DESC(?date) \n";
+    if(projectUris && projectUris.length > 0)
+    {
+        var query =
+            "WITH [0] \n" +
+            "SELECT DISTINCT ?uri \n" +
+            "WHERE { \n" +
+            "VALUES ?project { \n" +
+            projectUris +
+            "} \n" +
+            "?uri dcterms:modified ?date. \n" +
+            "?uri rdf:type ddr:Post. \n" +
+            "?uri ddr:projectUri ?project. \n" +
+            "} \n "+
+            "ORDER BY DESC(?date) \n";
 
-    query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+        query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            }
-        ]),
-        function(err, results) {
-            if(!err)
-            {
-                callback(err,results);
-            }
-            else
-            {
-                callback(true, "Error fetching posts in getAllPosts");
-            }
-        });
-
+        db.connection.execute(query,
+            DbConnection.pushLimitsArguments([
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value: db_social.graphUri
+                }
+            ]),
+            function(err, results) {
+                if(!err)
+                {
+                    callback(err,results);
+                }
+                else
+                {
+                    callback(true, "Error fetching posts in getAllPosts");
+                }
+            });
+    }
+    else
+    {
+        //User has no projects
+        var results = [];
+        callback(null, results);
+    }
 };
