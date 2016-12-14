@@ -1,6 +1,6 @@
 var Post = require('../models/social/post.js').Post;
 var Like = require('../models/social/like.js').Like;
-var Notification = require('../models/social/notification.js').Notification;
+var Notification = require('../models/notifications/notification.js').Notification;
 var Comment = require('../models/social/comment.js').Comment;
 var Share = require('../models/social/share.js').Share;
 var Ontology = require('../models/meta/ontology.js').Ontology;
