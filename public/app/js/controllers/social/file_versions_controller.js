@@ -3,12 +3,13 @@ angular.module('dendroApp.controllers')
      *  Project administration controller
      *  Project administration controller
      */
-    .controller('fileVersionsCtrl', function ($scope, $http, $filter, fileVersionsService, timelineService, $window)
+    .controller('fileVersionsCtrl', function ($scope, $http, $filter, fileVersionsService, timelineService, $window, $element)
     {
-
+        $scope.myTab = $element;
         $scope.fileVersions = [];
         $scope.totalFileVersions = 0;
         $scope.fileVersionsPerPage = 5; // this should match however many results your API puts on one page
+        $scope.render = false;
 
         $scope.pagination = {
             current: 1
@@ -76,13 +77,21 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function()
         {
-            $scope.commentList = [];
-            $scope.shareList = [];
-            $scope.likedFileVersions = [];
-            $scope.fileVersionsList = [];
-            $scope.likesFileVersionInfo = [];
-            $scope.countNumFileVersions();
-            $scope.get_all_file_versions($scope.pagination.current);
+            var jQueryInnerItem = $($scope.myTab);
+
+            //if(jQueryInnerItem.hasClass("active"))
+            //{
+            if($scope.render)
+            {
+                $scope.commentList = [];
+                $scope.shareList = [];
+                $scope.likedFileVersions = [];
+                $scope.fileVersionsList = [];
+                $scope.likesFileVersionInfo = [];
+                $scope.countNumFileVersions();
+                $scope.get_all_file_versions($scope.pagination.current);
+            }
+            //}
         };
 
         $scope.show_popup = function(type, title, message)
@@ -236,4 +245,9 @@ angular.module('dendroApp.controllers')
                     $scope.doing_getSharesFromFileVersion = false;
                 });
         };
+
+        $scope.$on('tab_changed fileVersions', function(event, args) {
+            $scope.render = true;
+            $scope.init();
+        });
     });

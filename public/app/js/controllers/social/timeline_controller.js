@@ -2,13 +2,14 @@ angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
      */
-    .controller('timelineCtrl', function ($scope, $http, $filter, timelineService, $window)
+    .controller('timelineCtrl', function ($scope, $http, $filter, timelineService, $window, $element)
     {
-
+        $scope.myTab = $element;
         $scope.posts = [];
         $scope.countCenas = 1;
         $scope.totalPosts = 0;
         $scope.postsPerPage = 5; // this should match however many results your API puts on one page
+        $scope.render = false;
 
         $scope.pagination = {
             current: 1
@@ -210,14 +211,22 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function()
         {
-            $scope.new_post_content = "";
-            $scope.commentList = [];
-            $scope.shareList = [];
-            $scope.likedPosts = [];
-            $scope.postList = [];
-            $scope.countNumPosts();
-            $scope.get_all_posts($scope.pagination.current);
-            $scope.likesPostInfo = [];
+            var jQueryInnerItem = $($scope.myTab);
+
+            //if(jQueryInnerItem.hasClass("active"))
+            //{
+            if($scope.render)
+            {
+                $scope.new_post_content = "";
+                $scope.commentList = [];
+                $scope.shareList = [];
+                $scope.likedPosts = [];
+                $scope.postList = [];
+                $scope.countNumPosts();
+                $scope.get_all_posts($scope.pagination.current);
+                $scope.likesPostInfo = [];
+            }
+            //}
         };
 
         $scope.show_popup = function(type, title, message)
@@ -290,4 +299,9 @@ angular.module('dendroApp.controllers')
             $scope.get_all_posts(num);
             $window.scrollTo(0, 0);//to scroll up to the top on page change
         };
+
+        $scope.$on('tab_changed timeline', function(event, args) {
+            $scope.render = true;
+            $scope.init();
+        });
     });
