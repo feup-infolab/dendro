@@ -33,6 +33,7 @@ exports.get_unread_user_notifications = function (req ,res) {
             "WHERE {\n" +
             "?uri rdf:type ddr:Notification. \n" +
             "?uri ddr:resourceAuthorUri [1]. \n" +
+            "?uri dcterms:modified ?date. \n" +
             "?uri foaf:status \"unread\". \n" +
             "} \n" +
             "ORDER BY DESC(?date)";

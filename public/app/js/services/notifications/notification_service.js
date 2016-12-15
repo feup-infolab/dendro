@@ -3,7 +3,9 @@
 angular.module('dendroApp.services')
     .service('notificationService', ['$http', function ($http) {
 
+        this.getUserUnreadNotifications = function ()
         {
+            var requestUri = "/notifications/all";
 
             return $http({
                 method: 'GET',
