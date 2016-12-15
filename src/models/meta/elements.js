@@ -674,7 +674,19 @@ Elements.ddr = {
         api_readable: true,
         control : Config.controls.url_box
     },
+    resourceAuthorUri :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
     userWhoActed :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
+    resourceTargetUri :
     {
         type : DbConnection.resource,
         api_readable: true,

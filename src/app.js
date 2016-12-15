@@ -821,6 +821,7 @@ async.waterfall([
         var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
         var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
         var fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
+        var notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
 
@@ -1323,6 +1324,9 @@ async.waterfall([
         app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.share);
         app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.fileVersionLikesInfo);
         app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.getFileVersionShares);
+
+
+        //notifications
 
         //serve angularjs ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,

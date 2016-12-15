@@ -11,6 +11,7 @@ var _ = require('underscore');
 var async = require('async');
 var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
+var db_notification = function () { return GLOBAL.db.notification;}();
 
 var app = require('../app');
 
@@ -488,14 +489,24 @@ exports.like = function (req, res) {
                             postURI: post.uri
                         }
                     });
-                    
+
+                    //resourceTargetUri -> a post, fileVersion etc
+                    //resourceAuthorUri -> the author of the post etc
+                    //userWhoActed -> user who commmented/etc
+                    //actionType -> comment/like/share
+                    //status-> read/unread
+
                     var newNotification = new Notification({
                        ddr: {
                            userWhoActed : currentUser.uri,
-                           postURI: post.uri,
+                           resourceTargetUri: post.uri,
                            actionType: "Like",
-                           authorUri: post.dcterms.creator
-                       }
+                           resourceAuthorUri: post.dcterms.creator
+                       },
+                        foaf :
+                        {
+                            status : "unread"
+                        }
                     });
 
                     newLike.save(function(err, resultLike)
@@ -517,7 +528,7 @@ exports.like = function (req, res) {
                                         message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
                                     });
                                 }
-                            }, false, null, null, null, null, db_social.graphUri);
+                            }, false, null, null, null, null, db_notification.graphUri);
                         }
                         else
                         {

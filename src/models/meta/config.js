@@ -122,6 +122,12 @@ Config.initGlobals = function()
             baseURI : "http://"+Config.host,
             graphHandle : "social_dendro",
             graphUri : "http://"+Config.host+"/social_dendro"
+        },
+        notification :
+        {
+            baseURI : "http://"+Config.host,
+            graphHandle : "notification_dendro",
+            graphUri : "http://"+Config.host+"/notification_dendro"
         }
     };
 

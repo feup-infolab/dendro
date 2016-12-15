@@ -123,6 +123,15 @@
                         }
                         %>
                         <!--<li><a href="#">Link</a></li>-->
+                        <li>
+                            <%if(locals.session.user != null) { %>
+                            <div ng-controller="notificationCtrl">
+                                <div ng-init="get_unread_notifications()">
+                                    <p>{{numNotifications}}</p>
+                                </div>
+                            </div>
+                            <% } %>
+                        </li>
                     </ul>
                 </div><!-- /.navbar-collapse -->
             </div>
