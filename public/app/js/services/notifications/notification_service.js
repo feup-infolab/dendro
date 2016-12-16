@@ -15,4 +15,15 @@ angular.module('dendroApp.services')
             });
         };
 
+        this.get_notification_info = function (notificationUri) {
+            var requestUri = "/notifications/notification";
+            return $http({
+                method: 'GET',
+                url: requestUri,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"},
+                params: {notificationUri: notificationUri}
+            });
+        };
+
     }]);

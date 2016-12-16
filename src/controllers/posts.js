@@ -374,14 +374,44 @@ exports.share = function (req, res) {
             }
         });
 
+        var newNotification = new Notification({
+            ddr: {
+                userWhoActed : currentUser.uri,
+                resourceTargetUri: post.uri,
+                actionType: "Share",
+                resourceAuthorUri: post.dcterms.creator
+            },
+            foaf :
+            {
+                status : "unread"
+            }
+        });
+
         newShare.save(function(err, resultShare)
         {
             if(!err)
             {
+                /*
                 res.json({
                     result : "OK",
                     message : "Post shared successfully"
-                });
+                });*/
+                newNotification.save(function (error, resultNotification) {
+                    if(!error)
+                    {
+                        res.json({
+                            result : "OK",
+                            message : "Post shared successfully"
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "Error",
+                            message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
+                        });
+                    }
+                }, false, null, null, null, null, db_notification.graphUri);
             }
             else
             {
@@ -428,14 +458,44 @@ exports.comment = function (req, res) {
             }
         });
 
+        var newNotification = new Notification({
+            ddr: {
+                userWhoActed : currentUser.uri,
+                resourceTargetUri: post.uri,
+                actionType: "Comment",
+                resourceAuthorUri: post.dcterms.creator
+            },
+            foaf :
+            {
+                status : "unread"
+            }
+        });
+
         newComment.save(function(err, resultComment)
         {
             if(!err)
             {
+                /*
                 res.json({
                     result : "OK",
                     message : "Post commented successfully"
-                });
+                });*/
+                newNotification.save(function (error, resultNotification) {
+                    if(!error)
+                    {
+                        res.json({
+                            result : "OK",
+                            message : "Post commented successfully"
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "Error",
+                            message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
+                        });
+                    }
+                }, false, null, null, null, null, db_notification.graphUri);
             }
             else
             {

@@ -76,6 +76,71 @@ exports.get_unread_user_notifications = function (req ,res) {
     }
 };
 
+exports.get_notification_info = function (req, res) {
+    var userUri = req.session.user.uri;
+    var notificationUri = req.query.notificationUri;
+    //var notificationUri = req.body["notificationUri"];
+
+    if(userUri && notificationUri)
+    {
+        /*
+        WITH <http://127.0.0.1:3001/notification_dendro>
+        SELECT ?p ?v
+            WHERE {
+        <http://127.0.0.1:3001/notifications/ca772147-9b4f-48af-bfbe-6b4800825ecb> ?p ?v.
+    <http://127.0.0.1:3001/notifications/ca772147-9b4f-48af-bfbe-6b4800825ecb> ddr:resourceAuthorUri <http://127.0.0.1:3001/user/demouser1>.
+        }*/
+
+        var query =
+            "WITH [0] \n" +
+            "SELECT ?p ?v \n" +
+            "WHERE { \n" +
+            "[1] ?p ?v. \n" +
+            "[1] ddr:resourceAuthorUri [2]. \n"+
+            "} \n";
+
+        query = DbConnection.addLimitsClauses(query, null, null);
+
+        db.connection.execute(query,
+            DbConnection.pushLimitsArguments([
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value: db_notification.graphUri
+                },
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value: notificationUri
+                },
+                {
+                    type: DbConnection.resourceNoEscape,
+                    value: userUri
+                }
+            ]),
+            function(err, notification) {
+                if(!err)
+                {
+                    res.json(notification);
+                }
+                else
+                {
+                    var errorMsg = "Error getting info from a User's notification";
+                    res.status(500).json({
+                        result: "Error",
+                        message: errorMsg
+                    });
+                }
+            });
+    }
+    else
+    {
+        var errorMsg = "Invalid user and notification Uri";
+        res.status(500).json({
+            result: "Error",
+            message: errorMsg
+        });
+    }
+};
+
 //Deletes a user's notification
 exports.deleteNotification = function (req, res) {
     var userUri = req.session.user.uri;

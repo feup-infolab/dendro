@@ -1328,6 +1328,8 @@ async.waterfall([
 
         //notifications
         app.get('/notifications/all', async.apply(Permissions.require, [Permissions.acl.user]), notifications.get_unread_user_notifications);
+        app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.acl.user]), notifications.get_notification_info);
+        
 
         //serve angularjs ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,

@@ -123,11 +123,21 @@
                         }
                         %>
                         <!--<li><a href="#">Link</a></li>-->
-                        <li>
+                        <li class="dropdown">
                             <%if(locals.session.user != null) { %>
                             <div ng-controller="notificationCtrl">
                                 <div ng-init="init()">
-                                    <p>{{numNotifications}}</p>
+                                    <p class="dropdown-toggle" data-toggle="dropdown">{{numNotifications}}</p>
+
+                                    <ul class="dropdown-menu">
+                                        <div ng-repeat="notifUri in notifsUris">
+                                            <div ng-init="get_notification_info(notifUri.uri)">
+                                                <li>
+                                                    <p>{{notifsData[notifUri.uri]}}</p>
+                                                </li>
+                                            </div>
+                                        </div>
+                                    </ul>
                                 </div>
                             </div>
                             <% } %>
