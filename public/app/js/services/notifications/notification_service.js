@@ -26,4 +26,17 @@ angular.module('dendroApp.services')
             });
         };
 
+        this.delete_notification = function (notificationUri) {
+            var requestUri = "notifications/notification"
+            return $http({
+                method: 'DELETE',
+                url: requestUri,
+                data: JSON.stringify({}),
+                contentType: "application/json",
+                headers: {'Accept': "application/json"},
+                params: {notificationUri: notificationUri}
+            });
+
+        };
+
     }]);

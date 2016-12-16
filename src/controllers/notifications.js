@@ -91,11 +91,25 @@ exports.get_notification_info = function (req, res) {
     <http://127.0.0.1:3001/notifications/ca772147-9b4f-48af-bfbe-6b4800825ecb> ddr:resourceAuthorUri <http://127.0.0.1:3001/user/demouser1>.
         }*/
 
+        /*
+         WITH <http://127.0.0.1:3001/notification_dendro>
+         SELECT ?actionType ?userWhoActed ?resourceTargetUri
+         WHERE {
+         <http://127.0.0.1:3001/notifications/26e4342e-7e45-467a-acde-5b71c816b179> ddr:actionType ?actionType.
+         <http://127.0.0.1:3001/notifications/26e4342e-7e45-467a-acde-5b71c816b179> ddr:userWhoActed ?userWhoActed.
+         <http://127.0.0.1:3001/notifications/26e4342e-7e45-467a-acde-5b71c816b179> ddr:resourceTargetUri ?resourceTargetUri.
+         <http://127.0.0.1:3001/notifications/26e4342e-7e45-467a-acde-5b71c816b179> ddr:resourceAuthorUri <http://127.0.0.1:3001/user/demouser1>.
+         }
+         */
+
+
         var query =
             "WITH [0] \n" +
-            "SELECT ?p ?v \n" +
+            "SELECT ?actionType ?userWhoActed ?resourceTargetUri \n" +
             "WHERE { \n" +
-            "[1] ?p ?v. \n" +
+            "[1] ddr:actionType ?actionType. \n" +
+            "[1] ddr:userWhoActed ?userWhoActed. \n" +
+            "[1] ddr:resourceTargetUri ?resourceTargetUri. \n" +
             "[1] ddr:resourceAuthorUri [2]. \n"+
             "} \n";
 
@@ -142,9 +156,9 @@ exports.get_notification_info = function (req, res) {
 };
 
 //Deletes a user's notification
-exports.deleteNotification = function (req, res) {
+exports.delete = function (req, res) {
     var userUri = req.session.user.uri;
-    var notificationUri = req.body.notificationUri;
+    var notificationUri = req.query.notificationUri;
 
     /*
     WITH <http://127.0.0.1:3001/notification_dendro>

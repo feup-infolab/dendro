@@ -133,7 +133,8 @@
                                         <div ng-repeat="notifUri in notifsUris">
                                             <div ng-init="get_notification_info(notifUri.uri)">
                                                 <li>
-                                                    <p>{{notifsData[notifUri.uri]}}</p>
+                                                    <p>{{notifsData[notifUri.uri][0].actionType}}</p>
+                                                    <!--<p> {{notifsData[notifUri.uri].userWhoActed}} </p>-->
                                                 </li>
                                             </div>
                                         </div>

@@ -6,16 +6,8 @@ angular.module('dendroApp.controllers')
     {
         $scope.numNotifications = 0;
         $scope.notifsUris = [];
+        $scope.notifsData = [];
         $scope.awaitingResponse = false;
-
-        /*
-        function load_notifications() {
-            if(!$scope.awaitingResponse)
-            {
-                $scope.awaitingResponse = true;
-
-            }
-        }*/
 
         $scope.get_unread_notifications = function()
         {
@@ -38,6 +30,26 @@ angular.module('dendroApp.controllers')
         $scope.init = function () {
             $scope.get_unread_notifications();
             $interval($scope.get_unread_notifications, 60000);
+        };
+
+        $scope.get_notification_info = function (notificationUri) {
+            notificationService.get_notification_info(notificationUri)
+                .then(function (response) {
+                    $scope.notifsData[notificationUri] = response.data;
+                })
+                .catch(function (error) {
+                    console.error("Error getting Notification Info" + JSON.stringify(error));
+                });
+        };
+
+        $scope.delete_notification = function (notificationUri) {
+            notificationService.delete_notification(notificationUri)
+                .then(function (response) {
+                    //TODO check response to see if it was actually deleted or not
+                })
+                .catch(function (error) {
+                    console.error("Error deleting a notification" + JSON.stringify(error));
+                });
         };
 
 
