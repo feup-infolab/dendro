@@ -126,7 +126,7 @@
                         <li>
                             <%if(locals.session.user != null) { %>
                             <div ng-controller="notificationCtrl">
-                                <div ng-init="get_unread_notifications()">
+                                <div ng-init="init()">
                                     <p>{{numNotifications}}</p>
                                 </div>
                             </div>
