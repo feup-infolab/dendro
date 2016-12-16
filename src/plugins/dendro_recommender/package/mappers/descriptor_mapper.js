@@ -1,6 +1,6 @@
 var path = require('path');
 
-var Config = require(path.join(path.dirname(require.main.filename), "models", "meta", "config.js")).Config;
+var Config = function() { return GLOBAL.Config; }();
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 

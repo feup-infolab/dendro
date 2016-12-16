@@ -1,4 +1,4 @@
-var Config = require("../meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
 var uuid = require('node-uuid');

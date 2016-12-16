@@ -1,4 +1,4 @@
-var Config = Object.create(require("./config.js").Config);
+var Config = function() { return GLOBAL.Config; }();
 
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
@@ -95,6 +95,41 @@ Permissions.acl =
     }
 };
 
+Permissions.resource_access_levels = {
+    public : {
+        access_level_required : "public",
+        error_message_user : "This is a public project.",
+        error_message_api : "This is a public project."
+    },
+    private : {
+        access_level_required : "private",
+        error_message_user : "This is a private project, and neither data nor metadata can be accessed.",
+        error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed."
+    },
+    metadata_only :  {
+        access_level_required : "metadata_only",
+        error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
+        error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
+    }
+}
+
+Permissions.project =
+{
+    public :
+    {
+        roles_required: [Permissions.resource_access_levels.public]
+    },
+
+    private :
+    {
+        roles_required: [Permissions.resource_access_levels.private]
+    },
+    metadata_only :
+    {
+        privacy_types_required : ["metadata_only"]
+    }
+};
+
 Permissions.sendResponse = function(allow_access, req, res, next, reasonsForDenying)
 {
     var acceptsHTML = req.accepts('html');
@@ -122,15 +157,31 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForDeny
 
         for(var i = 0; i < reasonsForDenying.length ; i++)
         {
-            var denyingRole = reasonsForDenying[i].role;
-
-            messagesAPI = messagesAPI + denyingRole.error_message_api;
-            messagesUser = messagesUser + denyingRole.error_message_user;
-
-            if(i < reasonsForDenying.length - 1)
+            if(reasonsForDenying[i] instanceof Object)
             {
-                messagesAPI = messagesAPI + " , ";
-                messagesUser = messagesUser + " , ";
+                var denyingReason = reasonsForDenying[i].role;
+
+                messagesAPI = messagesAPI + denyingReason.error_message_api;
+                messagesUser = messagesUser + denyingReason.error_message_user;
+
+                if(i < reasonsForDenying.length - 1)
+                {
+                    messagesAPI = messagesAPI + " , ";
+                    messagesUser = messagesUser + " , ";
+                }
+            }
+            else if(typeof reasonsForDenying[i] == "string")
+            {
+                var denyingReason = reasonsForDenying[i];
+
+                messagesAPI = messagesAPI + denyingReason;
+                messagesUser = messagesUser + denyingReason;
+
+                if(i < denyingReason.length - 1)
+                {
+                    messagesAPI = messagesAPI + " , ";
+                    messagesUser = messagesUser + " , ";
+                }
             }
         }
 
@@ -316,73 +367,89 @@ Permissions.require = function(permissionsRequired, req, res, next)
 
         var user = req.session.user;
         var resource = Config.baseUri + require('url').parse(req.url).pathname;
-        var projectIndex = resource.indexOf("project\/");
-        var slashIndex = resource.indexOf("\/", projectIndex + 8);
-        var topProjectResource;
 
-        if(slashIndex == -1)
-        {
-            topProjectResource = resource;
-        }
-        else
-        {
-            topProjectResource = resource.substring(0, slashIndex)
-        }
-
-        Project.privacy(topProjectResource, function(err, privacy){
-            var slashIndex = privacy.lastIndexOf("\/");
-            var privacyType = privacy.substring(slashIndex+1);
-            if(privacyType === 'publicStatus')
+        async.map(permissionsRequired,
+            async.apply(checkPermissionsInAcl, req, res, next, user, resource),
+            function(err, results)
             {
-                req.public = true;
+                var reasonsForDenying = [];
+
+                for(var i = 0; i < results.length; i++)
+                {
+                    var methodResults = results[i];
+                    methodResults = _.flatten(methodResults);
+                    methodResults = _.compact(methodResults);
+
+                    var reasonsForAuthorizing = _.filter(methodResults, function(result){return result.authorized});
+                    reasonsForDenying = reasonsForDenying.concat(_.filter(methodResults, function(result){return !result.authorized}));
+
+                    if(reasonsForAuthorizing.length > 0)
+                    {
+                        //Since user is involved in the project, the project will be seen the normal way
+                        req.public = false;
+                        return Permissions.sendResponse(true, req, res, next, reasonsForAuthorizing);
+                    }
+                }
+
+                if(reasonsForDenying.length > 0)
+                {
+                    console.log("REASONS FOR DENYING");
+                    if(req.public == true){
+                        return Permissions.sendResponse(true, req, res, next, []);
+                    }else{
+                        return Permissions.sendResponse(false, req, res, next, reasonsForDenying);
+                    }
+                }
+                else
+                {
+                    //ommision case. No reasons to authorize nor to refuse access!
+                    return Permissions.sendResponse(true, req, res, next, []);
+                }
             }
-
-			req.privacy = privacyType;
-			async.map(permissionsRequired,
-				async.apply(checkPermissionsInAcl, req, res, next, user, resource),
-				function(err, results)
-				{
-					var reasonsForDenying = [];
-
-					for(var i = 0; i < results.length; i++)
-					{
-						var methodResults = results[i];
-						methodResults = _.flatten(methodResults);
-						methodResults = _.compact(methodResults);
-
-						var reasonsForAuthorizing = _.filter(methodResults, function(result){return result.authorized});
-						reasonsForDenying = reasonsForDenying.concat(_.filter(methodResults, function(result){return !result.authorized}));
-
-						if(reasonsForAuthorizing.length > 0)
-						{
-							//Since user is involved in the project, the project will be seen the normal way
-							req.public = false;
-							return Permissions.sendResponse(true, req, res, next, reasonsForAuthorizing);
-						}
-					}
-
-					if(reasonsForDenying.length > 0)
-					{
-						console.log("REASONS FOR DENYING");
-						if(req.public == true){
-							return Permissions.sendResponse(true, req, res, next, []);
-						}else{
-							return Permissions.sendResponse(false, req, res, next, reasonsForDenying);
-						}
-					}
-					else
-					{
-						//ommision case. No reasons to authorize nor to refuse access!
-						return Permissions.sendResponse(true, req, res, next, []);
-					}
-				}
-			);
-        });
+        );
     }
     else
     {
         next();
     }
+};
+
+Permissions.project_access_override = function(projectPrivacyTypeRequired, permissionsRequired, req, res, next)
+{
+    var projectHandle = req.params[0];                      //project handle
+    var requestedProjectURI = Config.baseUri + "/project/" + projectHandle;
+
+    Project.findByUri(requestedProjectURI, function(err, project){
+        if(!err)
+        {
+            if(project != null)
+            {
+                var privacy = project.ddr.privacyStatus;
+
+                for(var i = 0; i < projectPrivacyTypeRequired.length; i++)
+                {
+                    var privacyType = projectPrivacyTypeRequired[i].access_level_required;
+
+                    if(privacy === privacyType)
+                    {
+                        return Permissions.sendResponse(true, req, res, next, [projectPrivacyTypeRequired[i]]);
+                    }
+                }
+
+                Permissions.require(permissionsRequired, req, res, next);
+            }
+            else
+            {
+                var reason_for_denying = "Project with uri" + requestedProjectURI + " does not exist.";
+                return Permissions.sendResponse(false, req, res, next, [reason_for_denying]);
+            }
+        }
+        else
+        {
+            var reason_for_denying = "Error accessing project: " + project;
+            return Permissions.sendResponse(false, req, res, next, [reason_for_denying]);
+        }
+    });
 };
 
 exports.Permissions = Permissions;

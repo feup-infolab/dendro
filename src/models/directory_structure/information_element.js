@@ -1,6 +1,6 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-var Config = require("../meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;

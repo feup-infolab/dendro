@@ -1,4 +1,4 @@
-var Config = require('../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;

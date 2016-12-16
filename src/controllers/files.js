@@ -1,4 +1,4 @@
-var Config = require('../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
@@ -631,72 +631,86 @@ exports.upload = function(req, res){
         {
             var files = [];
 
-            for(var i=0; i < req.files.files.length; i++)
+            if(req.files.files != null)
             {
-                var file = req.files.files[i];
-                files[i] = {
-                    name : file.name
-                };
+                for (var i = 0; i < req.files.files.length; i++)
+                {
+                    var file = req.files.files[i];
+                    files[i] = {
+                        name: file.name
+                    };
 
-                var newFile = new File({
-                    nie :
+                    var newFile = new File({
+                        nie: {
+                            title: file.name,
+                            isLogicalPartOf: requestedResourceURI
+                        }
+                    });
+
+                    var fs = require('fs');
+
+                    newFile.loadFromLocalFile(file.path, function (err, result)
                     {
-                        title : file.name,
-                        isLogicalPartOf : requestedResourceURI
-                    }
-                });
-
-                var fs = require('fs');
-
-                newFile.loadFromLocalFile(file.path, function(err, result){
-                    if(err == null)
-                    {
-                        newFile.save(function(err, result){
-                            if(err == null)
+                        if (err == null)
+                        {
+                            newFile.save(function (err, result)
                             {
-                                console.log("File " + newFile.uri + " is now saved in GridFS");
-                                newFile.generateThumbnails(function(err, result){
-                                    if(!err)
+                                if (err == null)
+                                {
+                                    console.log("File " + newFile.uri + " is now saved in GridFS");
+                                    newFile.generateThumbnails(function (err, result)
                                     {
-                                        res.json({
-                                            result : "success",
-                                            message : "File submitted successfully. Message returned : " + result,
-                                            files : files
-                                        });
-                                    }
-                                    else
-                                    {
-                                        res.json({
-                                            result : "success",
-                                            message : "File submitted successfully. However, there was an error generating the thumbnails: " + result,
-                                            files : files
-                                        });
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                res.status(500).json({
-                                    result : "error",
-                                    message : "Error submitting file : " + result,
-                                    files : files
-                                });
-                            }
+                                        if (!err)
+                                        {
+                                            res.json({
+                                                result: "success",
+                                                message: "File submitted successfully. Message returned : " + result,
+                                                files: files
+                                            });
+                                        }
+                                        else
+                                        {
+                                            res.json({
+                                                result: "success",
+                                                message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
+                                                files: files
+                                            });
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json({
+                                        result: "error",
+                                        message: "Error submitting file : " + result,
+                                        files: files
+                                    });
+                                }
 
-                        });
-                    }
-                    else
-                    {
-                        console.log("Error ["+err+"]saving file ["+newFile.uri+"]in GridFS :" + result);
-                        res.status(500).json(
-                            {
-                                result : "error",
-                                message : "Error saving the file : "+ result,
-                                files : files
                             });
-                    }
+                        }
+                        else
+                        {
+                            console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
+                            res.status(500).json(
+                                {
+                                    result: "error",
+                                    message: "Error saving the file : " + result,
+                                    files: files
+                                });
+                        }
+                    });
+                }
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "error",
+                    message: "Unknown error submitting files. Malformed message?",
+                    files: files
                 });
             }
+
         };
 
         if(req.form.ended)

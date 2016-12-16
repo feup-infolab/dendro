@@ -1,4 +1,4 @@
-var Config = require("../meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 var ResearchDomain = require(Config.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;

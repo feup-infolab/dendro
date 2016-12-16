@@ -1,6 +1,6 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-var Config = require("../meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
@@ -366,7 +366,7 @@ Folder.prototype.createTempFolderWithContents = function(
 Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptions)
 {
     var self = this;
-    self.createTempFolderWithContents(includeMetadata, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
+    self.createTempFolderWithContents(includeMetadata, false, false, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
     {
         if(!err)
         {

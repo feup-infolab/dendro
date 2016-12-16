@@ -2,7 +2,7 @@
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
-var Config = require("./meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var Utils = require(Config.absPathInPublicFolder("/js/utils.js")).Utils;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
@@ -1145,7 +1145,7 @@ Project.privacy = function (projectUri, callback) {
                 }
                 else
                 {
-                    callback(null, "http://dendro.fe.up.pt/ontology/0.1/privateStatus");
+                    callback(null, null);
                 }
             }
         }

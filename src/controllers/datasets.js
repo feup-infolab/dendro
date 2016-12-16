@@ -1,4 +1,4 @@
-var Config = require('../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
@@ -572,7 +572,7 @@ export_to_repository_ckan = function(req, res){
                                                                                     packageContents[0],
                                                                                     function (response, result)
                                                                                     {
-                                                                                        if (result.success)
+                                                                                        if(result.success)
                                                                                         {
                                                                                             createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function(err, response){
                                                                                                 if(!err)
