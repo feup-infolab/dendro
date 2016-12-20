@@ -180,6 +180,17 @@ Config.initGlobals = function()
             domain_specific : false
         },
 
+        gm:
+        {
+            prefix : "gm",
+            uri : "http://dendro.fe.up.pt/ontology/game/",
+            elements : Elements.gm,
+            label : "Gamification ontology",
+            description : "Designed to apply gamification concepts in Dendro",
+            domain : "Generic",
+            domain_specific : true
+        },
+
         rdf:
         {
             prefix : "rdf",

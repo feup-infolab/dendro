@@ -1,0 +1,47 @@
+<%- include ../layout/header.ejs %>
+<%- include ../layout/pagination/start.ejs %>
+
+<% if(!(typeof locals.medaltypes === 'undefined'))
+{
+%>
+<br/>
+<table class="table">
+    <tr>
+        <th>
+            Title
+        </th>
+        <th>
+            Material
+        </th>
+        <th>
+            Description
+        </th>
+
+    </tr>
+    <% for(var i=0; i < locals.medaltypes.length; i++)
+    {
+        var medaltype = locals.medaltypes[i];
+
+    %>
+    <tr>
+        <td>
+            <%= medaltype.dcterms.title %>
+        </td>
+        <td>
+            <%= medaltype.gm.material %>
+        </td>
+        <td>
+            <%= medaltype.dcterms.description %>
+        </td>
+
+    </tr>
+
+    <% } %>
+
+</table>
+
+<% } %>
+
+<%- include ../layout/pagination/end.ejs %>
+
+<%- include ../layout/footer.ejs %>

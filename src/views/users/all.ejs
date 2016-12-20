@@ -16,10 +16,14 @@
                         <th>
                             Surname
                         </th>
+                        <th>
+                            Score
+                        </th>
                     </tr>
                 <% for(var i=0; i < locals.users.length; i++)
                 {
                     var user = locals.users[i];
+                    console.log(user);
                 %>
                 <tr>
                     <td>
@@ -32,6 +36,9 @@
                     </td>
                     <td>
                         <b><%= user.foaf.surname %></b>
+                    </td>
+                    <td>
+                        <b><%= user.gm.score %></b>
                     </td>
                 </tr>
 

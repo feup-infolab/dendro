@@ -667,6 +667,11 @@ async.waterfall([
                                     {
                                         username : user.username,
                                         password : user.password
+                                    },
+                                    gm:
+                                    {
+                                        score : user.score,
+                                        hasMedal: user.hasMedal
                                     }
                                 },
                                 function(err, newUser){
@@ -820,6 +825,9 @@ async.waterfall([
         var datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
         var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
         var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
+        var medaltypes = require(Config.absPathInSrcFolder("/controllers/medaltypes"));
+       // var medals = require(Config.absPathInSrcFolder("/controllers/medals"));
+
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
 
@@ -956,6 +964,9 @@ async.waterfall([
         app.all('/set_new_password', users.set_new_password);
 
         app.get('/me', async.apply(Permissions.require, [Permissions.acl.user]), users.me);
+
+        //medal types
+        app.get('/medals', medaltypes.all);
 
         //projects
         app.get('/projects', async.apply(Permissions.require, [Permissions.acl.user]), projects.all);
