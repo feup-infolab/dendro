@@ -2,9 +2,10 @@ angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
      */
-    .controller('projectsCtrl', function ($scope)
+    .controller('projectsCtrl', function ($scope, $window)
     {
         $scope.tab_changed = function(tabName) {
+            //$window.location.reload();
             $scope.$broadcast('tab_changed ' + tabName);
         };
 

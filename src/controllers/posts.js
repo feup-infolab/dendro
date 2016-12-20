@@ -21,9 +21,8 @@ exports.numPostsDatabase = function (req, res) {
         if(!err)
         {
             async.map(projects, function (project, cb1) {
-                cb1(null, '<'+project.uri+ '>');
-            }, function (err, fullProjects) {
-                var projectsUris = fullProjects.join(" ");
+                cb1(null, project.uri);
+            }, function (err, projectsUris) {
                 numPostsDatabaseAux(projectsUris,function (err, count) {
                     if(!err)
                     {
@@ -77,10 +76,9 @@ exports.all = function(req, res){
                         if(!err)
                         {
                             async.map(projects, function (project, cb1) {
-                                cb1(null, '<'+project.uri+ '>');
-                            }, function (err, fullProjects) {
-                                var projectsUris = fullProjects.join(" ");
-                                getAllPosts(projectsUris,function (err, results) {
+                                cb1(null, project.uri);
+                            }, function (err, fullProjectsUris) {
+                                getAllPosts(fullProjectsUris,function (err, results) {
                                     if(!err)
                                     {
                                         res.json(results);
@@ -371,6 +369,9 @@ exports.share = function (req, res) {
                 postURI: post.uri,
                 shareMsg: shareMsg,
                 projectUri: post.ddr.projectUri
+            },
+            dcterms: {
+                creator: currentUser.uri
             }
         });
 
@@ -620,42 +621,47 @@ exports.like = function (req, res) {
     );
 };*/
 
-var numPostsDatabaseAux = function (projectUris, callback) {
+var numPostsDatabaseAux = function (projectUrisArray, callback) {
     /*WITH <http://127.0.0.1:3001/social_dendro>
     SELECT (COUNT(DISTINCT ?postURI) AS ?count)
     WHERE {
         ?postURI rdf:type ddr:Post.
     }*/
-    if(projectUris && projectUris.length > 0)
+    if(projectUrisArray && projectUrisArray.length > 0)
     {
-        var query =
-            "WITH [0] \n" +
-            "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
-            "WHERE { \n" +
-            "VALUES ?project { \n" +
-            projectUris +
-            "} \n" +
-            "?uri rdf:type ddr:Post. \n" +
-            "?uri ddr:projectUri ?project. \n" +
-            "} \n ";
+        async.map(projectUrisArray, function (uri, cb1) {
+            cb1(null, '<'+uri+ '>');
+        }, function (err, fullProjectsUris) {
+            var projectsUris = fullProjectsUris.join(" ");
+            var query =
+                "WITH [0] \n" +
+                "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
+                projectsUris +
+                "} \n" +
+                "?uri rdf:type ddr:Post. \n" +
+                "?uri ddr:projectUri ?project. \n" +
+                "} \n ";
 
-        db.connection.execute(query,
-            DbConnection.pushLimitsArguments([
-                {
-                    type : DbConnection.resourceNoEscape,
-                    value: db_social.graphUri
-                }
-            ]),
-            function(err, results) {
-                if(!err)
-                {
-                    callback(err,results[0].count);
-                }
-                else
-                {
-                    callback(true, "Error fetching numPosts in numPostsDatabaseAux");
-                }
-            });
+            db.connection.execute(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type : DbConnection.resourceNoEscape,
+                        value: db_social.graphUri
+                    }
+                ]),
+                function(err, results) {
+                    if(!err)
+                    {
+                        callback(err,results[0].count);
+                    }
+                    else
+                    {
+                        callback(true, "Error fetching numPosts in numPostsDatabaseAux");
+                    }
+                });
+        });
     }
     else
     {
@@ -1005,44 +1011,49 @@ var getNumLikesForAPost = function(postID, cb)
  * @param startingResultPosition the starting position to start the query
  * @param maxResults the limit for the query
  */
-var getAllPosts = function (projectUris, callback, startingResultPosition, maxResults) {
+var getAllPosts = function (projectUrisArray, callback, startingResultPosition, maxResults) {
     //based on getRecentProjectWideChangesSocial
     var self = this;
 
-    if(projectUris && projectUris.length > 0)
+    if(projectUrisArray && projectUrisArray.length > 0)
     {
-        var query =
-            "WITH [0] \n" +
-            "SELECT DISTINCT ?uri \n" +
-            "WHERE { \n" +
-            "VALUES ?project { \n" +
-            projectUris +
-            "} \n" +
-            "?uri dcterms:modified ?date. \n" +
-            "?uri rdf:type ddr:Post. \n" +
-            "?uri ddr:projectUri ?project. \n" +
-            "} \n "+
-            "ORDER BY DESC(?date) \n";
+        async.map(projectUrisArray, function (uri, cb1) {
+            cb1(null, '<'+uri+ '>');
+        }, function (err, fullProjects) {
+            var projectsUris = fullProjects.join(" ");
+            var query =
+                "WITH [0] \n" +
+                "SELECT DISTINCT ?uri \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
+                projectsUris +
+                "} \n" +
+                "?uri dcterms:modified ?date. \n" +
+                "?uri rdf:type ddr:Post. \n" +
+                "?uri ddr:projectUri ?project. \n" +
+                "} \n "+
+                "ORDER BY DESC(?date) \n";
 
-        query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+            query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-        db.connection.execute(query,
-            DbConnection.pushLimitsArguments([
-                {
-                    type : DbConnection.resourceNoEscape,
-                    value: db_social.graphUri
-                }
-            ]),
-            function(err, results) {
-                if(!err)
-                {
-                    callback(err,results);
-                }
-                else
-                {
-                    callback(true, "Error fetching posts in getAllPosts");
-                }
-            });
+            db.connection.execute(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type : DbConnection.resourceNoEscape,
+                        value: db_social.graphUri
+                    }
+                ]),
+                function(err, results) {
+                    if(!err)
+                    {
+                        callback(err,results);
+                    }
+                    else
+                    {
+                        callback(true, "Error fetching posts in getAllPosts");
+                    }
+                });
+        });
     }
     else
     {

@@ -15,38 +15,43 @@ var db_social = function() { return GLOBAL.db.social; }();
 //NELSON
 var app = require('../app');
 
-var numFileVersionsDatabaseAux = function (projectUris, callback) {
-    if(projectUris && projectUris.length > 0)
+var numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
+    if(projectUrisArray && projectUrisArray.length > 0)
     {
-        var query =
-            "WITH [0] \n" +
-            "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
-            "WHERE { \n" +
-            "VALUES ?project { \n" +
-            projectUris+
-            "}\n" +
-            "?uri rdf:type ddr:FileVersions. \n" +
-            "?uri ddr:projectUri ?project. \n"+
-            "} \n ";
+        async.map(projectUrisArray, function (uri, cb1) {
+            cb1(null, '<'+uri+ '>');
+        }, function (err, fullProjectsUris) {
+            var projectsUris = fullProjectsUris.join(" ");
+            var query =
+                "WITH [0] \n" +
+                "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
+                projectsUris+
+                "}\n" +
+                "?uri rdf:type ddr:FileVersions. \n" +
+                "?uri ddr:projectUri ?project. \n"+
+                "} \n ";
 
-        db.connection.execute(query,
-            DbConnection.pushLimitsArguments([
-                {
-                    type : DbConnection.resourceNoEscape,
-                    value: db_social.graphUri
-                }
-            ]),
-            function(err, results) {
-                if(!err)
-                {
-                    callback(err,results[0].count);
-                }
-                else
-                {
-                    var msg = "Error fetching number of fileVersions in graph";
-                    callback(true, msg);
-                }
-            });
+            db.connection.execute(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type : DbConnection.resourceNoEscape,
+                        value: db_social.graphUri
+                    }
+                ]),
+                function(err, results) {
+                    if(!err)
+                    {
+                        callback(err,results[0].count);
+                    }
+                    else
+                    {
+                        var msg = "Error fetching number of fileVersions in graph";
+                        callback(true, msg);
+                    }
+                });
+        });
     }
     else
     {
@@ -57,18 +62,15 @@ var numFileVersionsDatabaseAux = function (projectUris, callback) {
 };
 
 exports.numFileVersionsInDatabase = function (req, res) {
-    //TODO get user projects
-
     var currentUserUri = req.session.user.uri;
 
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
         if(!err)
         {
             async.map(projects, function (project, cb1) {
-                cb1(null, '<'+project.uri+ '>');
-            }, function (err, fullProjects) {
-                var projectsUris = fullProjects.join(" ");
-                numFileVersionsDatabaseAux(projectsUris, function (err, count) {
+                cb1(null, project.uri);
+            }, function (err, fullProjectsUris) {
+                numFileVersionsDatabaseAux(fullProjectsUris, function (err, count) {
                     if(!err)
                     {
                         res.json(count);
@@ -106,58 +108,62 @@ exports.numFileVersionsInDatabase = function (req, res) {
     });*/
 };
 
-var getProjectFileVersions = function (projectsUri, startingResultPosition, maxResults, callback) {
+var getProjectFileVersions = function (projectUrisArray, startingResultPosition, maxResults, callback) {
     var self = this;
 
-    if(projectsUri && projectsUri.length > 0)
+    if(projectUrisArray && projectUrisArray.length > 0)
     {
+        async.map(projectUrisArray, function (uri, cb1) {
+            cb1(null, '<'+uri+ '>');
+        }, function (err, fullProjectsUris) {
+            var projectsUris = fullProjectsUris.join(" ");
+            var query =
+                "WITH [0] \n" +
+                "SELECT DISTINCT ?fileVersion \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
+                projectsUris + "\n" +
+                "}. \n" +
+                //"?fileVersion nie:contentLastModified ?date. \n" +
+                //"{?fileVersion nie:contentLastModified ?date} UNION {?fileVersion dcterms:modified ?date} \n" +
+                "?fileVersion dcterms:modified ?date. \n" +
+                "?fileVersion rdf:type ddr:FileVersions. \n" +
+                "?fileVersion ddr:projectUri ?project. \n" +
+                "} \n "+
+                "ORDER BY DESC(?date) \n";
 
-        var query =
-            "WITH [0] \n" +
-            "SELECT DISTINCT ?fileVersion \n" +
-            "WHERE { \n" +
-            "VALUES ?project { \n" +
-            projectsUri + "\n" +
-            "}. \n" +
-            //"?fileVersion nie:contentLastModified ?date. \n" +
-            //"{?fileVersion nie:contentLastModified ?date} UNION {?fileVersion dcterms:modified ?date} \n" +
-            "?fileVersion dcterms:modified ?date. \n" +
-            "?fileVersion rdf:type ddr:FileVersions. \n" +
-            "?fileVersion ddr:projectUri ?project. \n" +
-            "} \n "+
-            "ORDER BY DESC(?date) \n";
 
+            /*
+             var query =
+             "WITH [0] \n" +
+             "SELECT DISTINCT ?fileVersion \n" +
+             "WHERE { \n" +
+             "{?fileVersion nie:contentLastModified ?date} UNION {?fileVersion dcterms:modified ?date} \n" +
+             "?fileVersion rdf:type ddr:FileVersions. \n" +
+             "} \n "+
+             "ORDER BY DESC(?date) \n";*/
 
-        /*
-        var query =
-            "WITH [0] \n" +
-            "SELECT DISTINCT ?fileVersion \n" +
-            "WHERE { \n" +
-            "{?fileVersion nie:contentLastModified ?date} UNION {?fileVersion dcterms:modified ?date} \n" +
-            "?fileVersion rdf:type ddr:FileVersions. \n" +
-            "} \n "+
-            "ORDER BY DESC(?date) \n";*/
+            query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
-        query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
-
-        db.connection.execute(query,
-            DbConnection.pushLimitsArguments([
-                {
-                    type : DbConnection.resourceNoEscape,
-                    value: db_social.graphUri
-                }
-            ]),
-            function(err, results) {
-                if(!err)
-                {
-                    callback(err,results);
-                }
-                else
-                {
-                    var msg = "Error fetching FileVersions";
-                    callback(true, msg);
-                }
-            });
+            db.connection.execute(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type : DbConnection.resourceNoEscape,
+                        value: db_social.graphUri
+                    }
+                ]),
+                function(err, results) {
+                    if(!err)
+                    {
+                        callback(err,results);
+                    }
+                    else
+                    {
+                        var msg = "Error fetching FileVersions";
+                        callback(true, msg);
+                    }
+                });
+        });
     }
     else
     {
@@ -183,9 +189,8 @@ exports.all = function (req, res) {
        if(!err)
        {
            async.map(projects, function (project, cb1) {
-               cb1(null, '<'+project.uri+ '>');
-           }, function (err, fullProjects) {
-               var projectsUris = fullProjects.join(" ");
+               cb1(null, project.uri);
+           }, function (err, projectsUris) {
                getProjectFileVersions(projectsUris, index, maxResults, function (err, fileVersions) {
                    if(!err)
                    {
