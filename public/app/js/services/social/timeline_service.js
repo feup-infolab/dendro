@@ -29,8 +29,7 @@ angular.module('dendroApp.services')
 
         this.get_logged_user = function()
         {
-            //TODO Passar isto para o controlador de users (/users/whoami)
-            var requestUri = "/posts/loggedUser";
+            var requestUri = "/users/loggedUser";
 
             return $http({
                 method: 'GET',

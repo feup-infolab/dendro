@@ -57,8 +57,7 @@ angular.module('dendroApp.controllers')
                 return false;
             });
         };
-
-        //TODO change this to a user controller
+        
         $scope.get_logged_user = function () {
 
             $scope.doing_get_logged_user = true;

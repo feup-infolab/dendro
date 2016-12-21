@@ -953,6 +953,7 @@ async.waterfall([
         //people listing
         app.get('/users', users.all);
         app.get('/user/:username', async.apply(Permissions.require, [Permissions.acl.user]), users.show);
+        app.get('/users/loggedUser', async.apply(Permissions.require, [Permissions.acl.user]), users.getLoggedUser);
 
         app.all('/reset_password', users.reset_password);
         app.all('/set_new_password', users.set_new_password);
@@ -1312,7 +1313,6 @@ async.waterfall([
         app.post('/posts/comments', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostComments);
         app.post('/posts/share', async.apply(Permissions.require, [Permissions.acl.user]), posts.share);
         app.post('/posts/shares', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostShares);
-        app.get('/posts/loggedUser', async.apply(Permissions.require, [Permissions.acl.user]), posts.getLoggedUser);
         app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.acl.user]), posts.numPostsDatabase);
 
         //file versions
