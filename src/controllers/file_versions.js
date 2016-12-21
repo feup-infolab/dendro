@@ -5,12 +5,14 @@ var Share = require('../models/social/share.js').Share;
 var Ontology = require('../models/meta/ontology.js').Ontology;
 var Project = require('../models/project.js').Project;
 var FileVersion = require('../models/versions/file_versions.js').FileVersions;
+var Notification = require('../models/notifications/notification.js').Notification;
 var DbConnection = require("../kb/db.js").DbConnection;
 var _ = require('underscore');
 
 var async = require('async');
 var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
+var db_notification = function () { return GLOBAL.db.notification;}();
 
 //NELSON
 var app = require('../app');
@@ -324,14 +326,39 @@ exports.like = function (req, res) {
                         }
                     });
 
+                    var newNotification = new Notification({
+                        ddr: {
+                            userWhoActed : currentUser.uri,
+                            resourceTargetUri: fileVersion.uri,
+                            actionType: "Like",
+                            resourceAuthorUri: fileVersion.ddr.creatorUri
+                        },
+                        foaf :
+                        {
+                            status : "unread"
+                        }
+                    });
+
                     newLike.save(function(err, resultLike)
                     {
                         if(!err)
                         {
-                            res.json({
-                                result : "OK",
-                                message : "FileVersion liked successfully"
-                            });
+                            newNotification.save(function (error, resultNotification) {
+                                if(!error)
+                                {
+                                    res.json({
+                                        result : "OK",
+                                        message : "FileVersion liked successfully"
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json({
+                                        result: "Error",
+                                        message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
+                                    });
+                                }
+                            }, false, null, null, null, null, db_notification.graphUri);
                         }
                         else
                         {
@@ -456,14 +483,39 @@ exports.comment = function (req, res) {
             }
         });
 
+        var newNotification = new Notification({
+            ddr: {
+                userWhoActed : currentUser.uri,
+                resourceTargetUri: fileVersion.uri,
+                actionType: "Comment",
+                resourceAuthorUri: fileVersion.ddr.creatorUri
+            },
+            foaf :
+            {
+                status : "unread"
+            }
+        });
+
         newComment.save(function(err, resultComment)
         {
             if(!err)
             {
-                res.json({
-                    result : "OK",
-                    message : "FileVersion commented successfully"
-                });
+                newNotification.save(function (error, resultNotification) {
+                    if(!error)
+                    {
+                        res.json({
+                            result : "OK",
+                            message : "FileVersion commented successfully"
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "Error",
+                            message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
+                        });
+                    }
+                }, false, null, null, null, null, db_notification.graphUri);
             }
             else
             {
@@ -489,10 +541,24 @@ exports.share = function (req, res) {
                 userWhoShared : currentUser.uri,
                 fileVersionUri: fileVersion.uri,
                 shareMsg: shareMsg,
-                projectUri: fileVersion.ddr.projectUri
+                projectUri: fileVersion.ddr.projectUri,
+                creatorUri: currentUser.uri
             },
             rdf: {
                 isShare : true
+            }
+        });
+
+        var newNotification = new Notification({
+            ddr: {
+                userWhoActed : currentUser.uri,
+                resourceTargetUri: fileVersion.uri,
+                actionType: "Share",
+                resourceAuthorUri: fileVersion.ddr.creatorUri
+            },
+            foaf :
+            {
+                status : "unread"
             }
         });
 
@@ -500,10 +566,22 @@ exports.share = function (req, res) {
         {
             if(!err)
             {
-                res.json({
-                    result : "OK",
-                    message : "FileVersion shared successfully"
-                });
+                newNotification.save(function (error, resultNotification) {
+                    if(!error)
+                    {
+                        res.json({
+                            result : "OK",
+                            message : "FileVersion shared successfully"
+                        });
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "Error",
+                            message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
+                        });
+                    }
+                }, false, null, null, null, null, db_notification.graphUri);
             }
             else
             {
