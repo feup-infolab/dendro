@@ -57,6 +57,7 @@
     "angular-highlightjs": "^0.5.1",
     "angular-tree-control": "^0.2.28",
     "async": "^2.0.1",
+    "ng-alerts": "feup-infolab-rdm/ng-alerts"
   },
   "resolutions": {
     "angular": "1.5.8",
