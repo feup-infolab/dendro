@@ -20,8 +20,8 @@ angular.module('dendroApp', [
         'ui.bootstrap',
         'codemwnci.markdown-edit-preview',
         'angularMoment',
-        'hljs'//,
-        //'angularUtils.directives.dirPagination'
+        'hljs',
+        'angularUtils.directives.dirPagination'
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
             return $sce.trustAsResourceUrl(val);
