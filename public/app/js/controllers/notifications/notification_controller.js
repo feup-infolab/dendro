@@ -2,12 +2,21 @@ angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
      */
-    .controller('notificationCtrl', function ($scope, $http, $filter, notificationService, $window, $element, $interval)
+    .controller('notificationCtrl', function ($scope, $http, $filter, notificationService, $window, $element, $interval, ngAlertsMngr)
     {
         $scope.numNotifications = 0;
         $scope.notifsUris = [];
         $scope.notifsData = [];
         $scope.awaitingResponse = false;
+
+        $scope.createAlert = function (notificationMsg) {
+            var type = "info";
+            ngAlertsMngr.add({
+                msg: notificationMsg,
+                type: type,
+                time: Date.now() - Math.round(Math.random() * 10000000000)
+            });
+        };
 
         $scope.get_unread_notifications = function()
         {
@@ -36,6 +45,9 @@ angular.module('dendroApp.controllers')
             notificationService.get_notification_info(notificationUri)
                 .then(function (response) {
                     $scope.notifsData[notificationUri] = response.data;
+                    //user {{notifsData[notifUri.uri][0].userWhoActed.split('/').pop()}}  {{notifsData[notifUri.uri][0].actionType}} your {{notifsData[notifUri.uri][0].resourceTargetUri.split('/')[3]}}
+                    var notificationMsg = "user "  + response.data[0].userWhoActed + " " + response.data[0].actionType + " your " + response.data[0].resourceTargetUri;
+                    $scope.createAlert(notificationMsg);
                 })
                 .catch(function (error) {
                     console.error("Error getting Notification Info" + JSON.stringify(error));

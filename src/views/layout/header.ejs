@@ -126,6 +126,11 @@
                         <li class="dropdown">
                             <%if(locals.session.user != null) { %>
                             <div ng-controller="notificationCtrl">
+                                <div class="navbar-default">
+                                
+                                </div>
+                            </div>
+                            <!--<div ng-controller="notificationCtrl">
                                 <div ng-init="init()">
                                     <p class="dropdown-toggle" data-toggle="dropdown">{{numNotifications}}</p>
 
@@ -134,13 +139,12 @@
                                             <div ng-init="get_notification_info(notifUri.uri)">
                                                 <li>
                                                     <p> user {{notifsData[notifUri.uri][0].userWhoActed.split('/').pop()}}  {{notifsData[notifUri.uri][0].actionType}} your {{notifsData[notifUri.uri][0].resourceTargetUri.split('/')[3]}}</p>
-                                                    <!--<p> {{notifsData[notifUri.uri].userWhoActed}} </p>-->
                                                 </li>
                                             </div>
                                         </div>
                                     </ul>
                                 </div>
-                            </div>
+                            </div>-->
                             <% } %>
                         </li>
                     </ul>
