@@ -127,16 +127,16 @@
                             <%if(locals.session.user != null) { %>
                             <div ng-controller="notificationCtrl">
                                 <div ng-init="init()" class="navbar-default">
-                                    <div class="container">
+                                    <div>
                                         <ul class="nav navbar-nav navbar-right">
                                             <li>
-                                                <a class="t" href="#" ng-alerts-popover popover-placement="bottom-right">
+                                                <a class="alertPopover" href="#" ng-alerts-popover popover-placement="bottom-right">
                                                     <ng-alerts-count badge="true" hide-empty="true"></ng-alerts-count>
                                                     messages
                                                 </a>
                                             </li>
                                             <li>
-                                                <a ng-alerts-modal> See in modal</a>
+                                                <a class="alertModal" ng-alerts-modal> See in modal</a>
                                             </li>
                                         </ul>
 

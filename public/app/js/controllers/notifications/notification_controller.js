@@ -16,12 +16,14 @@ angular.module('dendroApp.controllers')
             $scope.delete_notification(id);
         });
 
-        $scope.createAlert = function (notificationMsg, notificationUri) {
+        $scope.createAlert = function (notification, notificationUri) {
             var type = "info";
+            var resourceUrl = '<a href=' + '\"' +notification.resourceTargetUri + '\">' + 'resource' + '</a>';
+            var notificationMsg = notification.userWhoActed.split('/').pop() + " " + notification.actionType + " your " + "resource";
             ngAlertsMngr.add({
                 msg: notificationMsg,
                 type: type,
-                time: Date.now() - Math.round(Math.random() * 10000000000),
+                time: new Date(notification.modified),
                 id: notificationUri
             });
             var cenas = "Olá";
@@ -45,6 +47,7 @@ angular.module('dendroApp.controllers')
 
         $scope.get_unread_notifications = function()
         {
+            ngAlertsMngr.reset();
             if(!$scope.awaitingResponse)
             {
                 $scope.awaitingResponse = true;
@@ -71,8 +74,9 @@ angular.module('dendroApp.controllers')
                 .then(function (response) {
                     $scope.notifsData[notificationUri] = response.data;
                     //user {{notifsData[notifUri.uri][0].userWhoActed.split('/').pop()}}  {{notifsData[notifUri.uri][0].actionType}} your {{notifsData[notifUri.uri][0].resourceTargetUri.split('/')[3]}}
-                    var notificationMsg = "user "  + response.data[0].userWhoActed + " " + response.data[0].actionType + " your " + response.data[0].resourceTargetUri;
-                    $scope.createAlert(notificationMsg, notificationUri);
+                    //var notificationMsg = "user "  + response.data[0].userWhoActed + " " + response.data[0].actionType + " your " + response.data[0].resourceTargetUri;
+                    var notification = response.data[0];
+                    $scope.createAlert(notification, notificationUri);
                 })
                 .catch(function (error) {
                     console.error("Error getting Notification Info" + JSON.stringify(error));

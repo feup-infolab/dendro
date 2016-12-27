@@ -105,12 +105,13 @@ exports.get_notification_info = function (req, res) {
 
         var query =
             "WITH [0] \n" +
-            "SELECT ?actionType ?userWhoActed ?resourceTargetUri \n" +
+            "SELECT ?actionType ?userWhoActed ?resourceTargetUri ?modified \n" +
             "WHERE { \n" +
             "[1] ddr:actionType ?actionType. \n" +
             "[1] ddr:userWhoActed ?userWhoActed. \n" +
             "[1] ddr:resourceTargetUri ?resourceTargetUri. \n" +
             "[1] ddr:resourceAuthorUri [2]. \n"+
+            "[1] dcterms:modified ?modified. \n"+
             "} \n";
 
         query = DbConnection.addLimitsClauses(query, null, null);
