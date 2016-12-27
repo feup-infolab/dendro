@@ -2,20 +2,45 @@ angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
      */
-    .controller('notificationCtrl', function ($scope, $http, $filter, notificationService, $window, $element, $interval, ngAlertsMngr)
+    .controller('notificationCtrl', function ($scope, $http, $filter, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent)
     {
         $scope.numNotifications = 0;
         $scope.notifsUris = [];
         $scope.notifsData = [];
         $scope.awaitingResponse = false;
 
-        $scope.createAlert = function (notificationMsg) {
+        $scope.$on(ngAlertsEvent.event('remove'), function (e, id) {
+            var cenas = 'cenasAqui evento do apagar';
+            console.log(cenas);
+            console.log('id: ', id);
+            $scope.delete_notification(id);
+        });
+
+        $scope.createAlert = function (notificationMsg, notificationUri) {
             var type = "info";
             ngAlertsMngr.add({
                 msg: notificationMsg,
                 type: type,
-                time: Date.now() - Math.round(Math.random() * 10000000000)
+                time: Date.now() - Math.round(Math.random() * 10000000000),
+                id: notificationUri
             });
+            var cenas = "Olá";
+            console.log(cenas);
+        };
+
+        /*
+        ngAlertsMngr.remove(id)
+        {
+            console.log("at remove");
+        };*/
+
+        $scope.getAlerts = function () {
+            var data = ngAlertsMngr.get();
+            console.log(data);
+        };
+
+        $scope.removeAlert = function (notificationUri) {
+            ngAlertsMngr.remove(notificationUri);
         };
 
         $scope.get_unread_notifications = function()
@@ -47,7 +72,7 @@ angular.module('dendroApp.controllers')
                     $scope.notifsData[notificationUri] = response.data;
                     //user {{notifsData[notifUri.uri][0].userWhoActed.split('/').pop()}}  {{notifsData[notifUri.uri][0].actionType}} your {{notifsData[notifUri.uri][0].resourceTargetUri.split('/')[3]}}
                     var notificationMsg = "user "  + response.data[0].userWhoActed + " " + response.data[0].actionType + " your " + response.data[0].resourceTargetUri;
-                    $scope.createAlert(notificationMsg);
+                    $scope.createAlert(notificationMsg, notificationUri);
                 })
                 .catch(function (error) {
                     console.error("Error getting Notification Info" + JSON.stringify(error));

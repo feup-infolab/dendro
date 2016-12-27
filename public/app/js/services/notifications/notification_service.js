@@ -27,7 +27,7 @@ angular.module('dendroApp.services')
         };
 
         this.delete_notification = function (notificationUri) {
-            var requestUri = "notifications/notification"
+            var requestUri = "/notifications/notification";
             return $http({
                 method: 'DELETE',
                 url: requestUri,

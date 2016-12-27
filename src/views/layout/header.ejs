@@ -126,8 +126,25 @@
                         <li class="dropdown">
                             <%if(locals.session.user != null) { %>
                             <div ng-controller="notificationCtrl">
-                                <div class="navbar-default">
-                                
+                                <div ng-init="init()" class="navbar-default">
+                                    <div class="container">
+                                        <ul class="nav navbar-nav navbar-right">
+                                            <li>
+                                                <a class="t" href="#" ng-alerts-popover popover-placement="bottom-right">
+                                                    <ng-alerts-count badge="true" hide-empty="true"></ng-alerts-count>
+                                                    messages
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a ng-alerts-modal> See in modal</a>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                    <div ng-init="getAlerts()" ng-repeat="notifUri in notifsUris">
+                                        <div ng-init="get_notification_info(notifUri.uri)">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <!--<div ng-controller="notificationCtrl">
