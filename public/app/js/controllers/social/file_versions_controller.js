@@ -74,6 +74,14 @@ angular.module('dendroApp.controllers')
                 });
         };
 
+        $scope.initSingleFileVersion = function () {
+            $scope.commentList = [];
+            $scope.shareList = [];
+            $scope.likedFileVersions = [];
+            $scope.fileVersionsList = [];
+            $scope.likesFileVersionInfo = [];
+        };
+
         $scope.init = function()
         {
             var jQueryInnerItem = $($scope.myTab);

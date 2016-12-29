@@ -1,7 +1,10 @@
 <%- include ../layout/header.ejs %>
 
-<div>
+<div ng-controller="fileVersionsCtrl" ng-init="initSingleFileVersion()">
     <p>Cenas</p>
     <%= fileVersionUri %>
+    <div ng-init='getFileVersion("<%=fileVersionUri %>")'>
+        {{fileVersionsList["<%= fileVersionUri %>"]}}
+    </div>
 </div>
 <%- include ../layout/footer.ejs %>
