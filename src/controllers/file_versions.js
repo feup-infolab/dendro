@@ -617,6 +617,39 @@ exports.getFileVersionShares = function (req, res) {
 
 };
 
+
+exports.testFileVersion = function (req, res) {
+    var cenas = "aqui";
+    var currentUser = req.session.user;
+    console.log(cenas);
+    console.log('currentUser: ', currentUser);
+
+    var currentUser = req.session.user;
+    var fileVersionUri = "http://"+req.headers.host + req.url;
+    res.render('social/showFileVersion',
+        {
+            fileVersionUri : fileVersionUri
+        }
+    );
+    /*FileVersion.findByUri(fileVersionUri, function (err, fileVersion) {
+        if(!err)
+        {
+            res.json(fileVersion);
+        }
+        else
+        {
+            res.status(500).json({
+                result: "Error",
+                message: "Error getting a File version. " + JSON.stringify(fileVersion)
+            });
+        }
+    },null, db_social.graphUri);*/
+
+    //TODO likes
+    //TODO comments
+    //TODO shares
+};
+
 var getSharesForAFileVersion = function (fileVersionUri, cb) {
     var self = this;
 

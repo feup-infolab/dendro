@@ -9,22 +9,39 @@ angular.module('dendroApp.controllers')
         $scope.notifsData = [];
         $scope.awaitingResponse = false;
 
+        $scope.actionTypeDictionary = {
+            Like : "liked",
+            Comment : "commented",
+            Share : "shared"
+        };
+
+        $scope.resourceTypeDictionary = {
+            posts : "post",
+            shares: "share",
+            fileVersions: "file version"
+        };
+
+        $scope.parseResourceTarget = function (resourceTargetUri) {
+            return $scope.resourceTypeDictionary[resourceTargetUri.split('/')[3]];
+        };
+
         $scope.$on(ngAlertsEvent.event('remove'), function (e, id) {
-            var cenas = 'cenasAqui evento do apagar';
-            console.log(cenas);
-            console.log('id: ', id);
             $scope.delete_notification(id);
         });
 
         $scope.createAlert = function (notification, notificationUri) {
             var type = "info";
-            var resourceUrl = '<a href=' + '\"' +notification.resourceTargetUri + '\">' + 'resource' + '</a>';
-            var notificationMsg = notification.userWhoActed.split('/').pop() + " " + notification.actionType + " your " + "resource";
+            //var resourceUrl = '<a href=' + '\"' +notification.resourceTargetUri + '\">' + 'resource' + '</a>';
+            //<a ng-href="http://www.gravatar.com/avatar/{{hash}}">link1</a>
+            var resourceUrl = "<" + "a ng-href=" + "\"" +notification.resourceTargetUri + "\"" + ">" + "resource" + "</a>";
+            var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + $scope.parseResourceTarget(notification.resourceTargetUri);
+            //var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + resourceUrl;
             ngAlertsMngr.add({
                 msg: notificationMsg,
                 type: type,
                 time: new Date(notification.modified),
-                id: notificationUri
+                id: notificationUri,
+                resourceUri : notification.resourceTargetUri
             });
             var cenas = "Olá";
             console.log(cenas);

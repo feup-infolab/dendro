@@ -1319,6 +1319,7 @@ async.waterfall([
         app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.all);
         app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.numFileVersionsInDatabase);
         app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.getFileVersion);
+        app.get('/fileVersions/:uri', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.testFileVersion);
         app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.like);
         app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.comment);
         app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.share);
