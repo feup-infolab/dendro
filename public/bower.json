@@ -18,14 +18,14 @@
   "dependencies": {
     "angular-bootstrap": "^1.2.4",
     "bootstrap": "^3.3.6",
-    "angular-cookies": "^1.5.0",
-    "angular-loader": "^1.5.0",
-    "angular-mocks": "^1.5.0",
-    "angular-resource": "^1.5.0",
-    "angular-route": "^1.5.8",
-    "angular-sanitize": "^1.5.0",
-    "angular-touch": "^1.5.0",
-    "angular-animate": "^1.5.0",
+    "angular-cookies": "^1.5.10",
+    "angular-loader": "^1.5.10",
+    "angular-mocks": "^1.5.10",
+    "angular-resource": "^1.5.10",
+    "angular-route": "1.5.10",
+    "angular-sanitize": "^1.5.10",
+    "angular-touch": "^1.5.10",
+    "angular-animate": "^1.5.10",
     "angular-loading-bar": "^0.8.0",
     "angular-ui-tree": "^2.15.0",
     "bootbox.js": "bootbox#^4.4.0",
@@ -67,6 +67,6 @@
     "bootstrap": "^3.3.6",
     "moment": "^2.12.0",
     "jquery": "2.2.4",
-    "angular-animate": "^1.5.0"
+    "angular-animate": "^1.5.10"
   }
 }
