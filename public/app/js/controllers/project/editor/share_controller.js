@@ -208,10 +208,12 @@ angular.module('dendroApp.controllers')
                 data: requestString,
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
-            }).success(function(e,data) {
-                if(e!= null)
+            }).then(function(response) {
+                var data = response.data;
+
+                if(data!= null)
                 {
-                    $scope.show_popup("success", "Success", e.message);
+                    $scope.show_popup("success", "Success", data.message);
                 }
                 else
                 {
@@ -219,10 +221,11 @@ angular.module('dendroApp.controllers')
                 }
                 $scope.is_sending_data = false;
                 $scope.clear_recalled_repository();
-            }).error(function(e,data){
+
+            }).catch(function(error){
                 if(e != null)
                 {
-                    $scope.show_popup("error", "Error", e.message);
+                    $scope.show_popup("error", "Error", JSON.stringify(error));
                 }
                 $scope.is_sending_data = false;
             });
@@ -278,7 +281,8 @@ angular.module('dendroApp.controllers')
                 method: 'POST',
                 url: "/external_repositories/sword_collections",
                 data: requestString
-            }).success(function(data) {
+            }).then(function(response) {
+                    var data = response.data;
                     if(data.result == 'error' && data.message != null)
                     {
                         $scope.show_popup("error", "Error", data.message);
@@ -304,13 +308,16 @@ angular.module('dendroApp.controllers')
                         }
 
                     }
-                })
-                .error(function(data) {
-                    if(data.message != null)
-                    {
-                        $scope.show_popup("error", "Error", data.message);
-                    }
-                });
+            }).catch(function(error){
+                if(error.message != null && error.title != null)
+                {
+                    Utils.show_popup("error", error.title, error.message);
+                }
+                else
+                {
+                    Utils.show_popup("error", "Error occurred", JSON.stringify(error));
+                }
+            });
 
         };
         $scope.set_sword_collections = function(sword_collections){

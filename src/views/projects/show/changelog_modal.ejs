@@ -52,8 +52,8 @@
             </div>
         </td>
         <td>
-            <img src="{{recent_version.thumbnail}}"/>
-                <a href="{{recent_version.ddr.isVersionOf.uri}}">{{recent_version.ddr.isVersionOf.nie.title}}</a>
+            <img ng-src="{{recent_version.thumbnail | trustAsResourceUrl}}"/>
+            <a href="{{recent_version.ddr.isVersionOf.uri}}">{{recent_version.ddr.isVersionOf.nie.title}}</a>
         </td>
     </tr>
 </table>

@@ -144,13 +144,12 @@ angular.module('dendroApp.factories')
                     data: metadataString,
                     contentType: "application/json",
                     headers: {'Accept': "application/json"}
-                }).success(
-                    function (data)
+                }).then(function (response)
                     {
+                        var data = response.data;
                         deferred.resolve(data);
                     }
-                ).error(
-                    function(error)
+                ).catch(function(error)
                     {
                         deferred.reject(error);
                     }
@@ -179,7 +178,8 @@ angular.module('dendroApp.factories')
                     url: url,
                     headers: {'Accept': mt},
                     data : {}
-                }).success(function(data, status, headers, config) {
+                }).then(function(response) {
+                    var data = response.data;
                     if(format == 'json'){
                         data = vkbeautify.json(data);
                     }
@@ -195,7 +195,7 @@ angular.module('dendroApp.factories')
                         download: filename +'.'+  format
                     })[0].click();
 
-                }).error(function(data, status, headers, config) {
+                }).catch(function(error) {
                     // if there's an error you should see it here
                 });
             }
