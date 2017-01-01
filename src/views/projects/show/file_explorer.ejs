@@ -71,7 +71,7 @@
                                         <input  type="checkbox" ng-model="file.selected" multiple>
                                     </td>
                                     <td>
-                                        <img src="{{get_thumbnail_uri(file.uri)}}" onerror="noIcon(this);"/>
+                                        <img ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" onerror="noIcon(this);"/>
                                     </td>
                                     <td class="filename-tablecell">
                                         <small>{{file.nie.title}}</small>
