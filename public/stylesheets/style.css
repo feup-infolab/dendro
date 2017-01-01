@@ -95,7 +95,8 @@ error_messages {
   bottom: 3px;
   word-wrap: break-word;
 /**word-break: break-all; **/
-  white-space: normal; /**** <<<< ----------------VERY IMPORTANT CSS3 PROPERTY **/
+  white-space: normal;
+/**** <<<< ----------------VERY IMPORTANT CSS3 PROPERTY **/
 }
 html,
 body {
