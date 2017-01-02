@@ -57,7 +57,7 @@
     "angular-highlightjs": "^0.5.1",
     "angular-tree-control": "^0.2.28",
     "async": "^2.0.1",
-    "ng-alerts": "feup-infolab-rdm/ng-alerts",
+    "ng-alerts": "git://github.com/feup-infolab-rdm/ng-alerts.git#99ab122c9e4c262711bbc06e23518a613ca29e01",
     "angular-utils-pagination": "0.11.1"
   },
   "resolutions": {

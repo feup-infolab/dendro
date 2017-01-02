@@ -2,7 +2,7 @@ angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
      */
-    .controller('notificationCtrl', function ($scope, $http, $filter, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent)
+    .controller('notificationCtrl', function ($scope, $http, $filter, notificationService, $window, $element, $interval, ngAlertsMngr, ngAlertsEvent, $sce)
     {
         $scope.numNotifications = 0;
         $scope.notifsUris = [];
@@ -31,31 +31,21 @@ angular.module('dendroApp.controllers')
 
         $scope.createAlert = function (notification, notificationUri) {
             var type = "info";
-            //var resourceUrl = '<a href=' + '\"' +notification.resourceTargetUri + '\">' + 'resource' + '</a>';
-            //<a ng-href="http://www.gravatar.com/avatar/{{hash}}">link1</a>
-            var resourceUrl = "<" + "a ng-href=" + "\"" +notification.resourceTargetUri + "\"" + ">" + "resource" + "</a>";
-            var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + $scope.parseResourceTarget(notification.resourceTargetUri);
-            //var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + resourceUrl;
+            var resourceUrl = "<" + "a href=" + "\"" +notification.resourceTargetUri + "\"" + ">" + $scope.parseResourceTarget(notification.resourceTargetUri) + "</a>";
+            var notificationMsg = notification.userWhoActed.split('/').pop() + " " + $scope.actionTypeDictionary[notification.actionType] + " your " + resourceUrl;
+
+            $scope.msg = $sce.trustAsHtml(notificationMsg);
+
             ngAlertsMngr.add({
-                msg: notificationMsg,
+                msg: $scope.msg,
                 type: type,
                 time: new Date(notification.modified),
                 id: notificationUri,
-                resourceUri : notification.resourceTargetUri
             });
-            var cenas = "Olá";
-            console.log(cenas);
         };
-
-        /*
-        ngAlertsMngr.remove(id)
-        {
-            console.log("at remove");
-        };*/
 
         $scope.getAlerts = function () {
             var data = ngAlertsMngr.get();
-            console.log(data);
         };
 
         $scope.removeAlert = function (notificationUri) {
