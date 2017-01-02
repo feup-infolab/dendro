@@ -8,10 +8,12 @@ angular.module('dendroApp.controllers')
         $filter,
         $q,
         $log,
+        $timeout,
+        $compile,
+        Upload,
         focus,
         preview,
         $localStorage,
-        $timeout,
         metadataService,
         windowService,
         cacheService,
@@ -22,6 +24,14 @@ angular.module('dendroApp.controllers')
         recommendationService
     )
 {
+    $scope.get_upload_url = function()
+    {
+        return windowService.get_current_url() + "?upload";
+    }
+    $scope.get_restore_url = function()
+    {
+        return windowService.get_current_url() + "?restore";
+    }
 
     $scope.delete_file_or_folder = function()
     {
@@ -158,7 +168,7 @@ angular.module('dendroApp.controllers')
     
     $scope.setup_upload_area = function(file_upload_div_id, progress_bar_div_id)
     {
-        var uploadUrl = windowService.get_current_url() + "?upload";
+        var uploadUrl = $scope.get_upload_url();
 
         $(function () {
             'use strict';
@@ -188,7 +198,7 @@ angular.module('dendroApp.controllers')
 
     $scope.setup_restore_area = function(file_upload_div_id, progress_bar_div_id)
     {
-        var uploadUrl = $scope.currentUrl + "?restore";
+        var uploadUrl = $scope.get_restore_url();
 
         $(function () {
             'use strict';

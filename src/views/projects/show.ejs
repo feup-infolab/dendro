@@ -98,11 +98,13 @@
                  id="file_upload_area"
                  ng-show="upload_area_visible">
                 <br/>
-                <div class="col-xs-10 col-xs-offset-1">
-                    <%- include ../uploads/upload_box.ejs %>
-                </div>
-                <div class="col-xs-10 col-xs-offset-1">
-                    <%- include ../uploads/progress_bars.ejs %>
+                <div ng-controller="uploadsCtrl" ng-init="init(get_upload_url())">
+                    <div class="col-xs-12">
+                        <%- include ../uploads/upload_box.ejs %>
+                    </div>
+                    <div class="col-xs-12">
+                        <%- include ../uploads/progress_bars.ejs %>
+                    </div>
                 </div>
             </div>
 
@@ -157,8 +159,13 @@
                 </script>
             </div>
 
-            <div class="row ng-hide" id="restore_upload_area" ng-show="restore_area_visible" ng-init="">
-
+            <div class="row ng-hide" id="restore_upload_area" ng-show="restore_area_visible" ng-controller="uploadsCtrl" ng-init="init(get_restore_url())">
+                <div class="col-xs-12">
+                    <%- include ../uploads/upload_box.ejs %>
+                </div>
+                <div class="col-xs-12">
+                    <%- include ../uploads/progress_bars.ejs %>
+                </div>
             </div>
 
             <div class="row">
