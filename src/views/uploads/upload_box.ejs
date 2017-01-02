@@ -1,0 +1,28 @@
+
+<div class="up-buttons">
+    <div ngf-select
+         ngf-drop
+         ng-model="files"
+         ngf-model-invalid="invalidFiles"
+         ngf-model-options="modelOptionsObj"
+         ngf-multiple="multiple"
+         ngf-pattern="pattern"
+         ngf-accept="acceptSelect"
+         ng-disabled="disabled"
+         ngf-capture="capture"
+         ngf-drag-over-class="'btn-success'"
+         ngf-validate="validateObj"
+         ngf-duration="durationFn($file, $duration)"
+         ngf-keep="keepDistinct ? 'distinct' : keep"
+         ngf-fix-orientation="orientation"
+         ngf-max-files="maxFiles"
+         ngf-ignore-invalid="ignoreInvalid"
+         ngf-run-all-validations="runAllValidations"
+         ngf-allow-dir="allowDir"
+         ngf-drop-available="dropAvailable"
+         class="btn btn-primary btn-block">
+            <i class="fa fa-upload" aria-hidden="true"></i>Select File
+        <span ng-show="dropAvailable"> or Drop File</span>
+    </div>
+    <br/>
+</div>
