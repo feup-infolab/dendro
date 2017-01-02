@@ -465,5 +465,32 @@ angular.module('dendroApp.controllers')
         $scope.set_from_local_storage_and_then_from_value("restore_area_visible", false);
         $scope.set_from_local_storage_and_then_from_value("showing_deleted_files", false, $scope, "shared");
         $scope.get_folder_contents(true);
+
+        $scope.modelOptionsObj = {
+            debounce:100
+        };
+
+        $scope.multiple = true;
+
+        $scope.pattern="*";
+        $scope.acceptSelect = true;
+        $scope.disabled = false;
+        $scope.capture = "camera";
+
+        $scope.validateObj= {
+            size: {max: '2000MB', min: '10B'},
+            height: {max: 12000},
+            width: {max: 12000},
+            duration: {max: '5m'}
+        };
+
+        $scope.keepDistinct = true;
+        $scope.maxFiles = 10;
+        $scope.ignoreInvalid = false;
+
+        $scope.allowDir = false;
+        $scope.dropAvailable = true;
+
+
     };
 });
