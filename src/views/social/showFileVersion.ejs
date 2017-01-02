@@ -1,10 +1,127 @@
 <%- include ../layout/header.ejs %>
 
-<div ng-controller="fileVersionsCtrl" ng-init="initSingleFileVersion()">
+<div ng-controller="fileVersionsCtrl" ng-init="initSingleFileVersion();get_logged_user();">
     <p>Cenas</p>
     <%= fileVersionUri %>
-    <div ng-init='getFileVersion("<%=fileVersionUri %>")'>
-        {{fileVersionsList["<%= fileVersionUri %>"]}}
+    <div ng-init='getFileVersion("<%=fileVersionUri %>");fileVersionLikesInfo("<%=fileVersionUri %>");getCommentsFromFileVersion("<%=fileVersionUri %>");getSharesFromFileVersion("<%=fileVersionUri %>");'>
+        <div ng-if='fileVersionsList["<%=fileVersionUri %>"].rdf.isShare'>
+            <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+            <p> {{fileVersionsList["<%=fileVersionUri %>"].ddr.userWhoShared.split('/').pop()}} : "{{fileVersionsList["<%=fileVersionUri %>"].ddr.shareMsg}}"</p>
+            <!-- obtain the original post information-->
+            <div ng-init='getFileVersion(fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri)' style="padding-left: 2%">
+                <!-- The info from the original post-->
+                <div class="btn-group" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
+                    <table class="table changelog-table">
+                        <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
+                        <tr>
+                            <th width="14%">
+
+                            </th>
+                            <th width="14%" class="table-centertext">
+                                Author
+                            </th>
+                            <th width="14%">
+                                Change Type
+                            </th>
+                            <th width="14%">
+                                Item Type
+                            </th>
+                            <th width="14%">
+                                Link
+                            </th>
+
+                            <th width="14%">
+                                Name
+                            </th>
+
+                            <th width="14%">
+
+                            </th>
+                        </tr>
+
+                        <tr>
+                            <td> </td>
+                            <td> {{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].ddr.creatorUri}} </td>
+                            <td> add </td>
+                            <td> {{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].ddr.itemType}} </td>
+                            <td> {{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].uri}} </td>
+                            <td> {{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].nfo.fileName}} </td>
+                            <td> </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- aqui -->
+        <div ng-if='!fileVersionsList["<%=fileVersionUri %>"].rdf.isShare'>
+            <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+            <table class="table changelog-table">
+                <tr>
+                    <th width="14%">
+
+                    </th>
+                    <th width="14%" class="table-centertext">
+                        Author
+                    </th>
+                    <th width="14%">
+                        Change Type
+                    </th>
+                    <th width="14%">
+                        Item Type
+                    </th>
+                    <th width="14%">
+                        Link
+                    </th>
+
+                    <th width="14%">
+                        Name
+                    </th>
+
+                    <th width="14%">
+
+                    </th>
+                </tr>
+
+                <tr>
+                    <td> </td>
+                    <td> {{fileVersionsList["<%=fileVersionUri %>"].ddr.creatorUri}} </td>
+                    <td> add </td>
+                    <td> {{fileVersionsList["<%=fileVersionUri %>"].ddr.itemType}} </td>
+                    <td> {{fileVersionsList["<%=fileVersionUri %>"].uri}} </td>
+                    <td> {{fileVersionsList["<%=fileVersionUri %>"].nfo.fileName}} </td>
+                    <td> </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <p> {{likesFileVersionInfo["<%=fileVersionUri %>"].numLikes}} likes, {{commentList["<%=fileVersionUri %>"].length}} comments, {{shareList["<%=fileVersionUri %>"].length}} shares</p>
+    <div class="btn-group">
+        <!--indexOf(substring) > -1-->
+        <label ng-model="checkModel.left" ng-class="likesFileVersionInfo['<%=fileVersionUri %>'].usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data='{{"<%=fileVersionUri %>"}}' ng-click='like_file_version("<%=fileVersionUri %>")'>Like</label>
+        <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data='{{"<%=fileVersionUri %>"}}' ng-click='isReplyFormOpen = !isReplyFormOpen; getCommentsFromFileVersion("<%=fileVersionUri %>");isShareFormOpen = false;'>Comment</label>
+        <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data='{{"<%=fileVersionUri %>"}}' ng-click='isShareFormOpen = !isShareFormOpen; getSharesFromFileVersion("<%=fileVersionUri %>");isReplyFormOpen = false;'>Share</label>
+    </div>
+    <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
+        <div class="wall">
+            <div ng-repeat="comment in commentList['<%=fileVersionUri %>'] | orderBy: 'dcterms.created'">
+                <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
+                <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
+                <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+                <hr>
+            </div>
+            <label for="new_comment_box">{{loggedUser.split('/').pop()}} :</label>
+            <input ng-model="comment_content" type="text" id="new_comment_box"/>
+            <a ng-click="commentFileVersion('<%=fileVersionUri %>',comment_content)" class="btn btn-default btn-primary">Enviar</a>
+        </div>
+    </div>
+
+    <div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare">
+        <div class="wall">
+            <label for="new_fileVersion_box_share">Insira uma share message:</label>
+            <input ng-model="share_content" type="text" id="new_fileVersion_box_share"/>
+            <a ng-click="shareFileVersion('<%=fileVersionUri %>',share_content)" class="btn btn-default btn-primary">Enviar shareMessage</a>
+        </div>
     </div>
 </div>
 <%- include ../layout/footer.ejs %>

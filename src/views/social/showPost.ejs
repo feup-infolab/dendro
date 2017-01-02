@@ -1,5 +1,124 @@
 <%- include ../layout/header.ejs %>
 
+<div ng-controller="timelineCtrl" ng-init="initSinglePost();get_logged_user();">
+    <div ng-init='getPost("<%= postUri %>", null);postLikesInfo("<%= postUri %>");getCommentsFromPost("<%= postUri %>");getSharesFromPost("<%= postUri %>")'>
+        <div ng-if='postList["<%= postUri %>"].rdf.isShare'>
+            <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+            <p> {{postList["<%= postUri %>"].ddr.userWhoShared.split('/').pop()}} : "{{postList["<%= postUri %>"].ddr.shareMsg}}"</p>
+            <!-- obtain the original post information-->
+            <div ng-init='getPost(postList["<%= postUri %>"].ddr.postURI, null);' style="padding-left: 2%">
+                <!-- The info from the original post-->
+                <div class="btn-group" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
+                    <table class="table changelog-table">
+                        <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
+                        <tr>
+                            <th width="14%">
 
+                            </th>
+                            <th width="14%" class="table-centertext">
+                                Author
+                            </th>
+                            <th width="14%">
+                                Change Type
+                            </th>
+                            <th width="14%">
+                                File
+                            </th>
+                            <th width="14%">
+                                Descriptor
+                            </th>
+                            <th width="14%">
+                                Value
+                            </th>
 
+                            <th width="14%">
+
+                            </th>
+                        </tr>
+
+                        <tr>
+                            <td> </td>
+                            <td> <a ng-href='{{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator}}'> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator.split('/').pop()}} </a> </td>
+                            <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changeType}} </td>
+                            <td> <a ng-href="{{postList[postList['<%= postUri %>'].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.hasContent.split('/version/')[0]}} </a> </td>
+                            <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changedDescriptor}} </td>
+                            <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.newValue}} </td>
+                            <td> </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- aqui -->
+        <div ng-if='!postList["<%= postUri %>"].rdf.isShare'>
+            <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+            <table class="table changelog-table">
+                <tr>
+                    <th width="14%">
+
+                    </th>
+                    <th width="14%" class="table-centertext">
+                        Author
+                    </th>
+                    <th width="14%">
+                        Change Type
+                    </th>
+                    <th width="14%">
+                        File
+                    </th>
+                    <th width="14%">
+                        Descriptor
+                    </th>
+                    <th width="14%">
+                        Value
+                    </th>
+
+                    <th width="14%">
+
+                    </th>
+                </tr>
+
+                <tr>
+                    <td> </td>
+                    <td> <a ng-href='{{postList["<%= postUri %>"].dcterms.creator}}'> {{postList["<%= postUri %>"].dcterms.creator.split('/').pop()}} </a> </td>
+                    <td> {{postList["<%= postUri %>"].ddr.changeType}} </td>
+                    <td> <a ng-href="{{postList['<%= postUri %>'].ddr.hasContent.split('/version/')[0]}}"> {{postList["<%= postUri %>"].ddr.hasContent.split('/version/')[0]}} </a> </td>
+                    <td> {{postList["<%= postUri %>"].ddr.changedDescriptor}} </td>
+                    <td> {{postList["<%= postUri %>"].ddr.newValue}} </td>
+                    <td> </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <p> {{likesPostInfo["<%= postUri %>"].numLikes}} likes, {{commentList["<%= postUri %>"].length}} comments, {{shareList["<%= postUri %>"].length}} shares</p>
+    <div class="btn-group">
+        <!--indexOf(substring) > -1-->
+        <label ng-model="checkModel.left" ng-class="likesPostInfo['<%= postUri %>'].usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{postList['<%= postUri %>'].uri}}" ng-click="likePost(postList['<%= postUri %>'].uri)">Like</label>
+        <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{postList['<%= postUri %>'].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; getCommentsFromPost(postList['<%= postUri %>'].uri);isShareFormOpen = false;">Comment</label>
+        <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{postList['<%= postUri %>'].uri}}" ng-click="isShareFormOpen = !isShareFormOpen; getSharesFromPost(postList['<%= postUri %>'].uri);isReplyFormOpen = false;">Share</label>
+    </div>
+
+    <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
+        <div class="wall">
+            <div ng-repeat="comment in commentList[postList['<%= postUri %>'].uri] | orderBy: 'dcterms.created'">
+                <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
+                <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
+                <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+                <hr>
+            </div>
+            <label for="new_post_box">{{loggedUser.split('/').pop()}} :</label>
+            <input ng-model="comment_content" type="text" id="new_post_box"/>
+            <a ng-click="commentPost(postList['<%= postUri %>'].uri,comment_content)" class="btn btn-default btn-primary">Enviar</a>
+        </div>
+    </div>
+
+    <div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare">
+        <div class="wall">
+            <label for="new_post_box_share">Insira uma share message:</label>
+            <input ng-model="share_content" type="text" id="new_post_box_share"/>
+            <a ng-click="sharePost(postList['<%= postUri %>'].uri,share_content)" class="btn btn-default btn-primary">Enviar shareMessage</a>
+        </div>
+    </div>
+</div>
 <%- include ../layout/footer.ejs %>

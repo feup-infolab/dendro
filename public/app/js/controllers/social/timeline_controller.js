@@ -229,6 +229,15 @@ angular.module('dendroApp.controllers')
             //}
         };
 
+        $scope.initSinglePost = function () {
+            $scope.new_post_content = "";
+            $scope.commentList = [];
+            $scope.shareList = [];
+            $scope.likedPosts = [];
+            $scope.postList = [];
+            $scope.likesPostInfo = [];
+        };
+
         $scope.show_popup = function(type, title, message)
         {
             if(type == "success")

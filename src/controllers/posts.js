@@ -1057,3 +1057,70 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
         callback(null, results);
     }
 };
+
+exports.post = function (req, res) {
+    var currentUser = req.session.user;
+    var postUri = "http://"+req.headers.host + req.url;
+    res.render('social/showPost',
+        {
+            postUri : postUri
+        }
+    );
+};
+
+exports.getShare = function (req, res) {
+    var currentUser = req.session.user;
+    var shareUri = "http://"+req.headers.host + req.url;
+    var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersions";
+
+    //TODO find the share in database
+    //TODO see if it has ddr:postURI or ddr:fileVersionUri
+    //TODO redirect to social/showPost or social/showFileVersion
+
+    var query =
+        "WITH [0] \n" +
+        "SELECT ?type \n" +
+        "WHERE { \n" +
+        "[1] rdf:type ?type \n" +
+        "}";
+
+    query = DbConnection.addLimitsClauses(query, null, null);
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resourceNoEscape,
+                value: shareUri
+            }
+        ]),
+        function(err, results) {
+            if(!err)
+            {
+                if(results[0].type == fileVersionType || results[1].type == fileVersionType)
+                {
+                    res.render('social/showFileVersion',
+                        {
+                            fileVersionUri : shareUri
+                        }
+                    );
+                }
+                else
+                {
+                    res.render('social/showPost',
+                        {
+                            postUri : shareUri
+                        }
+                    );
+                }
+            }
+            else
+            {
+                var errorMsg = "Error fetching share";
+                res.send(500, errorMsg);
+            }
+        });
+};
