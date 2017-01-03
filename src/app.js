@@ -1124,6 +1124,8 @@ async.waterfall([
                     }
                     else if(req.query.upload != null)
                     {
+
+                        //TODO resume deve retornar o tamannho do ficheiro já enviado (JSON com campo único "size" ou "length" (ver biblioteca).
                         req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
                         files.upload(req, res);
                     }
