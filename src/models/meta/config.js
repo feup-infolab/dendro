@@ -554,6 +554,36 @@ Config.theme = getConfigParameter("theme");
 
 Config.demo_mode = getConfigParameter("demo_mode");
 
+
+if(Config.demo_mode.active)
+{
+    const exec = require('child_process').exec;
+
+    exec('git status', (error, stdout, stderr) => {
+        if (error == null) {
+            Config.demo_mode.git_info = {};
+
+            exec('git branch | grep "^\* .*$" | cut -c 3- | tr -d "\n"', (error, stdout, stderr) => {
+                if (error == null) {
+                    Config.demo_mode.git_info.active_branch = stdout;
+                }
+            });
+
+            exec('git log -1 | grep "commit.*" | cut -c 8- | tr -d "\n"', (error, stdout, stderr) => {
+                if (error == null) {
+                    Config.demo_mode.git_info.commit_hash = stdout;
+                }
+            });
+
+            exec('git log -1 | grep "Date:.*" | cut -c 9- | tr -d "\n"', (error, stdout, stderr) => {
+                if (error == null) {
+                    Config.demo_mode.git_info.last_commit_date = stdout;
+                }
+            });
+        }
+    });
+}
+
 Config.email = getConfigParameter("email");
 
 module.exports.Config = Config;
