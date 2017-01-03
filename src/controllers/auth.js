@@ -3,8 +3,12 @@ var Config = function() { return GLOBAL.Config; }();
 var db = function() { return GLOBAL.db.default; }();
 
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
 module.exports.login = function(req, res){
+
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
     if(req.originalMethod == "GET")
     {
@@ -22,73 +26,97 @@ module.exports.login = function(req, res){
                     {
                         if( user != null )
                         {
-                            var crypto = require('crypto');
-                            const key = crypto.pbkdf2Sync(req.body.password, user.ddr.salt, 100000, 512, 'sha512');
-                            var encodedPassword = key.toString('hex');
-
-                            var acceptsHTML = req.accepts('html');
-                            var acceptsJSON = req.accepts('json');
-
-                            if(user.ddr.password == encodedPassword)
-                            {
-                                req.session.user = user;
-                                req.session.uploads = new UploadManager(user.ddr.username);
-
-                                user.isAdmin(function(err, isAdmin){
-                                    if(!err)
+                            var bcrypt = require('bcrypt');
+                            console.log(user.ddr.salt);
+                            bcrypt.hash(req.body.password, user.ddr.salt, function(err, hash) {
+                                if(!err)
+                                {
+                                    var encodedPassword = hash;
+                                    if(user.ddr.password == encodedPassword)
                                     {
-                                        req.session.isAdmin = isAdmin;
+                                        req.session.user = user;
+                                        req.session.uploads = new UploadManager(user.ddr.username);
 
+                                        user.isAdmin(function(err, isAdmin){
+                                            if(!err)
+                                            {
+                                                req.session.isAdmin = isAdmin;
+
+                                                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                                                {
+                                                    res.json(
+                                                        {
+                                                            result : "ok",
+                                                            message : "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + "."
+                                                        }
+                                                    );
+                                                }
+                                                else
+                                                {
+                                                    req.flash('success', "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
+                                                    console.log("User " + req.body.username + " signed in.");
+                                                    res.redirect('/projects/my');
+                                                }
+                                            }
+                                            else
+                                            {
+                                                res.json(
+                                                    {
+                                                        result : "error",
+                                                        message : "Error occurred when checking if user " + user.ddr.username + " is an administrator. Error reported: " + JSON.stringify(isAdmin)
+                                                    }
+                                                );
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
                                         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                                         {
-                                            res.json(
+                                            res.status(401).json(
                                                 {
-                                                    result : "ok",
-                                                    message : "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + "."
+                                                    result : "error",
+                                                    message : "Invalid username/password combination."
                                                 }
                                             );
                                         }
                                         else
                                         {
-                                            req.flash('success', "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
-                                            console.log("User " + req.body.username + " signed in.");
-                                            res.redirect('/projects/my');
+                                            res.render('auth/login',
+                                                {
+                                                    title : 'Error Logging in',
+                                                    error_messages: [
+                                                        "Invalid username/password combination"
+                                                    ]
+                                                }
+                                            );
                                         }
                                     }
-                                    else
-                                    {
-                                        res.json(
-                                            {
-                                                result : "error",
-                                                message : "Error occurred when checking if user " + user.ddr.username + " is an administrator. Error reported: " + JSON.stringify(isAdmin)
-                                            }
-                                        );
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-                                {
-                                    res.status(401).json(
-                                        {
-                                            result : "error",
-                                            message : "Invalid username/password combination."
-                                        }
-                                    );
                                 }
                                 else
                                 {
-                                    res.render('auth/login',
-                                        {
-                                            title : 'Error Logging in',
-                                            error_messages: [
-                                                "Invalid username/password combination"
-                                            ]
-                                        }
-                                    );
+                                    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                                    {
+                                        res.status(401).json(
+                                            {
+                                                result : "error",
+                                                message : "Unknown error during authentication"
+                                            }
+                                        );
+                                    }
+                                    else
+                                    {
+                                        res.render('auth/login',
+                                            {
+                                                title : 'Error Logging in',
+                                                error_messages: [
+                                                    "Unknown error during authentication"
+                                                ]
+                                            }
+                                        );
+                                    }
                                 }
-                            }
+                            });
                         }
                         else
                         {

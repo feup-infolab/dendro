@@ -16,7 +16,7 @@ UploadManager.prototype.add_upload = function(filename, parent_folder)
     self.__uploads[id] = newUpload;
 }
 
-UploadManage.prototype.get_upload_by_id = function(id)
+UploadManager.prototype.get_upload_by_id = function(id)
 {
     var self = this;
     return self.__uploads[id];
