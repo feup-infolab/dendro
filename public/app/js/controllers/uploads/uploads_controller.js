@@ -142,6 +142,7 @@ angular.module('dendroApp.controllers')
             {
                 // Math.min is to fix IE which reports 200% sometimes
                 file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                console.log(evt.loaded);
             });
 
             file.upload.xhr(function (xhr)
@@ -173,6 +174,7 @@ angular.module('dendroApp.controllers')
             file.upload.progress(function (evt)
             {
                 file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                console.log(evt.loaded);
             });
         }
 
@@ -210,7 +212,7 @@ angular.module('dendroApp.controllers')
             $scope.disabled = localStorage.getItem('disabled') == 'true' || false;
             $scope.multiple = localStorage.getItem('multiple') == 'true' || true;
             $scope.allowDir = localStorage.getItem('allowDir') == 'true' || false;
-            $scope.validate = localStorage.getItem('validate') || '{size: {max: \'2000MB\', min: \'10B\'}}'; //'{size: {max: \'2000MB\', min: \'10B\'}, height: {max: 12000}, width: {max: 12000}, duration: {max: \'5m\'}}';
+            $scope.validate = localStorage.getItem('validate') || '{size: {max: \'2000MB\', min: \'10B\'}, height: {max: 12000}, width: {max: 12000}, duration: {max: \'5m\'}}';
             $scope.keep = localStorage.getItem('keep') == 'true' || false;
             $scope.keepDistinct = localStorage.getItem('keepDistinct') == 'true' || true;
             $scope.orientation = localStorage.getItem('orientation') == 'true' || false;
