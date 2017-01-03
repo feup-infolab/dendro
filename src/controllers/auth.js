@@ -22,11 +22,9 @@ module.exports.login = function(req, res){
                     {
                         if( user != null )
                         {
-                            var crypto = require('crypto'),
-                                shasum = crypto.createHash('sha1');
-
-                            shasum.update(req.body.password);
-                            var encodedPassword = shasum.digest('hex');
+                            var crypto = require('crypto');
+                            const key = crypto.pbkdf2Sync(req.body.password, user.ddr.salt, 100000, 512, 'sha512');
+                            var encodedPassword = key.toString('hex');
 
                             var acceptsHTML = req.accepts('html');
                             var acceptsJSON = req.accepts('json');
@@ -34,6 +32,7 @@ module.exports.login = function(req, res){
                             if(user.ddr.password == encodedPassword)
                             {
                                 req.session.user = user;
+                                req.session.uploads = new UploadManager(user.ddr.username);
 
                                 user.isAdmin(function(err, isAdmin){
                                     if(!err)

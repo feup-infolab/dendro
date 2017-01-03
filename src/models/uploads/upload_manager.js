@@ -1,6 +1,7 @@
-function UploadManager ()
+function UploadManager (username)
 {
     var self = this;
+    self.username = username;
 
     if(self.__uploads == null)
     {
@@ -8,9 +9,9 @@ function UploadManager ()
     }
 }
 
-UploadManager.prototype.add_upload = function(username, filename, parent_folder)
+UploadManager.prototype.add_upload = function(filename, parent_folder)
 {
-    var newUpload = new Upload(username, filename, parent_folder);
+    var newUpload = new Upload(self.username, filename, parent_folder);
     var id = newUpload.id;
     self.__uploads[id] = newUpload;
 }

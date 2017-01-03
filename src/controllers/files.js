@@ -722,7 +722,7 @@ exports.upload = function(req, res){
 
         req.form.on('progress', function(bytesReceived, bytesExpected) {
             console.log(((bytesReceived / bytesExpected)*100) + "% uploaded");
-
+            //req.session.uploads.
         });
 
         req.form.on('end', function() {

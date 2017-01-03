@@ -26,6 +26,9 @@ function User (object)
 
     self.rdf.type = "ddr:User";
 
+    var crypto = require('crypto');
+    self.ddr.salt = crypto.randomBytes(128).toString('base64');
+
     return self;
 }
 
@@ -116,11 +119,9 @@ User.createAndInsertFromObject = function(object, callback) {
 
     console.log("creating user from object" + util.inspect(object));
 
-    var crypto = require('crypto')
-      , shasum = crypto.createHash('sha1');
-
-    shasum.update(object.ddr.password);
-    self.ddr.password = shasum.digest('hex');
+    var crypto = require('crypto');
+    const key = crypto.pbkdf2Sync(self.ddr.password, self.ddr.salt, 100000, 512, 'sha512');
+    self.ddr.password = key.toString('hex');
 
     //TODO CACHE DONE
 
