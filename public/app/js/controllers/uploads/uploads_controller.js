@@ -117,7 +117,7 @@ angular.module('dendroApp.controllers')
         function uploadUsingUpload(file, resumable)
         {
             var url = URI($scope.upload_url).addSearch($scope.getReqParams()).toString();
-            var uuid = UUIDjs.create().hex;
+            //var uuid = UUIDjs.create().hex;
             
             file.upload = Upload.upload({
                 url: url,
@@ -146,12 +146,12 @@ angular.module('dendroApp.controllers')
             {
                 // Math.min is to fix IE which reports 200% sometimes
                 file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                console.log(evt.loaded);
+                file.upload_id = evt;
             });
 
             file.upload.xhr(function (xhr)
             {
-                // xhr.upload.addEventListener('abort', function(){console.log('abort complete')}, false);
+                //console.log(xhr);
             });
         }
 

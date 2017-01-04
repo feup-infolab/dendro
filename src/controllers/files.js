@@ -722,13 +722,38 @@ exports.upload = function(req, res){
 
         req.form.on('progress', function(bytesReceived, bytesExpected) {
             console.log(((bytesReceived / bytesExpected)*100) + "% uploaded");
-            if(req.session.upload_manager != null)
+            if(req.session.upload_manager != null && req.session.user != null)
             {
-
                 //TODO create new upload if not existent and initialize it...
-                var resume = req.query.resume;
                 var upload_id = req.query.upload_id;
+                var upload = req.session.upload_manager.get_upload_by_id(upload_id)
                 var username = req.query.username;
+
+                if(upload != null)
+                {
+                    if(upload.username === upload.username && req.session.user != null && req.session.user.ddr.username == username)
+                    {
+                        upload.loaded = bytesReceived;
+
+                    }
+                    else
+                    {
+                        res.status(400).json(
+                            {
+                                result : "error",
+                                message : "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
+                            });
+                    }
+                }
+                else
+                {
+                    res.status(400).json(
+                        {
+                            result : "error",
+                            message : "The upload id is invalid."
+                        });
+                }
+
             }
             //req.session.uploads.
         });
@@ -767,28 +792,54 @@ exports.resume = function(req, res)
         var upload_id = req.query.upload_id;
         var username = req.query.username;
 
-        if(req.session.upload_manager != null && resume != null && upload_id != null)
+        if(resume != null)
         {
-            var upload = req.session.upload_manager.get_upload_by_id(upload_id);
-
-            if(upload.username == username)
+            if(req.session.upload_manager != null)
             {
-                res.json({
-                    size: upload.loaded
-                });
+                if (upload_id != null)
+                {
+                    var upload = req.session.upload_manager.get_upload_by_id(upload_id);
+
+                    if (upload.username == username)
+                    {
+                        res.json({
+                            size: upload.loaded
+                        });
+                    }
+                    else
+                    {
+                        var msg = "The upload does not belong to the user currently trying to resume."
+                        console.error(msg);
+                        res.status(400).json({
+                            result: "error",
+                            msg: msg
+                        });
+                    }
+                }
+                else
+                {
+                    res.json({
+                        size: 0
+                    });
+                }
             }
             else
             {
+                var msg = "The user does not have a session initiated."
+                console.error(msg);
                 res.status(400).json({
-                    result : "error",
-                    msg : "Invalid Request. There was no upload_id field in the query, so I don't know which file to resume."
+                    result: "error",
+                    msg: msg
                 });
             }
         }
         else
         {
-            res.json({
-                size: 0
+            var msg = "Invalid Request, does not contain the 'resume' query parameter."
+            console.error(msg);
+            res.status(400).json({
+                result: "error",
+                msg: msg
             });
         }
     }
@@ -796,7 +847,7 @@ exports.resume = function(req, res)
     {
         if(acceptsJSON && !acceptsHTML)
         {
-            var msg = "This is only accessible via GET";
+            var msg = "This is only accessible via GET method";
             req.flash('error', "Invalid Request");
             console.log(msg);
             res.status(400).render('',
@@ -808,7 +859,7 @@ exports.resume = function(req, res)
         {
             res.status(400).json({
                 result : "error",
-                msg : "This API functionality is only accessible via POST."
+                msg : "This API functionality is only accessible via GET method."
             });
         }
 
