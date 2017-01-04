@@ -1170,6 +1170,12 @@ async.waterfall([
                         return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
                                 // OR ELSE SYMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
                     }
+                    else if(req.query.upload != null && req.query.resume  != null)
+                    {
+                        //TODO resume deve retornar o tamannho do ficheiro já enviado (JSON com campo único "size") (ver biblioteca).
+                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                        files.resume(req, res);
+                    }
                     else if(req.query.thumbnail != null)
                     {
                         if(req.params.filepath != null)

@@ -722,6 +722,14 @@ exports.upload = function(req, res){
 
         req.form.on('progress', function(bytesReceived, bytesExpected) {
             console.log(((bytesReceived / bytesExpected)*100) + "% uploaded");
+            if(req.session.upload_manager != null)
+            {
+
+                //TODO create new upload if not existent and initialize it...
+                var resume = req.query.resume;
+                var upload_id = req.query.upload_id;
+                var username = req.query.username;
+            }
             //req.session.uploads.
         });
 
@@ -755,46 +763,33 @@ exports.resume = function(req, res)
 
     if (req.originalMethod == "GET")
     {
-        if(acceptsJSON && !acceptsHTML)
+        var resume = req.query.resume;
+        var upload_id = req.query.upload_id;
+        var username = req.query.username;
+
+        if(req.session.upload_manager != null && resume != null && upload_id != null)
         {
-            var resume = req.query.resume;
-            var upload_id = req.query.upload_id;
-            var username = req.query.username;
+            var upload = req.session.upload_manager.get_upload_by_id(upload_id);
 
-            if(req.session.upload_manager != null && resume != null && upload_id != null)
+            if(upload.username == username)
             {
-                var upload = req.session.upload_manager.get_upload_by_id(upload_id);
-
-                if(upload.username == username)
-                {
-                    res.json({
-                        size: upload.loaded
-                    });
-                }
-                else
-                {
-                    res.status(400).json({
-                        result : "error",
-                        msg : "Invalid Request. There was no upload_id field in the query, so I don't know which file to resume."
-                    });
-                }
+                res.json({
+                    size: upload.loaded
+                });
             }
             else
             {
-                res.json({
-                    size: 0
+                res.status(400).json({
+                    result : "error",
+                    msg : "Invalid Request. There was no upload_id field in the query, so I don't know which file to resume."
                 });
             }
         }
         else
         {
-            var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
-            req.flash('error', "Invalid Request");
-            console.log(msg);
-            res.status(400).render('',
-                {
-                }
-            );
+            res.json({
+                size: 0
+            });
         }
     }
     else

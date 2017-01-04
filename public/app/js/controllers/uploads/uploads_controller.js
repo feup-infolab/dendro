@@ -98,11 +98,16 @@ angular.module('dendroApp.controllers')
         {
             if (Upload.isResumeSupported())
             {
-                $http.get('https://angular-file-upload-cors-srv.appspot.com/upload?restart=true&name=' + encodeURIComponent(file.name)).then(function ()
+                var uploadUri = URI($scope.restart_url).
+                        addQuery("name", encodeURIComponent(file.name)).
+                        addQuery("upload_id", file.upload_id).toString();
+
+                $http.get(uploadUri).then(function ()
                 {
                     $scope.upload(file, true);
                 });
-            } else
+            }
+            else
             {
                 $scope.upload(file);
             }
@@ -112,7 +117,8 @@ angular.module('dendroApp.controllers')
         function uploadUsingUpload(file, resumable)
         {
             var url = URI($scope.upload_url).addSearch($scope.getReqParams()).toString();
-
+            var uuid = UUIDjs.create().hex;
+            
             file.upload = Upload.upload({
                 url: url,
                 resumeSizeUrl: resumable ? $scope.resume_url : null,
@@ -158,7 +164,7 @@ angular.module('dendroApp.controllers')
                 method: 'POST',
                 headers: {
                     'Content-Type': file.type,
-                    'Accept' : "application/raiostepartam2"
+                    'Accept' : "application/json"
                 },
                 data: file
             });
@@ -253,5 +259,6 @@ angular.module('dendroApp.controllers')
         {
             $scope.upload_url = uploadUrl;
             $scope.resume_url = URI($scope.upload_url).addSearch("resume").toString();
+            $scope.restart_url = URI($scope.upload_url).addSearch("restart").toString();
         }
     })
