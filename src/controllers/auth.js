@@ -28,14 +28,13 @@ module.exports.login = function(req, res){
                         {
                             var bcrypt = require('bcrypt');
                             console.log(user.ddr.salt);
-                            bcrypt.hash(req.body.password, user.ddr.salt, function(err, hash) {
+                            bcrypt.hash(req.body.password, user.ddr.salt, function(err, hashedPassword) {
                                 if(!err)
                                 {
-                                    var encodedPassword = hash;
-                                    if(user.ddr.password == encodedPassword)
+                                    if(user.ddr.password == hashedPassword)
                                     {
                                         req.session.user = user;
-                                        req.session.uploads = new UploadManager(user.ddr.username);
+                                        req.session.upload_manager = new UploadManager(user.ddr.username);
 
                                         user.isAdmin(function(err, isAdmin){
                                             if(!err)

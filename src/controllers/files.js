@@ -747,6 +747,79 @@ exports.upload = function(req, res){
     }
 };
 
+exports.resume = function(req, res)
+{
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+
+    if (req.originalMethod == "GET")
+    {
+        if(acceptsJSON && !acceptsHTML)
+        {
+            var resume = req.query.resume;
+            var upload_id = req.query.upload_id;
+            var username = req.query.username;
+
+            if(req.session.upload_manager != null && resume != null && upload_id != null)
+            {
+                var upload = req.session.upload_manager.get_upload_by_id(upload_id);
+
+                if(upload.username == username)
+                {
+                    res.json({
+                        size: upload.loaded
+                    });
+                }
+                else
+                {
+                    res.status(400).json({
+                        result : "error",
+                        msg : "Invalid Request. There was no upload_id field in the query, so I don't know which file to resume."
+                    });
+                }
+            }
+            else
+            {
+                res.json({
+                    size: 0
+                });
+            }
+        }
+        else
+        {
+            var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+            req.flash('error', "Invalid Request");
+            console.log(msg);
+            res.status(400).render('',
+                {
+                }
+            );
+        }
+    }
+    else
+    {
+        if(acceptsJSON && !acceptsHTML)
+        {
+            var msg = "This is only accessible via GET";
+            req.flash('error', "Invalid Request");
+            console.log(msg);
+            res.status(400).render('',
+                {
+                }
+            );
+        }
+        else
+        {
+            res.status(400).json({
+                result : "error",
+                msg : "This API functionality is only accessible via POST."
+            });
+        }
+
+    }
+}
+
 exports.restore = function(req, res){
 
     if (req.originalMethod == "GET")

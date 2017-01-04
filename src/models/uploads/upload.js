@@ -7,11 +7,16 @@ function Upload (object)
         &&
         object.filename != null
         &&
-        object.parent_folder != null)
+        object.parent_folder != null
+        &&
+        object.file != null
+    )
     {
         self.username = object.username;
         self.filename = object.uri;
         self.parentFolder = object.uri;
+        self.file = object.file_location;
+        self.file_location = object.file;
         self.loaded = 0;
         self.id = uuid.v4();
         return self;

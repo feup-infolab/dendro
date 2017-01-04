@@ -111,17 +111,15 @@ angular.module('dendroApp.controllers')
         $scope.chunkSize = 100000;
         function uploadUsingUpload(file, resumable)
         {
-            if(file.uuid == null)
-            {
-                file.uuid = UUIDjs.create(4);
-            }
+            var url = URI($scope.upload_url).addSearch($scope.getReqParams()).toString();
 
             file.upload = Upload.upload({
-                url: $scope.upload_url + $scope.getReqParams(),
-                resumeSizeUrl: resumable ? $scope.upload_url : null,
+                url: url,
+                resumeSizeUrl: resumable ? $scope.resume_url : null,
                 resumeChunkSize: resumable ? $scope.chunkSize : null,
                 headers: {
-                    'optional-header': 'header-value'
+                    'Content-Type': file.type,
+                    'Accept' : "application/json"
                 },
                 data: {
                     file: file
@@ -153,11 +151,14 @@ angular.module('dendroApp.controllers')
 
         function uploadUsing$http(file)
         {
+            var url = URI($scope.upload_url).addSearch($scope.getReqParams()).toString();
+
             file.upload = Upload.http({
-                url: $scope.upload_url + $scope.getReqParams(),
+                url: url,
                 method: 'POST',
                 headers: {
-                    'Content-Type': file.type
+                    'Content-Type': file.type,
+                    'Accept' : "application/raiostepartam2"
                 },
                 data: file
             });
@@ -251,5 +252,6 @@ angular.module('dendroApp.controllers')
         $scope.init = function(uploadUrl)
         {
             $scope.upload_url = uploadUrl;
+            $scope.resume_url = URI($scope.upload_url).addSearch("resume").toString();
         }
     })

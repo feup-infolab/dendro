@@ -763,7 +763,7 @@ exports.administer = function(req, res) {
         else
         {
             viewVars.error_messages = ["Project " + req.params.handle + " does not exist."];
-            res.render('/',
+            res.render('',
                 viewVars
             );
         }
@@ -1188,10 +1188,10 @@ exports.interactions = function(req, res) {
     }
     else
     {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing";
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         console.log(msg);
-        res.status(400).render('/',
+        res.status(400).render('',
             {
             }
         );

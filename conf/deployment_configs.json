@@ -69,7 +69,7 @@
     ],
     "demo_mode" :
     {
-      "active": false,
+      "active": true,
       "users":
       [
         {

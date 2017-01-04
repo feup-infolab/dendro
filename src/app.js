@@ -31,6 +31,7 @@ var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/
 var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
 var async = require('async');
 var util = require('util');
@@ -128,6 +129,7 @@ var signInDebugUser = function(req, res, next)
                     if(req.session.user == null)
                     {
                         req.session.user = user;
+                        req.session.upload_manager = new UploadManager(user.ddr.username);
                     }
 
                     // Pass the request to express
@@ -1059,6 +1061,12 @@ async.waterfall([
                         return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
                         // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
                     }
+                    else if(req.query.upload != null && req.query.resume  != null)
+                    {
+                        //TODO resume deve retornar o tamannho do ficheiro já enviado (JSON com campo único "size") (ver biblioteca).
+                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                        files.resume(req, res);
+                    }
                     else if(req.query.ls != null)
                     {
                         files.ls(req, res);
@@ -1123,7 +1131,6 @@ async.waterfall([
                     }
                     else if(req.query.upload != null)
                     {
-                        //TODO resume deve retornar o tamannho do ficheiro já enviado (JSON com campo único "size" ou "length" (ver biblioteca).
                         req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
                         files.upload(req, res);
                     }
