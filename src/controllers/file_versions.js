@@ -14,7 +14,6 @@ var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
 var db_notification = function () { return GLOBAL.db.notification;}();
 
-//NELSON
 var app = require('../app');
 
 var numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
@@ -94,20 +93,6 @@ exports.numFileVersionsInDatabase = function (req, res) {
             });
         }
     });
-
-    /*
-    numFileVersionsDatabaseAux(function (err, count) {
-        if(!err)
-        {
-            res.json(count);
-        }
-        else{
-            res.status(500).json({
-                result : "Error",
-                message : "Error counting FileVersions. " + JSON.stringify(err)
-            });
-        }
-    });*/
 };
 
 var getProjectFileVersions = function (projectUrisArray, startingResultPosition, maxResults, callback) {
@@ -126,24 +111,11 @@ var getProjectFileVersions = function (projectUrisArray, startingResultPosition,
                 "VALUES ?project { \n" +
                 projectsUris + "\n" +
                 "}. \n" +
-                //"?fileVersion nie:contentLastModified ?date. \n" +
-                //"{?fileVersion nie:contentLastModified ?date} UNION {?fileVersion dcterms:modified ?date} \n" +
                 "?fileVersion dcterms:modified ?date. \n" +
                 "?fileVersion rdf:type ddr:FileVersions. \n" +
                 "?fileVersion ddr:projectUri ?project. \n" +
                 "} \n "+
                 "ORDER BY DESC(?date) \n";
-
-
-            /*
-             var query =
-             "WITH [0] \n" +
-             "SELECT DISTINCT ?fileVersion \n" +
-             "WHERE { \n" +
-             "{?fileVersion nie:contentLastModified ?date} UNION {?fileVersion dcterms:modified ?date} \n" +
-             "?fileVersion rdf:type ddr:FileVersions. \n" +
-             "} \n "+
-             "ORDER BY DESC(?date) \n";*/
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
@@ -176,12 +148,6 @@ var getProjectFileVersions = function (projectUrisArray, startingResultPosition,
 };
 
 exports.all = function (req, res) {
-    //TODO
-        //get all user projects
-        //query to get all fileVersions for with a specific project uri
-        //order query by data
-        //paginate results
-
     var currentUserUri = req.session.user.uri;
     var currentPage = req.query.currentPage;
     var index = currentPage == 1? 0 : (currentPage*5) - 5;
@@ -427,9 +393,8 @@ var removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) {
         "SELECT ?likeURI \n" +
         "FROM [0] \n" +
         "WHERE { \n" +
-        //"?likeURI ddr:postURI ?postID \n" +
         "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +//TODO this could be wrong
+        "?likeURI ddr:postURI [1]. \n" +
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
@@ -554,7 +519,8 @@ exports.share = function (req, res) {
                 userWhoActed : currentUser.uri,
                 resourceTargetUri: fileVersion.uri,
                 actionType: "Share",
-                resourceAuthorUri: fileVersion.ddr.creatorUri
+                resourceAuthorUri: fileVersion.ddr.creatorUri,
+                shareURI : newShare.uri
             },
             foaf :
             {
@@ -599,7 +565,6 @@ exports.share = function (req, res) {
 exports.getFileVersionShares = function (req, res) {
     var currentUser = req.session.user;
     var fileVersionUri = req.body.fileVersionUri;
-
 
     getSharesForAFileVersion(fileVersionUri, function (err, shares) {
         if(err)

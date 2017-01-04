@@ -977,6 +977,12 @@ Elements.ddr = {
         api_readable: true,
         control : Config.controls.input_box
     },
+    shareURI :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
     userWhoShared :
     {
         type : DbConnection.resource,

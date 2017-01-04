@@ -380,7 +380,8 @@ exports.share = function (req, res) {
                 userWhoActed : currentUser.uri,
                 resourceTargetUri: post.uri,
                 actionType: "Share",
-                resourceAuthorUri: post.dcterms.creator
+                resourceAuthorUri: post.dcterms.creator,
+                shareURI : newShare.uri
             },
             foaf :
             {

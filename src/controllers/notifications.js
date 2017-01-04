@@ -12,17 +12,6 @@ var app = require('../app');
 //Get user notifications for a specific user, ordered by date
 exports.get_unread_user_notifications = function (req ,res) {
 
-    /*
-    WITH <http://127.0.0.1:3001/notification_dendro>
-    SELECT ?uri
-        WHERE {
-        ?uri rdf:type ddr:Notification.
-            ?uri ddr:resourceAuthorUri <http://127.0.0.1:3001/user/demouser1>.
-        ?uri dcterms:modified ?date.
-            ?uri foaf:status "unread"
-    }
-    ORDER BY DESC(?date)*/
-
     var userUri = req.session.user.uri;
 
     if(userUri)
@@ -79,39 +68,19 @@ exports.get_unread_user_notifications = function (req ,res) {
 exports.get_notification_info = function (req, res) {
     var userUri = req.session.user.uri;
     var notificationUri = req.query.notificationUri;
-    //var notificationUri = req.body["notificationUri"];
 
     if(userUri && notificationUri)
     {
-        /*
-        WITH <http://127.0.0.1:3001/notification_dendro>
-        SELECT ?p ?v
-            WHERE {
-        <http://127.0.0.1:3001/notifications/ca772147-9b4f-48af-bfbe-6b4800825ecb> ?p ?v.
-    <http://127.0.0.1:3001/notifications/ca772147-9b4f-48af-bfbe-6b4800825ecb> ddr:resourceAuthorUri <http://127.0.0.1:3001/user/demouser1>.
-        }*/
-
-        /*
-         WITH <http://127.0.0.1:3001/notification_dendro>
-         SELECT ?actionType ?userWhoActed ?resourceTargetUri
-         WHERE {
-         <http://127.0.0.1:3001/notifications/26e4342e-7e45-467a-acde-5b71c816b179> ddr:actionType ?actionType.
-         <http://127.0.0.1:3001/notifications/26e4342e-7e45-467a-acde-5b71c816b179> ddr:userWhoActed ?userWhoActed.
-         <http://127.0.0.1:3001/notifications/26e4342e-7e45-467a-acde-5b71c816b179> ddr:resourceTargetUri ?resourceTargetUri.
-         <http://127.0.0.1:3001/notifications/26e4342e-7e45-467a-acde-5b71c816b179> ddr:resourceAuthorUri <http://127.0.0.1:3001/user/demouser1>.
-         }
-         */
-
-
         var query =
             "WITH [0] \n" +
-            "SELECT ?actionType ?userWhoActed ?resourceTargetUri ?modified \n" +
+            "SELECT ?actionType ?userWhoActed ?resourceTargetUri ?modified ?shareURI\n" +
             "WHERE { \n" +
             "[1] ddr:actionType ?actionType. \n" +
             "[1] ddr:userWhoActed ?userWhoActed. \n" +
             "[1] ddr:resourceTargetUri ?resourceTargetUri. \n" +
             "[1] ddr:resourceAuthorUri [2]. \n"+
             "[1] dcterms:modified ?modified. \n"+
+            "OPTIONAL { [1] ddr:shareURI ?shareURI. } \n"+
             "} \n";
 
         query = DbConnection.addLimitsClauses(query, null, null);
@@ -160,14 +129,7 @@ exports.get_notification_info = function (req, res) {
 exports.delete = function (req, res) {
     var userUri = req.session.user.uri;
     var notificationUri = req.query.notificationUri;
-
-    /*
-    WITH <http://127.0.0.1:3001/notification_dendro>
-    DELETE {<http://127.0.0.1:3001/notifications/aed49895-cc2f-40f6-80c3-5e56983d514c> ?p ?v}
-        WHERE {
-    <http://127.0.0.1:3001/notifications/aed49895-cc2f-40f6-80c3-5e56983d514c> ?p ?v.
-            <http://127.0.0.1:3001/notifications/aed49895-cc2f-40f6-80c3-5e56983d514c> ddr:resourceAuthorUri <http://127.0.0.1:3001/user/demouser1>.
-            }*/
+    
     if(userUri && notificationUri)
     {
         var query =
