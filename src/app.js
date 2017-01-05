@@ -655,7 +655,7 @@ async.waterfall([
                 }
                 else
                 {
-                    console.log("[ERROR] Unable to delete user with username " + username + ". Error: " + user);
+                    console.log("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
                     callback(err, result);
                 }
             });
