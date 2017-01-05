@@ -1,25 +1,36 @@
-function UploadManager (username)
-{
-    var self = this;
-    self.username = username;
+var Config = function() { return GLOBAL.Config; }();
+var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+var Upload = require(Config.absPathInSrcFolder("/models/uploads/upload.js")).Upload;
 
-    if(self.__uploads == null)
-    {
-        self.__uploads = {};
-    }
+function UploadManager ()
+{
 }
 
-UploadManager.prototype.add_upload = function(filename, parent_folder)
+if(UploadManager.__uploads == null)
 {
-    var newUpload = new Upload(self.username, filename, parent_folder);
+    UploadManager.__uploads = {};
+}
+
+UploadManager.add_upload = function(username, filename, parent_folder)
+{
+    var newUpload = new Upload(
+        {
+            username : username,
+            filename : filename,
+            parent_folder : parent_folder
+    });
+
     var id = newUpload.id;
-    self.__uploads[id] = newUpload;
+    UploadManager.__uploads[id] = newUpload;
+    return newUpload;
 }
 
-UploadManager.prototype.get_upload_by_id = function(id)
+UploadManager.get_upload_by_id = function(id)
 {
-    var self = this;
-    return self.__uploads[id];
+    return UploadManager.__uploads[id];
+    return UploadManager.__uploads[id];
 }
 
-exports.UploadManager = UploadManager;
+UploadManager = Class.extend(UploadManager, Class);
+
+module.exports.UploadManager = UploadManager;

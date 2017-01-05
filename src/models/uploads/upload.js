@@ -1,5 +1,10 @@
+var Config = function() { return GLOBAL.Config; }();
+var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+
 function Upload (object)
 {
+    Upload.baseConstructor.call(this, object);
+
     var self = this;
     var uuid = require('node-uuid');
 
@@ -8,16 +13,20 @@ function Upload (object)
         object.filename != null
         &&
         object.parent_folder != null
-        &&
-        object.file != null
     )
     {
         self.username = object.username;
-        self.filename = object.uri;
-        self.parentFolder = object.uri;
-        self.file = object.file_location;
-        self.file_location = object.file;
-        self.loaded = 0;
+        self.filename = object.filename;
+        self.parentFolder = object.parent_folder;
+
+        if(self.loaded == null){
+            self.loaded = 0;
+        }
+        else
+        {
+            self.loaded = object.loaded;
+        }
+
         self.id = uuid.v4();
         return self;
     }
@@ -27,4 +36,6 @@ function Upload (object)
     }
 }
 
-exports.Upload = Upload;
+Upload = Class.extend(Upload, Class);
+
+module.exports.Upload = Upload;

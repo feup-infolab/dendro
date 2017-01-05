@@ -98,7 +98,7 @@
                  id="file_upload_area"
                  ng-show="upload_area_visible">
                 <br/>
-                <div ng-controller="uploadsCtrl" ng-init="init(get_upload_url())">
+                <div ng-controller="uploadsCtrl" ng-init="init(get_upload_url(), get_resume_url(), get_restart_url())">
                     <div class="col-xs-12">
                         <%- include ../uploads/upload_box.ejs %>
                     </div>
@@ -159,7 +159,7 @@
                 </script>
             </div>
 
-            <div class="row ng-hide" id="restore_upload_area" ng-show="restore_area_visible" ng-controller="uploadsCtrl" ng-init="init(get_restore_url())">
+            <div class="row ng-hide" id="restore_upload_area" ng-show="restore_area_visible" ng-controller="uploadsCtrl" ng-init="init(get_upload_url(), get_resume_url(), get_restart_url())">
                 <div class="col-xs-12">
                     <%- include ../uploads/upload_box.ejs %>
                 </div>

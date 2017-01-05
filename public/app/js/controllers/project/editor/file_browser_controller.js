@@ -28,6 +28,7 @@ angular.module('dendroApp.controllers')
     {
         return windowService.get_current_url() + "?upload";
     }
+
     $scope.get_restore_url = function()
     {
         return windowService.get_current_url() + "?restore";

@@ -967,6 +967,7 @@ async.waterfall([
         //people listing
         app.get('/users', users.all);
         app.get('/user/:username', async.apply(Permissions.require, [Permissions.acl.user]), users.show);
+        app.get('/users/loggedUser', async.apply(Permissions.require, [Permissions.acl.user]), users.getLoggedUser);
 
         app.all('/reset_password', users.reset_password);
         app.all('/set_new_password', users.set_new_password);
@@ -1047,7 +1048,7 @@ async.waterfall([
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?$/,
             async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-            function(req,res)
+            function(req,res, next)
             {
                 req.params.handle = req.params[0];                      //project handle
                 req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
@@ -1061,11 +1062,19 @@ async.waterfall([
                         return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
                         // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
                     }
-                    else if(req.query.upload != null && req.query.resume  != null)
+                    else if(req.query.upload != null)
                     {
-                        //TODO resume deve retornar o tamannho do ficheiro já enviado (JSON com campo único "size") (ver biblioteca).
-                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                        files.resume(req, res);
+                        multipartyMiddleware(req,res,function(err){
+                            if(err)
+                            {
+                                next(err);
+                            }
+                            else
+                            {
+                                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                                files.upload(req, res);
+                            }
+                        });
                     }
                     else if(req.query.ls != null)
                     {
@@ -1129,10 +1138,19 @@ async.waterfall([
                         req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
                         files.mkdir(req, res);
                     }
-                    else if(req.query.upload != null)
+                    else if(req.query.upload != null && req.query.resume != null)
                     {
-                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                        files.upload(req, res);
+                        multipartyMiddleware(req,res,function(err){
+                            if(err)
+                            {
+                                next(err);
+                            }
+                            else
+                            {
+                                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                                files.upload(req, res);
+                            }
+                        });
                     }
                     else if(req.query.restore != null)
                     {
@@ -1154,7 +1172,7 @@ async.waterfall([
         //      downloads
         app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
             async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
-            function(req,res)
+            function(req,res, next)
             {
                 req.params.handle = req.params[0];                      //project handle
                 req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
@@ -1172,9 +1190,17 @@ async.waterfall([
                     }
                     else if(req.query.upload != null && req.query.resume  != null)
                     {
-                        //TODO resume deve retornar o tamannho do ficheiro já enviado (JSON com campo único "size") (ver biblioteca).
-                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                        files.resume(req, res);
+                        multipartyMiddleware(req,res,function(err){
+                            if(err)
+                            {
+                                next(err);
+                            }
+                            else
+                            {
+                                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                                files.upload(req, res);
+                            }
+                        });
                     }
                     else if(req.query.thumbnail != null)
                     {
@@ -1307,7 +1333,17 @@ async.waterfall([
                     }
                     else if(req.query.upload != null)
                     {
-                        files.upload(req, res);
+                        multipartyMiddleware(req,res,function(err){
+                            if(err)
+                            {
+                                next(err);
+                            }
+                            else
+                            {
+                                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                                files.upload(req, res);
+                            }
+                        });
                     }
                     else if(req.query.restore != null)
                     {

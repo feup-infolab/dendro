@@ -2,25 +2,30 @@ angular.module('dendroApp.controllers')
     /*
      *  File Browser controller
      */
-    .controller('uploadsCtrl', function ($scope,
-                                             $http,
-                                             $filter,
-                                             $q,
-                                             $log,
-                                             $timeout,
-                                             $compile,
-                                             Upload,
-                                             focus,
-                                             preview,
-                                             $localStorage,
-                                             metadataService,
-                                             windowService,
-                                             cacheService,
-                                             filesService,
-                                             interactionsService,
-                                             ontologiesService,
-                                             storageService,
-                                             recommendationService)
+    .controller('uploadsCtrl',
+        [
+            '$scope',
+            '$http',
+            '$filter',
+            '$q',
+            '$log',
+            '$timeout',
+            '$compile',
+            'Upload',
+            'usersService',
+            'windowService',
+            function (
+                $scope,
+                $http,
+                $filter,
+                $q,
+                $log,
+                $timeout,
+                $compile,
+                Upload,
+                usersService,
+                windowService
+            )
     {
         $scope.usingFlash = FileAPI && FileAPI.upload != null;
         //Upload.setDefaults({ngfKeep: true, ngfPattern:'image/*'});
@@ -98,14 +103,23 @@ angular.module('dendroApp.controllers')
         {
             if (Upload.isResumeSupported())
             {
-                var uploadUri = URI($scope.restart_url).
-                        addQuery("name", encodeURIComponent(file.name)).
+                usersService.get_logged_user()
+                    .then(function(response){
+                        var username = response.data.ddr.username;
+                        var uploadUri = URI($scope.restart_url).
+                        addQuery("filename", encodeURIComponent(file.name)).
+                        addQuery("username", username).
                         addQuery("upload_id", file.upload_id).toString();
 
-                $http.get(uploadUri).then(function ()
-                {
-                    $scope.upload(file, true);
-                });
+                        $http.get(uploadUri).then(function ()
+                        {
+                            $scope.upload(file, true);
+                        });
+                    })
+                    .catch(function(error)
+                    {
+                        windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
+                    });
             }
             else
             {
@@ -146,7 +160,7 @@ angular.module('dendroApp.controllers')
             {
                 // Math.min is to fix IE which reports 200% sometimes
                 file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                file.upload_id = evt;
+                console.log(file.progress);
             });
 
             file.upload.xhr(function (xhr)
@@ -261,4 +275,5 @@ angular.module('dendroApp.controllers')
             $scope.resume_url = URI($scope.upload_url).addSearch("resume").toString();
             $scope.restart_url = URI($scope.upload_url).addSearch("restart").toString();
         }
-    })
+    }
+]);

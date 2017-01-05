@@ -6,6 +6,7 @@ var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/fold
 var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
 var db = function() { return GLOBAL.db.default; }();
 
@@ -617,11 +618,59 @@ exports.get_thumbnail = function(req, res) {
 exports.upload = function(req, res){
    if (req.originalMethod == "GET")
     {
-        res.render('files/upload',
+        var upload_id = req.query.upload_id;
+        var upload = UploadManager.get_upload_by_id(upload_id);
+        var username = req.query.username;
+
+        if(
+            upload_id != null &&
+            upload_id != "" &&
+            username != null
+        )
+        {
+            if(req.session.upload_manager != null && req.session.user != null)
             {
+                if(upload != null)
+                {
+                    if(upload.username === upload.username && req.session.user != null && req.session.user.ddr.username == username)
+                    {
+                        upload.loaded = bytesReceived;
+                        res.json({
+                            size: upload.loaded
+                        });
+                    }
+                    else
+                    {
+                        res.status(400).json(
+                            {
+                                result : "error",
+                                message : "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
+                            });
+                    }
+                }
+                else
+                {
+                    res.status(400).json(
+                        {
+                            result : "error",
+                            message : "The upload id is invalid."
+                        });
+                }
 
             }
-        );
+        }
+        else
+        {
+            var newUpload = UploadManager.add_upload(
+                req.session.user.ddr.username,
+                req.query.filename,
+                req.params.requestedResource
+            );
+
+            res.json({
+                size: newUpload.loaded
+            });
+        }
     }
     else if (req.originalMethod == "POST")
     {
@@ -720,65 +769,29 @@ exports.upload = function(req, res){
             }
         };
 
-        req.form.on('progress', function(bytesReceived, bytesExpected) {
-            console.log(((bytesReceived / bytesExpected)*100) + "% uploaded");
-            if(req.session.upload_manager != null && req.session.user != null)
-            {
-                //TODO create new upload if not existent and initialize it...
-                var upload_id = req.query.upload_id;
-                var upload = req.session.upload_manager.get_upload_by_id(upload_id)
-                var username = req.query.username;
-
-                if(upload != null)
+        req.form.on('error', function(err) {
+            res.status(500).json(
                 {
-                    if(upload.username === upload.username && req.session.user != null && req.session.user.ddr.username == username)
-                    {
-                        upload.loaded = bytesReceived;
-                    }
-                    else
-                    {
-                        res.status(400).json(
-                            {
-                                result : "error",
-                                message : "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
-                            });
-                    }
-                }
-                else
-                {
-                    res.status(400).json(
-                        {
-                            result : "error",
-                            message : "The upload id is invalid."
-                        });
-                }
-
-            }
-            //req.session.uploads.
+                    result : "error",
+                    message : "an error occurred on file upload"
+                });
         });
 
-        if(req.form.ended)
-        {
-            //processFiles();
-        }
-        else
-        {
-            req.form.on('error', function(err) {
-                res.status(500).json(
-                    {
-                        result : "error",
-                        message : "an error occurred on file upload"
-                    });
-            });
+        req.form.on('aborted', function() {
+            res.status(500).json(
+                {
+                    result : "aborted",
+                    message : "request aborted by user"
+                });
+        });
 
-            req.form.on('aborted', function() {
-                res.status(500).json(
-                    {
-                        result : "aborted",
-                        message : "request aborted by user"
-                    });
-            });
-        }
+        req.form.on('progress', function(bytesReceived, bytesExpected) {
+            console.log(((bytesReceived / bytesExpected)*100) + "% uploaded");
+        });
+
+        req.form.on('end', function() {
+            processFiles();
+        });
     }
 };
 
