@@ -9,7 +9,7 @@ angular.module('dendroApp.controllers')
         $scope.fileVersions = [];
         $scope.totalFileVersions = 0;
         $scope.fileVersionsPerPage = 5; // this should match however many results your API puts on one page
-        $scope.render = false;
+        $scope.renderFileVersions = false;
 
         $scope.pagination = {
             current: 1
@@ -88,15 +88,16 @@ angular.module('dendroApp.controllers')
 
             //if(jQueryInnerItem.hasClass("active"))
             //{
-            if($scope.render)
+            if($scope.renderFileVersions)
             {
                 $scope.commentList = [];
                 $scope.shareList = [];
                 $scope.likedFileVersions = [];
                 $scope.fileVersionsList = [];
                 $scope.likesFileVersionInfo = [];
-                $scope.countNumFileVersions();
-                $scope.get_all_file_versions($scope.pagination.current);
+                //$scope.countNumFileVersions();
+                //$scope.get_all_file_versions($scope.pagination.current);
+                $scope.pageChangeHandlerFVersion($scope.pagination.current);
             }
             //}
         };
@@ -182,7 +183,8 @@ angular.module('dendroApp.controllers')
                 });
         };
 
-        $scope.pageChangeHandler = function(num) {
+        $scope.pageChangeHandlerFVersion = function(num) {
+            console.log('fversion change page to: ', num);
             $scope.countNumFileVersions();
             $scope.get_all_file_versions(num);
             $window.scrollTo(0, 0);//to scroll up to the top on page change
@@ -254,7 +256,15 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.$on('tab_changed fileVersions', function(event, args) {
-            $scope.render = true;
+        //$scope.$on('cenas2', function(event, args) {
+            $scope.commentList = [];
+            $scope.shareList = [];
+            $scope.likedFileVersions = [];
+            $scope.fileVersionsList = [];
+            $scope.likesFileVersionInfo = [];
+
+            $scope.renderFileVersions = true;
+            $scope.pagination.current = 1;
             $scope.init();
         });
     });

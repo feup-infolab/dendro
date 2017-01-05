@@ -6,7 +6,10 @@ angular.module('dendroApp.controllers')
     {
         $scope.tab_changed = function(tabName) {
             //$window.location.reload();
-            $scope.$broadcast('tab_changed ' + tabName);
+            //$scope.$broadcast('tab_changed ' + tabName);
+            var tabID = "tab_changed " + tabName;
+
+            $scope.$broadcast(tabID, null);
         };
 
         /*$scope.pageChangeHandler = function(num) {

@@ -40,7 +40,7 @@
                             <td> </td>
                             <td> <a ng-href='{{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator}}'> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator.split('/').pop()}} </a> </td>
                             <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changeType}} </td>
-                            <td> <a ng-href="{{postList[postList['<%= postUri %>'].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.hasContent.split('/version/')[0]}} </a> </td>
+                            <td> <a ng-href="{{postList[postList['<%= postUri %>'].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
                             <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changedDescriptor}} </td>
                             <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.newValue}} </td>
                             <td> </td>
@@ -83,7 +83,7 @@
                     <td> </td>
                     <td> <a ng-href='{{postList["<%= postUri %>"].dcterms.creator}}'> {{postList["<%= postUri %>"].dcterms.creator.split('/').pop()}} </a> </td>
                     <td> {{postList["<%= postUri %>"].ddr.changeType}} </td>
-                    <td> <a ng-href="{{postList['<%= postUri %>'].ddr.hasContent.split('/version/')[0]}}"> {{postList["<%= postUri %>"].ddr.hasContent.split('/version/')[0]}} </a> </td>
+                    <td> <a ng-href="{{postList['<%= postUri %>'].ddr.hasContent.split('/version/')[0]}}"> {{postList["<%= postUri %>"].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
                     <td> {{postList["<%= postUri %>"].ddr.changedDescriptor}} </td>
                     <td> {{postList["<%= postUri %>"].ddr.newValue}} </td>
                     <td> </td>

@@ -9,7 +9,7 @@ angular.module('dendroApp.controllers')
         $scope.countCenas = 1;
         $scope.totalPosts = 0;
         $scope.postsPerPage = 5; // this should match however many results your API puts on one page
-        $scope.render = false;
+        $scope.renderPosts = false;
 
         $scope.pagination = {
             current: 1
@@ -215,16 +215,17 @@ angular.module('dendroApp.controllers')
 
             //if(jQueryInnerItem.hasClass("active"))
             //{
-            if($scope.render)
+            if($scope.renderPosts)
             {
                 $scope.new_post_content = "";
                 $scope.commentList = [];
                 $scope.shareList = [];
                 $scope.likedPosts = [];
                 $scope.postList = [];
-                $scope.countNumPosts();
-                $scope.get_all_posts($scope.pagination.current);
                 $scope.likesPostInfo = [];
+                //$scope.countNumPosts();
+                //$scope.get_all_posts($scope.pagination.current);
+                $scope.pageChangeHandler($scope.pagination.current);
             }
             //}
         };
@@ -305,12 +306,15 @@ angular.module('dendroApp.controllers')
 
         $scope.pageChangeHandler = function(num) {
             console.log("Im here going to page: ", num);
+            $scope.countNumPosts();
             $scope.get_all_posts(num);
             $window.scrollTo(0, 0);//to scroll up to the top on page change
         };
 
         $scope.$on('tab_changed timeline', function(event, args) {
-            $scope.render = true;
+        //$scope.$on('cenas1', function(event, args) {
+            $scope.renderPosts = true;
+            $scope.pagination.current = 1;
             $scope.init();
         });
     });

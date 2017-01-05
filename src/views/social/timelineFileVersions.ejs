@@ -1,8 +1,4 @@
-<div>
-    <p> This is file versions timeline </p>
-    <p> Number of file versions {{totalFileVersions}} </p>
-
-    {{fileVersions}}
+<div ng-cloak>
     <div class="container">
         <h3>File Versions Timeline</h3>
         <hr>
@@ -46,11 +42,11 @@
 
                                     <tr>
                                         <td> </td>
-                                        <td> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri}} </td>
+                                        <td> <a ng-href="{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri}}">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}}</a> </td>
                                         <td> add </td>
                                         <td> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.itemType}} </td>
-                                        <td> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].uri}} </td>
-                                        <td> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].nfo.fileName}} </td>
+                                        <td> <a ng-href="{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].uri}}">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].uri.split('/').pop()}}</a>  </td>
+                                        <td> <a ng-href="{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].nfo.fileName}}">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].nfo.fileName.split('\\').pop()}}</a></td>
                                         <td> </td>
                                     </tr>
                                 </table>
@@ -88,11 +84,11 @@
 
                             <tr>
                                 <td> </td>
-                                <td> {{fileVersionsList[fVersion.fileVersion].ddr.creatorUri}} </td>
+                                <td> <a ng-href="{{fileVersionsList[fVersion.fileVersion].ddr.creatorUri}}">{{fileVersionsList[fVersion.fileVersion].ddr.creatorUri.split('/').pop()}}</a> </td>
                                 <td> add </td>
                                 <td> {{fileVersionsList[fVersion.fileVersion].ddr.itemType}} </td>
-                                <td> {{fileVersionsList[fVersion.fileVersion].uri}} </td>
-                                <td> {{fileVersionsList[fVersion.fileVersion].nfo.fileName}} </td>
+                                <td> <a ng-href="{{fileVersionsList[fVersion.fileVersion].uri}}">{{fileVersionsList[fVersion.fileVersion].uri.split('/').pop()}}</a>  </td>
+                                <td> <a ng-href="{{fileVersionsList[fVersion.fileVersion].nfo.fileName}}">{{fileVersionsList[fVersion.fileVersion].nfo.fileName.split('\\').pop()}}</a></td>
                                 <td> </td>
                             </tr>
                         </table>
@@ -134,7 +130,7 @@
     <div>
         <small>this is in "fileVersionsCtrl"</small>
         <div class="text-center">
-            <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/bower_components/angular-utils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
+            <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandlerFVersion(newPageNumber)" template-url="/bower_components/angular-utils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
         </div>
     </div>
 </div>
