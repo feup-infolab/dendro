@@ -734,7 +734,6 @@ exports.upload = function(req, res){
                     if(upload.username === upload.username && req.session.user != null && req.session.user.ddr.username == username)
                     {
                         upload.loaded = bytesReceived;
-
                     }
                     else
                     {
@@ -758,25 +757,28 @@ exports.upload = function(req, res){
             //req.session.uploads.
         });
 
-        req.form.on('end', function() {
-            processFiles();
-        });
+        if(req.form.ended)
+        {
+            //processFiles();
+        }
+        else
+        {
+            req.form.on('error', function(err) {
+                res.status(500).json(
+                    {
+                        result : "error",
+                        message : "an error occurred on file upload"
+                    });
+            });
 
-        req.form.on('error', function(err) {
-            res.status(500).json(
-                {
-                    result : "error",
-                    message : "an error occurred on file upload"
-                });
-        });
-
-        req.form.on('aborted', function() {
-            res.status(500).json(
-                {
-                    result : "aborted",
-                    message : "request aborted by user"
-                });
-        });
+            req.form.on('aborted', function() {
+                res.status(500).json(
+                    {
+                        result : "aborted",
+                        message : "request aborted by user"
+                    });
+            });
+        }
     }
 };
 
