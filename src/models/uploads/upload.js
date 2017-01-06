@@ -32,7 +32,7 @@ function Upload (object)
     }
     else
     {
-        throw "An upload must have a owner username, a filename and a parent folder."
+        throw "An upload must have the query fields : username, a filename and a parent folder."
     }
 }
 

@@ -1062,7 +1062,7 @@ async.waterfall([
                         return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
                         // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
                     }
-                    else if(req.query.upload != null)
+                    else if(req.query.upload != null && req.query.resume != null)
                     {
                         multipartyMiddleware(req,res,function(err){
                             if(err)
@@ -1331,7 +1331,7 @@ async.waterfall([
                     {
                         files.mkdir(req, res);
                     }
-                    else if(req.query.upload != null)
+                    else if(req.query.upload != null && req.query.resume != null)
                     {
                         multipartyMiddleware(req,res,function(err){
                             if(err)
