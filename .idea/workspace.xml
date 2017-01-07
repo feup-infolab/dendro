@@ -5,10 +5,161 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="37a74947-2fdb-4da4-b1fb-85b8b233ca6b" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/controllers/medltypes.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/models/game/medal.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/models/game/medal_type.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/models/game/progress.js" />
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/views/medal_types/all.ejs" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/libraries/dendro_node_modules.xml" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:a.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:form.FormController.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:form.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:input.checkbox.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:input.email.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:input.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:input.number.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:input.radio.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:input.text.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:input.url.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngApp.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngBind.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngBindHtml.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngBindTemplate.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngBlur.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngChange.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngChecked.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngClass.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngClassEven.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngClassOdd.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngClick.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngCloak.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngController.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngCopy.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngCsp.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngCut.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngDblclick.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngDisabled.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngFocus.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngForm.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngHide.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngHref.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngIf.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngInclude.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngInit.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngKeydown.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngKeypress.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngKeyup.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngList.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngModel.NgModelController.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngModel.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngMousedown.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngMouseenter.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngMouseleave.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngMousemove.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngMouseover.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngMouseup.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngNonBindable.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngOpen.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngPaste.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngPluralize.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngReadonly.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngRepeat.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngSelected.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngShow.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngSrc.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngSrcset.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngStyle.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngSubmit.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngSwitch.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngTransclude.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:ngValue.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:script.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:select.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.directive:textarea.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.filter:currency.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.filter:date.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.filter:filter.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.filter:json.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.filter:limitTo.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.filter:lowercase.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.filter:number.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.filter:orderBy.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ng.filter:uppercase.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ngRoute.directive:ngView.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ngSanitize.filter:linky.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ngTouch.directive:ngClick.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ngTouch.directive:ngSwipeLeft.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/api/ngTouch.directive:ngSwipeRight.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$animate:notcsel.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$cacheFactory:iid.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$compile:ctreq.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$compile:iscp.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$compile:multidir.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$compile:nodomevents.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$compile:nonassign.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$compile:selmulti.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$compile:tpload.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$compile:tplrt.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$compile:uterdir.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$controller:noscp.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$injector:cdep.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$injector:itkn.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$injector:modulerr.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$injector:nomod.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$injector:pget.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$injector:unpr.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$interpolate:interr.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$interpolate:noconcat.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$location:ihshprfx.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$location:ipthprfx.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$location:isrcharg.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$parse:isecdom.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$parse:isecfld.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$parse:isecfn.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$parse:isecwindow.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$parse:lexerr.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$parse:syntax.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$parse:ueoe.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$resource:badargs.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$resource:badcfg.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$resource:badmember.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$resource:badname.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$rootScope:infdig.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$rootScope:inprog.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$sanitize:badparse.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$sce:icontext.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$sce:iequirks.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$sce:imatcher.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$sce:insecurl.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$sce:itype.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$sce:iwcard.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/$sce:unsafe.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/jqLite:nosel.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/jqLite:offargs.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/jqLite:onargs.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ng:areq.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ng:badname.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ng:btstrpd.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ng:cpi.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ng:cpws.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ngModel:nonassign.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ngOptions:iexp.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ngPattern:noregexp.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ngRepeat:dupes.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ngRepeat:iexp.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ngRepeat:iidexp.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/partials/error/ngTransclude:orphan.html" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/public/js/angularjs/docs/ptore2e/api/ng.directive:ngClick_test.js" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/dendro.iml" afterPath="$PROJECT_DIR$/.idea/dendro.iml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" afterPath="$PROJECT_DIR$/.idea/jsLibraryMappings.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/stylesheets/explorer.css" afterPath="$PROJECT_DIR$/public/stylesheets/explorer.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/stylesheets/style.css" afterPath="$PROJECT_DIR$/public/stylesheets/style.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/layout/includes.ejs" afterPath="$PROJECT_DIR$/src/views/layout/includes.ejs" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app.js" afterPath="$PROJECT_DIR$/src/app.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/users.js" afterPath="$PROJECT_DIR$/src/controllers/users.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/config.js" afterPath="$PROJECT_DIR$/src/models/meta/config.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/elements.js" afterPath="$PROJECT_DIR$/src/models/meta/elements.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/users/all.ejs" afterPath="$PROJECT_DIR$/src/views/users/all.ejs" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/users/show.ejs" afterPath="$PROJECT_DIR$/src/views/users/show.ejs" />
     </list>
     <ignored path="dendro.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -19,7 +170,6 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
   <component name="CreatePatchCommitExecutor">
     <option name="PATCH_PATH" value="" />
   </component>
@@ -29,41 +179,101 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="file_explorer.ejs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/views/projects/show/file_explorer.ejs">
+      <file leaf-file-name="medal.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/models/game/medal.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="82" column="26" selection-start-line="82" selection-start-column="26" selection-end-line="82" selection-end-column="26" />
+            <state relative-caret-position="331">
+              <caret line="102" column="2" lean-forward="false" selection-start-line="102" selection-start-column="2" selection-end-line="102" selection-end-column="2" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="config.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="331">
+              <caret line="207" column="0" lean-forward="false" selection-start-line="207" selection-start-column="0" selection-end-line="207" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="all.ejs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/views/medal_types/all.ejs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="305">
+              <caret line="40" column="35" lean-forward="false" selection-start-line="40" selection-start-column="35" selection-end-line="40" selection-end-column="35" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="all.ejs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/views/users/all.ejs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="286">
+              <caret line="49" column="35" lean-forward="false" selection-start-line="49" selection-start-column="35" selection-end-line="49" selection-end-column="35" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
       <file leaf-file-name="show.ejs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/views/projects/show.ejs">
+        <entry file="file://$PROJECT_DIR$/src/views/users/show.ejs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3240">
-              <caret line="216" column="62" selection-start-line="216" selection-start-column="62" selection-end-line="216" selection-end-column="62" />
+            <state relative-caret-position="305">
+              <caret line="68" column="35" lean-forward="false" selection-start-line="68" selection-start-column="35" selection-end-line="68" selection-end-column="35" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="changelog_modal.ejs" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/views/projects/show/changelog_modal.ejs">
+      <file leaf-file-name="medltypes.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/controllers/medltypes.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="158">
-              <caret line="29" column="48" selection-start-line="29" selection-start-column="12" selection-end-line="29" selection-end-column="12" />
+            <state relative-caret-position="331">
+              <caret line="39" column="2" lean-forward="false" selection-start-line="39" selection-start-column="2" selection-end-line="39" selection-end-column="2" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="includes.ejs" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/views/layout/includes.ejs">
+      <file leaf-file-name="users.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/controllers/users.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="158">
-              <caret line="22" column="98" selection-start-line="22" selection-start-column="85" selection-end-line="22" selection-end-column="85" />
+            <state relative-caret-position="331">
+              <caret line="355" column="2" lean-forward="false" selection-start-line="355" selection-start-column="2" selection-end-line="355" selection-end-column="2" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/app.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="229">
+              <caret line="1051" column="8" lean-forward="false" selection-start-line="1051" selection-start-column="8" selection-end-line="1051" selection-end-column="8" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="elements.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/models/meta/elements.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="331">
+              <caret line="2441" column="2" lean-forward="false" selection-start-line="2441" selection-start-column="2" selection-end-line="2441" selection-end-column="2" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="medal_type.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/models/game/medal_type.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="331">
+              <caret line="90" column="2" lean-forward="false" selection-start-line="90" selection-start-column="2" selection-end-line="90" selection-end-column="2" />
               <folding />
             </state>
           </provider>
@@ -82,16 +292,7 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/package.json" />
-        <option value="$PROJECT_DIR$/test/index.js" />
-        <option value="$PROJECT_DIR$/src/models/meta/research_domain.js" />
-        <option value="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/interaction_mapper.js" />
-        <option value="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/descriptor_mapper.js" />
-        <option value="$PROJECT_DIR$/src/plugins/dendro_recommender/package/mappers/user_mapper.js" />
-        <option value="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/package/models/interaction_analyser.js" />
-        <option value="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/package/controllers/csv_generator.js" />
         <option value="$PROJECT_DIR$/src/controllers/vertexes.js" />
-        <option value="$PROJECT_DIR$/src/controllers/users.js" />
         <option value="$PROJECT_DIR$/src/controllers/evaluation.js" />
         <option value="$PROJECT_DIR$/src/controllers/datasets.js" />
         <option value="$PROJECT_DIR$/src/controllers/descriptors.js" />
@@ -119,8 +320,6 @@
         <option value="$PROJECT_DIR$/src/plugins/dendro_interaction2csv/integration/setup.js" />
         <option value="$PROJECT_DIR$/src/plugins/plugin.js" />
         <option value="$PROJECT_DIR$/src/plugins/dendro_recommender/integration/setup.js" />
-        <option value="$PROJECT_DIR$/src/models/meta/config.js" />
-        <option value="$PROJECT_DIR$/src/app.js" />
         <option value="$PROJECT_DIR$/test/homepage.Test.js" />
         <option value="$PROJECT_DIR$/conf/deployment_configs.json" />
         <option value="$PROJECT_DIR$/public/bower.json" />
@@ -133,20 +332,36 @@
         <option value="$PROJECT_DIR$/src/views/projects/show.ejs" />
         <option value="$PROJECT_DIR$/src/views/projects/show/changelog_modal.ejs" />
         <option value="$PROJECT_DIR$/src/views/layout/includes.ejs" />
+        <option value="$PROJECT_DIR$/src/models/game/progress.js" />
+        <option value="$PROJECT_DIR$/src/models/game/medal_type.js" />
+        <option value="$PROJECT_DIR$/src/models/game/medal.js" />
+        <option value="$PROJECT_DIR$/src/models/meta/config.js" />
+        <option value="$PROJECT_DIR$/src/views/medal_types/all.ejs" />
+        <option value="$PROJECT_DIR$/src/views/users/all.ejs" />
+        <option value="$PROJECT_DIR$/src/views/users/show.ejs" />
+        <option value="$PROJECT_DIR$/src/controllers/medltypes.js" />
+        <option value="$PROJECT_DIR$/src/controllers/users.js" />
+        <option value="$PROJECT_DIR$/src/app.js" />
+        <option value="$PROJECT_DIR$/src/models/meta/elements.js" />
       </list>
     </option>
   </component>
-  <component name="JsBuildToolGruntFileManager" detection-done="true" />
-  <component name="JsBuildToolPackageJson" detection-done="true">
+  <component name="JsBuildToolGruntFileManager" detection-done="true" sorting="DEFINITION_ORDER" />
+  <component name="JsBuildToolPackageJson" detection-done="true" sorting="DEFINITION_ORDER">
     <package-json value="$PROJECT_DIR$/package.json" />
   </component>
   <component name="JsGulpfileManager">
     <detection-done>true</detection-done>
+    <sorting>DEFINITION_ORDER</sorting>
+  </component>
+  <component name="NodeModulesDirectoryManager">
+    <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="y" value="23" />
-    <option name="width" value="1440" />
-    <option name="height" value="873" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="1382" />
+    <option name="height" value="744" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -173,15 +388,8 @@
       </profile-state>
     </entry>
   </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
-    <OptionsSetting value="true" id="Add" />
-    <OptionsSetting value="true" id="Remove" />
-    <OptionsSetting value="true" id="Checkout" />
-    <OptionsSetting value="true" id="Update" />
-    <OptionsSetting value="true" id="Status" />
-    <OptionsSetting value="true" id="Edit" />
-    <ConfirmationsSetting value="0" id="Add" />
-    <ConfirmationsSetting value="0" id="Remove" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -198,7 +406,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -206,12 +413,6 @@
               <option name="myItemId" value="dendro" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
             </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="dendro" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="dendro" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
@@ -227,7 +428,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="public" />
+              <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -241,33 +442,11 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="public" />
+              <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="bower_components" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="dendro" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="dendro" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="public" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="bower_components" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="jquery" />
+              <option name="myItemId" value="models" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -281,16 +460,21 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="public" />
+              <option name="myItemId" value="src" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="app" />
+              <option name="myItemId" value="models" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="meta" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
         </subPane>
       </pane>
+      <pane id="Scope" />
       <pane id="Scratches" />
     </panes>
   </component>
@@ -309,6 +493,7 @@
     <property name="javascript.karma.karma_node_package_dir" value="/usr/local/lib/node_modules/karma" />
     <property name="js.buildTools.grunt.grunt-cli.package" value="/usr/local/lib/node_modules/grunt-cli" />
     <property name="js.buildTools.gulp.gulp_package_dir" value="/usr/local/lib/node_modules/gulp" />
+    <property name="js.eslint.eslintPackage" value="" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -319,17 +504,6 @@
     </key>
   </component>
   <component name="RunManager" selected="Node.js.Run">
-    <configuration default="true" type="BashConfigurationType" factoryName="Bash">
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="INTERPRETER_PATH" value="/bin/bash" />
-      <option name="WORKING_DIRECTORY" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <option name="SCRIPT_NAME" value="" />
-      <option name="PARAMETERS" value="" />
-      <module name="" />
-      <envs />
-      <method />
-    </configuration>
     <configuration default="true" type="ChromiumRemoteDebugType" factoryName="Chromium Remote">
       <method />
     </configuration>
@@ -354,6 +528,12 @@
       <envs />
       <method />
     </configuration>
+    <configuration default="true" type="JavaScriptTestRunnerProtractor" factoryName="Protractor">
+      <config-file value="" />
+      <node-interpreter value="project" />
+      <envs />
+      <method />
+    </configuration>
     <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
       <method />
     </configuration>
@@ -372,8 +552,6 @@
     <configuration default="true" type="js.build_tools.grunt" factoryName="Grunt.js">
       <node-interpreter value="project" />
       <envs />
-      <force value="false" />
-      <verbose value="false" />
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
@@ -386,7 +564,7 @@
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.npm" factoryName="npm">
-      <command value="run-script" />
+      <command value="run" />
       <scripts />
       <node-interpreter value="project" />
       <envs />
@@ -428,7 +606,32 @@
       <test-file>$PROJECT_DIR$/test/index.js</test-file>
       <method />
     </configuration>
-    <configuration default="false" name="Run" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" path-to-js-file="src/app.js" working-dir="$PROJECT_DIR$">
+    <configuration default="false" name="Run" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="src/app.js" working-dir="$PROJECT_DIR$">
+      <profiling v8-profiler-path="" />
+      <EXTENSION ID="com.jetbrains.nodejs.remote.docker.NodeJSDockerRunConfigurationExtension">
+        <option name="envVars">
+          <list />
+        </option>
+        <option name="extraHosts">
+          <list />
+        </option>
+        <option name="links">
+          <list />
+        </option>
+        <option name="networkDisabled" value="false" />
+        <option name="networkMode" value="bridge" />
+        <option name="portBindings">
+          <list />
+        </option>
+        <option name="publishAllPorts" value="false" />
+        <option name="version" value="1" />
+        <option name="volumeBindings">
+          <list />
+        </option>
+      </EXTENSION>
+      <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSProfilingRunConfigurationExtension">
+        <profiling v8-profiler-path="" />
+      </EXTENSION>
       <method />
     </configuration>
     <list size="2">
@@ -478,6 +681,9 @@
       <workItem from="1480956559158" duration="12908000" />
       <workItem from="1480977185739" duration="3395000" />
       <workItem from="1483312057486" duration="1144000" />
+      <workItem from="1483764781648" duration="301000" />
+      <workItem from="1483765108436" duration="1035000" />
+      <workItem from="1483766186181" duration="3106000" />
     </task>
     <servers />
   </component>
@@ -514,7 +720,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="167754000" />
+    <option name="totallyTimeSpent" value="172196000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -526,17 +732,17 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="23" width="1440" height="873" extended-state="6" />
+    <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16349542" sideWeight="0.5366379" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16251831" sideWeight="0.5366379" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32707182" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3265086" sideWeight="0.5081043" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19379845" sideWeight="0.40273973" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32928178" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38145694" sideWeight="0.48062015" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19379845" sideWeight="0.40273973" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.38012618" sideWeight="0.48062015" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24947146" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3245033" sideWeight="0.4918957" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3280757" sideWeight="0.4918957" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19345239" sideWeight="0.46336207" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.51293105" sideWeight="0.48625794" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
@@ -566,6 +772,9 @@
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.26004228" sideWeight="0.50554675" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.5139073" sideWeight="0.48625794" order="3" side_tool="false" content_ui="tabs" />
     </layout-to-restore>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="processedProjectFiles" value="true" />
   </component>
   <component name="Vcs.Log.UiProperties">
     <option name="RECENTLY_FILTERED_USER_GROUPS">
@@ -624,73 +833,17 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/controllers/descriptors.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="5" column="70" selection-start-line="5" selection-start-column="70" selection-end-line="5" selection-end-column="70" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/standalone_recommendation.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/records.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/interactions.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/repo_bookmarks.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/no_recommendation.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/ontologies.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/sparql.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/export_libs/b2share/b2share.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="4" column="52" selection-start-line="4" selection-start-column="52" selection-end-line="4" selection-end-column="52" />
+          <caret line="4" column="52" lean-forward="false" selection-start-line="4" selection-start-column="52" selection-end-line="4" selection-end-column="52" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/models/directory_structure/folder.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="2" column="52" selection-start-line="2" selection-start-column="52" selection-end-line="2" selection-end-column="52" />
+          <caret line="2" column="52" lean-forward="false" selection-start-line="2" selection-start-column="52" selection-end-line="2" selection-end-column="52" />
           <folding />
         </state>
       </provider>
@@ -698,21 +851,21 @@
     <entry file="file://$PROJECT_DIR$/src/models/harvesting/repo_platform.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="2" column="52" selection-start-line="2" selection-start-column="52" selection-end-line="2" selection-end-column="52" />
+          <caret line="2" column="52" lean-forward="false" selection-start-line="2" selection-start-column="52" selection-end-line="2" selection-end-column="52" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/models/social/post.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
+          <caret line="0" column="52" lean-forward="false" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/controllers/files.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="17" column="46" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
+          <caret line="17" column="46" lean-forward="false" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
           <folding />
         </state>
       </provider>
@@ -720,140 +873,119 @@
     <entry file="file://$PROJECT_DIR$/src/kb/redis.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="2" column="52" selection-start-line="2" selection-start-column="52" selection-end-line="2" selection-end-column="52" />
+          <caret line="2" column="52" lean-forward="false" selection-start-line="2" selection-start-column="52" selection-end-line="2" selection-end-column="52" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/kb/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
+          <caret line="0" column="52" lean-forward="false" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/kb/loaders/dryad/dryad_loader.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
+          <caret line="0" column="52" lean-forward="false" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/models/project.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="4" column="52" selection-start-line="4" selection-start-column="52" selection-end-line="4" selection-end-column="52" />
+          <caret line="4" column="52" lean-forward="false" selection-start-line="4" selection-start-column="52" selection-end-line="4" selection-end-column="52" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/controllers/auth.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="52" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
+          <caret line="0" column="52" lean-forward="false" selection-start-line="0" selection-start-column="52" selection-end-line="0" selection-end-column="52" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/controllers/datasets.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/controllers/admin.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/package/controllers/interactions.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="5" column="51" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
+          <caret line="5" column="51" lean-forward="false" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/plugins/dendro_interaction2csv/dendro_interaction2csv.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="5" column="65" selection-start-line="5" selection-start-column="65" selection-end-line="5" selection-end-column="65" />
+          <caret line="5" column="65" lean-forward="false" selection-start-line="5" selection-start-column="65" selection-end-line="5" selection-end-column="65" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/plugins/dendro_interaction2csv/integration/setup.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/meta/elements.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="3" column="7" selection-start-line="3" selection-start-column="7" selection-end-line="3" selection-end-column="7" />
+          <caret line="7" column="0" lean-forward="false" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/kb/db.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="35" column="26" selection-start-line="35" selection-start-column="26" selection-end-line="35" selection-end-column="26" />
+          <caret line="35" column="26" lean-forward="false" selection-start-line="35" selection-start-column="26" selection-end-line="35" selection-end-column="26" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/models/resource.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="1528" column="25" selection-start-line="1528" selection-start-column="25" selection-end-line="1528" selection-end-column="25" />
+          <caret line="1528" column="25" lean-forward="false" selection-start-line="1528" selection-start-column="25" selection-end-line="1528" selection-end-column="25" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/plugins/plugin.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="71" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
+          <caret line="71" column="0" lean-forward="false" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/plugins/plugin_manager.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="50" column="45" selection-start-line="50" selection-start-column="45" selection-end-line="50" selection-end-column="45" />
+          <caret line="50" column="45" lean-forward="false" selection-start-line="50" selection-start-column="45" selection-end-line="50" selection-end-column="45" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/dendro_recommender.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="32" column="3" selection-start-line="32" selection-start-column="3" selection-end-line="32" selection-end-column="3" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="9" column="0" selection-start-line="9" selection-start-column="0" selection-end-line="9" selection-end-column="34" />
+          <caret line="32" column="3" lean-forward="false" selection-start-line="32" selection-start-column="3" selection-end-line="32" selection-end-column="3" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/integration/setup.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="14" column="33" selection-start-line="14" selection-start-column="33" selection-end-line="14" selection-end-column="33" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/app.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="1395" column="11" selection-start-line="1395" selection-start-column="11" selection-end-line="1395" selection-end-column="11" />
+          <caret line="14" column="33" lean-forward="false" selection-start-line="14" selection-start-column="33" selection-end-line="14" selection-end-column="33" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/package.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="16" column="29" selection-start-line="16" selection-start-column="29" selection-end-line="16" selection-end-column="29" />
+          <caret line="16" column="29" lean-forward="false" selection-start-line="16" selection-start-column="29" selection-end-line="16" selection-end-column="29" />
         </state>
       </provider>
     </entry>
@@ -861,99 +993,99 @@
     <entry file="file://$PROJECT_DIR$/src/models/user.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="1169" column="37" selection-start-line="1169" selection-start-column="37" selection-end-line="1169" selection-end-column="37" />
+          <caret line="1169" column="37" lean-forward="false" selection-start-line="1169" selection-start-column="37" selection-end-line="1169" selection-end-column="37" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/bower.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="38" column="23" selection-start-line="38" selection-start-column="23" selection-end-line="38" selection-end-column="23" />
+          <caret line="38" column="23" lean-forward="false" selection-start-line="38" selection-start-column="23" selection-end-line="38" selection-end-column="23" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/editor/change_log_controller.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="41" column="16" selection-start-line="41" selection-start-column="16" selection-end-line="41" selection-end-column="16" />
+          <caret line="41" column="16" lean-forward="false" selection-start-line="41" selection-start-column="16" selection-end-line="41" selection-end-column="16" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/conf/deployment_configs.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="25" column="29" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
+          <caret line="25" column="29" lean-forward="false" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/editor/descriptor_list_controller.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="27" column="46" selection-start-line="27" selection-start-column="46" selection-end-line="27" selection-end-column="46" />
+          <caret line="27" column="46" lean-forward="false" selection-start-line="27" selection-start-column="46" selection-end-line="27" selection-end-column="46" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/services/recommendation_service.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="69" column="13" selection-start-line="69" selection-start-column="13" selection-end-line="69" selection-end-column="13" />
+          <caret line="69" column="13" lean-forward="false" selection-start-line="69" selection-start-column="13" selection-end-line="69" selection-end-column="13" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/services/metadata_service.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="69" column="13" selection-start-line="69" selection-start-column="13" selection-end-line="69" selection-end-column="13" />
+          <caret line="69" column="13" lean-forward="false" selection-start-line="69" selection-start-column="13" selection-end-line="69" selection-end-column="13" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/editor/share_controller.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="318" column="17" selection-start-line="311" selection-start-column="16" selection-end-line="318" selection-end-column="17" />
+          <caret line="318" column="17" lean-forward="false" selection-start-line="311" selection-start-column="16" selection-end-line="318" selection-end-column="17" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/controllers/research_domains/research_domains_admin_controller.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="134" column="14" selection-start-line="134" selection-start-column="14" selection-end-line="134" selection-end-column="14" />
+          <caret line="134" column="14" lean-forward="false" selection-start-line="134" selection-start-column="14" selection-end-line="134" selection-end-column="14" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/controllers/ontologies/admin/ontologies_admin_controller.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="124" column="14" selection-start-line="124" selection-start-column="14" selection-end-line="124" selection-end-column="14" />
+          <caret line="124" column="14" lean-forward="false" selection-start-line="124" selection-start-column="14" selection-end-line="124" selection-end-column="14" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/admin/project_admin_controller.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="55" column="20" selection-start-line="55" selection-start-column="20" selection-end-line="55" selection-end-column="20" />
+          <caret line="55" column="20" lean-forward="false" selection-start-line="55" selection-start-column="20" selection-end-line="55" selection-end-column="20" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/services/descriptors_service.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="47" column="38" selection-start-line="47" selection-start-column="33" selection-end-line="47" selection-end-column="38" />
+          <caret line="47" column="38" lean-forward="false" selection-start-line="47" selection-start-column="33" selection-end-line="47" selection-end-column="38" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/views/projects/show/file_explorer.ejs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="82" column="26" selection-start-line="82" selection-start-column="26" selection-end-line="82" selection-end-column="26" />
+        <state relative-caret-position="1394">
+          <caret line="82" column="26" lean-forward="false" selection-start-line="82" selection-start-column="26" selection-end-line="82" selection-end-column="26" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/views/projects/show.ejs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3240">
-          <caret line="216" column="62" selection-start-line="216" selection-start-column="62" selection-end-line="216" selection-end-column="62" />
+        <state relative-caret-position="3672">
+          <caret line="216" column="62" lean-forward="false" selection-start-line="216" selection-start-column="62" selection-end-line="216" selection-end-column="62" />
           <folding />
         </state>
       </provider>
@@ -961,23 +1093,110 @@
     <entry file="file://$PROJECT_DIR$/src/views/layout/header.ejs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/views/projects/show/changelog_modal.ejs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="158">
-          <caret line="29" column="48" selection-start-line="29" selection-start-column="12" selection-end-line="29" selection-end-column="12" />
+        <state relative-caret-position="493">
+          <caret line="29" column="12" lean-forward="false" selection-start-line="29" selection-start-column="12" selection-end-line="29" selection-end-column="12" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/views/layout/includes.ejs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="158">
-          <caret line="22" column="98" selection-start-line="22" selection-start-column="85" selection-end-line="22" selection-end-column="85" />
+        <state relative-caret-position="107">
+          <caret line="19" column="108" lean-forward="false" selection-start-line="19" selection-start-column="108" selection-end-line="19" selection-end-column="108" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/game/progress.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="306">
+          <caret line="18" column="35" lean-forward="false" selection-start-line="18" selection-start-column="35" selection-end-line="18" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/game/medal_type.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="331">
+          <caret line="90" column="2" lean-forward="false" selection-start-line="90" selection-start-column="2" selection-end-line="90" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/game/medal.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="331">
+          <caret line="102" column="2" lean-forward="false" selection-start-line="102" selection-start-column="2" selection-end-line="102" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="331">
+          <caret line="207" column="0" lean-forward="false" selection-start-line="207" selection-start-column="0" selection-end-line="207" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/medal_types/all.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="305">
+          <caret line="40" column="35" lean-forward="false" selection-start-line="40" selection-start-column="35" selection-end-line="40" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/users/all.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="286">
+          <caret line="49" column="35" lean-forward="false" selection-start-line="49" selection-start-column="35" selection-end-line="49" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/users/show.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="305">
+          <caret line="68" column="35" lean-forward="false" selection-start-line="68" selection-start-column="35" selection-end-line="68" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controllers/medltypes.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="331">
+          <caret line="39" column="2" lean-forward="false" selection-start-line="39" selection-start-column="2" selection-end-line="39" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controllers/users.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="331">
+          <caret line="355" column="2" lean-forward="false" selection-start-line="355" selection-start-column="2" selection-end-line="355" selection-end-column="2" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="229">
+          <caret line="1051" column="8" lean-forward="false" selection-start-line="1051" selection-start-column="8" selection-end-line="1051" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/meta/elements.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="331">
+          <caret line="2441" column="2" lean-forward="false" selection-start-line="2441" selection-start-column="2" selection-end-line="2441" selection-end-column="2" />
           <folding />
         </state>
       </provider>

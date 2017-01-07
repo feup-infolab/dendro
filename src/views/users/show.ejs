@@ -6,40 +6,64 @@
 
 <br/>
 
-<table class="table">
-    <tr>
-        <td>
-            <b>Username</b>
-        </td>
-        <td>
-            <%= user.ddr.username%>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <b>Name</b>
-        </td>
-        <td>
-            <%= user.foaf.firstName %> <%= user.foaf.surname %>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <b>Email address</b>
-        </td>
-        <td>
-            <a href="mailto:<%= user.foaf.mbox %>"><%= user.foaf.mbox %></a>
-        </td>
-    </tr>
-    <tr>
-        <td>
-            <b>URI</b>
-        </td>
-        <td>
-            <a href="<%= user.uri %>"><%= user.uri %></a>
-        </td>
-    </tr>
-</table>
+<div class="container">
+    <div class="col-4 pull-left pr-4">
+        <table class="table">
+            <tr>
+                <td>
+                    <b>Username</b>
+                </td>
+                <td>
+                    <%= user.ddr.username %>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Name</b>
+                </td>
+                <td>
+                    <%= user.foaf.firstName %> <%= user.foaf.surname %>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>Email address</b>
+                </td>
+                <td>
+                    <a href="mailto:<%= user.foaf.mbox %>"><%= user.foaf.mbox %></a>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <b>URI</b>
+                </td>
+                <td>
+                    <a href="<%= user.uri %>"><%= user.uri %></a>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <div class="col-4 pull-left pr-4">
+        <%= user.gm.score %>
+    </div>
+    <div class="col-4 pull-left">
+        <% if(!(typeof medals === 'undefined'))
+        {
+        %>
+        <table>
+            <% for(var i = 0; i < medals.length; i++)
+            {
+                var medal=medals[i];
+            %>
+            <tr><td><%= medal.gm.hasType %></td></tr>
+            <%
+            }
+            %>
+        </table>
+        <% } %>
+    </div>
+
+</div>
 
 
 <%- include ../layout/footer.ejs %>

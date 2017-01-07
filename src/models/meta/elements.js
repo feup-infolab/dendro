@@ -2405,4 +2405,40 @@ Elements.cfd = {
     }
 };
 
+Elements.gm = {
+    score: {
+        type: DbConnection.int,
+        control: Config.controls.input_box
+    },
+    material: {
+        type: DbConnection.string,
+        control: Config.controls.input_box
+    },
+    numActions: {
+        type: DbConnection.string,
+        control: Config.controls.input_box
+    },
+    belongsTo: {
+        type: DbConnection.resource,
+        control: Config.controls.url_box,
+        locked: true
+    },
+    hasType: {
+        type: DbConnection.resource,
+        control: Config.controls.url_box,
+        locked: true
+    },
+    objectType: {
+        type: DbConnection.resource,
+        control: Config.controls.url_box,
+        locked: true
+    },
+    hasMedal: {
+        type: DbConnection.resource,
+        control: Config.controls.url_box,
+        locked: true
+    }
+
+};
+
 module.exports.Elements = Elements;

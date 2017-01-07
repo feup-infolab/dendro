@@ -1,6 +1,7 @@
-var Config = function() { return GLOBAL.Config; }();
+var Config = require('../models/meta/config.js').Config;
 
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var Medal = require(Config.absPathInSrcFolder("/models/game/medal.js")).Medal;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 var db = function() { return GLOBAL.db.default; }();
@@ -23,12 +24,13 @@ exports.all = function(req, res){
         viewVars
     );
 
+
+
     User.all(function(err, users)
     {
         if(!err)
         {
             viewVars.users = users;
-
             res.render('users/all',
                 viewVars
             );
@@ -45,17 +47,43 @@ exports.all = function(req, res){
 
 exports.show = function(req, res){
     var username = req.params["username"];
+    var medalsFromUser ;
+
 
     User.findByUsername(username, function(err, user)
     {
+        var viewVars = {
+            title : 'Researcher'
+        };
+
+
+
+
+
         if(err == null)
         {
-            res.render('users/show',
+            Medal.allByUser(username,function(err, medals)
+            {
+                if(!err)
                 {
-                    title : "Viewing user " + username,
-                    user : user
+
+                    console.log(medals);
+                    res.render('users/show',
+                        {
+                            title : "Viewing user " + username,
+                            user : user,
+                            medals: medals
+                        }
+                    )
+
+
                 }
-            )
+                else
+                {
+
+                }
+            });
+
         }
         else
         {
