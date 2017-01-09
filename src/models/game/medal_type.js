@@ -24,6 +24,7 @@ function MedalType (object)
         self.uri = db.baseURI+"/medaltype/"+self.dcterms.title;
     }
 
+
     self.rdf.type = "gm:MedalType";
 
     return self;
@@ -31,10 +32,38 @@ function MedalType (object)
 
 MedalType.prefixedRDFType = "gm:MedalType";
 
-MedalType = Class.extend(MedalType, Resource);
+MedalType.createAndInsertFromObject = function(object, callback) {
 
-module.exports.MedalType = MedalType;
+    var self = new MedalType(object);
 
+    console.log("creating MedalType from object" + util.inspect(object));
+
+
+    //TODO CACHE DONE
+
+    self.save(function(err, newMedalType) {
+        if(!err)
+        {
+            if(newMedalType instanceof MedalType)
+            {
+                callback(null, self);
+            }
+            else
+            {
+                callback(null, false);
+            }
+        }
+        else
+        {
+            callback(err, newMedalType);
+        }
+    });
+};
+
+MedalType.findByTitle = function(title, callback)
+{
+    MedalType.findByPropertyValue(title, "dcterms:title", callback);
+};
 
 MedalType.all = function(callback) {
     var query =
@@ -89,3 +118,71 @@ MedalType.all = function(callback) {
             }
         });
 };
+
+MedalType.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
+
+    var query =
+        "SELECT * \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        " ?uri [1] [2] . \n" +
+        "} \n";
+
+
+    db.connection.execute(query,
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.prefixedResource,
+                value : propertyInPrefixedForm
+            },
+            {
+                type : DbConnection.string,
+                value : value
+            }
+        ],
+
+        function(err, medalType) {
+            if(!err)
+            {
+                if(medalType.length > 1)
+                {
+                    console.log("Duplicate medalType "+title+" found!!!!")
+                }
+
+                else if(medalType.length == 1)
+                {
+                    var uri = medalType[0].uri;
+                    MedalType.findByUri(uri, function(err, fetchedMedalType)
+                    {
+                        if(!err)
+                        {
+                            var medalType= new MedalType(fetchedMedalType);
+
+                                callback(err, medalType);
+
+                        }
+                        else
+                        {
+                            callback(1, "Unable to fetch user with uri :" + uri + ". Error reported : " + fetchedMedalType);
+                        }
+                    });
+                }
+                else
+                {
+                    callback(0,null);
+                }
+            }
+            else
+            {
+                callback(err, medalType);
+            }
+        });
+};
+MedalType = Class.extend(MedalType, Resource);
+
+module.exports.MedalType = MedalType;

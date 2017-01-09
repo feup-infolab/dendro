@@ -567,4 +567,6 @@ Config.demo_mode = getConfigParameter("demo_mode");
 
 Config.email = getConfigParameter("email");
 
+Config.medaltypes = getConfigParameter("medaltypes");
+
 module.exports.Config = Config;

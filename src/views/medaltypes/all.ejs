@@ -8,6 +8,9 @@
 <table class="table">
     <tr>
         <th>
+
+        </th>
+        <th>
             Title
         </th>
         <th>
@@ -22,6 +25,9 @@
         var medaltype = locals.medaltypes[i];
     %>
     <tr>
+        <td>
+            <img src="/images/game/<%= medaltype.gm.material %>.png" width="50px" height="70px">
+        </td>
         <td>
             <%= medaltype.dcterms.title %>
         </td>

@@ -820,6 +820,90 @@ async.waterfall([
             callback(null);
         }
     },
+    function(callback) {
+
+        //try to delete all medalTypes
+
+        var deleteMedalType = function(medalTypeDemo, callback)
+        {
+            var MedalType = require(Config.absPathInSrcFolder("/models/game/medal_type.js")).MedalType;
+            MedalType.findByTitle(medalTypeDemo.title, function(err, medalType){
+
+                if(!err)
+                {
+                    if(medalType == null)
+                    {
+                        //everything ok, user simply does not exist
+                        callback(null, null);
+                    }
+                    else
+                    {
+                        console.log("[INFO] MedalType with title " + medalType.dcterms.title + " found. Attempting to delete...");
+                        medalType.deleteAllMyTriples(function(err, result){
+                            callback(err, result);
+                        });
+                    }
+                }
+                else
+                {
+                    console.log("[ERROR] Unable to delete MedalType with title (). Error: " + medalType);
+                    callback(err, result);
+                }
+            });
+        };
+
+        async.map(Config.medaltypes, deleteMedalType, function(err, results) {
+            if (!err) {
+                console.log("[INFO] Existing medalTypes deleted. ");
+
+                        var MedalType = require(Config.absPathInSrcFolder("/models/game/medal_type.js")).MedalType;
+                        console.log("[INFO] Loading MedalTypes (in config.js file) -->" + JSON.stringify(Config.medaltypes));
+
+                        var createMedalType = function(medalType, callback)
+                        {
+                            console.log("Entrou");
+                            MedalType.createAndInsertFromObject({
+                                    dcterms: {
+                                        title: medalType.title,
+                                        description : medalType.description
+                                    },
+                                    gm:
+                                        {
+                                            numActions : medalType.numActions,
+                                            material: medalType.material
+                                        }
+                                },
+                                function(err, newMedalType){
+                                    if(!err && newMedalType != null)
+                                    {
+                                        callback(null,  newMedalType);
+                                    }
+                                    else
+                                    {
+                                        console.log("[ERROR] Error creating new medalType " + JSON.stringify(medalType));
+                                        callback(err, medalType);
+                                    }
+                                });
+                        };
+
+                        async.map(Config.medaltypes, createMedalType, function(err, results) {
+                            if(!err)
+                            {
+                                console.log("[INFO] Existing medalTypes recreated. ");
+                                callback(err);
+                            }
+                            else
+                            {
+                                process.exit(1);
+                            }
+                        });
+
+            }
+            else {
+                callback(err);
+            }
+        });
+    },
     function(callback)
     {
         //app's own requires

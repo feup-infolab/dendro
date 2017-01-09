@@ -77,10 +77,20 @@
           "password": "demouserpassword2015",
           "firstname" : "Dendro",
           "surname" : "Demo User",
-          "mbox" : "demouser@dendro.fe.up.pt"
+          "mbox" : "demouser@dendro.fe.up.pt",
+          "score": "150",
+          "hasMedal": "Amateur01"
         }
       ]
     },
+    "medaltypes" : [
+      {
+        "title": "Amateur",
+        "description": "blablabla",
+        "material" : "Bronze",
+        "numActions" : "10"
+      }
+    ],
     "useElasticSearchAuth" : false,
     "elasticSearchAuthCredentials" : {
       "username" : "user",
