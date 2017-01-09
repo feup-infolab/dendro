@@ -26,12 +26,12 @@ angular.module('dendroApp.controllers')
 {
     $scope.get_upload_url = function()
     {
-        return windowService.get_current_url() + "?upload";
+        return windowService.get_current_url() + "/upload";
     }
 
     $scope.get_restore_url = function()
     {
-        return windowService.get_current_url() + "?restore";
+        return windowService.get_current_url() + "/restore";
     }
 
     $scope.delete_file_or_folder = function()
@@ -461,12 +461,12 @@ angular.module('dendroApp.controllers')
 
     $scope.download_folder = function()
     {
-        windowService.download_url($scope.get_current_url(), "?download");
+        windowService.download_url($scope.get_current_url(), "/download");
     };
 
     $scope.backup_folder = function()
     {
-        windowService.download_url($scope.get_current_url(), "?backup");
+        windowService.download_url($scope.get_current_url(), "/backup");
     };
 
 

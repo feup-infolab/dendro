@@ -25,10 +25,23 @@ UploadManager.add_upload = function(username, filename, parent_folder)
     return newUpload;
 }
 
+
 UploadManager.get_upload_by_id = function(id)
 {
     return UploadManager.__uploads[id];
-    return UploadManager.__uploads[id];
+}
+
+UploadManager.finished = function(id)
+{
+    var upload = UploadManager.__uploads[id];
+    if(upload != null)
+    {
+        return null;
+    }
+    else
+    {
+        return upload.finished();
+    }
 }
 
 UploadManager = Class.extend(UploadManager, Class);

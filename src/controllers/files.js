@@ -616,7 +616,7 @@ exports.get_thumbnail = function(req, res) {
 };
 
 exports.upload = function(req, res){
-   if (req.originalMethod == "GET")
+    if (req.originalMethod == "GET")
     {
         var upload_id = req.query.upload_id;
         var upload = UploadManager.get_upload_by_id(upload_id);
@@ -661,15 +661,41 @@ exports.upload = function(req, res){
         }
         else
         {
-            var newUpload = UploadManager.add_upload(
-                req.session.user.ddr.username,
-                req.query.filename,
-                req.params.requestedResource
-            );
+            if(req.session.user.ddr.username != null)
+            {
+                if(
+                    req.query.filename != null &&
+                    req.query.filename != "" &&
+                    req.params.requestedResource != null &&
+                    req.params.requestedResource != ""
+                )
+                {
+                    var newUpload = UploadManager.add_upload(
+                        req.session.user.ddr.username,
+                        req.query.filename,
+                        req.params.requestedResource
+                    );
 
-            res.json({
-                size: newUpload.loaded
-            });
+                    res.json({
+                        size: newUpload.loaded,
+                        upload_id : newUpload.id
+                    });
+                }
+                else
+                {
+                    res.status(400).json({
+                        result: "error",
+                        message: "Request must include the 'filename' field. which is the title of the uploaded file, complete with its file type extension."
+                    });
+                }
+            }
+            else
+            {
+                res.status(400).json({
+                    result: "error",
+                    message: "User must be authenticated in the system to upload files."
+                });
+            }
         }
     }
     else if (req.originalMethod == "POST")
@@ -769,29 +795,75 @@ exports.upload = function(req, res){
             }
         };
 
-        req.form.on('error', function(err) {
-            res.status(500).json(
+        if(req.form.ended)
+        {
+            if(req.query.upload_id != null && req.query.upload_id != "")
+            {
+                if(UploadManager.get_upload_by_id(req.query.upload_id) != null)
                 {
-                    result : "error",
-                    message : "an error occurred on file upload"
-                });
-        });
+                    if(UploadManager.finished(req.query.upload_id))
+                    {
+                        processFiles();
+                    }
+                    else
+                    {
+                        var upload = UploadManager.get_upload_by_id(req.query.upload_id);
 
-        req.form.on('aborted', function() {
-            res.status(500).json(
+                        if(upload == null)
+                        {
+                            res.json({
+                                size : upload.loaded
+                            });
+                        }
+                        else
+                        {
+                            res.json({
+                                size : 0
+                            });
+                        }
+
+                    }
+                }
+
+            }
+            else
+            {
+                res.json({
+                    size : 0
+                });
+            }
+        }
+        else
+        {
+            req.form.on('error', function(err) {
+                res.status(500).json(
+                    {
+                        result : "error",
+                        message : "an error occurred on file upload"                                                                                                                        
+                    });
+            });
+
+            req.form.on('aborted', function() {
+                res.status(500).json(
+                    {
+                        result : "aborted",
+                        message : "request aborted by user"
+                    });
+            });
+
+            req.form.on('progress', function(bytesReceived, bytesExpected) {
+                console.log(((bytesReceived / bytesExpected)*100) + "% uploaded");
+                var upload = UploadManager.get_upload_by_id(req.query.upload_id);
+                if(upload != null)
                 {
-                    result : "aborted",
-                    message : "request aborted by user"
-                });
-        });
+                    upload.set_expected(bytesExpected);
+                }
+            });
 
-        req.form.on('progress', function(bytesReceived, bytesExpected) {
-            console.log(((bytesReceived / bytesExpected)*100) + "% uploaded");
-        });
-
-        req.form.on('end', function() {
-            processFiles();
-        });
+            req.form.on('end', function() {
+                processFiles();
+            });
+        }
     }
 };
 
@@ -813,7 +885,7 @@ exports.resume = function(req, res)
             {
                 if (upload_id != null)
                 {
-                    var upload = req.session.upload_manager.get_upload_by_id(upload_id);
+                    var upload = UploadManager.get_upload_by_id(upload_id);
 
                     if (upload.username == username)
                     {

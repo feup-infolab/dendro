@@ -8,7 +8,7 @@
                 <div class="col-xs-12">
                     <div class="progress" ng-show="f.progress >= 0">
                         <div class="progress-bar thin-progress progress-bar-striped"
-                             ng-class="{'active' : f.progress < 100, 'progress-bar-success' : f.progress = 100, 'progress-bar-info' : f.progress > 0 && f.progress < 100}"
+                             ng-class="{'active' : f.progress < 100, 'progress-bar-success' : f.progress == 100, 'progress-bar-info' : f.progress > 0 && f.progress < 100}"
                              role="progressbar" aria-valuenow="{{f.progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{f.progress}}%">
                             <span class="sr-only">{{f.progress}}% Complete</span>
                         </div>

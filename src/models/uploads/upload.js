@@ -28,12 +28,21 @@ function Upload (object)
         }
 
         self.id = uuid.v4();
-        return self;
     }
-    else
-    {
-        throw "An upload must have the query fields : username, a filename and a parent folder."
-    }
+
+    return self;
+}
+
+Upload.prototype.set_expected = function(expected)
+{
+    var self = this;
+    self.expected = expected;
+}
+
+Upload.isFinished = function()
+{
+    var self = this;
+    return (self.loaded >= self.expected);
 }
 
 Upload = Class.extend(Upload, Class);

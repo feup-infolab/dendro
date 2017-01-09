@@ -149,7 +149,7 @@ angular.module('dendroApp.factories')
             load_pdf: function($scope, file) {
                 angular.element("#data-viewer").html('');
                 var fileUri = file.uri + '?serve_base64';
-                var downloadFileUri = file.uri + '?download';
+                var downloadFileUri = file.uri + '/download';
 
                 $http.get(fileUri).
                     then(function(response) {

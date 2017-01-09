@@ -131,11 +131,15 @@ angular.module('dendroApp.controllers')
         function uploadUsingUpload(file, resumable)
         {
             var url = URI($scope.upload_url).addSearch($scope.getReqParams()).toString();
-            //var uuid = UUIDjs.create().hex;
+            var resumeUrl = URI($scope.resume_url)
+                .addSearch($scope.getReqParams())
+                .addSearch("filename", encodeURIComponent(file.name))
+                .addSearch("upload_id", encodeURIComponent(file.upload_id))
+                .toString();
             
             file.upload = Upload.upload({
                 url: url,
-                resumeSizeUrl: resumable ? $scope.resume_url : null,
+                resumeSizeUrl: resumable ? resumeUrl : null,
                 resumeChunkSize: resumable ? $scope.chunkSize : null,
                 headers: {
                     'Content-Type': file.type,
@@ -151,11 +155,20 @@ angular.module('dendroApp.controllers')
                 $timeout(function ()
                 {
                     file.result = response.data;
+                    file.upload_id = response.data.upload_id;
+                    console.log("Upload ID : " + file.upload_id);
                 });
             }, function (response)
             {
                 if (response.status > 0)
+                {
                     $scope.errorMsg = response.status + ': ' + response.data;
+                }
+                else
+                {
+                    file.upload_id = response.data.upload_id;
+                    console.log("Upload ID 222: " + file.upload_id);
+                }
             }, function (evt)
             {
                 // Math.min is to fix IE which reports 200% sometimes
