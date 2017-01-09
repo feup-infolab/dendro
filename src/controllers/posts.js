@@ -788,7 +788,9 @@ var getCommentsForAPost = function (postID, cb) {
         "WHERE { \n" +
         "?commentURI rdf:type ddr:Comment. \n" +
         "?commentURI ddr:postURI [1]. \n" +
-        "} \n";
+        "?commentURI dcterms:modified ?date. \n " +
+        "} \n" +
+        "ORDER BY ASC(?date) \n";
 
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([

@@ -109,15 +109,15 @@
             </div>
             <label for="new_post_box">{{loggedUser.split('/').pop()}} :</label>
             <input ng-model="comment_content" type="text" id="new_post_box"/>
-            <a ng-click="commentPost(postList['<%= postUri %>'].uri,comment_content)" class="btn btn-default btn-primary">Enviar</a>
+            <a ng-click="commentPost(postList['<%= postUri %>'].uri,comment_content);comment_content=''" class="btn btn-default btn-primary">Send</a>
         </div>
     </div>
 
     <div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare">
         <div class="wall">
-            <label for="new_post_box_share">Insira uma share message:</label>
+            <label for="new_post_box_share">Write a share message:</label>
             <input ng-model="share_content" type="text" id="new_post_box_share"/>
-            <a ng-click="sharePost(postList['<%= postUri %>'].uri,share_content)" class="btn btn-default btn-primary">Enviar shareMessage</a>
+            <a ng-click="sharePost(postList['<%= postUri %>'].uri,share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
         </div>
     </div>
 </div>
