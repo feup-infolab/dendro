@@ -306,12 +306,18 @@ export_to_repository_ckan = function(req, res){
 
             for(var i = 0; i < datasetFolderMetadata.original_node.nie.hasLogicalPart.length; i++)
             {
-                var file = datasetFolderMetadata.children[i].original_node;
-
-                if(file instanceof File)
+                var child = datasetFolderMetadata.children[i];
+                if(child != null)
                 {
-                    files.push(file);
-                    locations.push(datasetFolderMetadata.children[i].temp_location);
+                    if(child.original_node instanceof File)
+                    {
+                        files.push(child.original_node);
+                        locations.push(datasetFolderMetadata.children[i].temp_location);
+                    }
+                    else
+                    {
+                        callback(1, "There was an error preparing a file in the server: " + JSON.stringify(child));
+                    }
                 }
             }
 
@@ -531,7 +537,7 @@ export_to_repository_ckan = function(req, res){
                                                                                                         var msg = "Error uploading files in the dataset to CKAN.";
                                                                                                         res.json(
                                                                                                             {
-                                                                                                                "result": "Error",
+                                                                                                                "result": "error",
                                                                                                                 "message": msg,
                                                                                                                 "error" : response
                                                                                                             }

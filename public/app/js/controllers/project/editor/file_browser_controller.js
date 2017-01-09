@@ -169,7 +169,7 @@ angular.module('dendroApp.controllers')
                 done: function (e, data) {
                     $scope.show_popup("success", "Success", "Files uploaded successfully.");
                     $scope.get_folder_contents(true);
-                    $scope.get_stats();
+                    $scope.get_project_stats();
                 },
                 fail: function(e, data){
                     $scope.show_popup("error", "Error", "There was an error uploading the file(s).");
