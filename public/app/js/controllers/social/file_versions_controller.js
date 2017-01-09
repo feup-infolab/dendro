@@ -79,15 +79,12 @@ angular.module('dendroApp.controllers')
             $scope.shareList = [];
             $scope.likedFileVersions = [];
             $scope.fileVersionsList = [];
+            $scope.fileVersions = [];
             $scope.likesFileVersionInfo = [];
         };
 
-        $scope.init = function()
+        $scope.initFileVersions = function()
         {
-            var jQueryInnerItem = $($scope.myTab);
-
-            //if(jQueryInnerItem.hasClass("active"))
-            //{
             if($scope.renderFileVersions)
             {
                 $scope.commentList = [];
@@ -95,11 +92,9 @@ angular.module('dendroApp.controllers')
                 $scope.likedFileVersions = [];
                 $scope.fileVersionsList = [];
                 $scope.likesFileVersionInfo = [];
-                //$scope.countNumFileVersions();
-                //$scope.get_all_file_versions($scope.pagination.current);
+                $scope.fileVersions = [];
                 $scope.pageChangeHandlerFVersion($scope.pagination.current);
             }
-            //}
         };
 
         $scope.show_popup = function(type, title, message)
@@ -184,10 +179,13 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.pageChangeHandlerFVersion = function(num) {
-            console.log('fversion change page to: ', num);
-            $scope.countNumFileVersions();
-            $scope.get_all_file_versions(num);
-            $window.scrollTo(0, 0);//to scroll up to the top on page change
+            if($scope.renderFileVersions)
+            {
+                console.log('fversion change page to: ', num);
+                $scope.countNumFileVersions();
+                $scope.get_all_file_versions(num);
+                $window.scrollTo(0, 0);//to scroll up to the top on page change
+            }
         };
 
 
@@ -255,16 +253,21 @@ angular.module('dendroApp.controllers')
                 });
         };
 
-        $scope.$on('tab_changed fileVersions', function(event, args) {
-        //$scope.$on('cenas2', function(event, args) {
+        $scope.$on('tab_changed:fileVersions', function(event, args) {
             $scope.commentList = [];
             $scope.shareList = [];
             $scope.likedFileVersions = [];
             $scope.fileVersionsList = [];
+            $scope.fileVersions = [];
             $scope.likesFileVersionInfo = [];
 
             $scope.renderFileVersions = true;
             $scope.pagination.current = 1;
-            $scope.init();
+            $scope.initFileVersions();
+        });
+
+        $scope.$on('tab_changed:timeline', function(event, args) {
+            $scope.pagination.current = 1;
+            $scope.renderFileVersions = false;
         });
     });

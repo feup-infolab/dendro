@@ -209,12 +209,8 @@ angular.module('dendroApp.controllers')
                 });
         };
 
-        $scope.init = function()
+        $scope.initTimeline = function()
         {
-            var jQueryInnerItem = $($scope.myTab);
-
-            //if(jQueryInnerItem.hasClass("active"))
-            //{
             if($scope.renderPosts)
             {
                 $scope.new_post_content = "";
@@ -222,12 +218,10 @@ angular.module('dendroApp.controllers')
                 $scope.shareList = [];
                 $scope.likedPosts = [];
                 $scope.postList = [];
+                $scope.posts = [];
                 $scope.likesPostInfo = [];
-                //$scope.countNumPosts();
-                //$scope.get_all_posts($scope.pagination.current);
                 $scope.pageChangeHandler($scope.pagination.current);
             }
-            //}
         };
 
         $scope.initSinglePost = function () {
@@ -236,6 +230,7 @@ angular.module('dendroApp.controllers')
             $scope.shareList = [];
             $scope.likedPosts = [];
             $scope.postList = [];
+            $scope.posts = [];
             $scope.likesPostInfo = [];
         };
 
@@ -305,16 +300,23 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.pageChangeHandler = function(num) {
-            console.log("Im here going to page: ", num);
-            $scope.countNumPosts();
-            $scope.get_all_posts(num);
-            $window.scrollTo(0, 0);//to scroll up to the top on page change
+            if($scope.renderPosts)
+            {
+                console.log("Im here going to page: ", num);
+                $scope.countNumPosts();
+                $scope.get_all_posts(num);
+                $window.scrollTo(0, 0);//to scroll up to the top on page change
+            }
         };
 
-        $scope.$on('tab_changed timeline', function(event, args) {
-        //$scope.$on('cenas1', function(event, args) {
+        $scope.$on('tab_changed:timeline', function(event, args) {
             $scope.renderPosts = true;
             $scope.pagination.current = 1;
-            $scope.init();
+            $scope.initTimeline();
+        });
+
+        $scope.$on('tab_changed:fileVersions', function(event, args) {
+            $scope.pagination.current = 1;
+            $scope.renderPosts = false;
         });
     });
