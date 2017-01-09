@@ -782,6 +782,12 @@ Elements.ddr = {
         api_readable: true,
         control : Config.controls.url_box
     },
+    hasAPIKey :
+    {
+        type : DbConnection.string,
+        api_readable: true,
+        control : Config.controls.input_box
+    },
     hasOrganization :
     {
         type : DbConnection.resource,

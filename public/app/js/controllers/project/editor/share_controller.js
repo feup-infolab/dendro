@@ -63,6 +63,28 @@ angular.module('dendroApp.controllers')
             return baseAddress != null && $scope.valid_url(baseAddress) && !baseAddress.endsWith("/");
         }
 
+
+        $scope.valid_api_key = function(key)
+        {
+            if(key == null)
+            {
+                return false;
+            }
+            else
+            {
+                var regexp = /^[a-zA-Z0-9-_]+$/;
+
+                if (key.search(regexp) == -1)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true
+                }
+            }
+        }
+
         $scope.valid_organization = function(organization)
         {
             if(organization == null || organization.length == 0)
