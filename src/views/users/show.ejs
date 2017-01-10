@@ -7,7 +7,7 @@
 <br/>
 
 <div class="container">
-    <div class="col-4 pull-left pr-4">
+    <div class="col-md-4 pull-left pr-4">
         <table class="table">
             <tr>
                 <td>
@@ -43,19 +43,37 @@
             </tr>
         </table>
     </div>
-    <div class="col-4 pull-left pr-4">
-        <%= user.gm.score %>
+    <div class="col-md-4 pull-left pr-4">
+       <div class="col-md-8 center col-md-offset-2 text-center"><h1><%= user.gm.score %>pt</h1></div>
     </div>
-    <div class="col-4 pull-left">
-        <% if(!(typeof medals === 'undefined'))
+    <div class="col-md-4 pull-left">
+        <% if(!(typeof medaltypes === 'undefined'))
         {
         %>
         <table>
-            <% for(var i = 0; i < medals.length; i++)
+            <% for(var i = 0; i < medaltypes.length; i++)
             {
-                var medal=medals[i];
+                var medaltype = medaltypes[i];
+                var earned=false;
+                for(var j=0 ; j <medals.length; j++)
+            {
+                var medal=medals[j];
+                if(medaltype.uri==medal.gm.hasType)
+                {
+                    earned=true;
+                    break;
+                }
+            }
             %>
-            <tr><td><%= medal.gm.hasType %></td></tr>
+            <% if ( i == 0 || i==3 || i==6 || i==9 || i==12) { %>
+
+            <tr>
+                <% } %>
+
+                <td class="col-md-4"><div><img src="/images/game/<%= medaltype.gm.material %><%if (!earned) { %>-off<%}%>.png" width="50px" height="70px"></div><div><%if (earned) { %><b><% } %><%= medaltype.dcterms.title %><%if (earned) { %></b><% } %></div></td>
+                <% if (i== 2 || i==5 || i==8 || i==11 || i == medaltypes.length) { %>
+            </tr>
+            <% } %>
             <%
             }
             %>

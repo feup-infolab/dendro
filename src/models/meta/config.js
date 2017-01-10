@@ -569,4 +569,6 @@ Config.email = getConfigParameter("email");
 
 Config.medaltypes = getConfigParameter("medaltypes");
 
+Config.medals = getConfigParameter("medals");
+
 module.exports.Config = Config;

@@ -2,11 +2,13 @@ var Config = require("../meta/config.js").Config;
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
 var util = require('util');
 var async = require('async');
 var _ = require('underscore');
 var path = require('path');
+var uuid = require('node-uuid');
 
 var db = function() { return GLOBAL.db.default; }();
 var gfs = function() { return GLOBAL.gfs.default; }();
@@ -21,7 +23,7 @@ function Medal (object)
 
     if(self.uri == null)
     {
-        self.uri = db.baseURI+"/Medal/"+self.dcterms.title;
+        self.uri = db.baseURI+"/medal/"+uuid.v4();
     }
 
     self.rdf.type = "gm:Medal";
@@ -31,9 +33,6 @@ function Medal (object)
 
 Medal.prefixedRDFType = "gm:Medal";
 
-Medal = Class.extend(Medal, Resource);
-
-module.exports.Medal = Medal;
 
 
 Medal.allByUser = function(username,callback) {
@@ -101,3 +100,63 @@ Medal.allByUser = function(username,callback) {
             }
         });
 };
+
+Medal.findByMaterial = function(material, callback)
+{
+    Medal.findByPropertyValue(material, "gm:material", callback);
+};
+
+Medal.removeAllMedals = function(callback)
+{
+    var medalDescriptor = new Descriptor({
+        prefixedForm: "rdf:type",
+        value : "gm:Medal"
+    });
+
+    Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples(medalDescriptor, function(err, results)
+    {
+        if (!err)
+        {
+            callback(0, results);
+        }
+        else
+        {
+            var msg = "Error deleting all medals: " + results;
+            console.error(msg);
+            callback(1, msg);
+        }
+    });
+};
+
+Medal.createAndInsertFromObject = function(object, callback) {
+
+    var self = new Medal(object);
+
+    console.log("creating Medal from object" + util.inspect(object));
+
+
+    //TODO CACHE DONE
+
+    self.save(function(err, newMedal) {
+        if(!err)
+        {
+            if(newMedal instanceof Medal)
+            {
+                callback(null, self);
+            }
+            else
+            {
+                callback(null, false);
+            }
+        }
+        else
+        {
+            callback(err, newMedal);
+        }
+    });
+};
+
+
+Medal = Class.extend(Medal, Resource);
+
+module.exports.Medal = Medal;

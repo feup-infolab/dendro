@@ -2,10 +2,15 @@ var Config = require('../models/meta/config.js').Config;
 
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var Medal = require(Config.absPathInSrcFolder("/models/game/medal.js")).Medal;
+var MedalType = require(Config.absPathInSrcFolder("/models/game/medal_type.js")).MedalType;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
+var db = function () {
+    return GLOBAL.db.default;
+}();
+var gfs = function () {
+    return GLOBAL.gfs.default;
+}();
 
 var async = require('async');
 var _ = require('underscore');
@@ -14,10 +19,10 @@ var _ = require('underscore');
  * GET users listing.
  */
 
-exports.all = function(req, res){
+exports.all = function (req, res) {
 
     var viewVars = {
-        title : 'Researchers in the knowledge base'
+        title: 'Researchers in the knowledge base'
     };
 
     viewVars = DbConnection.paginate(req,
@@ -25,18 +30,14 @@ exports.all = function(req, res){
     );
 
 
-
-    User.all(function(err, users)
-    {
-        if(!err)
-        {
+    User.all(function (err, users) {
+        if (!err) {
             viewVars.users = users;
             res.render('users/all',
                 viewVars
             );
         }
-        else
-        {
+        else {
             viewVars.error_messages = [users];
             res.render('users/all',
                 viewVars
@@ -45,39 +46,40 @@ exports.all = function(req, res){
     });
 };
 
-exports.show = function(req, res){
+exports.show = function (req, res) {
     var username = req.params["username"];
-    var medalsFromUser ;
 
 
-    User.findByUsername(username, function(err, user)
-    {
+    User.findByUsername(username, function (err, user) {
         var viewVars = {
-            title : 'Researcher'
+            title: 'Researcher'
         };
 
 
-
-
-
-        if(err == null)
-        {
-            Medal.allByUser(username,function(err, medals)
-            {
-                if(!err)
+        if (err == null) {
+            Medal.allByUser(username, function (err, medals) {
+                if (!err)
                 {
-
-                    console.log(medals);
-                    res.render('users/show',
+                    MedalType.all(function (err, medaltypes)
+                    {
+                        if (!err)
                         {
-                            title : "Viewing user " + username,
-                            user : user,
-                            medals: medals
+                            console.log(medals);
+                            res.render('users/show',
+                                {
+                                    title: "Viewing user " + username,
+                                    user: user,
+                                    medals: medals,
+                                    medaltypes: medaltypes
+                                }
+                            )
                         }
-                    )
-
-
+                        else
+                        {
+                        }
+                    });
                 }
+
                 else
                 {
 
@@ -85,101 +87,88 @@ exports.show = function(req, res){
             });
 
         }
-        else
-        {
+        else {
             res.render('users/all',
                 {
-                    title : "Researchers",
-                    error_messages :
-                        [
-                            "Unable to retrieve information for user " + username ,
-                            err
-                        ]
+                    title: "Researchers",
+                    error_messages: [
+                        "Unable to retrieve information for user " + username,
+                        err
+                    ]
                 }
             );
         }
     });
 };
 
-exports.me = function(req, res){
+exports.me = function (req, res) {
     req.params.user = req.session.user;
 
-    if(req.originalMethod == "GET")
-    {
+    if (req.originalMethod == "GET") {
         res.render('users/edit',
             {
-                user : req.session.user
+                user: req.session.user
             }
         );
     }
-    else if (req.originalMethod == "POST")
-    {
+    else if (req.originalMethod == "POST") {
         //perform modifications
 
         res.render('users/edit',
             {
-                user : req.session.user
+                user: req.session.user
             }
         );
     }
 };
 
-exports.set_new_password = function(req, res) {
+exports.set_new_password = function (req, res) {
 
     if (req.originalMethod == "GET") {
 
         var email = req.query["email"];
         var token = req.query["token"];
 
-        if(email == null || token == null)
-        {
+        if (email == null || token == null) {
             res.render('index',
                 {
-                    info_messages : ["Invalid request."]
+                    info_messages: ["Invalid request."]
                 }
             );
         }
-        else
-        {
-            User.findByEmail(email, function(err, user){
-                if(!err)
-                {
-                    if(!user)
-                    {
+        else {
+            User.findByEmail(email, function (err, user) {
+                if (!err) {
+                    if (!user) {
                         res.render('index',
                             {
-                                error_messages : ["Non-existent user with email " + email + " : " + JSON.stringify(user)]
+                                error_messages: ["Non-existent user with email " + email + " : " + JSON.stringify(user)]
                             }
                         );
                     }
-                    else
-                    {
-                        user.checkIfHasPredicateValue("ddr:password_reset_token", token, function(err, tokenMatches){
-                            if(!err)
-                            {
-                                if(tokenMatches)
-                                {
+                    else {
+                        user.checkIfHasPredicateValue("ddr:password_reset_token", token, function (err, tokenMatches) {
+                            if (!err) {
+                                if (tokenMatches) {
                                     res.render('users/set_new_password',
                                         {
-                                            email : email,
-                                            token : token
+                                            email: email,
+                                            token: token
                                         }
                                     );
                                 }
-                                else
-                                {
+                                else {
                                     res.render('index',
                                         {
-                                            error_messages : ["Invalid token"]
+                                            error_messages: ["Invalid token"]
                                         }
                                     );
                                 }
                             }
-                            else
-                            {
+                            else {
                                 res.render('index',
                                     {
-                                        error_messages : ["Error retrieving token : " + JSON.stringify(user)]
+                                        error_messages: ["Error retrieving token : " + JSON.stringify(user)]
                                     }
                                 );
                             }
@@ -187,89 +176,75 @@ exports.set_new_password = function(req, res) {
 
                     }
                 }
-                else
-                {
+                else {
                     res.render('index',
                         {
-                            error_messages : ["Error retrieving user with email " + email + " : " + JSON.stringify(user)]
+                            error_messages: ["Error retrieving user with email " + email + " : " + JSON.stringify(user)]
                         }
                     );
                 }
             });
         }
     }
-    else if (req.originalMethod == "POST")
-    {
+    else if (req.originalMethod == "POST") {
         var email = req.body["email"];
         var token = req.body["token"];
 
         if (token == null || email == null) {
             res.render('users/set_new_password',
                 {
-                    token : token,
-                    email : email,
+                    token: token,
+                    email: email,
                     "error_messages": [
                         "Wrong link specified."
                     ]
                 }
             );
         }
-        else
-        {
+        else {
             var new_password = req.body["new_password"];
             var new_password_confirm = req.body["new_password_confirm"];
 
-            if(new_password != new_password_confirm)
-            {
+            if (new_password != new_password_confirm) {
                 res.render('users/set_new_password',
                     {
-                        token : token,
-                        email : email,
-                        error_messages : [
+                        token: token,
+                        email: email,
+                        error_messages: [
                             "Please make sure that the password and its confirmation match."
                         ]
                     }
                 );
             }
-            else
-            {
-                User.findByEmail(email, function(err, user){
-                    if(!err)
-                    {
-                        if(!user)
-                        {
+            else {
+                User.findByEmail(email, function (err, user) {
+                    if (!err) {
+                        if (!user) {
                             res.render('index',
                                 {
-                                    "error_messages" :
-                                        [
-                                            "Unknown account with email " + email + "."
-                                        ]
+                                    "error_messages": [
+                                        "Unknown account with email " + email + "."
+                                    ]
                                 }
                             );
                         }
-                        else
-                        {
-                            user.finishPasswordReset(new_password, token, function(err, result)
-                            {
-                                if(err)
-                                {
+                        else {
+                            user.finishPasswordReset(new_password, token, function (err, result) {
+                                if (err) {
                                     res.render('index',
                                         {
-                                            "error_messages" :
-                                                [
-                                                    "Error resetting password for email : " + email +". Error description: " + JSON.stringify(result)
-                                                ]
+                                            "error_messages": [
+                                                "Error resetting password for email : " + email + ". Error description: " + JSON.stringify(result)
+                                            ]
                                         }
                                     );
                                 }
-                                else
-                                {
+                                else {
                                     res.render('index',
                                         {
-                                            "info_messages" :
-                                                [
-                                                    "Password successfully reset for : " + email +". You can now login with your new password."
-                                                ]
+                                            "info_messages": [
+                                                "Password successfully reset for : " + email + ". You can now login with your new password."
+                                            ]
                                         }
                                     );
                                 }
@@ -282,57 +257,44 @@ exports.set_new_password = function(req, res) {
     }
 };
 
-exports.reset_password = function(req, res){
+exports.reset_password = function (req, res) {
 
-    if(req.originalMethod == "GET")
-    {
+    if (req.originalMethod == "GET") {
         res.render('users/reset_password',
-            {
-            }
+            {}
         );
     }
-    else if (req.originalMethod == "POST")
-    {
+    else if (req.originalMethod == "POST") {
         var email = req.body["email"];
-        if(email != null)
-        {
-            User.findByEmail(email, function(err, user){
-                if(!err)
-                {
-                    if(!user)
-                    {
+        if (email != null) {
+            User.findByEmail(email, function (err, user) {
+                if (!err) {
+                    if (!user) {
                         res.render('users/reset_password',
                             {
-                                "error_messages" :
-                                    [
-                                        "Unknown account with email " + email + "."
-                                    ]
+                                "error_messages": [
+                                    "Unknown account with email " + email + "."
+                                ]
                             }
                         );
                     }
-                    else
-                    {
-                        user.startPasswordReset(function(err, result)
-                        {
-                            if(err)
-                            {
+                    else {
+                        user.startPasswordReset(function (err, result) {
+                            if (err) {
                                 res.render('index',
                                     {
-                                        "error_messages" :
-                                            [
-                                                "Error resetting password for email : " + email +". Error description: " + JSON.stringify(result)
-                                            ]
+                                        "error_messages": [
+                                            "Error resetting password for email : " + email + ". Error description: " + JSON.stringify(result)
+                                        ]
                                     }
                                 );
                             }
-                            else
-                            {
+                            else {
                                 res.render('index',
                                     {
-                                        "info_messages" :
-                                            [
-                                                "Password reset instructions have been sent to : " + email +"."
-                                            ]
+                                        "info_messages": [
+                                            "Password reset instructions have been sent to : " + email + "."
+                                        ]
                                     }
                                 );
                             }
@@ -341,14 +303,12 @@ exports.reset_password = function(req, res){
                 }
             });
         }
-        else
-        {
+        else {
             res.render('users/reset_password',
                 {
-                    "error_messages" :
-                        [
-                            "Please specify a valid email address"
-                        ]
+                    "error_messages": [
+                        "Please specify a valid email address"
+                    ]
                 }
             );
         }

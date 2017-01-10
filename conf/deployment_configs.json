@@ -85,10 +85,97 @@
     },
     "medaltypes" : [
       {
+        "title": "Beginner",
+        "description": "blablabla",
+        "material" : "Bronze",
+        "numActions" : "1"
+      },
+      {
+        "title": "Creator",
+        "description": "blablabla",
+        "material" : "Bronze",
+        "numActions" : "1"
+      },
+      {
         "title": "Amateur",
         "description": "blablabla",
         "material" : "Bronze",
+        "numActions" : "1"
+      },
+      {
+        "title": "Sociable",
+        "description": "blablabla",
+        "material" : "Bronze",
+        "numActions" : "50"
+      },
+      {
+        "title": "Generous",
+        "description": "blablabla",
+        "material" : "Bronze",
+        "numActions" : "5"
+      },
+      {
+        "title": "Disciplined",
+        "description": "blablabla",
+        "material" : "Silver",
+        "numActions" : "50"
+      },
+      {
+        "title": "Famous",
+        "description": "blablabla",
+        "material" : "Silver",
+        "numActions" : "200"
+      },
+      {
+        "title": "Pro-active",
+        "description": "blablabla",
+        "material" : "Silver",
+        "numActions" : "5"
+      },
+      {
+        "title": "Friendly",
+        "description": "blablabla",
+        "material" : "Silver",
+        "numActions" : "20"
+      },
+      {
+        "title": "Rockstar",
+        "description": "blablabla",
+        "material" : "Gold",
+        "numActions" : "1000"
+      },
+      {
+        "title": "Gentleman",
+        "description": "blablabla",
+        "material" : "Gold",
+        "numActions" : "50"
+      },
+      {
+        "title": "Enthusiastic",
+        "description": "blablabla",
+        "material" : "Gold",
         "numActions" : "10"
+      },
+      {
+        "title": "Powerful",
+        "description": "blablabla",
+        "material" : "Gold",
+        "numActions" : "100"
+      }
+    ],
+    "medals" : [
+      {
+        "hasType": "http://127.0.0.1:3001/medaltype/Creator",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser1"
+      },
+      {
+        "hasType": "http://127.0.0.1:3001/medaltype/Amateur",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser1"
+      }
+    ,
+      {
+        "hasType": "http://127.0.0.1:3001/medaltype/Pro-active",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser1"
       }
     ],
     "useElasticSearchAuth" : false,
