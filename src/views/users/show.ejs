@@ -43,8 +43,68 @@
             </tr>
         </table>
     </div>
+    <%
+    var level = "";
+    var nextlevel = "";
+    var percentage = 0;
+    var goal = 0;
+
+    switch (true) {
+        case (0 <= user.gm.score && user.gm.score < 1000):
+            level = "Baby";
+            nextlevel = "Children";
+            percentage = (user.gm.score / 1000) * 100;
+            break;
+        case (1000 <= user.gm.score && user.gm.score < 2000):
+            level = "Children";
+            nextlevel = "Student";
+            percentage = ((user.gm.score - 1000) / 1000) * 100;
+            break;
+        case (2000 <= user.gm.score && user.gm.score < 3000):
+            level = "Student";
+            nextlevel = "Graduate";
+            percentage = ((user.gm.score - 2000) / 1000) * 100;
+            break;
+        case (3000 <= user.gm.score && user.gm.score < 4000):
+            level = "Graduate";
+            nextlevel = "Researcher";
+            percentage = ((user.gm.score - 3000) / 1000) * 100;
+            break;
+        case (4000 <= user.gm.score && user.gm.score < 5000):
+            level = "Researcher";
+            nextlevel = "Nobel Prize";
+            percentage = ((user.gm.score - 4000) / 1000) * 100;
+            break;
+        case (5000 <= user.gm.score ):
+            level = "Nobel Prize";
+            break;
+    }
+
+    percentage = Math.round(percentage);
+    %>
+
     <div class="col-md-4 pull-left pr-4">
-       <div class="col-md-8 center col-md-offset-2 text-center"><h1><%= user.gm.score %>pt</h1></div>
+        <div style="height: 100px" class="text-center"><h1><%= user.gm.score %>pt</h1>
+            <h3><%= level %></h3></div>
+        <div class="col-md-8 col-md-offset-2">
+            <% if(level != "Nobel Prize") { %>
+            <div id="percentage" style="width:100%; height:20px; border-style: solid">
+                <div style="background-color: #00A000;width:<%= percentage %>%;height: 100%"></div>
+            </div>
+            <div class="text-center">
+                <h3> <%= percentage %>% to <%= nextlevel %></h3>
+            </div>
+            <%
+            }
+            else
+            {
+            %>
+            <h2>Congratulations! You are already on the top !</h2>
+            <%
+            }
+            %>
+        </div>
+
     </div>
     <div class="col-md-4 pull-left">
         <% if(!(typeof medaltypes === 'undefined'))
@@ -54,26 +114,63 @@
             <% for(var i = 0; i < medaltypes.length; i++)
             {
                 var medaltype = medaltypes[i];
-                var earned=false;
-                for(var j=0 ; j <medals.length; j++)
-            {
-                var medal=medals[j];
-                if(medaltype.uri==medal.gm.hasType)
-                {
-                    earned=true;
-                    break;
+                var earned = false;
+                for (var j = 0; j < medals.length; j++) {
+                    var medal = medals[j];
+                    if (medaltype.uri == medal.gm.hasType) {
+                        earned = true;
+                        break;
+                    }
                 }
-            }
             %>
-            <% if ( i == 0 || i==3 || i==6 || i==9 || i==12) { %>
+            <% if ( i == 0 || i == 3 || i == 6 || i == 9 || i == 12) { %>
 
             <tr>
                 <% } %>
 
-                <td class="col-md-4"><div><img src="/images/game/<%= medaltype.gm.material %><%if (!earned) { %>-off<%}%>.png" width="50px" height="70px"></div><div><%if (earned) { %><b><% } %><%= medaltype.dcterms.title %><%if (earned) { %></b><% } %></div></td>
-                <% if (i== 2 || i==5 || i==8 || i==11 || i == medaltypes.length) { %>
+                <td class="col-md-4" data-toggle="modal" data-target="#<%= medaltype.dcterms.title %>Modal">
+                    <div>
+                        <img src="/images/game/<%= medaltype.gm.material %><% if (!earned) { %>-off<% } %>.png"
+                             width="50px" height="70px">
+                    </div>
+                    <div>
+                        <% if (earned) { %>
+                        <b>
+                            <% } %>
+                            <%= medaltype.dcterms.title %>
+                            <% if (earned) { %>
+                        </b>
+                        <% } %>
+                    </div>
+                </td>
+                <% if (i == 2 || i == 5 || i == 8 || i == 11 || i == medaltypes.length) { %>
             </tr>
-            <% } %>
+            <%
+            }
+            %>
+            <div id="<%= medaltype.dcterms.title %>Modal" class="modal fade" role="dialog">
+                <div class="modal-dialog">
+
+                    <!-- Modal content-->
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            <h4 class="modal-title"><%= medaltype.dcterms.title %></h4>
+                        </div>
+                        <div class="modal-body">
+                            <div >
+                                <img class="center-block" src="/images/game/<%= medaltype.gm.material %><% if (!earned) { %>-off<% } %>.png"
+                                     width="100px" height="140px">
+                            </div>
+                            <p class="text-center"><%= medaltype.dcterms.description %></p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
             <%
             }
             %>
