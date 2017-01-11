@@ -263,6 +263,7 @@ angular.module('dendroApp.controllers')
 
             $scope.renderFileVersions = true;
             $scope.pagination.current = 1;
+            //TODO countNumFileVersions
             $scope.initFileVersions();
         });
 

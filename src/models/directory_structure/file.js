@@ -443,6 +443,40 @@ File.unzip = function(pathOfFolder, callback) {
     );
 };
 
+File.prototype.connectToMongo = function (callback) {
+    var MongoClient = require('mongodb').MongoClient;
+    var url = 'mongodb://'+Config.mongoDBHost+':'+Config.mongoDbPort+'/'+Config.mongoDbCollectionName;
+    MongoClient.connect(url, function(err, db) {
+        if(!err)
+        {
+            console.log("Connected successfully to MongoDB");
+            callback(null, db);
+        }
+        else
+        {
+            var msg = 'Error connecting to MongoDB';
+            callback(true, msg);
+        }
+    });
+};
+
+File.prototype.findFileInMongo = function (db, callback) {
+    var collection = db.collection('fs.files');
+    collection.find({filename: this.uri}).toArray(function(err, files) {
+        console.log("Found the following Files");
+        console.log(files);
+        if(!err)
+        {
+            callback(null, files);
+        }
+        else
+        {
+            var msg = 'Error findind document with uri: ' + this.uri + ' in Mongo';
+            callback(true, msg);
+        }
+    });
+};
+
 File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     var self = this;

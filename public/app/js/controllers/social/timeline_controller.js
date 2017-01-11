@@ -312,6 +312,7 @@ angular.module('dendroApp.controllers')
         $scope.$on('tab_changed:timeline', function(event, args) {
             $scope.renderPosts = true;
             $scope.pagination.current = 1;
+            //TODO countNumPosts here
             $scope.initTimeline();
         });
 

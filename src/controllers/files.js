@@ -650,41 +650,6 @@ exports.get_thumbnail = function(req, res) {
     });
 };
 
-//Temp function
-var connectToMongo = function (callback) {
-    var MongoClient = require('mongodb').MongoClient;
-    var url = 'mongodb://192.168.56.101:27017/dendro_data_dev';
-    MongoClient.connect(url, function(err, db) {
-        if(!err)
-        {
-            console.log("Connected successfully to MongoDB");
-            callback(null, db);
-        }
-        else
-        {
-            var msg = 'Error connecting to MongoDB';
-            callback(true, msg);
-        }
-    });
-};
-
-var findFileInMongo = function (db, fileUri, callback) {
-    var collection = db.collection('fs.files');
-    collection.find({filename: fileUri}).toArray(function(err, files) {
-        console.log("Found the following Files");
-        console.log(files);
-        if(!err)
-        {
-            callback(null, files);
-        }
-        else
-        {
-            var msg = 'Error findind document with uri: ' + fileUri + ' in Mongo';
-            callback(true, msg);
-        }
-    });
-};
-
 exports.upload = function(req, res){
    if (req.originalMethod == "GET")
     {
@@ -729,10 +694,10 @@ exports.upload = function(req, res){
                                 console.log("File " + newFile.uri + " is now saved in GridFS");
                                 //TODO get info from mongo for that fileUri
                                 //TODO build a new file_versions for that file
-                                connectToMongo(function (err, db) {
+                                newFile.connectToMongo(function (err, db) {
                                    if(!err)
                                    {
-                                       findFileInMongo(db, newFile.uri, function (error, filesInfo) {
+                                       newFile.findFileInMongo(db, function (error, filesInfo) {
                                            if(!error)
                                            {
                                                 console.log(filesInfo);
