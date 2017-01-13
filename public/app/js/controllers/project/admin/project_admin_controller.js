@@ -14,7 +14,7 @@ angular.module('dendroApp.controllers')
                 data: JSON.stringify({}),
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
-            }).success(function(data) {
+            }).then(function(response) {
                     //console.log(data);
                     $scope.project = data;
 
@@ -27,9 +27,16 @@ angular.module('dendroApp.controllers')
                         }
                     }
                 })
-                .error(function(data){
-                    Utils.show_popup("error", data.title, data.message);
-                });
+            .catch(function(error){
+                if(error.message != null && error.title != null)
+                {
+                    Utils.show_popup("error", error.title, error.message);
+                }
+                else
+                {
+                    Utils.show_popup("error", "Error occurred", JSON.stringify(error));
+                }
+            });
         };
 
         $scope.delete_project = function ()
@@ -46,11 +53,19 @@ angular.module('dendroApp.controllers')
                 //console.log("deleting " + get_current_url() + " via url " + uri);
 
                 $http.post(uri)
-                    .success(function(data) {
+                    .then(function(response) {
+                        var data = response.data;
                         Utils.show_popup("success", data.title, data.message);
                     })
-                    .error(function(data){
-                        Utils.show_popup("error", data.title, data.message);
+                    .catch(function(error){
+                        if(error.message != null && error.title != null)
+                        {
+                            Utils.show_popup("error", error.title, error.message);
+                        }
+                        else
+                        {
+                            Utils.show_popup("error", "Error occurred", JSON.stringify(error));
+                        }
                     });
             }
         };

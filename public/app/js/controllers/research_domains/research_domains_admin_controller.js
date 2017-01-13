@@ -15,8 +15,9 @@ angular.module('dendroApp.controllers')
                 data: JSON.stringify({}),
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
-            }).success(function (data)
+            }).then(function (response)
                 {
+                    var data = response.data;
                     if (data != null && data instanceof Object)
                     {
                         $scope.research_domains = data.research_domains;
@@ -28,9 +29,18 @@ angular.module('dendroApp.controllers')
 
                     $scope.getting_research_domains = false;
                 })
-                .error(function (data)
+
+                .catch(function (error)
                 {
-                    Utils.show_popup("error", data.title, data.message);
+                    if(error.message != null && error.title != null)
+                    {
+                        Utils.show_popup("error", error.title, error.message);
+                    }
+                    else
+                    {
+                        Utils.show_popup("error", "Error occurred", JSON.stringify(error));
+                    }
+
                     $scope.getting_research_domains = false;
                 });
         };
@@ -87,7 +97,8 @@ angular.module('dendroApp.controllers')
                             method: 'DELETE',
                             url: url,
                             data: research_domain
-                        }).success(function(data) {
+                        }).then(function(response) {
+                            var data = response.data;
                             if(data.result == 'error' && data.message != null)
                             {
                                 Utils.show_popup("error", "Error", data.message);
@@ -98,10 +109,14 @@ angular.module('dendroApp.controllers')
                             }
                             $scope.get_research_domains();
 
-                        }).error(function(data) {
-                            if(data.message != null)
+                        }).catch(function(error) {
+                            if(error.message != null && error.title != null)
                             {
-                                Utils.show_popup("error", "Error", data.message);
+                                Utils.show_popup("error", error.title, error.message);
+                            }
+                            else
+                            {
+                                Utils.show_popup("error", "Error occurred", JSON.stringify(error));
                             }
 
                             $scope.get_research_domains();
@@ -117,7 +132,8 @@ angular.module('dendroApp.controllers')
                 method: 'POST',
                 url: "/research_domains",
                 data: $scope.research_domains
-            }).success(function(data) {
+            }).then(function(response) {
+                var data = response.data;
                 if(data.result == 'error' && data.message != null)
                 {
                     Utils.show_popup("error", "Error", data.message);
@@ -129,10 +145,14 @@ angular.module('dendroApp.controllers')
 
                 $scope.get_research_domains();
 
-            }).error(function(data) {
-                if(data.message != null)
+            }).catch(function(error) {
+                if(error.message != null && error.title != null)
                 {
-                    Utils.show_popup("error", "Error", data.message);
+                    Utils.show_popup("error", error.title, error.message);
+                }
+                else
+                {
+                    Utils.show_popup("error", "Error occurred", JSON.stringify(error));
                 }
 
                 $scope.get_research_domains();

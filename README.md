@@ -9,6 +9,10 @@ You are free to use Dendro to build any service for your research group or insti
 
 Pull requests are welcome!
 
+##Demo instance
+
+See the [DEMO PAGE](http://dendro.fe.up.pt/demo). If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
+
 ##Dependencies
 
 Dendro relies on

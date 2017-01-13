@@ -25,8 +25,9 @@ angular.module('dendroApp.controllers')
                 data: JSON.stringify({}),
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
-            }).success(function (data)
+            }).then(function (response)
                 {
+                    var data = response.data;
                     if(data != null && data instanceof Array)
                     {
                         //console.log(JSON.stringify(data));
@@ -82,7 +83,7 @@ angular.module('dendroApp.controllers')
                         Utils.show_popup("error", "Invalid response", "Server sent an invalid response when fetching list of ontologies");
                     }
                 })
-                .error(function (data)
+                .catch(function (data)
                 {
                     Utils.show_popup("error", data.title, data.message);
                     $scope.getting_ontologies = false;
@@ -121,7 +122,8 @@ angular.module('dendroApp.controllers')
                 method: 'POST',
                 url: "/ontologies/edit",
                 data: ontology
-            }).success(function(data) {
+            }).then(function(response) {
+                var data = response.data;
                 if(data.result == 'error' && data.message != null)
                 {
                     Utils.show_popup("error", "Error", data.message);
@@ -131,10 +133,10 @@ angular.module('dendroApp.controllers')
                 }
 
                 $scope.get_ontologies();
-            }).error(function(data) {
-                if(data.message != null)
+            }).catch(function(error) {
+                if(error.message != null)
                 {
-                    Utils.show_popup("error", "Error", data.message);
+                    Utils.show_popup("error", "Error", error.message);
                 }
             });
         };
