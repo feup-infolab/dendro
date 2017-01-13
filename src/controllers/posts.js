@@ -338,6 +338,7 @@ exports.new = function(req, res){
 exports.getPost_controller = function (req, res) {
     var currentUser = req.session.user;
     var postURI = req.body.postID;
+
     Post.findByUri(req.body.postID, function(err, post)
     {
         if(!err)
