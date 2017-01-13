@@ -339,6 +339,7 @@ exports.getPost_controller = function (req, res) {
     var currentUser = req.session.user;
     var postURI = req.body.postID;
 
+    var debugGraph = db_social.graphUri;
     Post.findByUri(req.body.postID, function(err, post)
     {
         if(!err)
