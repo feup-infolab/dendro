@@ -312,12 +312,12 @@ angular.module('dendroApp.controllers')
         $scope.$on('tab_changed:timeline', function(event, args) {
             $scope.renderPosts = true;
             $scope.pagination.current = 1;
-            //TODO countNumPosts here
             $scope.initTimeline();
         });
 
         $scope.$on('tab_changed:fileVersions', function(event, args) {
             $scope.pagination.current = 1;
+            $scope.totalPosts = 0;
             $scope.renderPosts = false;
         });
     });

@@ -263,12 +263,12 @@ angular.module('dendroApp.controllers')
 
             $scope.renderFileVersions = true;
             $scope.pagination.current = 1;
-            //TODO countNumFileVersions
             $scope.initFileVersions();
         });
 
         $scope.$on('tab_changed:timeline', function(event, args) {
             $scope.pagination.current = 1;
+            $scope.totalFileVersions = 0;
             $scope.renderFileVersions = false;
         });
     });
