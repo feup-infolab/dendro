@@ -1369,6 +1369,57 @@ User.removeAllAdmins = function(callback)
     });
 };
 
+User.prototype.countProjects= function(callback)
+{
+    var self = this;
+
+    var query =
+        "SELECT COUNT(?project) as ?project_count \n" +
+        "FROM [0] \n" +
+        "WHERE " +
+        "{ \n" +
+        "{ \n" +
+        "   ?project rdf:type ddr:Project . \n" +
+        "   ?project dcterms:contributor [1]. \n" +
+        "} \n" +
+        " UNION \n" +
+        "{ \n" +
+        "   ?project rdf:type ddr:Project . \n" +
+        "   ?project dcterms:creator [1]. \n" +
+        "} \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : self.uri
+            }
+        ],
+        function(err, result)
+        {
+            if (!err)
+            {
+                if(result instanceof Array && result.length > 0)
+                {
+                    callback(null, result[0].project_count);
+                }
+                else
+                {
+                    callback(1, "invalid result retrieved when querying for project contributor count");
+                }
+            }
+            else
+            {
+                callback(err, -1);
+            }
+        });
+};
+
 User.anonymous = {
     uri: "http://dendro.fe.up.pt/user/anonymous"
 };

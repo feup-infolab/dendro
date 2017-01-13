@@ -38,6 +38,73 @@ function Project(object)
     return self;
 }
 
+Project.prototype.save = function(callback)
+{
+    var self = this;
+
+    var incrementProgress = function(cb)
+    {
+        db.connection.execute(
+            "WITH [0] \n" +
+            "SELECT ?uri \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   ?uri [1] [2] \n" +
+            "} \n" +
+            "LIMIT [3] \n" +
+            "OFFSET [4] \n",
+            [
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value : graphUri
+                },
+                {
+                    type : DbConnection.prefixedResource,
+                    value : descriptor.getPrefixedForm()
+                },
+                {
+                    type : descriptor.type,
+                    value : descriptor.value
+                },
+                {
+                    type : DbConnection.int,
+                    value : pageSize
+                },
+                {
+                    type : DbConnection.int,
+                    value : offset
+                }
+            ],
+            function(err, result)
+            {
+                callback(err, result);
+            }
+        );
+    };
+
+    var objectOfParentClass = new self.baseConstructor(self);
+
+    objectOfParentClass.save(
+        function(err, result)
+        {
+            if(err == null)
+            {
+                callback(null, self);
+
+                console.log(result);
+            }
+            else
+            {
+                console.error("Error adding child file descriptors : " + result);
+                callback(1, "Error adding child file descriptors : " + result);
+            }
+        }
+    );
+
+};
+
+
+
 Project.prototype.rootFolder = function()
 {
     var self = this;

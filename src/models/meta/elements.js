@@ -2438,6 +2438,12 @@ Elements.gm = {
         control: Config.controls.url_box,
         locked: true
     }
+    ,
+    hasUser: {
+        type: DbConnection.resource,
+        control: Config.controls.url_box,
+        locked: true
+    }
 
 };
 

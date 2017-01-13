@@ -751,6 +751,8 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
 {
     var self = this;
 
+
+
     if(newDescriptorsOfSubject != null && newDescriptorsOfSubject instanceof Object)
     {
         var insertString = "";
@@ -765,8 +767,10 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
 
         for(var i = 0; i < newDescriptorsOfSubject.length; i++)
         {
+
             var newDescriptor = newDescriptorsOfSubject[i];
             var objects = newDescriptor.value;
+
 
             if(!(objects instanceof Array))
             {

@@ -829,6 +829,60 @@ async.waterfall([
 
     },
     function (callback) {
+
+
+        var Progress = require(Config.absPathInSrcFolder("/models/game/progress.js")).Progress;
+
+        async.series([
+                function (callback) {
+                    Progress.removeAllProgress(callback);
+                },
+                function (callback) {
+                    var createProgress= function (progress, callback) {
+                        Progress.createAndInsertFromObject({
+                                gm: {
+                                    objectType: progress.objectType,
+                                    numActions: progress.numActions,
+                                    hasUser: progress.hasUser
+                                }
+                            },
+                            function (err, newProgress) {
+                                if (!err && newProgress != null) {
+                                    callback(null, newProgress);
+                                }
+                                else {
+                                    console.log("[ERROR] Error creating new progress " + JSON.stringify(progress));
+                                    callback(err, progress);
+                                }
+                            });
+                    };
+
+                    async.map(Config.progress, createProgress, function (err, results) {
+                        if (!err) {
+                            console.log("[INFO] Existing progress recreated. ");
+                            callback(err);
+                        }
+                        else {
+                            process.exit(1);
+                        }
+                    });
+                }
+            ],
+            function (err, results) {
+                if (!err) {
+                    callback(null);
+                }
+                else {
+                    process.exit(1);
+                }
+            });
+
+
+
+
+
+    },
+    function (callback) {
         //app's own requires
         var index = require(Config.absPathInSrcFolder("/controllers/index"));
         var users = require(Config.absPathInSrcFolder("/controllers/users"));

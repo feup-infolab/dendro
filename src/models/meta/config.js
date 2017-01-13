@@ -571,4 +571,6 @@ Config.medaltypes = getConfigParameter("medaltypes");
 
 Config.medals = getConfigParameter("medals");
 
+Config.progress= getConfigParameter("progress");
+
 module.exports.Config = Config;

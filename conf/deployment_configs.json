@@ -78,8 +78,7 @@
           "firstname" : "Dendro",
           "surname" : "Demo User",
           "mbox" : "demouser@dendro.fe.up.pt",
-          "score": "3403",
-          "hasMedal": "Amateur01"
+          "score": "4589"
         }
       ]
     },
@@ -176,6 +175,18 @@
       {
         "hasType": "http://127.0.0.1:3001/medaltype/Pro-active",
         "belongsTo": "http://127.0.0.1:3001/user/demouser1"
+      }
+    ,
+      {
+        "hasType": "http://127.0.0.1:3001/medaltype/Rockstar",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser1"
+      }
+    ],
+    "progress" : [
+      {
+        "objectType": "http://dendro.fe.up.pt/ontology/0.1/Project",
+        "numActions": "0",
+        "hasUser": "http://127.0.0.1:3001/user/demouser1"
       }
     ],
     "useElasticSearchAuth" : false,

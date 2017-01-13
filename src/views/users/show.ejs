@@ -50,7 +50,7 @@
     var goal = 0;
 
     switch (true) {
-        case (0 <= user.gm.score && user.gm.score < 1000):
+        case (0 < user.gm.score && user.gm.score < 1000):
             level = "Baby";
             nextlevel = "Children";
             percentage = (user.gm.score / 1000) * 100;
