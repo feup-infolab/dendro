@@ -35,7 +35,7 @@
 <div ng-show="valid_base_address(new_repository.ddr.hasExternalUrl)" class="control-group has-feedback" ng-class="{'has-success' : valid_api_key(new_repository.ddr.hasAPIKey), 'has-warning' : new_repository.ddr.hasAPIKey && !valid_api_key(new_repository.ddr.hasAPIKey)}">
     <label for="ckan_organization">API Key</label>
     <input type="text" ng-model="new_repository.ddr.hasAPIKey" class="form-control" id="ckan_api_key" placeholder="CKAN API Key" required>
-    <p class="help-block">Your API Key in the target CKAN repository. See the tutorial below for tips on how to retrieve it.</p>
+    <p class="help-block">Your API Key in the target CKAN repository. <span class="badge"><i class="fa fa-lightbulb-o"></i>See the tutorial below for tips on how to retrieve it.</span></p>
     <span ng-show="valid_api_key(new_repository.ddr.hasAPIKey)" class="glyphicon glyphicon-ok form-control-feedback"></span>
     <span ng-show="!valid_api_key(new_repository.ddr.hasAPIKey)" class="glyphicon glyphicon-remove form-control-feedback"></span>
 </div>
