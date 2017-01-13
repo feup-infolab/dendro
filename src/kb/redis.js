@@ -1,6 +1,6 @@
 var util = require('util');
 var redis = require('redis');
-var Config = require("../models/meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var colors = require('colors');
 
 function RedisConnection (options, databaseNumber)
@@ -23,11 +23,17 @@ RedisConnection.prototype.openConnection = function(callback) {
         {
             self.redis = redis.createClient(self.options);
 
-            var registerConnectionCallbacks = function ()
+            var registerConnectionCallbacks = function (err)
             {
-                self.redis.on('connect', function ()
+                /*self.redis.on('connect', function ()
                 {
                     console.log('Redis client connected');
+                    callback(null, self);
+                });*/
+
+                self.redis.on('ready', function ()
+                {
+                    console.log('Redis client ready');
                     callback(null, self);
                 });
 
@@ -41,10 +47,10 @@ RedisConnection.prototype.openConnection = function(callback) {
 
             if (self.databaseNumber != null)
             {
+                registerConnectionCallbacks();
                 self.redis.select(self.databaseNumber, function ()
                 {
                     console.log("Redis client switched to database number " + self.databaseNumber);
-                    registerConnectionCallbacks();
                 });
             }
             else
@@ -111,11 +117,11 @@ RedisConnection.prototype.get = function(resourceUri, callback) {
                     {
                         if(cachedJSON != null)
                         {
-                            console.log("Cache " + colors.green("HIT") + " on " + resourceUri);
+                            console.log("Cache HIT on " + resourceUri);
                         }
                         else
                         {
-                            console.log("Cache " + colors.yellow("MISS") + " on " + resourceUri);
+                            console.log("Cache MISS on " + resourceUri);
                         }
                     }
 
@@ -183,7 +189,7 @@ RedisConnection.prototype.deleteAll = function(callback) {
 
         if(self.redis != null)
         {
-            self.redis.flushdb(self.databaseNumber, function (err)
+            self.redis.flushdb(function (err)
             {
                 if(!err)
                 {

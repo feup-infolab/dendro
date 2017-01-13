@@ -11,26 +11,22 @@
 
         <form id="metadataform" class="form-horizontal navbar-spacer" role="form">
             <div class="control-group" ng-repeat="descriptor in shared.metadata track by $index">
-                <div class="row">
-
-                    <div ng-switch="descriptor.control">
-                        <div ng-switch-when="input_box">
-                            <ng-include src="'/app/views/projects/show/partials/controls_read_only/input_box.html'"></ng-include>
-                        </div>
-                        <div ng-switch-when="date_picker">
-                            <ng-include src="'/app/views/projects/show/partials/controls_read_only/date_picker.html'"></ng-include>
-                        </div>
-                        <div ng-switch-when="map">
-                            <ng-include src="'/app/views/projects/show/partials/controls_read_only/map.html'"></ng-include>
-                        </div>
-                        <div ng-switch-when="markdown_box">
-                            <ng-include src="'/app/views/projects/show/partials/controls_read_only/markdown_box.html'"></ng-include>
-                        </div>
-                        <div ng-switch-when="url_box">
-                            <ng-include src="'/app/views/projects/show/partials/controls_read_only/url_box.html'"></ng-include>
-                        </div>
+                <div ng-switch="descriptor.control">
+                    <div ng-switch-when="input_box">
+                        <ng-include src="'/app/views/projects/show/partials/controls_read_only/input_box.html'"></ng-include>
                     </div>
-
+                    <div ng-switch-when="date_picker">
+                        <ng-include src="'/app/views/projects/show/partials/controls_read_only/date_picker.html'"></ng-include>
+                    </div>
+                    <div ng-switch-when="map">
+                        <ng-include src="'/app/views/projects/show/partials/controls_read_only/map.html'"></ng-include>
+                    </div>
+                    <div ng-switch-when="markdown_box">
+                        <ng-include src="'/app/views/projects/show/partials/controls_read_only/markdown_box.html'"></ng-include>
+                    </div>
+                    <div ng-switch-when="url_box">
+                        <ng-include src="'/app/views/projects/show/partials/controls_read_only/url_box.html'"></ng-include>
+                    </div>
                 </div>
             </div>
         </form>

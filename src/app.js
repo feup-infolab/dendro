@@ -3,7 +3,7 @@
  *
  * @type {Function}
  */
-var Config = Object.create(require("./models/meta/config.js").Config);
+var Config = GLOBAL.Config = Object.create(require("./models/meta/config.js").Config);
 Config.initGlobals();
 
 /**
@@ -12,12 +12,14 @@ Config.initGlobals();
 
 var express = require('express'),
     domain = require('domain'),
-    serverDomain = domain.create(),
     flash = require('connect-flash'),
     http = require('http'),
     path = require('path');
     fs = require('fs');
     morgan = require('morgan');
+    Q = require('q');
+
+var bootupPromise = Q.defer();
 
 var app = express();
 
@@ -29,10 +31,12 @@ var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/
 var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 var async = require('async');
 var util = require('util');
+var multiparty = require('connect-multiparty');
+var multipartyMiddleware = multiparty();
+
 
 var self = this;
 
@@ -272,7 +276,8 @@ async.waterfall([
     function(callback) {
 
         var redisConn = new RedisConnection(
-            Config.cache.redis.options
+            Config.cache.redis.options,
+            Config.cache.redis.database_number
         );
 
         GLOBAL.redis.default.connection = redisConn;
@@ -289,10 +294,19 @@ async.waterfall([
                 {
                     console.log("[OK] Connected to Redis cache service at " + Config.cache.redis.options.host + ":" + Config.cache.redis.options.port);
 
-                    //set default connection. If you want to add other connections, add them in succession.
 
-
-                    callback(null);
+                    redisConn.deleteAll(function(err, result){
+                        if(!err)
+                        {
+                            console.log("[INFO] Deleted all cache records during bootup.");
+                            callback(null);
+                        }
+                        else
+                        {
+                            console.log("[ERROR] Unable to delete all cache records during bootup");
+                            process.exit(1);
+                        }
+                    });
                 }
             });
         }
@@ -966,6 +980,9 @@ async.waterfall([
         app.get('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
         app.post('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
 
+        app.get('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
+        app.post('/projects/import', multipartyMiddleware, async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
+
         app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);
         app.get('/project/:handle/view', projects.show);
         app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);
@@ -1030,7 +1047,7 @@ async.waterfall([
 
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?$/,
-            async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]),
+            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
@@ -1132,7 +1149,7 @@ async.waterfall([
         //      files and folders (data)
         //      downloads
         app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]),
+            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
@@ -1377,42 +1394,54 @@ async.waterfall([
             res.render('errors/404', 404);
         });*/
 
-        // Domain for the server (limits number of requests per second), auto restart after crash in certain cases
-        serverDomain.run(function () {
 
-            http.createServer(function (req, res) {
+        var server = http.createServer(function (req, res) {
 
-                var reqd = domain.create();
-                reqd.add(req);
-                reqd.add(res);
+            var reqd = domain.create();
+            reqd.add(req);
+            reqd.add(res);
 
-                // On error dispose of the domain
-                reqd.on('error', function (error) {
-                    console.error('Error', error.code, error.message, req.url);
-                    console.error('Stack Trace : ', error.stack);
-                    reqd.dispose();
-                });
-
-                // Pass the request to express  
-                app(req, res)
-
-            }).listen(app.get('port'), function() {
-                console.log('Express server listening on port ' + app.get('port'));
+            // On error dispose of the domain
+            reqd.on('error', function (error) {
+                console.error('Error', error.code, error.message, req.url);
+                console.error('Stack Trace : ', error.stack);
+                reqd.dispose();
             });
+
+            // Pass the request to express
+            app(req, res)
 
         });
 
+        //dont start server twice (for testing)
+        //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
 
-        setInterval(function () {
-            var pretty = require('prettysize');
+        if(process.env.NODE_ENV != 'test')
+        {
+            server.listen(app.get('port'), function() {
+                console.log('Express server listening on port ' + app.get('port'));
+                bootupPromise.resolve(app);
+            });
+        }
+        else
+        {
+            console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
+            bootupPromise.resolve(app);
+        }
 
-            if(Config.debug.diagnostics.ram_usage_reports)
+        if(Config.debug.diagnostics.ram_usage_reports)
+        {
+            setInterval(function ()
             {
+                var pretty = require('prettysize');
                 console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
-            }
-            if (typeof gc === 'function') {
-                gc();
-            }
-        }, 2000);
+                if (typeof gc === 'function')
+                {
+                    gc();
+                }
+            }, 2000);
+        }
     }
 ]);
+
+exports.bootup = bootupPromise.promise;

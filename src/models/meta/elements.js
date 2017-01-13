@@ -1,4 +1,4 @@
-var Config = require("./config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 function Elements (){}
@@ -1287,7 +1287,8 @@ Elements.nie = {
         type : DbConnection.date,
         control : Config.controls.input_box,
         private : true,
-        locked : true
+        locked : true,
+        backuppable: true
     }
 };
 

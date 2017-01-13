@@ -1,4 +1,4 @@
-var Config = require('../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var DryadLoader = require(Config.absPathInSrcFolder("/kb/loaders/dryad/dryad_loader.js")).DryadLoader;
 var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;

@@ -1,5 +1,5 @@
 var util = require('util');
-var Config = require('../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 var needle = require('needle');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var uuid = require('node-uuid');

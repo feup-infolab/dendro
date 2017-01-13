@@ -1,4 +1,4 @@
-var Config = require('../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
@@ -6,12 +6,8 @@ var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/fold
 var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var FileVersions = require(Config.absPathInSrcFolder("/models/versions/file_versions.js")).FileVersions;
-var MongoClient = require('mongodb').MongoClient;
-var async = require('async');
 
 var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
 
 exports.download = function(req, res){
     var self = this;
@@ -24,7 +20,7 @@ exports.download = function(req, res){
         {
             if(!err)
             {
-                var mimeType = File.mimeTypes["zip"];
+                var mimeType = Config.mimeType("zip");
                 var fileName = folderToDownload.nie.title + ".zip";
 
                 res.writeHead(200,
@@ -147,15 +143,7 @@ exports.download = function(req, res){
                         File.findByUri(requestedResourceURI, function(err, file){
                             if(!err)
                             {
-                                var mimeType = null;
-                                if(File.mimeTypes.hasOwnProperty(file.ddr.fileExtension))
-                                {
-                                    mimeType = File.mimeTypes[file.ddr.fileExtension];
-                                }
-                                else
-                                {
-                                    mimeType = File.mimeTypes.default;
-                                }
+                                var mimeType = Config.mimeType(file.ddr.fileExtension);;
 
                                 file.writeToTempFile(function(err, writtenFilePath)
                                 {
@@ -259,7 +247,7 @@ exports.serve = function(req, res){
         {
             if(!err)
             {
-                var mimeType = File.mimeTypes["zip"];
+                var mimeType = Config.mimeType("zip");
                 var fileName = folderToDownload.nie.title + ".zip";
 
                 res.writeHead(200,
@@ -347,15 +335,7 @@ exports.serve = function(req, res){
                         File.findByUri(requestedResourceURI, function(err, file){
                             if(!err)
                             {
-                                var mimeType = null;
-                                if(File.mimeTypes.hasOwnProperty(file.ddr.fileExtension))
-                                {
-                                    mimeType = File.mimeTypes[file.ddr.fileExtension];
-                                }
-                                else
-                                {
-                                    mimeType = File.mimeTypes.default;
-                                }
+                                var mimeType = Config.mimeType(file.ddr.fileExtension);
 
                                 file.writeToTempFile(function(err, writtenFilePath)
                                 {
@@ -458,15 +438,7 @@ exports.serve_base64 = function(req, res){
                     File.findByUri(requestedResourceURI, function(err, file){
                         if(!err)
                         {
-                            var mimeType = null;
-                            if(File.mimeTypes.hasOwnProperty(file.ddr.fileExtension))
-                            {
-                                mimeType = File.mimeTypes[file.ddr.fileExtension];
-                            }
-                            else
-                            {
-                                mimeType = File.mimeTypes.default;
-                            }
+                            var mimeType = Config.mimeType(file.ddr.fileExtension);
 
                             file.writeToTempFile(function(err, writtenFilePath)
                             {
@@ -566,15 +538,7 @@ exports.get_thumbnail = function(req, res) {
     File.findByUri(requestedResourceURI, function(err, file){
         if(!err)
         {
-            var mimeType = null;
-            if(File.mimeTypes.hasOwnProperty(file.ddr.fileExtension))
-            {
-                mimeType = File.mimeTypes[file.ddr.fileExtension];
-            }
-            else
-            {
-                mimeType = File.mimeTypes.default;
-            }
+            var mimeType = Config.mimeType(file.ddr.fileExtension);
 
             if(Config.thumbnailableExtensions[file.ddr.fileExtension] != null)
             {
@@ -662,185 +626,91 @@ exports.upload = function(req, res){
     else if (req.originalMethod == "POST")
     {
         var requestedResourceURI = req.params.requestedResource;
-        var currentUserUri = req.session.user.uri;
 
         var processFiles = function()
         {
             var files = [];
 
-            for(var i=0; i < req.files.files.length; i++)
+            if(req.files.files != null)
             {
-                var file = req.files.files[i];
-                files[i] = {
-                    name : file.name
-                };
+                for (var i = 0; i < req.files.files.length; i++)
+                {
+                    var file = req.files.files[i];
+                    files[i] = {
+                        name: file.name
+                    };
 
-                var newFile = new File({
-                    nie :
+                    var newFile = new File({
+                        nie: {
+                            title: file.name,
+                            isLogicalPartOf: requestedResourceURI
+                        }
+                    });
+
+                    var fs = require('fs');
+
+                    newFile.loadFromLocalFile(file.path, function (err, result)
                     {
-                        title : file.name,
-                        isLogicalPartOf : requestedResourceURI
-                    }
-                });
-
-                var fs = require('fs');
-
-                newFile.loadFromLocalFile(file.path, function(err, result){
-                    if(err == null)
-                    {
-                        newFile.save(function(err, result){
-                            if(err == null)
+                        if (err == null)
+                        {
+                            newFile.save(function (err, result)
                             {
-                                console.log("File " + newFile.uri + " is now saved in GridFS");
-                                //TODO get info from mongo for that fileUri
-                                //TODO build a new file_versions for that file
-                                newFile.connectToMongo(function (err, db) {
-                                   if(!err)
-                                   {
-                                       newFile.findFileInMongo(db, function (error, filesInfo) {
-                                           if(!error)
-                                           {
-                                                console.log(filesInfo);
-                                               //TODO check array length-> there is repeated files
-                                               async.map(filesInfo, function (fileInfo, cb) {
-                                                   console.log('FileinfoFromMongo: ', fileInfo);
-                                                   var newFileVersion = new FileVersions({
-                                                       nfo: {
-                                                           fileName: fileInfo.filename,
-                                                           hashValue: fileInfo.md5,
-                                                           hashAlgorithm: 'md5'
-                                                       },
-                                                       nie: {
-                                                           contentLastModified: fileInfo.uploadDate,
-                                                           byteSize: fileInfo.length
-                                                       },
-                                                       ddr: {
-                                                           contentType: fileInfo.contentType,
-                                                           chunkSize: fileInfo.chunkSize,
-                                                           projectUri: fileInfo.metadata.project,
-                                                           itemType: fileInfo.metadata.type,
-                                                           creatorUri: currentUserUri
-                                                       }
-                                                   });
-
-                                                   newFileVersion.save(function (err, fileVersion) {
-                                                       if(!err)
-                                                       {
-                                                           newFile.generateThumbnails(function(err, result){
-                                                               if(!err)
-                                                               {
-                                                                   /*
-                                                                   res.json({
-                                                                       result : "success",
-                                                                       message : "File submitted successfully. Message returned : " + result,
-                                                                       files : files
-                                                                   });*/
-                                                                   cb(null, result);
-                                                               }
-                                                               else
-                                                               {
-                                                                   /*
-                                                                   res.json({
-                                                                       result : "success",
-                                                                       message : "File submitted successfully. However, there was an error generating the thumbnails: " + result,
-                                                                       files : files
-                                                                   });
-                                                                   */
-                                                                   cb(true, result);
-                                                               }
-                                                           });
-                                                       }
-                                                       else
-                                                       {
-                                                           /*
-                                                           res.status(500).json({
-                                                               result : "error",
-                                                               message : "Error saving file version",
-                                                           });
-                                                           */
-                                                           cb(true, fileVersion);
-                                                       }
-                                                   }, false,null,null,null,null,db_social.graphUri)
-                                               }, function (err, allFilesInfo) {
-                                                   if(!err)
-                                                   {
-                                                       res.json({
-                                                           result : "success",
-                                                           message : "File submitted successfully",
-                                                           files : files
-                                                       });
-                                                   }
-                                                   else
-                                                   {
-                                                       var msg = "Error saving file version";
-                                                       res.status(500).json({
-                                                           result : "error",
-                                                           message : msg,
-                                                       });
-                                                   }
-                                               });
-                                           }
-                                           else
-                                           {
-                                               res.status(500).json({
-                                                   result : "error",
-                                                   message : "Database error",
-                                               });
-                                           }
-                                       });
-                                   }
-                                    else
-                                   {
-                                       res.status(500).json({
-                                           result : "error",
-                                           message : "Error submitting file : " + result,
-                                           files : files
-                                       });
-                                   }
-                                });
-                                /*
-                                newFile.generateThumbnails(function(err, result){
-                                    if(!err)
+                                if (err == null)
+                                {
+                                    console.log("File " + newFile.uri + " is now saved in GridFS");
+                                    newFile.generateThumbnails(function (err, result)
                                     {
-                                        res.json({
-                                            result : "success",
-                                            message : "File submitted successfully. Message returned : " + result,
-                                            files : files
-                                        });
-                                    }
-                                    else
-                                    {
-                                        res.json({
-                                            result : "success",
-                                            message : "File submitted successfully. However, there was an error generating the thumbnails: " + result,
-                                            files : files
-                                        });
-                                    }
-                                });*/
-                            }
-                            else
-                            {
-                                res.status(500).json({
-                                    result : "error",
-                                    message : "Error submitting file : " + result,
-                                    files : files
-                                });
-                            }
+                                        if (!err)
+                                        {
+                                            res.json({
+                                                result: "success",
+                                                message: "File submitted successfully. Message returned : " + result,
+                                                files: files
+                                            });
+                                        }
+                                        else
+                                        {
+                                            res.json({
+                                                result: "success",
+                                                message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
+                                                files: files
+                                            });
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json({
+                                        result: "error",
+                                        message: "Error submitting file : " + result,
+                                        files: files
+                                    });
+                                }
 
-                        });
-                    }
-                    else
-                    {
-                        console.log("Error ["+err+"]saving file ["+newFile.uri+"]in GridFS :" + result);
-                        res.status(500).json(
-                            {
-                                result : "error",
-                                message : "Error saving the file : "+ result,
-                                files : files
                             });
-                    }
+                        }
+                        else
+                        {
+                            console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
+                            res.status(500).json(
+                                {
+                                    result: "error",
+                                    message: "Error saving the file : " + result,
+                                    files: files
+                                });
+                        }
+                    });
+                }
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "error",
+                    message: "Unknown error submitting files. Malformed message?",
+                    files: files
                 });
             }
+
         };
 
         if(req.form.ended)
@@ -1402,7 +1272,7 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
     {
         var fileName = path.basename(pathOfIntendedFileRelativeToProjectRoot);
         var extension = path.extname(pathOfIntendedFileRelativeToProjectRoot).replace(".", "");
-        var mimeType = Config.mimeTypes[extension];
+        var mimeType = Config.mimeType(extension);
         var absPathOfFileToServe = Config.absPathInPublicFolder(pathOfIntendedFileRelativeToProjectRoot);
 
         fs.exists(absPathOfFileToServe, function(exists){
@@ -1481,15 +1351,7 @@ exports.data = function(req, res){
     File.findByUri(resourceURI, function(err, file){
         if(!err)
         {
-            var mimeType = null;
-            if(File.mimeTypes.hasOwnProperty(file.ddr.fileExtension))
-            {
-                mimeType = File.mimeTypes[file.ddr.fileExtension];
-            }
-            else
-            {
-                mimeType = File.mimeTypes.default;
-            }
+            var mimeType = Config.mimeType(file.ddr.fileExtension);
 
             file.writeToTempFile(function(err, writtenFilePath)
             {

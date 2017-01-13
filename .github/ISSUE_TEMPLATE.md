@@ -8,3 +8,6 @@
 
 
 ### What steps can be taken to reproduce the issue? 
+
+
+### Possible ways to fix the problem (programmers)

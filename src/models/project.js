@@ -2,10 +2,12 @@
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
-var Config = require("./meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Utils = require(Config.absPathInPublicFolder("/js/utils.js")).Utils;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
@@ -75,6 +77,7 @@ Project.prototype.backup = function(callback)
                 Folder.findByUri(self.ddr.rootFolder, function(err, folder){
                     if(!err && folder instanceof Folder)
                     {
+                        //TODO Add this information
                         var bagItOptions = {
                             cryptoMethod: 'sha256',
                             sourceOrganization: self.dcterms.publisher,
@@ -1308,7 +1311,7 @@ Project.privacy = function (projectUri, callback) {
                 }
                 else
                 {
-                    callback(null, "http://dendro.fe.up.pt/ontology/0.1/privateStatus");
+                    callback(null, null);
                 }
             }
         }
@@ -1317,6 +1320,277 @@ Project.privacy = function (projectUri, callback) {
             callback(1, "Error occurred fetching the privacy status of project " + projectUri + ". Error : " + project);
         }
     });
+};
+
+Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
+{
+    var fs = require('fs');
+    var path = require('path');
+
+    fs.stat(absPathOfBagItFolder, function(err, stat)
+    {
+        if (err == null)
+        {
+            if(stat.isDirectory())
+            {
+                var dataFolder = path.join(absPathOfBagItFolder, "data");
+                fs.stat(dataFolder, function(err, stat)
+                {
+                    if (err == null)
+                    {
+                        if(stat.isDirectory())
+                        {
+                            fs.readdir(dataFolder, function (err, folderContents) {
+                                if(!err)
+                                {
+                                    if(folderContents instanceof Array && folderContents.length == 1)
+                                    {
+                                        var childOfDataFolderAbsPath = path.join(dataFolder, folderContents[0]);
+
+                                        fs.stat(childOfDataFolderAbsPath, function(err, stat)
+                                        {
+                                            if (err == null)
+                                            {
+                                                if (stat.isDirectory())
+                                                {
+                                                    fs.readdir(childOfDataFolderAbsPath, function (err, folderContents)
+                                                    {
+                                                        if (err == null)
+                                                        {
+                                                            if(folderContents.indexOf(Config.packageMetadataFileName) >= 0)
+                                                            {
+                                                                callback(null, true, childOfDataFolderAbsPath);
+                                                            }
+                                                            else
+                                                            {
+                                                                callback(null, false, "There is no " + Config.packageMetadataFileName + " inside the /data subdirectory.");
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            callback(err, false, "child of /data contains only one element but is not a directory.");
+                                                        }
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    callback(0, false, "child of /data contains only one element but is not a directory.");
+                                                }
+                                            }
+                                            else
+                                            {
+                                                callback(err, false, "/data contains only one element but is not a directory.");
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        callback(0, false, "/data folder should contain exactly one directory.");
+                                    }
+                                }
+                                else
+                                {
+                                    callback(err, false, "/data exists but is not a directory.");
+                                }
+                            });
+                        }
+                        else
+                        {
+                            callback(0, false, "/data exists but is not a directory.");
+                        }
+                    }
+                    else if (err.code == 'ENOENT')
+                    {
+                        callback(0, false, "/data subfolder does not exist.");
+                    }
+                });
+            }
+            else
+            {
+                callback(0, false, absPathOfBagItFolder + " is not a directory");
+            }
+        }
+        else if (err.code == 'ENOENT')
+        {
+            callback(0, false);
+        }
+    });
+}
+
+Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSize, callback)
+{
+    var path = require('path');
+
+    File.estimateUnzippedSize(absPathToZipFile, function(err, size)
+    {
+        if(!err)
+        {
+            if(size < maxStorageSize)
+            {
+                File.unzip(absPathToZipFile, function(err, absPathOfRootFolder){
+                    if(!err)
+                    {
+                        Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
+                        {
+                            if(!err)
+                            {
+                                if(valid)
+                                {
+                                    var metadataFileAbsPath = path.join(pathToFolderToRestore, Config.packageMetadataFileName);
+                                    var metadata = require(metadataFileAbsPath);
+                                    callback(null, true, metadata);
+                                }
+                                else
+                                {
+                                    callback(1, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                }
+                            }
+                            else
+                            {
+                                callback(err, pathToFolderToRestore);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        var msg = "Unable to unzip file "+ absPathToZipFile +". Error reported: " + absPathToZipFile;
+                        callback(err, msg);
+                    }
+                });
+            }
+            else
+            {
+                var filesize = require('file-size');
+                var difference = maxStorageSize - size;
+
+                var humanSizeDifference = filesize(difference).human('jedec');
+                var humanZipFileSize = filesize(size).human('jedec');
+                var humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
+
+                var msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
+                callback(err, msg);
+            }
+
+        }
+        else
+        {
+            var msg = "Unable to estimate size of the zip file sent in as the project backup. Error reported: " + absPathToZipFile;
+            callback(err, msg);
+        }
+    });
+
+
+};
+
+Project.restoreFromFolder = function(absPathOfRootFolder,
+                                     entityLoadingTheMetadata,
+                                     attemptToRestoreMetadata,
+                                     replaceExistingFolder,
+                                     callback,
+                                     runningOnRoot
+                            )
+{
+    var self = this;
+    var path = require('path');
+
+    if(entityLoadingTheMetadata != null && entityLoadingTheMetadata instanceof User)
+    {
+        var entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
+    }
+    else
+    {
+        var entityLoadingTheMetadataUri = User.anonymous.uri;
+    }
+
+    self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function(err, result){
+        if(!err)
+        {
+            if(runningOnRoot)
+            {
+                /**
+                 * Restore metadata values from metadata.json file
+                 */
+                var metadataFileLocation = path.join(absPathOfRootFolder,  Config.packageMetadataFileName);
+                var fs = require('fs');
+
+                fs.exists(metadataFileLocation, function (existsMetadataFile) {
+                    if(attemptToRestoreMetadata && existsMetadataFile)
+                    {
+                        fs.readFile(metadataFileLocation, 'utf8', function (err, data) {
+                            if (err) {
+                                console.log('Error: ' + err);
+                                return;
+                            }
+
+                            var node = JSON.parse(data);
+
+                            self.loadMetadata(node, function(err, result){
+                                if(!err)
+                                {
+                                    callback(null, "Data and metadata restored successfully. Result : " + result);
+                                }
+                                else
+                                {
+                                    callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
+                                }
+                            }, entityLoadingTheMetadataUri, [Config.types.locked],[Config.types.restorable])
+                        });
+                    }
+                    else
+                    {
+                        callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
+                    }
+                });
+            }
+            else
+            {
+                callback(null, result);
+            }
+        }
+        else
+        {
+            callback(err, result);
+        }
+    }, runningOnRoot);
+};
+
+Project.rebaseAllUris = function(structure, newBaseUri)
+{
+    var modifyNode = function(node)
+    {
+        node.resource = Utils.replaceBaseUri(node.resource, newBaseUri);
+
+        for(var i = 0; i < node.metadata.length; i++)
+        {
+            var value = node.metadata[i].value;
+
+            if(value instanceof Array)
+            {
+                for(var j = 0; j < value.length; j++)
+                {
+                    if(Utils.valid_url(value[j]))
+                    {
+                        value[j] = Utils.replaceBaseUri(value[j], newBaseUri);
+                    }
+                }
+            }
+            else if(typeof value === "string" && Utils.valid_url(value))
+            {
+                value = Utils.replaceBaseUri(value, newBaseUri);
+            }
+        }
+
+        if(node.children != null && node.children instanceof Array)
+        {
+            for(var i = 0; i < node.children.length; i++)
+            {
+                var child = node.children[i];
+                modifyNode(child);
+            }
+        }
+    }
+
+    modifyNode(structure);
 };
 
 Project = Class.extend(Project, Resource);

@@ -1,10 +1,9 @@
-var Config = require('../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Ontology = require(Config.absPathInSrcFolder("/models//meta/ontology.js")).Ontology;
 var Project = require(Config.absPathInSrcFolder("/models//project.js")).Project;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var Config = require(Config.absPathInSrcFolder("/models/meta/config.js")).Config;
 
 var async = require('async');
 var _ = require('underscore');

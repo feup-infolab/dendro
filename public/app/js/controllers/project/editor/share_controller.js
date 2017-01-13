@@ -52,6 +52,24 @@ angular.module('dendroApp.controllers')
             return regexp.test(url);
         };
 
+        $scope.valid_base_address = function(baseAddress)
+        {
+            return baseAddress != null && $scope.valid_url(baseAddress) && !baseAddress.endsWith("/");
+        }
+
+        $scope.valid_organization = function(organization)
+        {
+            if(organization == null || organization.length == 0)
+            {
+                return false;
+            }
+            else
+            {
+                var regexp = /[a-zA-Z0-9-]+$/;
+                return regexp.test(organization);
+            }
+        };
+
         $scope.create_new_repository_bookmark = function(new_repository)
         {
             if(new_repository.ddr == null)
@@ -165,12 +183,17 @@ angular.module('dendroApp.controllers')
          * @param uri
          */
 
-        $scope.upload_to_repository = function(target_repository)
+        $scope.upload_to_repository = function(target_repository, overwrite)
         {
             var payload = {
                 repository : target_repository,
                 new_dataset : $scope.new_dataset
             };
+
+            if(overwrite != null)
+            {
+                payload.overwrite = overwrite;
+            }
 
             var requestString = JSON.stringify(payload);
 
@@ -185,12 +208,25 @@ angular.module('dendroApp.controllers')
                 data: requestString,
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
-            }).success(function(e,data) {
-                $scope.show_popup("success", "Success", e.message);
+            }).then(function(response) {
+                var data = response.data;
+
+                if(data!= null)
+                {
+                    $scope.show_popup("success", "Success", data.message);
+                }
+                else
+                {
+                    $scope.show_popup("error", "Connection lost", "Connection lost during dataset deposit. Please try again.");
+                }
                 $scope.is_sending_data = false;
                 $scope.clear_recalled_repository();
-            }).error(function(e,data){
-                $scope.show_popup("error", "Error", e.message);
+
+            }).catch(function(error){
+                if(e != null)
+                {
+                    $scope.show_popup("error", "Error", JSON.stringify(error));
+                }
                 $scope.is_sending_data = false;
             });
 
@@ -245,7 +281,8 @@ angular.module('dendroApp.controllers')
                 method: 'POST',
                 url: "/external_repositories/sword_collections",
                 data: requestString
-            }).success(function(data) {
+            }).then(function(response) {
+                    var data = response.data;
                     if(data.result == 'error' && data.message != null)
                     {
                         $scope.show_popup("error", "Error", data.message);
@@ -271,13 +308,16 @@ angular.module('dendroApp.controllers')
                         }
 
                     }
-                })
-                .error(function(data) {
-                    if(data.message != null)
-                    {
-                        $scope.show_popup("error", "Error", data.message);
-                    }
-                });
+            }).catch(function(error){
+                if(error.message != null && error.title != null)
+                {
+                    Utils.show_popup("error", error.title, error.message);
+                }
+                else
+                {
+                    Utils.show_popup("error", "Error occurred", JSON.stringify(error));
+                }
+            });
 
         };
         $scope.set_sword_collections = function(sword_collections){
@@ -292,5 +332,6 @@ angular.module('dendroApp.controllers')
         $scope.get_repository_types();
         $scope.new_dataset = {};
         $scope.is_sending_data = false;
+        $scope.overwrite = false;
     });
 

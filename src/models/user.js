@@ -1,4 +1,4 @@
-var Config = require("./meta/config.js").Config;
+var Config = function() { return GLOBAL.Config; }();
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
@@ -1292,8 +1292,8 @@ User.prototype.startPasswordReset = function(callback)
 
         var appDir = path.dirname(require.main.filename);
 
-        var emailHTMLFilePath = path.join(appDir, 'views', 'users', 'password_reset_email.ejs');
-        var emailTXTFilePath = path.join(appDir, 'views', 'users', 'password_reset_email_txt.ejs');
+        var emailHTMLFilePath = Config.absPathInSrcFolder('views/users/password_reset_email.ejs');
+        var emailTXTFilePath = path.join(appDir, 'views/users/password_reset_email_txt.ejs');
 
         var file = fs.readFileSync(emailHTMLFilePath, 'ascii');
         var fileTXT = fs.readFileSync(emailTXTFilePath, 'ascii');

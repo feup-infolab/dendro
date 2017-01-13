@@ -1,4 +1,4 @@
-var Config = require('../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;

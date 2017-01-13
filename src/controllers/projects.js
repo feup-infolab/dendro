@@ -1,8 +1,9 @@
-var Config = require('../models/meta/config.js').Config;
+var Config = function() { return GLOBAL.Config; }();
 
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
 var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
@@ -1263,5 +1264,79 @@ exports.requestAccess = function(req, res){
                 res.redirect("/");
             }
         });
+    }
+};
+
+exports.import = function(req, res) {
+    if(req.originalMethod == "GET")
+    {
+        var filesize = require('file-size');
+
+        res.render('projects/import/import',
+            {
+                title: "Import a project",
+                maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
+                maxProjectSize : filesize(Config.maxProjectSize).human('jedec')
+            }
+        );
+    }
+    else if (req.originalMethod == "POST")
+    {
+        if(req.files != null && req.files.file instanceof Object)
+        {
+            var uploadedFile = req.files.file;
+            var path = require('path');
+
+            var tempFilePath = uploadedFile.path;
+
+            if(path.extname(tempFilePath) == ".zip")
+            {
+                Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function(err, result, structure){
+                    if(!err)
+                    {
+                        var rebased_structure = JSON.parse(JSON.stringify(structure));
+                        Project.rebaseAllUris(rebased_structure, Config.baseUri);
+
+                        res.status(200).json(
+                            {
+                                "result" : "success",
+                                "original_contents" : structure,
+                                "modified_contents" : rebased_structure
+                            }
+                        );
+                    }
+                    else
+                    {
+                        var msg = "Error restoring zip file to folder : " + result;
+                        console.log(msg);
+
+                        res.status(500).json(
+                            {
+                                "result" : "error",
+                                "message" : msg
+                            }
+                        );
+                    }
+                });
+            }
+            else
+            {
+                res.status(400).json(
+                    {
+                        "result" : "error",
+                        "message" : "Backup file is not a .zip file"
+                    }
+                );
+            }
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    "result" : "error",
+                    "message" : "invalid request"
+                }
+            );
+        }
     }
 };
