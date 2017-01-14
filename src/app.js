@@ -744,7 +744,8 @@ async.waterfall([
                             },
                             gm: {
                                 numActions: medalType.numActions,
-                                material: medalType.material
+                                material: medalType.material,
+                                objectType: medalType.objectType
                             }
                         },
                         function (err, newMedalType) {

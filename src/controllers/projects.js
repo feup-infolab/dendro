@@ -520,7 +520,7 @@ exports.new = function (req, res) {
                                             console.log("[INFO] User with username " + user.ddr.username + " found...");
                                             user.countProjects(function (err, projectCount) {
                                                 console.log("Number of projects: " + projectCount);
-                                                Progress.findByUserAndType(user.uri, 'ddr:Project', function (err, progress) {
+                                                Progress.findByUserAndType(user.uri, 'Project', function (err, progress) {
                                                         if (!err) {
                                                             console.log("Progress:::::::::: " + progress.uri);
                                                             progress.update(projectCount,function(err,result){
@@ -536,6 +536,7 @@ exports.new = function (req, res) {
                                                     }
                                                 );
                                             });
+
                                         }
                                     }
                                     else {

@@ -1420,6 +1420,61 @@ User.prototype.countProjects= function(callback)
         });
 };
 
+User.prototype.countDescriptors = function(callback)
+{
+    var self = this;
+
+    var query =
+        "SELECT COUNT(?descriptor) AS ?descriptor_count \n" +
+        "{ \n" +
+        "SELECT DISTINCT ?folder ?descriptor \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "{ \n" +
+        " ?folder ?descriptor ?value. \n" +
+        " ?versionchange ddr:changedDescriptor ?descriptor. \n" +
+        " ?versionchange ddr:pertainsTo ?version. \n" +
+        " ?version ddr:versionCreator [1]. \n" +
+        " FILTER NOT EXISTS " +
+        "{ \n"+
+        " ?folder ddr:isVersionOf ?some_resource .\n" +
+        "} \n"+
+        "} \n"+
+        "} \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : self.uri
+            }
+        ],
+        function(err, result)
+        {
+            if (!err)
+            {
+                if(result instanceof Array && result.length > 0)
+                {
+                    callback(null, result[0].descriptor_count);
+                }
+                else
+                {
+                    callback(1, "invalid result retrieved when querying for project descriptor count");
+                }
+
+            }
+            else
+            {
+                callback(err, -1);
+            }
+        });
+};
+
 User.anonymous = {
     uri: "http://dendro.fe.up.pt/user/anonymous"
 };

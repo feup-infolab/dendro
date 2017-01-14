@@ -3,6 +3,7 @@ var Config = require('../models/meta/config.js').Config;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var Medal = require(Config.absPathInSrcFolder("/models/game/medal.js")).Medal;
 var MedalType = require(Config.absPathInSrcFolder("/models/game/medal_type.js")).MedalType;
+var Progress = require(Config.absPathInSrcFolder("/models/game/progress.js")).Progress;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 var db = function () {
@@ -64,15 +65,27 @@ exports.show = function (req, res) {
                     {
                         if (!err)
                         {
-                            console.log(medals);
-                            res.render('users/show',
+                            Progress.findByUserAndType(user.uri,"Project",function (err, progressProject){
+                                if(!err)
                                 {
-                                    title: "Viewing user " + username,
-                                    user: user,
-                                    medals: medals,
-                                    medaltypes: medaltypes
+                                    res.render('users/show',
+                                        {
+                                            title: "Viewing user " + username,
+                                            user: user,
+                                            medals: medals,
+                                            medaltypes: medaltypes,
+                                            progressProject:progressProject
+                                        }
+                                    )
                                 }
-                            )
+                                else
+                                {
+
+                                }
+                                }
+
+                            );
+
                         }
                         else
                         {

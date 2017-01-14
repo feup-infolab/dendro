@@ -115,6 +115,22 @@
             {
                 var medaltype = medaltypes[i];
                 var earned = false;
+                var percentageMedal=0;
+                if(medaltype.gm.objectType=="Project")
+            {
+
+                if(progressProject.gm.numActions>=medaltype.gm.numActions)
+                {
+                    percentageMedal=100;
+                }
+                else
+                {
+                    percentageMedal= (progressProject.gm.numActions/medaltype.gm.numActions)*100;
+                }
+                percentageMedal = Math.round(percentageMedal);
+
+            }
+
                 for (var j = 0; j < medals.length; j++) {
                     var medal = medals[j];
                     if (medaltype.uri == medal.gm.hasType) {
@@ -141,6 +157,9 @@
                             <% if (earned) { %>
                         </b>
                         <% } %>
+                        <div id="percentage" style="width:100%; height:5px; border-style: solid;border-width: 0.1px;">
+                            <div style="background-color: #00A000;width:<%= percentageMedal %>%;height: 100%"></div>
+                        </div>
                     </div>
                 </td>
                 <% if (i == 2 || i == 5 || i == 8 || i == 11 || i == medaltypes.length) { %>
@@ -163,6 +182,12 @@
                                      width="100px" height="140px">
                             </div>
                             <p class="text-center"><%= medaltype.dcterms.description %></p>
+                            <div id="percentage" style="width:100%; height:20px; border-style: solid">
+                                <div style="background-color: #00A000;width:<%= percentageMedal %>%;height: 100%"></div>
+                            </div>
+                            <div class="text-center">
+                                <h3> <%= percentageMedal %>%</h3>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

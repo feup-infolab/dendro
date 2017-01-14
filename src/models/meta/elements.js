@@ -2415,7 +2415,7 @@ Elements.gm = {
         control: Config.controls.input_box
     },
     numActions: {
-        type: DbConnection.string,
+        type: DbConnection.int,
         control: Config.controls.input_box
     },
     belongsTo: {
@@ -2429,7 +2429,7 @@ Elements.gm = {
         locked: true
     },
     objectType: {
-        type: DbConnection.resource,
+        type: DbConnection.string,
         control: Config.controls.url_box,
         locked: true
     },

@@ -15,7 +15,7 @@
     "elasticSearchPort" : "9200",
 
     "cache": {
-      "active": true,
+      "active": false,
       "redis" :
       {
         "options":
@@ -87,79 +87,93 @@
         "title": "Beginner",
         "description": "blablabla",
         "material" : "Bronze",
-        "numActions" : "1"
+        "numActions" : "1",
+        "objectType" : "Register"
       },
       {
         "title": "Creator",
         "description": "blablabla",
         "material" : "Bronze",
-        "numActions" : "1"
+        "numActions" : "1",
+        "objectType" : "Project"
       },
       {
         "title": "Amateur",
         "description": "blablabla",
         "material" : "Bronze",
-        "numActions" : "1"
+        "numActions" : "1",
+        "objectType" : "Descriptor"
       },
       {
         "title": "Sociable",
         "description": "blablabla",
         "material" : "Bronze",
-        "numActions" : "50"
+        "numActions" : "50",
+        "objectType" : "Vote"
       },
       {
         "title": "Generous",
         "description": "blablabla",
         "material" : "Bronze",
-        "numActions" : "5"
+        "numActions" : "5",
+        "objectType" : "Flag"
       },
       {
         "title": "Disciplined",
         "description": "blablabla",
         "material" : "Silver",
-        "numActions" : "50"
+        "numActions" : "50",
+        "objectType" : "Descriptor"
       },
       {
         "title": "Famous",
         "description": "blablabla",
         "material" : "Silver",
-        "numActions" : "200"
+        "numActions" : "200",
+        "objectType" : "Vote"
+
       },
       {
         "title": "Pro-active",
         "description": "blablabla",
         "material" : "Silver",
-        "numActions" : "5"
+        "numActions" : "5",
+        "objectType" : "Project"
       },
       {
         "title": "Friendly",
         "description": "blablabla",
         "material" : "Silver",
-        "numActions" : "20"
+        "numActions" : "20",
+        "objectType" : "Flag"
       },
       {
         "title": "Rockstar",
         "description": "blablabla",
         "material" : "Gold",
-        "numActions" : "1000"
+        "numActions" : "1000",
+        "objectType" : "Vote"
       },
       {
         "title": "Gentleman",
         "description": "blablabla",
         "material" : "Gold",
-        "numActions" : "50"
+        "numActions" : "50",
+        "objectType" : "Flag"
       },
       {
         "title": "Enthusiastic",
         "description": "blablabla",
         "material" : "Gold",
-        "numActions" : "10"
+        "numActions" : "10",
+        "objectType" : "Project"
       },
       {
         "title": "Powerful",
         "description": "blablabla",
         "material" : "Gold",
-        "numActions" : "100"
+        "numActions" : "100",
+        "objectType" : "Descriptor"
       }
     ],
     "medals" : [
@@ -184,11 +198,35 @@
     ],
     "progress" : [
       {
-        "objectType": "http://dendro.fe.up.pt/ontology/0.1/Project",
+        "objectType": "Project",
+        "numActions": "0",
+        "hasUser": "http://127.0.0.1:3001/user/demouser1"
+      },
+      {
+        "objectType": "Descriptor",
         "numActions": "0",
         "hasUser": "http://127.0.0.1:3001/user/demouser1"
       }
+    ,
+      {
+        "objectType": "Flag",
+        "numActions": "0",
+        "hasUser": "http://127.0.0.1:3001/user/demouser1"
+      }
+    ,
+      {
+        "objectType": "Vote",
+        "numActions": "0",
+        "hasUser": "http://127.0.0.1:3001/user/demouser1"
+      }
+    ,
+      {
+        "objectType": "Register",
+        "numActions": "1",
+        "hasUser": "http://127.0.0.1:3001/user/demouser1"
+      }
     ],
+
     "useElasticSearchAuth" : false,
     "elasticSearchAuthCredentials" : {
       "username" : "user",

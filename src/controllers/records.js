@@ -6,6 +6,8 @@ var ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archi
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var Progress = require(Config.absPathInSrcFolder("/models/game/progress.js")).Progress;
 
 var db = function() { return GLOBAL.db.default; }();
 var gfs = function() { return GLOBAL.gfs.default; }();
@@ -255,6 +257,43 @@ exports.update = function(req, res) {
                                         {
                                             if(!err)
                                             {
+                                                User.findByUri(changeAuthor, function (err, user) {
+                                                    console.log("Entra?");
+
+                                                    if (!err) {
+                                                        if (user == null) {
+                                                            //everything ok, user simply does not exist
+                                                            console.log("Não existe?");
+
+                                                        }
+                                                        else {
+                                                            console.log("[INFO] User with username " + user.ddr.username + " found...");
+                                                            user.countDescriptors(function (err, descriptorCount) {
+                                                                console.log("Number of descriptors: " + descriptorCount);
+                                                                Progress.findByUserAndType(user.uri, 'Descriptor', function (err, progress) {
+                                                                        if (!err) {
+                                                                            console.log("Progress:::::::::: " + progress.uri);
+                                                                            progress.update(descriptorCount,function(err,res){
+                                                                                console.log(res);
+                                                                            })
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            console.log("Não dá?");
+                                                                        }
+
+
+                                                                    }
+                                                                );
+                                                            });
+
+                                                        }
+                                                    }
+                                                    else {
+                                                        console.log("[ERROR] Unable to know the number of projects of user " + username + ". Error: " + user);
+                                                    }
+                                                });
+
                                                 record.reindex(req.index, function(err, result)
                                                 {
                                                     if(!err)
@@ -275,6 +314,8 @@ exports.update = function(req, res) {
                                                                             message: "Updated successfully.",
                                                                             new_metadata_quality_assessment: evaluation
                                                                         });
+
+
                                                                     }
                                                                     else
                                                                     {

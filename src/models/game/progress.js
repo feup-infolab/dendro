@@ -49,7 +49,7 @@ Progress.findByUserAndType= function(user, typeProgress, callback)
                 value : graphUri
             },
             {
-                type : DbConnection.prefixedResource,
+                type : DbConnection.string,
                 value : typeProgress
             },
             {
@@ -59,11 +59,11 @@ Progress.findByUserAndType= function(user, typeProgress, callback)
         ],
         function(err, progress)
         {
-                console.log(progress);
+
             if(!err)
             {
                     var uri = progress[0].uri;
-                    console.log(progress[0].uri);
+
                     Progress.findByUri(uri, function(err, fetchedProgress)
                     {
                         if(!err)
