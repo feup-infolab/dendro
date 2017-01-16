@@ -161,6 +161,9 @@ Config.initGlobals = function()
     GLOBAL.redis = {
         default : {
 
+        },
+        social : {
+
         }
     };
 

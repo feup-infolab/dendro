@@ -290,7 +290,7 @@ async.waterfall([
                 redisConn.openConnection(function(err, redisConn) {
                     if(err)
                     {
-                        console.log("[ERROR] Unable to connect to cache service with ID: " + redisConn.id + " running on " + redisConn.host + ":" + redisConn.port + " : " + err.message);
+                        console.log("[ERROR] Unable to connect to Redis instance with ID: " + instance.id + " running on " + instance.host + ":" + instance.port + " : " + err.message);
                         process.exit(1);
                     }
                     else
@@ -301,17 +301,28 @@ async.waterfall([
                         redisConn.deleteAll(function(err, result){
                             if(!err)
                             {
-                                console.log("[INFO] Deleted all cache records on Redis Instance "+ redisConn.id +" during bootup");
+                                console.log("[INFO] Deleted all cache records on Redis instance \""+ redisConn.id +"\" during bootup");
                                 callback(null);
                             }
                             else
                             {
-                                console.log("[ERROR] Unable to delete all cache records on Redis Instance "+ redisConn.id +" during bootup");
+                                console.log("[ERROR] Unable to delete all cache records on Redis instance \""+ instance.id +"\" during bootup");
                                 process.exit(1);
                             }
                         });
                     }
                 });
+            }, function(err, results){
+                if(!err)
+                {
+                    console.log("[INFO] All Redis instances are up and running!");
+                    callback(null);
+                }
+                else
+                {
+                    console.log("[ERROR] Unable to setup Redis instances.");
+                    process.exit(1);
+                }
             });
         }
         else

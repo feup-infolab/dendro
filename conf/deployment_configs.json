@@ -24,7 +24,7 @@
             "options":
             {
               "host" : "192.168.56.249",
-              "port" : "6379"
+              "port" : "6780"
             },
             "database_number" : 1
           },
@@ -33,7 +33,7 @@
             "options":
             {
               "host" : "192.168.56.249",
-              "port" : "6380"
+              "port" : "6781"
             },
             "database_number" : 1
           }
