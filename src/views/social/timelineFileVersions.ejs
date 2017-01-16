@@ -5,93 +5,106 @@
         <ul class="list-group">
             <div dir-paginate="fVersion in fileVersions | itemsPerPage: fileVersionsPerPage" total-items="totalFileVersions" current-page="pagination.current">
                 <div ng-init="getFileVersion(fVersion.fileVersion);fileVersionLikesInfo(fVersion.fileVersion);getCommentsFromFileVersion(fVersion.fileVersion);getSharesFromFileVersion(fVersion.fileVersion)">
-                    <div ng-if="fileVersionsList[fVersion.fileVersion].rdf.isShare">
-                        <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
-                        <p> {{fileVersionsList[fVersion.fileVersion].ddr.userWhoShared.split('/').pop()}} : "{{fileVersionsList[fVersion.fileVersion].ddr.shareMsg}}"</p>
-                        <!-- obtain the original post information-->
-                        <div ng-init="getFileVersion(fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri)" style="padding-left: 2%">
-                            <!-- The info from the original post-->
-                            <div class="btn-group" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
-                                <table class="table changelog-table">
-                                    <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
-                                    <tr>
-                                        <th width="14%">
+                    <div class="panel panel-info" ng-if="fileVersionsList[fVersion.fileVersion].rdf.isShare">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"><p> {{fileVersionsList[fVersion.fileVersion].ddr.userWhoShared.split('/').pop()}} : "{{fileVersionsList[fVersion.fileVersion].ddr.shareMsg}}"</p></h3>
+                        </div>
+                        <div class="panel-body">
+                            <!-- obtain the original post information-->
+                            <div ng-init="getFileVersion(fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri)" style="padding-left: 2%">
+                                <!-- The info from the original post-->
+                                <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}} added a file version</h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <table class="table changelog-table">
+                                            <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
+                                            <tr>
+                                                <th width="14%">
 
-                                        </th>
-                                        <th width="14%" class="table-centertext">
-                                            Author
-                                        </th>
-                                        <th width="14%">
-                                            Change Type
-                                        </th>
-                                        <th width="14%">
-                                            Item Type
-                                        </th>
-                                        <th width="14%">
-                                            Link
-                                        </th>
+                                                </th>
+                                                <th width="14%" class="table-centertext">
+                                                    Author
+                                                </th>
+                                                <th width="14%">
+                                                    Change Type
+                                                </th>
+                                                <th width="14%">
+                                                    Item Type
+                                                </th>
+                                                <th width="14%">
+                                                    Link
+                                                </th>
 
-                                        <th width="14%">
-                                            Name
-                                        </th>
+                                                <th width="14%">
+                                                    Name
+                                                </th>
 
-                                        <th width="14%">
+                                                <th width="14%">
 
-                                        </th>
-                                    </tr>
+                                                </th>
+                                            </tr>
 
-                                    <tr>
-                                        <td> </td>
-                                        <td> <a ng-href="{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri}}">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}}</a> </td>
-                                        <td> add </td>
-                                        <td> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.itemType}} </td>
-                                        <td> <a ng-href="{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].uri}}">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].uri.split('/').pop()}}</a>  </td>
-                                        <td> <a ng-href="{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].nfo.fileName}}">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].nfo.fileName.split('\\').pop()}}</a></td>
-                                        <td> </td>
-                                    </tr>
-                                </table>
+                                            <tr>
+                                                <td> </td>
+                                                <td> <a ng-href="{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri}}">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}}</a> </td>
+                                                <td> add </td>
+                                                <td> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.itemType}} </td>
+                                                <td> <a ng-href="{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].uri}}">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].uri.split('/').pop()}}</a>  </td>
+                                                <td> <a ng-href="{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].nfo.fileName}}">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].nfo.fileName.split('\\').pop()}}</a></td>
+                                                <td> </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div ng-if="!fileVersionsList[fVersion.fileVersion].rdf.isShare">
-                        <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
-                        <table class="table changelog-table">
-                            <tr>
-                                <th width="14%">
+                    <div class="panel panel-success" ng-if="!fileVersionsList[fVersion.fileVersion].rdf.isShare">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"> {{fileVersionsList[fVersion.fileVersion].ddr.creatorUri.split('/').pop()}} added a file version </h3>
+                        </div>
+                        <div class="panel-body">
+                            <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+                            <table class="table changelog-table">
+                                <tr>
+                                    <th width="14%">
 
-                                </th>
-                                <th width="14%" class="table-centertext">
-                                    Author
-                                </th>
-                                <th width="14%">
-                                    Change Type
-                                </th>
-                                <th width="14%">
-                                    Item Type
-                                </th>
-                                <th width="14%">
-                                    Link
-                                </th>
+                                    </th>
+                                    <th width="14%" class="table-centertext">
+                                        Author
+                                    </th>
+                                    <th width="14%">
+                                        Change Type
+                                    </th>
+                                    <th width="14%">
+                                        Item Type
+                                    </th>
+                                    <th width="14%">
+                                        Link
+                                    </th>
 
-                                <th width="14%">
-                                    Name
-                                </th>
+                                    <th width="14%">
+                                        Name
+                                    </th>
 
-                                <th width="14%">
+                                    <th width="14%">
 
-                                </th>
-                            </tr>
+                                    </th>
+                                </tr>
 
-                            <tr>
-                                <td> </td>
-                                <td> <a ng-href="{{fileVersionsList[fVersion.fileVersion].ddr.creatorUri}}">{{fileVersionsList[fVersion.fileVersion].ddr.creatorUri.split('/').pop()}}</a> </td>
-                                <td> add </td>
-                                <td> {{fileVersionsList[fVersion.fileVersion].ddr.itemType}} </td>
-                                <td> <a ng-href="{{fileVersionsList[fVersion.fileVersion].uri}}">{{fileVersionsList[fVersion.fileVersion].uri.split('/').pop()}}</a>  </td>
-                                <td> <a ng-href="{{fileVersionsList[fVersion.fileVersion].nfo.fileName}}">{{fileVersionsList[fVersion.fileVersion].nfo.fileName.split('\\').pop()}}</a></td>
-                                <td> </td>
-                            </tr>
-                        </table>
+                                <tr>
+                                    <td> </td>
+                                    <td> <a ng-href="{{fileVersionsList[fVersion.fileVersion].ddr.creatorUri}}">{{fileVersionsList[fVersion.fileVersion].ddr.creatorUri.split('/').pop()}}</a> </td>
+                                    <td> add </td>
+                                    <td> {{fileVersionsList[fVersion.fileVersion].ddr.itemType}} </td>
+                                    <td> <a ng-href="{{fileVersionsList[fVersion.fileVersion].uri}}">{{fileVersionsList[fVersion.fileVersion].uri.split('/').pop()}}</a>  </td>
+                                    <td> <a ng-href="{{fileVersionsList[fVersion.fileVersion].nfo.fileName}}">{{fileVersionsList[fVersion.fileVersion].nfo.fileName.split('\\').pop()}}</a></td>
+                                    <td> </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 <p> {{likesFileVersionInfo[fVersion.fileVersion].numLikes}} likes, {{commentList[fVersion.fileVersion].length}} comments, {{shareList[fVersion.fileVersion].length}} shares</p>

@@ -7,92 +7,105 @@
 
                 <div ng-init="getPost(postURI.uri, null);postLikesInfo(postURI.uri);getCommentsFromPost(postURI.uri);getSharesFromPost(postURI.uri)">
                     <div>
-                        <div ng-if="postList[postURI.uri].rdf.isShare">
-                            <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
-                            <p> {{postList[postURI.uri].ddr.userWhoShared.split('/').pop()}} : "{{postList[postURI.uri].ddr.shareMsg}}"</p>
-                            <!-- obtain the original post information-->
-                            <div ng-init="getPost(postList[postURI.uri].ddr.postURI, null);" style="padding-left: 2%">
-                                <!-- The info from the original post-->
-                                <div class="btn-group" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
-                                    <table class="table changelog-table">
-                                        <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
-                                        <tr>
-                                            <th width="14%">
+                        <div class="panel panel-info" ng-if="postList[postURI.uri].rdf.isShare">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"><p> {{postList[postURI.uri].ddr.userWhoShared.split('/').pop()}} : "{{postList[postURI.uri].ddr.shareMsg}}"</p></h3>
+                            </div>
+                            <div class="panel-body">
+                                <!-- obtain the original post information-->
+                                <div ng-init="getPost(postList[postURI.uri].ddr.postURI, null);" style="padding-left: 2%">
+                                    <!-- The info from the original post-->
+                                    <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
+                                        <div class="panel-heading">
+                                            <h3 class="panel-title"> {{postList[postList[postURI.uri].ddr.postURI].dcterms.creator.split('/').pop()}} {{postList[postList[postURI.uri].ddr.postURI].ddr.changeType}} descriptor </h3>
+                                        </div>
+                                        <div class="panel-body">
+                                            <table class="table changelog-table">
+                                                <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
+                                                <tr>
+                                                    <th width="14%">
 
-                                            </th>
-                                            <th width="14%" class="table-centertext">
-                                                Author
-                                            </th>
-                                            <th width="14%">
-                                                Change Type
-                                            </th>
-                                            <th width="14%">
-                                                File
-                                            </th>
-                                            <th width="14%">
-                                                Descriptor
-                                            </th>
-                                            <th width="14%">
-                                                Value
-                                            </th>
+                                                    </th>
+                                                    <th width="14%" class="table-centertext">
+                                                        Author
+                                                    </th>
+                                                    <th width="14%">
+                                                        Change Type
+                                                    </th>
+                                                    <th width="14%">
+                                                        File
+                                                    </th>
+                                                    <th width="14%">
+                                                        Descriptor
+                                                    </th>
+                                                    <th width="14%">
+                                                        Value
+                                                    </th>
 
-                                            <th width="14%">
+                                                    <th width="14%">
 
-                                            </th>
-                                        </tr>
+                                                    </th>
+                                                </tr>
 
-                                        <tr>
-                                            <td> </td>
-                                            <td> <a ng-href="{{postList[postList[postURI.uri].ddr.postURI].dcterms.creator}}"> {{postList[postList[postURI.uri].ddr.postURI].dcterms.creator.split('/').pop()}} </a> </td>
-                                            <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.changeType}} </td>
-                                            <td> <a ng-href="{{postList[postList[postURI.uri].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postList[postList[postURI.uri].ddr.postURI].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
-                                            <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.changedDescriptor}} </td>
-                                            <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.newValue}} </td>
-                                            <td> </td>
-                                        </tr>
-                                    </table>
+                                                <tr>
+                                                    <td> </td>
+                                                    <td> <a ng-href="{{postList[postList[postURI.uri].ddr.postURI].dcterms.creator}}"> {{postList[postList[postURI.uri].ddr.postURI].dcterms.creator.split('/').pop()}} </a> </td>
+                                                    <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.changeType}} </td>
+                                                    <td> <a ng-href="{{postList[postList[postURI.uri].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postList[postList[postURI.uri].ddr.postURI].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
+                                                    <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.changedDescriptor}} </td>
+                                                    <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.newValue}} </td>
+                                                    <td> </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <div ng-if="!postList[postURI.uri].rdf.isShare">
-                            <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
-                            <table class="table changelog-table">
-                                <tr>
-                                    <th width="14%">
+                        <div class="panel panel-success" ng-if="!postList[postURI.uri].rdf.isShare">
+                            <div class="panel-heading">
+                                <h3 class="panel-title"> {{postList[postURI.uri].dcterms.creator.split('/').pop()}} {{postList[postURI.uri].ddr.changeType}} descriptor </h3>
+                            </div>
+                            <div class="panel-body">
+                                <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+                                <table class="table changelog-table">
+                                    <tr>
+                                        <th width="14%">
 
-                                    </th>
-                                    <th width="14%" class="table-centertext">
-                                        Author
-                                    </th>
-                                    <th width="14%">
-                                        Change Type
-                                    </th>
-                                    <th width="14%">
-                                        File
-                                    </th>
-                                    <th width="14%">
-                                        Descriptor
-                                    </th>
-                                    <th width="14%">
-                                        Value
-                                    </th>
+                                        </th>
+                                        <th width="14%" class="table-centertext">
+                                            Author
+                                        </th>
+                                        <th width="14%">
+                                            Change Type
+                                        </th>
+                                        <th width="14%">
+                                            File
+                                        </th>
+                                        <th width="14%">
+                                            Descriptor
+                                        </th>
+                                        <th width="14%">
+                                            Value
+                                        </th>
 
-                                    <th width="14%">
+                                        <th width="14%">
 
-                                    </th>
-                                </tr>
+                                        </th>
+                                    </tr>
 
-                                <tr>
-                                    <td> </td>
-                                    <td> <a ng-href="{{postList[postURI.uri].dcterms.creator}}"> {{postList[postURI.uri].dcterms.creator.split('/').pop()}} </a> </td>
-                                    <td> {{postList[postURI.uri].ddr.changeType}} </td>
-                                    <td> <a ng-href="{{postList[postURI.uri].ddr.hasContent.split('/version/')[0]}}"> {{postList[postURI.uri].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
-                                    <td> {{postList[postURI.uri].ddr.changedDescriptor}} </td>
-                                    <td> {{postList[postURI.uri].ddr.newValue}} </td>
-                                    <td> </td>
-                                </tr>
-                            </table>
+                                    <tr>
+                                        <td> </td>
+                                        <td> <a ng-href="{{postList[postURI.uri].dcterms.creator}}"> {{postList[postURI.uri].dcterms.creator.split('/').pop()}} </a> </td>
+                                        <td> {{postList[postURI.uri].ddr.changeType}} </td>
+                                        <td> <a ng-href="{{postList[postURI.uri].ddr.hasContent.split('/version/')[0]}}"> {{postList[postURI.uri].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
+                                        <td> {{postList[postURI.uri].ddr.changedDescriptor}} </td>
+                                        <td> {{postList[postURI.uri].ddr.newValue}} </td>
+                                        <td> </td>
+                                    </tr>
+                                </table>
+                            </div>
                         </div>
                         <p> {{likesPostInfo[postURI.uri].numLikes}} likes, {{commentList[postURI.uri].length}} comments, {{shareList[postURI.uri].length}} shares</p>
                         <div class="btn-group">
