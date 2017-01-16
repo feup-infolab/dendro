@@ -5,7 +5,19 @@ var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
 var db = function() { return GLOBAL.db.default; }();
-var redis = function() { return GLOBAL.redis.default; }();
+var redis = function(graphUri)
+{
+    if(graphUri == null)
+    {
+        return GLOBAL.redis.default;
+    }
+    else
+    {
+        return Config.caches[graphUri];
+    }
+
+
+};
 
 var async = require('async');
 var _ = require('underscore');
@@ -133,7 +145,7 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
     var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
 
     //Invalidate cache record for the updated resources
-    redis.connection.delete(self.uri, function(err, result){
+    redis(customGraphUri).connection.delete(self.uri, function(err, result){
 
     });
 
@@ -214,7 +226,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        redis.connection.delete([self.uri, valueInPrefixedForm], function(err, result){
+                        redis(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
                             callback(err, result);
                         });
                     }
@@ -252,7 +264,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        redis.connection.delete([self.uri, valueInPrefixedForm], function(err, result){
+                        redis(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
                             callback(err, result);
                         });
                     }
@@ -710,7 +722,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
             "} \n";
 
         //Invalidate cache record for the updated resources
-        redis.connection.delete(subject, function(err, result){});
+        redis().connection.delete(subject, function(err, result){});
 
         db.connection.execute(query, arguments, function(err, results)
         {
@@ -732,6 +744,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
  * @param descriptorsToExcludeFromChangesCalculation
  * @param descriptorsToExcludeFromChangeLog
  * @param descriptorsToExceptionFromChangeLog
+ * @param customGraphUri if the resource is not to be saved in the main graph of the Dendro instance, speciby the uri of the other graph where to save the resource.
  */
 
 Resource.prototype.save = function
@@ -769,7 +782,7 @@ Resource.prototype.save = function
         Resource.findByUri(myUri, function(err, currentResource)
         {
             cb(err, currentResource);
-        });
+        }, null, customGraphUri);
     };
 
     var calculateChangesBetweenResources = function(currentResource, newResource, cb)
@@ -1392,7 +1405,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     var self = this;
     var getFromCache = function (uri, callback)
     {
-        redis.connection.get(uri, function(err, result)
+        redis(customGraphUri).connection.get(uri, function(err, result)
         {
             if (!err)
             {
@@ -1423,7 +1436,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
     var saveToCache = function(uri, resource, callback)
     {
-        redis.connection.put(uri, resource, function (err) {
+        redis(customGraphUri).connection.put(uri, resource, function (err) {
             if(!err)
             {
                 if(typeof callback === "function")
@@ -1439,7 +1452,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
         });
     };
 
-    var getFromTripleStore = function(uri, callback)
+    var getFromTripleStore = function(uri, callback, customGraphUri)
     {
         var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
@@ -1468,6 +1481,9 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
                     resource.uri = uri;
 
+                    /**
+                     * TODO Handle the edge case where there is a resource with the same uri in different graphs in Dendro
+                     */
                     resource.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject)
                     {
                         if (!err)
@@ -1481,7 +1497,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                             console.error(msg);
                             callback(1, msg);
                         }
-                    });
+                    }, customGraphUri);
                 }
                 else
                 {
@@ -1496,7 +1512,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                 console.error(msg);
                 callback(1, msg);
             }
-        });
+        }, customGraphUri);
     };
 
 
@@ -1536,7 +1552,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                             console.error(msg);
                             console.error(err);
                         }
-                    });
+                    }, customGraphUri);
                 }
             }
         ], function(err, result){
@@ -1547,7 +1563,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     {
         getFromTripleStore(uri, function(err, result){
             callback(err, result);
-        });
+        }, customGraphUri);
     }
 };
 
@@ -1627,7 +1643,7 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
                     ArchivedResource.findByUri(versionRow.uri, function(err, archivedResource)
                     {
                         cb(err, archivedResource)
-                    });
+                    }, null, customGraphUri);
                 };
 
                 async.map(versions, getVersionContents, function(err, formattedVersions)
@@ -2017,7 +2033,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                 });
         };
 
-        redis.connection.get(self.uri, function(err, cachedDescriptor){
+        redis(customGraphUri).connection.get(self.uri, function(err, cachedDescriptor){
            if(!err && cachedDescriptor != null)
            {
                var namespace = descriptorToCheck.getNamespacePrefix();
@@ -2541,7 +2557,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
 
                     if(resourceUris.length > 0)
                     {
-                        redis.connection.delete(resourceUris, function(err, result){
+                        redis(customGraphUri).connection.delete(resourceUris, function(err, result){
                             if(!err)
                             {
                                 if(resourceUris.length === pageSize)
@@ -2713,6 +2729,7 @@ Resource.exists = function(uri, callback, customGraphUri)
             }
         });
 }
+
 
 Resource = Class.extend(Resource, Class);
 
