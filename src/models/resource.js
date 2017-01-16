@@ -732,6 +732,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
  * @param descriptorsToExcludeFromChangesCalculation
  * @param descriptorsToExcludeFromChangeLog
  * @param descriptorsToExceptionFromChangeLog
+ * @param customGraphUri if the resource is not to be saved in the main graph of the Dendro instance, speciby the uri of the other graph where to save the resource.
  */
 
 Resource.prototype.save = function
@@ -1439,7 +1440,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
         });
     };
 
-    var getFromTripleStore = function(uri, callback)
+    var getFromTripleStore = function(uri, callback, customGraphUri)
     {
         var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
@@ -1468,6 +1469,9 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
                     resource.uri = uri;
 
+                    /**
+                     * TODO Handle the edge case where there is a resource with the same uri in different graphs in Dendro
+                     */
                     resource.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject)
                     {
                         if (!err)
@@ -1481,7 +1485,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                             console.error(msg);
                             callback(1, msg);
                         }
-                    });
+                    }, customGraphUri);
                 }
                 else
                 {

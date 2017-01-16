@@ -18,12 +18,26 @@
       "active": true,
       "redis" :
       {
-        "options":
-        {
-          "host" : "192.168.56.249",
-          "port" : "6379"
-        },
-        "database_number" : 1
+        "instances": [
+          {
+            "id" : "default",
+            "options":
+            {
+              "host" : "192.168.56.249",
+              "port" : "6379"
+            },
+            "database_number" : 1
+          },
+          {
+            "id" : "social",
+            "options":
+            {
+              "host" : "192.168.56.249",
+              "port" : "6380"
+            },
+            "database_number" : 1
+          }
+        ]
       },
       "static" :
       {

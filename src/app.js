@@ -275,44 +275,48 @@ async.waterfall([
     },
     function(callback) {
 
-        var redisConn = new RedisConnection(
-            Config.cache.redis.options,
-            Config.cache.redis.database_number
-        );
-
-        GLOBAL.redis.default.connection = redisConn;
-
         if(Config.cache.active)
         {
-            redisConn.openConnection(function(err, redisConn) {
-                if(err)
-                {
-                    console.log("[ERROR] Unable to connect to cache service running on " + Config.cache.redis.options.host + ":" + Config.cache.redis.options.port + " : " + err.message);
-                    process.exit(1);
-                }
-                else
-                {
-                    console.log("[OK] Connected to Redis cache service at " + Config.cache.redis.options.host + ":" + Config.cache.redis.options.port);
+            async.map(Config.cache.redis.instances, function(instance, callback){
+
+                var redisConn = new RedisConnection(
+                    instance.options,
+                    instance.database_number,
+                    instance.id
+                );
+
+                GLOBAL.redis[redisConn.id].connection = redisConn;
+
+                redisConn.openConnection(function(err, redisConn) {
+                    if(err)
+                    {
+                        console.log("[ERROR] Unable to connect to cache service with ID: " + redisConn.id + " running on " + redisConn.host + ":" + redisConn.port + " : " + err.message);
+                        process.exit(1);
+                    }
+                    else
+                    {
+                        console.log("[OK] Connected to Redis cache service with ID : " + redisConn.id + " running on " +  redisConn.host + ":" + redisConn.port);
 
 
-                    redisConn.deleteAll(function(err, result){
-                        if(!err)
-                        {
-                            console.log("[INFO] Deleted all cache records during bootup.");
-                            callback(null);
-                        }
-                        else
-                        {
-                            console.log("[ERROR] Unable to delete all cache records during bootup");
-                            process.exit(1);
-                        }
-                    });
-                }
+                        redisConn.deleteAll(function(err, result){
+                            if(!err)
+                            {
+                                console.log("[INFO] Deleted all cache records on Redis Instance "+ redisConn.id +" during bootup");
+                                callback(null);
+                            }
+                            else
+                            {
+                                console.log("[ERROR] Unable to delete all cache records on Redis Instance "+ redisConn.id +" during bootup");
+                                process.exit(1);
+                            }
+                        });
+                    }
+                });
             });
         }
         else
         {
-            console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup...");
+            console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to cache server.");
             callback(null);
         }
     },
