@@ -723,7 +723,7 @@ exports.upload = function(req, res){
                                                             var msg = "Error saving file version";
                                                             res.status(500).json({
                                                                 result : "error",
-                                                                message : msg,
+                                                                message : msg
                                                             });
                                                         }
                                                     });
@@ -732,7 +732,7 @@ exports.upload = function(req, res){
                                                 {
                                                     res.status(500).json({
                                                         result : "error",
-                                                        message : "Database error",
+                                                        message : "Database error"
                                                     });
                                                 }
                                             });

@@ -66,7 +66,7 @@
   "resolutions": {
     "bootstrap": "~3",
     "angular-animate": "^1.6.1",
-    "jquery": "~3",
+    "jquery": "~2",
     "moment": ">=2.8.0 <2.11.0",
     "angular": "1.6.1"
   }

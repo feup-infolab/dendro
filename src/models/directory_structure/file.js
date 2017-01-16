@@ -550,7 +550,7 @@ File.prototype.generateThumbnails = function(callback)
 {
     var self = this;
 
-    var generateThumbnail = function(localFile, ownerProject, sizeTag, callback)
+    var generateThumbnail = function(localFile, ownerProject, sizeTag, cb)
     {
         var easyimg = require('easyimage');
         var fileName = path.basename(localFile, path.extname(localFile));
@@ -581,11 +581,11 @@ File.prototype.generateThumbnails = function(callback)
                             {
                                 var msg = "Error saving thumbnail file in GridFS :" + result + " when generating " + sizeTag + " size thumbnail for file " + self.uri;
                                 console.error(msg);
-                                callback(err, msg);
+                                cb(err, msg);
                             }
                             else
                             {
-                                callback(null, null);
+                                cb(null, null);
                             }
                         },
                         {
@@ -613,13 +613,13 @@ File.prototype.generateThumbnails = function(callback)
                 self.writeToTempFile(function(err, tempFileAbsPath){
                     if(!err)
                     {
-                        async.map(Config.thumbnails.sizes, function(thumbnailSize){
+                        async.map(Config.thumbnails.sizes, function(thumbnailSize, callback){
                                 generateThumbnail(tempFileAbsPath, project.uri, thumbnailSize, callback);
                             },
                             function(err, results){
                                 if(!err)
                                 {
-                                    callback(null, null)
+                                    callback(null, null);
                                 }
                                 else
                                 {
