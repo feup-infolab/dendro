@@ -1108,7 +1108,8 @@ exports.getShare = function (req, res) {
         function(err, results) {
             if(!err)
             {
-                if(results[0].type == fileVersionType || results[1].type == fileVersionType)
+                var types =_.pluck(results, 'type');
+                if(types.indexOf(fileVersionType) > -1)
                 {
                     res.render('social/showFileVersion',
                         {
