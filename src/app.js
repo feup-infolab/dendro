@@ -290,7 +290,7 @@ async.waterfall([
                 redisConn.openConnection(function(err, redisConn) {
                     if(err)
                     {
-                        console.log("[ERROR] Unable to connect to Redis instance with ID: " + instance.id + " running on " + instance.host + ":" + instance.port + " : " + err.message);
+                        console.log("[ERROR] Unable to connect to Redis instance with ID: " + instance.id + " running on " + instance.options.host + ":" + instance.options.port + " : " + err.message);
                         process.exit(1);
                     }
                     else
@@ -668,8 +668,8 @@ async.waterfall([
                 }
                 else
                 {
-                    console.log("[ERROR] Unable to delete user with username " + username + ". Error: " + user);
-                    callback(err, result);
+                    console.log("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
+                    callback(err, user);
                 }
             });
         };

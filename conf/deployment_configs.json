@@ -36,6 +36,15 @@
               "port" : "6781"
             },
             "database_number" : 1
+          },
+          {
+            "id" : "notification",
+            "options":
+            {
+              "host" : "192.168.56.249",
+              "port" : "6782"
+            },
+            "database_number" : 1
           }
         ]
       },
@@ -108,7 +117,7 @@
         "log_all_queries": true
       },
       "session": {
-        "auto_login": false,
+        "auto_login": true,
         "login_user": "demouser1"
       },
       "files": {
