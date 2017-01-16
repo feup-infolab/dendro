@@ -1475,6 +1475,8 @@ User.prototype.countDescriptors = function(callback)
         });
 };
 
+
+
 User.anonymous = {
     uri: "http://dendro.fe.up.pt/user/anonymous"
 };

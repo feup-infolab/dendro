@@ -157,6 +157,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
                 {
                     change.ddr.changedDescriptor = descriptor;
                     cb(null, change);
+
                 }
                 else
                 {

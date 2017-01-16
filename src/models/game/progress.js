@@ -91,7 +91,7 @@ Progress.prototype.update = function(numActions, callback) {
     var self=this;
     var graphUri= db.graphUri;
 
-    db.connection.execute(
+    /*db.connection.execute(
         "WITH GRAPH [0] \n" +
         "DELETE { [1] gm:numActions ?na } \n" +
         "INSERT { [1] gm:numActions [2]  } \n" +
@@ -118,8 +118,13 @@ Progress.prototype.update = function(numActions, callback) {
         {
             callback(err, result);
         }
-    );
+    );*/
 
+    self.gm.numActions=numActions;
+    self.save(function(err, result)
+    {
+        callback(err, result);
+    });
 
 }
 

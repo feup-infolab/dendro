@@ -8,6 +8,8 @@ var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")
 var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var Progress = require(Config.absPathInSrcFolder("/models/game/progress.js")).Progress;
+var Medal = require(Config.absPathInSrcFolder("/models/game/medal.js")).Medal;
+var MedalType = require(Config.absPathInSrcFolder("/models/game/medal_type.js")).MedalType;
 
 var db = function() { return GLOBAL.db.default; }();
 var gfs = function() { return GLOBAL.gfs.default; }();
@@ -274,7 +276,62 @@ exports.update = function(req, res) {
                                                                         if (!err) {
                                                                             console.log("Progress:::::::::: " + progress.uri);
                                                                             progress.update(descriptorCount,function(err,res){
-                                                                                console.log(res);
+                                                                                MedalType.all(function(err,medaltypes)
+                                                                                {
+                                                                                    if(!err)
+                                                                                    {
+                                                                                        Medal.allByUser(user.ddr.username,function(err,userMedals)
+                                                                                        {
+                                                                                            for(var i=0;i<medaltypes.length;i++)
+                                                                                            {
+                                                                                                if(medaltypes[i].gm.objectType=="Descriptor")
+                                                                                                {
+                                                                                                    if(progress.gm.numActions>=medaltypes[i].gm.numActions)
+                                                                                                    {
+                                                                                                        var alreadyHave=false;
+                                                                                                        for(var j=0;j<userMedals.length;j++)
+                                                                                                        {
+                                                                                                            if(userMedals[j].gm.hasType==medaltypes[i].uri)
+                                                                                                            {
+                                                                                                                alreadyHave=true;
+                                                                                                            }
+                                                                                                        }
+                                                                                                        if(alreadyHave==false)
+                                                                                                        {
+                                                                                                            var medalData = {
+                                                                                                                gm: {
+                                                                                                                    hasType: medaltypes[i].uri,
+                                                                                                                    belongsTo: user.uri
+                                                                                                                }
+                                                                                                            };
+                                                                                                            Medal.createAndInsertFromObject(medalData,function(err,insertMedal){
+
+                                                                                                                if(!err)
+                                                                                                                {
+
+                                                                                                                    console.log(insertMedal);
+                                                                                                                }
+                                                                                                                else
+                                                                                                                {
+
+                                                                                                                }
+
+                                                                                                            });
+
+
+                                                                                                        }
+
+                                                                                                    }
+                                                                                                }
+                                                                                            }
+                                                                                        });
+                                                                                    }
+                                                                                    else
+                                                                                    {
+
+                                                                                    }
+                                                                                }
+                                                                                );
                                                                             })
                                                                         }
                                                                         else

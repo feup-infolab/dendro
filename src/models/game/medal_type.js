@@ -65,6 +65,7 @@ MedalType.findByTitle = function(title, callback)
     MedalType.findByPropertyValue(title, "dcterms:title", callback);
 };
 
+
 MedalType.all = function(callback) {
     var query =
         "SELECT ?uri \n" +

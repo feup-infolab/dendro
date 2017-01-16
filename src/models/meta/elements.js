@@ -2420,29 +2420,28 @@ Elements.gm = {
     },
     belongsTo: {
         type: DbConnection.resource,
-        control: Config.controls.url_box,
-        locked: true
+        control: Config.controls.url_box
     },
     hasType: {
         type: DbConnection.resource,
-        control: Config.controls.url_box,
-        locked: true
+        control: Config.controls.url_box
     },
     objectType: {
         type: DbConnection.string,
-        control: Config.controls.url_box,
-        locked: true
+        control: Config.controls.url_box
     },
     hasMedal: {
         type: DbConnection.resource,
-        control: Config.controls.url_box,
-        locked: true
+        control: Config.controls.url_box
     }
     ,
     hasUser: {
         type: DbConnection.resource,
-        control: Config.controls.url_box,
-        locked: true
+        control: Config.controls.url_box
+    },
+    likes: {
+        type: DbConnection.int,
+        control: Config.controls.url_box
     }
 
 };

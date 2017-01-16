@@ -10,6 +10,11 @@ var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var Progress = require(Config.absPathInSrcFolder("/models/game/progress.js")).Progress;
+var Medal = require(Config.absPathInSrcFolder("/models/game/medal.js")).Medal;
+var MedalType = require(Config.absPathInSrcFolder("/models/game/medal_type.js")).MedalType;
+
+
+
 
 var nodemailer = require('nodemailer');
 var db = function () {
@@ -432,6 +437,7 @@ exports.show = function (req, res) {
 };
 
 exports.new = function (req, res) {
+    var winMessage="";
     if (req.originalMethod == "GET") {
         res.render('projects/new',
             {
@@ -522,8 +528,75 @@ exports.new = function (req, res) {
                                                 console.log("Number of projects: " + projectCount);
                                                 Progress.findByUserAndType(user.uri, 'Project', function (err, progress) {
                                                         if (!err) {
-                                                            console.log("Progress:::::::::: " + progress.uri);
                                                             progress.update(projectCount,function(err,result){
+                                                                MedalType.all(function(err,medaltypes)
+                                                                    {
+                                                                        if(!err)
+                                                                        {
+                                                                            Medal.allByUser(user.ddr.username,function(err,userMedals)
+                                                                            {
+                                                                                for(var i=0;i<medaltypes.length;i++)
+                                                                                {
+                                                                                    if(medaltypes[i].gm.objectType=="Project")
+                                                                                    {
+                                                                                        if(progress.gm.numActions>=medaltypes[i].gm.numActions)
+                                                                                        {
+                                                                                            var alreadyHave=false;
+                                                                                            for(var j=0;j<userMedals.length;j++)
+                                                                                            {
+                                                                                                if(userMedals[j].gm.hasType==medaltypes[i].uri)
+                                                                                                {
+                                                                                                    alreadyHave=true;
+                                                                                                }
+                                                                                            }
+                                                                                            if(alreadyHave==false)
+                                                                                            {
+                                                                                                var medalData = {
+                                                                                                    gm: {
+                                                                                                        hasType: medaltypes[i].uri,
+                                                                                                        belongsTo: user.uri
+                                                                                                    }
+                                                                                                };
+                                                                                                Medal.createAndInsertFromObject(medalData,function(err,insertMedal){
+
+                                                                                                    if(!err)
+                                                                                                    {
+                                                                                                        MedalType.findByUri(medalData.gm.hasType,function(err,medaltypedetails)
+                                                                                                        {
+                                                                                                            if(!err)
+                                                                                                            {
+                                                                                                                winMessage= "You win a " + medaltypedetails.gm.material + " medal " + medaltypedetails.dcterms.title + " because you had created "+medaltypedetails.gm.numActions+" projects";
+
+                                                                                                            }
+                                                                                                            else
+                                                                                                            {
+                                                                                                                console.log("Não entrou");
+                                                                                                            }
+                                                                                                        });
+
+                                                                                                    }
+                                                                                                    else
+                                                                                                    {
+
+                                                                                                    }
+
+                                                                                                });
+
+
+                                                                                            }
+
+                                                                                        }
+                                                                                    }
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                        else
+                                                                        {
+
+                                                                        }
+                                                                    }
+                                                                );
+
                                                                 console.log(result);
                                                             })
                                                         }
@@ -543,8 +616,8 @@ exports.new = function (req, res) {
                                         console.log("[ERROR] Unable to know the number of projects of user " + username + ". Error: " + user);
                                     }
                                 });
-                                req.flash('success', "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
-                                res.redirect('/projects/my');
+                               req.flash('success', "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
+                               res.redirect('/projects/my');
                             }
                             else {
                                 res.render('index',
