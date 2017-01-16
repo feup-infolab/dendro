@@ -132,7 +132,8 @@ exports.all = function(req, res){
                                 callback(null, loadedPost);
                             }
 
-                        }, Ontology.getAllOntologiesUris(), db_social.graphUri)
+                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri)
+                        }, null, db_social.graphUri, null)
                     }, function(err, loadedPosts){
                         if(!err)
                         {
@@ -357,7 +358,7 @@ exports.getPost_controller = function (req, res) {
                 message: "Error getting a post. " + JSON.stringify(post)
             });
         }
-    }, null, db_social.graphUri);
+    }, null, db_social.graphUri, null);
 };
 
 exports.share = function (req, res) {
@@ -427,7 +428,7 @@ exports.share = function (req, res) {
 
         }, false, null, null, null, null, db_social.graphUri);
 
-    }, null, db_social.graphUri);
+    }, null, db_social.graphUri, null);
 };
 
 exports.getPostComments = function (req, res) {
@@ -511,7 +512,7 @@ exports.comment = function (req, res) {
 
         }, false, null, null, null, null, db_social.graphUri);
 
-    }, null, db_social.graphUri);
+    }, null, db_social.graphUri, null);
 };
 
 exports.checkIfPostIsLikedByUser = function (req, res) {
@@ -603,7 +604,7 @@ exports.like = function (req, res) {
                         }
 
                     }, false, null, null, null, null, db_social.graphUri);
-                }, null, db_social.graphUri);
+                }, null, db_social.graphUri, null);
             }
         }
     });
@@ -812,7 +813,8 @@ var getCommentsForAPost = function (postID, cb) {
                     Comment.findByUri(commentUri.commentURI, function(err, comment)
                     {
                         callback(false,comment);
-                    }, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                    //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                    }, null, db_social.graphUri, null);
                 }, function (err, comments) {
                     cb(false, comments);
                 });
@@ -853,7 +855,8 @@ var getSharesForAPost = function (postID, cb) {
                     Share.findByUri(shareObject.shareURI, function(err, share)
                     {
                         callback(false,share);
-                    }, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                    //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                    }, null, db_social.graphUri, null);
                 }, function (err, shares) {
                     cb(false, shares);
                 });

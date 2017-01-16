@@ -1552,7 +1552,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                             console.error(msg);
                             console.error(err);
                         }
-                    });
+                    }, customGraphUri);
                 }
             }
         ], function(err, result){
@@ -1563,7 +1563,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     {
         getFromTripleStore(uri, function(err, result){
             callback(err, result);
-        });
+        }, customGraphUri);
     }
 };
 
