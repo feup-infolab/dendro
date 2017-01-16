@@ -97,9 +97,9 @@
                 <p> {{likesFileVersionInfo[fVersion.fileVersion].numLikes}} likes, {{commentList[fVersion.fileVersion].length}} comments, {{shareList[fVersion.fileVersion].length}} shares</p>
                 <div class="btn-group">
                     <!--indexOf(substring) > -1-->
-                    <label ng-model="checkModel.left" ng-class="likesFileVersionInfo[fVersion.fileVersion].usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="like_file_version(fVersion.fileVersion)">Like</label>
-                    <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="isReplyFormOpen = !isReplyFormOpen; getCommentsFromFileVersion(fVersion.fileVersion);isShareFormOpen = false;">Comment</label>
-                    <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="isShareFormOpen = !isShareFormOpen; getSharesFromFileVersion(fVersion.fileVersion);isReplyFormOpen = false;">Share</label>
+                    <label ng-model="checkModel.left" ng-class="likesFileVersionInfo[fVersion.fileVersion].usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="like_file_version(fVersion.fileVersion)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</label>
+                    <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="isReplyFormOpen = !isReplyFormOpen; getCommentsFromFileVersion(fVersion.fileVersion);isShareFormOpen = false;"> <i class="fa fa-comment" aria-hidden="true"></i> Comment</label>
+                    <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{fVersion.fileVersion}}" ng-click="isShareFormOpen = !isShareFormOpen; getSharesFromFileVersion(fVersion.fileVersion);isReplyFormOpen = false;"> <i class="fa fa-share" aria-hidden="true"></i> Share</label>
                 </div>
                 <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
                     <div class="wall">

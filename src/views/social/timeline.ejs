@@ -97,9 +97,9 @@
                         <p> {{likesPostInfo[postURI.uri].numLikes}} likes, {{commentList[postURI.uri].length}} comments, {{shareList[postURI.uri].length}} shares</p>
                         <div class="btn-group">
                             <!--indexOf(substring) > -1-->
-                            <label ng-model="checkModel.left" ng-class="likesPostInfo[postURI.uri].usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="likePost(postList[postURI.uri].uri)">Like</label>
-                            <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; getCommentsFromPost(postList[postURI.uri].uri);isShareFormOpen = false;">Comment</label>
-                            <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen; getSharesFromPost(postList[postURI.uri].uri);isReplyFormOpen = false;">Share</label>
+                            <label ng-model="checkModel.left" ng-class="likesPostInfo[postURI.uri].usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="likePost(postList[postURI.uri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</label>
+                            <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; getCommentsFromPost(postList[postURI.uri].uri);isShareFormOpen = false;"> <i class="fa fa-comment" aria-hidden="true"></i> Comment</label>
+                            <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen; getSharesFromPost(postList[postURI.uri].uri);isReplyFormOpen = false;"> <i class="fa fa-share" aria-hidden="true"></i> Share</label>
                         </div>
 
                         <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">

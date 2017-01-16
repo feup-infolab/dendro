@@ -10,47 +10,49 @@
                 <!-- obtain the original post information-->
                 <div ng-init='getPost(postList["<%= postUri %>"].ddr.postURI, null);' style="padding-left: 2%">
                     <!-- The info from the original post-->
-                    <div>
-                        
-                    </div>
-                    <div class="btn-group" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
-                        <table class="table changelog-table">
-                            <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
-                            <tr>
-                                <th width="14%">
+                    <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
+                        <div class="panel-heading">
+                            <h3 class="panel-title"> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator.split('/').pop()}} {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changeType}} descriptor </h3>
+                        </div>
+                        <div class="panel-body">
+                            <table class="table changelog-table">
+                                <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
+                                <tr>
+                                    <th width="14%">
 
-                                </th>
-                                <th width="14%" class="table-centertext">
-                                    Author
-                                </th>
-                                <th width="14%">
-                                    Change Type
-                                </th>
-                                <th width="14%">
-                                    File
-                                </th>
-                                <th width="14%">
-                                    Descriptor
-                                </th>
-                                <th width="14%">
-                                    Value
-                                </th>
+                                    </th>
+                                    <th width="14%" class="table-centertext">
+                                        Author
+                                    </th>
+                                    <th width="14%">
+                                        Change Type
+                                    </th>
+                                    <th width="14%">
+                                        File
+                                    </th>
+                                    <th width="14%">
+                                        Descriptor
+                                    </th>
+                                    <th width="14%">
+                                        Value
+                                    </th>
 
-                                <th width="14%">
+                                    <th width="14%">
 
-                                </th>
-                            </tr>
+                                    </th>
+                                </tr>
 
-                            <tr>
-                                <td> </td>
-                                <td> <a ng-href='{{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator}}'> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator.split('/').pop()}} </a> </td>
-                                <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changeType}} </td>
-                                <td> <a ng-href="{{postList[postList['<%= postUri %>'].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
-                                <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changedDescriptor}} </td>
-                                <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.newValue}} </td>
-                                <td> </td>
-                            </tr>
-                        </table>
+                                <tr>
+                                    <td> </td>
+                                    <td> <a ng-href='{{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator}}'> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator.split('/').pop()}} </a> </td>
+                                    <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changeType}} </td>
+                                    <td> <a ng-href="{{postList[postList['<%= postUri %>'].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
+                                    <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changedDescriptor}} </td>
+                                    <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.newValue}} </td>
+                                    <td> </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
