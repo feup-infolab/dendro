@@ -7,7 +7,7 @@
                 <div ng-init="getFileVersion(fVersion.fileVersion);fileVersionLikesInfo(fVersion.fileVersion);getCommentsFromFileVersion(fVersion.fileVersion);getSharesFromFileVersion(fVersion.fileVersion)">
                     <div class="panel panel-info" ng-if="fileVersionsList[fVersion.fileVersion].rdf.isShare">
                         <div class="panel-heading">
-                            <h3 class="panel-title"><p> {{fileVersionsList[fVersion.fileVersion].ddr.userWhoShared.split('/').pop()}} : "{{fileVersionsList[fVersion.fileVersion].ddr.shareMsg}}"</p></h3>
+                            <h3 class="panel-title"> {{fileVersionsList[fVersion.fileVersion].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{fileVersionsList[fVersion.fileVersion].ddr.userWhoShared}}">{{fileVersionsList[fVersion.fileVersion].ddr.userWhoShared.split('/').pop()}}</a> : "{{fileVersionsList[fVersion.fileVersion].ddr.shareMsg}}"</h3>
                         </div>
                         <div class="panel-body">
                             <!-- obtain the original post information-->
@@ -15,7 +15,7 @@
                                 <!-- The info from the original post-->
                                 <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
                                     <div class="panel-heading">
-                                        <h3 class="panel-title">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}} added a file version</h3>
+                                        <h3 class="panel-title"> {{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri}}">{{fileVersionsList[fileVersionsList[fVersion.fileVersion].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}}</a>  added a file version</h3>
                                     </div>
                                     <div class="panel-body">
                                         <table class="table changelog-table">
@@ -63,7 +63,7 @@
                     </div>
                     <div class="panel panel-success" ng-if="!fileVersionsList[fVersion.fileVersion].rdf.isShare">
                         <div class="panel-heading">
-                            <h3 class="panel-title"> {{fileVersionsList[fVersion.fileVersion].ddr.creatorUri.split('/').pop()}} added a file version </h3>
+                            <h3 class="panel-title"> {{fileVersionsList[fVersion.fileVersion].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{fileVersionsList[fVersion.fileVersion].ddr.creatorUri}}">{{fileVersionsList[fVersion.fileVersion].ddr.creatorUri.split('/').pop()}}</a> added a file version </h3>
                         </div>
                         <div class="panel-body">
                             <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
