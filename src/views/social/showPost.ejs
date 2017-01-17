@@ -12,7 +12,7 @@
                     <!-- The info from the original post-->
                     <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
                         <div class="panel-heading">
-                            <h3 class="panel-title"> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.modified | date : "dd/MMM/yyyy"}} <a ng-href="{{postList[postList['<%= postUri %>'].ddr.postURI].dcterms.creator}}"> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator.split('/').pop()}} </a> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changeType}} a descriptor </h3>
+                            <h3 class="panel-title"> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.modified | date : "dd/MMM/yyyy"}} <a ng-href="{{postList[postList['<%= postUri %>'].ddr.postURI].dcterms.creator}}"> {{postList[postList["<%= postUri %>"].ddr.postURI].dcterms.creator.split('/').pop()}} </a> {{actionTypesDictionary[postList[postList["<%= postUri %>"].ddr.postURI].ddr.changeType]}} a descriptor </h3>
                         </div>
                         <div class="panel-body">
                             <table class="table changelog-table text-center">
@@ -61,7 +61,7 @@
         <!-- aqui -->
         <div class="panel panel-success" ng-if='!postList["<%= postUri %>"].rdf.isShare'>
             <div class="panel-heading">
-                <h3 class="panel-title"> {{postList["<%= postUri %>"].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{postList['<%= postUri %>'].dcterms.creator}}"> {{postList["<%= postUri %>"].dcterms.creator.split('/').pop()}} </a> {{postList["<%= postUri %>"].ddr.changeType}} a descriptor </h3>
+                <h3 class="panel-title"> {{postList["<%= postUri %>"].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{postList['<%= postUri %>'].dcterms.creator}}"> {{postList["<%= postUri %>"].dcterms.creator.split('/').pop()}} </a> {{actionTypesDictionary[postList["<%= postUri %>"].ddr.changeType]}} a descriptor </h3>
             </div>
             <div class="panel-body">
                 <img width="10%" height="10%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
