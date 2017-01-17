@@ -15,30 +15,24 @@
                             <h3 class="panel-title"> {{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{fileVersionsList[fileVersionsList['<%=fileVersionUri %>'].ddr.fileVersionUri].ddr.creatorUri}}">{{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}}</a>  added a file version</h3>
                         </div>
                         <div class="panel-body">
-                            <table class="table changelog-table">
+                            <table class="table changelog-table text-center">
                                 <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
                                 <tr>
-                                    <th width="14%">
+                                    <th width="14%" class="text-center">
 
                                     </th>
-                                    <th width="14%" class="table-centertext">
+                                    <th width="14%" class="text-center">
                                         Author
                                     </th>
-                                    <th width="14%">
+                                    <th width="14%" class="text-center">
                                         Change Type
                                     </th>
-                                    <th width="14%">
-                                        Item Type
-                                    </th>
-                                    <th width="14%">
-                                        Link
+
+                                    <th width="14%" class="text-center">
+                                        <i class="fa fa-file fa-lg" aria-hidden="true"></i>
                                     </th>
 
-                                    <th width="14%">
-                                        Name
-                                    </th>
-
-                                    <th width="14%">
+                                    <th width="14%" class="text-center">
 
                                     </th>
                                 </tr>
@@ -47,8 +41,6 @@
                                     <td> </td>
                                     <td> <a ng-href='{{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].ddr.creatorUri}}'>{{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}}</a> </td>
                                     <td> add </td>
-                                    <td> {{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].ddr.itemType}} </td>
-                                    <td> <a ng-href='{{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].uri}}'>{{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].uri.split('/').pop()}}</a></td>
                                     <td> <a ng-href='{{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].nfo.fileName}}'>{{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].nfo.fileName.split('\\').pop()}}</a> </td>
                                     <td> </td>
                                 </tr>
@@ -66,29 +58,24 @@
             </div>
             <div class="panel-body">
                 <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
-                <table class="table changelog-table">
+                <table class="table changelog-table text-center">
                     <tr>
-                        <th width="14%">
+                        <th width="14%" class="text-center">
 
                         </th>
-                        <th width="14%" class="table-centertext">
+                        <th width="14%" class="text-center">
                             Author
                         </th>
-                        <th width="14%">
+
+                        <th width="14%" class="text-center">
                             Change Type
                         </th>
-                        <th width="14%">
-                            Item Type
-                        </th>
-                        <th width="14%">
-                            Link
+
+                        <th width="14%" class="text-center">
+                            <i class="fa fa-file fa-lg" aria-hidden="true"></i>
                         </th>
 
-                        <th width="14%">
-                            Name
-                        </th>
-
-                        <th width="14%">
+                        <th width="14%" class="text-center">
 
                         </th>
                     </tr>
@@ -97,8 +84,6 @@
                         <td> </td>
                         <td> <a ng-href='{{fileVersionsList["<%=fileVersionUri %>"].ddr.creatorUri}}'> {{fileVersionsList["<%=fileVersionUri %>"].ddr.creatorUri.split('/').pop()}} </a> </td>
                         <td> add </td>
-                        <td> {{fileVersionsList["<%=fileVersionUri %>"].ddr.itemType}} </td>
-                        <td> <a ng-href='{{fileVersionsList["<%=fileVersionUri %>"].uri}}'> {{fileVersionsList["<%=fileVersionUri %>"].uri.split('/').pop()}} </a> </td>
                         <td> <a ng-href='{{fileVersionsList["<%=fileVersionUri %>"].nfo.fileName}}'> {{fileVersionsList["<%=fileVersionUri %>"].nfo.fileName.split('\\').pop()}}</a></td>
                         <td> </td>
                     </tr>
