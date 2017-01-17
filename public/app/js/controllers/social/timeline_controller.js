@@ -15,6 +15,9 @@ angular.module('dendroApp.controllers')
             current: 1
         };
         
+        $scope.actionTypesDictionary = {
+            "add": "added"
+        };
 
         $scope.get_all_posts = function(currentPage)
         {
