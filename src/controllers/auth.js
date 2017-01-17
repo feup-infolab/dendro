@@ -33,7 +33,9 @@ module.exports.login = function(req, res){
 
                             if(user.ddr.password == encodedPassword)
                             {
+                                //auth successful
                                 req.session.user = user;
+                                //req.session.socketID
 
                                 user.isAdmin(function(err, isAdmin){
                                     if(!err)

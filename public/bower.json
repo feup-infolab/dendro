@@ -61,7 +61,8 @@
     "ng-jsonpath": "^0.1.3",
     "angular-tree-widget": "git://github.com/feup-infolab-rdm/angular-tree-widget.git",
     "ng-alerts": "git://github.com/feup-infolab-rdm/ng-alerts.git#99ab122c9e4c262711bbc06e23518a613ca29e01",
-    "angular-utils-pagination": "0.11.1"
+    "angular-utils-pagination": "0.11.1",
+    "socket.io-client": "^1.7.2"
   },
   "resolutions": {
     "bootstrap": "~3",

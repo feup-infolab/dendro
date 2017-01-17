@@ -61,6 +61,7 @@
     "sha1": "1.1.0",
     "simple-elasticsearch": "0.0.11",
     "slug": "0.4.2",
+    "socket.io": "^1.7.2",
     "stylus": "0.32.1",
     "textract": "0.8.0",
     "tmp": "0.0.21",

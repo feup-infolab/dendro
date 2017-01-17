@@ -1435,6 +1435,19 @@ async.waterfall([
         {
             server.listen(app.get('port'), function() {
                 console.log('Express server listening on port ' + app.get('port'));
+                var io = require('socket.io')(server);//NELSON
+                exports.io = io;
+                io.on('connection', function (socket) {
+                    
+                    console.log('a user connected');//NELSON
+                    console.log('ID: ', socket.id);
+                    //socket.emit('identify', {socketID: socket.id});
+                    socket.on('forceDisconnect', function (data) {
+                        //req.session.socketID = null;
+                        socket.disconnect(true);
+                        console.log('disconnected socketID: ', data.socketID);
+                    });
+                });
                 bootupPromise.resolve(app);
             });
         }

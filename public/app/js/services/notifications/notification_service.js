@@ -39,4 +39,16 @@ angular.module('dendroApp.services')
 
         };
 
+        //startConnecttion -> saves autenticaded user and creates socket io connection
+
+        this.startConnection = function () {
+            //TODO request for logged user
+            //Error verification
+                //create session or not
+                
+        };
+        //endconnection ->clears aut user and closes socket io connection
+
+        //
+
     }]);

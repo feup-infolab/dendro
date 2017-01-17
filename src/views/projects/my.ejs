@@ -14,7 +14,8 @@
                 Your projects
             </h1>
             <%- include options_head.ejs%>
-
+            <button ng-click="initSocketSession()"> Create Session </button>
+            <button ng-click="destroySocketSession()"> Destroy Session </button>
                     <% if(!(typeof locals.projects === 'undefined') && locals.projects instanceof Array)
                     {
                     %>

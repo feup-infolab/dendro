@@ -17,6 +17,8 @@ angular.module('dendroApp.controllers')
         storageService
     )
 {
+    $scope.socket = null;
+
     $scope.get_current_url = function()
     {
         var newURL = window.location.protocol + "//" + window.location.host + window.location.pathname;
@@ -123,6 +125,34 @@ angular.module('dendroApp.controllers')
             }
         }
 
+    };
+
+    $scope.initSocketSession = function(userUri)
+    {
+        console.log('userUri:', userUri);
+        $scope.socket = io();
+
+        $scope.socket.on('connect', function () {
+            console.log('client id is cenas: ', $scope.socket.id);
+            //TODO get req.session.socketID
+            //TODO CHECK req.session.socketID and socket.id are the same
+        });
+
+        /*$scope.socket.on('identify', function (data) {
+            console.log('The data isss: ' + data.socketID);
+        });*/
+
+
+
+        /*
+         socket.on('chat message', function (data) {
+         console.log('The data is: ' + data);
+         //socket.emit('my other event', { my: 'data' });
+         });*/
+    };
+
+    $scope.destroySocketSession = function () {
+        $scope.socket.emit('forceDisconnect', { socketID: $scope.socket.id });
     };
 
 });
