@@ -30,4 +30,10 @@ angular.module('dendroApp', [
     return function(val) {
         return $sce.trustAsResourceUrl(val);
     };
-}]);
+}]).config(['ngAlertsProvider', function (ngAlertsProvider) {
+        // Global empty list text.
+        ngAlertsProvider.options.emptyListText = 'Nothing here...';
+
+        // The queue timeout for new alerts.
+        ngAlertsProvider.options.queue = null;
+}]);;
