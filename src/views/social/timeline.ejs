@@ -38,7 +38,8 @@
                                                     <th width="14%" class="text-center">
                                                         Descriptor
                                                     </th>
-                                                    <th width="14%" class="text-center">
+
+                                                    <th width="14%" class="text-center" ng-hide="postList[postList[postURI.uri].ddr.postURI].ddr.newValue == null">
                                                         Value
                                                     </th>
 
@@ -53,7 +54,7 @@
                                                     <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.changeType}} </td>
                                                     <td> <a ng-href="{{postList[postList[postURI.uri].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postList[postList[postURI.uri].ddr.postURI].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
                                                     <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.changedDescriptor}} </td>
-                                                    <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.newValue}} </td>
+                                                    <td ng-hide="postList[postList[postURI.uri].ddr.postURI].ddr.newValue == null"> {{postList[postList[postURI.uri].ddr.postURI].ddr.newValue}} </td>
                                                     <td> </td>
                                                 </tr>
                                             </table>
@@ -74,7 +75,7 @@
                                         <th width="14%" class="text-center">
 
                                         </th>
-                                        <th width="14%" class="text-center"">
+                                        <th width="14%" class="text-center">
                                             Author
                                         </th>
                                         <th width="14%" class="text-center">
@@ -86,7 +87,8 @@
                                         <th width="14%" class="text-center">
                                             Descriptor
                                         </th>
-                                        <th width="14%" class="text-center">
+
+                                        <th width="14%" class="text-center" ng-hide="postList[postURI.uri].ddr.newValue == null">
                                             Value
                                         </th>
 
@@ -101,7 +103,7 @@
                                         <td> {{postList[postURI.uri].ddr.changeType}} </td>
                                         <td> <a ng-href="{{postList[postURI.uri].ddr.hasContent.split('/version/')[0]}}"> {{postList[postURI.uri].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
                                         <td> {{postList[postURI.uri].ddr.changedDescriptor}} </td>
-                                        <td> {{postList[postURI.uri].ddr.newValue}} </td>
+                                        <td ng-hide="postList[postURI.uri].ddr.newValue == null"> {{postList[postURI.uri].ddr.newValue}} </td>
                                         <td> </td>
                                     </tr>
                                 </table>
