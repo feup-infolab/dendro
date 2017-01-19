@@ -6,6 +6,7 @@ var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/fold
 var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
 var db = function() { return GLOBAL.db.default; }();
 
@@ -615,13 +616,87 @@ exports.get_thumbnail = function(req, res) {
 };
 
 exports.upload = function(req, res){
-   if (req.originalMethod == "GET")
+    if (req.originalMethod == "GET")
     {
-        res.render('files/upload',
+        var upload_id = req.query.upload_id;
+        var upload = UploadManager.get_upload_by_id(upload_id);
+        var username = req.query.username;
+
+        if(
+            upload_id != null &&
+            upload_id != "" &&
+            username != null
+        )
+        {
+            if(req.session.upload_manager != null && req.session.user != null)
             {
+                if(upload != null)
+                {
+                    if(upload.username === upload.username && req.session.user != null && req.session.user.ddr.username == username)
+                    {
+                        upload.loaded = bytesReceived;
+                        res.json({
+                            size: upload.loaded
+                        });
+                    }
+                    else
+                    {
+                        res.status(400).json(
+                            {
+                                result : "error",
+                                message : "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
+                            });
+                    }
+                }
+                else
+                {
+                    res.status(400).json(
+                        {
+                            result : "error",
+                            message : "The upload id is invalid."
+                        });
+                }
 
             }
-        );
+        }
+        else
+        {
+            if(req.session.user.ddr.username != null)
+            {
+                if(
+                    req.query.filename != null &&
+                    req.query.filename != "" &&
+                    req.params.requestedResource != null &&
+                    req.params.requestedResource != ""
+                )
+                {
+                    var newUpload = UploadManager.add_upload(
+                        req.session.user.ddr.username,
+                        req.query.filename,
+                        req.params.requestedResource
+                    );
+
+                    res.json({
+                        size: newUpload.loaded,
+                        upload_id : newUpload.id
+                    });
+                }
+                else
+                {
+                    res.status(400).json({
+                        result: "error",
+                        message: "Request must include the 'filename' field. which is the title of the uploaded file, complete with its file type extension."
+                    });
+                }
+            }
+            else
+            {
+                res.status(400).json({
+                    result: "error",
+                    message: "User must be authenticated in the system to upload files."
+                });
+            }
+        }
     }
     else if (req.originalMethod == "POST")
     {
@@ -629,93 +704,134 @@ exports.upload = function(req, res){
 
         var processFiles = function()
         {
+            var fileNames = [];
             var files = [];
 
-            if(req.files.files != null)
+            if(req.files instanceof Object)
             {
-                for (var i = 0; i < req.files.files.length; i++)
-                {
-                    var file = req.files.files[i];
-                    files[i] = {
-                        name: file.name
-                    };
-
-                    var newFile = new File({
-                        nie: {
-                            title: file.name,
-                            isLogicalPartOf: requestedResourceURI
-                        }
-                    });
-
-                    var fs = require('fs');
-
-                    newFile.loadFromLocalFile(file.path, function (err, result)
-                    {
-                        if (err == null)
-                        {
-                            newFile.save(function (err, result)
-                            {
-                                if (err == null)
-                                {
-                                    console.log("File " + newFile.uri + " is now saved in GridFS");
-                                    newFile.generateThumbnails(function (err, result)
-                                    {
-                                        if (!err)
-                                        {
-                                            res.json({
-                                                result: "success",
-                                                message: "File submitted successfully. Message returned : " + result,
-                                                files: files
-                                            });
-                                        }
-                                        else
-                                        {
-                                            res.json({
-                                                result: "success",
-                                                message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
-                                                files: files
-                                            });
-                                        }
-                                    });
-                                }
-                                else
-                                {
-                                    res.status(500).json({
-                                        result: "error",
-                                        message: "Error submitting file : " + result,
-                                        files: files
-                                    });
-                                }
-
-                            });
-                        }
-                        else
-                        {
-                            console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
-                            res.status(500).json(
-                                {
-                                    result: "error",
-                                    message: "Error saving the file : " + result,
-                                    files: files
-                                });
-                        }
-                    });
-                }
+                files[0] = req.files.file
+            }
+            else if(req.files.files != null && req.files.files instanceof Array)
+            {
+                files = req.files.files;
             }
             else
             {
                 res.status(500).json({
                     result: "error",
                     message: "Unknown error submitting files. Malformed message?",
-                    files: files
+                    files: fileNames
                 });
             }
 
+
+            for (var i = 0; i < files.length; i++)
+            {
+                var file = files[i];
+                fileNames[i] = {
+                    name: file.name
+                };
+
+                var newFile = new File({
+                    nie: {
+                        title: file.name,
+                        isLogicalPartOf: requestedResourceURI
+                    }
+                });
+
+                var fs = require('fs');
+
+                newFile.loadFromLocalFile(file.path, function (err, result)
+                {
+                    if (err == null)
+                    {
+                        newFile.save(function (err, result)
+                        {
+                            if (err == null)
+                            {
+                                console.log("File " + newFile.uri + " is now saved in GridFS");
+                                newFile.generateThumbnails(function (err, result)
+                                {
+                                    if (!err)
+                                    {
+                                        res.json({
+                                            result: "success",
+                                            message: "File submitted successfully. Message returned : " + result,
+                                            files: fileNames
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.json({
+                                            result: "success",
+                                            message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
+                                            files: fileNames
+                                        });
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result: "error",
+                                    message: "Error submitting file : " + result,
+                                    files: fileNames
+                                });
+                            }
+
+                        });
+                    }
+                    else
+                    {
+                        console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
+                        res.status(500).json(
+                            {
+                                result: "error",
+                                message: "Error saving the file : " + result,
+                                files: fileNames
+                            });
+                    }
+                });
+            }
         };
 
         if(req.form.ended)
         {
-            processFiles();
+            if(req.query.upload_id != null && req.query.upload_id != "")
+            {
+                if(UploadManager.get_upload_by_id(req.query.upload_id) != null)
+                {
+                    if(UploadManager.finished(req.query.upload_id))
+                    {
+                        processFiles();
+                    }
+                    else
+                    {
+                        var upload = UploadManager.get_upload_by_id(req.query.upload_id);
+
+                        if(upload == null)
+                        {
+                            res.json({
+                                size : upload.loaded
+                            });
+                        }
+                        else
+                        {
+                            res.json({
+                                size : 0
+                            });
+                        }
+
+                    }
+                }
+
+            }
+            else
+            {
+                res.json({
+                    size : 0
+                });
+            }
         }
         else
         {
@@ -723,7 +839,7 @@ exports.upload = function(req, res){
                 res.status(500).json(
                     {
                         result : "error",
-                        message : "an error occurred on file upload"
+                        message : "an error occurred on file upload"                                                                                                                        
                     });
             });
 
@@ -735,12 +851,107 @@ exports.upload = function(req, res){
                     });
             });
 
+            req.form.on('progress', function(bytesReceived, bytesExpected) {
+                console.log(((bytesReceived / bytesExpected)*100) + "% uploaded");
+                var upload = UploadManager.get_upload_by_id(req.query.upload_id);
+                if(upload != null)
+                {
+                    upload.set_expected(bytesExpected);
+                }
+            });
+
             req.form.on('end', function() {
                 processFiles();
             });
         }
     }
 };
+
+exports.resume = function(req, res)
+{
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+
+    if (req.originalMethod == "GET")
+    {
+        var resume = req.query.resume;
+        var upload_id = req.query.upload_id;
+        var username = req.query.username;
+
+        if(resume != null)
+        {
+            if(req.session.upload_manager != null)
+            {
+                if (upload_id != null)
+                {
+                    var upload = UploadManager.get_upload_by_id(upload_id);
+
+                    if (upload.username == username)
+                    {
+                        res.json({
+                            size: upload.loaded
+                        });
+                    }
+                    else
+                    {
+                        var msg = "The upload does not belong to the user currently trying to resume."
+                        console.error(msg);
+                        res.status(400).json({
+                            result: "error",
+                            msg: msg
+                        });
+                    }
+                }
+                else
+                {
+                    res.json({
+                        size: 0
+                    });
+                }
+            }
+            else
+            {
+                var msg = "The user does not have a session initiated."
+                console.error(msg);
+                res.status(400).json({
+                    result: "error",
+                    msg: msg
+                });
+            }
+        }
+        else
+        {
+            var msg = "Invalid Request, does not contain the 'resume' query parameter."
+            console.error(msg);
+            res.status(400).json({
+                result: "error",
+                msg: msg
+            });
+        }
+    }
+    else
+    {
+        if(acceptsJSON && !acceptsHTML)
+        {
+            var msg = "This is only accessible via GET method";
+            req.flash('error', "Invalid Request");
+            console.log(msg);
+            res.status(400).render('',
+                {
+                }
+            );
+        }
+        else
+        {
+            res.status(400).json({
+                result : "error",
+                msg : "This API functionality is only accessible via GET method."
+            });
+        }
+
+    }
+}
 
 exports.restore = function(req, res){
 

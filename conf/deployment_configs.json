@@ -52,8 +52,8 @@
       "password" : "r00t_p4ssw0rd"
     },
     "mySQLDBName" : "dendroVagrantDemo",
-    "maxUploadSize" : 200000000,
-    "maxProjectSize" : 200000000,
+    "maxUploadSize" : 2147483648,
+    "maxProjectSize" : 5368709120,
     "maxSimultanousConnectionsToDb" : 3,
     "dbOperationTimeout" : 5000,
     "tempFilesDir" : "/tmp/dendro",

@@ -1,0 +1,27 @@
+.thumb {
+  width: 24px;
+  height: 24px;
+}
+.sel-file {
+  padding: 1px 5px;
+  font-size: smaller;
+  color: #808080;
+}
+.response {
+  padding: 0;
+  padding-top: 10px;
+  margin: 3px 0;
+  clear: both;
+  list-style: none;
+}
+.response .sel-file li,
+.response .reqh {
+  color: #00f;
+  padding-bottom: 5px;
+}
+.thin-progress {
+  height: 20px;
+}
+.thin-progress .sr-only {
+  position: relative;
+}

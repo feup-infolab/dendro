@@ -55,7 +55,7 @@ exports.all = function(req, res){
     }
     else
     {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing";
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         console.log(msg);
         res.status(400).json({
