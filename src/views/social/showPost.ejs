@@ -33,7 +33,8 @@
                                     <th width="14%" class="text-center">
                                         Descriptor
                                     </th>
-                                    <th width="14%" class="text-center">
+
+                                    <th width="14%" class="text-center" ng-hide='postList[postList["<%= postUri %>"].ddr.postURI].ddr.newValue == null'>
                                         Value
                                     </th>
 
@@ -48,7 +49,7 @@
                                     <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changeType}} </td>
                                     <td> <a ng-href="{{postList[postList['<%= postUri %>'].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
                                     <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.changedDescriptor}} </td>
-                                    <td> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.newValue}} </td>
+                                    <td ng-hide='postList[postList["<%= postUri %>"].ddr.postURI].ddr.newValue == null'> {{postList[postList["<%= postUri %>"].ddr.postURI].ddr.newValue}} </td>
                                     <td> </td>
                                 </tr>
                             </table>
@@ -82,7 +83,8 @@
                         <th width="14%" class="text-center">
                             Descriptor
                         </th>
-                        <th width="14%" class="text-center">
+
+                        <th width="14%" class="text-center" ng-hide='postList["<%= postUri %>"].ddr.newValue == null'>
                             Value
                         </th>
 
@@ -97,7 +99,7 @@
                         <td> {{postList["<%= postUri %>"].ddr.changeType}} </td>
                         <td> <a ng-href="{{postList['<%= postUri %>'].ddr.hasContent.split('/version/')[0]}}"> {{postList["<%= postUri %>"].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
                         <td> {{postList["<%= postUri %>"].ddr.changedDescriptor}} </td>
-                        <td> {{postList["<%= postUri %>"].ddr.newValue}} </td>
+                        <td ng-hide='postList["<%= postUri %>"].ddr.newValue == null'> {{postList["<%= postUri %>"].ddr.newValue}} </td>
                         <td> </td>
                     </tr>
                 </table>

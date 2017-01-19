@@ -50,7 +50,7 @@ angular.module('dendroApp.controllers')
                 msg: $scope.msg,
                 type: type,
                 time: new Date(notification.modified),
-                id: notificationUri,
+                id: notificationUri
             });
         };
 
