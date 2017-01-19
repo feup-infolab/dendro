@@ -105,6 +105,42 @@ angular.module('dendroApp.factories')
             return deserialize.promise;
         };
 
+        this.load_descriptor_ratings = function(uri)
+            {
+                var requestUri = "/rating";
+
+                var params = {
+                    uri : uri
+                };
+
+                return $http({
+                    method: 'POST',
+                    url: requestUri,
+                    data: params,
+                    contentType: "application/json",
+                    headers: {'Accept': "application/json"}
+                });
+            };
+
+            this.thumb_descriptor = function(uri,descriptor,upOrDown)
+            {
+                var requestUri = "/rating/thumb";
+
+                var params = {
+                    uri : uri,
+                    descriptor : descriptor,
+                    upOrDown: upOrDown
+                };
+
+                return $http({
+                    method: 'POST',
+                    url: requestUri,
+                    data: params,
+                    contentType: "application/json",
+                    headers: {'Accept': "application/json"}
+                });
+            };
+
         this.metadata_is_valid = function(metadata_array)
         {
             var self = this;

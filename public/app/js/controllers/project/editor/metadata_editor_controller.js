@@ -154,6 +154,15 @@ angular.module('dendroApp.controllers')
             $scope.remove_descriptor_at(index);
         };
 
+        $scope.thumb_up = function(index) {
+            $scope.thumb_up_at(index);
+        };
+
+        $scope.thumb_down = function(index) {
+            $scope.thumb_down_at(index);
+        };
+
+
         $scope.set_all_descriptors_as_deleted = function()
         {
             if($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)

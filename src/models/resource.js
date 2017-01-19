@@ -847,7 +847,6 @@ Resource.prototype.save = function
     var updateResource = function(currentResource, newResource, cb)
     {
         var newDescriptors= newResource.getDescriptors();
-
         self.replaceDescriptorsInTripleStore(
             newDescriptors,
             graphUri,

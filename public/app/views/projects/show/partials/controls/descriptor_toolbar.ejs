@@ -11,7 +11,7 @@
             </button>
         </div>
 
-        <div class="col-sm-11 col-xs-11"
+        <div class="col-sm-8 col-xs-8"
              ng-class="{
                         just_added: descriptor.just_added,
                         just_deleted: descriptor.just_deleted,
@@ -50,7 +50,7 @@
                         Recommended, Favorite
                     </span>
             </div>
-        <div class="pull-right col-md-2" ng-show="hovered_descriptor_index == $index && (descriptor.favorite || descriptor.just_recommended)">
+        <div class="pull-right col-md-1" ng-show="hovered_descriptor_index == $index && (descriptor.favorite || descriptor.just_recommended)">
                 <div class="btn-group pull-right">
 
                 <!-- not favorite in project -->
@@ -146,7 +146,34 @@
                     </button>
                 </div>
             </div>
-    <div
+        <div class="col-sm-1 col-xs-1">
+
+                <div>
+                {{rating_per_descriptor[descriptor.uri].gm.score}}
+            </div>
+
+        </div>
+        <div class="pull-right col-sm-2 col-xs-2">
+            <span class="btn-group" style="display: inline-block; ">
+
+            <button type="button"
+                    class="btn btn-sm upvote"
+                    data-loading-text="..."
+                    ng-click="thumb_up($index)" onclick="return false;"
+                    onmouseover="$(this).toggleClass('btn-success');"
+                    onmouseout="$(this).toggleClass('btn-success');">
+                <i class="glyphicon glyphicon-thumbs-up"></i>
+            </button>
+            <button type="button"
+                    class="btn btn-sm downvote"
+                    data-loading-text="..."
+                    ng-click="thumb_down($index)" onclick="return false;"
+                    onmouseover="$(this).toggleClass('btn-danger');"
+                    onmouseout="$(this).toggleClass('btn-danger');">
+                <i class="glyphicon glyphicon-thumbs-down"></i>
+            </button>
+            </span>
+        </div>
     </div>
 </div>
 

@@ -902,6 +902,7 @@ async.waterfall([
         var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
         var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
         var medaltypes = require(Config.absPathInSrcFolder("/controllers/medaltypes"));
+        var ratings = require(Config.absPathInSrcFolder("/controllers/ratings"));
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
 
@@ -1106,8 +1107,10 @@ async.waterfall([
         app.post('/external_repositories/new', async.apply(Permissions.require, [Permissions.acl.user]), repo_bookmarks.new);
         app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]), repo_bookmarks.delete);
 
-        //medal types
+        // Game
         app.get('/medals', medaltypes.all);
+        app.post('/rating', async.apply(Permissions.require, [Permissions.acl.user]), ratings.getDescriptorRating);
+        app.post('/rating/thumb', async.apply(Permissions.require, [Permissions.acl.user]), ratings.thumb);
 
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?$/,
@@ -1259,6 +1262,9 @@ async.waterfall([
                         ontologies.ontologies_autocomplete(req, res);
                     }
                     else if (req.query.update_metadata != null) {
+                        records.update(req, res);
+                    }
+                    else if (req.query.rating != null) {
                         records.update(req, res);
                     }
                     else if (req.query.ls != null) {

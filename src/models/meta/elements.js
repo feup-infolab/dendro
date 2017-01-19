@@ -881,6 +881,14 @@ Elements.ddr = {
         locked : true,
         control : Config.controls.input_box
     },
+    lastSavedBy :
+        {
+            type : DbConnection.resourceNoEscape,
+            api_readable: false,
+            locked : true,
+            private : true,
+            control : Config.controls.input_box
+        }
 };
 
 /**
@@ -2439,8 +2447,12 @@ Elements.gm = {
         type: DbConnection.resource,
         control: Config.controls.url_box
     },
-    likes: {
-        type: DbConnection.int,
+    hasDescriptor: {
+        type: DbConnection.resource,
+        control: Config.controls.url_box
+    },
+    hasResource: {
+        type: DbConnection.resource,
         control: Config.controls.url_box
     }
 

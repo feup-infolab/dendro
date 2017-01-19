@@ -55,7 +55,6 @@ exports.show_deep = function(req, res) {
         });
     }
 };
-
 exports.show = function(req, res) {
 
     if(req.params.filepath != null)
@@ -94,6 +93,7 @@ exports.show = function(req, res) {
         });
     }
 };
+
 
 exports.show_parent = function(req, res) {
 
@@ -229,6 +229,7 @@ exports.update = function(req, res) {
 
                                 Descriptor.mergeDescriptors(descriptors, function(err, fusedDescriptors)
                                 {
+
                                     if(!err)
                                     {
                                         if(req.session.user != null)
@@ -255,26 +256,25 @@ exports.update = function(req, res) {
                                             );
                                         }
 
+                                        resource.createRatings();
+
+                                        resource.ddr.lastSavedBy=changeAuthor;
                                         resource.save(function(err, record)
                                         {
                                             if(!err)
                                             {
                                                 User.findByUri(changeAuthor, function (err, user) {
-                                                    console.log("Entra?");
 
                                                     if (!err) {
                                                         if (user == null) {
                                                             //everything ok, user simply does not exist
-                                                            console.log("Não existe?");
 
                                                         }
                                                         else {
                                                             console.log("[INFO] User with username " + user.ddr.username + " found...");
                                                             user.countDescriptors(function (err, descriptorCount) {
-                                                                console.log("Number of descriptors: " + descriptorCount);
                                                                 Progress.findByUserAndType(user.uri, 'Descriptor', function (err, progress) {
                                                                         if (!err) {
-                                                                            console.log("Progress:::::::::: " + progress.uri);
                                                                             progress.update(descriptorCount,function(err,res){
                                                                                 MedalType.all(function(err,medaltypes)
                                                                                 {
@@ -309,7 +309,6 @@ exports.update = function(req, res) {
                                                                                                                 if(!err)
                                                                                                                 {
 
-                                                                                                                    console.log(insertMedal);
                                                                                                                 }
                                                                                                                 else
                                                                                                                 {

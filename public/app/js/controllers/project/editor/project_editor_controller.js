@@ -31,8 +31,11 @@ angular.module('dendroApp.controllers')
             multiple_selection_active : null,
             recommender_offline : null,
             change_log : null,
-            stats : null
+            stats : null,
+            ratings : null
         };
+
+        $scope.rating_per_descriptor={};
 
         $scope.get_selected_file_name = function()
         {
@@ -290,6 +293,39 @@ angular.module('dendroApp.controllers')
             }
         };
 
+        $scope.thumb_up_at = function(index)
+        {
+
+            var descriptor=$scope.shared.metadata[index].uri;
+            var currentResource=$scope.get_calling_uri();
+            metadataService.thumb_descriptor(currentResource,descriptor,"up")
+                .then(function(response)
+                {
+
+                    $scope.load_descriptor_ratings();
+                })
+                .catch(function(error){
+                    console.error("Error getting rating  from a descriptor" + JSON.stringify(error));
+
+                });
+        };
+
+        $scope.thumb_down_at = function(index)
+        {
+            var descriptor=$scope.shared.metadata[index].uri;
+            var currentResource=$scope.get_calling_uri();
+            metadataService.thumb_descriptor(currentResource,descriptor,"down")
+                .then(function(response)
+                {
+
+                    $scope.load_descriptor_ratings();
+                })
+                .catch(function(error){
+                    console.error("Error getting rating  from a descriptor" + JSON.stringify(error));
+
+                });
+        };
+
         $scope.get_descriptor = function(descriptor_index)
         {
             if($scope.shared.metadata == null || !($scope.shared.metadata instanceof Array))
@@ -495,6 +531,28 @@ angular.module('dendroApp.controllers')
                 });
         };
 
+        $scope.load_descriptor_ratings = function()
+        {
+            var currentResource=$scope.get_calling_uri();
+            console.log(currentResource);
+            metadataService.load_descriptor_ratings(currentResource)
+                .then(function(response)
+                    {
+                        $scope.show_popup(response.data);
+                        $scope.shared.ratings=response.data;
+                        $scope.shared.ratings.forEach(function(element) {
+                            $scope.rating_per_descriptor[element.gm.hasDescriptor]=element;
+                            console.log($scope.rating_per_descriptor[element.gm.hasDescriptor]);
+                        });
+
+                    })
+                    .catch(function(error){
+                        console.error("Error getting rating  from a descriptor" + JSON.stringify(error));
+
+                    });
+
+        };
+
         //initialization
         $scope.init = function()
         {
@@ -525,5 +583,7 @@ angular.module('dendroApp.controllers')
             //       eventsService.send_event_to_children($scope, eventsService.events.selected_file_changed, newSelectedFile);
             //    }
             //);
+
+            $scope.load_descriptor_ratings();
         };
     });
