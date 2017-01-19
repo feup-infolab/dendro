@@ -122,6 +122,23 @@ angular.module('dendroApp.factories')
                 });
             };
 
+            this.load_feedback_ratings = function(uri)
+            {
+                var requestUri = "/feedback";
+
+                var params = {
+                    uri : uri
+                };
+
+                return $http({
+                    method: 'POST',
+                    url: requestUri,
+                    data: params,
+                    contentType: "application/json",
+                    headers: {'Accept': "application/json"}
+                });
+            };
+
             this.thumb_descriptor = function(uri,descriptor,upOrDown)
             {
                 var requestUri = "/rating/thumb";

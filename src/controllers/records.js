@@ -256,7 +256,6 @@ exports.update = function(req, res) {
                                             );
                                         }
 
-                                        resource.createRatings();
 
                                         resource.ddr.lastSavedBy=changeAuthor;
                                         resource.save(function(err, record)

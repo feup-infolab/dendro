@@ -372,6 +372,8 @@ angular.module('dendroApp.controllers')
                                 .then(function(ratings){
                                     console.log(JSON.stringify(ratings));
                                 });
+
+
                         }
                     );
 
@@ -408,6 +410,7 @@ angular.module('dendroApp.controllers')
                                     $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
 
                                     $scope.load_descriptor_ratings();
+
                                 });
 
                             if ($scope.preview_available()) // && !is_chrome())

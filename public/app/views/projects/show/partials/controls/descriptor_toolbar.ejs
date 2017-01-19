@@ -148,8 +148,9 @@
             </div>
         <div class="col-sm-1 col-xs-1">
 
-                <div>
+            <div>
                 {{rating_per_descriptor[descriptor.uri].gm.score}}
+
             </div>
 
         </div>
@@ -159,17 +160,20 @@
             <button type="button"
                     class="btn btn-sm upvote"
                     data-loading-text="..."
+                    ng-class="feedback_per_descriptor[descriptor.uri].gm.delta==1 ? 'btn-success' : 'btn-default'"
                     ng-click="thumb_up($index)" onclick="return false;"
-                    onmouseover="$(this).toggleClass('btn-success');"
-                    onmouseout="$(this).toggleClass('btn-success');">
+                    onmouseover="$(this).toggleClass('btn-info');"
+                    onmouseout="$(this).toggleClass('btn-info');"
+                  >
                 <i class="glyphicon glyphicon-thumbs-up"></i>
             </button>
             <button type="button"
                     class="btn btn-sm downvote"
                     data-loading-text="..."
+                    ng-class="feedback_per_descriptor[descriptor.uri].gm.delta==-1 ? 'btn-danger' : 'btn-default'"
                     ng-click="thumb_down($index)" onclick="return false;"
-                    onmouseover="$(this).toggleClass('btn-danger');"
-                    onmouseout="$(this).toggleClass('btn-danger');">
+                    onmouseover="$(this).toggleClass('btn-info');"
+                    onmouseout="$(this).toggleClass('btn-info');">
                 <i class="glyphicon glyphicon-thumbs-down"></i>
             </button>
             </span>

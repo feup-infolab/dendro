@@ -1111,6 +1111,7 @@ async.waterfall([
         app.get('/medals', medaltypes.all);
         app.post('/rating', async.apply(Permissions.require, [Permissions.acl.user]), ratings.getDescriptorRating);
         app.post('/rating/thumb', async.apply(Permissions.require, [Permissions.acl.user]), ratings.thumb);
+        app.post('/feedback', async.apply(Permissions.require, [Permissions.acl.user]), ratings.getFeedback);
 
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?$/,

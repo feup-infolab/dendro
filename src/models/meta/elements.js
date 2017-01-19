@@ -2454,6 +2454,10 @@ Elements.gm = {
     hasResource: {
         type: DbConnection.resource,
         control: Config.controls.url_box
+    },
+    delta: {
+        type: DbConnection.int,
+        control: Config.controls.url_box
     }
 
 };

@@ -201,7 +201,7 @@
       }
     ,
       {
-        "objectType": "Vote",
+        "objectType": "Rating",
         "numActions": "0",
         "hasUser": "http://127.0.0.1:3001/user/demouser1"
       }

@@ -32,10 +32,12 @@ angular.module('dendroApp.controllers')
             recommender_offline : null,
             change_log : null,
             stats : null,
-            ratings : null
+            ratings : null,
+            feedbacks :null
         };
 
         $scope.rating_per_descriptor={};
+        $scope.feedback_per_descriptor={};
 
         $scope.get_selected_file_name = function()
         {
@@ -303,6 +305,7 @@ angular.module('dendroApp.controllers')
                 {
 
                     $scope.load_descriptor_ratings();
+
                 })
                 .catch(function(error){
                     console.error("Error getting rating  from a descriptor" + JSON.stringify(error));
@@ -319,6 +322,7 @@ angular.module('dendroApp.controllers')
                 {
 
                     $scope.load_descriptor_ratings();
+
                 })
                 .catch(function(error){
                     console.error("Error getting rating  from a descriptor" + JSON.stringify(error));
@@ -542,14 +546,36 @@ angular.module('dendroApp.controllers')
                         $scope.shared.ratings=response.data;
                         $scope.shared.ratings.forEach(function(element) {
                             $scope.rating_per_descriptor[element.gm.hasDescriptor]=element;
-                            console.log($scope.rating_per_descriptor[element.gm.hasDescriptor]);
                         });
+                        $scope.load_feedback_ratings();
 
                     })
                     .catch(function(error){
                         console.error("Error getting rating  from a descriptor" + JSON.stringify(error));
 
                     });
+
+        };
+
+        $scope.load_feedback_ratings = function()
+        {
+            var currentResource=$scope.get_calling_uri();
+            metadataService.load_feedback_ratings(currentResource)
+                .then(function(response)
+                {
+                    $scope.show_popup(response.data);
+                    $scope.shared.feedbacks=response.data;
+                    $scope.feedback_per_descriptor=[];
+                    $scope.shared.feedbacks.forEach(function(element) {
+                        $scope.feedback_per_descriptor[element.gm.hasDescriptor]=element;
+                        console.log($scope.feedback_per_descriptor[element.gm.hasDescriptor]);
+                    });
+
+                })
+                .catch(function(error){
+                    console.error("Error getting rating  from a descriptor" + JSON.stringify(error));
+
+                });
 
         };
 
@@ -585,5 +611,6 @@ angular.module('dendroApp.controllers')
             //);
 
             $scope.load_descriptor_ratings();
+
         };
     });
