@@ -4,8 +4,7 @@ var _ = require('underscore');
 
 var async = require('async');
 var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
-var db_notification = function () { return GLOBAL.db.notification;}();
+var db_notifications = function () { return GLOBAL.db.notifications;}();
 
 var app = require('../app');
 
@@ -33,7 +32,7 @@ exports.get_unread_user_notifications = function (req ,res) {
             DbConnection.pushLimitsArguments([
                 {
                     type : DbConnection.resourceNoEscape,
-                    value: db_notification.graphUri
+                    value: db_notifications.graphUri
                 },
                 {
                     type : DbConnection.resourceNoEscape,
@@ -89,7 +88,7 @@ exports.get_notification_info = function (req, res) {
             DbConnection.pushLimitsArguments([
                 {
                     type : DbConnection.resourceNoEscape,
-                    value: db_notification.graphUri
+                    value: db_notifications.graphUri
                 },
                 {
                     type : DbConnection.resourceNoEscape,
@@ -146,7 +145,7 @@ exports.delete = function (req, res) {
             DbConnection.pushLimitsArguments([
                 {
                     type : DbConnection.resourceNoEscape,
-                    value: db_notification.graphUri
+                    value: db_notifications.graphUri
                 },
                 {
                     type : DbConnection.resourceNoEscape,

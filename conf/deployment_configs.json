@@ -38,7 +38,7 @@
             "database_number" : 1
           },
           {
-            "id" : "notification",
+            "id" : "notifications",
             "options":
             {
               "host" : "192.168.56.249",

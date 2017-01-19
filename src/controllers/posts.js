@@ -11,7 +11,7 @@ var _ = require('underscore');
 var async = require('async');
 var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
-var db_notification = function () { return GLOBAL.db.notification;}();
+var db_notifications = function () { return GLOBAL.db.notifications;}();
 
 var app = require('../app');
 
@@ -416,7 +416,7 @@ exports.share = function (req, res) {
                             message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
                         });
                     }
-                }, false, null, null, null, null, db_notification.graphUri);
+                }, false, null, null, null, null, db_notifications.graphUri);
             }
             else
             {
@@ -500,7 +500,7 @@ exports.comment = function (req, res) {
                             message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
                         });
                     }
-                }, false, null, null, null, null, db_notification.graphUri);
+                }, false, null, null, null, null, db_notifications.graphUri);
             }
             else
             {
@@ -593,7 +593,7 @@ exports.like = function (req, res) {
                                         message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
                                     });
                                 }
-                            }, false, null, null, null, null, db_notification.graphUri);
+                            }, false, null, null, null, null, db_notifications.graphUri);
                         }
                         else
                         {

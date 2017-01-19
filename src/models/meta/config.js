@@ -353,12 +353,12 @@ Config.initGlobals = function()
             graphUri : "http://"+Config.host+"/social_dendro",
             redis_instance: 'social'
         },
-        notification :
+        notifications :
         {
             baseURI : "http://"+Config.host,
-            graphHandle : "notification_dendro",
-            graphUri : "http://"+Config.host+"/notification_dendro",
-            redis_instance: 'notification'
+            graphHandle : "notifications_dendro",
+            graphUri : "http://"+Config.host+"/notifications_dendro",
+            redis_instance: 'notifications'
         }
     };
 
@@ -381,7 +381,7 @@ Config.initGlobals = function()
         social : {
 
         },
-        notification : {
+        notifications : {
 
         }
     };
