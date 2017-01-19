@@ -43,7 +43,6 @@ var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_ma
 var async = require('async');
 var util = require('util');
 var multiparty = require('connect-multiparty');
-var multipartyMiddleware = multiparty();
 
 
 var self = this;
@@ -876,13 +875,32 @@ async.waterfall([
 
         //app.use(express.logger('dev'));
 
-        app.use(bodyParser(
-            {
-                keepExtensions: true,
-                limit: Config.maxUploadSize,
-                defer: true
+        app.use(bodyParser.urlencoded());
+        app.use(bodyParser.json());
+
+        //create temporary uploads folder if not exists
+        var tempUploadsFolder = Config.tempFilesDir+"/uploads";
+        var fs = require('fs');
+        try{
+            fs.statSync(tempUploadsFolder).isDirectory();
+        }
+        catch(e)
+        {
+            console.log("Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
+            try{
+                fs.mkdirSync(tempUploadsFolder);
             }
-        ));
+            catch(e)
+            {
+                console.error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
+                process.exit(1);
+            }
+        }
+
+        app.use(multiparty({
+            uploadDir:  tempUploadsFolder
+        }));
+
 
         app.use(methodOverride());
 
@@ -1012,7 +1030,7 @@ async.waterfall([
         app.post('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
 
         app.get('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
-        app.post('/projects/import', multipartyMiddleware, async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
+        app.post('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
 
         app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);
         app.get('/project/:handle/view', projects.show);
@@ -1163,7 +1181,6 @@ async.waterfall([
         //for places inside a project
             app.all(new RegExp(Config.regex_routes.projects.upload),
                 async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                multipartyMiddleware,
                 function(req,res, next)
                 {
                     req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
@@ -1173,7 +1190,6 @@ async.waterfall([
 
             app.all(new RegExp(Config.regex_routes.projects.restore),
                 async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                multipartyMiddleware,
                 function(req,res, next)
                 {
                     req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
@@ -1184,7 +1200,6 @@ async.waterfall([
 
             app.all(new RegExp(Config.regex_routes.projects.download),
                 async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                multipartyMiddleware,
                 function(req,res, next)
                 {
                     req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
