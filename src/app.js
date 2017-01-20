@@ -920,7 +920,7 @@ async.waterfall([
             "host": Config.mongoDBHost,
             "port": Config.mongoDbPort,
             "db": Config.mongoDbCollectionName,
-            "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/session"
+            "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDbCollectionName
         });
 
         app.use(expressSession({
