@@ -42,8 +42,29 @@ var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_ma
 
 var async = require('async');
 var util = require('util');
-var multiparty = require('connect-multiparty');
 
+//create temporary uploads folder if not exists
+var tempUploadsFolder = Config.tempFilesDir+"/uploads";
+var fs = require('fs');
+try{
+    fs.statSync(tempUploadsFolder).isDirectory();
+}
+catch(e)
+{
+    console.log("Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
+    try{
+        fs.mkdirSync(tempUploadsFolder);
+    }
+    catch(e)
+    {
+        console.error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
+        process.exit(1);
+    }
+}
+
+var multipartyMiddleware = require('connect-multiparty')({
+    uploadDir:  tempUploadsFolder
+});
 
 var self = this;
 
@@ -878,29 +899,6 @@ async.waterfall([
         app.use(bodyParser.urlencoded());
         app.use(bodyParser.json());
 
-        //create temporary uploads folder if not exists
-        var tempUploadsFolder = Config.tempFilesDir+"/uploads";
-        var fs = require('fs');
-        try{
-            fs.statSync(tempUploadsFolder).isDirectory();
-        }
-        catch(e)
-        {
-            console.log("Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
-            try{
-                fs.mkdirSync(tempUploadsFolder);
-            }
-            catch(e)
-            {
-                console.error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
-                process.exit(1);
-            }
-        }
-
-        app.use(multiparty({
-            uploadDir:  tempUploadsFolder
-        }));
-
 
         app.use(methodOverride());
 
@@ -953,13 +951,6 @@ async.waterfall([
             app.set('title', 'Dendro');
             app.set('theme', Config.theme);
         }
-
-        //validate permissions before calling the router middleware
-        // Authenticator
-//        app.use(express.basicAuth(function(user, pass, callback) {
-//            var result = (user === 'testUser' && pass === 'testPass');
-//            callback(null /* error */, result);
-//        }));
 
         //		development only
         if ('development' == app.get('env')) {
@@ -1369,6 +1360,7 @@ async.waterfall([
         //downloads and uploads on files and folders (data)
         app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
             async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
+            multipartyMiddleware,
             function(req,res, next)
             {
                 req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";

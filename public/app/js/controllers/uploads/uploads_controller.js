@@ -14,6 +14,7 @@ angular.module('dendroApp.controllers')
             'Upload',
             'usersService',
             'windowService',
+            'uploadsService',
             function (
                 $scope,
                 $http,
@@ -24,18 +25,11 @@ angular.module('dendroApp.controllers')
                 $compile,
                 Upload,
                 usersService,
-                windowService
+                windowService,
+                uploadsService
             )
     {
         $scope.usingFlash = FileAPI && FileAPI.upload != null;
-        //Upload.setDefaults({ngfKeep: true, ngfPattern:'image/*'});
-        $scope.changeAngularVersion = function ()
-        {
-            window.location.hash = $scope.angularVersion;
-            window.location.reload(true);
-        };
-        $scope.angularVersion = window.location.hash.length > 1 ? (window.location.hash.indexOf('/') === 1 ?
-            window.location.hash.substring(2) : window.location.hash.substring(1)) : '1.2.24';
 
         $scope.invalidFiles = [];
 
@@ -88,12 +82,34 @@ angular.module('dendroApp.controllers')
         $scope.upload = function (file, resumable)
         {
             $scope.errorMsg = null;
-            if ($scope.howToSend === 1)
+
+            function startUpload()
             {
-                uploadUsingUpload(file, resumable);
-            } else if ($scope.howToSend == 2)
+                if ($scope.howToSend === 1)
+                {
+                    uploadUsingUpload(file, resumable);
+                } else if ($scope.howToSend == 2)
+                {
+                    uploadUsing$http(file);
+                }
+            }
+
+            if(file.upload_id == null)
             {
-                uploadUsing$http(file);
+                console.log("Getting new upload ticket for file " + file.name);
+                uploadsService.getUploadTicket(file.name, $scope.upload_url)
+                    .then(function (upload_id)
+                    {
+                        file.upload_id = upload_id;
+                        startUpload();
+                    })
+                    .catch(function(error){
+                        windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
+                    });
+            }
+            else
+            {
+                startUpload();
             }
         };
 
@@ -101,46 +117,30 @@ angular.module('dendroApp.controllers')
 
         $scope.restart = function (file)
         {
-            if (Upload.isResumeSupported())
-            {
-                usersService.get_logged_user()
-                    .then(function(response){
-                        var username = response.data.ddr.username;
-                        var uploadUri = URI($scope.restart_url).
-                        addQuery("filename", encodeURIComponent(file.name)).
-                        addQuery("username", username).
-                        addQuery("upload_id", file.upload_id).toString();
-
-                        $http.get(uploadUri).then(function ()
-                        {
-                            $scope.upload(file, true);
-                        });
-                    })
-                    .catch(function(error)
-                    {
-                        windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
-                    });
-            }
-            else
-            {
-                $scope.upload(file);
-            }
+            //Clear ticker
+            file.upload_id = null;
+            $scope.upload(file, true);
         };
 
-        $scope.chunkSize = 1000;
+        $scope.chunkSize = 10000;
         function uploadUsingUpload(file, resumable)
         {
             var url = URI($scope.upload_url).addSearch($scope.getReqParams()).toString();
 
             if(file.upload_id != null)
             {
+                console.log("Continuing upload " + file.upload_id);
+
                 var resumeUrlObject = URI($scope.resume_url)
                     .addSearch($scope.getReqParams())
-                    .addSearch("filename", encodeURIComponent(file.name));
-
-                resumeUrlObject.addSearch("upload_id", encodeURIComponent(file.upload_id));
+                    .addSearch("filename", encodeURIComponent(file.name))
+                    .addSearch("upload_id", encodeURIComponent(file.upload_id));
 
                 var resumeUrl = resumeUrlObject.toString();
+            }
+            else
+            {
+                console.log("Starting a new upload because we do not have any previous id.");
             }
 
             file.upload = Upload.upload({
@@ -154,10 +154,11 @@ angular.module('dendroApp.controllers')
                 data: {
                     file: file
                 }
-            });
-
-            file.upload.then(function (response)
+            }).then(function (response)
             {
+                file.upload_id = response.data.upload_id;
+                console.log("Upload ID: " + file.upload_id);
+
                 $timeout(function ()
                 {
                     file.result = response.data;
@@ -166,25 +167,20 @@ angular.module('dendroApp.controllers')
                 });
             }, function (response)
             {
-                if (response.status > 0)
+                if (response.status != 200)
                 {
                     $scope.errorMsg = response.status + ': ' + response.data;
                 }
                 else
                 {
                     file.upload_id = response.data.upload_id;
-                    console.log("Upload ID 222: " + file.upload_id);
+                    console.log("Upload ID: " + file.upload_id);
                 }
             }, function (evt)
             {
                 // Math.min is to fix IE which reports 200% sometimes
                 file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
                 console.log(file.progress);
-            });
-
-            file.upload.xhr(function (xhr)
-            {
-                //console.log(xhr);
             });
         }
 

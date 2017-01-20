@@ -46,31 +46,51 @@ exports.all = function(req, res){
 exports.show = function(req, res){
     var username = req.params["username"];
 
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
     User.findByUsername(username, function(err, user)
     {
         if(err == null)
         {
-            res.render('users/show',
-                {
-                    title : "Viewing user " + username,
-                    user : user
-                }
-            )
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            {
+                res.json(
+                    user
+                );
+            }
+            else
+            {
+                res.render('users/show',
+                    {
+                        title : "Viewing user " + username,
+                        user : user
+                    }
+                )
+            }
         }
         else
         {
-            res.render('users/all',
-                {
-                    title : "Researchers",
-                    error_messages :
-                        [
-                            "Unable to retrieve information for user " + username ,
-                            err
-                        ]
-                }
-            );
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            {
+                res.json(
+                    {
+                        result : "error",
+                        message : "There is no user authenticated in the system."
+                    }
+                );
+            }
+            else
+            {
+                res.render('users/show',
+                    {
+                        title : "Viewing user " + username,
+                        user : user
+                    }
+                )
+            }
         }
-    });
+    }, true);
 };
 
 exports.me = function(req, res){
@@ -328,6 +348,33 @@ exports.reset_password = function(req, res){
 };
 
 exports.getLoggedUser = function (req, res) {
-    var loggedUser = req.session.user;
-    res.json(loggedUser);
+
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if(req.session.user != null)
+    {
+        req.params.username = req.session.user.ddr.username;
+        exports.show(req, res);
+    }
+    else
+    {
+        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+        {
+            res.json(
+                {
+                    result : "error",
+                    message : "There is no user authenticated in the system."
+                }
+            );
+        }
+        else
+        {
+            viewVars.projects = [];
+            viewVars.info_messages = ["There is no user authenticated in the system."];
+            res.render('index',
+                viewVars
+            );
+        }
+    }
 };

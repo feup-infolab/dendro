@@ -628,7 +628,9 @@ Elements.ddr = {
     password :
     {
         type : DbConnection.string,
-        control : Config.controls.input_box
+        control : Config.controls.input_box,
+        private : true,
+        locked : true
     },
     password_reset_token :
     {

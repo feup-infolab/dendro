@@ -819,11 +819,6 @@ exports.upload = function(req, res)
         form.on('progress', function (bytesReceived, bytesExpected)
         {
             console.log(((bytesReceived / bytesExpected) * 100) + "% uploaded");
-            var upload = UploadManager.get_upload_by_id(req.query.upload_id);
-            if (upload != null)
-            {
-                upload.set_expected(bytesExpected);
-            }
         });
 
         form.on('end', function ()

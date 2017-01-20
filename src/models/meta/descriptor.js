@@ -451,9 +451,22 @@ Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptione
     }
 }
 
+
+//TODO calculate this at boot time and save it into a matrix for checking descriptor types
 Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     var authorizedDescriptors = {};
+
+    if(exceptionedDescriptorTypes == null)
+    {
+        exceptionedDescriptorTypes = [];
+    }
+
+    if(excludedDescriptorTypes == null)
+    {
+        excludedDescriptorTypes = [];
+    }
+
     for (var prefix in Elements)
     {
         authorizedDescriptors[prefix] = {};

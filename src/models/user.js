@@ -35,9 +35,26 @@ function User (object)
     return self;
 }
 
-User.findByUsername = function(username, callback)
+User.findByUsername = function(username, callback, removePrivateDescriptors)
 {
-    User.findByPropertyValue(username, "ddr:username", callback);
+    User.findByPropertyValue(username, "ddr:username", function(err, user){
+        if(!err && user != null)
+        {
+            if(removePrivateDescriptors)
+            {
+                user.clearAllAuthorizedDescriptorsInMemory([Config.types.private,Config.types.locked]);
+                callback(err, user);
+            }
+            else
+            {
+                callback(err, user);
+            }
+        }
+        else
+        {
+            callback(err, user);
+        }
+    });
 };
 
 User.findByEmail = function(email, callback)

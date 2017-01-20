@@ -1027,12 +1027,16 @@ Resource.prototype.clearAllDescriptorsInMemory = function()
     return self;
 }
 
-Resource.prototype.clearAllAuthorizedDescriptorsInMemory = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
+Resource.prototype.clearAllAuthorizedDescriptorsInMemory = function(descriptorTypesToClear, exceptionedDescriptorTypes)
 {
     var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
-    var authorizedDescriptors = Descriptor.getAuthorizedDescriptors(excludedDescriptorTypes, exceptionedDescriptorTypes);
-    var myDescriptors = self.getDescriptors(excludedDescriptorTypes, exceptionedDescriptorTypes);
+
+    if(exceptionedDescriptorTypes == null)
+        exceptionedDescriptorTypes = [];
+
+    var authorizedDescriptors = Descriptor.getAuthorizedDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
+    var myDescriptors = self.getDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
 
     for(var i = 0; i < myDescriptors.length; i++)
     {
