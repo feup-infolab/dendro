@@ -88,7 +88,7 @@
         "description": "blablabla",
         "material" : "Bronze",
         "numActions" : "1",
-        "objectType" : "Register"
+        "objectType" : "Signup"
       },
       {
         "title": "Creator",
@@ -109,7 +109,7 @@
         "description": "blablabla",
         "material" : "Bronze",
         "numActions" : "50",
-        "objectType" : "Vote"
+        "objectType" : "Rating"
       },
       {
         "title": "Generous",
@@ -130,7 +130,7 @@
         "description": "blablabla",
         "material" : "Silver",
         "numActions" : "200",
-        "objectType" : "Vote"
+        "objectType" : "Rating"
 
       },
       {
@@ -152,7 +152,7 @@
         "description": "blablabla",
         "material" : "Gold",
         "numActions" : "1000",
-        "objectType" : "Vote"
+        "objectType" : "Rating"
       },
       {
         "title": "Gentleman",
@@ -207,7 +207,7 @@
       }
     ,
       {
-        "objectType": "Register",
+        "objectType": "Signup",
         "numActions": "1",
         "hasUser": "http://127.0.0.1:3001/user/demouser1"
       }

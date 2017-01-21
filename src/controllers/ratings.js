@@ -61,12 +61,21 @@ exports.getFeedback = function (req, res) {
 };
 
 exports.thumb = function (req, res) {
-    var uri = req.body.uri;
+    var uri = req.params.requestedResource;
     var descriptor = req.body.descriptor;
     var upOrDown = req.body.upOrDown;
     var deltaValue = 0;
     var newScore = 0;
+    var isAFolder=false;
 
+    if(req.params.filepath!=null)
+    {
+        isAFolder=true;
+    }
+    else
+    {
+        isAFolder=false;
+    }
     if (upOrDown == "up") {
         deltaValue = 1;
     }
@@ -105,7 +114,7 @@ exports.thumb = function (req, res) {
                                                                 newDelta=2;
                                                             }
 
-                                                            DescriptorLastEditor(uri, descriptor,-deltaValue, newDelta, function (err, result) {
+                                                            DescriptorLastEditor(uri, descriptor,-deltaValue, newDelta,isAFolder, function (err, result) {
 
                                                             });
                                                         }
@@ -153,7 +162,7 @@ exports.thumb = function (req, res) {
                                                            {
                                                                newDelta=-7;
                                                            }
-                                                           DescriptorLastEditor(uri, descriptor,(2*deltaValue), newDelta, function (err, result) {
+                                                           DescriptorLastEditor(uri, descriptor,(2*deltaValue), newDelta,isAFolder, function (err, result) {
 
                                                            });
                                                        }
@@ -209,7 +218,7 @@ exports.thumb = function (req, res) {
                                     newDelta=-2;
                                 }
 
-                                DescriptorLastEditor(uri, descriptor, deltaValue,newDelta, function (err, result) {
+                                DescriptorLastEditor(uri, descriptor, deltaValue,newDelta,isAFolder, function (err, result) {
 
                                 });
                             }
@@ -365,19 +374,35 @@ var getFeedbacks = function (uri,user, cb) {
         });
 };
 
-var DescriptorLastEditor = function (uri, descriptor, delta,newDelta, callback) {
+var DescriptorLastEditor = function (uri, descriptor, delta,newDelta,isAFolder, callback) {
     var self = this;
+    var query="";
+    if(isAFolder)
+    {
+        query =
+            "SELECT ?user \n" +
+            "FROM [0] \n" +
+            "WHERE { \n" +
+            "[1] [2] ?value.\n" +
+            "[1] ddr:lastSavedBy ?user. \n" +
+            "FILTER NOT EXISTS { \n" +
+            "[1] ddr:isVersionOf ?some_resource .\n" +
+            "}}\n";
+    }
+    else
+    {
+        query =
+            "SELECT ?user \n" +
+            "FROM [0] \n" +
+            "WHERE { \n" +
+            "[1] [2] ?value.\n" +
+            "[1] dcterms:creator ?user. \n" +
+            "FILTER NOT EXISTS { \n" +
+            "[1] ddr:isVersionOf ?some_resource .\n" +
+            "}}\n";
+    }
 
 
-    var query =
-        "SELECT ?user \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "[1] [2] ?value.\n" +
-        "[1] ddr:lastSavedBy ?user. \n" +
-        "FILTER NOT EXISTS { \n" +
-        "[1] ddr:isVersionOf ?some_resource .\n" +
-        "}}\n";
 
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([

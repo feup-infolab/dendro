@@ -230,6 +230,7 @@ exports.update = function(req, res) {
                                 Descriptor.mergeDescriptors(descriptors, function(err, fusedDescriptors)
                                 {
 
+
                                     if(!err)
                                     {
                                         if(req.session.user != null)

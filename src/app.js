@@ -833,6 +833,7 @@ async.waterfall([
 
 
         var Progress = require(Config.absPathInSrcFolder("/models/game/progress.js")).Progress;
+        var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
         async.series([
                 function (callback) {
@@ -840,22 +841,58 @@ async.waterfall([
                 },
                 function (callback) {
                     var createProgress= function (progress, callback) {
-                        Progress.createAndInsertFromObject({
-                                gm: {
-                                    objectType: progress.objectType,
-                                    numActions: progress.numActions,
-                                    hasUser: progress.hasUser
-                                }
-                            },
-                            function (err, newProgress) {
-                                if (!err && newProgress != null) {
-                                    callback(null, newProgress);
-                                }
-                                else {
-                                    console.log("[ERROR] Error creating new progress " + JSON.stringify(progress));
-                                    callback(err, progress);
-                                }
+                        User.findByUri(progress.hasUser,function (err,user) {
+                            user.countProjects(function(err,numProjects)
+                            {
+                             if(!err)
+                             {
+                                 user.countDescriptors(function(err,numDescriptors)
+                                 {
+                                     if(!err)
+                                     {
+                                         var numActions=0;
+                                         if(progress.objectType=="Project")
+                                         {
+                                             numActions=numProjects;
+                                         }
+                                         else if(progress.objectType=="Descriptor")
+                                         {
+                                             numActions=numDescriptors;
+                                         }
+                                         else
+                                         {
+                                             numActions=progress.numActions;
+                                         }
+                                         Progress.createAndInsertFromObject({
+                                                 gm: {
+                                                     objectType: progress.objectType,
+                                                     numActions: numActions,
+                                                     hasUser: progress.hasUser
+                                                 }
+                                             },
+                                             function (err, newProgress) {
+                                                 if (!err && newProgress != null) {
+                                                     callback(null, newProgress);
+                                                 }
+                                                 else {
+                                                     console.log("[ERROR] Error creating new progress " + JSON.stringify(progress));
+                                                     callback(err, progress);
+                                                 }
+                                             });
+                                     }
+                                     else
+                                     {
+
+                                     }
+                                 });
+                             }
+                             else
+                             {
+
+                             }
                             });
+                        });
+
                     };
 
                     async.map(Config.progress, createProgress, function (err, results) {
@@ -1110,7 +1147,6 @@ async.waterfall([
         // Game
         app.get('/medals', medaltypes.all);
         app.post('/rating', async.apply(Permissions.require, [Permissions.acl.user]), ratings.getDescriptorRating);
-        app.post('/rating/thumb', async.apply(Permissions.require, [Permissions.acl.user]), ratings.thumb);
         app.post('/feedback', async.apply(Permissions.require, [Permissions.acl.user]), ratings.getFeedback);
 
         //view a project's root
@@ -1188,6 +1224,10 @@ async.waterfall([
                     }
                     else if (req.query.export_to_repository != null) {
                         datasets.export_to_repository(req, res);
+                    }
+                    else if (req.query.thumb!= null)
+                    {
+                        ratings.thumb(req,res);
                     }
                 }
             });
@@ -1322,6 +1362,10 @@ async.waterfall([
                     }
                     else if (req.query.export_to_repository != null) {
                         datasets.export_to_repository(req, res);
+                    }
+                    else if (req.query.thumb!= null)
+                    {
+                        ratings.thumb(req,res);
                     }
                 }
                 else if (req.originalMethod == "DELETE") {

@@ -141,17 +141,16 @@ angular.module('dendroApp.factories')
 
             this.thumb_descriptor = function(uri,descriptor,upOrDown)
             {
-                var requestUri = "/rating/thumb";
 
                 var params = {
-                    uri : uri,
+                    uri : uri + "?thumb",
                     descriptor : descriptor,
                     upOrDown: upOrDown
                 };
 
                 return $http({
                     method: 'POST',
-                    url: requestUri,
+                    url: uri + "?thumb",
                     data: params,
                     contentType: "application/json",
                     headers: {'Accept': "application/json"}

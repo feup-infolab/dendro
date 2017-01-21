@@ -71,19 +71,40 @@ exports.show = function (req, res) {
                                     Progress.findByUserAndType(user.uri,"Descriptor",function (err, progressDescriptor){
                                        if(!err)
                                        {
-                                           console.log("Progesso no projecto para o utilizador:"+progressProject.gm.numActions);
-                                           console.log("Progesso nos descritore para o utilizador:"+progressDescriptor.gm.numActions);
+                                           Progress.findByUserAndType(user.uri,"Rating",function (err, progressRating){
+                                              if(!err)
+                                              {
+                                                  Progress.findByUserAndType(user.uri,"Signup",function (err, progressSignup){
+                                                      if(!err)
+                                                      {
+                                                          console.log("Progesso no projecto para o utilizador:"+progressProject.gm.numActions);
+                                                          console.log("Progesso nos descritore para o utilizador:"+progressDescriptor.gm.numActions);
 
-                                           res.render('users/show',
-                                               {
-                                                   title: "Viewing user " + username,
-                                                   user: user,
-                                                   medals: medals,
-                                                   medaltypes: medaltypes,
-                                                   progressProject:progressProject,
-                                                   progressDescriptor:progressDescriptor
-                                               }
-                                           )
+                                                          res.render('users/show',
+                                                              {
+                                                                  title: "Viewing user " + username,
+                                                                  user: user,
+                                                                  medals: medals,
+                                                                  medaltypes: medaltypes,
+                                                                  progressProject:progressProject,
+                                                                  progressDescriptor:progressDescriptor,
+                                                                  progressRating:progressRating,
+                                                                  progressSignup:progressSignup
+                                                              }
+                                                          )
+                                                      }
+                                                      else
+                                                      {
+
+                                                      }
+                                                  });
+                                              }
+                                              else
+                                              {
+
+                                              }
+                                           });
+
                                        }
                                        else
                                        {

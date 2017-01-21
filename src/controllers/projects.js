@@ -565,6 +565,7 @@ exports.new = function (req, res) {
                                                                                                         {
                                                                                                             if(!err)
                                                                                                             {
+
                                                                                                                 winMessage= "You win a " + medaltypedetails.gm.material + " medal " + medaltypedetails.dcterms.title + " because you had created "+medaltypedetails.gm.numActions+" projects";
 
                                                                                                             }
@@ -616,6 +617,7 @@ exports.new = function (req, res) {
                                         console.log("[ERROR] Unable to know the number of projects of user " + username + ". Error: " + user);
                                     }
                                 });
+
                                req.flash('success', "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
                                res.redirect('/projects/my');
                             }

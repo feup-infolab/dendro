@@ -145,6 +145,40 @@
 
                 }
 
+                else if(medaltype.gm.objectType=="Rating")
+                {
+
+                    if(progressRating.gm.numActions>=medaltype.gm.numActions)
+                    {
+                        percentageMedal=100;
+                    }
+                    else if(progressRating.gm.numActions<0)
+                    {
+                        percentageMedal=0;
+                    }
+                    else
+                    {
+                        percentageMedal= (progressRating.gm.numActions/medaltype.gm.numActions)*100;
+                    }
+                    percentageMedal = Math.round(percentageMedal);
+
+                }
+
+                else if(medaltype.gm.objectType=="Signup")
+                {
+
+                    if(progressSignup.gm.numActions>=medaltype.gm.numActions)
+                    {
+                        percentageMedal=100;
+                    }
+                    else
+                    {
+                        percentageMedal= (progressSignup.gm.numActions/medaltype.gm.numActions)*100;
+                    }
+                    percentageMedal = Math.round(percentageMedal);
+
+                }
+
                 for (var j = 0; j < medals.length; j++) {
                     var medal = medals[j];
                     if (medaltype.uri == medal.gm.hasType) {

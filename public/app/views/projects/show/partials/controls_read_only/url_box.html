@@ -1,5 +1,5 @@
 <div class="row">
-    <div class="controls col-xs-12">
+    <div class="controls col-xs-9">
         <div class="input-group">
             <p class="lead spacer input-group col-xs-12" ng-class="{just_added: descriptor.just_added, just_deleted: descriptor.just_deleted, just_inherited : descriptor.just_inherited, just_recommended : descriptor.just_recommended }">
                {{descriptor.label}}
@@ -21,6 +21,38 @@
                 </span>
             </p>
         </div>
+    </div>
+    <div class="col-sm-1 col-xs-1">
+
+        <div>
+            {{rating_per_descriptor[descriptor.uri].gm.score}}
+
+        </div>
+
+    </div>
+    <div class="pull-right col-sm-2 col-xs-2">
+            <span class="btn-group" style="display: inline-block; ">
+
+            <button type="button"
+                    class="btn btn-sm upvote"
+                    data-loading-text="..."
+                    ng-class="feedback_per_descriptor[descriptor.uri].gm.delta==1 ? 'btn-success' : 'btn-default'"
+                    ng-click="thumb_up($index)" onclick="return false;"
+                    onmouseover="$(this).toggleClass('btn-info');"
+                    onmouseout="$(this).toggleClass('btn-info');"
+            >
+                <i class="glyphicon glyphicon-thumbs-up"></i>
+            </button>
+            <button type="button"
+                    class="btn btn-sm downvote"
+                    data-loading-text="..."
+                    ng-class="feedback_per_descriptor[descriptor.uri].gm.delta==-1 ? 'btn-danger' : 'btn-default'"
+                    ng-click="thumb_down($index)" onclick="return false;"
+                    onmouseover="$(this).toggleClass('btn-info');"
+                    onmouseout="$(this).toggleClass('btn-info');">
+                <i class="glyphicon glyphicon-thumbs-down"></i>
+            </button>
+            </span>
     </div>
 </div>
 <div class="row">
