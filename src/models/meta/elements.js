@@ -647,7 +647,8 @@ Elements.ddr = {
     username :
     {
         type : DbConnection.string,
-        control : Config.controls.input_box
+        control : Config.controls.input_box,
+        api_readable : true
     },
     fileExtension :
     {

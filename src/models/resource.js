@@ -25,7 +25,7 @@ function Resource (object)
     return self;
 }
 
-Resource.prototype.copyOrInitDescriptors = function(object)
+Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumentObject)
 {
     var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     var self = this;
@@ -43,6 +43,16 @@ Resource.prototype.copyOrInitDescriptors = function(object)
             else if(object[aPrefix] instanceof Object)
             {
                 self[aPrefix] = object[aPrefix];
+            }
+        }
+        else if(self[aPrefix] != null)
+        {
+            if(deleteIfNotInArgumentObject)
+            {
+                if(object[aPrefix] == null)
+                {
+                    self[aPrefix] = {};
+                }
             }
         }
     }
@@ -983,7 +993,7 @@ Resource.prototype.save = function
 
 /**
  * Update descriptors with the ones sent as argument, leaving existing descriptors untouched
- * MERGE DESCRIPTORS BEFORE CALLING
+ * MERGE DESCRIPTORS BEFORE CALLING (for cases when descriptor values are arrays)
  * @param descriptors
  * @param callback
  */
@@ -1023,29 +1033,18 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDes
 Resource.prototype.clearAllDescriptorsInMemory = function()
 {
     var self = this;
-    self.copyOrInitDescriptors({});
+    self.copyOrInitDescriptors({}, true);
     return self;
 }
 
-Resource.prototype.clearAllAuthorizedDescriptorsInMemory = function(descriptorTypesToClear, exceptionedDescriptorTypes)
+Resource.prototype.clearDescriptorTypesInMemory = function(descriptorTypesToClear, exceptionedDescriptorTypes)
 {
-    var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
 
-    if(exceptionedDescriptorTypes == null)
-        exceptionedDescriptorTypes = [];
-
-    var authorizedDescriptors = Descriptor.getAuthorizedDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
     var myDescriptors = self.getDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
+    self.clearAllDescriptorsInMemory();
 
-    for(var i = 0; i < myDescriptors.length; i++)
-    {
-        var myDescriptor = myDescriptors[i];
-        if(authorizedDescriptors[myDescriptor.prefix][myDescriptor.shortName])
-        {
-            delete self[myDescriptor.prefix][myDescriptor.shortName];
-        }
-    }
+    self.updateDescriptorsInMemory(myDescriptors);
 }
 
 /**
@@ -1059,7 +1058,7 @@ Resource.prototype.replaceDescriptorsInMemory = function(descriptors, excludedDe
 {
     var self = this;
 
-    self.clearAllAuthorizedDescriptorsInMemory(excludedDescriptorTypes, exceptionedDescriptorTypes);
+    self.clearDescriptorTypesInMemory(excludedDescriptorTypes, exceptionedDescriptorTypes);
 
     self.updateDescriptorsInMemory(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
     return self;
