@@ -3,6 +3,10 @@
         <h3>File Versions Timeline</h3>
         <hr>
         <ul class="list-group">
+            <div ng-if="fileVersions.length==0" style="text-align: center">
+                <h4>There are no file versions</h4>
+                <i class="fa fa-file-o fa-5x" aria-hidden="true"></i>
+            </div>
             <div dir-paginate="fVersion in fileVersions | itemsPerPage: fileVersionsPerPage" total-items="totalFileVersions" current-page="pagination.current">
                 <div ng-init="getFileVersion(fVersion.fileVersion);fileVersionLikesInfo(fVersion.fileVersion);getCommentsFromFileVersion(fVersion.fileVersion);getSharesFromFileVersion(fVersion.fileVersion)">
                     <div class="panel panel-info" ng-if="fileVersionsList[fVersion.fileVersion].rdf.isShare">
@@ -107,15 +111,15 @@
                             <hr>
                         </div>
                         <label for="new_comment_box">{{loggedUser.split('/').pop()}} :</label>
-                        <input ng-model="comment_content" type="text" id="new_comment_box"/>
+                        <textarea class="form-control" rows="5" id="new_comment_box" ng-model="comment_content" placeholder="Write your comment here"></textarea>
                         <a ng-click="commentFileVersion(fVersion.fileVersion,comment_content);comment_content=''" class="btn btn-default btn-primary">Send</a>
                     </div>
                 </div>
 
                 <div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare">
                     <div class="wall">
-                        <label for="new_fileVersion_box_share">Write a share message:</label>
-                        <input ng-model="share_content" type="text" id="new_fileVersion_box_share"/>
+                        <label for="new_fileVersion_box_share">{{loggedUser.split('/').pop()}} :</label>
+                        <textarea class="form-control" rows="5" id="new_fileVersion_box_share" ng-model="share_content" placeholder="Write your share message here"></textarea>
                         <a ng-click="shareFileVersion(fVersion.fileVersion,share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
                     </div>
                 </div>
@@ -125,7 +129,6 @@
     </div>
 
     <div>
-        <small>this is in "fileVersionsCtrl"</small>
         <div class="text-center">
             <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandlerFVersion(newPageNumber)" template-url="/bower_components/angular-utils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
         </div>

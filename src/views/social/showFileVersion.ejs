@@ -107,15 +107,15 @@
                 <hr>
             </div>
             <label for="new_comment_box">{{loggedUser.split('/').pop()}} :</label>
-            <input ng-model="comment_content" type="text" id="new_comment_box"/>
+            <textarea class="form-control" rows="5" id="new_comment_box" ng-model="comment_content" placeholder="Write your comment here"></textarea>
             <a ng-click="commentFileVersion('<%=fileVersionUri %>',comment_content);comment_content=''" class="btn btn-default btn-primary">Send</a>
         </div>
     </div>
 
     <div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare">
         <div class="wall">
-            <label for="new_fileVersion_box_share">Write a share message:</label>
-            <input ng-model="share_content" type="text" id="new_fileVersion_box_share"/>
+            <label for="new_fileVersion_box_share">{{loggedUser.split('/').pop()}} :</label>
+            <textarea class="form-control" rows="5" id="new_fileVersion_box_share" ng-model="share_content" placeholder="Write your share message here"></textarea>
             <a ng-click="shareFileVersion('<%=fileVersionUri %>',share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
         </div>
     </div>

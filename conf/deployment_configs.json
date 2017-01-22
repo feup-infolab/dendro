@@ -117,7 +117,7 @@
         "log_all_queries": true
       },
       "session": {
-        "auto_login": true,
+        "auto_login": false,
         "login_user": "demouser1"
       },
       "files": {

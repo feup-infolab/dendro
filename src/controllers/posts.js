@@ -1089,7 +1089,7 @@ exports.getShare = function (req, res) {
         "WITH [0] \n" +
         "SELECT ?type \n" +
         "WHERE { \n" +
-        "[1] rdf:type ?type \n" +
+        "[1] ddr:fileVersionUri ?fileVersionUri \n" +
         "}";
 
     query = DbConnection.addLimitsClauses(query, null, null);
@@ -1108,8 +1108,25 @@ exports.getShare = function (req, res) {
         function(err, results) {
             if(!err)
             {
-                var types =_.pluck(results, 'type');
-                if(types.indexOf(fileVersionType) > -1)
+                //var types =_.pluck(results, 'type');
+
+                /*if(types.indexOf(fileVersionType) > -1)
+                {
+                    res.render('social/showFileVersion',
+                        {
+                            fileVersionUri : shareUri
+                        }
+                    );
+                }
+                else
+                {
+                    res.render('social/showPost',
+                        {
+                            postUri : shareUri
+                        }
+                    );
+                }*/
+                if(results.length > 0)
                 {
                     res.render('social/showFileVersion',
                         {

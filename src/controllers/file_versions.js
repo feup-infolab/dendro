@@ -30,7 +30,9 @@ var numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
                 "VALUES ?project { \n" +
                 projectsUris+
                 "}\n" +
-                "?uri rdf:type ddr:FileVersions. \n" +
+                "{?uri rdf:type ddr:FileVersions. }\n" +
+                "UNION \n"+
+                "{?uri ddr:fileVersionUri ?x }\n" +
                 "?uri ddr:projectUri ?project. \n"+
                 "} \n ";
 
@@ -112,7 +114,9 @@ var getProjectFileVersions = function (projectUrisArray, startingResultPosition,
                 projectsUris + "\n" +
                 "}. \n" +
                 "?fileVersion dcterms:modified ?date. \n" +
-                "?fileVersion rdf:type ddr:FileVersions. \n" +
+                "{?fileVersion rdf:type ddr:FileVersions. }\n" +
+                "UNION \n"+
+                "{?fileVersion ddr:fileVersionUri ?x }\n" +
                 "?fileVersion ddr:projectUri ?project. \n" +
                 "} \n "+
                 "ORDER BY DESC(?date) \n";
