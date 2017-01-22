@@ -30,18 +30,6 @@ angular.module('dendroApp.services')
                     });
                 };
 
-                /*
-                 .then(function (resp) {
-                 console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
-                 }, function (resp) {
-                 console.log('Error status: ' + resp.status);
-                 }, function (evt) {
-                 var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                 console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
-                 progress.percentage = progressPercentage;
-                 });
-                 */
-
                 // for multiple files:
                 this.uploadFiles = function (files, url, extra_parameters, callback)
                 {
@@ -69,20 +57,21 @@ angular.module('dendroApp.services')
                     usersService.get_logged_user()
                         .then(function (response)
                         {
-                            try{
+                            try
+                            {
                                 var uploadUri = URI(upload_url)
                                     .addQuery("filename", encodeURIComponent(fileName))
-                                    .addQuery("username", response.data.ddr.username);
+                                    .addQuery("username", response.ddr.username);
 
                                 $http({
                                     method: 'GET',
-                                    url: uploadUri,
+                                    url: uploadUri.toString(),
                                     contentType: "application/json",
                                     headers: {'Accept': "application/json"}
                                 }).then(
                                     function (response)
                                     {
-                                        if (response.upload_id != null)
+                                        if (response.data != null && response.data.upload_id != null)
                                         {
                                             ticketPromise.resolve(response.data.upload_id);
                                         }
@@ -96,7 +85,7 @@ angular.module('dendroApp.services')
                                     ticketPromise.reject(error);
                                 });
                             }
-                            catch(e)
+                            catch (e)
                             {
                                 ticketPromise.reject("Invalid response format received from server");
                             }
@@ -107,6 +96,14 @@ angular.module('dendroApp.services')
                         });
 
                     return ticketPromise.promise;
+                }
+
+                this.calculate_md5 = function (file, callback)
+                {
+                    browserMD5File(file, function (err, md5)
+                    {
+                        callback(err, md5); // 97027eb624f85892c69c4bcec8ab0f11
+                    });
                 }
             }
         ]

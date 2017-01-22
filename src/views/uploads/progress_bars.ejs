@@ -25,7 +25,7 @@
                     <button class="btn btn-sm btn-primary" ng-click="restart(f);f.upload.aborted=false"
                             ng-show="isResumeSupported && f.upload != null && (f.progress == 100 || f.upload.aborted)"><i class="fa fa-repeat"></i> Repeat
                     </button>
-                    <b>{{f.name}}</b> - size: {{f.size}}B - type: {{f.type}}
+                    <b>{{f.name}}</b> - size: {{f.size}}B - type: {{f.type}} - <span class="badge badge-info" ng-show="f.md5 != null">checksum: {{f.md5}}</span>
                 </div>
             </div>
             <br/>

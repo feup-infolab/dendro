@@ -1360,7 +1360,6 @@ async.waterfall([
         //downloads and uploads on files and folders (data)
         app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
             async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
-            multipartyMiddleware,
             function(req,res, next)
             {
                 req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";

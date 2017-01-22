@@ -34,57 +34,60 @@ angular.module('dendroApp.controllers')
         $scope.invalidFiles = [];
 
         // make invalidFiles array for not multiple to be able to be used in ng-repeat in the ui
-        $scope.$watch('invalidFiles', function (invalidFiles)
-        {
-            if (invalidFiles != null && !angular.isArray(invalidFiles))
-            {
-                $timeout(function ()
-                {
-                    $scope.invalidFiles = [invalidFiles];
-                });
+        $scope.$watch('invalidFiles', function (invalidFiles) {
+            if (invalidFiles != null && !angular.isArray(invalidFiles)) {
+                $timeout(function () {$scope.invalidFiles = [invalidFiles];});
             }
         });
 
-        $scope.$watch('files', function (files)
-        {
+        $scope.$watch('files', function (files) {
             $scope.formUpload = false;
-            if (files != null)
-            {
+            if (files != null) {
                 // make files array for not multiple to be able to be used in ng-repeat in the ui
-                if (!angular.isArray(files))
-                {
-                    $timeout(function ()
-                    {
+                if (!angular.isArray(files)) {
+                    $timeout(function () {
                         $scope.files = files = [files];
                     });
                     return;
                 }
-                for (var i = 0; i < files.length; i++)
-                {
+                for (var i = 0; i < files.length; i++) {
                     $scope.errorMsg = null;
-                    (function (f)
+
+                    function doUpload(file)
                     {
-                        $scope.upload(f, true);
-                    })(files[i]);
+                        (function (f) {
+                            $scope.upload(f.f, true);
+                        })({f : file.f});
+                    }
+
+                    var file = {f :files[i]};
+                    uploadsService.calculate_md5(file.f, function(err, md5){
+                        if(!err)
+                        {
+                            file.f.md5 = md5;
+                            doUpload(file);
+                        }
+                        else
+                        {
+                            windowService.show_popup('info', 'Unable to calculate checksum of file ' + file.name);
+                            doUpload(file);
+                        }
+                    });
                 }
             }
         });
 
-        $scope.uploadPic = function (file)
-        {
+        $scope.uploadPic = function (file) {
             $scope.formUpload = true;
-            if (file != null)
-            {
+            if (file != null) {
                 $scope.upload(file);
             }
         };
 
-        $scope.upload = function (file, resumable)
-        {
-            $scope.errorMsg = null;
-
+        $scope.upload = function (file, resumable) {
             function startUpload()
             {
+                $scope.errorMsg = null;
                 if ($scope.howToSend === 1)
                 {
                     uploadUsingUpload(file, resumable);
@@ -94,123 +97,112 @@ angular.module('dendroApp.controllers')
                 }
             }
 
-            if(file.upload_id == null)
-            {
-                console.log("Getting new upload ticket for file " + file.name);
-                uploadsService.getUploadTicket(file.name, $scope.upload_url)
-                    .then(function (upload_id)
+            console.log("Getting new upload ticket for file " + file.name);
+            uploadsService.getUploadTicket(file.name, $scope.upload_url)
+                .then(function (upload_id)
+                {
+                    file.upload_id = upload_id;
+                    if(file.username == null)
                     {
-                        file.upload_id = upload_id;
+                        usersService.get_logged_user()
+                            .then(function(user){
+                                file.username = user.ddr.username;
+                                startUpload();
+                            })
+                            .catch(function(error){
+                                windowService.show_popup('error', "Error", "Unable to retrieve the currently logged in user.");
+                                console.log(error);
+                            });
+                    }
+                    else
+                    {
                         startUpload();
-                    })
-                    .catch(function(error){
-                        windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
-                    });
-            }
-            else
-            {
-                startUpload();
-            }
+                    }
+                })
+                .catch(function(error){
+                    windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
+                    console.error(error);
+                });
         };
 
         $scope.isResumeSupported = Upload.isResumeSupported();
 
-        $scope.restart = function (file)
-        {
-            //Clear ticker
-            file.upload_id = null;
-            $scope.upload(file, true);
+        $scope.restart = function (file) {
+            if (Upload.isResumeSupported()) {
+
+                var resumeUrl = URI($scope.upload_url)
+                    .addSearch("restart", "true")
+                    .addSearch("filename", encodeURIComponent(file.name)).toString();
+
+                $http.get(resumeUrl).then(function () {
+                    $scope.upload(file, true);
+                });
+            } else {
+                $scope.upload(file);
+            }
         };
 
-        $scope.chunkSize = 10000;
+        $scope.chunkSize = 1000000; // 1MB min chunk size
         function uploadUsingUpload(file, resumable)
         {
-            var url = URI($scope.upload_url).addSearch($scope.getReqParams()).toString();
+            var url = URI($scope.upload_url)
+                .addSearch("filename", encodeURIComponent(file.name))
+                .addSearch("upload_id", encodeURIComponent(file.upload_id))
+                .addSearch("username", encodeURIComponent(file.username))
+                .addSearch($scope.getReqParams()).toString();
 
-            if(file.upload_id != null)
-            {
-                console.log("Continuing upload " + file.upload_id);
-
-                var resumeUrlObject = URI($scope.resume_url)
-                    .addSearch($scope.getReqParams())
-                    .addSearch("filename", encodeURIComponent(file.name))
-                    .addSearch("upload_id", encodeURIComponent(file.upload_id));
-
-                var resumeUrl = resumeUrlObject.toString();
-            }
-            else
-            {
-                console.log("Starting a new upload because we do not have any previous id.");
-            }
+            var resumeUrl = URI($scope.upload_url)
+                .addSearch("resume", "true")
+                .addSearch("upload_id", encodeURIComponent(file.upload_id))
+                .addSearch("username", encodeURIComponent(file.username))
+                .addSearch("filename", encodeURIComponent(file.name)).toString();
 
             file.upload = Upload.upload({
                 url: url,
                 resumeSizeUrl: resumable ? resumeUrl : null,
                 resumeChunkSize: resumable ? $scope.chunkSize : null,
                 headers: {
-                    'Content-Type': file.type,
-                    'Accept' : "application/json"
+                    'optional-header': 'header-value'
                 },
-                data: {
-                    file: file
-                }
-            }).then(function (response)
-            {
-                file.upload_id = response.data.upload_id;
-                console.log("Upload ID: " + file.upload_id);
+                data: {username: $scope.username, file: file}
+            });
 
-                $timeout(function ()
-                {
+            file.upload.then(function (response) {
+                $timeout(function () {
                     file.result = response.data;
-                    file.upload_id = response.data.upload_id;
-                    console.log("Upload ID : " + file.upload_id);
                 });
-            }, function (response)
-            {
-                if (response.status != 200)
-                {
+            }, function (response) {
+                if (response.status > 0)
                     $scope.errorMsg = response.status + ': ' + response.data;
-                }
-                else
-                {
-                    file.upload_id = response.data.upload_id;
-                    console.log("Upload ID: " + file.upload_id);
-                }
-            }, function (evt)
-            {
+            }, function (evt) {
                 // Math.min is to fix IE which reports 200% sometimes
                 file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                console.log(file.progress);
+            });
+
+            file.upload.xhr(function (xhr) {
+                // xhr.upload.addEventListener('abort', function(){console.log('abort complete')}, false);
             });
         }
 
-        function uploadUsing$http(file)
-        {
-            var url = URI($scope.upload_url).addSearch($scope.getReqParams()).toString();
-
+        function uploadUsing$http(file) {
             file.upload = Upload.http({
-                url: url,
+                url: $scope.upload_url + $scope.getReqParams(),
                 method: 'POST',
                 headers: {
-                    'Content-Type': file.type,
-                    'Accept' : "application/json"
+                    'Content-Type': file.type
                 },
                 data: file
             });
 
-            file.upload.then(function (response)
-            {
+            file.upload.then(function (response) {
                 file.result = response.data;
-            }, function (response)
-            {
+            }, function (response) {
                 if (response.status > 0)
                     $scope.errorMsg = response.status + ': ' + response.data;
             });
 
-            file.upload.progress(function (evt)
-            {
+            file.upload.progress(function (evt) {
                 file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-                console.log(evt.loaded);
             });
         }
 
@@ -227,9 +219,15 @@ angular.module('dendroApp.controllers')
             '&errorMessage=' + $scope.serverErrorMsg : '';
         };
 
+        angular.element(window).bind('dragover', function (e) {
+            e.preventDefault();
+        });
+        angular.element(window).bind('drop', function (e) {
+            e.preventDefault();
+        });
+
         $scope.modelOptionsObj = {};
-        $scope.$watch('validate+dragOverClass+modelOptions+resize+resizeIf', function (v)
-        {
+        $scope.$watch('validate+dragOverClass+modelOptions+resize+resizeIf', function (v) {
             $scope.validateObj = eval('(function(){return ' + $scope.validate + ';})()');
             $scope.dragOverClassObj = eval('(function(){return ' + $scope.dragOverClass + ';})()');
             $scope.modelOptionsObj = eval('(function(){return ' + $scope.modelOptions + ';})()');
@@ -237,8 +235,7 @@ angular.module('dendroApp.controllers')
             $scope.resizeIfFn = eval('(function(){var fn = function($file, $width, $height){return ' + $scope.resizeIf + ';};return fn;})()');
         });
 
-        $timeout(function ()
-        {
+        $timeout(function () {
             $scope.howToSend = localStorage.getItem('howToSend') || 1; //1- multipart/form-data upload cross browser  . 2 - Upload.http(): binary content with file's Content-Type Can be used to upload files directory into CouchDB, imgur, etc... without multipart form data (HTML5 FileReader browsers only)
             $scope.capture = localStorage.getItem('capture') || 'camera';
             $scope.pattern = localStorage.getItem('pattern') || '*'; //'image/*,audio/*,video/*';
