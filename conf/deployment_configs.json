@@ -64,7 +64,8 @@
         "password": "adminteste123",
         "firstname" : "Dendro",
         "surname" : "Administrator",
-        "mbox" : "admin@dendro.fe.up.pt"
+        "mbox" : "admin@dendro.fe.up.pt",
+        "score" : "1000"
       }
     ],
     "demo_mode" :
@@ -78,101 +79,96 @@
           "firstname" : "Dendro",
           "surname" : "Demo User",
           "mbox" : "demouser@dendro.fe.up.pt",
-          "score": "4589"
+          "score": "3990"
+        },
+        {
+          "username": "demouser2",
+          "password": "demouserpassword2015",
+          "firstname" : "Dendro",
+          "surname" : "Demo User 2",
+          "mbox" : "demouser2@dendro.fe.up.pt",
+          "score": "4000"
+        },
+        {
+          "username": "demouser3",
+          "password": "demouserpassword2015",
+          "firstname" : "Dendro",
+          "surname" : "Demo User 3",
+          "mbox" : "demouser3@dendro.fe.up.pt",
+          "score": "1400"
         }
       ]
     },
     "medaltypes" : [
       {
         "title": "Beginner",
-        "description": "blablabla",
+        "description": "Register on the system",
         "material" : "Bronze",
         "numActions" : "1",
         "objectType" : "Signup"
       },
       {
         "title": "Creator",
-        "description": "blablabla",
+        "description": "Create the first project",
         "material" : "Bronze",
         "numActions" : "1",
         "objectType" : "Project"
       },
       {
         "title": "Amateur",
-        "description": "blablabla",
+        "description": "Fill the first descriptor",
         "material" : "Bronze",
         "numActions" : "1",
         "objectType" : "Descriptor"
       },
       {
         "title": "Sociable",
-        "description": "blablabla",
+        "description": "Get 10 feedbacks (positive - negative)",
         "material" : "Bronze",
-        "numActions" : "50",
+        "numActions" : "10",
         "objectType" : "Rating"
       },
       {
-        "title": "Generous",
-        "description": "blablabla",
-        "material" : "Bronze",
-        "numActions" : "5",
-        "objectType" : "Flag"
-      },
-      {
         "title": "Disciplined",
-        "description": "blablabla",
+        "description": "Fill 10 descriptors",
         "material" : "Silver",
-        "numActions" : "50",
+        "numActions" : "10",
         "objectType" : "Descriptor"
       },
       {
         "title": "Famous",
-        "description": "blablabla",
+        "description": "Get 100 feedbacks (positive - negative)",
         "material" : "Silver",
-        "numActions" : "200",
+        "numActions" : "100",
         "objectType" : "Rating"
 
       },
       {
         "title": "Pro-active",
-        "description": "blablabla",
+        "description": "Create 5 projects",
         "material" : "Silver",
         "numActions" : "5",
         "objectType" : "Project"
       },
       {
-        "title": "Friendly",
-        "description": "blablabla",
-        "material" : "Silver",
-        "numActions" : "20",
-        "objectType" : "Flag"
-      },
-      {
         "title": "Rockstar",
-        "description": "blablabla",
+        "description": "Get 1000 feedbacks (positive - negative)",
         "material" : "Gold",
         "numActions" : "1000",
         "objectType" : "Rating"
       },
       {
-        "title": "Gentleman",
-        "description": "blablabla",
-        "material" : "Gold",
-        "numActions" : "50",
-        "objectType" : "Flag"
-      },
-      {
         "title": "Enthusiastic",
-        "description": "blablabla",
+        "description": "Create 10 projects",
         "material" : "Gold",
         "numActions" : "10",
         "objectType" : "Project"
       },
       {
         "title": "Powerful",
-        "description": "blablabla",
+        "description": "Fill 50 descriptors",
         "material" : "Gold",
-        "numActions" : "100",
+        "numActions" : "50",
         "objectType" : "Descriptor"
       }
     ],
@@ -186,30 +182,86 @@
       {
         "objectType": "Project",
         "numActions": "0",
-        "hasUser": "http://127.0.0.1:3001/user/demouser1"
+        "belongsTo": "http://127.0.0.1:3001/user/demouser1"
       },
       {
         "objectType": "Descriptor",
         "numActions": "0",
-        "hasUser": "http://127.0.0.1:3001/user/demouser1"
+        "belongsTo": "http://127.0.0.1:3001/user/demouser1"
       }
     ,
       {
         "objectType": "Flag",
         "numActions": "0",
-        "hasUser": "http://127.0.0.1:3001/user/demouser1"
+        "belongsTo": "http://127.0.0.1:3001/user/demouser1"
       }
     ,
       {
         "objectType": "Rating",
-        "numActions": "0",
-        "hasUser": "http://127.0.0.1:3001/user/demouser1"
+        "numActions": "600",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser1"
       }
     ,
       {
         "objectType": "Signup",
         "numActions": "1",
-        "hasUser": "http://127.0.0.1:3001/user/demouser1"
+        "belongsTo": "http://127.0.0.1:3001/user/demouser1"
+      },
+      {
+        "objectType": "Project",
+        "numActions": "0",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser2"
+      },
+      {
+        "objectType": "Descriptor",
+        "numActions": "0",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser2"
+      }
+    ,
+      {
+        "objectType": "Flag",
+        "numActions": "0",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser2"
+      }
+    ,
+      {
+        "objectType": "Rating",
+        "numActions": "1040",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser2"
+      }
+    ,
+      {
+        "objectType": "Signup",
+        "numActions": "1",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser2"
+      },
+      {
+        "objectType": "Project",
+        "numActions": "0",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser3"
+      },
+      {
+        "objectType": "Descriptor",
+        "numActions": "0",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser3"
+      }
+    ,
+      {
+        "objectType": "Flag",
+        "numActions": "0",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser3"
+      }
+    ,
+      {
+        "objectType": "Rating",
+        "numActions": "250",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser3"
+      }
+    ,
+      {
+        "objectType": "Signup",
+        "numActions": "1",
+        "belongsTo": "http://127.0.0.1:3001/user/demouser3"
       }
     ],
 

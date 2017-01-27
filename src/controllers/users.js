@@ -33,6 +33,13 @@ exports.all = function (req, res) {
 
     User.all(function (err, users) {
         if (!err) {
+            users.sort(function(a, b){
+                var keyA = a.gm.score,
+                    keyB = b.gm.score;
+                if(keyA > keyB) return -1;
+                if(keyA < keyB) return 1;
+                return 0;
+            });
             viewVars.users = users;
             res.render('users/all',
                 viewVars

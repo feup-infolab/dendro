@@ -198,7 +198,7 @@ exports.thumb = function (req, res) {
                                         hasResource: uri,
                                         score: scoreBeforeUpdate,
                                         delta: deltaValue,
-                                        hasUser: req.session.user.uri
+                                        belongsTo: req.session.user.uri
                                     }
                                 });
 
@@ -339,7 +339,7 @@ var getFeedbacks = function (uri,user, cb) {
         "WHERE { \n" +
         "?feedbackURI rdf:type gm:Feedback. \n" +
         "?feedbackURI gm:hasResource [1]. \n" +
-        "?feedbackURI gm:hasUser [2]. \n" +
+        "?feedbackURI gm:belongsTo [2]. \n" +
         "}";
 
 
@@ -475,7 +475,7 @@ var userRatesAlready = function (uri, descriptor, delta, user, callback) {
         "?feedback rdf:type gm:Feedback.\n" +
         "?feedback gm:hasResource [1].\n" +
         "?feedback gm:hasDescriptor [2].\n" +
-        "?feedback gm:hasUser [3].\n" +
+        "?feedback gm:belongsTo [3].\n" +
         "?feedback gm:delta ?delta.\n" +
         "}";
 
@@ -514,92 +514,6 @@ var userRatesAlready = function (uri, descriptor, delta, user, callback) {
                         sameRate=true;
                     }
 
-                   /* if(results[0].delta!=delta)
-                    {
-                        skipRating=true;
-                        console.log("Mas não votou assim");
-                        getRatings(uri,function (err,foundRating) {
-                            if(!err)
-                            {
-                                Rating.findByUri(foundRating[0].uri,function (err,rating) {
-                                    if(!err)
-                                    {
-                                        console.log(rating.gm.score);
-                                        rating.gm.score=rating.gm.score-(2*results[0].delta);
-                                        console.log(rating.gm.score);
-                                        rating.save(function(err,result){
-                                            if(!err)
-                                            {
-                                                console.log(results[0].feedback);
-                                                Feedback.findByUri(results[0].feedback,function(err,feedback){
-                                                    if(!err)
-                                                    {
-                                                        feedback.deleteAllMyTriples(function (err,result) {
-                                                            if(!err)
-                                                            {
-                                                                var newFeedback = new Feedback({
-                                                                    gm: {
-                                                                        hasDescriptor: descriptor,
-                                                                        hasResource: uri,
-                                                                        score: rating.gm.score+results[0].delta,
-                                                                        delta: -results[0].delta,
-                                                                        hasUser: user
-                                                                    }
-                                                                });
-
-                                                                newFeedback.save(function (err, result) {
-                                                                    if(!err)
-                                                                    {
-                                                                        DescriptorLastEditor(uri, descriptor, results[0].delta, true, function (err, result) {
-
-                                                                        });
-                                                                    }
-                                                                    else
-                                                                    {
-
-                                                                    }
-                                                                });
-
-
-                                                            }
-                                                            else
-                                                            {
-
-                                                            }
-
-                                                        });
-                                                    }
-                                                    else
-                                                    {
-
-                                                    }
-                                                });
-                                            }
-                                            else
-                                            {
-
-                                            }
-                                        });
-                                    }
-                                    else
-                                    {
-
-                                    }
-
-                                });
-
-                            }
-                            else
-                            {
-
-                            }
-
-                        },descriptor)
-                    }
-                    else
-                    {
-                        userRates=true;
-                    }*/
 
                     callback(false, userRates, sameRate,results[0].feedback);
                 }

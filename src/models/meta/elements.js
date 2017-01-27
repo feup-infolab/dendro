@@ -2437,16 +2437,8 @@ Elements.gm = {
     objectType: {
         type: DbConnection.string,
         control: Config.controls.url_box
-    },
-    hasMedal: {
-        type: DbConnection.resource,
-        control: Config.controls.url_box
     }
     ,
-    hasUser: {
-        type: DbConnection.resource,
-        control: Config.controls.url_box
-    },
     hasDescriptor: {
         type: DbConnection.resource,
         control: Config.controls.url_box

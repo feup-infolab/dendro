@@ -437,7 +437,6 @@ exports.show = function (req, res) {
 };
 
 exports.new = function (req, res) {
-    var winMessage="";
     if (req.originalMethod == "GET") {
         res.render('projects/new',
             {
@@ -513,113 +512,161 @@ exports.new = function (req, res) {
 
                         Project.createAndInsertFromObject(projectData, function (err, result) {
 
+
+
                             if (!err) {
-                                User.findByUri(projectData.dcterms.creator, function (err, user) {
-
-
-                                    if (!err) {
-                                        if (user == null) {
-                                            //everything ok, user simply does not exist
-
-                                        }
-                                        else {
-                                            console.log("[INFO] User with username " + user.ddr.username + " found...");
+                                async.waterfall([function(callback)
+                                    {
+                                        User.findByUri(projectData.dcterms.creator, function (err, user){
+                                            if(!err)
+                                            {
+                                                if (user == null) {
+                                                    //everything ok, user simply does not exist
+                                                    callback(null);
+                                                }
+                                                else
+                                                {
+                                                    callback(null,user);
+                                                }
+                                            }
+                                            else
+                                            {
+                                                callback(err);
+                                            }
+                                        });
+                                    },
+                                        function(user,callback){
+                                            console.log("Tudo ok com o user"  + user.ddr.username);
                                             user.countProjects(function (err, projectCount) {
-                                                console.log("Number of projects: " + projectCount);
-                                                Progress.findByUserAndType(user.uri, 'Project', function (err, progress) {
-                                                        if (!err) {
-                                                            progress.update(projectCount,function(err,result){
-                                                                MedalType.all(function(err,medaltypes)
-                                                                    {
-                                                                        if(!err)
-                                                                        {
-                                                                            Medal.allByUser(user.ddr.username,function(err,userMedals)
-                                                                            {
-                                                                                for(var i=0;i<medaltypes.length;i++)
-                                                                                {
-                                                                                    if(medaltypes[i].gm.objectType=="Project")
-                                                                                    {
-                                                                                        if(progress.gm.numActions>=medaltypes[i].gm.numActions)
-                                                                                        {
-                                                                                            var alreadyHave=false;
-                                                                                            for(var j=0;j<userMedals.length;j++)
-                                                                                            {
-                                                                                                if(userMedals[j].gm.hasType==medaltypes[i].uri)
-                                                                                                {
-                                                                                                    alreadyHave=true;
-                                                                                                }
-                                                                                            }
-                                                                                            if(alreadyHave==false)
-                                                                                            {
-                                                                                                var medalData = {
-                                                                                                    gm: {
-                                                                                                        hasType: medaltypes[i].uri,
-                                                                                                        belongsTo: user.uri
-                                                                                                    }
-                                                                                                };
-                                                                                                Medal.createAndInsertFromObject(medalData,function(err,insertMedal){
-
-                                                                                                    if(!err)
-                                                                                                    {
-                                                                                                        MedalType.findByUri(medalData.gm.hasType,function(err,medaltypedetails)
-                                                                                                        {
-                                                                                                            if(!err)
-                                                                                                            {
-
-                                                                                                                winMessage= "You win a " + medaltypedetails.gm.material + " medal " + medaltypedetails.dcterms.title + " because you had created "+medaltypedetails.gm.numActions+" projects";
-
-                                                                                                            }
-                                                                                                            else
-                                                                                                            {
-                                                                                                                console.log("Não entrou");
-                                                                                                            }
-                                                                                                        });
-
-                                                                                                    }
-                                                                                                    else
-                                                                                                    {
-
-                                                                                                    }
-
-                                                                                                });
-
-
-                                                                                            }
-
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                        else
-                                                                        {
-
-                                                                        }
-                                                                    }
-                                                                );
-
-                                                                console.log(result);
-                                                            })
+                                                if(!err)
+                                                {
+                                                    callback(null,projectCount,user);
+                                                }
+                                                else
+                                                {
+                                                    callback(err);
+                                                }
+                                            });
+                                        },
+                                        function(projectCount,user,callback){
+                                            console.log("Tudo ok com o projectcount "  + projectCount );
+                                            Progress.findByUserAndType(user.uri,"Project",function (err, progress) {
+                                                if(!err)
+                                                {
+                                                    callback(null,projectCount,user,progress);
+                                                }
+                                                else
+                                                {
+                                                    callback(err);
+                                                }
+                                            });
+                                        },
+                                        function(projectCount,user,progress,callback){
+                                            progress.update(projectCount,function (err, result) {
+                                                if(!err)
+                                                {
+                                                    callback(null,user,progress);
+                                                }
+                                                else
+                                                {
+                                                    callback(err);
+                                                }
+                                            });
+                                        },
+                                        function(user,progress,callback){
+                                            MedalType.all(function (err, medaltypes) {
+                                                if(!err)
+                                                {
+                                                    Medal.allByUser(user.ddr.username,function(err,medals)
+                                                    {
+                                                        if(!err)
+                                                        {
+                                                            callback(null,user,progress,medaltypes,medals);
                                                         }
                                                         else
                                                         {
 
                                                         }
+                                                    });
+
+                                                }
+                                                else
+                                                {
+                                                    callback(err);
+                                                }
+                                            });
+                                        },
+                                        function(user,progress,medaltypes,medals,callback){
+                                            var messages= [];
+                                            async.map(medaltypes,function(medaltype,cb){
+                                                if(progress.gm.numActions>=medaltype.gm.numActions && medaltype.gm.objectType=="Project")
+                                                {
+
+                                                    var alreadyHave=false;
+                                                    async.map(medals,function (medal) {
+                                                        if(medal.gm.hasType==medaltype.uri)
+                                                        {
+                                                            alreadyHave=true;
+                                                        }
+                                                    },function(err, result) {
+
+                                                    });
+
+                                                    if(alreadyHave==false)
+                                                    {
+                                                        var medalData = {
+                                                            gm: {
+                                                                hasType: medaltype.uri,
+                                                                belongsTo: user.uri
+                                                            }
+                                                        };
+
+                                                        messages.push("You win a "+medaltype.gm.material+" medal: "+medaltype.dcterms.title);
+
+                                                        Medal.createAndInsertFromObject(medalData,function(err,insertMedal){
+
+                                                            if(!err)
+                                                            {
+
+
+                                                            }
+                                                            else
+                                                            {
+
+                                                            }
+
+                                                        });
 
 
                                                     }
-                                                );
+                                                    else
+                                                    {
+
+                                                    }
+
+                                                }
+                                                cb(null);
+                                            },function(err, result) {
+                                                console.log(messages);
+                                                callback(null,messages);
                                             });
 
-                                        }
-                                    }
-                                    else {
-                                        console.log("[ERROR] Unable to know the number of projects of user " + username + ". Error: " + user);
-                                    }
-                                });
 
-                               req.flash('success', "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
-                               res.redirect('/projects/my');
+                                        },
+                                        function(messages,callback)
+                                        {
+                                            for(var i=0; i<messages.length;i++)
+                                            {
+                                                req.flash('success', messages[i]);
+
+                                            }
+                                            req.flash('success', "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
+                                            res.redirect('/projects/my');
+                                            callback(null);
+                                        }]
+                                , function (err, result) {
+                                    console.log(result);
+                                });
                             }
                             else {
                                 res.render('index',

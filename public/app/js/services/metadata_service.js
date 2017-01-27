@@ -199,6 +199,14 @@ angular.module('dendroApp.factories')
                 }).then(function (response)
                     {
                         var data = response.data;
+                        console.log(response.data.message)
+                        var medalmessages =response.data.medalmessages;
+                        for(var i=0;i<medalmessages.length;i++)
+                        {
+                            windowService.show_popup("success","Congratulations", medalmessages[i]);
+                        }
+
+
                         deferred.resolve(data);
                     }
                 ).catch(function(error)

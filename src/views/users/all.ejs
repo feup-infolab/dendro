@@ -19,11 +19,51 @@
         <th>
             Score
         </th>
+        <th>
+            Reputation
+        </th>
     </tr>
     <% for(var i=0; i < locals.users.length; i++)
     {
         var user = locals.users[i];
-        console.log(user);
+
+        var level = "";
+        var nextlevel = "";
+        var percentage = 0;
+
+
+        switch (true) {
+            case (0 < user.gm.score && user.gm.score < 1000):
+                level = "Baby";
+                nextlevel = "Children";
+                percentage = (user.gm.score / 1000) * 100;
+                break;
+            case (1000 <= user.gm.score && user.gm.score < 2000):
+                level = "Children";
+                nextlevel = "Student";
+                percentage = ((user.gm.score - 1000) / 1000) * 100;
+                break;
+            case (2000 <= user.gm.score && user.gm.score < 3000):
+                level = "Student";
+                nextlevel = "Graduate";
+                percentage = ((user.gm.score - 2000) / 1000) * 100;
+                break;
+            case (3000 <= user.gm.score && user.gm.score < 4000):
+                level = "Graduate";
+                nextlevel = "Researcher";
+                percentage = ((user.gm.score - 3000) / 1000) * 100;
+                break;
+            case (4000 <= user.gm.score && user.gm.score < 5000):
+                level = "Researcher";
+                nextlevel = "Nobel Prize";
+                percentage = ((user.gm.score - 4000) / 1000) * 100;
+                break;
+            case (5000 <= user.gm.score ):
+                level = "Nobel Prize";
+                break;
+        }
+
+        percentage = Math.round(percentage);
     %>
     <tr>
         <td>
@@ -39,6 +79,9 @@
         </td>
         <td>
             <b><%= user.gm.score %></b>
+        </td>
+        <td>
+            <b><%= level %> <%if(level=="Nobel Prize") {%> (On the top!) <% } else { %> (<%=percentage%>% to <%=nextlevel%>) <%}%></b>
         </td>
     </tr>
     <% } %>

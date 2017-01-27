@@ -40,7 +40,7 @@ Progress.findByUserAndType= function(user, typeProgress, callback)
         "WHERE \n" +
         "{ \n" +
         "?uri gm:objectType [1]. \n" +
-        "?uri gm:hasUser [2]. \n" +
+        "?uri gm:belongsTo [2]. \n" +
         "?uri rdf:type gm:Progress.\n" +
         "} \n" ,
         [

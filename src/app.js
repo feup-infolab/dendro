@@ -583,8 +583,7 @@ async.waterfall([
                                         password: user.password
                                     },
                                     gm: {
-                                        score: user.score,
-                                        hasMedal: user.hasMedal
+                                        score: user.score
                                     }
                                 },
                                 function (err, newUser) {
@@ -638,6 +637,7 @@ async.waterfall([
                             var mbox = newAdministrator.mbox;
                             var firstname = newAdministrator.firstname;
                             var surname = newAdministrator.surname;
+                            var score = newAdministrator.score;
 
                             User.findByUsername(username, function (err, user) {
 
@@ -658,6 +658,9 @@ async.waterfall([
                                             ddr: {
                                                 username: username,
                                                 password: password
+                                            },
+                                            gm: {
+                                                score: score
                                             }
                                         },
                                         function (err, newUser) {
@@ -831,7 +834,8 @@ async.waterfall([
     },
     function (callback) {
 
-
+        var Medal = require(Config.absPathInSrcFolder("/models/game/medal.js")).Medal;
+        var MedalType = require(Config.absPathInSrcFolder("/models/game/medal_type.js")).MedalType;
         var Progress = require(Config.absPathInSrcFolder("/models/game/progress.js")).Progress;
         var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
@@ -841,7 +845,7 @@ async.waterfall([
                 },
                 function (callback) {
                     var createProgress= function (progress, callback) {
-                        User.findByUri(progress.hasUser,function (err,user) {
+                        User.findByUri(progress.belongsTo,function (err,user) {
                             user.countProjects(function(err,numProjects)
                             {
                              if(!err)
@@ -867,11 +871,79 @@ async.waterfall([
                                                  gm: {
                                                      objectType: progress.objectType,
                                                      numActions: numActions,
-                                                     hasUser: progress.hasUser
+                                                     belongsTo: progress.belongsTo
                                                  }
                                              },
                                              function (err, newProgress) {
                                                  if (!err && newProgress != null) {
+                                                     MedalType.all(function(err,medaltypes)
+                                                         {
+                                                             if(!err)
+                                                             {
+                                                                 Medal.allByUser(user.ddr.username,function(err,userMedals)
+                                                                 {
+                                                                     async.map(medaltypes,function (medaltype,callback) {
+                                                                             if(newProgress.gm.numActions>=medaltype.gm.numActions && newProgress.gm.objectType== medaltype.gm.objectType)
+                                                                             {
+
+                                                                                 var alreadyHave=false;
+                                                                                 for(var j=0;j<userMedals.length;j++)
+                                                                                 {
+                                                                                     if(userMedals[j].gm.hasType==medaltype.uri)
+                                                                                     {
+                                                                                         alreadyHave=true;
+                                                                                     }
+                                                                                 }
+                                                                                 if(alreadyHave==false)
+                                                                                 {
+                                                                                     var medalData = {
+                                                                                         gm: {
+                                                                                             hasType: medaltype.uri,
+                                                                                             belongsTo: user.uri
+                                                                                         }
+                                                                                     };
+                                                                                     Medal.createAndInsertFromObject(medalData,function(err,insertMedal){
+
+                                                                                         if(!err)
+                                                                                         {
+                                                                                             MedalType.findByUri(medalData.gm.hasType,function(err,medaltypedetails)
+                                                                                             {
+                                                                                                 if(!err)
+                                                                                                 {
+
+
+                                                                                                 }
+                                                                                                 else
+                                                                                                 {
+                                                                                                     console.log("Não entrou");
+                                                                                                 }
+                                                                                             });
+
+                                                                                         }
+                                                                                         else
+                                                                                         {
+
+                                                                                         }
+
+                                                                                     });
+
+
+                                                                                 }
+                                                                                 callback(null, null);
+                                                                             }
+
+                                                                     }, function(err, results){
+                                                                         callback(err, results);
+                                                                     });
+
+                                                                 });
+                                                             }
+                                                             else
+                                                             {
+
+                                                             }
+                                                         }
+                                                     );
                                                      callback(null, newProgress);
                                                  }
                                                  else {
