@@ -16,6 +16,11 @@ else
     Config.appDir = path.resolve(path.dirname(require.main.filename), "..");
 }
 
+Config.absPathInApp = function(relativePath)
+{
+    return path.join(Config.appDir, relativePath);
+};
+
 var configs_file_path = path.join(Config.appDir, "conf", "deployment_configs.json");
 var active_config_file_path = path.join(Config.appDir, "conf", "active_deployment_config.json");
 
@@ -81,7 +86,16 @@ Config.maxUploadSize = getConfigParameter("maxUploadSize");   //1000MB®
 Config.maxProjectSize = getConfigParameter("maxProjectSize");   //10000MB®
 Config.maxSimultanousConnectionsToDb = getConfigParameter("maxSimultanousConnectionsToDb");
 Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
-Config.tempFilesDir = getConfigParameter("tempFilesDir");
+
+if(path.isAbsolute(getConfigParameter("tempFilesDir")))
+{
+    Config.tempFilesDir = getConfigParameter("tempFilesDir");
+}
+else
+{
+    Config.tempFilesDir = Config.absPathInApp(getConfigParameter("tempFilesDir"));
+}
+
 Config.tempFilesCreationMode = getConfigParameter("tempFilesCreationMode");
 
 Config.administrators = getConfigParameter("administrators");
@@ -449,11 +463,6 @@ Config.absPathInPluginsFolder = function(relativePath)
 Config.absPathInSrcFolder = function(relativePath)
 {
     return path.join(Config.appDir, "src", relativePath);
-};
-
-Config.absPathInApp = function(relativePath)
-{
-    return path.join(Config.appDir, relativePath);
 };
 
 Config.getPathToPublicFolder = function()

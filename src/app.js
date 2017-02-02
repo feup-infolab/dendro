@@ -44,7 +44,7 @@ var async = require('async');
 var util = require('util');
 
 //create temporary uploads folder if not exists
-var tempUploadsFolder = Config.tempFilesDir+"/uploads";
+var tempUploadsFolder = Config.tempFilesDir;
 var fs = require('fs');
 try{
     fs.statSync(tempUploadsFolder).isDirectory();
@@ -89,7 +89,7 @@ if(Config.logging != null)
                     verbose: false
                 });
 
-                app.use(morgan({
+                app.use(morgan(Config.logging.format, {
                     format: Config.logging.format,
                     stream: accessLogStream
                 }));
@@ -116,7 +116,7 @@ if(Config.logging != null)
 
             if(!err)
             {
-                app.use(morgan({
+                app.use(morgan(Config.logging.format, {
                     format: Config.logging.format,
                     stream: accessLogStream
                 }));

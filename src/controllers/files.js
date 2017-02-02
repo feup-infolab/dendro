@@ -745,92 +745,91 @@ exports.upload = function(req, res)
             }
 
 
-            for (var i = 0; i < files.length; i++)
-            {
-                var file = files[i];
-                fileNames[i] = {
-                    name: file.name
-                };
+            async.map(files, function(file, callback) {
+                    fileNames[i] = {
+                        name: file.name
+                    };
 
-                var newFile = new File({
-                    nie: {
-                        title: file.name,
-                        isLogicalPartOf: requestedResourceURI
-                    }
-                });
+                    var newFile = new File({
+                        nie: {
+                            title: file.name,
+                            isLogicalPartOf: requestedResourceURI
+                        }
+                    });
 
-                var fs = require('fs');
+                    var fs = require('fs');
 
-                const md5File = require('md5-file')
+                    const md5File = require('md5-file')
 
-                /* Async usage */
-                md5File(file.path, (err, hash) => {
-                    if (!err)
-                    {
-                        newFile.loadFromLocalFile(file.path, function (err, result)
+                    /* Async usage */
+                    md5File(file.path, (err, hash) => {
+                        if (!err)
                         {
-                            if (err == null)
+                            newFile.loadFromLocalFile(file.path, function (err, result)
                             {
-                                newFile.save(function (err, result)
+                                if (err == null)
                                 {
-                                    if (err == null)
+                                    newFile.save(function (err, result)
                                     {
-                                        console.log("File " + newFile.uri + " is now saved in GridFS");
-                                        newFile.generateThumbnails(function (err, result)
+                                        if (err == null)
                                         {
-                                            if (!err)
+                                            console.log("File " + newFile.uri + " is now saved in GridFS");
+                                            newFile.generateThumbnails(function (err, result)
                                             {
-                                                res.json({
-                                                    result: "success",
-                                                    message: "File submitted successfully. Message returned : " + result,
-                                                    files: fileNames
-                                                });
-                                            }
-                                            else
-                                            {
-                                                res.json({
-                                                    result: "success",
-                                                    message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
-                                                    files: fileNames
-                                                });
-                                            }
-                                        });
-                                    }
-                                    else
-                                    {
-                                        res.status(500).json({
+                                                if (!err)
+                                                {
+                                                    res.json({
+                                                        result: "success",
+                                                        message: "File submitted successfully. Message returned : " + result,
+                                                        files: fileNames
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    res.json({
+                                                        result: "success",
+                                                        message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
+                                                        files: fileNames
+                                                    });
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            res.status(500).json({
+                                                result: "error",
+                                                message: "Error submitting file : " + result,
+                                                files: fileNames
+                                            });
+                                        }
+
+                                    });
+                                }
+                                else
+                                {
+                                    console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
+                                    res.status(500).json(
+                                        {
                                             result: "error",
-                                            message: "Error submitting file : " + result,
+                                            message: "Error saving the file : " + result,
                                             files: fileNames
                                         });
-                                    }
-
-                                });
-                            }
-                            else
-                            {
-                                console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
-                                res.status(500).json(
-                                    {
-                                        result: "error",
-                                        message: "Error saving the file : " + result,
-                                        files: fileNames
-                                    });
-                            }
-                        });
-                    }
-                    else
-                    {
-                        res.status(401).json(
-                            {
-                                result : "error",
-                                message : "Unable to calculate the checksum of the uploaded file: " + newFile.filename,
-                                error : result
+                                }
                             });
-                    }
-                })
+                        }
+                        else
+                        {
+                            res.status(401).json(
+                                {
+                                    result : "error",
+                                    message : "Unable to calculate the checksum of the uploaded file: " + newFile.filename,
+                                    error : result
+                                });
+                        }
+                    })
 
 
+                }
             }
         };
 
