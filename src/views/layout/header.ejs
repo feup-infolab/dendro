@@ -123,6 +123,29 @@
                         }
                         %>
                         <!--<li><a href="#">Link</a></li>-->
+                        <li class="dropdown">
+                            <%if(locals.session.user != null) { %>
+                            <div ng-controller="notificationCtrl">
+                                <div ng-init="init();getAlerts()" class="navbar-default">
+                                    <div>
+                                        <ul class="nav navbar-nav navbar-right">
+                                            <li>
+                                                <a class="alertPopover" href="#" ng-alerts-popover popover-placement="bottom-right">
+                                                    <ng-alerts-count badge="true" hide-empty="true"> </ng-alerts-count>
+                                                    notifications
+                                                </a>
+                                            </li>
+                                        </ul>
+
+                                    </div>
+                                    <div ng-repeat="notifUri in notifsUris">
+                                        <div ng-init="get_notification_info(notifUri.uri)">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <% } %>
+                        </li>
                     </ul>
                 </div><!-- /.navbar-collapse -->
             </div>

@@ -1,10 +1,12 @@
 <%- include ../layout/header.ejs %>
 
-<div>
+<div ng-controller="projectsCtrl" xmlns="http://www.w3.org/1999/html">
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
         <li role="presentation" class="active"><a href="#list" aria-controls="home" role="tab" data-toggle="tab">Projects list</a></li>
-        <!-- <li role="presentation" class="active"><a href="#timeline" aria-controls="profile" role="tab" data-toggle="tab">Timeline</a></li> -->
+        <li role="presentation"><a href="#timeline" ng-click="tab_changed('timeline')" aria-controls="profile" role="tab" data-toggle="tab">Timeline</a></li>
+        <!--<li role="presentation"><a href="#fileVersions" aria-controls="home" role="tab" data-toggle="tab">File versions timeline</a></li>-->
+        <li role="presentation"><a href="#fileVersions" ng-click="tab_changed('fileVersions')" aria-controls="home" role="tab" data-toggle="tab">File versions timeline</a></li>
     </ul>
     <div class="tab-content">
         <div role="tabpanel" class="tab-pane active" id="list">
@@ -135,10 +137,14 @@
                         <% }  %>
                 <% } %>
         </div>
-        <!--<div role="tabpanel" class="tab-pane active" id="timeline">
-            <%- include ../social/timeline.ejs %>
-        </div> -->
+        <div role="tabpanel" class="tab-pane" id="timeline" ng-controller="timelineCtrl" ng-init="init();get_logged_user();">
+           <% include ../social/timeline.ejs %>
+        </div>
+        <div role="tabpanel" class="tab-pane" id="fileVersions" ng-controller="fileVersionsCtrl" ng-init="init();get_logged_user();">
+            <%- include ../social/timelineFileVersions.ejs %>
+        </div>
 
 </div>
 <%- include ../layout/footer.ejs %>
 
+</div>

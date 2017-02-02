@@ -6,9 +6,9 @@ var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/fold
 var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
 var db = function() { return GLOBAL.db.default; }();
+var db_social = function() { return GLOBAL.db.social; }();
 
 exports.download = function(req, res){
     var self = this;
@@ -714,6 +714,7 @@ exports.upload = function(req, res)
     else if (req.originalMethod == "POST")
     {
         var requestedResourceURI = req.params.requestedResource;
+        var currentUserUri = req.session.user.uri;
 
         var processFiles = function ()
         {
@@ -776,45 +777,124 @@ exports.upload = function(req, res)
                                     if (err == null)
                                     {
                                         console.log("File " + newFile.uri + " is now saved in GridFS");
-                                        newFile.generateThumbnails(function (err, result)
+                                        newFile.connectToMongo(function (err, db)
                                         {
                                             if (!err)
                                             {
-                                                res.json({
-                                                    result: "success",
-                                                    message: "File submitted successfully. Message returned : " + result,
-                                                    files: fileNames
+                                                newFile.findFileInMongo(db, function (error, filesInfo)
+                                                {
+                                                    if (!error)
+                                                    {
+                                                        async.map(filesInfo, function (fileInfo, cb)
+                                                        {
+                                                            console.log('FileinfoFromMongo: ', fileInfo);
+                                                            var newFileVersion = new FileVersions({
+                                                                nfo: {
+                                                                    fileName: fileInfo.filename,
+                                                                    hashValue: fileInfo.md5,
+                                                                    hashAlgorithm: 'md5'
+                                                                },
+                                                                nie: {
+                                                                    contentLastModified: fileInfo.uploadDate,
+                                                                    byteSize: fileInfo.length
+                                                                },
+                                                                ddr: {
+                                                                    contentType: fileInfo.contentType,
+                                                                    chunkSize: fileInfo.chunkSize,
+                                                                    projectUri: fileInfo.metadata.project,
+                                                                    itemType: fileInfo.metadata.type,
+                                                                    creatorUri: currentUserUri
+                                                                }
+                                                            });
+
+                                                            newFileVersion.save(function (err, fileVersion)
+                                                            {
+                                                                if (!err)
+                                                                {
+                                                                    newFile.generateThumbnails(function (err, result)
+                                                                    {
+                                                                        if (!err)
+                                                                        {
+                                                                            res.json({
+                                                                                result: "success",
+                                                                                message: "File submitted successfully. Message returned : " + result,
+                                                                                files: fileNames
+                                                                            });
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            res.json({
+                                                                                result: "success",
+                                                                                message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
+                                                                                files: fileNames
+                                                                            });
+                                                                        }
+                                                                    });
+                                                                }
+                                                                else
+                                                                {
+                                                                    cb(true, fileVersion);
+                                                                }
+                                                            }, false, null, null, null, null, db_social.graphUri)
+                                                        }, function (err, allFilesInfo)
+                                                        {
+                                                            if (!err)
+                                                            {
+                                                                res.json({
+                                                                    result: "success",
+                                                                    message: "File submitted successfully. Message returned : " + result,
+                                                                    files: files
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+                                                                var msg = "Error saving file version";
+                                                                res.status(500).json({
+                                                                    result: "error",
+                                                                    message: msg
+                                                                });
+                                                            }
+                                                        });
+                                                    }
+                                                    else
+                                                    {
+                                                        res.status(500).json({
+                                                            result: "error",
+                                                            message: "Database error"
+                                                        });
+                                                    }
                                                 });
                                             }
                                             else
                                             {
-                                                res.json({
-                                                    result: "success",
-                                                    message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
-                                                    files: fileNames
+                                                res.status(500).json({
+                                                    result: "error",
+                                                    message: "Error submitting file : " + result,
+                                                    files: files
                                                 });
                                             }
                                         });
                                     }
                                     else
                                     {
-                                        res.status(500).json({
-                                            result: "error",
-                                            message: "Error submitting file : " + result,
-                                            files: fileNames
-                                        });
+                                        console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
+                                        res.status(500).json(
+                                            {
+                                                result: "error",
+                                                message: "Error saving the file : " + result,
+                                                files: fileNames
+                                            });
                                     }
-
                                 });
                             }
                             else
                             {
-                                console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
+                                console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
                                 res.status(500).json(
                                     {
                                         result: "error",
                                         message: "Error saving the file : " + result,
-                                        files: fileNames
+                                        files: files
                                     });
                             }
                         });
@@ -831,9 +911,7 @@ exports.upload = function(req, res)
                 })
             });
         }
-    }
-    ;
-
+    };
     if (upload != null)
     {
         var multiparty = require('multiparty');

@@ -445,7 +445,7 @@ DbConnection.addLimitsClauses = function(query, offset, maxResults)
         typeof offset == "number" &&
         offset > 0)
     {
-        query = query + " OFFSET " + startingResultPosition + "\n";
+        query = query + " OFFSET " + offset + "\n";
     }
 
     if(maxResults != null &&

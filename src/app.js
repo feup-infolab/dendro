@@ -307,44 +307,59 @@ async.waterfall([
     },
     function(callback) {
 
-        var redisConn = new RedisConnection(
-            Config.cache.redis.options,
-            Config.cache.redis.database_number
-        );
-
-        GLOBAL.redis.default.connection = redisConn;
-
         if(Config.cache.active)
         {
-            redisConn.openConnection(function(err, redisConn) {
-                if(err)
+            async.map(Config.cache.redis.instances, function(instance, callback){
+
+                var redisConn = new RedisConnection(
+                    instance.options,
+                    instance.database_number,
+                    instance.id
+                );
+
+                GLOBAL.redis[redisConn.id].connection = redisConn;
+
+                redisConn.openConnection(function(err, redisConn) {
+                    if(err)
+                    {
+                        console.log("[ERROR] Unable to connect to Redis instance with ID: " + instance.id + " running on " + instance.options.host + ":" + instance.options.port + " : " + err.message);
+                        process.exit(1);
+                    }
+                    else
+                    {
+                        console.log("[OK] Connected to Redis cache service with ID : " + redisConn.id + " running on " +  redisConn.host + ":" + redisConn.port);
+
+
+                        redisConn.deleteAll(function(err, result){
+                            if(!err)
+                            {
+                                console.log("[INFO] Deleted all cache records on Redis instance \""+ redisConn.id +"\" during bootup");
+                                callback(null);
+                            }
+                            else
+                            {
+                                console.log("[ERROR] Unable to delete all cache records on Redis instance \""+ instance.id +"\" during bootup");
+                                process.exit(1);
+                            }
+                        });
+                    }
+                });
+            }, function(err, results){
+                if(!err)
                 {
-                    console.log("[ERROR] Unable to connect to cache service running on " + Config.cache.redis.options.host + ":" + Config.cache.redis.options.port + " : " + err.message);
-                    process.exit(1);
+                    console.log("[INFO] All Redis instances are up and running!");
+                    callback(null);
                 }
                 else
                 {
-                    console.log("[OK] Connected to Redis cache service at " + Config.cache.redis.options.host + ":" + Config.cache.redis.options.port);
-
-
-                    redisConn.deleteAll(function(err, result){
-                        if(!err)
-                        {
-                            console.log("[INFO] Deleted all cache records during bootup.");
-                            callback(null);
-                        }
-                        else
-                        {
-                            console.log("[ERROR] Unable to delete all cache records during bootup");
-                            process.exit(1);
-                        }
-                    });
+                    console.log("[ERROR] Unable to setup Redis instances.");
+                    process.exit(1);
                 }
             });
         }
         else
         {
-            console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup...");
+            console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to cache server.");
             callback(null);
         }
     },
@@ -687,7 +702,7 @@ async.waterfall([
                 else
                 {
                     console.log("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
-                    callback(err, result);
+                    callback(err, user);
                 }
             });
         };
@@ -867,6 +882,8 @@ async.waterfall([
         var datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
         var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
         var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
+        var fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
+        var notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
 
@@ -1383,7 +1400,37 @@ async.waterfall([
 
         //      social
         app.get('/posts/all', async.apply(Permissions.require, [Permissions.acl.user]), posts.all);
+        app.post('/posts/post', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPost_controller);
         app.post('/posts/new', async.apply(Permissions.require, [Permissions.acl.user]), posts.new);
+        app.post('/posts/like', async.apply(Permissions.require, [Permissions.acl.user]), posts.like);
+        app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.acl.user]), posts.checkIfPostIsLikedByUser);
+        app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.acl.user]), posts.postLikesInfo);
+        app.post('/posts/comment', async.apply(Permissions.require, [Permissions.acl.user]), posts.comment);
+        app.post('/posts/comments', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostComments);
+        app.post('/posts/share', async.apply(Permissions.require, [Permissions.acl.user]), posts.share);
+        app.post('/posts/shares', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostShares);
+        app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.acl.user]), posts.numPostsDatabase);
+        app.get('/posts/:uri', async.apply(Permissions.require, [Permissions.acl.user]), posts.post);
+
+        //file versions
+        app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.all);
+        app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.numFileVersionsInDatabase);
+        app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.getFileVersion);
+        app.get('/fileVersions/:uri', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.fileVersion);
+        app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.like);
+        app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.comment);
+        app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.share);
+        app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.fileVersionLikesInfo);
+        app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.getFileVersionShares);
+
+        //shares
+        app.get('/shares/:uri', async.apply(Permissions.require, [Permissions.acl.user]), posts.getShare);
+
+
+        //notifications
+        app.get('/notifications/all', async.apply(Permissions.require, [Permissions.acl.user]), notifications.get_unread_user_notifications);
+        app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.acl.user]), notifications.get_notification_info);
+        app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.acl.user]), notifications.delete)
 
         //serve angular JS ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,

@@ -23,9 +23,17 @@ angular.module('dendroApp', [
         'hljs',
         'ngFileUpload',
         'ngJSONPath',
-        'TreeWidget'
+        'TreeWidget',
+        'angularUtils.directives.dirPagination',
+        'ngAlerts'
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
         return $sce.trustAsResourceUrl(val);
     };
-}]);
+}]).config(['ngAlertsProvider', function (ngAlertsProvider) {
+        // Global empty list text.
+        ngAlertsProvider.options.emptyListText = 'Nothing here...';
+
+        // The queue timeout for new alerts.
+        ngAlertsProvider.options.queue = null;
+}]);;

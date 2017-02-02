@@ -23,7 +23,7 @@
             "id" : "default",
             "options":
             {
-              "host" : "127.0.0.1",
+              "host" : "192.168.56.249",
               "port" : "6780"
             },
             "database_number" : 1
@@ -32,7 +32,7 @@
             "id" : "social",
             "options":
             {
-              "host" : "127.0.0.1",
+              "host" : "192.168.56.249",
               "port" : "6781"
             },
             "database_number" : 1
@@ -41,7 +41,7 @@
             "id" : "notifications",
             "options":
             {
-              "host" : "127.0.0.1",
+              "host" : "192.168.56.249",
               "port" : "6782"
             },
             "database_number" : 1
@@ -392,10 +392,10 @@
     "debug" : {
       "active": true,
       "database" :{
-        "log_all_queries": false
+        "log_all_queries": true
       },
       "session": {
-        "auto_login": true,
+        "auto_login": false,
         "login_user": "demouser1"
       },
       "files": {
