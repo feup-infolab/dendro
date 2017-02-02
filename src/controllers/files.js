@@ -674,9 +674,9 @@ exports.upload = function(req, res)
                         req.session.user.ddr.username,
                         req.query.filename,
                         req.params.requestedResource,
-                        function(err, newUpload)
+                        function (err, newUpload)
                         {
-                            if(!err)
+                            if (!err)
                             {
                                 res.json({
                                     size: newUpload.loaded,
@@ -722,7 +722,7 @@ exports.upload = function(req, res)
 
             if (req.files instanceof Object)
             {
-                if(req.files.file instanceof Object)
+                if (req.files.file instanceof Object)
                 {
                     files[0] = req.files.file
                 }
@@ -745,196 +745,200 @@ exports.upload = function(req, res)
             }
 
 
-            async.map(files, function(file, callback) {
-                    fileNames[i] = {
-                        name: file.name
-                    };
+            async.map(files, function (file, callback)
+            {
+                fileNames[i] = {
+                    name: file.name
+                };
 
-                    var newFile = new File({
-                        nie: {
-                            title: file.name,
-                            isLogicalPartOf: requestedResourceURI
-                        }
-                    });
+                var newFile = new File({
+                    nie: {
+                        title: file.name,
+                        isLogicalPartOf: requestedResourceURI
+                    }
+                });
 
-                    var fs = require('fs');
+                var fs = require('fs');
 
-                    const md5File = require('md5-file')
+                const md5File = require('md5-file')
 
-                    /* Async usage */
-                    md5File(file.path, (err, hash) => {
-                        if (!err)
+                /* Async usage */
+                md5File(file.path, (err, hash) =>
+                {
+                    if (!err)
+                    {
+                        newFile.loadFromLocalFile(file.path, function (err, result)
                         {
-                            newFile.loadFromLocalFile(file.path, function (err, result)
+                            if (err == null)
                             {
-                                if (err == null)
+                                newFile.save(function (err, result)
                                 {
-                                    newFile.save(function (err, result)
+                                    if (err == null)
                                     {
-                                        if (err == null)
+                                        console.log("File " + newFile.uri + " is now saved in GridFS");
+                                        newFile.generateThumbnails(function (err, result)
                                         {
-                                            console.log("File " + newFile.uri + " is now saved in GridFS");
-                                            newFile.generateThumbnails(function (err, result)
+                                            if (!err)
                                             {
-                                                if (!err)
-                                                {
-                                                    res.json({
-                                                        result: "success",
-                                                        message: "File submitted successfully. Message returned : " + result,
-                                                        files: fileNames
-                                                    });
-                                                }
-                                                else
-                                                {
-                                                    res.json({
-                                                        result: "success",
-                                                        message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
-                                                        files: fileNames
-                                                    });
-                                                }
-                                            });
-                                        }
-                                        else
-                                        {
-                                            res.status(500).json({
-                                                result: "error",
-                                                message: "Error submitting file : " + result,
-                                                files: fileNames
-                                            });
-                                        }
-
-                                    });
-                                }
-                                else
-                                {
-                                    console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
-                                    res.status(500).json(
-                                        {
+                                                res.json({
+                                                    result: "success",
+                                                    message: "File submitted successfully. Message returned : " + result,
+                                                    files: fileNames
+                                                });
+                                            }
+                                            else
+                                            {
+                                                res.json({
+                                                    result: "success",
+                                                    message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
+                                                    files: fileNames
+                                                });
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json({
                                             result: "error",
-                                            message: "Error saving the file : " + result,
+                                            message: "Error submitting file : " + result,
                                             files: fileNames
                                         });
-                                }
-                            });
-                        }
-                        else
-                        {
-                            res.status(401).json(
-                                {
-                                    result : "error",
-                                    message : "Unable to calculate the checksum of the uploaded file: " + newFile.filename,
-                                    error : result
+                                    }
+
                                 });
-                        }
-                    })
-
-
-                }
-            }
-        };
-
-        if(upload != null)
-        {
-            var multiparty = require('multiparty');
-            var form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
-
-            form.on('error', function (err)
-            {
-                UploadManager.destroy(upload.id, function(err)
-                {
-                    if(err)
-                    {
-                        console.log("Error destroying upload " + upload.id);
-                    }
-                });
-            });
-
-            form.on('aborted', function ()
-            {
-                UploadManager.destroy(upload.id, function(err)
-                {
-                    if(err)
-                    {
-                        console.log("Error destroying upload " + upload.id);
-                    }
-                });
-            });
-
-            form.on('progress', function (bytesReceived, bytesExpected)
-            {
-                if(upload.size == null)
-                {
-                    upload.size = bytesExpected;
-                }
-
-                console.log(upload.filename +" ---> " + upload.temp_file + ".  " + ((bytesReceived / bytesExpected) * 100) + "% uploaded");
-
-                upload.get_temp_file_size(function(err, size){
-                    console.log("Size of " + upload.temp_file + " : " + size);
-                });
-            });
-
-            form.on('close', function ()
-            {
-                req.files = {
-                    path: upload.temp_file,
-                    name : upload.filename
-                }
-
-                if(upload.is_finished())
-                {
-                    processFiles();
-                }
-                else
-                {
-                    res.json(
-                        {
-                            size : upload.size
-                        });
-                }
-            });
-
-            form.on('part', function (part)
-            {
-                part.on('data', function(buffer){
-                    //console.log(buffer);
-                    upload.write_part(buffer, function(err, bytesWritten){
-                        if(!err)
-                        {
-                            if(upload.size == null)
-                            {
-                                upload.size = part.byteCount;
                             }
+                            else
+                            {
+                                console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
+                                res.status(500).json(
+                                    {
+                                        result: "error",
+                                        message: "Error saving the file : " + result,
+                                        files: fileNames
+                                    });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(401).json(
+                            {
+                                result: "error",
+                                message: "Unable to calculate the checksum of the uploaded file: " + newFile.filename,
+                                error: result
+                            });
+                    }
+                })
+            });
+        }
+    }
+    ;
 
-                            upload.loaded = upload.loaded + part.byteCount;
-                        }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    result : "error",
-                                    message : "There was an error writing a part of the upload to the server."
-                                });
-                        }
+    if (upload != null)
+    {
+        var multiparty = require('multiparty');
+        var form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
+
+        form.on('error', function (err)
+        {
+            UploadManager.destroy(upload.id, function (err)
+            {
+                if (err)
+                {
+                    console.log("Error destroying upload " + upload.id);
+                }
+            });
+        });
+
+        form.on('aborted', function ()
+        {
+            UploadManager.destroy(upload.id, function (err)
+            {
+                if (err)
+                {
+                    console.log("Error destroying upload " + upload.id);
+                }
+            });
+        });
+
+        form.on('progress', function (bytesReceived, bytesExpected)
+        {
+            if (upload.size == null)
+            {
+                upload.size = bytesExpected;
+            }
+
+            console.log(upload.filename + " ---> " + upload.temp_file + ".  " + ((bytesReceived / bytesExpected) * 100) + "% uploaded");
+
+            upload.get_temp_file_size(function (err, size)
+            {
+                console.log("Size of " + upload.temp_file + " : " + size);
+            });
+        });
+
+        form.on('close', function ()
+        {
+            req.files = {
+                path: upload.temp_file,
+                name: upload.filename
+            }
+
+            if (upload.is_finished())
+            {
+                processFiles();
+            }
+            else
+            {
+                res.json(
+                    {
+                        size: upload.size
                     });
-                });
-                part.on('error', function(error){
-                    console.error("Error occurred uploading file " + upload.filename);
-                    console.error(error);
+            }
+        });
+
+        form.on('part', function (part)
+        {
+            part.on('data', function (buffer)
+            {
+                //console.log(buffer);
+                upload.write_part(buffer, function (err, bytesWritten)
+                {
+                    if (!err)
+                    {
+                        if (upload.size == null)
+                        {
+                            upload.size = part.byteCount;
+                        }
+
+                        upload.loaded = upload.loaded + part.byteCount;
+                    }
+                    else
+                    {
+                        res.status(500).json(
+                            {
+                                result: "error",
+                                message: "There was an error writing a part of the upload to the server."
+                            });
+                    }
                 });
             });
+            part.on('error', function (error)
+            {
+                console.error("Error occurred uploading file " + upload.filename);
+                console.error(error);
+            });
+        });
 
-            // Parse req
-            form.parse(req);
-        }
-        else
-        {
-            res.status(500).json(
-                {
-                    result : "error",
-                    message : "Upload ID not recognized. Please restart uploading " + upload.filename+ "from the beginning."
-                });
-        }
+        // Parse req
+        form.parse(req);
+    }
+    else
+    {
+        res.status(500).json(
+            {
+                result: "error",
+                message: "Upload ID not recognized. Please restart uploading " + upload.filename + "from the beginning."
+            });
     }
 };
 
