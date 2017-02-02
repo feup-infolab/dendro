@@ -51,9 +51,11 @@ try{
 }
 catch(e)
 {
-    console.log("Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
+    console.log("[INFO] Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
     try{
-        fs.mkdirSync(tempUploadsFolder);
+        var mkdirp = require('mkdirp');
+        mkdirp.sync(tempUploadsFolder);
+        console.log("[SUCCESS] Temp uploads folder " + tempUploadsFolder + " created.")
     }
     catch(e)
     {
@@ -913,7 +915,7 @@ async.waterfall([
 
         //app.use(express.logger('dev'));
 
-        app.use(bodyParser.urlencoded());
+        app.use(bodyParser.urlencoded({ extended: true }));
         app.use(bodyParser.json());
 
 
@@ -971,7 +973,11 @@ async.waterfall([
 
         //		development only
         if ('development' == app.get('env')) {
-            app.use(errorHandler());
+            app.use(errorHandler({
+                secret: appSecret,
+                resave: true,
+                saveUninitialized: true
+            }));
         }
 
         app.get('/', index.index);

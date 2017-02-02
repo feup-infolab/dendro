@@ -48,6 +48,7 @@
     "memcached": "^2.2.2",
     "method-override": "^2.3.7",
     "mime-types": "^2.1.13",
+    "mkdirp": "^0.5.1",
     "mkpath": "^1.0.0",
     "mocha": "^3.0.2",
     "moment": "2.5.0",
