@@ -326,3 +326,8 @@ exports.reset_password = function(req, res){
         }
     }
 };
+
+exports.getLoggedUser = function (req, res) {
+    var loggedUser = req.session.user;
+    res.json(loggedUser);
+};

@@ -24,6 +24,12 @@ function User (object)
         self.uri = db.baseURI+"/user/"+self.ddr.username;
     }
 
+    if(self.ddr.salt == null)
+    {
+        var bcrypt = require('bcrypt');
+        self.ddr.salt = bcrypt.genSaltSync(10);
+    }
+
     self.rdf.type = "ddr:User";
 
     return self;
@@ -116,11 +122,9 @@ User.createAndInsertFromObject = function(object, callback) {
 
     console.log("creating user from object" + util.inspect(object));
 
-    var crypto = require('crypto')
-      , shasum = crypto.createHash('sha1');
-
-    shasum.update(object.ddr.password);
-    self.ddr.password = shasum.digest('hex');
+    //encrypt password
+    var bcrypt = require('bcrypt');
+    self.ddr.password = bcrypt.hashSync(self.ddr.password, self.ddr.salt);
 
     //TODO CACHE DONE
 

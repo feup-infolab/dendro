@@ -8,10 +8,12 @@ angular.module('dendroApp.controllers')
         $filter,
         $q,
         $log,
+        $timeout,
+        $compile,
+        Upload,
         focus,
         preview,
         $localStorage,
-        $timeout,
         metadataService,
         windowService,
         cacheService,
@@ -22,6 +24,15 @@ angular.module('dendroApp.controllers')
         recommendationService
     )
 {
+    $scope.get_upload_url = function()
+    {
+        return windowService.get_current_url() + "/upload";
+    }
+
+    $scope.get_restore_url = function()
+    {
+        return windowService.get_current_url() + "/restore";
+    }
 
     $scope.delete_file_or_folder = function()
     {
@@ -158,7 +169,7 @@ angular.module('dendroApp.controllers')
     
     $scope.setup_upload_area = function(file_upload_div_id, progress_bar_div_id)
     {
-        var uploadUrl = windowService.get_current_url() + "?upload";
+        var uploadUrl = $scope.get_upload_url();
 
         $(function () {
             'use strict';
@@ -188,7 +199,7 @@ angular.module('dendroApp.controllers')
 
     $scope.setup_restore_area = function(file_upload_div_id, progress_bar_div_id)
     {
-        var uploadUrl = $scope.currentUrl + "?restore";
+        var uploadUrl = $scope.get_restore_url();
 
         $(function () {
             'use strict';
@@ -450,20 +461,47 @@ angular.module('dendroApp.controllers')
 
     $scope.download_folder = function()
     {
-        windowService.download_url($scope.get_current_url(), "?download");
+        windowService.download_url($scope.get_current_url(), "/download");
     };
 
     $scope.backup_folder = function()
     {
-        windowService.download_url($scope.get_current_url(), "?backup");
+        windowService.download_url($scope.get_current_url(), "/backup");
     };
 
 
     $scope.init = function()
     {
-        $scope.set_from_local_storage_and_then_from_value("upload_area_visible", false);
+        $scope.set_from_local_storage_and_then_from_value("upload_area_visible", true);
         $scope.set_from_local_storage_and_then_from_value("restore_area_visible", false);
         $scope.set_from_local_storage_and_then_from_value("showing_deleted_files", false, $scope, "shared");
         $scope.get_folder_contents(true);
+
+        $scope.modelOptionsObj = {
+            debounce:100
+        };
+
+        $scope.multiple = true;
+
+        $scope.pattern="*";
+        $scope.acceptSelect = true;
+        $scope.disabled = false;
+        $scope.capture = "camera";
+
+        $scope.validateObj= {
+            size: {max: '2000MB', min: '10B'},
+            height: {max: 12000},
+            width: {max: 12000},
+            duration: {max: '5m'}
+        };
+
+        $scope.keepDistinct = true;
+        $scope.maxFiles = 10;
+        $scope.ignoreInvalid = false;
+
+        $scope.allowDir = false;
+        $scope.dropAvailable = true;
+
+
     };
 });

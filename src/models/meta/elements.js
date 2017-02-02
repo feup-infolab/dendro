@@ -881,6 +881,13 @@ Elements.ddr = {
         locked : true,
         control : Config.controls.input_box
     },
+    salt :
+    {
+        type : DbConnection.string,
+        locked : true,
+        private :true,
+        control : Config.controls.input_box
+    }
 };
 
 /**
