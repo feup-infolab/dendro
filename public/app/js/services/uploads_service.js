@@ -33,7 +33,6 @@ angular.module('dendroApp.services')
                 // for multiple files:
                 this.uploadFiles = function (files, url, extra_parameters, callback)
                 {
-
                     if (files && files.length)
                     {
                         for (var i = 0; i < files.length; i++)

@@ -339,10 +339,6 @@ exports.show = function(req, res) {
                                             viewVars
                                         );
                                     }
-
-                                    res.render('projects/show',
-                                        viewVars
-                                    );
                                 }
                                 else
                                 {

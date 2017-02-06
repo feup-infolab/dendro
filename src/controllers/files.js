@@ -6,6 +6,7 @@ var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/fold
 var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var UploadManager =  require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
 var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
@@ -670,7 +671,7 @@ exports.upload = function(req, res)
                     req.params.requestedResource != ""
                 )
                 {
-                    var newUpload = UploadManager.add_upload(
+                    UploadManager.add_upload(
                         req.session.user.ddr.username,
                         req.query.filename,
                         req.params.requestedResource,
@@ -1015,7 +1016,7 @@ exports.upload = function(req, res)
         res.status(500).json(
             {
                 result: "error",
-                message: "Upload ID not recognized. Please restart uploading " + upload.filename + "from the beginning."
+                message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
             });
     }
 };
