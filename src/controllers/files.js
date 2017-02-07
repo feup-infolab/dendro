@@ -912,113 +912,114 @@ exports.upload = function(req, res)
                 })
             });
         }
-    };
-    if (upload != null)
-    {
-        var multiparty = require('multiparty');
-        var form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
 
-        form.on('error', function (err)
+        if (upload != null)
         {
-            UploadManager.destroy(upload.id, function (err)
+            var multiparty = require('multiparty');
+            var form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
+
+            form.on('error', function (err)
             {
-                if (err)
+                UploadManager.destroy(upload.id, function (err)
                 {
-                    console.log("Error destroying upload " + upload.id);
-                }
-            });
-        });
-
-        form.on('aborted', function ()
-        {
-            UploadManager.destroy(upload.id, function (err)
-            {
-                if (err)
-                {
-                    console.log("Error destroying upload " + upload.id);
-                }
-            });
-        });
-
-        form.on('progress', function (bytesReceived, bytesExpected)
-        {
-            if (upload.size == null)
-            {
-                upload.size = bytesExpected;
-            }
-
-            console.log(upload.filename + " ---> " + upload.temp_file + ".  " + ((bytesReceived / bytesExpected) * 100) + "% uploaded");
-
-            upload.get_temp_file_size(function (err, size)
-            {
-                console.log("Size of " + upload.temp_file + " : " + size);
-            });
-        });
-
-        form.on('close', function ()
-        {
-            req.files = {
-                path: upload.temp_file,
-                name: upload.filename
-            }
-
-            if (upload.is_finished())
-            {
-                processFiles();
-            }
-            else
-            {
-                res.json(
+                    if (err)
                     {
-                        size: upload.size
-                    });
-            }
-        });
-
-        form.on('part', function (part)
-        {
-            part.on('data', function (buffer)
-            {
-                //console.log(buffer);
-                upload.write_part(buffer, function (err, bytesWritten)
-                {
-                    if (!err)
-                    {
-                        if (upload.size == null)
-                        {
-                            upload.size = part.byteCount;
-                        }
-
-                        upload.loaded = upload.loaded + part.byteCount;
-                    }
-                    else
-                    {
-                        res.status(500).json(
-                            {
-                                result: "error",
-                                message: "There was an error writing a part of the upload to the server."
-                            });
+                        console.log("Error destroying upload " + upload.id);
                     }
                 });
             });
-            part.on('error', function (error)
-            {
-                console.error("Error occurred uploading file " + upload.filename);
-                console.error(error);
-            });
-        });
 
-        // Parse req
-        form.parse(req);
-    }
-    else
-    {
-        res.status(500).json(
+            form.on('aborted', function ()
             {
-                result: "error",
-                message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
+                UploadManager.destroy(upload.id, function (err)
+                {
+                    if (err)
+                    {
+                        console.log("Error destroying upload " + upload.id);
+                    }
+                });
             });
-    }
+
+            form.on('progress', function (bytesReceived, bytesExpected)
+            {
+                if (upload.size == null)
+                {
+                    upload.size = bytesExpected;
+                }
+
+                console.log(upload.filename + " ---> " + upload.temp_file + ".  " + ((bytesReceived / bytesExpected) * 100) + "% uploaded");
+
+                upload.get_temp_file_size(function (err, size)
+                {
+                    console.log("Size of " + upload.temp_file + " : " + size);
+                });
+            });
+
+            form.on('close', function ()
+            {
+                req.files = {
+                    path: upload.temp_file,
+                    name: upload.filename
+                }
+
+                if (upload.is_finished())
+                {
+                    processFiles();
+                }
+                else
+                {
+                    res.json(
+                        {
+                            size: upload.size
+                        });
+                }
+            });
+
+            form.on('part', function (part)
+            {
+                part.on('data', function (buffer)
+                {
+                    //console.log(buffer);
+                    upload.write_part(buffer, function (err, bytesWritten)
+                    {
+                        if (!err)
+                        {
+                            if (upload.size == null)
+                            {
+                                upload.size = part.byteCount;
+                            }
+
+                            upload.loaded = upload.loaded + part.byteCount;
+                        }
+                        else
+                        {
+                            res.status(500).json(
+                                {
+                                    result: "error",
+                                    message: "There was an error writing a part of the upload to the server."
+                                });
+                        }
+                    });
+                });
+                part.on('error', function (error)
+                {
+                    console.error("Error occurred uploading file " + upload.filename);
+                    console.error(error);
+                });
+            });
+
+            // Parse req
+            form.parse(req);
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    result: "error",
+                    message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
+                });
+        }
+    };
 };
 
 exports.resume = function(req, res)
