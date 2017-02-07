@@ -6,14 +6,22 @@
                     <img ngf-thumbnail="!f.$error && f" class="thumb">
                 </div>-->
                 <div class="col-xs-12">
-                    <div class="progress" ng-show="f.progress >= 0">
+                    <div class="progress"
+                         ng-show="f.progress >= 0"
+                         uib-tooltip="{{f.name}} - size: {{f.size}}B - type: {{f.type}} - MD5 Checksum: {{f.md5}}"
+                         tooltip-placement="top"
+                         tooltip-trigger="mouseenter">
                         <div class="progress-bar thin-progress progress-bar-striped"
-                             ng-class="{'active' : f.progress < 100, 'progress-bar-success' : f.progress == 100, 'progress-bar-info' : f.progress > 0 && f.progress < 100}"
+                             ng-class="{'active' : f.progress < 100, 'progress-bar-success' : f.progress == 100 && f.error == null, 'progress-bar-info' : f.progress > 0 && f.progress < 100, 'progress-bar-danger' : f.error != null}"
                              role="progressbar" aria-valuenow="{{f.progress}}" aria-valuemin="0" aria-valuemax="100" style="width: {{f.progress}}%">
-                            <span class="sr-only">{{f.progress}}% Complete</span>
+                            <span class="sr-only" ng-show="f.error == null">{{f.progress}}% Complete</span>
+                            <span class="sr-only" ng-show="f.error != null">{{f.error.message}}</span>
                         </div>
                     </div>
+
+                    <div ng-show="f.calculating_md5"><i class="fa fa-circle-o-notch fa-spin fa-fw"></i> Calculating MD5...</div>
                 </div>
+
                 <div class="col-xs-12">
                     <button class="btn btn-sm btn-warning" ng-click="f.upload.abort();f.upload.aborted=true"
                             ng-show="f.upload != null && f.progress < 100 && !f.upload.aborted">
@@ -25,7 +33,6 @@
                     <button class="btn btn-sm btn-primary" ng-click="restart(f);f.upload.aborted=false"
                             ng-show="isResumeSupported && f.upload != null && (f.progress == 100 || f.upload.aborted)"><i class="fa fa-repeat"></i> Repeat
                     </button>
-                    <b>{{f.name}}</b> - size: {{f.size}}B - type: {{f.type}} - <span class="badge badge-info" ng-show="f.md5 != null">checksum: {{f.md5}}</span>
                 </div>
             </div>
             <br/>

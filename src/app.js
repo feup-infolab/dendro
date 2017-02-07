@@ -64,9 +64,8 @@ catch(e)
     }
 }
 
-var multipartyMiddleware = require('connect-multiparty')({
-    uploadDir:  tempUploadsFolder
-});
+var busboy = require('connect-busboy');
+app.use(busboy());
 
 var self = this;
 

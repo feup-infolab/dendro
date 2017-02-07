@@ -90,15 +90,21 @@ angular.module('dendroApp.controllers')
                 $scope.errorMsg = null;
                 if ($scope.howToSend === 1)
                 {
-                    uploadUsingUpload(file, resumable);
+                    uploadsService.uploadUsingUpload(file, $scope.upload_url, resumable, $scope.chunkSize)
+                        .then(function(data){
+                            file.result  = data;
+                        })
+                        .catch(function(error){
+                            file.error = error;
+                        });
                 } else if ($scope.howToSend == 2)
                 {
-                    uploadUsing$http(file);
+                    uploadsService.uploadUsing$http(file, $scope.upload_url);
                 }
             }
 
             console.log("Getting new upload ticket for file " + file.name);
-            uploadsService.getUploadTicket(file.name, $scope.upload_url)
+            uploadsService.getUploadTicket(file, $scope.upload_url)
                 .then(function (upload_id)
                 {
                     file.upload_id = upload_id;
@@ -142,69 +148,7 @@ angular.module('dendroApp.controllers')
             }
         };
 
-        $scope.chunkSize = 1000000; // 1MB min chunk size
-        function uploadUsingUpload(file, resumable)
-        {
-            var url = URI($scope.upload_url)
-                .addSearch("filename", encodeURIComponent(file.name))
-                .addSearch("upload_id", encodeURIComponent(file.upload_id))
-                .addSearch("username", encodeURIComponent(file.username))
-                .addSearch($scope.getReqParams()).toString();
-
-            var resumeUrl = URI($scope.upload_url)
-                .addSearch("resume", "true")
-                .addSearch("upload_id", encodeURIComponent(file.upload_id))
-                .addSearch("username", encodeURIComponent(file.username))
-                .addSearch("filename", encodeURIComponent(file.name)).toString();
-
-            file.upload = Upload.upload({
-                url: url,
-                resumeSizeUrl: resumable ? resumeUrl : null,
-                resumeChunkSize: resumable ? $scope.chunkSize : null,
-                headers: {
-                    'optional-header': 'header-value'
-                },
-                data: {username: $scope.username, file: file}
-            });
-
-            file.upload.then(function (response) {
-                $timeout(function () {
-                    file.result = response.data;
-                });
-            }, function (response) {
-                if (response.status > 0)
-                    $scope.errorMsg = response.status + ': ' + response.data;
-            }, function (evt) {
-                // Math.min is to fix IE which reports 200% sometimes
-                file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-            });
-
-            file.upload.xhr(function (xhr) {
-                // xhr.upload.addEventListener('abort', function(){console.log('abort complete')}, false);
-            });
-        }
-
-        function uploadUsing$http(file) {
-            file.upload = Upload.http({
-                url: $scope.upload_url + $scope.getReqParams(),
-                method: 'POST',
-                headers: {
-                    'Content-Type': file.type
-                },
-                data: file
-            });
-
-            file.upload.then(function (response) {
-                file.result = response.data;
-            }, function (response) {
-                if (response.status > 0)
-                    $scope.errorMsg = response.status + ': ' + response.data;
-            });
-
-            file.upload.progress(function (evt) {
-                file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
-            });
-        }
+        $scope.chunkSize = '1MB';
 
         $scope.success_action_redirect = $scope.success_action_redirect || window.location.protocol + '//' + window.location.host;
         $scope.jsonPolicy = $scope.jsonPolicy || '{\n  "expiration": "2020-01-01T00:00:00Z",\n  "conditions": [\n    {"bucket": "angular-file-upload"},\n    ["starts-with", "$key", ""],\n    {"acl": "private"},\n    ["starts-with", "$Content-Type", ""],\n    ["starts-with", "$filename", ""],\n    ["content-length-range", 0, 524288000]\n  ]\n}';
@@ -212,11 +156,6 @@ angular.module('dendroApp.controllers')
 
         $scope.confirm = function () {
             return confirm('Are you sure? Your local changes will be lost.');
-        };
-
-        $scope.getReqParams = function () {
-            return $scope.generateErrorOnServer ? '?errorCode=' + $scope.serverErrorCode +
-            '&errorMessage=' + $scope.serverErrorMsg : '';
         };
 
         angular.element(window).bind('dragover', function (e) {

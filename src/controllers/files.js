@@ -621,6 +621,7 @@ exports.upload = function(req, res)
     var upload_id = req.query.upload_id;
     var upload = UploadManager.get_upload_by_id(upload_id);
     var username = req.query.username;
+    var file_md5 = req.query.md5_checksum;
 
     if (req.originalMethod == "GET")
     {
@@ -667,6 +668,8 @@ exports.upload = function(req, res)
                 if (
                     req.query.filename != null &&
                     req.query.filename != "" &&
+                    req.query.md5_checksum != null &&
+                    req.query.md5_checksum != "" &&
                     req.params.requestedResource != null &&
                     req.params.requestedResource != ""
                 )
@@ -674,6 +677,8 @@ exports.upload = function(req, res)
                     UploadManager.add_upload(
                         req.session.user.ddr.username,
                         req.query.filename,
+                        req.query.size,
+                        req.query.md5_checksum,
                         req.params.requestedResource,
                         function (err, newUpload)
                         {
@@ -699,7 +704,7 @@ exports.upload = function(req, res)
                 {
                     res.status(400).json({
                         result: "error",
-                        message: "Request must include the 'filename' field. which is the title of the uploaded file, complete with its file type extension."
+                        message: "Request must include: the 'filename' field. which is the title of the uploaded file, complete with its file type extension ; the 'md5_checksum' field, which is the md5 checksum of the uploaded file."
                     });
                 }
             }
@@ -746,12 +751,12 @@ exports.upload = function(req, res)
                 });
             }
 
-
+            var async = require('async');
             async.map(files, function (file, callback)
             {
-                fileNames[i] = {
+                fileNames.push({
                     name: file.name
-                };
+                });
 
                 var newFile = new File({
                     nie: {
@@ -769,143 +774,157 @@ exports.upload = function(req, res)
                 {
                     if (!err)
                     {
-                        newFile.loadFromLocalFile(file.path, function (err, result)
+                        if(hash != upload.md5_checksum)
                         {
-                            if (err == null)
+                            res.status(400).json({
+                                result : "error",
+                                message : "File was corrupted during transfer. Please repeat.",
+                                error : "invalid_checksum",
+                                calculated_at_server : hash,
+                                calculated_at_client : upload.md5_checksum
+                            });
+                        }
+                        else
+                        {
+                            newFile.loadFromLocalFile(file.path, function (err, result)
                             {
-                                newFile.save(function (err, result)
+                                if (err == null)
                                 {
-                                    if (err == null)
+                                    newFile.save(function (err, result)
                                     {
-                                        console.log("File " + newFile.uri + " is now saved in GridFS");
-                                        newFile.connectToMongo(function (err, db)
+                                        if (err == null)
                                         {
-                                            if (!err)
+                                            console.log("File " + newFile.uri + " is now saved in GridFS");
+                                            newFile.connectToMongo(function (err, db)
                                             {
-                                                newFile.findFileInMongo(db, function (error, filesInfo)
+                                                if (!err)
                                                 {
-                                                    if (!error)
+                                                    newFile.findFileInMongo(db, function (error, filesInfo)
                                                     {
-                                                        async.map(filesInfo, function (fileInfo, cb)
+                                                        if (!error)
                                                         {
-                                                            console.log('FileinfoFromMongo: ', fileInfo);
-                                                            var newFileVersion = new FileVersions({
-                                                                nfo: {
-                                                                    fileName: fileInfo.filename,
-                                                                    hashValue: fileInfo.md5,
-                                                                    hashAlgorithm: 'md5'
-                                                                },
-                                                                nie: {
-                                                                    contentLastModified: fileInfo.uploadDate,
-                                                                    byteSize: fileInfo.length
-                                                                },
-                                                                ddr: {
-                                                                    contentType: fileInfo.contentType,
-                                                                    chunkSize: fileInfo.chunkSize,
-                                                                    projectUri: fileInfo.metadata.project,
-                                                                    itemType: fileInfo.metadata.type,
-                                                                    creatorUri: currentUserUri
-                                                                }
-                                                            });
+                                                            async.map(filesInfo, function (fileInfo, cb)
+                                                            {
+                                                                console.log('FileinfoFromMongo: ', fileInfo);
+                                                                var newFileVersion = new FileVersions({
+                                                                    nfo: {
+                                                                        fileName: fileInfo.filename,
+                                                                        hashValue: fileInfo.md5,
+                                                                        hashAlgorithm: 'md5'
+                                                                    },
+                                                                    nie: {
+                                                                        contentLastModified: fileInfo.uploadDate,
+                                                                        byteSize: fileInfo.length
+                                                                    },
+                                                                    ddr: {
+                                                                        contentType: fileInfo.contentType,
+                                                                        chunkSize: fileInfo.chunkSize,
+                                                                        projectUri: fileInfo.metadata.project,
+                                                                        itemType: fileInfo.metadata.type,
+                                                                        creatorUri: currentUserUri
+                                                                    }
+                                                                });
 
-                                                            newFileVersion.save(function (err, fileVersion)
+                                                                newFileVersion.save(function (err, fileVersion)
+                                                                {
+                                                                    if (!err)
+                                                                    {
+                                                                        newFile.generateThumbnails(function (err, result)
+                                                                        {
+                                                                            if (!err)
+                                                                            {
+                                                                                res.json({
+                                                                                    result: "success",
+                                                                                    message: "File submitted successfully. Message returned : " + result,
+                                                                                    files: fileNames
+                                                                                });
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                res.json({
+                                                                                    result: "success",
+                                                                                    message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
+                                                                                    files: fileNames
+                                                                                });
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        cb(true, fileVersion);
+                                                                    }
+                                                                }, false, null, null, null, null, db_social.graphUri)
+                                                            }, function (err, allFilesInfo)
                                                             {
                                                                 if (!err)
                                                                 {
-                                                                    newFile.generateThumbnails(function (err, result)
-                                                                    {
-                                                                        if (!err)
-                                                                        {
-                                                                            res.json({
-                                                                                result: "success",
-                                                                                message: "File submitted successfully. Message returned : " + result,
-                                                                                files: fileNames
-                                                                            });
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            res.json({
-                                                                                result: "success",
-                                                                                message: "File submitted successfully. However, there was an error generating the thumbnails: " + result,
-                                                                                files: fileNames
-                                                                            });
-                                                                        }
+                                                                    res.json({
+                                                                        result: "success",
+                                                                        message: "File submitted successfully. Message returned : " + result,
+                                                                        files: files
                                                                     });
                                                                 }
                                                                 else
                                                                 {
-                                                                    cb(true, fileVersion);
+                                                                    var msg = "Error saving file version";
+                                                                    res.status(500).json({
+                                                                        result: "error",
+                                                                        message: msg
+                                                                    });
                                                                 }
-                                                            }, false, null, null, null, null, db_social.graphUri)
-                                                        }, function (err, allFilesInfo)
+                                                            });
+                                                        }
+                                                        else
                                                         {
-                                                            if (!err)
-                                                            {
-                                                                res.json({
-                                                                    result: "success",
-                                                                    message: "File submitted successfully. Message returned : " + result,
-                                                                    files: files
-                                                                });
-                                                            }
-                                                            else
-                                                            {
-                                                                var msg = "Error saving file version";
-                                                                res.status(500).json({
-                                                                    result: "error",
-                                                                    message: msg
-                                                                });
-                                                            }
-                                                        });
-                                                    }
-                                                    else
-                                                    {
-                                                        res.status(500).json({
-                                                            result: "error",
-                                                            message: "Database error"
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                            else
-                                            {
-                                                res.status(500).json({
-                                                    result: "error",
-                                                    message: "Error submitting file : " + result,
-                                                    files: files
-                                                });
-                                            }
-                                        });
-                                    }
-                                    else
-                                    {
-                                        console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
-                                        res.status(500).json(
-                                            {
-                                                result: "error",
-                                                message: "Error saving the file : " + result,
-                                                files: fileNames
+                                                            res.status(500).json({
+                                                                result: "error",
+                                                                message: "Database error"
+                                                            });
+                                                        }
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    res.status(500).json({
+                                                        result: "error",
+                                                        message: "Error submitting file : " + result,
+                                                        files: files
+                                                    });
+                                                }
                                             });
-                                    }
-                                });
-                            }
-                            else
-                            {
-                                console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
-                                res.status(500).json(
-                                    {
-                                        result: "error",
-                                        message: "Error saving the file : " + result,
-                                        files: files
+                                        }
+                                        else
+                                        {
+                                            console.log("Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result);
+                                            res.status(500).json(
+                                                {
+                                                    result: "error",
+                                                    message: "Error saving the file : " + result,
+                                                    files: fileNames
+                                                });
+                                        }
                                     });
-                            }
-                        });
+                                }
+                                else
+                                {
+                                    console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
+                                    res.status(500).json(
+                                        {
+                                            result: "error",
+                                            message: "Error saving the file : " + result,
+                                            files: files
+                                        });
+                                }
+                            });
+                        }
+
                     }
                     else
                     {
                         res.status(401).json(
                             {
                                 result: "error",
-                                message: "Unable to calculate the checksum of the uploaded file: " + newFile.filename,
+                                message: "Unable to calculate the MD5 checksum of the uploaded file: " + newFile.filename,
                                 error: result
                             });
                     }
@@ -920,7 +939,7 @@ exports.upload = function(req, res)
 
             form.on('error', function (err)
             {
-                UploadManager.destroy(upload.id, function (err)
+                UploadManager.destroy_upload(upload.id, function (err)
                 {
                     if (err)
                     {
@@ -931,7 +950,7 @@ exports.upload = function(req, res)
 
             form.on('aborted', function ()
             {
-                UploadManager.destroy(upload.id, function (err)
+                UploadManager.destroy_upload(upload.id, function (err)
                 {
                     if (err)
                     {
@@ -940,20 +959,11 @@ exports.upload = function(req, res)
                 });
             });
 
-            form.on('progress', function (bytesReceived, bytesExpected)
+            /*form.on('progress', function (bytesReceived, bytesExpected)
             {
-                if (upload.size == null)
-                {
-                    upload.size = bytesExpected;
-                }
-
                 console.log(upload.filename + " ---> " + upload.temp_file + ".  " + ((bytesReceived / bytesExpected) * 100) + "% uploaded");
-
-                upload.get_temp_file_size(function (err, size)
-                {
-                    console.log("Size of " + upload.temp_file + " : " + size);
-                });
-            });
+                console.log("Size of " + upload.temp_file + " : " + upload.loaded);
+            });*/
 
             form.on('close', function ()
             {
@@ -977,34 +987,15 @@ exports.upload = function(req, res)
 
             form.on('part', function (part)
             {
-                part.on('data', function (buffer)
-                {
-                    //console.log(buffer);
-                    upload.write_part(buffer, function (err, bytesWritten)
+                upload.pipe(part, function(err){
+                    if(err)
                     {
-                        if (!err)
-                        {
-                            if (upload.size == null)
+                        res.status(500).json(
                             {
-                                upload.size = part.byteCount;
-                            }
-
-                            upload.loaded = upload.loaded + part.byteCount;
-                        }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    result: "error",
-                                    message: "There was an error writing a part of the upload to the server."
-                                });
-                        }
-                    });
-                });
-                part.on('error', function (error)
-                {
-                    console.error("Error occurred uploading file " + upload.filename);
-                    console.error(error);
+                                result: "error",
+                                message: "There was an error writing a part of the upload to the server."
+                            });
+                    };
                 });
             });
 
@@ -1107,6 +1098,26 @@ exports.resume = function(req, res)
 
     }
 }
+
+/*exports.upload = function(req, res)
+{
+    var upload_id = req.query.upload_id;
+    var upload = UploadManager.get_upload_by_id(upload_id);
+    var username = req.query.username;
+
+    var path = require('path');
+
+    req.pipe(req.busboy);
+    req.busboy.on('file', function(fieldname, file, filename) {
+        var destinationFile = path.join(Config.tempFilesDir, username, filename);
+        var fstream = fs.createWriteStream(destinationFile);
+        file.pipe(fstream);
+        fstream.on('close', function () {
+            res.redirect('back');
+        });
+    });
+}*/
+
 
 exports.restore = function(req, res){
 

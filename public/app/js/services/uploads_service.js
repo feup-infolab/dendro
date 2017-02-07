@@ -9,6 +9,80 @@ angular.module('dendroApp.services')
             '$q',
             function (usersService, Upload, $http, $q)
             {
+                this.uploadUsing$http = function(file, upload_url) {
+                    file.upload = Upload.http({
+                        url: upload_url,
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': file.type
+                        },
+                        data: file
+                    });
+
+                    var deferred = $q.defer();
+                    file.upload
+                        .then(function (response) {
+                            file.result = response.data;
+                        })
+                        .catch(function(error){
+                            deferred.reject(error);
+                        });
+
+                    file.upload.progress(function (evt) {
+                        file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                    });
+
+                    return deferred.promise;
+                }
+
+                this.uploadUsingUpload = function(file, upload_url, resumable, chunkSize)
+                {
+                    var url = URI(upload_url)
+                        .addSearch("filename", encodeURIComponent(file.name))
+                        .addSearch("upload_id", encodeURIComponent(file.upload_id))
+                        .addSearch("username", encodeURIComponent(file.username)).toString();
+
+                    var resumeUrl = URI(upload_url)
+                        .addSearch("resume", "true")
+                        .addSearch("upload_id", encodeURIComponent(file.upload_id))
+                        .addSearch("username", encodeURIComponent(file.username))
+                        .addSearch("filename", encodeURIComponent(file.name)).toString();
+
+                    file.upload = Upload.upload({
+                        url: url,
+                        resumeSizeUrl: resumable ? resumeUrl : null,
+                        resumeChunkSize: resumable ? chunkSize : null,
+                        headers: {
+                            'optional-header': 'header-value'
+                        },
+                        data: {
+                            username: file.username,
+                            file: file
+                        }
+                    });
+
+                    var deferred = $q.defer();
+
+                    file.upload
+                        .then(function (response) {
+                            $timeout(function () {
+                                deferred.reject(response.data);
+                            });
+                        })
+                        .catch(function(error){
+                            deferred.reject(error.data);
+                        });
+
+                    file.upload.progress(function (evt) {
+                        file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                    });
+
+                    file.upload.xhr(function (xhr) {
+                        // xhr.upload.addEventListener('abort', function(){console.log('abort complete')}, false);
+                    });
+
+                    return deferred.promise;
+                }
 
                 // upload on file select or drop
                 this.upload = function (file, url, extra_parameters)
@@ -39,8 +113,15 @@ angular.module('dendroApp.services')
                         {
                             var file = files[i];
 
-                            var data = extra_parameters;
-                            data.file = file;
+                            if (!(extra_parameters instanceof Object))
+                            {
+                                var data = {file: file};
+                            }
+                            else
+                            {
+                                var data = extra_parameters;
+                                data.file = file;
+                            }
 
                             callback(
                                 Upload.upload({url: url, data: data})
@@ -49,7 +130,7 @@ angular.module('dendroApp.services')
                     }
                 }
 
-                this.getUploadTicket = function (fileName, upload_url)
+                this.getUploadTicket = function (file, upload_url)
                 {
                     var ticketPromise = $q.defer();
 
@@ -59,7 +140,9 @@ angular.module('dendroApp.services')
                             try
                             {
                                 var uploadUri = URI(upload_url)
-                                    .addQuery("filename", encodeURIComponent(fileName))
+                                    .addQuery("filename", encodeURIComponent(file.name))
+                                    .addQuery("size", encodeURIComponent(file.size))
+                                    .addQuery("md5_checksum", encodeURIComponent(file.md5))
                                     .addQuery("username", response.ddr.username);
 
                                 $http({
@@ -99,8 +182,11 @@ angular.module('dendroApp.services')
 
                 this.calculate_md5 = function (file, callback)
                 {
+                    file.calculating_md5 = true;
                     browserMD5File(file, function (err, md5)
                     {
+                        file.calculating_md5 = false;
+                        file.md5 = md5;
                         callback(err, md5); // 97027eb624f85892c69c4bcec8ab0f11
                     });
                 }

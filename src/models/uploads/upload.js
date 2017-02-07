@@ -11,11 +11,17 @@ function Upload (object)
         object.filename != null
         &&
         object.parent_folder != null
+        &&
+        object.expected != null
+        &&
+        object.md5_checksum != null
     )
     {
         self.username = object.username;
         self.filename = object.filename;
         self.parentFolder = object.parent_folder;
+        self.expected = object.expected;
+        self.md5_checksum = object.md5_checksum;
 
         if (self.loaded == null)
         {
@@ -88,29 +94,43 @@ Upload.prototype.set_expected = function(expected)
     self.expected = expected;
 }
 
-Upload.prototype.write_part = function(buffer, callback)
+Upload.prototype.pipe = function(part, callback)
 {
     var self = this;
     var fs = require('fs');
-    fs.appendFile(
+
+    var stream = fs.createWriteStream(
         self.temp_file,
-        buffer,
         {
             'flags': 'a',
             'encoding' : 'utf8'
-        },
-        function(err, result)
-        {
-            if(!err)
-            {
-                callback(err, result);
-            }
-            else
-            {
-                callback(1, "There was an error writing to the temporary file on upload of file " + self.filename + " by username " + file.username);
-            }
         }
     );
+
+    var error = null;
+
+    stream.on('error', function(err){
+        error = err;
+    });
+
+    stream.on('close', function() {
+        if (error != null)
+        {
+            fs.unlink(self.temp_file);
+            callback(1, "There was an error writing to the temporary file on upload of file " + self.filename + " by username " + file.username, error);
+        }
+        else
+        {
+            callback(null);
+        }
+
+    });
+
+    part.on("data", function (chunk) {
+        self.loaded = self.loaded + chunk.length;
+    })
+
+    part.pipe(stream);
 }
 
 Upload.prototype.is_finished = function()

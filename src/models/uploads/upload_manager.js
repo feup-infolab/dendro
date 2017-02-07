@@ -12,12 +12,14 @@ if(UploadManager.__uploads == null)
     UploadManager.__uploads = {};
 }
 
-UploadManager.add_upload = function(username, filename, parent_folder, callback)
+UploadManager.add_upload = function(username, filename, size, md5_checksum, parent_folder, callback)
 {
     Upload.create(
         {
             username : username,
             filename : filename,
+            expected : size,
+            md5_checksum  : md5_checksum,
             parent_folder : parent_folder
     }, function(err, upload){
         if(!err)
