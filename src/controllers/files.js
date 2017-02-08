@@ -770,7 +770,7 @@ exports.upload = function(req, res)
                 const md5File = require('md5-file')
 
                 /* Async usage */
-                md5File(file.path, (err, hash) =>
+                md5File(file.path, function(err, hash)
                 {
                     if (!err)
                     {
@@ -985,42 +985,45 @@ exports.upload = function(req, res)
                 }
             });
 
-            // Parse req
-            form.parse(req, function(err, fields, files) {
-                Object.keys(fields).forEach(function(name) {
-                    console.log('got field named ' + name + " with value " + fields[name][0]);
-                });
+            // Parts are emitted when parsing the form
+            form.on('part', function(part) {
+                // You *must* act on the part by reading it
+                // NOTE: if you want to ignore it, just call "part.resume()"
 
-                Object.keys(files).forEach(function(name) {
-                    var file = files[name];
-                    if(file != null && file instanceof Array && file.length == 1)
-                    {
-                        file = files[name][0];
-                        upload.pipe(file, function(err){
-                            if(err)
-                            {
-                                res.status(500).json(
-                                    {
-                                        result: "error",
-                                        message: "There was an error writing a part of the upload to the server."
-                                    });
-                            }
-                            else
-                            {
-                                //TODO
-                            }
-                        });
-                    }
-                    else
-                    {
-                        res.status(400).json(
-                            {
-                                result : "error",
-                                message : "Error occurred while receiving chunked upload."
-                            });
-                    }
+                if (!part.filename) {
+                    // filename is not defined when this is a field and not a file
+                    console.log('got field named ' + part.name);
+                    // ignore field's content
+                    part.resume();
+                }
+
+                if (part.filename) {
+                    // filename is defined when this is a file
+                    console.log('got file named ' + part.name);
+
+                    upload.pipe(part, function(err){
+                        if(err)
+                        {
+                            res.status(500).json(
+                                {
+                                    result: "error",
+                                    message: "There was an error writing a part of the upload to the server."
+                                });
+                        }
+                        else
+                        {
+                            //TODO
+                        }
+                    });
+                }
+
+                part.on('error', function(err) {
+                    // decide what to do
                 });
             });
+
+            // Parse req
+            form.parse(req);
         }
         else
         {

@@ -8,16 +8,7 @@
       <change type="DELETED" beforePath="$PROJECT_DIR$/temp/tmp-661826r1oukw/IJDL%20SI%20TPDL%2031Jan2016-Submitted.pdf" afterPath="" />
       <change type="DELETED" beforePath="$PROJECT_DIR$/temp/tmp-66182h8fm5o0/Sentiment%20Analysis%20Dataset.csv" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/conf/deployment_configs.json" afterPath="$PROJECT_DIR$/conf/deployment_configs.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/js/controllers/project/editor/file_browser_controller.js" afterPath="$PROJECT_DIR$/public/app/js/controllers/project/editor/file_browser_controller.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/js/controllers/project/import/import_project_controller.js" afterPath="$PROJECT_DIR$/public/app/js/controllers/project/import/import_project_controller.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js" afterPath="$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/js/controllers/window_controller.js" afterPath="$PROJECT_DIR$/public/app/js/controllers/window_controller.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/js/services/uploads_service.js" afterPath="$PROJECT_DIR$/public/app/js/services/uploads_service.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app.js" afterPath="$PROJECT_DIR$/src/app.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/files.js" afterPath="$PROJECT_DIR$/src/controllers/files.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/config.js" afterPath="$PROJECT_DIR$/src/models/meta/config.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/uploads/upload.js" afterPath="$PROJECT_DIR$/src/models/uploads/upload.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/uploads/progress_bars.ejs" afterPath="$PROJECT_DIR$/src/views/uploads/progress_bars.ejs" />
     </list>
@@ -40,24 +31,34 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="files.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="files.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/controllers/files.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="153">
-              <caret line="988" column="58" selection-start-line="988" selection-start-column="58" selection-end-line="988" selection-end-column="58" />
+            <state relative-caret-position="378">
+              <caret line="983" column="27" selection-start-line="980" selection-start-column="20" selection-end-line="983" selection-end-column="27" />
               <folding>
-                <element signature="e#32436#44767#0" expanded="false" />
-                <element signature="e#48301#50629#0" expanded="false" />
+                <element signature="e#32436#44772#0" expanded="false" />
+                <element signature="e#48247#50575#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="progress_bars.ejs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/views/uploads/progress_bars.ejs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="230">
+              <caret line="15" column="77" selection-start-line="15" selection-start-column="76" selection-end-line="15" selection-end-column="76" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="213">
-              <caret line="701" column="23" selection-start-line="701" selection-start-column="23" selection-end-line="701" selection-end-column="23" />
+            <state relative-caret-position="196">
+              <caret line="681" column="16" selection-start-line="681" selection-start-column="16" selection-end-line="681" selection-end-column="16" />
               <folding />
             </state>
           </provider>
@@ -66,7 +67,7 @@
       <file leaf-file-name="new.ejs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/views/projects/new.ejs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="331">
+            <state relative-caret-position="1870">
               <caret line="110" column="37" selection-start-line="110" selection-start-column="37" selection-end-line="110" selection-end-column="37" />
               <folding />
             </state>
@@ -76,7 +77,7 @@
       <file leaf-file-name="uploads_controller.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
+            <state relative-caret-position="2720">
               <caret line="160" column="31" selection-start-line="160" selection-start-column="31" selection-end-line="160" selection-end-column="31" />
               <folding />
             </state>
@@ -86,18 +87,8 @@
       <file leaf-file-name="upload.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/models/uploads/upload.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="437">
-              <caret line="134" column="37" selection-start-line="134" selection-start-column="37" selection-end-line="134" selection-end-column="37" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="deployment_configs.json" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/conf/deployment_configs.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="325">
-              <caret line="405" column="38" selection-start-line="405" selection-start-column="9" selection-end-line="405" selection-end-column="38" />
+            <state relative-caret-position="251">
+              <caret line="126" column="9" selection-start-line="126" selection-start-column="9" selection-end-line="126" selection-end-column="9" />
               <folding />
             </state>
           </provider>
@@ -106,7 +97,7 @@
       <file leaf-file-name="config.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="255">
+            <state relative-caret-position="1853">
               <caret line="109" column="43" selection-start-line="109" selection-start-column="43" selection-end-line="109" selection-end-column="43" />
               <folding />
             </state>
@@ -126,7 +117,7 @@
       <file leaf-file-name="projects.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/controllers/projects.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="493">
+            <state relative-caret-position="11084">
               <caret line="652" column="0" selection-start-line="652" selection-start-column="0" selection-end-line="652" selection-end-column="0" />
               <folding />
             </state>
@@ -186,17 +177,17 @@
         <option value="$PROJECT_DIR$/package.json" />
         <option value="$PROJECT_DIR$/src/models/uploads/upload_manager.js" />
         <option value="$PROJECT_DIR$/public/app/js/controllers/window_controller.js" />
-        <option value="$PROJECT_DIR$/src/views/uploads/progress_bars.ejs" />
         <option value="$PROJECT_DIR$/public/app/js/services/uploads_service.js" />
         <option value="$PROJECT_DIR$/public/app/js/controllers/project/import/import_project_controller.js" />
         <option value="$PROJECT_DIR$/public/app/js/controllers/project/editor/file_browser_controller.js" />
         <option value="$PROJECT_DIR$/temp/tmp-76055e9zzta8/3bytes.log" />
         <option value="$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js" />
-        <option value="$PROJECT_DIR$/src/controllers/files.js" />
-        <option value="$PROJECT_DIR$/src/models/uploads/upload.js" />
         <option value="$PROJECT_DIR$/conf/deployment_configs.json" />
         <option value="$PROJECT_DIR$/src/models/meta/config.js" />
         <option value="$PROJECT_DIR$/src/app.js" />
+        <option value="$PROJECT_DIR$/src/models/uploads/upload.js" />
+        <option value="$PROJECT_DIR$/src/views/uploads/progress_bars.ejs" />
+        <option value="$PROJECT_DIR$/src/controllers/files.js" />
       </list>
     </option>
   </component>
@@ -262,6 +253,8 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scratches" />
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -280,10 +273,76 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="temp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tmp-91078824tr4w" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="temp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tmp-910789lmnc68" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="temp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="temp" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="tmp-91078g5fhutc" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
-      <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -301,6 +360,22 @@
     <property name="javascript.karma.karma_node_package_dir" value="/usr/local/lib/node_modules/karma" />
     <property name="js.buildTools.grunt.grunt-cli.package" value="/usr/local/lib/node_modules/grunt-cli" />
     <property name="js.buildTools.gulp.gulp_package_dir" value="/usr/local/lib/node_modules/gulp" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth0" value="258" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder0" value="0" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth1" value="268" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth2" value="272" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder2" value="2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatWidth3" value="1058" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_flatOrder3" value="3" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth0" value="258" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder0" value="0" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth1" value="268" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder1" value="1" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth2" value="272" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="1058" />
+    <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -486,7 +561,8 @@
       <workItem from="1486174829552" duration="974000" />
       <workItem from="1486398442714" duration="23051000" />
       <workItem from="1486495513777" duration="8144000" />
-      <workItem from="1486569678843" duration="9024000" />
+      <workItem from="1486569678843" duration="9284000" />
+      <workItem from="1486581708814" duration="1144000" />
     </task>
     <servers />
   </component>
@@ -523,7 +599,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="275703000" />
+    <option name="totallyTimeSpent" value="277107000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -538,17 +614,17 @@
     <frame x="0" y="23" width="1920" height="1053" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18957347" sideWeight="0.5366379" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.18957347" sideWeight="0.5366379" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32337245" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4621131" sideWeight="0.35650343" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28175026" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19379845" sideWeight="0.40273973" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32834226" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3276414" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3180363" sideWeight="0.5718799" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24947146" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20704375" sideWeight="0.4918957" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19345239" sideWeight="0.46336207" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3276414" sideWeight="0.6434966" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3276414" sideWeight="0.6434966" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -564,7 +640,7 @@
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4621131" sideWeight="0.35650343" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19379845" sideWeight="0.40273973" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32834226" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3276414" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3180363" sideWeight="0.5718799" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20704375" sideWeight="0.4918957" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18957347" sideWeight="0.5366379" order="0" side_tool="false" content_ui="tabs" />
@@ -593,56 +669,19 @@
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/controllers/files.js</url>
           <line>774</line>
-          <properties />
           <option name="timeStamp" value="873" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/controllers/files.js</url>
           <line>976</line>
           <properties />
-          <option name="timeStamp" value="877" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/src/app.js</url>
-          <line>658</line>
-          <properties />
-          <option name="timeStamp" value="894" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/src/app.js</url>
-          <line>681</line>
-          <properties />
-          <option name="timeStamp" value="895" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/src/app.js</url>
-          <line>655</line>
-          <properties />
-          <option name="timeStamp" value="896" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/src/app.js</url>
-          <line>671</line>
-          <properties />
-          <option name="timeStamp" value="897" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/src/app.js</url>
-          <line>676</line>
-          <properties />
-          <option name="timeStamp" value="898" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/src/app.js</url>
-          <line>662</line>
-          <properties />
-          <option name="timeStamp" value="899" />
+          <option name="timeStamp" value="902" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="900" />
+      <option name="time" value="904" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="NodeJSConfigurationType">
@@ -667,35 +706,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/public/js/reclinejs/package.json" />
-    <entry file="file://$PROJECT_DIR$/public/js/utils.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="9" column="79" selection-start-line="9" selection-start-column="1" selection-end-line="9" selection-end-column="1" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/project.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="16" column="63" selection-start-line="16" selection-start-column="63" selection-end-line="16" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/bower_components/bootstrap-markdown/package.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="11" column="19" selection-start-line="11" selection-start-column="12" selection-end-line="11" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/bower_components/bootstrap-markdown/.bower.json">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="170">
-          <caret line="10" column="31" selection-start-line="10" selection-start-column="4" selection-end-line="10" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/package/mapper.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="267">
@@ -772,9 +782,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="279">
           <caret line="23" column="21" selection-start-line="23" selection-start-column="21" selection-end-line="25" selection-end-column="49" />
-          <folding>
-            <marker date="1486053775000" expanded="true" signature="682:1266" placeholder="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -818,51 +825,23 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
           <caret line="670" column="7" selection-start-line="670" selection-start-column="7" selection-end-line="670" selection-end-column="7" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/temp/tmp-665712nkamv4/npm-debug.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/temp/tmp-665712nkamv4/npm-debug.log" />
     <entry file="file://$PROJECT_DIR$/node_modules/gridfs-stream/lib/index.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="200">
           <caret line="50" column="0" selection-start-line="50" selection-start-column="0" selection-end-line="50" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/temp/tmp-722022mcvhnk/How-to-build-a-Minimum-Viable-Product.jpg">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/temp/tmp-74901jge1l80/3bytes.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="89" selection-start-line="0" selection-start-column="3" selection-end-line="0" selection-end-column="3" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/views/uploads/progress_bars.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="25" column="110" selection-start-line="25" selection-start-column="110" selection-end-line="25" selection-end-column="110" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/temp/tmp-722022mcvhnk/How-to-build-a-Minimum-Viable-Product.jpg" />
+    <entry file="file://$PROJECT_DIR$/temp/tmp-74901jge1l80/3bytes.log" />
     <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/editor/file_browser_controller.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="689">
           <caret line="496" column="12" selection-start-line="496" selection-start-column="12" selection-end-line="496" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -878,55 +857,18 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="281">
           <caret line="35" column="20" selection-start-line="35" selection-start-column="20" selection-end-line="35" selection-end-column="20" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/temp/tmp-751797i0lr74/3bytes.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/temp/tmp-75444ddftdgg/3bytes.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/temp/tmp-75629704q1ls/3bytes.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/temp/tmp-76055e9zzta8/3bytes.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="632" column="0" selection-start-line="632" selection-start-column="0" selection-end-line="632" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/temp/tmp-76055e9zzta8/3bytes.log">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="322">
-          <caret line="11761" column="111" selection-start-line="11761" selection-start-column="87" selection-end-line="11761" selection-end-column="87" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/temp/tmp-751797i0lr74/3bytes.log" />
+    <entry file="file://$PROJECT_DIR$/temp/tmp-75444ddftdgg/3bytes.log" />
+    <entry file="file://$PROJECT_DIR$/temp/tmp-75629704q1ls/3bytes.log" />
+    <entry file="file://$PROJECT_DIR$/temp/tmp-76055e9zzta8/3bytes.log" />
+    <entry file="file://$PROJECT_DIR$/temp/tmp-76055e9zzta8/3bytes.log" />
     <entry file="file://$PROJECT_DIR$/node_modules/karma-coverage/node_modules/istanbul/lib/command/instrument.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="215">
           <caret line="54" column="9" selection-start-line="54" selection-start-column="9" selection-end-line="54" selection-end-column="9" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -934,7 +876,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="306">
           <caret line="18" column="44" selection-start-line="18" selection-start-column="34" selection-end-line="18" selection-end-column="44" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -942,7 +883,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="194">
           <caret line="18" column="47" selection-start-line="18" selection-start-column="42" selection-end-line="18" selection-end-column="42" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -950,33 +890,36 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="200">
           <caret line="12426" column="0" selection-start-line="12426" selection-start-column="0" selection-end-line="12426" selection-end-column="0" />
-          <folding />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/projects.js">
+    <entry file="file://$PROJECT_DIR$/node_modules/node-fs/lib/fs.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="493">
-          <caret line="652" column="0" selection-start-line="652" selection-start-column="0" selection-end-line="652" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/files.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="153">
-          <caret line="988" column="58" selection-start-line="988" selection-start-column="58" selection-end-line="988" selection-end-column="58" />
-          <folding>
-            <element signature="e#32436#44767#0" expanded="false" />
-            <element signature="e#48301#50629#0" expanded="false" />
-          </folding>
+        <state relative-caret-position="238">
+          <caret line="73" column="43" selection-start-line="73" selection-start-column="43" selection-end-line="73" selection-end-column="43" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/views/projects/new.ejs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="331">
+        <state relative-caret-position="1870">
           <caret line="110" column="37" selection-start-line="110" selection-start-column="37" selection-end-line="110" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2720">
+          <caret line="160" column="31" selection-start-line="160" selection-start-column="31" selection-end-line="160" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1853">
+          <caret line="109" column="43" selection-start-line="109" selection-start-column="43" selection-end-line="109" selection-end-column="43" />
           <folding />
         </state>
       </provider>
@@ -989,26 +932,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/node_modules/node-fs/lib/fs.js">
+    <entry file="file://$PROJECT_DIR$/src/controllers/projects.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="238">
-          <caret line="73" column="43" selection-start-line="73" selection-start-column="43" selection-end-line="73" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="255">
-          <caret line="109" column="43" selection-start-line="109" selection-start-column="43" selection-end-line="109" selection-end-column="43" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/uploads/upload.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="437">
-          <caret line="134" column="37" selection-start-line="134" selection-start-column="37" selection-end-line="134" selection-end-column="37" />
+        <state relative-caret-position="11084">
+          <caret line="652" column="0" selection-start-line="652" selection-start-column="0" selection-end-line="652" selection-end-column="0" />
           <folding />
         </state>
       </provider>
@@ -1021,19 +948,69 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js">
+    <entry file="file://$PROJECT_DIR$/node_modules/nodemailer/node_modules/aws-sdk/test/browser/sample/s3upload.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="160" column="31" selection-start-line="160" selection-start-column="31" selection-end-line="160" selection-end-column="31" />
+        <state relative-caret-position="203">
+          <caret line="50" column="23" selection-start-line="50" selection-start-column="23" selection-end-line="50" selection-end-column="23" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="213">
-          <caret line="701" column="23" selection-start-line="701" selection-start-column="23" selection-end-line="701" selection-end-column="23" />
+        <state relative-caret-position="196">
+          <caret line="681" column="16" selection-start-line="681" selection-start-column="16" selection-end-line="681" selection-end-column="16" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/temp/tmp-90875minkn7k/3bytes.log">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-281054">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/uploads/upload.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="251">
+          <caret line="126" column="9" selection-start-line="126" selection-start-column="9" selection-end-line="126" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/temp/tmp-908753duql80/ckan-logo.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/temp/tmp-91078g5fhutc/ckan-logo.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/temp/tmp-91078824tr4w/ckan-logo.png">
+      <provider selected="true" editor-type-id="images">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/uploads/progress_bars.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="230">
+          <caret line="15" column="77" selection-start-line="15" selection-start-column="76" selection-end-line="15" selection-end-column="76" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controllers/files.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="378">
+          <caret line="983" column="27" selection-start-line="980" selection-start-column="20" selection-end-line="983" selection-end-column="27" />
+          <folding>
+            <element signature="e#32436#44772#0" expanded="false" />
+            <element signature="e#48247#50575#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>

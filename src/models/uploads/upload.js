@@ -94,7 +94,7 @@ Upload.prototype.set_expected = function(expected)
     self.expected = expected;
 }
 
-Upload.prototype.pipe = function(file, callback)
+Upload.prototype.pipe = function(part, callback)
 {
     var self = this;
     var fs = require('fs');
@@ -103,13 +103,6 @@ Upload.prototype.pipe = function(file, callback)
         self.temp_file,
         {
             'flags': 'a'
-        }
-    );
-
-    var sourceStream = fs.createReadStream(
-        file.path,
-        {
-            'flags': 'r'
         }
     );
 
@@ -132,12 +125,12 @@ Upload.prototype.pipe = function(file, callback)
         }
         else
         {
-            self.loaded += file.size;
+            self.loaded += part.byteCount;
             callback(null);
         }
     });
 
-    sourceStream.pipe(targetStream);
+    part.pipe(targetStream);
 }
 
 Upload.prototype.is_finished = function()
