@@ -123,7 +123,8 @@
       "files": {
         "log_all_restore_operations": true,
         "log_delete_operations" : true,
-        "log_file_fetches" : true
+        "log_file_fetches" : true,
+        "delete_temp_folder_on_startup" : true
       },
       "resources": {
         "log_all_type_checks": false
@@ -401,7 +402,8 @@
       "files": {
         "log_all_restore_operations": true,
         "log_delete_operations" : true,
-        "log_file_fetches" : true
+        "log_file_fetches" : true,
+        "delete_temp_folder_on_startup" : true
       },
       "resources": {
         "log_all_type_checks": false

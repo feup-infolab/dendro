@@ -648,31 +648,67 @@ async.waterfall([
     function(callback) {
         var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
         var nfs = require('node-fs');
-        var fs = require('fs');
+        var fs = require('fs-extra')
+
 
         console.log("[INFO] Setting up temporary files directory at " + Config.tempFilesDir);
 
-        fs.exists(Config.tempFilesDir, function(exists){
-            if(!exists)
+        async.waterfall([
+            function(cb)
             {
-                nfs.mkdir(Config.tempFilesDir, Config.tempFilesCreationMode, true, function(err)
+                if(Config.debug.files.delete_temp_folder_on_startup)
                 {
-                    if(!err)
+                    console.log("[INFO] Deleting temp files dir at " + Config.tempFilesDir);
+                    fs.remove(Config.tempFilesDir, function (err) {
+                        if(!err)
+                        {
+                            console.log("[OK] Deleted temp files dir at " + Config.tempFilesDir);
+                        }
+                        else
+                        {
+                            console.log("[ERROR] Unable to delete temp files dir at " + Config.tempFilesDir);
+                        }
+
+                        cb(err);
+                    })
+                }
+                else
+                {
+                    cb(null);
+                }
+            },
+            function(cb)
+            {
+                fs.exists(Config.tempFilesDir, function(exists){
+
+                    if(!exists)
                     {
-                        console.log("[OK] Temporary files directory successfully set up at " + Config.tempFilesDir);
-                        callback(null);
-                    }
-                    else
-                    {
-                        console.error("[ERROR] Unable to set up files directory at " + Config.tempFilesDir);
-                        process.exit(1);
+                        nfs.mkdir(Config.tempFilesDir, Config.tempFilesCreationMode, true, function(err)
+                        {
+                            if(!err)
+                            {
+                                console.log("[OK] Temporary files directory successfully created at " + Config.tempFilesDir);
+                            }
+                            else
+                            {
+                                console.log("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
+                            }
+                            cb(err);
+                        });
+
                     }
                 });
             }
-            else
+        ], function(err){
+            if(!err)
             {
                 console.log("[OK] Temporary files directory successfully set up at " + Config.tempFilesDir);
                 callback(null);
+            }
+            else
+            {
+                console.error("[ERROR] Unable to set up files directory at " + Config.tempFilesDir);
+                process.exit(1);
             }
         });
     },

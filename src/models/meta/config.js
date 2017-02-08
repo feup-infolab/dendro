@@ -28,10 +28,16 @@ var configs = JSON.parse(fs.readFileSync(configs_file_path, 'utf8'));
 var active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
 var active_config = configs[active_config_key];
 
-var getConfigParameter = function(parameter)
+var getConfigParameter = function(parameter, defaultValue)
 {
     if(active_config[parameter] == null)
     {
+        if(defaultValue != null)
+        {
+            console.error("[WARNING] Using default value "+ JSON.stringify(defaultValue) + " for parameter " + parameter +" !");
+            Config[parameter] = defaultValue;
+            return Config[parameter];
+        }
         console.error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from \'"+active_config_key + "\' configuration. Please review the deployment_configs.json file.");
         process.exit(1);
     }
@@ -102,6 +108,7 @@ Config.administrators = getConfigParameter("administrators");
 
 // load debug and startup settings
 Config.debug = getConfigParameter("debug");
+
 Config.startup = getConfigParameter("startup");
 Config.baselines = getConfigParameter("baselines");
 

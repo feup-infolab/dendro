@@ -94,48 +94,56 @@ Upload.prototype.set_expected = function(expected)
     self.expected = expected;
 }
 
-Upload.prototype.pipe = function(part, callback)
+Upload.prototype.pipe = function(file, callback)
 {
     var self = this;
     var fs = require('fs');
 
-    var stream = fs.createWriteStream(
+    var targetStream = fs.createWriteStream(
         self.temp_file,
         {
-            'flags': 'a',
-            'encoding' : 'utf8'
+            'flags': 'a'
+        }
+    );
+
+    var sourceStream = fs.createReadStream(
+        file.path,
+        {
+            'flags': 'r'
         }
     );
 
     var error = null;
 
-    stream.on('error', function(err){
+    targetStream.on('error', function(err){
         error = err;
     });
 
-    stream.on('close', function() {
+    targetStream.on('close', function() {
+
+
+    });
+
+    targetStream.on('finish', function(){
         if (error != null)
         {
-            fs.unlink(self.temp_file);
+            fs.unlink(file.path);
             callback(1, "There was an error writing to the temporary file on upload of file " + self.filename + " by username " + file.username, error);
         }
         else
         {
+            self.loaded += file.size;
             callback(null);
         }
-
     });
 
-    part.on("data", function (chunk) {
-        self.loaded = self.loaded + chunk.length;
-    })
-
-    part.pipe(stream);
+    sourceStream.pipe(targetStream);
 }
 
 Upload.prototype.is_finished = function()
 {
     var self = this;
+    console.log("FINISHED " + self.loaded / self.expected + " of file " + self.filename);
     return (self.loaded >= self.expected);
 }
 

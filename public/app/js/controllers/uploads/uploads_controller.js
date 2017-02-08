@@ -70,7 +70,6 @@ angular.module('dendroApp.controllers')
                         else
                         {
                             windowService.show_popup('info', 'Unable to calculate checksum of file ' + file.name);
-                            doUpload(file);
                         }
                     });
                 }
@@ -96,6 +95,7 @@ angular.module('dendroApp.controllers')
                         })
                         .catch(function(error){
                             file.error = error;
+                            windowService.show_popup("error", file.name, error.message);
                         });
                 } else if ($scope.howToSend == 2)
                 {
@@ -148,11 +148,7 @@ angular.module('dendroApp.controllers')
             }
         };
 
-        $scope.chunkSize = '1MB';
-
-        $scope.success_action_redirect = $scope.success_action_redirect || window.location.protocol + '//' + window.location.host;
-        $scope.jsonPolicy = $scope.jsonPolicy || '{\n  "expiration": "2020-01-01T00:00:00Z",\n  "conditions": [\n    {"bucket": "angular-file-upload"},\n    ["starts-with", "$key", ""],\n    {"acl": "private"},\n    ["starts-with", "$Content-Type", ""],\n    ["starts-with", "$filename", ""],\n    ["content-length-range", 0, 524288000]\n  ]\n}';
-        $scope.acl = $scope.acl || 'private';
+        $scope.chunkSize = '500KB';
 
         $scope.confirm = function () {
             return confirm('Are you sure? Your local changes will be lost.');
@@ -184,7 +180,7 @@ angular.module('dendroApp.controllers')
             $scope.disabled = localStorage.getItem('disabled') == 'true' || false;
             $scope.multiple = localStorage.getItem('multiple') == 'true' || true;
             $scope.allowDir = localStorage.getItem('allowDir') == 'true' || false;
-            $scope.validate = localStorage.getItem('validate') || '{size: {max: \'2000MB\', min: \'10B\'}, height: {max: 12000}, width: {max: 12000}, duration: {max: \'5m\'}}';
+            //$scope.validate = localStorage.getItem('validate') || '{size: {max: \'2000MB\', min: \'10B\'}, height: {max: 12000}, width: {max: 12000}, duration: {max: \'50000m\'}}';
             $scope.keep = localStorage.getItem('keep') == 'true' || false;
             $scope.keepDistinct = localStorage.getItem('keepDistinct') == 'true' || true;
             $scope.orientation = localStorage.getItem('orientation') == 'true' || false;

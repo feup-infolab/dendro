@@ -488,12 +488,13 @@ angular.module('dendroApp.controllers')
         $scope.disabled = false;
         $scope.capture = "camera";
 
-        $scope.validateObj= {
-            size: {max: '2000MB', min: '10B'},
+        /*$scope.validateObj= {
+            size: {max: '2000MB', min: '1B'},
             height: {max: 12000},
-            width: {max: 12000},
-            duration: {max: '5m'}
-        };
+            width: {max: 12000}
+            //,
+            //duration: {max: '5m'}
+        };*/
 
         $scope.keepDistinct = true;
         $scope.maxFiles = 10;

@@ -56,7 +56,6 @@ angular.module('dendroApp.services')
                             'optional-header': 'header-value'
                         },
                         data: {
-                            username: file.username,
                             file: file
                         }
                     });

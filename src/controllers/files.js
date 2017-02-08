@@ -985,22 +985,42 @@ exports.upload = function(req, res)
                 }
             });
 
-            form.on('part', function (part)
-            {
-                upload.pipe(part, function(err){
-                    if(err)
+            // Parse req
+            form.parse(req, function(err, fields, files) {
+                Object.keys(fields).forEach(function(name) {
+                    console.log('got field named ' + name + " with value " + fields[name][0]);
+                });
+
+                Object.keys(files).forEach(function(name) {
+                    var file = files[name];
+                    if(file != null && file instanceof Array && file.length == 1)
                     {
-                        res.status(500).json(
+                        file = files[name][0];
+                        upload.pipe(file, function(err){
+                            if(err)
                             {
-                                result: "error",
-                                message: "There was an error writing a part of the upload to the server."
+                                res.status(500).json(
+                                    {
+                                        result: "error",
+                                        message: "There was an error writing a part of the upload to the server."
+                                    });
+                            }
+                            else
+                            {
+                                //TODO
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(400).json(
+                            {
+                                result : "error",
+                                message : "Error occurred while receiving chunked upload."
                             });
-                    };
+                    }
                 });
             });
-
-            // Parse req
-            form.parse(req);
         }
         else
         {

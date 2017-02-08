@@ -28,6 +28,13 @@ angular.module('dendroApp.controllers')
         return uri+'?thumbnail&size=icon';
     };
 
+    $scope.get_filename_icon = function(filename)
+    {
+        var extension = filename.split('.').pop();
+        console.log(extension);
+        return $scope.get_extension_icon(extension);
+    };
+
     $scope.get_extension_icon = function(extension)
     {
         return "/images/icons/extensions/file_extension_"+extension+".png";
