@@ -31,7 +31,6 @@ angular.module('dendroApp.controllers')
     $scope.get_filename_icon = function(filename)
     {
         var extension = filename.split('.').pop();
-        console.log(extension);
         return $scope.get_extension_icon(extension);
     };
 

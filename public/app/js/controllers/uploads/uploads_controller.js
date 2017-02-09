@@ -80,27 +80,37 @@ angular.module('dendroApp.controllers')
         });
 
         $scope.upload = function (file, resumable) {
+            var deferred = $q.defer();
+
             function startUpload()
             {
                 $scope.errorMsg = null;
                 if ($scope.howToSend === 1)
                 {
-                    uploadsService.uploadUsingUpload(file, $scope.upload_url, resumable, $scope.chunkSize)
+                    uploadsService.uploadUsingUpload(file, $scope.get_upload_url(), resumable, $scope.chunkSize)
                         .then(function(data){
                             file.result  = data;
+                            deferred.resolve(file);
                         })
                         .catch(function(error){
                             file.error = error;
-                            windowService.show_popup("error", file.name, error.message);
+                            deferred.reject(file);
                         });
                 } else if ($scope.howToSend == 2)
                 {
-                    uploadsService.uploadUsing$http(file, $scope.upload_url);
+                    uploadsService.uploadUsing$http(file, $scope.get_upload_url())
+                        .then(function(data){
+                            file.result  = data;
+                            deferred.resolve(file);
+                        })
+                        .catch(function(error){
+                            file.error = error;
+                            deferred.reject(file);
+                        });;
                 }
             }
 
-            console.log("Getting new upload ticket for file " + file.name);
-            uploadsService.getUploadTicket(file, $scope.upload_url)
+            uploadsService.getUploadTicket(file, $scope.get_upload_url())
                 .then(function (upload_id)
                 {
                     file.upload_id = upload_id;
@@ -112,8 +122,7 @@ angular.module('dendroApp.controllers')
                                 startUpload();
                             })
                             .catch(function(error){
-                                windowService.show_popup('error', "Error", "Unable to retrieve the currently logged in user.");
-                                console.log(error);
+                                deferred.reject(error);
                             });
                     }
                     else
@@ -122,16 +131,18 @@ angular.module('dendroApp.controllers')
                     }
                 })
                 .catch(function(error){
-                    windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
-                    console.error(error);
+                    deferred.reject(error);
+                    //windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
+                    //console.error(error);
                 });
+
+            return deferred.promise;
         };
 
 
         $scope.restart = function (file) {
             if (Upload.isResumeSupported()) {
-                var resumeUrl = URI($scope.upload_url)
-                    .addSearch("restart", "true")
+                var resumeUrl = URI($scope.get_restart_url())
                     .addSearch("upload_id", file.upload_id)
                     .addSearch("username", file.username)
                     .addSearch("filename", file.name).toString();
@@ -210,11 +221,19 @@ angular.module('dendroApp.controllers')
             });
         });
 
-        $scope.init = function(uploadUrl)
+        $scope.init = function(uploadUrlFunction)
         {
-            $scope.upload_url = URI(uploadUrl).addSearch("upload").toString();
-            $scope.resume_url = URI(uploadUrl).addSearch("resume").toString();
-            $scope.restart_url = URI(uploadUrl).addSearch("restart").toString();
+            $scope.uploadUrlFunction = uploadUrlFunction;
+
+            $scope.get_upload_url = function(){
+                return URI($scope.uploadUrlFunction()).addSearch("upload").toString()
+            };
+            $scope.get_resume_url = function(){
+                return URI($scope.uploadUrlFunction()).addSearch("resume").toString()
+            };
+            $scope.get_restart_url = function(){
+                return URI($scope.uploadUrlFunction()).addSearch("restart").toString()
+            };
         }
     }
 ]);
