@@ -640,9 +640,9 @@ File.prototype.generateThumbnails = function(callback)
         }
         else
         {
-            callback(null, "Unable to retrieve file " + self.uri + " for from GridFS for thumbnail generation.");
+            callback(null, "Unable to retrieve owner project of " + self.uri + " for thumbnail generation.");
         }
-    })
+    });
 };
 
 File.createBlankTempFile = function(fileName, callback)

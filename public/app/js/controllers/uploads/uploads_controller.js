@@ -33,6 +33,9 @@ angular.module('dendroApp.controllers')
 
         $scope.invalidFiles = [];
 
+        $scope.isResumeSupported = Upload.isResumeSupported();
+        $scope.chunkSize = '10MB';
+
         // make invalidFiles array for not multiple to be able to be used in ng-repeat in the ui
         $scope.$watch('invalidFiles', function (invalidFiles) {
             if (invalidFiles != null && !angular.isArray(invalidFiles)) {
@@ -75,13 +78,6 @@ angular.module('dendroApp.controllers')
                 }
             }
         });
-
-        $scope.uploadPic = function (file) {
-            $scope.formUpload = true;
-            if (file != null) {
-                $scope.upload(file);
-            }
-        };
 
         $scope.upload = function (file, resumable) {
             function startUpload()
@@ -131,14 +127,14 @@ angular.module('dendroApp.controllers')
                 });
         };
 
-        $scope.isResumeSupported = Upload.isResumeSupported();
 
         $scope.restart = function (file) {
             if (Upload.isResumeSupported()) {
-
                 var resumeUrl = URI($scope.upload_url)
                     .addSearch("restart", "true")
-                    .addSearch("filename", encodeURIComponent(file.name)).toString();
+                    .addSearch("upload_id", file.upload_id)
+                    .addSearch("username", file.username)
+                    .addSearch("filename", file.name).toString();
 
                 $http.get(resumeUrl).then(function () {
                     $scope.upload(file, true);
@@ -147,8 +143,6 @@ angular.module('dendroApp.controllers')
                 $scope.upload(file);
             }
         };
-
-        $scope.chunkSize = '500KB';
 
         $scope.confirm = function () {
             return confirm('Are you sure? Your local changes will be lost.');
@@ -218,9 +212,9 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function(uploadUrl)
         {
-            $scope.upload_url = uploadUrl;
-            $scope.resume_url = URI($scope.upload_url).addSearch("resume").toString();
-            $scope.restart_url = URI($scope.upload_url).addSearch("restart").toString();
+            $scope.upload_url = URI(uploadUrl).addSearch("upload").toString();
+            $scope.resume_url = URI(uploadUrl).addSearch("resume").toString();
+            $scope.restart_url = URI(uploadUrl).addSearch("restart").toString();
         }
     }
 ]);

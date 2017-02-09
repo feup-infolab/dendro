@@ -1143,7 +1143,61 @@ async.waterfall([
         app.post('/external_repositories/new', async.apply(Permissions.require, [Permissions.acl.user]), repo_bookmarks.new);
         app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]), repo_bookmarks.delete);
 
-        //view a project's root
+        //for places inside a project
+            app.all(new RegExp(Config.regex_routes.inside_projects.upload),
+                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
+                function(req,res, next)
+                {
+                    req.params.handle = req.params[0];                      //project handle
+                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + req.params[2];
+
+                    files.upload(req, res);
+                    return;
+                });
+
+            app.all(new RegExp(Config.regex_routes.inside_projects.restore),
+                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
+                function(req,res, next)
+                {
+                    req.params.handle = req.params[0];                      //project handle
+                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + req.params[2];
+
+                    files.restore(req, res);
+                    return;
+                }
+            );
+
+            app.all(new RegExp(Config.regex_routes.inside_projects.download),
+                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
+                function(req,res, next)
+                {
+                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + req.params[2];
+                    files.download(req, res);
+                    return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
+                    // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
+                }
+            );
+
+        //for anywhere in the structure of a project (root or inside)
+        app.all(/\/project\/([^\/]+)(\/data)?$/,
+            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
+            function(req,res, next)
+            {
+                if(req.originalMethod == "GET")
+                {
+                    if(req.query.ls != null)
+                    {
+                        files.ls(req, res);
+                    }
+                }
+                else if(req.originalMethod == "POST")
+                {
+
+                }
+            });
+
+
+        //for the project root
             app.all(/\/project\/([^\/]+)(\/data)?$/,
                 async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
                 function(req,res, next)
@@ -1153,10 +1207,7 @@ async.waterfall([
 
                     if(req.originalMethod == "GET")
                     {
-                        if(req.query.ls != null)
-                        {
-                            files.ls(req, res);
-                        }
+
                         else if(req.query.metadata_recommendations != null)
                         {
                             recommendation.recommend_descriptors(req, res);
@@ -1224,220 +1275,187 @@ async.waterfall([
                             datasets.export_to_repository(req, res);
                         }
                     }
-            });
-
-
-        //for places inside a project
-            app.all(new RegExp(Config.regex_routes.projects.upload),
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                function(req,res, next)
-                {
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
-                    files.upload(req, res);
-                    return;
                 });
 
-            app.all(new RegExp(Config.regex_routes.projects.restore),
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
+            app.all(/\/project\/([^\/]+)(\/data\/)?$/,
+                async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
                 function(req,res, next)
                 {
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
-                    files.restore(req, res);
-                    return;
-                }
-            );
+                    req.params.handle = req.params[0];                      //project handle
+                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0];
 
-            app.all(new RegExp(Config.regex_routes.projects.download),
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                function(req,res, next)
-                {
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
-                    files.download(req, res);
-                    return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
-                    // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
-                }
-            );
+                    req.params.filepath = req.params[2];   //relative path encodeuri needed because of spaces in filenames
+                    req.params.requestedResource = req.params.requestedResource + req.params.filepath;
 
-        app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
-            function(req,res, next)
-            {
-                req.params.handle = req.params[0];                      //project handle
-                req.params.requestedResource = Config.baseUri + "/project/" + req.params[0];
-
-                req.params.filepath = req.params[1];   //relative path encodeuri needed because of spaces in filenames
-                req.params.requestedResource = req.params.requestedResource + req.params.filepath;
-
-                if(req.originalMethod == "GET")
-                {
-                    if(req.query.thumbnail != null)
+                    if(req.originalMethod == "GET")
                     {
-                        if(req.params.filepath != null)
+                        if(req.query.thumbnail != null)
                         {
-                            var requestedExtension = path.extname(req.params.filepath).replace(".", "");
+                            if(req.params.filepath != null)
+                            {
+                                var requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
-                            if(requestedExtension == null)
-                            {
-                                files.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-                            }
-                            else if(requestedExtension != null && Config.thumbnailableExtensions[requestedExtension] != null)
-                            {
-                                files.get_thumbnail(req, res);
-                            }
-                            else if(requestedExtension == "")
-                            {
-                                files.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                                if(requestedExtension == null)
+                                {
+                                    files.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                                }
+                                else if(requestedExtension != null && Config.thumbnailableExtensions[requestedExtension] != null)
+                                {
+                                    files.get_thumbnail(req, res);
+                                }
+                                else if(requestedExtension == "")
+                                {
+                                    files.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                                }
+                                else
+                                {
+                                    files.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                                }
+
+                                return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
+                                // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
                             }
                             else
                             {
-                                files.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                                files.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
                             }
-
-                            return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
-                            // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
                         }
-                        else
+                        else if(req.query.metadata != null)
                         {
-                            files.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                            if(req.query.deep != null && req.query.deep == 'true'){
+                                records.show_deep(req, res);
+                            }
+                            else {
+                                records.show(req, res);
+                            }
                         }
-                    }
-                    else if(req.query.metadata != null)
-                    {
-                        if(req.query.deep != null && req.query.deep == 'true'){
-                            records.show_deep(req, res);
-                        }
-                        else {
-                            records.show(req, res);
-                        }
-                    }
-                    else if(req.query.parent_metadata != null)
-                    {
-                        records.show_parent(req, res);
-                    }
-                    else if(req.query.version != null)
-                    {
-                        records.show_version(req, res);
-                    }
-                    else if(req.query.change_log != null)
-                    {
-                        projects.change_log(req, res);
-                    }
-                    else if(req.query.metadata_recommendations != null)
-                    {
-                        recommendation.recommend_descriptors(req, res);
-                    }
-                    else if(req.query.recommendation_ontologies != null)
-                    {
-                        ontologies.get_recommendation_ontologies(req, res);
-                    }
-                    else if(req.query.descriptor_autocomplete != null)
-                    {
-                        descriptors.descriptors_autocomplete(req, res);
-                    }
-                    else if(req.query.ontology_autocomplete != null)
-                    {
-                        ontologies.ontologies_autocomplete(req, res);
-                    }
-                    else if(req.query.update_metadata != null)
-                    {
-                        records.update(req, res);
-                    }
-                    else if(req.query.ls != null)
-                    {
-                        files.ls(req, res);
-                    }
-                    else if(req.query.serve != null)
-                    {
-                        files.serve(req, res);
-                    }
-                    else if(req.query.serve_base64 != null)
-                    {
-                        files.serve_base64(req, res);
-                    }
-                    else if(req.query.data != null)
-                    {
-                        var requestedExtension = path.extname(req.params.filepath).replace(".", "");
-
-                        if(files.dataParsers[requestedExtension] != null)
+                        else if(req.query.parent_metadata != null)
                         {
-                            files.data(req, res);
+                            records.show_parent(req, res);
+                        }
+                        else if(req.query.version != null)
+                        {
+                            records.show_version(req, res);
+                        }
+                        else if(req.query.change_log != null)
+                        {
+                            projects.change_log(req, res);
+                        }
+                        else if(req.query.metadata_recommendations != null)
+                        {
+                            recommendation.recommend_descriptors(req, res);
+                        }
+                        else if(req.query.recommendation_ontologies != null)
+                        {
+                            ontologies.get_recommendation_ontologies(req, res);
+                        }
+                        else if(req.query.descriptor_autocomplete != null)
+                        {
+                            descriptors.descriptors_autocomplete(req, res);
+                        }
+                        else if(req.query.ontology_autocomplete != null)
+                        {
+                            ontologies.ontologies_autocomplete(req, res);
+                        }
+                        else if(req.query.update_metadata != null)
+                        {
+                            records.update(req, res);
+                        }
+                        else if(req.query.ls != null)
+                        {
+                            files.ls(req, res);
+                        }
+                        else if(req.query.serve != null)
+                        {
+                            files.serve(req, res);
+                        }
+                        else if(req.query.serve_base64 != null)
+                        {
+                            files.serve_base64(req, res);
+                        }
+                        else if(req.query.data != null)
+                        {
+                            var requestedExtension = path.extname(req.params.filepath).replace(".", "");
+
+                            if(files.dataParsers[requestedExtension] != null)
+                            {
+                                files.data(req, res);
+                            }
+                            else
+                            {
+                                projects.show(req, res);
+                            }
+                            return;
+                        }
+                        else if(req.query.metadata_evaluation != null)
+                        {
+                            evaluation.metadata_evaluation(req, res);
                         }
                         else
                         {
                             projects.show(req, res);
                         }
-                        return;
                     }
-                    else if(req.query.metadata_evaluation != null)
+                    else if(req.originalMethod == "POST")
                     {
-                        evaluation.metadata_evaluation(req, res);
+                        if(req.query.update_metadata != null)
+                        {
+                            records.update(req,res);
+                        }
+                        else if(req.query.restore_metadata_version != null)
+                        {
+                            records.restore_metadata_version(req, res);
+                        }
+                        else if(req.query.register_interaction != null)
+                        {
+                            interactions.register(req, res);
+                        }
+                        else if(req.query.remove_recommendation_ontology != null)
+                        {
+                            interactions.reject_ontology_from_quick_list(req, res);
+                        }
+                        else if(req.query.mkdir != null)
+                        {
+                            files.mkdir(req, res);
+                        }
+                        else if(req.query.undelete != null)
+                        {
+                            files.undelete(req, res);
+                        }
+                        else if(req.query.export_to_repository != null)
+                        {
+                            datasets.export_to_repository(req, res);
+                        }
                     }
-                    else
+                    else if(req.originalMethod == "DELETE")
                     {
-                        projects.show(req, res);
+                        files.rm(req, res);
                     }
                 }
-                else if(req.originalMethod == "POST")
-                {
-                    if(req.query.update_metadata != null)
-                    {
-                        records.update(req,res);
-                    }
-                    else if(req.query.restore_metadata_version != null)
-                    {
-                        records.restore_metadata_version(req, res);
-                    }
-                    else if(req.query.register_interaction != null)
-                    {
-                        interactions.register(req, res);
-                    }
-                    else if(req.query.remove_recommendation_ontology != null)
-                    {
-                        interactions.reject_ontology_from_quick_list(req, res);
-                    }
-                    else if(req.query.mkdir != null)
-                    {
-                        files.mkdir(req, res);
-                    }
-                    else if(req.query.undelete != null)
-                    {
-                        files.undelete(req, res);
-                    }
-                    else if(req.query.export_to_repository != null)
-                    {
-                        datasets.export_to_repository(req, res);
-                    }
-                }
-                else if(req.originalMethod == "DELETE")
-                {
-                    files.rm(req, res);
-                }
-            }
-        );
+            );
 
-        //downloads and uploads on files and folders (data)
-        app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
-            function(req,res, next)
-            {
-                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                if(req.query.upload != null)
+            app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
+                async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
+                function(req,res, next)
                 {
-                    files.upload(req, res);
-                }
-                else if(req.query.restore != null)
-                {
-                    files.restore(req, res);
+                    req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                    if(req.query.upload != null)
+                    {
+                        files.upload(req, res);
+                    }
+                    else if(req.query.restore != null)
+                    {
+                        files.restore(req, res);
 
+                    }
+                    else if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
+                    {
+                        files.download(req, res);
+                        return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
+                                // OR ELSE SYMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
+                    }
                 }
-                else if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
-                {
-                    files.download(req, res);
-                    return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
-                            // OR ELSE SYMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
-                }
-            }
-        );
+            );
 
         //      social
         app.get('/posts/all', async.apply(Permissions.require, [Permissions.acl.user]), posts.all);
