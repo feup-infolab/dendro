@@ -15,7 +15,7 @@
 </style>
 
 <div ng-controller="projCtrl">
-    <div class="control-group has-feedback" ng-class="{'has-success' : valid_word(new_project.handle)}">
+    <div class="control-group has-feedback" ng-class="{'has-success' : valid_word(new_project.handle), 'has-warning' : new_project.handle && !valid_word(new_project.handle)}">
         <label for="handle" class="control-label">Handle *</label>
         <input type="text"
                class="form-control"
@@ -27,12 +27,13 @@
                 <%}%>
                name="handle" required>
 
-        <p class="help-block">A unique handle in the system for your project. Example: "gravimetry01" </p>
-        <span ng-show="valid_word(new_project.handle)" class="glyphicon glyphicon-ok form-control-feedback"></span>
-        <span ng-show="!valid_word(new_project.handle)" class="glyphicon glyphicon-remove-sign form-control-feedback"></span>
+        <p class="help-block">A unique handle in the system for your project. Only lower case and numbers. Example: "gravimetry01" </p>
+        <span ng-show="!new_project.handle" class="glyphicon glyphicon-remove form-control-feedback"></span>
+        <span ng-show="valid_word(new_project.handle) && new_project.handle" class="glyphicon glyphicon-ok form-control-feedback"></span>
+        <span ng-show="!valid_word(new_project.handle) && new_project.handle" class="glyphicon glyphicon-warning-sign form-control-feedback"></span>
     </div>
 
-    <div class="control-group has-feedback" >
+    <div class="control-group has-feedback" ng-class="{'has-success' : new_project.title}">
         <label for="title" class="control-label">Title *</label>
         <input type="text"
                class="form-control"

@@ -145,7 +145,7 @@ angular.module('dendroApp.controllers')
         }
         else
         {
-            var regexp = /^[0-9a-zA-Z]+$/;
+            var regexp = /^[0-9a-z]+$/;
             return regexp.test(word);
         }
 
