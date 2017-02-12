@@ -823,25 +823,20 @@ exports.upload = function(req, res)
                             }
                             else
                             {
-                                newFile.loadFromLocalFile(file.path, function (err, result)
-                                {
+                                newFile.loadFromLocalFile(file.path, function (err, result) {
                                     if (err == null)
                                     {
-                                        newFile.save(function (err, result)
-                                        {
+                                        newFile.save(function (err, result) {
                                             if (err == null)
                                             {
                                                 console.log("File " + newFile.uri + " is now saved in GridFS");
-                                                newFile.connectToMongo(function (err, db)
-                                                {
+                                                newFile.connectToMongo(function (err, db) {
                                                     if (!err)
                                                     {
-                                                        newFile.findFileInMongo(db, function (error, fileVersionsInMongoDb)
-                                                        {
+                                                        newFile.findFileInMongo(db, function (error, fileVersionsInMongoDb) {
                                                             if (!error)
                                                             {
-                                                                async.map(fileVersionsInMongoDb, function (fileVersion, cb)
-                                                                {
+                                                                async.map(fileVersionsInMongoDb, function (fileVersion, cb) {
                                                                     FileVersion.findByUri(fileVersion.filename, function(err, fileVersion){
                                                                         if(!err)
                                                                         {

@@ -6,8 +6,9 @@ angular.module('dendroApp.services')
             'usersService',
             'Upload',
             '$http',
+            '$timeout',
             '$q',
-            function (usersService, Upload, $http, $q)
+            function (usersService, Upload, $http, $timeout, $q)
             {
                 this.uploadUsing$http = function(file, upload_url) {
                     file.upload = Upload.http({
@@ -65,7 +66,7 @@ angular.module('dendroApp.services')
                     file.upload
                         .then(function (response) {
                             $timeout(function () {
-                                deferred.reject(response.data);
+                                deferred.resolve(response.data);
                             });
                         })
                         .catch(function(error){
@@ -74,6 +75,7 @@ angular.module('dendroApp.services')
 
                     file.upload.progress(function (evt) {
                         file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                        console.log(file.upload_id + " : " + file.progress);
                     });
 
                     file.upload.xhr(function (xhr) {

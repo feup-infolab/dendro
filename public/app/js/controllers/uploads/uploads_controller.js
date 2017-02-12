@@ -34,53 +34,59 @@ angular.module('dendroApp.controllers')
         $scope.invalidFiles = [];
 
         $scope.isResumeSupported = Upload.isResumeSupported();
-        $scope.chunkSize = '10MB';
+        $scope.chunkSize = '10B';
 
-        // make invalidFiles array for not multiple to be able to be used in ng-repeat in the ui
-        $scope.$watch('invalidFiles', function (invalidFiles) {
-            if (invalidFiles != null && !angular.isArray(invalidFiles)) {
-                $timeout(function () {$scope.invalidFiles = [invalidFiles];});
-            }
-        });
-
-        $scope.$watch('files', function (files) {
-            $scope.formUpload = false;
-            if (files != null) {
-                // make files array for not multiple to be able to be used in ng-repeat in the ui
-                if (!angular.isArray(files)) {
-                    $timeout(function () {
-                        $scope.files = files = [files];
-                    });
-                    return;
+        $scope.activate_watches = function()
+        {
+            // make invalidFiles array for not multiple to be able to be used in ng-repeat in the ui
+            $scope.$watch($scope.invalid_files_array_name, function (invalidFiles) {
+                if (invalidFiles != null && !angular.isArray(invalidFiles)) {
+                    $timeout(function () {$scope[invalid_files_array_name] = [invalidFiles];});
                 }
-                for (var i = 0; i < files.length; i++) {
-                    $scope.errorMsg = null;
-
-                    function doUpload(file)
-                    {
-                        (function (f) {
-                            $scope.upload(f.f, true);
-                        })({f : file.f});
+            });
+            $scope.$watch($scope.files_array_name, function (files) {
+               $scope.formUpload = false;
+                if (files != null) {
+                    // make files array for not multiple to be able to be used in ng-repeat in the ui
+                    if (!angular.isArray(files)) {
+                        $timeout(function () {
+                            $scope[$scope.files_array_name] = files = [files];
+                        });
+                        return;
                     }
+                    for (var i = 0; i < files.length; i++) {
+                        $scope.errorMsg = null;
 
-                    var file = {f :files[i]};
-                    uploadsService.calculate_md5(file.f, function(err, md5){
-                        if(!err)
+                        function doUpload(file)
                         {
-                            file.f.md5 = md5;
-                            doUpload(file);
+                            (function (f) {
+                                $scope.upload(f.f, true);
+                            })({f : file.f});
                         }
-                        else
+
+                        if(!files[i].uploading)
                         {
-                            windowService.show_popup('info', 'Unable to calculate checksum of file ' + file.name);
-                        }
-                    });
+                            var file = {f :files[i]};
+                            uploadsService.calculate_md5(file.f, function(err, md5){
+                                if(!err)
+                                {
+                                    file.f.md5 = md5;
+                                    doUpload(file);
+                                }
+                                else
+                                {
+                                    windowService.show_popup('info', 'Unable to calculate checksum of file ' + file.name);
+                                }
+                            });
+                        }                      
+                    }
                 }
-            }
-        });
+            });
+        }
 
         $scope.upload = function (file, resumable) {
-            var deferred = $q.defer();
+            var doUpload = $q.defer();
+            file.uploading = true;
 
             function startUpload()
             {
@@ -90,23 +96,27 @@ angular.module('dendroApp.controllers')
                     uploadsService.uploadUsingUpload(file, $scope.get_upload_url(), resumable, $scope.chunkSize)
                         .then(function(data){
                             file.result  = data;
-                            deferred.resolve(file);
+                            file.uploading = false;
+                            doUpload.resolve(file);
                         })
                         .catch(function(error){
                             file.error = error;
-                            deferred.reject(file);
+                            file.uploading = false;
+                            doUpload.reject(file);
                         });
                 } else if ($scope.howToSend == 2)
                 {
                     uploadsService.uploadUsing$http(file, $scope.get_upload_url())
                         .then(function(data){
                             file.result  = data;
-                            deferred.resolve(file);
+                            file.uploading = false;
+                            doUpload.resolve(file);
                         })
                         .catch(function(error){
                             file.error = error;
-                            deferred.reject(file);
-                        });;
+                            file.uploading = false;
+                            doUpload.reject(file);
+                        });
                 }
             }
 
@@ -122,7 +132,8 @@ angular.module('dendroApp.controllers')
                                 startUpload();
                             })
                             .catch(function(error){
-                                deferred.reject(error);
+                                file.uploading = false;
+                                doUpload.reject(error);
                             });
                     }
                     else
@@ -131,14 +142,37 @@ angular.module('dendroApp.controllers')
                     }
                 })
                 .catch(function(error){
-                    deferred.reject(error);
+                    file.uploading = false;
                     //windowService.show_popup("error", "Error", "There was an error processing your upload. Are you authenticated in the system?");
                     //console.error(error);
                 });
 
-            return deferred.promise;
+            doUpload.promise
+                .then(function(result){
+                    file.uploading = false;
+                    $scope.uploads_callback(null, result, $scope.still_uploading_files());
+                })
+                .catch(function(error){
+                    file.uploading = false;
+                    $scope.uploads_callback(1, error.error);
+                });
         };
 
+        $scope.still_uploading_files = function()
+        {
+            var files = $scope[$scope.files_array_name];
+
+            for(var i = 0; i < files.length; i++)
+            {
+                var file = files[i];
+                if(file.uploading)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
 
         $scope.restart = function (file) {
             if (Upload.isResumeSupported()) {
@@ -221,19 +255,25 @@ angular.module('dendroApp.controllers')
             });
         });
 
-        $scope.init = function(uploadUrlFunction)
+        $scope.init = function(upload_url_function, files_array_name, invalid_files_array_name, uploads_callback)
         {
-            $scope.uploadUrlFunction = uploadUrlFunction;
+            $scope.get_uploads_url_function = upload_url_function;
+            $scope.uploads_callback = uploads_callback;
+
+            $scope.files_array_name = files_array_name;
+            $scope.invalid_files_array_name = invalid_files_array_name;
 
             $scope.get_upload_url = function(){
-                return URI($scope.uploadUrlFunction()).addSearch("upload").toString()
+                return URI($scope.get_uploads_url_function()).addSearch("upload").toString()
             };
             $scope.get_resume_url = function(){
-                return URI($scope.uploadUrlFunction()).addSearch("resume").toString()
+                return URI($scope.get_uploads_url_function()).addSearch("resume").toString()
             };
             $scope.get_restart_url = function(){
-                return URI($scope.uploadUrlFunction()).addSearch("restart").toString()
+                return URI($scope.get_uploads_url_function()).addSearch("restart").toString()
             };
+
+            $scope.activate_watches()
         }
     }
 ]);

@@ -124,7 +124,8 @@
         "log_all_restore_operations": true,
         "log_delete_operations" : true,
         "log_file_fetches" : true,
-        "delete_temp_folder_on_startup" : true
+        "delete_temp_folder_on_startup" : true,
+        "log_file_version_fetches" : false
       },
       "resources": {
         "log_all_type_checks": false

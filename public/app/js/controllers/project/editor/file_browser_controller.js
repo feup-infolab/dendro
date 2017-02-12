@@ -157,17 +157,19 @@ angular.module('dendroApp.controllers')
         });
     };
 
-    $scope.upload_callback = function(err, result)
+    $scope.upload_callback = function(err, result, still_uploading_files)
     {
         if(!err)
         {
             $scope.show_popup("success", "Success", "Files uploaded successfully.");
-            $scope.get_folder_contents(true);
-            $scope.get_project_stats();
+            if(!still_uploading_files)
+            {
+                $scope.get_folder_contents(true);
+            }
         }
         else
         {
-            $scope.show_popup("error", "Error", "There was an error uploading the file(s).");
+            $scope.show_popup("error", "Error", result[0].message);
         }
     };
 

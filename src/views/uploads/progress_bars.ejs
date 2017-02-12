@@ -1,5 +1,5 @@
 <ul style="clear:both" class="response">
-    <li class="sel-file" ng-repeat="f in files">
+    <li class="sel-file" ng-repeat="f in upload_files">
         <div>
             <div class="row">
                 <div class="col-xs-2">
@@ -12,6 +12,9 @@
                         </div>
                         <div class="col-xs-12" ng-show="f.calculating_md5">
                             <i class="fa fa-cog fa-spin fa-fw"></i>Calculating MD5...
+                        </div>
+                        <div class="col-xs-12">
+                            {{f.upload_id}}
                         </div>
                         <div class="col-xs-12" ng-show="!f.calculating_md5">
                             <div class="progress"
@@ -65,7 +68,7 @@
             </div> -->
         </div>
     </li>
-    <li class="sel-file" ng-repeat="f in invalidFiles">
+    <li class="sel-file" ng-repeat="f in upload_files_invalid">
         <div>Invalid File: {{f.$errorMessages}} {{f.$errorParam}}, {{f.name}} - size: {{f.size}}B - type:
             {{f.type}}
         </div>

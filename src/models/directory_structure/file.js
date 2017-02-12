@@ -491,8 +491,13 @@ File.prototype.connectToMongo = function (callback) {
 File.prototype.findFileInMongo = function (db, callback) {
     var collection = db.collection('fs.files');
     collection.find({filename: this.uri}).toArray(function(err, files) {
-        console.log("Found the following Files");
-        console.log(files);
+
+        if(Config.debug.files.log_file_version_fetches)
+        {
+            console.log("Found the following Files");
+            console.log(files);
+        }
+
         if(!err)
         {
             callback(null, files);

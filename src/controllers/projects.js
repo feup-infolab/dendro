@@ -14,7 +14,7 @@ var flash = require('connect-flash');
 var async = require('async');
 
 exports.all = function(req, res) {
-    Project.all(function(err, projects) {
+    Project.allNonPrivate(req.session.user.uri, function(err, projects) {
 
         var viewVars = {
             title: "All projects"
