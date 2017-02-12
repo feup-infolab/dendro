@@ -122,7 +122,7 @@ Project.prototype.backup = function(callback)
     });
 };
 
-Project.all = function(callback) {
+Project.all = function(req, callback) {
     var query =
             "SELECT * " +
             "FROM [0] "+
@@ -130,6 +130,8 @@ Project.all = function(callback) {
             "{ " +
             " ?uri rdf:type ddr:Project " +
             "} ";
+
+    query = DbConnection.paginateQuery(req, query);
 
     db.connection.execute(query,
         [

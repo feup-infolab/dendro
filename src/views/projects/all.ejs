@@ -13,7 +13,8 @@
                 <th>Description</th>
                 <th>Creator</th>
             </tr>
-            <% for(var i = 0; i < locals.projects.length; i++) { %>
+            <%  var total = locals.projects.length;
+                for(var i = 0; i < total; i++) { %>
             <tr>
                 <td>
                     <a class="btn btn-primary" href="/project/<%=locals.projects[i].ddr.handle%>"><i class="icon-folder-close"></i><%=locals.projects[i].ddr.handle%></a>

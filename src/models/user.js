@@ -173,6 +173,8 @@ User.all = function(callback) {
                 "?uri rdf:type ddr:User  \n"+
             "} \n";
 
+    query = DbConnection.paginateQuery(req, query);
+
     db.connection.execute(query,
         [
             {
