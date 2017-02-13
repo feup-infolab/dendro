@@ -172,7 +172,7 @@ exports.show = function(req, res) {
 					}
 				}
 		);
-		
+        
 		var resourceURI = project.uri;
 	}
 
@@ -720,22 +720,7 @@ exports.administer = function(req, res) {
                     project.dcterms.contributor = contributors;
 
 
-                    project.save(function(err, result){
-                        if(!err)
-                        {
-                            viewVars.success_messages = ["Project " + req.params.handle + " successfully updated."];
-                            res.render('projects/administration/administer',
-                                viewVars
-                            );
-                        }
-                        else
-                        {
-                            viewVars.error_messages = [result];
-                            res.render('projects/administration/administer',
-                                viewVars
-                            );
-                        }
-                    });
+
 
                     /*else
                      {
@@ -745,12 +730,30 @@ exports.administer = function(req, res) {
                      );
                      }*/
                 }
-                else if(req.originalMethod == "GET")
-                {
-                    res.render('projects/administration/administer',
-                        viewVars
-                    );
-                }
+
+                project.save(function(err, result){
+                    if(!err)
+                    {
+                        viewVars.success_messages = ["Project " + req.params.handle + " successfully updated."];
+                        res.render('projects/administration/administer',
+                            viewVars
+                        );
+                    }
+                    else
+                    {
+                        viewVars.error_messages = [result];
+                        res.render('projects/administration/administer',
+                            viewVars
+                        );
+                    }
+                });
+            }
+            else if(req.originalMethod == "GET")
+            {
+                viewVars.project = project;
+                res.render('projects/administration/administer',
+                    viewVars
+                );
             }
             else
             {
@@ -763,7 +766,7 @@ exports.administer = function(req, res) {
         else
         {
             viewVars.error_messages = ["Project " + req.params.handle + " does not exist."];
-            res.render('/',
+            res.render('index',
                 viewVars
             );
         }
