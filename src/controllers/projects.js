@@ -14,32 +14,54 @@ var flash = require('connect-flash');
 var async = require('async');
 
 exports.all = function(req, res) {
-    Project.all(req, function(err, projects) {
 
-        var viewVars = {
-            title: "All projects"
-        };
+    var viewVars = {
+        title: "All projects"
+    };
 
-        viewVars = DbConnection.paginate(req,
-            viewVars
-        );
+    viewVars = DbConnection.paginate(req,
+        viewVars
+    );
 
-        if(!err && projects != null)
+    var getProjectCount = function(cb)
+    {
+        Project.getCount(function(err, count){
+            cb(err, count);
+        });
+    }
+
+    var getAllProjects = function(cb)
+    {
+        Project.all(function(err, projects) {
+            cb(err, projects);
+        }, req);
+    }
+
+    async.parallel(
+        [
+            getProjectCount, getAllProjects
+        ], function(err, results)
         {
-            viewVars.projects = projects;
-            res.render('projects/all',
-                viewVars
-            )
+            if(!err)
+            {
+                viewVars.count = results[0];
+                viewVars.projects = results[1];
+
+                res.render('projects/all',
+                    viewVars
+                )
+            }
+            else
+            {
+                viewVars.projects = [];
+                viewVars.error_messages = [results];
+                res.render('projects/all',
+                    viewVars
+                )
+            }
         }
-        else
-        {
-            viewVars.projects = [];
-            viewVars.error_messages = ["No projects available"];
-            res.render('projects/all',
-                viewVars
-            )
-        }
-    });
+    );
+
 };
 
 exports.my = function(req, res) {

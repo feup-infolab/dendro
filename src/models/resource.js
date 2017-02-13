@@ -70,7 +70,7 @@ Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumen
     }
 };
 
-Resource.all = function(req, callback, customGraphUri)
+Resource.all = function(callback, req, customGraphUri)
 {
     var self = this;
     var type = self.prefixedRDFType;
@@ -78,16 +78,14 @@ Resource.all = function(req, callback, customGraphUri)
     var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
 
     var query =
-        "WITH [0] \n" +
-        "SELECT DISTINCT(?uri) \n" +
+        "SELECT ?uri " +
+        "FROM [0]" +
         "WHERE " +
-        "{\n" +
-        "    ?uri ?p ?o .\n" ;
-
+        "{ ";
 
     if(type != null)
     {
-        query = query + "   ?uri rdf:type [1] .\n"
+        query = query + "   ?uri rdf:type [1] "
     }
 
 
@@ -128,21 +126,28 @@ Resource.all = function(req, callback, customGraphUri)
         query,
         arguments,
         function(err, results) {
-        if(!err)
-        {
-            var allResources = [];
-            for(var i = 0; i < results.length ; i++)
+            if(!err)
             {
-                var aResource = new Resource(results[i]);
-                allResources.push(aResource);
+                var allResources = [];
+
+                async.map(results,
+                    function(result, cb)
+                    {
+                        var aResource = new self.prototype.constructor(result);
+                        self.findByUri(aResource.uri, function(err, completeResource){
+                            cb(err, completeResource);
+                        });
+                    },
+                    function(err, results)
+                    {
+                        callback(err, results);
+                    });
             }
-            callback(null, allResources);
-        }
-        else
-        {
-            callback(1, "Unable to fetch all resources from the graph");
-        }
-    });
+            else
+            {
+                callback(1, "Unable to fetch all resources from the graph");
+            }
+        });
 };
 
 /**
@@ -2731,6 +2736,44 @@ Resource.exists = function(uri, callback, customGraphUri)
                 callback(err, msg);
             }
         });
+}
+
+
+Resource.getCount = function(callback) {
+    var self = this;
+    var countQuery =
+        "SELECT " +
+        "COUNT(?uri) as ?count " +
+        "FROM [0] " +
+        "WHERE " +
+        "{ " +
+        " ?uri rdf:type [1] " +
+        "}";
+
+    var totalCount;
+
+    db.connection.execute(countQuery,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.prefixedResource,
+                value: self.prefixedRDFType
+            }
+        ],
+
+        function(err, count) {
+            if(!err && count instanceof Array)
+            {
+                totalCount = parseInt(count[0].count);
+                callback(null, totalCount);
+            } else{
+                callback(err, count[0]);
+            }
+        }
+    );
 }
 
 

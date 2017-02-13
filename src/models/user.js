@@ -165,60 +165,13 @@ User.createAndInsertFromObject = function(object, callback) {
 };
 
 
-User.all = function(callback) {
-    var query =
-            "SELECT ?uri \n" +
-            "FROM [0] \n" +
-            "WHERE {\n" +
-                "?uri rdf:type ddr:User  \n"+
-            "} \n";
+User.all = function(callback, req) {
+    var self = this;
+    User.baseConstructor.all.call(self, function(err, users) {
 
-    query = DbConnection.paginateQuery(req, query);
+        callback(err, users);
 
-    db.connection.execute(query,
-        [
-            {
-                type: DbConnection.resourceNoEscape,
-                value : db.graphUri
-            }
-        ],
-        function(err, users) {
-            if(!err)
-            {
-                 if(users instanceof Array && users.length > 0)
-                 {
-                     var getUserProperties = function(resultRow, cb)
-                     {
-                         User.findByUri(resultRow.uri, function(err, project)
-                         {
-                             cb(err, project);
-                         });
-                     };
-
-                     //get all the information about all the projects
-                     // and return the array of projects, complete with that info
-                     async.map(users, getUserProperties, function(err, usersToReturn)
-                     {
-                         if(!err)
-                         {
-                             callback(null, usersToReturn);
-                         }
-                         else
-                         {
-                             callback("error fetching user information : " + err, usersToReturn);
-                         }
-                     });
-                 }
-                 else
-                 {
-                     callback(null, []);
-                 }
-            }
-            else
-            {
-                callback(1, results);
-            }
-        });
+    }, req);
 };
 
 User.allInPage = function(page, pageSize, callback) {
@@ -1395,6 +1348,8 @@ User.removeAllAdmins = function(callback)
 User.anonymous = {
     uri: "http://dendro.fe.up.pt/user/anonymous"
 };
+
+User.prefixedRDFType = "ddr:User";
 
 User = Class.extend(User, Resource);
 
