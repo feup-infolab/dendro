@@ -23,24 +23,44 @@ exports.all = function(req, res){
         viewVars
     );
 
-    User.all(function(err, users)
+    var getUserCount = function(cb)
     {
-        if(!err)
-        {
-            viewVars.users = users;
+        User.getCount(function(err, count){
+            cb(err, count);
+        });
+    }
 
-            res.render('users/all',
-                viewVars
-            );
-        }
-        else
+    var getAllUsers = function(cb)
+    {
+        User.all(function(err, users) {
+            cb(err, users);
+        }, req);
+    }
+
+    async.parallel(
+        [
+            getUserCount, getAllUsers
+        ], function(err, results)
         {
-            viewVars.error_messages = [users];
-            res.render('users/all',
-                viewVars
-            );
+            if(!err)
+            {
+                viewVars.count = results[0];
+                viewVars.users = results[1];
+
+                res.render('users/all',
+                    viewVars
+                )
+            }
+            else
+            {
+                viewVars.users = [];
+                viewVars.error_messages = [results];
+                res.render('users/all',
+                    viewVars
+                )
+            }
         }
-    });
+    );
 };
 
 exports.show = function(req, res){

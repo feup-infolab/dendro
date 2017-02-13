@@ -6,7 +6,7 @@
     <% if( locals.currentPage > 0 ) {%>
         <a href="?pageSize=&currentPage=<%= currentPage-1%>"> << Previous Page </a>
     <% } %>
-    <% if(locals.pageSize > 0 && total >= locals.pageSize) {%>
+    <% if(locals.pageSize > 0 && count > (locals.pageSize * (locals.currentPage + 1))) {%>
         <a href="?pageSize=<%= pageSize%>&currentPage=<%= currentPage+1%>"> Next Page >> </a>
     <% } %>
 <% } %>

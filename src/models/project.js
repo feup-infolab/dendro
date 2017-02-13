@@ -121,7 +121,7 @@ Project.prototype.backup = function(callback)
         }
     });
 };
-
+  
 Project.allNonPrivate = function(currentUser, callback) {
 
     //TODO @silvae86 exception for the projects where the current user is either creator or contributor.
@@ -174,53 +174,14 @@ Project.allNonPrivate = function(currentUser, callback) {
         });
 }
 
-Project.all = function(callback) {
-    var query =
-            "SELECT * " +
-            "FROM [0] "+
-            "WHERE " +
-            "{ " +
-            " ?uri rdf:type ddr:Project " +
-            "} ";
+Project.all = function(callback, req) {
+    var self = this;
+    Project.baseConstructor.all.call(self, function(err, projects) {
 
-    query = DbConnection.paginateQuery(req, query);
+        //projects var will contain an error message instead of an array of results.
+        callback(err, projects);
 
-    db.connection.execute(query,
-        [
-            {
-                type: DbConnection.resourceNoEscape,
-                value: db.graphUri
-            }
-        ],
-
-        function(err, projects) {
-            if(!err && projects instanceof Array)
-            {
-                var getProjectInformation = function(project, callback)
-                {
-                    Project.findByUri(project.uri, callback);
-                };
-
-                //get all the information about all the projects
-                // and return the array of projects, complete with that info
-                async.map(projects, getProjectInformation, function(err, projectsToReturn)
-                {
-                    if(!err)
-                    {
-                        callback(null, projectsToReturn);
-                    }
-                    else
-                    {
-                        callback("error fetching project information : " + err, projectsToReturn);
-                    }
-                });
-            }
-            else
-            {
-                //projects var will contain an error message instead of an array of results.
-                callback(err, projects);
-            }
-    });
+    }, req);
 }
 
 Project.findByHandle = function(handle, callback) {
@@ -1347,6 +1308,7 @@ Project.getOwnerProjectBasedOnUri = function(requestedResource, callback)
     Project.findByHandle(handle, callback);
 };
 
+
 Project.privacy = function (projectUri, callback) {
     Project.findByUri(projectUri, function (err, project) {
         if (!err)
@@ -1646,6 +1608,8 @@ Project.rebaseAllUris = function(structure, newBaseUri)
 
     modifyNode(structure);
 };
+
+Project.prefixedRDFType = "ddr:Project";
 
 Project = Class.extend(Project, Resource);
 
