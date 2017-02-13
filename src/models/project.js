@@ -122,7 +122,59 @@ Project.prototype.backup = function(callback)
     });
 };
 
-Project.all = function(req, callback) {
+Project.allNonPrivate = function(currentUser, callback) {
+
+    //TODO @silvae86 exception for the projects where the current user is either creator or contributor.
+    var query =
+        "SELECT * " +
+        "FROM [0] "+
+        "WHERE " +
+        "{ " +
+        " ?uri rdf:type ddr:Project " +
+        " FILTER NOT EXISTS {" +
+        "    ?uri ddr:privacyStatus ddr:privateStatus " +
+        "   } " +
+        "} ";
+
+    db.connection.execute(query,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            }
+        ],
+
+        function(err, projects) {
+            if(!err && projects instanceof Array)
+            {
+                var getProjectInformation = function(project, callback)
+                {
+                    Project.findByUri(project.uri, callback);
+                };
+
+                //get all the information about all the projects
+                // and return the array of projects, complete with that info
+                async.map(projects, getProjectInformation, function(err, projectsToReturn)
+                {
+                    if(!err)
+                    {
+                        callback(null, projectsToReturn);
+                    }
+                    else
+                    {
+                        callback("error fetching project information : " + err, projectsToReturn);
+                    }
+                });
+            }
+            else
+            {
+                //projects var will contain an error message instead of an array of results.
+                callback(err, projects);
+            }
+        });
+}
+
+Project.all = function(callback) {
     var query =
             "SELECT * " +
             "FROM [0] "+

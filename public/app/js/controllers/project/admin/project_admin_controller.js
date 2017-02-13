@@ -16,7 +16,7 @@ angular.module('dendroApp.controllers')
                 headers: {'Accept': "application/json"}
             }).then(function(response) {
                     //console.log(data);
-                    $scope.project = data;
+                    $scope.project = response.data;
 
                     for(var i = 0; i < $scope.project.descriptors.length; i++)
                     {

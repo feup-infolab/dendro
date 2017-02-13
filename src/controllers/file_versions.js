@@ -4,7 +4,7 @@ var Comment = require('../models/social/comment.js').Comment;
 var Share = require('../models/social/share.js').Share;
 var Ontology = require('../models/meta/ontology.js').Ontology;
 var Project = require('../models/project.js').Project;
-var FileVersion = require('../models/versions/file_versions.js').FileVersions;
+var FileVersion = require('../models/versions/file_version.js').FileVersion;
 var Notification = require('../models/notifications/notification.js').Notification;
 var DbConnection = require("../kb/db.js").DbConnection;
 var _ = require('underscore');
@@ -30,7 +30,7 @@ var numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
                 "VALUES ?project { \n" +
                 projectsUris+
                 "}\n" +
-                "{?uri rdf:type ddr:FileVersions. }\n" +
+                "{?uri rdf:type ddr:FileVersion. }\n" +
                 "UNION \n"+
                 "{?uri ddr:fileVersionUri ?x }\n" +
                 "?uri ddr:projectUri ?project. \n"+
@@ -81,7 +81,7 @@ exports.numFileVersionsInDatabase = function (req, res) {
                     else{
                         res.status(500).json({
                             result : "Error",
-                            message : "Error counting FileVersions. " + JSON.stringify(err)
+                            message : "Error counting FileVersion. " + JSON.stringify(err)
                         });
                     }
                 });
@@ -114,7 +114,7 @@ var getProjectFileVersions = function (projectUrisArray, startingResultPosition,
                 projectsUris + "\n" +
                 "}. \n" +
                 "?fileVersion dcterms:modified ?date. \n" +
-                "{?fileVersion rdf:type ddr:FileVersions. }\n" +
+                "{?fileVersion rdf:type ddr:FileVersion. }\n" +
                 "UNION \n"+
                 "{?fileVersion ddr:fileVersionUri ?x }\n" +
                 "?fileVersion ddr:projectUri ?project. \n" +
@@ -137,7 +137,7 @@ var getProjectFileVersions = function (projectUrisArray, startingResultPosition,
                     }
                     else
                     {
-                        var msg = "Error fetching FileVersions";
+                        var msg = "Error fetching FileVersion";
                         callback(true, msg);
                     }
                 });

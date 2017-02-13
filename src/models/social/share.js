@@ -33,7 +33,7 @@ function Share (object)
     }
     else if(object.ddr.fileVersionUri){
         console.log('is fileVersionURI');
-        objectType = "ddr:FileVersions";
+        objectType = "ddr:FileVersion";
     }
 
     if(object.uri != null)

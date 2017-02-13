@@ -6,8 +6,9 @@ angular.module('dendroApp.services')
             'usersService',
             'Upload',
             '$http',
+            '$timeout',
             '$q',
-            function (usersService, Upload, $http, $q)
+            function (usersService, Upload, $http, $timeout, $q)
             {
                 this.uploadUsing$http = function(file, upload_url) {
                     file.upload = Upload.http({
@@ -65,7 +66,7 @@ angular.module('dendroApp.services')
                     file.upload
                         .then(function (response) {
                             $timeout(function () {
-                                deferred.reject(response.data);
+                                deferred.resolve(response.data);
                             });
                         })
                         .catch(function(error){
@@ -74,6 +75,7 @@ angular.module('dendroApp.services')
 
                     file.upload.progress(function (evt) {
                         file.progress = Math.min(100, parseInt(100.0 * evt.loaded / evt.total));
+                        console.log(file.upload_id + " : " + file.progress);
                     });
 
                     file.upload.xhr(function (xhr) {
@@ -154,7 +156,7 @@ angular.module('dendroApp.services')
                                     {
                                         if (response.data != null && response.data.upload_id != null)
                                         {
-                                            ticketPromise.resolve(response.data.upload_id);
+                                            ticketPromise.resolve(response.data.upload_id, file);
                                         }
                                         else
                                         {
@@ -181,11 +183,8 @@ angular.module('dendroApp.services')
 
                 this.calculate_md5 = function (file, callback)
                 {
-                    file.calculating_md5 = true;
                     browserMD5File(file, function (err, md5)
                     {
-                        file.calculating_md5 = false;
-                        file.md5 = md5;
                         callback(err, md5); // 97027eb624f85892c69c4bcec8ab0f11
                     });
                 }

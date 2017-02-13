@@ -607,11 +607,16 @@ if(Config.demo_mode.active)
 Config.email = getConfigParameter("email");
 
 Config.regex_routes = {
-    projects :
+    project_root:
     {
-        upload : "\/project/([^\/]+)[\/data]?((?=.*\/upload\/?$).*)$",
-        restore : "\/project/([^\/]+)[\/data]?((?=.*\/restore\/?$).*)$",
-        download : "\/project/([^\/]+)[\/data]?((?=.*\/download\/?$).*)$"
+        restore : "\/project\/([^\/]+)[\/data]?$",
+        bagit : "\/project\/([^\/]+)[\/data]?$",
+    },
+    inside_projects :
+    {
+        upload : "\/project\/([^\/]+)[\/data]?((?=(.*)\/upload\/?$).*)$",
+        restore : "\/project\/([^\/]+)[\/data]?((?=(.*)\/restore\/?$).*)$",
+        download : "\/project\/([^\/]+)[\/data]?((?=(.*)\/download\/?$).*)$"
     }
 }
 

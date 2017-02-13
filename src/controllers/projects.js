@@ -14,8 +14,7 @@ var flash = require('connect-flash');
 var async = require('async');
 
 exports.all = function(req, res) {
-    Project.all(req, function(err, projects) {
-
+    Project.allNonPrivate(req.session.user.uri, function(err, projects) {
         var viewVars = {
             title: "All projects"
         };
@@ -496,43 +495,81 @@ exports.new = function(req, res) {
     }
     else if (req.originalMethod == "POST")
     {
+        var acceptsHTML = req.accepts('html');
+        var acceptsJSON = req.accepts('json');
+
         if(req.body.handle == null || req.body.handle == "")
         {
-            res.render('projects/new',
-                {
-                    error_messages: ["The project's handle cannot be null or an empty value."]
-                }
-            )
+            if(acceptsJSON && !acceptsHTML){
+                res.status(400).json({
+                    result: "error",
+                    message : "The project's handle cannot be null or an empty value."
+                })
+            } else {
+                res.render('projects/new',
+                    {
+                        error_messages: ["The project's handle cannot be null or an empty value."]
+                    }
+                )
+            }
         }
         else if (req.body.handle != null && !req.body.handle.match(/^[0-9a-z]+$/))
         {
-            res.render('projects/new',
-                {
-                    error_messages: ["Project handle can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : project01. Invalid: project 01, project*01, pro@ject, proj%91 "]
-                }
-            )
+            if(acceptsJSON && !acceptsHTML){
+                res.status(400).json({
+                    result: "error",
+                    message : "Project handle can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : project01. Invalid: project 01, project*01, pro@ject, proj%91 "
+                })
+            } else {
+                res.render('projects/new',
+                    {
+                        error_messages: ["Project handle can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : project01. Invalid: project 01, project*01, pro@ject, proj%91 "]
+                    }
+                )
+            }
         }
         else if(!req.body.title || req.body.title == ""){
-            res.render('projects/new',
-                {
-                    error_messages: ["Please insert a title for your project."]
-                }
-            )
+            if(acceptsJSON && !acceptsHTML){
+                res.status(400).json({
+                    result: "error",
+                    message : "Please insert a title for your project."
+                })
+            } else {
+                res.render('projects/new',
+                    {
+                        error_messages: ["Please insert a title for your project."]
+                    }
+                )
+            }
         }
         else if(!req.body.description || req.body.description == ""){
-            res.render('projects/new',
-                {
-                    error_messages: ["Please insert a description for your project."]
-                }
-            )
+            if(acceptsJSON && !acceptsHTML){
+                res.status(400).json({
+                    result: "error",
+                    message : "Please insert a description for your project."
+                })
+            } else {
+                res.render('projects/new',
+                    {
+                        error_messages: ["Please insert a description for your project."]
+                    }
+                )
+            }
         }
         else if(!req.body.privacy || req.body.privacy == "")
         {
-            res.render('projects/new',
-                {
-                    error_messages: ["Please specify the privacy type for your project."]
-                }
-            )
+            if(acceptsJSON && !acceptsHTML){
+                res.status(400).json({
+                    result: "error",
+                    message : "Please specify the privacy type for your project."
+                })
+            } else {
+                res.render('projects/new',
+                    {
+                        error_messages: ["Please specify the privacy type for your project."]
+                    }
+                )
+            }
         }
         else
         {
@@ -542,12 +579,19 @@ exports.new = function(req, res) {
                 {
                     if((project != null) && project instanceof Project)
                     {
-                        res.render('projects/new',
-                            {
-                                //title : "Register on Dendro",
-                                error_messages: ["A project with handle " + req.body.handle + " already exists. Please choose another one."]
-                            }
-                        );
+                        if(acceptsJSON && !acceptsHTML){
+                            res.status(400).json({
+                                result: "error",
+                                message : "A project with handle " + req.body.handle + " already exists. Please choose another one."
+                            })
+                        } else {
+                            res.render('projects/new',
+                                {
+                                    //title : "Register on Dendro",
+                                    error_messages: ["A project with handle " + req.body.handle + " already exists. Please choose another one."]
+                                }
+                            );
+                        }
                     }
                     else
                     {
