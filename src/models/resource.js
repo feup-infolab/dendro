@@ -97,7 +97,7 @@ Resource.all = function(callback, req, customGraphUri)
             title : 'All vertexes in the knowledge base'
         };
 
-        viewVars = DbConnection.paginate(req,
+        req.viewVars = DbConnection.paginate(req,
             viewVars
         );
 
@@ -128,8 +128,6 @@ Resource.all = function(callback, req, customGraphUri)
         function(err, results) {
             if(!err)
             {
-                var allResources = [];
-
                 async.map(results,
                     function(result, cb)
                     {
