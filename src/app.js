@@ -1144,133 +1144,131 @@ async.waterfall([
         app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]), repo_bookmarks.delete);
 
         //view a project's root
-            app.all(/\/project\/([^\/]+)(\/data)?$/,
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                function(req,res, next)
-                {
-                    req.params.handle = req.params[0];                      //project handle
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
-
-                    if(req.originalMethod == "GET")
-                    {
-                        if(req.query.ls != null)
-                        {
-                            files.ls(req, res);
-                        }
-                        else if(req.query.metadata_recommendations != null)
-                        {
-                            recommendation.recommend_descriptors(req, res);
-                        }
-                        else if(req.query.recent_changes != null)
-                        {
-                            projects.recent_changes(req, res);
-                        }
-                        else if(req.query.stats != null)
-                        {
-                            projects.stats(req, res);
-                        }
-                        else if(req.query.recommendation_ontologies != null)
-                        {
-                            ontologies.get_recommendation_ontologies(req, res);
-                        }
-                        else if(req.query.version != null)
-                        {
-                            records.show_version(req, res);
-                        }
-                        else if(req.query.administer != null)
-                        {
-                            projects.administer(req, res);
-                        }
-                        else if(req.query.descriptor_autocomplete != null)
-                        {
-                            descriptors.descriptors_autocomplete(req, res);
-                        }
-                        else if(req.query.ontology_autocomplete != null)
-                        {
-                            ontologies.ontologies_autocomplete(req, res);
-                        }
-                        else if(req.query.thumbnail != null)
-                        {
-                            files.serve_static(req, res, "images/icons/folder.png", "images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-                            return;
-                        }
-                        else
-                        {
-                            projects.show(req, res);
-                        }
-                    }
-                    else if(req.originalMethod == "POST")
-                    {
-                        if(req.query.update_metadata != null)
-                        {
-                            req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
-                            records.update(req,res);
-                        }
-                        else if(req.query.restore_metadata_version != null)
-                        {
-                            records.restore_metadata_version(req, res);
-                        }
-                        else if(req.query.mkdir != null)
-                        {
-                            req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                            files.mkdir(req, res);
-                        }
-                        else if(req.query.administer != null)
-                        {
-                            projects.administer(req, res);
-                        }
-                        else if(req.query.export_to_repository != null)
-                        {
-                            datasets.export_to_repository(req, res);
-                        }
-                    }
-            });
-
-
-        //for places inside a project
-            app.all(new RegExp(Config.regex_routes.projects.upload),
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                function(req,res, next)
-                {
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
-                    files.upload(req, res);
-                    return;
-                });
-
-            app.all(new RegExp(Config.regex_routes.projects.restore),
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                function(req,res, next)
-                {
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
-                    files.restore(req, res);
-                    return;
-                }
-            );
-
-            app.all(new RegExp(Config.regex_routes.projects.download),
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                function(req,res, next)
-                {
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
-                    files.download(req, res);
-                    return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
-                    // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
-                }
-            );
-
-        app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
-            function(req,res, next)
+        app.all(/\/project\/([^\/]+)(\/data)?$/,
+            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
+            function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
-                req.params.requestedResource = Config.baseUri + "/project/" + req.params[0];
+                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
+
+                if(req.query.upload != null)
+                {
+                    req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                    files.upload(req, res);
+                }
+                else if(req.originalMethod == "GET")
+                {
+                    if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
+                    {
+                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                        files.download(req, res);
+                        return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
+                        // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
+                    }
+                    else if(req.query.ls != null)
+                    {
+                        files.ls(req, res);
+                    }
+                    else if(req.query.metadata_recommendations != null)
+                    {
+                        recommendation.recommend_descriptors(req, res);
+                    }
+                    else if(req.query.recent_changes != null)
+                    {
+                        projects.recent_changes(req, res);
+                    }
+                    else if(req.query.stats != null)
+                    {
+                        projects.stats(req, res);
+                    }
+                    else if(req.query.recommendation_ontologies != null)
+                    {
+                        ontologies.get_recommendation_ontologies(req, res);
+                    }
+                    else if(req.query.version != null)
+                    {
+                        records.show_version(req, res);
+                    }
+                    else if(req.query.administer != null)
+                    {
+                        projects.administer(req, res);
+                    }
+                    else if(req.query.descriptor_autocomplete != null)
+                    {
+                        descriptors.descriptors_autocomplete(req, res);
+                    }
+                    else if(req.query.ontology_autocomplete != null)
+                    {
+                        ontologies.ontologies_autocomplete(req, res);
+                    }
+                    else if(req.query.thumbnail != null)
+                    {
+                        files.serve_static(req, res, "images/icons/folder.png", "images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                        return;
+                    }
+                    else
+                    {
+                        projects.show(req, res);
+                    }
+                }
+                else if(req.originalMethod == "POST")
+                {
+                    if(req.query.update_metadata != null)
+                    {
+                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
+                        records.update(req,res);
+                    }
+                    else if(req.query.restore_metadata_version != null)
+                    {
+                        records.restore_metadata_version(req, res);
+                    }
+
+                    else if(req.query.mkdir != null)
+                    {
+                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                        files.mkdir(req, res);
+                    }
+                    else if(req.query.restore != null)
+                    {
+                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                        files.restore(req, res);
+                    }
+                    else if(req.query.administer != null)
+                    {
+                        projects.administer(req, res);
+                    }
+                    else if(req.query.export_to_repository != null)
+                    {
+                        datasets.export_to_repository(req, res);
+                    }
+                }
+            });
+
+        //      files and folders (data)
+        //      downloads
+        app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
+            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
+            function(req,res)
+            {
+                req.params.handle = req.params[0];                      //project handle
+                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
 
                 req.params.filepath = req.params[1];   //relative path encodeuri needed because of spaces in filenames
                 req.params.requestedResource = req.params.requestedResource + req.params.filepath;
 
-                if(req.originalMethod == "GET")
+                if(req.query.upload != null)
                 {
-                    if(req.query.thumbnail != null)
+                    files.upload(req, res);
+                }
+                else if(req.originalMethod == "GET")
+                {
+                    if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
+                    {
+                        files.download(req, res);
+                        return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
+                                // OR ELSE SYMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
+                    }
+                    else if(req.query.thumbnail != null)
                     {
                         if(req.params.filepath != null)
                         {
@@ -1399,6 +1397,10 @@ async.waterfall([
                     {
                         files.mkdir(req, res);
                     }
+                    else if(req.query.restore != null)
+                    {
+                        files.restore(req, res);
+                    }
                     else if(req.query.undelete != null)
                     {
                         files.undelete(req, res);
@@ -1411,30 +1413,6 @@ async.waterfall([
                 else if(req.originalMethod == "DELETE")
                 {
                     files.rm(req, res);
-                }
-            }
-        );
-
-        //downloads and uploads on files and folders (data)
-        app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
-            function(req,res, next)
-            {
-                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                if(req.query.upload != null)
-                {
-                    files.upload(req, res);
-                }
-                else if(req.query.restore != null)
-                {
-                    files.restore(req, res);
-
-                }
-                else if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
-                {
-                    files.download(req, res);
-                    return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
-                            // OR ELSE SYMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
                 }
             }
         );
@@ -1475,10 +1453,6 @@ async.waterfall([
 
         //serve angular JS ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,
-            function(req, res, next)
-            {
-                next();
-            },
             function(req, res, next){
 
                 var requestedEJSPath = path.join(Config.getPathToPublicFolder(), req.params[0]) + ".ejs";

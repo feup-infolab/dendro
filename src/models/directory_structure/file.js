@@ -491,8 +491,13 @@ File.prototype.connectToMongo = function (callback) {
 File.prototype.findFileInMongo = function (db, callback) {
     var collection = db.collection('fs.files');
     collection.find({filename: this.uri}).toArray(function(err, files) {
-        console.log("Found the following Files");
-        console.log(files);
+
+        if(Config.debug.files.log_file_version_fetches)
+        {
+            console.log("Found the following Files");
+            console.log(files);
+        }
+
         if(!err)
         {
             callback(null, files);
@@ -640,9 +645,9 @@ File.prototype.generateThumbnails = function(callback)
         }
         else
         {
-            callback(null, "Unable to retrieve file " + self.uri + " for from GridFS for thumbnail generation.");
+            callback(null, "Unable to retrieve owner project of " + self.uri + " for thumbnail generation.");
         }
-    })
+    });
 };
 
 File.createBlankTempFile = function(fileName, callback)

@@ -71,22 +71,43 @@ exports.show = function(req, res){
 
     User.findByUsername(username, function(err, user)
     {
-        if(err == null)
+        if(!err)
         {
-            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            if(user != null)
             {
-                res.json(
-                    user
-                );
+                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.json(
+                        user
+                    );
+                }
+                else
+                {
+                    res.render('users/show',
+                        {
+                            title : "Viewing user " + username,
+                            user : user
+                        }
+                    )
+                }
             }
             else
             {
-                res.render('users/show',
-                    {
-                        title : "Viewing user " + username,
-                        user : user
-                    }
-                )
+                if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.json({
+                        result : "error",
+                        message : "User " + username + " does not exist."
+                    });
+                }
+                else
+                {
+                    res.render('index',
+                        {
+                            error_messages : ["User " + username + " does not exist."]
+                        }
+                    )
+                }
             }
         }
         else
