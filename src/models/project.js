@@ -183,6 +183,8 @@ Project.all = function(callback) {
             " ?uri rdf:type ddr:Project " +
             "} ";
 
+    query = DbConnection.paginateQuery(req, query);
+
     db.connection.execute(query,
         [
             {

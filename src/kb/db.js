@@ -520,20 +520,21 @@ DbConnection.paginateQuery = function (req, query) {
             req.query.currentPage = parseInt(req.query.currentPage);           //avoid injections
         }
 
+        var pageSize;
         if(!req.query.pageSize)
         {
-            req.query.pageSize = 20;
+            pageSize = 20;
         }
         else
         {
-            req.query.pageSize = parseInt(req.query.pageSize);              //avoid injections
+            pageSize = parseInt(req.query.pageSize);              //avoid injections
         }
 
-        var skip = req.query.pageSize * req.query.currentPage;
+        var skip = pageSize * req.query.currentPage;
 
-        if(req.query.pageSize > 0)
+        if(pageSize > 0)
         {
-            query = query + " LIMIT " + req.query.pageSize;
+            query = query + " LIMIT " + pageSize;
         }
 
         if(skip > 0)

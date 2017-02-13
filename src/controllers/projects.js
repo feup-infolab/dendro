@@ -15,7 +15,6 @@ var async = require('async');
 
 exports.all = function(req, res) {
     Project.allNonPrivate(req.session.user.uri, function(err, projects) {
-
         var viewVars = {
             title: "All projects"
         };
