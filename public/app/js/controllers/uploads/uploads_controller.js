@@ -45,61 +45,91 @@ angular.module('dendroApp.controllers')
                 }
             });
             $scope.$watch($scope.files_array_name, function (files) {
-               var self = this;
-               self.files = files;
 
-               $scope.formUpload = false;
-                if (self.files != null) {
-                    // make files array for not multiple to be able to be used in ng-repeat in the ui
-                    if (!angular.isArray(self.files)) {
-                        $timeout(function () {
-                            $scope[$scope.files_array_name] = self.files = [self.files];
-                        });
-                        return;
-                    }
-                    
-                    $scope.errorMsg = null;
+               if(files != null && files.length > 0)
+               {
+                   var self = this;
+                   self.files = files;
 
-                    async.each(
-                        self.files, 
-                        function(file,callback){
-                        if(!file.uploading)
-                        {
-                            file.calculating_md5 = true;
-                            uploadsService.calculate_md5(file, function(err, md5){
-                                if(!err)
-                                {
-                                    file.calculating_md5 = false;
-                                    file.md5 = md5;
-                                    $scope.upload(file, true)
-                                        .then(function(result){
-                                            file.uploading = false;
-                                            callback(null, result);
-                                        })
-                                        .catch(function(error){
-                                            file.uploading = false;
-                                            callback(err, error)
-                                        });
-                                }
-                                else
-                                {
-                                    windowService.show_popup('info', 'Unable to calculate checksum of file ' + file.name);
-                                }
-                            });
-                        }
-                        },
-                        function(err,results){
-                            if(!err)
-                            {
-                                $scope.uploads_callback(null, results, $scope.still_uploading_files());
-                            }
-                            else
-                            {
-                                $scope.uploads_callback(1, error.error);
-                            }
-                        }
-                    );
-                }
+                   $scope.formUpload = false;
+                   if (self.files != null)
+                   {
+                       // make files array for not multiple to be able to be used in ng-repeat in the ui
+                       if (!angular.isArray(self.files))
+                       {
+                           $timeout(function ()
+                           {
+                               $scope[$scope.files_array_name] = self.files = [self.files];
+                           });
+                           return;
+                       }
+
+                       $scope.errorMsg = null;
+
+                       async.each(
+                           self.files,
+                           function (file, callback)
+                           {
+                               if (!file.uploading)
+                               {
+                                   file.calculating_md5 = true;
+                                   uploadsService.calculate_md5(file, function (err, md5)
+                                   {
+                                       if (!err)
+                                       {
+                                           file.calculating_md5 = false;
+                                           file.md5 = md5;
+                                           $scope.upload(file, true)
+                                               .then(function (result)
+                                               {
+                                                   file.uploading = false;
+                                                   file.result = result;
+                                                   callback(null, result);
+                                               })
+                                               .catch(function (error)
+                                               {
+                                                   file.uploading = false;
+                                                   callback(err, error)
+                                               });
+                                       }
+                                       else
+                                       {
+                                           windowService.show_popup('info', 'Unable to calculate checksum of file ' + file.name);
+                                       }
+                                   });
+                               }
+                           },
+                           function (err, results)
+                           {
+                               if (!err)
+                               {
+                                   if ($scope.move_to_success_timeout != null && $scope.move_to_success_timeout > 0)
+                                   {
+                                       $timeout(function ()
+                                       {
+
+                                           $scope[$scope.upload_files_successful_array_name] = _.filter(self.files, function (d)
+                                           {
+                                               return d.result == null
+                                           });
+                                           $scope[$scope.files_array_name] = _.reject(self.files, function (d)
+                                           {
+                                               return d.result != null
+                                           });
+
+                                       }, $scope.move_to_success_timeout);
+                                   }
+
+                                   $scope.uploads_callback(null, results, $scope.still_uploading_files());
+                               }
+                               else
+                               {
+                                   $scope.uploads_callback(1, error.error);
+                               }
+                           }
+                       );
+                   }
+               }
             });
         }
 
@@ -266,13 +296,15 @@ angular.module('dendroApp.controllers')
             });
         });
 
-        $scope.init = function(upload_url_function, files_array_name, invalid_files_array_name, uploads_callback)
+        $scope.init = function(upload_url_function, files_array_name, invalid_files_array_name, upload_files_successful_array_name, uploads_callback, move_to_success_timeout)
         {
             $scope.get_uploads_url_function = upload_url_function;
             $scope.uploads_callback = uploads_callback;
 
             $scope.files_array_name = files_array_name;
             $scope.invalid_files_array_name = invalid_files_array_name;
+            $scope.upload_files_successful_array_name = upload_files_successful_array_name;
+            $scope.move_to_success_timeout = move_to_success_timeout;
 
             $scope.get_upload_url = function(){
                 return URI($scope.get_uploads_url_function()).addSearch("upload").toString()

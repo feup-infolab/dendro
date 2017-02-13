@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="col-xs-2">
-                    <div class="row">
+                    <!--<div class="row">
                         <button class="btn btn-xs btn-primary" ng-click="restart(f);f.upload.aborted=false"
                                 ng-show="isResumeSupported && f.upload != null && (f.progress == 100 || f.upload.aborted)"><i class="fa fa-repeat"></i> Repeat
                         </button>
@@ -31,6 +31,11 @@
                         </button>
                         <button class="btn btn-xs btn-primary" ng-click="upload(f, true);f.upload.aborted=false"
                                 ng-show="isResumeSupported && f.upload != null && f.upload.aborted"><i class="fa fa-play"></i>  Resume
+                        </button>
+                    </div>-->
+                    <div class="row">
+                        <button class="btn btn-xs btn-primary" ng-click="restart(f);f.upload.aborted=false"
+                                ng-show="f.upload != null && (f.progress == 100 || f.upload.aborted)"><i class="fa fa-repeat"></i> Repeat
                         </button>
                     </div>
                 </div>

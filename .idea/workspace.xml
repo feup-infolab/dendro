@@ -6,7 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="37a74947-2fdb-4da4-b1fb-85b8b233ca6b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/js/services/window_service.js" afterPath="$PROJECT_DIR$/public/app/js/services/window_service.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js" afterPath="$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/projects/show.ejs" afterPath="$PROJECT_DIR$/src/views/projects/show.ejs" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/uploads/progress_bars.ejs" afterPath="$PROJECT_DIR$/src/views/uploads/progress_bars.ejs" />
     </list>
     <ignored path="dendro.iws" />
@@ -31,8 +32,8 @@
       <file leaf-file-name="file.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/models/directory_structure/file.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="8398">
-              <caret line="494" column="7" selection-start-line="494" selection-start-column="7" selection-end-line="494" selection-end-column="7" />
+            <state relative-caret-position="116">
+              <caret line="486" column="9" selection-start-line="486" selection-start-column="9" selection-end-line="486" selection-end-column="9" />
               <folding>
                 <element signature="e#16256#18475#0" expanded="false" />
               </folding>
@@ -43,7 +44,7 @@
       <file leaf-file-name="config.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1853">
+            <state relative-caret-position="207">
               <caret line="109" column="0" selection-start-line="109" selection-start-column="0" selection-end-line="109" selection-end-column="0" />
               <folding />
             </state>
@@ -54,7 +55,7 @@
         <entry file="file://$PROJECT_DIR$/src/views/projects/show.ejs">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="1717">
-              <caret line="101" column="93" selection-start-line="101" selection-start-column="81" selection-end-line="101" selection-end-column="93" />
+              <caret line="101" column="171" selection-start-line="101" selection-start-column="171" selection-end-line="101" selection-end-column="171" />
               <folding />
             </state>
           </provider>
@@ -63,8 +64,8 @@
       <file leaf-file-name="file_browser_controller.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/editor/file_browser_controller.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="2788">
-              <caret line="164" column="45" selection-start-line="164" selection-start-column="45" selection-end-line="164" selection-end-column="45" />
+            <state relative-caret-position="393">
+              <caret line="163" column="84" selection-start-line="163" selection-start-column="84" selection-end-line="163" selection-end-column="84" />
               <folding />
             </state>
           </provider>
@@ -83,18 +84,18 @@
       <file leaf-file-name="progress_bars.ejs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/views/uploads/progress_bars.ejs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="336">
-              <caret line="22" column="82" selection-start-line="22" selection-start-column="82" selection-end-line="22" selection-end-column="82" />
+            <state relative-caret-position="731">
+              <caret line="43" column="68" selection-start-line="43" selection-start-column="68" selection-end-line="43" selection-end-column="68" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="uploads_controller.js" pinned="false" current-in-tab="false">
+      <file leaf-file-name="uploads_controller.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="397">
-              <caret line="277" column="90" selection-start-line="277" selection-start-column="90" selection-end-line="277" selection-end-column="90" />
+            <state relative-caret-position="191">
+              <caret line="56" column="33" selection-start-line="56" selection-start-column="33" selection-end-line="56" selection-end-column="33" />
               <folding />
             </state>
           </provider>
@@ -103,18 +104,18 @@
       <file leaf-file-name="uploads_service.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/app/js/services/uploads_service.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="274">
-              <caret line="170" column="69" selection-start-line="170" selection-start-column="37" selection-end-line="170" selection-end-column="37" />
+            <state relative-caret-position="17">
+              <caret line="133" column="62" selection-start-line="133" selection-start-column="61" selection-end-line="133" selection-end-column="62" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="window_service.js" pinned="false" current-in-tab="true">
+      <file leaf-file-name="window_service.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/public/app/js/services/window_service.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="323">
-              <caret line="112" column="83" selection-start-line="112" selection-start-column="83" selection-end-line="112" selection-end-column="83" />
+            <state relative-caret-position="272">
+              <caret line="81" column="59" selection-start-line="81" selection-start-column="59" selection-end-line="81" selection-end-column="59" />
               <folding>
                 <element signature="e#193#1848#0" expanded="false" />
                 <element signature="e#1900#2080#0" expanded="false" />
@@ -181,14 +182,14 @@
         <option value="$PROJECT_DIR$/src/models/meta/elements.js" />
         <option value="$PROJECT_DIR$/src/controllers/projects.js" />
         <option value="$PROJECT_DIR$/src/models/project.js" />
-        <option value="$PROJECT_DIR$/src/views/projects/show.ejs" />
         <option value="$PROJECT_DIR$/conf/deployment_configs.json" />
         <option value="$PROJECT_DIR$/src/models/directory_structure/file.js" />
         <option value="$PROJECT_DIR$/public/app/js/services/uploads_service.js" />
-        <option value="$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js" />
-        <option value="$PROJECT_DIR$/public/app/js/controllers/project/editor/file_browser_controller.js" />
-        <option value="$PROJECT_DIR$/src/views/uploads/progress_bars.ejs" />
         <option value="$PROJECT_DIR$/public/app/js/services/window_service.js" />
+        <option value="$PROJECT_DIR$/src/views/uploads/progress_bars.ejs" />
+        <option value="$PROJECT_DIR$/public/app/js/controllers/project/editor/file_browser_controller.js" />
+        <option value="$PROJECT_DIR$/src/views/projects/show.ejs" />
+        <option value="$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js" />
       </list>
     </option>
   </component>
@@ -343,7 +344,7 @@
     <property name="js-jscs-nodeInterpreter" value="/usr/local/bin/node" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="prop_add_unversioned_files" value="true" />
-    <property name="SearchEverywhereHistoryKey" value="elements&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/models/meta/elements.js&#10;project&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/controllers/projects.js&#10;ontologies&#9;null&#9;null&#10;ontologies.js&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/controllers/ontologies.js&#10;remove_des&#9;null&#9;null&#10;)&#9;null&#9;null&#10;valid_&#9;null&#9;null&#10;utils&#9;null&#9;null&#10;rebase&#9;null&#9;null&#10;valid_url&#9;null&#9;null&#10;dendroApp&#9;null&#9;null&#10;ckan&#9;null&#9;null&#10;bagit&#9;null&#9;null&#10;backup&#9;null&#9;null&#10;projects&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/controllers/projects.js&#10;my&#9;null&#9;null&#10;export&#9;null&#9;null&#10;share_&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/public/app/js/controllers/project/editor/share_controller.js&#10;export_to&#9;null&#9;null&#10;absPathInSrcFolder&#9;null&#9;null&#10;.my&#9;null&#9;null&#10;isAutho&#9;null&#9;null&#10;click_&#9;null&#9;null&#10;export_to_repository&#9;null&#9;null&#10;dirty_&#9;null&#9;null&#10;select_item&#9;null&#9;null" />
+    <property name="SearchEverywhereHistoryKey" value="resumeSup&#9;null&#9;null&#10;elements&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/models/meta/elements.js&#10;project&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/controllers/projects.js&#10;ontologies&#9;null&#9;null&#10;ontologies.js&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/controllers/ontologies.js&#10;remove_des&#9;null&#9;null&#10;)&#9;null&#9;null&#10;valid_&#9;null&#9;null&#10;utils&#9;null&#9;null&#10;rebase&#9;null&#9;null&#10;valid_url&#9;null&#9;null&#10;dendroApp&#9;null&#9;null&#10;ckan&#9;null&#9;null&#10;bagit&#9;null&#9;null&#10;backup&#9;null&#9;null&#10;projects&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/src/controllers/projects.js&#10;my&#9;null&#9;null&#10;export&#9;null&#9;null&#10;share_&#9;FILE&#9;file:///Users/joaorocha/Desktop/dendro/public/app/js/controllers/project/editor/share_controller.js&#10;export_to&#9;null&#9;null&#10;absPathInSrcFolder&#9;null&#9;null&#10;.my&#9;null&#9;null&#10;isAutho&#9;null&#9;null&#10;click_&#9;null&#9;null&#10;export_to_repository&#9;null&#9;null&#10;dirty_&#9;null&#9;null&#10;select_item&#9;null&#9;null" />
     <property name="javascript.karma.karma_node_package_dir" value="/usr/local/lib/node_modules/karma" />
     <property name="js.buildTools.grunt.grunt-cli.package" value="/usr/local/lib/node_modules/grunt-cli" />
     <property name="js.buildTools.gulp.gulp_package_dir" value="/usr/local/lib/node_modules/gulp" />
@@ -552,7 +553,7 @@
       <workItem from="1486581708814" duration="8843000" />
       <workItem from="1486612840517" duration="21104000" />
       <workItem from="1486745747784" duration="13797000" />
-      <workItem from="1486955127831" duration="725000" />
+      <workItem from="1486955127831" duration="2119000" />
     </task>
     <servers />
   </component>
@@ -589,7 +590,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="320432000" />
+    <option name="totallyTimeSpent" value="321826000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -607,19 +608,19 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.16482359" sideWeight="0.5366379" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.323043" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4621131" sideWeight="0.35650343" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2802139" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19379845" sideWeight="0.40273973" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3276414" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28586724" sideWeight="0.5718799" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.28525642" sideWeight="0.5718799" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24947146" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.20512821" sideWeight="0.4918957" order="8" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.20512821" sideWeight="0.4918957" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19345239" sideWeight="0.46336207" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3351178" sideWeight="0.6434966" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.3344017" sideWeight="0.6434966" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.2802139" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
     <layout-to-restore>
@@ -679,10 +680,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/temp/tmp-75444ddftdgg/3bytes.log" />
-    <entry file="file://$PROJECT_DIR$/temp/tmp-75629704q1ls/3bytes.log" />
-    <entry file="file://$PROJECT_DIR$/temp/tmp-76055e9zzta8/3bytes.log" />
-    <entry file="file://$PROJECT_DIR$/temp/tmp-76055e9zzta8/3bytes.log" />
     <entry file="file://$PROJECT_DIR$/node_modules/karma-coverage/node_modules/istanbul/lib/command/instrument.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="215">
@@ -843,13 +840,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/bower_components/reclinejs/test/qunit/qunit.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="292">
-          <caret line="786" column="4" selection-start-line="786" selection-start-column="4" selection-end-line="786" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/controllers/files.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="12954">
@@ -916,24 +906,6 @@
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/conf/deployment_configs.json.orig" />
-    <entry file="file://$PROJECT_DIR$/src/models/directory_structure/file.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="8398">
-          <caret line="494" column="7" selection-start-line="494" selection-start-column="7" selection-end-line="494" selection-end-column="7" />
-          <folding>
-            <element signature="e#16256#18475#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/views/projects/show.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1717">
-          <caret line="101" column="93" selection-start-line="101" selection-start-column="81" selection-end-line="101" selection-end-column="93" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/temp/tmp-82559m7t0cc0/BBBBBBB.log" />
     <entry file="file://$PROJECT_DIR$/temp/tmp-82559hxquwww/BBBBBBB.log" />
     <entry file="file://$PROJECT_DIR$/conf/deployment_configs.json">
@@ -943,56 +915,114 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/public/bower_components/ng-file-upload/ng-file-upload-all.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="213">
+          <caret line="453" column="7" selection-start-line="453" selection-start-column="7" selection-end-line="453" selection-end-column="7" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1853">
+        <state relative-caret-position="207">
           <caret line="109" column="0" selection-start-line="109" selection-start-column="0" selection-end-line="109" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/directory_structure/file.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="116">
+          <caret line="486" column="9" selection-start-line="486" selection-start-column="9" selection-end-line="486" selection-end-column="9" />
+          <folding>
+            <element signature="e#16256#18475#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/bower_components/ng-file-upload/ng-file-upload.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-8">
+          <caret line="22" column="142" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/bower_components/angular-tree-control/demo/angular.1.2.29.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="2065" column="12" selection-start-line="2065" selection-start-column="12" selection-end-line="2065" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/bower_components/reclinejs/test/qunit/qunit.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="209">
+          <caret line="786" column="4" selection-start-line="786" selection-start-column="4" selection-end-line="786" selection-end-column="4" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/editor/file_browser_controller.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2788">
-          <caret line="164" column="45" selection-start-line="164" selection-start-column="45" selection-end-line="164" selection-end-column="45" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/views/uploads/progress_bars.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="336">
-          <caret line="22" column="82" selection-start-line="22" selection-start-column="82" selection-end-line="22" selection-end-column="82" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="397">
-          <caret line="277" column="90" selection-start-line="277" selection-start-column="90" selection-end-line="277" selection-end-column="90" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/js/services/uploads_service.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="274">
-          <caret line="170" column="69" selection-start-line="170" selection-start-column="37" selection-end-line="170" selection-end-column="37" />
+        <state relative-caret-position="393">
+          <caret line="163" column="84" selection-start-line="163" selection-start-column="84" selection-end-line="163" selection-end-column="84" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/services/window_service.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="323">
-          <caret line="112" column="83" selection-start-line="112" selection-start-column="83" selection-end-line="112" selection-end-column="83" />
+        <state relative-caret-position="272">
+          <caret line="81" column="59" selection-start-line="81" selection-start-column="59" selection-end-line="81" selection-end-column="59" />
           <folding>
             <element signature="e#193#1848#0" expanded="false" />
             <element signature="e#1900#2080#0" expanded="false" />
             <element signature="e#2133#2279#0" expanded="false" />
             <element signature="e#2350#3247#0" expanded="false" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/bower_components/crc32/misc/make_unicode.njs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="119">
+          <caret line="7" column="9" selection-start-line="7" selection-start-column="9" selection-end-line="7" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/projects/show.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1717">
+          <caret line="101" column="171" selection-start-line="101" selection-start-column="171" selection-end-line="101" selection-end-column="171" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/uploads/progress_bars.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="731">
+          <caret line="43" column="68" selection-start-line="43" selection-start-column="68" selection-end-line="43" selection-end-column="68" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/js/services/uploads_service.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="17">
+          <caret line="133" column="62" selection-start-line="133" selection-start-column="61" selection-end-line="133" selection-end-column="62" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/js/controllers/uploads/uploads_controller.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="191">
+          <caret line="56" column="33" selection-start-line="56" selection-start-column="33" selection-end-line="56" selection-end-column="33" />
+          <folding />
         </state>
       </provider>
     </entry>

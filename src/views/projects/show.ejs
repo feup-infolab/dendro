@@ -99,7 +99,7 @@
                  ng-show="upload_area_visible">
                 <br/>
 
-                <div ng-controller="uploadsCtrl" ng-init="init(get_calling_uri, 'upload_files', 'upload_files_invalid', upload_callback)">
+                <div ng-controller="uploadsCtrl" ng-init="init(get_calling_uri, 'upload_files', 'upload_files_invalid', 'upload_files_successful', upload_callback, 1000)">
                     <div class="col-xs-12">
                         <%- include ../uploads/upload_box.ejs %>
                     </div>
