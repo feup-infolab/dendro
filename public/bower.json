@@ -65,7 +65,8 @@
     "browser-md5-file": "^1.0.0",
     "reclinejs": "git://github.com/okfn/recline.git#0.6",
     "slickgrid": "git://github.com/6pac/SlickGrid.git#2.3.2",
-    "angular-animate": "^1.6.2"
+    "angular-animate": "^1.6.2",
+    "font-awesome-animation": "^0.0.10"
   },
   "resolutions": {
     "bootstrap": "~3",
