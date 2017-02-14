@@ -130,7 +130,7 @@ Permissions.project =
     }
 };
 
-Permissions.sendResponse = function(allow_access, req, res, next, reasonsForDenying)
+Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllowingOrDenying)
 {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
@@ -148,6 +148,7 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForDeny
             console.log("[ALLOW-ACCESS] User " + user + " granted access to " + req.originalUrl + " .");
         }
 
+        Permissions.addToReasons(req, reasonsForAllowingOrDenying, true);
         return next();
     }
     else
@@ -155,24 +156,28 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForDeny
         var messagesAPI = "";
         var messagesUser = "";
 
-        for(var i = 0; i < reasonsForDenying.length ; i++)
+        req.permissions_management = {
+            reasons_for_denying : reasonsForAllowingOrDenying
+        };
+
+        for(var i = 0; i < reasonsForAllowingOrDenying.length ; i++)
         {
-            if(reasonsForDenying[i] instanceof Object)
+            if(reasonsForAllowingOrDenying[i] instanceof Object)
             {
-                var denyingReason = reasonsForDenying[i].role;
+                var denyingReason = reasonsForAllowingOrDenying[i].role;
 
                 messagesAPI = messagesAPI + denyingReason.error_message_api;
                 messagesUser = messagesUser + denyingReason.error_message_user;
 
-                if(i < reasonsForDenying.length - 1)
+                if(i < reasonsForAllowingOrDenying.length - 1)
                 {
                     messagesAPI = messagesAPI + " , ";
                     messagesUser = messagesUser + " , ";
                 }
             }
-            else if(typeof reasonsForDenying[i] == "string")
+            else if(typeof reasonsForAllowingOrDenying[i] == "string")
             {
-                var denyingReason = reasonsForDenying[i];
+                var denyingReason = reasonsForAllowingOrDenying[i];
 
                 messagesAPI = messagesAPI + denyingReason;
                 messagesUser = messagesUser + denyingReason;
@@ -343,6 +348,25 @@ var checkPermissionsInAcl = function(req, res, next, user, resource, acl_entry, 
     }
 };
 
+Permissions.addToReasons = function(req, reason, authorizing)
+{
+    if(req.permissions_management == null)
+    {
+        req.permissions_management = {};
+    }
+
+    if(authorizing)
+    {
+        req.permissions_management.reasons_for_authorizing = _.compact(_.flatten([].concat(req.permissions_management.reasons_for_authorizing).concat([reason])));
+    }
+    else
+    {
+        req.permissions_management.reasons_for_denying = _.compact(_.flatten([].concat(req.permissions_management.reasons_for_denying).concat([reason])));
+    }
+
+    return req;
+}
+
 Permissions.require = function(permissionsRequired, req, res, next)
 {
     if(Config.debug.permissions.enable_permissions_system)
@@ -366,6 +390,12 @@ Permissions.require = function(permissionsRequired, req, res, next)
         var async = require('async');
 
         var user = req.session.user;
+
+        //Global Administrators are God
+        if(req.session.isAdmin)
+        {
+            req = Permissions.addToReasons(req, Permissions.acl.admin, true);
+        }
         var resource = Config.baseUri + require('url').parse(req.url).pathname;
 
         async.map(permissionsRequired,
@@ -381,24 +411,27 @@ Permissions.require = function(permissionsRequired, req, res, next)
                     methodResults = _.compact(methodResults);
 
                     var reasonsForAuthorizing = _.filter(methodResults, function(result){return result.authorized});
+                    req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
+
                     reasonsForDenying = reasonsForDenying.concat(_.filter(methodResults, function(result){return !result.authorized}));
+                    req = Permissions.addToReasons(req, reasonsForDenying, false);
 
                     if(reasonsForAuthorizing.length > 0)
                     {
                         //Since user is involved in the project, the project will be seen the normal way
-                        req.public = false;
                         return Permissions.sendResponse(true, req, res, next, reasonsForAuthorizing);
                     }
                 }
 
                 if(reasonsForDenying.length > 0)
                 {
-                    console.log("REASONS FOR DENYING");
-                    if(req.public == true){
-                        return Permissions.sendResponse(true, req, res, next, []);
-                    }else{
-                        return Permissions.sendResponse(false, req, res, next, reasonsForDenying);
+                    if (Config.debug.permissions.log_denials)
+                    {
+                        console.log("REASONS FOR DENYING");
+                        console.log(reasonsForDenying);
                     }
+
+                    return Permissions.sendResponse(false, req, res, next, reasonsForDenying);
                 }
                 else
                 {
@@ -432,7 +465,7 @@ Permissions.project_access_override = function(projectPrivacyTypeRequired, permi
 
                     if(privacy === privacyType)
                     {
-                        return Permissions.sendResponse(true, req, res, next, [projectPrivacyTypeRequired[i]]);
+                        req = Permissions.addToReasons(req, projectPrivacyTypeRequired[i], true);
                     }
                 }
 

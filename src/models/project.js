@@ -132,7 +132,7 @@ Project.allNonPrivate = function(currentUser, callback) {
         "{ " +
         " ?uri rdf:type ddr:Project " +
         " FILTER NOT EXISTS {" +
-        "    ?uri ddr:privacyStatus ddr:privateStatus " +
+        "    ?uri ddr:privacyStatus [1] " +
         "   } " +
         "} ";
 
@@ -141,7 +141,12 @@ Project.allNonPrivate = function(currentUser, callback) {
             {
                 type: DbConnection.resourceNoEscape,
                 value: db.graphUri
+            },
+            {
+                type: DbConnection.string,
+                value: "private"
             }
+
         ],
 
         function(err, projects) {

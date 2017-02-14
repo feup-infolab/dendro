@@ -1073,7 +1073,7 @@ async.waterfall([
         app.get('/me', async.apply(Permissions.require, [Permissions.acl.user]), users.me);
 
         //projects
-        app.get('/projects', async.apply(Permissions.require, [Permissions.acl.user]), projects.all);
+        app.get('/projects', projects.all);
         app.get('/projects/my', async.apply(Permissions.require, [Permissions.acl.user]), projects.my);
         app.get('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
         app.post('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);

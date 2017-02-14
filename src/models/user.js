@@ -1118,11 +1118,11 @@ User.prototype.isAdmin = function(callback)
     {
         if(_.contains(self.rdf.type, "ddr:Administrator"))
         {
-            callback(null, true);
+            return true;
         }
         else
         {
-            callback(null, false);
+            return false;
         }
     }
 
