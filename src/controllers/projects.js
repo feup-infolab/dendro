@@ -189,6 +189,8 @@ exports.change_log = function(req, res){
     });
 };
 exports.show = function(req, res) {
+    var userIsLoggedIn = req.session.user ? true : false;
+
 	if(req.params.requestedResource != null)
 	{
 		var resourceURI	= req.params.requestedResource;
@@ -349,7 +351,6 @@ exports.show = function(req, res) {
         Project.findByHandle(req.params.handle, function(err, project) {
             if(!err && project != null)
             {
-                var userIsLoggedIn = req.session.user ? true : false;
                 viewVars.project = project;
                 viewVars.title = project.dcterms.title;
                 viewVars.subtitle = "(Project handle : "+  project.ddr.handle + ")";
@@ -360,7 +361,7 @@ exports.show = function(req, res) {
                         {
                             uri : res.locals.baseURI + "/projects/my",
                             title : "My Projects",
-                            show_home : userIsLoggedIn
+                            show_home : true
                         }
                     );
                 }
@@ -370,14 +371,17 @@ exports.show = function(req, res) {
                         {
                             uri : res.locals.baseURI + "/projects",
                             title : "Public Projects",
-                            show_home : true
-                        },
-                        {
-                            uri : res.locals.baseURI + "/project/" + req.params.handle,
-                            title : decodeURI(req.params.handle)
+                            show_home : false
                         }
                     );
                 }
+
+                viewVars.breadcrumbs.push(
+                    {
+                        uri : res.locals.baseURI + "/project/" + req.params.handle,
+                        title : decodeURI(req.params.handle)
+                    }
+                );
 
                 if(showing_history)
                 {
@@ -445,12 +449,36 @@ exports.show = function(req, res) {
             {
                 var breadcrumbSections = req.params.filepath.split("/");
                 var currentBreadCrumb = res.locals.baseURI + "/project/" + req.params.handle + "/" + breadcrumbSections[1]; //ignore leading "/data" section
-                var breadcrumbs = [
+
+                var breadcrumbs = [];
+
+                if(userIsLoggedIn){
+                    breadcrumbs.push(
+                        {
+                            uri : res.locals.baseURI + "/projects/my",
+                            title : "My Projects",
+                            show_home : true
+                        }
+                    );
+                }
+                else
+                {
+                    breadcrumbs.push(
+                        {
+                            uri : res.locals.baseURI + "/projects",
+                            title : "Public Projects",
+                            show_home : false
+                        }
+                    );
+                }
+
+
+                breadcrumbs.push(
                     {
                         uri : currentBreadCrumb,
                         title : req.params.handle
                     }
-                ];
+                );
 
                 for(var i = 2; i < breadcrumbSections.length; i++)
                 {
