@@ -416,14 +416,14 @@ Permissions.require = function(permissionsRequired, req, res, next)
                     reasonsForDenying = reasonsForDenying.concat(_.filter(methodResults, function(result){return !result.authorized}));
                     req = Permissions.addToReasons(req, reasonsForDenying, false);
 
-                    if(reasonsForAuthorizing.length > 0)
+                    if(req.permissions_management.reasons_for_authorizing.length > 0)
                     {
                         //Since user is involved in the project, the project will be seen the normal way
                         return Permissions.sendResponse(true, req, res, next, reasonsForAuthorizing);
                     }
                 }
 
-                if(reasonsForDenying.length > 0)
+                if(req.permissions_management.reasons_for_denying.length > 0)
                 {
                     if (Config.debug.permissions.log_denials)
                     {

@@ -276,7 +276,7 @@ exports.show = function(req, res) {
 
         var _ = require('underscore');
         var isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
-            return _.isMatch(reason, Permissions.acl.creator) || _.isMatch(reason, Permissions.acl.contributor) || _.isMatch(reason, Permissions.acl.admin);
+            return _.isMatch(reason, Permissions.roles.project.creator) || _.isMatch(reason, Permissions.roles.project.contributor) || _.isMatch(reason, Permissions.roles.system.admin);
         });
 
         if(isEditor.length > 0)
@@ -290,7 +290,19 @@ exports.show = function(req, res) {
         }
         else
         {
-            if(project.ddr.privacyStatus == "public" || project.ddr.privacyStatus == "metadataOnly")
+            var isPublicOrMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
+                return _.isMatch(reason, Permissions.resource_access_levels.metadata_only) || _.isMatch(reason, Permissions.resource_access_levels.public) || _.isMatch(reason, Permissions.roles.system.admin);
+            });
+
+            var isPublicProject = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
+                return _.isMatch(reason, Permissions.resource_access_levels.public) || _.isMatch(reason, Permissions.roles.system.admin);
+            });
+
+            var isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
+                return _.isMatch(reason, Permissions.resource_access_levels.metadata_only) || _.isMatch(reason, Permissions.roles.system.admin);
+            });
+
+            if(isPublicOrMetadataOnlyProject.length > 0)
             {
                 if(askedForHtml(req, res))
                 {
@@ -299,7 +311,7 @@ exports.show = function(req, res) {
                     );
                 }
             }
-            if(project.ddr.privacyStatus == "public")
+            else if(isPublicProject.length > 0)
             {
                 if(askedForHtml(req, res))
                 {
@@ -309,7 +321,7 @@ exports.show = function(req, res) {
                 }
 
             }
-            else if(project.ddr.privacyStatus == "metadataOnly")
+            else if(isMetadataOnlyProject.length > 0)
             {
                 if(askedForHtml(req, res))
                 {
