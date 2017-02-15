@@ -9,9 +9,21 @@
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-xs-12">
-            <%- include show/file_explorer.ejs %>
+    <% if( project.ddr.privacyStatus == "public" ) { %>
+        <div class="row">
+            <div class="col-xs-6 col-sm-3" ng-controller="fileBrowserCtrl" ng-init="init()">
+                <%- include show/file_explorer.ejs %>
+            </div>
+            <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
+                <%- include show/metadata_viewer.ejs %>
+            </div>
         </div>
-    </div>
+    <% } else if( project.ddr.privacyStatus == "metadataOnly" ) { %>
+        <div class="row">
+            <div class="col-xs-12 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
+                <%- include show/metadata_viewer.ejs %>
+            </div>
+        </div>
+    <% }  %>
+
 </div>

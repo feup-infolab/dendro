@@ -111,7 +111,7 @@
             <input type="radio"
                    name="privacy"
                    ng-model="new_project.privacy"
-                   value="publicStatus"
+                   value="public"
                    ng-checked="true"
                    >Public: The project's metadata will be exposed and the project made publicly available, as read-only.
             </input>
@@ -119,13 +119,13 @@
             <input type="radio"
                    name="privacy"
                    ng-model="new_project.privacy"
-                   value="privateStatus">Private: Your project won't have any exposure.
+                   value="private">Private: Your project won't have any exposure.
             </input>
             <br>
             <input type="radio"
                    name="privacy"
                    ng-model="new_project.privacy"
-                   value="metadataOnlyStatus">Metadata Only: The project's metadata will be exposed, but access to the project will be required to you.
+                   value="metadataOnly">Metadata Only: The project's metadata will be exposed, but access to the project will be required to you.
             </input>
 
         </div>

@@ -228,11 +228,11 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
             {
                 if(req.privacy)
                 {
-                    if(req.privacy === "metadataOnlyStatus")
+                    if(req.privacy === "metadataOnly")
                     {
                         return res.redirect(req.originalUrl + '/request_access');
                     }
-                    else if(req.privacy === "privateStatus")
+                    else if(req.privacy === "private")
                     {
                         return res.redirect("/");
                     }
@@ -447,7 +447,7 @@ Permissions.require = function(permissionsRequired, req, res, next)
     }
 };
 
-Permissions.project_access_override = function(projectPrivacyTypeRequired, permissionsRequired, req, res, next)
+Permissions.project_access_override = function(projectPrivacyTypesAllowedToOverridePermissions, permissionsRequired, req, res, next)
 {
     var projectHandle = req.params[0];                      //project handle
     var requestedProjectURI = Config.baseUri + "/project/" + projectHandle;
@@ -459,13 +459,13 @@ Permissions.project_access_override = function(projectPrivacyTypeRequired, permi
             {
                 var privacy = project.ddr.privacyStatus;
 
-                for(var i = 0; i < projectPrivacyTypeRequired.length; i++)
+                for(var i = 0; i < projectPrivacyTypesAllowedToOverridePermissions.length; i++)
                 {
-                    var privacyType = projectPrivacyTypeRequired[i].access_level_required;
+                    var privacyType = projectPrivacyTypesAllowedToOverridePermissions[i].access_level_required;
 
                     if(privacy === privacyType)
                     {
-                        req = Permissions.addToReasons(req, projectPrivacyTypeRequired[i], true);
+                        req = Permissions.addToReasons(req, projectPrivacyTypesAllowedToOverridePermissions[i], true);
                     }
                 }
 

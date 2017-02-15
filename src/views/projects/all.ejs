@@ -8,6 +8,7 @@
             <br/>
             <table class="table">
             <tr>
+                <th>Access</th>
                 <th>Handle</th>
                 <th>Title</th>
                 <th>Description</th>
@@ -15,34 +16,52 @@
             </tr>
             <%  var total = locals.projects.length;
                 var count = locals.count;
-                for(var i = 0; i < total; i++) { %>
-            <tr>
-                <td>
-                    <a class="btn btn-primary" href="/project/<%=locals.projects[i].ddr.handle%>"><i class="icon-folder-close"></i><%=locals.projects[i].ddr.handle%></a>
-                </td>
-                <td>
-                    <b>
-                        <a href="./project/<%=locals.projects[i].ddr.handle%>">
-                            <%= locals.projects[i].dcterms.title %>
-                        </a>
-                    </b>
-                </td>
-                <td>
-                    <%= locals.projects[i].dcterms.description %>
-                </td>
-                <td>
-                    <a href="<%= locals.projects[i].dcterms.creator %>"><%=locals.projects[i].dcterms.creator%></a>
-                </td>
-                <!--
-                <td>
-                    <b>
-                        <a href="<%=locals.projects[i].dcterms.creator%>">
-                            <%= locals.projects[i].dcterms.creator %>
-                        </a>
-                    </b>
-                </td>
-                -->
-            </tr>
+                for(var i = 0; i < total; i++) {
+                    var project = locals.projects[i];
+            %>
+                    <tr>
+                        <td>
+                        <% if( project.ddr.privacyStatus == "public") {  %>
+                            <span class="fa-stack fa-1x">
+                                <i class="fa fa-globe fa-stack-2x text-default"></i>
+                            </span>
+                            Public
+                        <% } else if( project.ddr.privacyStatus == "metadataOnly") {%>
+                            <span class="fa-stack fa-1x">
+                                <i class="fa fa-unlock fa-stack-2x text-default"></i>
+                            </span>
+                            Metadata Only
+                        <% } %>
+                        </td>
+
+                        <td>
+                            <b>
+                                <a href="/project/<%=locals.projects[i].ddr.handle%>"><%=locals.projects[i].ddr.handle%></a>
+                            </b>
+                        </td>
+                        <td>
+                            <b>
+                                <a href="./project/<%=locals.projects[i].ddr.handle%>">
+                                    <%= locals.projects[i].dcterms.title %>
+                                </a>
+                            </b>
+                        </td>
+                        <td>
+                            <%= locals.projects[i].dcterms.description %>
+                        </td>
+                        <td>
+                            <a href="<%= locals.projects[i].dcterms.creator %>"><%=locals.projects[i].dcterms.creator%></a>
+                        </td>
+                        <!--
+                        <td>
+                            <b>
+                                <a href="<%=locals.projects[i].dcterms.creator%>">
+                                    <%= locals.projects[i].dcterms.creator %>
+                                </a>
+                            </b>
+                        </td>
+                        -->
+                    </tr>
 
         <% } %>
 

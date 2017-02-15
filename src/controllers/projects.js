@@ -795,7 +795,7 @@ exports.administer = function(req, res) {
                             case "private":
                                 project.ddr.privacyStatus = 'private';
                                 break;
-                            case "private":
+                            case "metadataOnly":
                                 project.ddr.privacyStatus = 'metadataOnly';
                                 break;
                         }

@@ -1247,7 +1247,7 @@ async.waterfall([
         //      files and folders (data)
         //      downloads
         app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
+            async.apply(Permissions.project_access_override, [Permissions.project.public, Permissions.project.metadata_only], [Permissions.acl.creator_or_contributor]),
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
