@@ -35,7 +35,13 @@
                                 <i class="fa fa-unlock fa-stack-2x text-default"></i>
                             </span>
                             Metadata Only
-                        <% } %>
+                        <% } else if( project.ddr.privacyStatus == "private") {%>
+                            <span class="fa-stack fa-1x">
+                                <i class="fa fa-lock fa-stack-2x text-default"></i>
+                            </span>
+                            <span class="label label-success">Visible only for you</span>
+                            Private
+                            <% } %>
                         </td>
 
                         <td>

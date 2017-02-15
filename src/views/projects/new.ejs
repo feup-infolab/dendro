@@ -112,20 +112,24 @@
                    name="privacy"
                    ng-model="new_project.privacy"
                    value="public"
-                   ng-checked="true"
-                   >Public: The project's metadata will be exposed and the project made publicly available, as read-only.
+                   ng-checked="new_project.privacy == 'public'">
+                Public: The project's metadata will be exposed and the project made publicly available, as read-only.
             </input>
             <br>
             <input type="radio"
                    name="privacy"
                    ng-model="new_project.privacy"
-                   value="private">Private: Your project won't have any exposure.
+                   value="private"
+                   ng-checked="new_project.privacy == 'private'">
+                Private: Your project won't have any exposure.
             </input>
             <br>
             <input type="radio"
                    name="privacy"
                    ng-model="new_project.privacy"
-                   value="metadataOnly">Metadata Only: The project's metadata will be exposed, but access to the project will be required to you.
+                   value="metadataOnly"
+                   ng-checked="new_project.privacy == 'metadataOnly'">
+                Metadata Only: The project's metadata will be exposed, but access to the project will be required to you.
             </input>
 
         </div>

@@ -121,7 +121,37 @@ Project.prototype.backup = function(callback)
         }
     });
 };
-  
+
+Project.addProjectInformations = function(arrayOfProjectsUris, callback)
+{
+    if(arrayOfProjectsUris instanceof Array)
+    {
+        var getProjectInformation = function(project, callback)
+        {
+            Project.findByUri(project.uri, callback);
+        };
+
+        //get all the information about all the projects
+        // and return the array of projects, complete with that info
+        async.map(arrayOfProjectsUris, getProjectInformation, function(err, projectsToReturn)
+        {
+            if(!err)
+            {
+                callback(null, projectsToReturn);
+            }
+            else
+            {
+                callback("error fetching project information : " + err, projectsToReturn);
+            }
+        });
+    }
+    else
+    {
+        //projects var will contain an error message instead of an array of results.
+        callback(1);
+    }
+}
+
 Project.allNonPrivate = function(currentUser, callback) {
 
     //TODO @silvae86 exception for the projects where the current user is either creator or contributor.
@@ -136,6 +166,7 @@ Project.allNonPrivate = function(currentUser, callback) {
         "   } " +
         "} ";
 
+
     db.connection.execute(query,
         [
             {
@@ -146,41 +177,79 @@ Project.allNonPrivate = function(currentUser, callback) {
                 type: DbConnection.string,
                 value: "private"
             }
-
         ],
 
         function(err, projects) {
-            if(!err && projects instanceof Array)
-            {
-                var getProjectInformation = function(project, callback)
-                {
-                    Project.findByUri(project.uri, callback);
-                };
 
-                //get all the information about all the projects
-                // and return the array of projects, complete with that info
-                async.map(projects, getProjectInformation, function(err, projectsToReturn)
-                {
-                    if(!err)
-                    {
-                        callback(null, projectsToReturn);
-                    }
-                    else
-                    {
-                        callback("error fetching project information : " + err, projectsToReturn);
-                    }
-                });
+            if(!err && projects != null && projects instanceof Array)
+            {
+                Project.addProjectInformations(projects, callback);
             }
             else
             {
                 //projects var will contain an error message instead of an array of results.
-                callback(err, projects);
+                callback(1, projects);
+            }
+        });
+}
+
+Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
+
+    //TODO @silvae86 exception for the projects where the current user is either creator or contributor.
+    var query =
+        "SELECT DISTINCT(?uri) \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "    {  \n" +
+        "        ?uri rdf:type ddr:Project \n" +
+        "        FILTER NOT EXISTS { \n" +
+        "           ?uri ddr:privacyStatus [1] \n" +
+        "        }\n" +
+        "    }\n" +
+        "    UNION \n" +
+        "    {\n" +
+        "        ?uri rdf:type ddr:Project .\n" +
+        "        ?uri dcterms:creator  [2]\n" +
+        "    }\n" +
+        "    UNION\n" +
+        "    {\n" +
+        "        ?uri rdf:type ddr:Project .\n" +
+        "        ?uri dcterms:contributor  [2]\n" +
+        "    }\n" +
+        "}\n";
+
+    db.connection.execute(query,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.string,
+                value: "private"
+            },
+            {
+                type: DbConnection.resourceNoEscape,
+                value: currentUser.uri
+            }
+        ],
+
+        function(err, projects) {
+
+            if(!err && projects != null && projects instanceof Array)
+            {
+                Project.addProjectInformations(projects, callback);
+            }
+            else
+            {
+                //projects var will contain an error message instead of an array of results.
+                callback(1, projects);
             }
         });
 }
 
 Project.all = function(callback, req) {
-    var self = this;
     Project.baseConstructor.all.call(self, function(err, projects) {
 
         //projects var will contain an error message instead of an array of results.
@@ -190,10 +259,8 @@ Project.all = function(callback, req) {
 }
 
 Project.findByHandle = function(handle, callback) {
-    var self = this;
-
     var query =
-            "SELECT ?uri " +
+            "SELECT ?uri \n" +
             "FROM [0] " +
             "WHERE " +
             "{ " +

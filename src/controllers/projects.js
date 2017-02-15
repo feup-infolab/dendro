@@ -16,61 +16,73 @@ var async = require('async');
 
 exports.all = function(req, res) {
 
-    var userUri = null;
-    if( req.session.user != null && req.session.user.uri != null )
-        userUri = req.session.user.uri;
+    var viewVars = {
+        title: "All projects"
+    };
 
-    Project.allNonPrivate(userUri, function(err, projects)
+    viewVars = DbConnection.paginate(req,
+        viewVars
+    );
+
+    var getProjectCount = function (cb)
     {
-        var viewVars = {
-            title: "All projects"
-        };
-
-        viewVars = DbConnection.paginate(req,
-            viewVars
-        );
-
-        var getProjectCount = function (cb)
+        Project.getCount(function (err, count)
         {
-            Project.getCount(function (err, count)
+            cb(err, count);
+        });
+    }
+
+    var getAllProjects = function (cb)
+    {
+        if(req.session.isAdmin)
+        {
+            Project.all(function(err, projects)
             {
-                cb(err, count);
-            });
+                cb(err, projects);
+            }, req);
         }
-
-        var getAllProjects = function (cb)
+        else if( req.session.user != null && req.session.user.uri != null )
         {
-            Project.all(function (err, projects)
+
+            Project.allNonPrivateUnlessTheyBelongToMe(req.session.user, function(err, projects)
+            {
+                cb(err, projects);
+            }, req);
+        }
+        else
+        {
+            Project.allNonPrivate(req.session.user, function(err, projects)
             {
                 cb(err, projects);
             }, req);
         }
 
-        async.parallel(
-            [
-                getProjectCount, getAllProjects
-            ], function (err, results)
-            {
-                if (!err)
-                {
-                    viewVars.count = results[0];
-                    viewVars.projects = results[1];
+    }
 
-                    res.render('projects/all',
-                        viewVars
-                    )
-                }
-                else
-                {
-                    viewVars.projects = [];
-                    viewVars.error_messages = [results];
-                    res.render('projects/all',
-                        viewVars
-                    )
-                }
+    async.parallel(
+        [
+            getProjectCount, getAllProjects
+        ], function (err, results)
+        {
+            if (!err)
+            {
+                viewVars.count = results[0];
+                viewVars.projects = results[1];
+
+                res.render('projects/all',
+                    viewVars
+                )
             }
-        );
-    });
+            else
+            {
+                viewVars.projects = [];
+                viewVars.error_messages = [results];
+                res.render('projects/all',
+                    viewVars
+                )
+            }
+        }
+    );
 };
 
 exports.my = function(req, res) {
@@ -276,7 +288,7 @@ exports.show = function(req, res) {
 
         var _ = require('underscore');
         var isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
-            return _.isMatch(reason, Permissions.roles.project.creator) || _.isMatch(reason, Permissions.roles.project.contributor) || _.isMatch(reason, Permissions.roles.system.admin);
+            return _.isEqual(reason.role, Permissions.roles.project.creator) || _.isEqual(reason.role, Permissions.roles.project.contributor) || _.isEqual(reason.role, Permissions.roles.system.admin);
         });
 
         if(isEditor.length > 0)
@@ -291,15 +303,15 @@ exports.show = function(req, res) {
         else
         {
             var isPublicOrMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
-                return _.isMatch(reason, Permissions.resource_access_levels.metadata_only) || _.isMatch(reason, Permissions.resource_access_levels.public) || _.isMatch(reason, Permissions.roles.system.admin);
+                return _.isEqual(reason, Permissions.resource_access_levels.metadata_only) || _.isEqual(reason, Permissions.resource_access_levels.public) || _.isEqual(reason.role, Permissions.roles.system.admin);
             });
 
             var isPublicProject = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
-                return _.isMatch(reason, Permissions.resource_access_levels.public) || _.isMatch(reason, Permissions.roles.system.admin);
+                return _.isEqual(reason, Permissions.resource_access_levels.public) || _.isEqual(reason.role, Permissions.roles.system.admin);
             });
 
             var isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
-                return _.isMatch(reason, Permissions.resource_access_levels.metadata_only) || _.isMatch(reason, Permissions.roles.system.admin);
+                return _.isEqual(reason, Permissions.resource_access_levels.metadata_only) || _.isEqual(reason.role, Permissions.roles.system.admin);
             });
 
             if(isPublicOrMetadataOnlyProject.length > 0)
@@ -336,18 +348,18 @@ exports.show = function(req, res) {
     if(req.query.show_history != null)
     {
         var showing_history = 1;
-
-        var fetchVersionsInformation = function(archivedResource, cb)
-        {
-            archivedResource.getDetailedInformation(function(err, result)
-            {
-                cb(err, result);
-            });
-        }
     }
     else
     {
         var showing_history = 0;
+    }
+
+    var fetchVersionsInformation = function(archivedResource, cb)
+    {
+        archivedResource.getDetailedInformation(function(err, result)
+        {
+            cb(err, result);
+        });
     }
 
     var viewVars = {

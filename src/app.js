@@ -697,6 +697,10 @@ async.waterfall([
                         });
 
                     }
+                    else
+                    {
+                        cb(null);
+                    }
                 });
             }
         ], function(err){
