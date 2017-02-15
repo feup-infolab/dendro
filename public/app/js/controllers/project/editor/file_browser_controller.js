@@ -21,7 +21,8 @@ angular.module('dendroApp.controllers')
         interactionsService,
         ontologiesService,
         storageService,
-        recommendationService
+        recommendationService,
+        usersService
     )
 {
     $scope.delete_file_or_folder = function()
@@ -291,7 +292,17 @@ angular.module('dendroApp.controllers')
             {
                 if($scope.showing_project_root())
                 {
-                    window.location.href= '/projects/my';
+                    usersService.get_logged_user()
+                        .then(function(user){
+                            if(!user)
+                            {
+                                window.location.href= '/projects/my';
+                            }
+                            else
+                            {
+                                window.location.href= '/projects';
+                            }
+                        });
                 }
                 else
                 {

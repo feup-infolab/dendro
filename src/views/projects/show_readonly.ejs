@@ -1,6 +1,5 @@
 <%- include ../layout/header.ejs %>
 
-
 <!--&nbsp;-->
 <div class="container" ng-controller="projectEditorCtrl" ng-init="init()">
     <div class="row">
@@ -15,6 +14,13 @@
                 <%- include show/file_explorer.ejs %>
             </div>
             <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
+                <div ng-if="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
+                    <%- include show/file_preview.ejs %>
+                </div>
+                <div class="alert alert-info" ng-show="(shared.selected_file == null && shared.metadata == null)">
+                    Select one of the resource on the file explorer to view its metadata.
+                </div>
+
                 <%- include show/metadata_viewer.ejs %>
             </div>
         </div>

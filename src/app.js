@@ -1069,7 +1069,7 @@ async.waterfall([
         //people listing
         app.get('/users', users.all);
         app.get('/user/:username', async.apply(Permissions.require, [Permissions.acl.user]), users.show);
-        app.get('/users/loggedUser', async.apply(Permissions.require, [Permissions.acl.user]), users.getLoggedUser);
+        app.get('/users/loggedUser', users.getLoggedUser);
 
         app.all('/reset_password', users.reset_password);
         app.all('/set_new_password', users.set_new_password);
@@ -1149,7 +1149,7 @@ async.waterfall([
 
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?$/,
-            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
+            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public, Permissions.resource_access_levels.metadata_only], [Permissions.acl.creator_or_contributor]),
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
@@ -1251,7 +1251,7 @@ async.waterfall([
         //      files and folders (data)
         //      downloads
         app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.project_access_override, [Permissions.project.public, Permissions.project.metadata_only], [Permissions.acl.creator_or_contributor]),
+            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
