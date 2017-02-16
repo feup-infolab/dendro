@@ -250,6 +250,7 @@ Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
 }
 
 Project.all = function(callback, req) {
+    var self = this;
     Project.baseConstructor.all.call(self, function(err, projects) {
 
         //projects var will contain an error message instead of an array of results.
