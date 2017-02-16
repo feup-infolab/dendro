@@ -17,6 +17,13 @@ var express = require('express'),
     path = require('path');
     fs = require('fs');
     morgan = require('morgan');
+    favicon = require('serve-favicon');
+    bodyParser = require('body-parser');
+    methodOverride = require('method-override');
+    cookieParser = require('cookie-parser');
+    cookieSession = require('cookie-session');
+    expressSession = require('express-session');
+    errorHandler = require('express-session');
     Q = require('q');
 
 var bootupPromise = Q.defer();
@@ -31,12 +38,34 @@ var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/
 var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
 var async = require('async');
 var util = require('util');
-var multiparty = require('connect-multiparty');
-var multipartyMiddleware = multiparty();
 
+//create temporary uploads folder if not exists
+var tempUploadsFolder = Config.tempFilesDir;
+var fs = require('fs');
+try{
+    fs.statSync(tempUploadsFolder).isDirectory();
+}
+catch(e)
+{
+    console.log("[INFO] Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
+    try{
+        var mkdirp = require('mkdirp');
+        mkdirp.sync(tempUploadsFolder);
+        console.log("[SUCCESS] Temp uploads folder " + tempUploadsFolder + " created.")
+    }
+    catch(e)
+    {
+        console.error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
+        process.exit(1);
+    }
+}
+
+var busboy = require('connect-busboy');
+app.use(busboy());
 
 var self = this;
 
@@ -61,7 +90,7 @@ if(Config.logging != null)
                     verbose: false
                 });
 
-                app.use(express.logger({
+                app.use(morgan(Config.logging.format, {
                     format: Config.logging.format,
                     stream: accessLogStream
                 }));
@@ -88,7 +117,10 @@ if(Config.logging != null)
 
             if(!err)
             {
-                app.use(morgan('combined', {stream: accessLogStream}));
+                app.use(morgan(Config.logging.format, {
+                    format: Config.logging.format,
+                    stream: accessLogStream
+                }));
             }
             else
             {
@@ -128,6 +160,7 @@ var signInDebugUser = function(req, res, next)
                     if(req.session.user == null)
                     {
                         req.session.user = user;
+                        req.session.upload_manager = new UploadManager(user.ddr.username);
                     }
 
                     // Pass the request to express
@@ -275,44 +308,59 @@ async.waterfall([
     },
     function(callback) {
 
-        var redisConn = new RedisConnection(
-            Config.cache.redis.options,
-            Config.cache.redis.database_number
-        );
-
-        GLOBAL.redis.default.connection = redisConn;
-
         if(Config.cache.active)
         {
-            redisConn.openConnection(function(err, redisConn) {
-                if(err)
+            async.map(Config.cache.redis.instances, function(instance, callback){
+
+                var redisConn = new RedisConnection(
+                    instance.options,
+                    instance.database_number,
+                    instance.id
+                );
+
+                GLOBAL.redis[redisConn.id].connection = redisConn;
+
+                redisConn.openConnection(function(err, redisConn) {
+                    if(err)
+                    {
+                        console.log("[ERROR] Unable to connect to Redis instance with ID: " + instance.id + " running on " + instance.options.host + ":" + instance.options.port + " : " + err.message);
+                        process.exit(1);
+                    }
+                    else
+                    {
+                        console.log("[OK] Connected to Redis cache service with ID : " + redisConn.id + " running on " +  redisConn.host + ":" + redisConn.port);
+
+
+                        redisConn.deleteAll(function(err, result){
+                            if(!err)
+                            {
+                                console.log("[INFO] Deleted all cache records on Redis instance \""+ redisConn.id +"\" during bootup");
+                                callback(null);
+                            }
+                            else
+                            {
+                                console.log("[ERROR] Unable to delete all cache records on Redis instance \""+ instance.id +"\" during bootup");
+                                process.exit(1);
+                            }
+                        });
+                    }
+                });
+            }, function(err, results){
+                if(!err)
                 {
-                    console.log("[ERROR] Unable to connect to cache service running on " + Config.cache.redis.options.host + ":" + Config.cache.redis.options.port + " : " + err.message);
-                    process.exit(1);
+                    console.log("[INFO] All Redis instances are up and running!");
+                    callback(null);
                 }
                 else
                 {
-                    console.log("[OK] Connected to Redis cache service at " + Config.cache.redis.options.host + ":" + Config.cache.redis.options.port);
-
-
-                    redisConn.deleteAll(function(err, result){
-                        if(!err)
-                        {
-                            console.log("[INFO] Deleted all cache records during bootup.");
-                            callback(null);
-                        }
-                        else
-                        {
-                            console.log("[ERROR] Unable to delete all cache records during bootup");
-                            process.exit(1);
-                        }
-                    });
+                    console.log("[ERROR] Unable to setup Redis instances.");
+                    process.exit(1);
                 }
             });
         }
         else
         {
-            console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup...");
+            console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to cache server.");
             callback(null);
         }
     },
@@ -413,7 +461,8 @@ async.waterfall([
             Config.mongoDbPort,
             Config.mongoDbCollectionName,
             Config.mongoDBAuth.user,
-            Config.mongoDBAuth.password);
+            Config.mongoDBAuth.password
+        );
 
         gfs.openConnection(function(err, gfsConn) {
             if(err)
@@ -599,31 +648,71 @@ async.waterfall([
     function(callback) {
         var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
         var nfs = require('node-fs');
-        var fs = require('fs');
+        var fs = require('fs-extra')
+
 
         console.log("[INFO] Setting up temporary files directory at " + Config.tempFilesDir);
 
-        fs.exists(Config.tempFilesDir, function(exists){
-            if(!exists)
+        async.waterfall([
+            function(cb)
             {
-                nfs.mkdir(Config.tempFilesDir, Config.tempFilesCreationMode, true, function(err)
+                if(Config.debug.files.delete_temp_folder_on_startup)
                 {
-                    if(!err)
+                    console.log("[INFO] Deleting temp files dir at " + Config.tempFilesDir);
+                    fs.remove(Config.tempFilesDir, function (err) {
+                        if(!err)
+                        {
+                            console.log("[OK] Deleted temp files dir at " + Config.tempFilesDir);
+                        }
+                        else
+                        {
+                            console.log("[ERROR] Unable to delete temp files dir at " + Config.tempFilesDir);
+                        }
+
+                        cb(err);
+                    })
+                }
+                else
+                {
+                    cb(null);
+                }
+            },
+            function(cb)
+            {
+                fs.exists(Config.tempFilesDir, function(exists){
+
+                    if(!exists)
                     {
-                        console.log("[OK] Temporary files directory successfully set up at " + Config.tempFilesDir);
-                        callback(null);
+                        nfs.mkdir(Config.tempFilesDir, Config.tempFilesCreationMode, true, function(err)
+                        {
+                            if(!err)
+                            {
+                                console.log("[OK] Temporary files directory successfully created at " + Config.tempFilesDir);
+                            }
+                            else
+                            {
+                                console.log("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
+                            }
+                            cb(err);
+                        });
+
                     }
                     else
                     {
-                        console.error("[ERROR] Unable to set up files directory at " + Config.tempFilesDir);
-                        process.exit(1);
+                        cb(null);
                     }
                 });
             }
-            else
+        ], function(err){
+            if(!err)
             {
                 console.log("[OK] Temporary files directory successfully set up at " + Config.tempFilesDir);
                 callback(null);
+            }
+            else
+            {
+                console.error("[ERROR] Unable to set up files directory at " + Config.tempFilesDir);
+                process.exit(1);
             }
         });
     },
@@ -653,8 +742,8 @@ async.waterfall([
                 }
                 else
                 {
-                    console.log("[ERROR] Unable to delete user with username " + username + ". Error: " + user);
-                    callback(err, result);
+                    console.log("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
+                    callback(err, user);
                 }
             });
         };
@@ -834,6 +923,8 @@ async.waterfall([
         var datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
         var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
         var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
+        var fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
+        var notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
 
@@ -859,22 +950,44 @@ async.waterfall([
         app.set('view engine', 'ejs');
         app.set('etag', 'strong');
 
-        app.use(express.favicon());
+        app.use(favicon(Config.absPathInPublicFolder("images/logo_micro.png")));
 
         //app.use(express.logger('dev'));
 
-        app.use(express.bodyParser(
-            {
-                keepExtensions: true,
-                limit: Config.maxUploadSize,
-                defer: true
-            }
-        ));
+        app.use(bodyParser.urlencoded({ extended: true }));
+        app.use(bodyParser.json());
 
-        app.use(express.methodOverride());
 
-        app.use(express.cookieParser(appSecret));
-        app.use(express.session({ secret: appSecret }));
+        app.use(methodOverride());
+
+        app.use(cookieParser(appSecret));
+
+        app.use(cookieSession({
+            name: 'session',
+            keys: [appSecret],
+
+            // Cookie Options
+            maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        }));
+
+        const MongoStore = require('connect-mongo')(expressSession);
+        var sessionMongoStore = new MongoStore(
+        {
+            "host": Config.mongoDBHost,
+            "port": Config.mongoDbPort,
+            "db": Config.mongoDbCollectionName,
+            "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDbCollectionName
+        });
+
+        app.use(expressSession({
+            secret: appSecret,
+            name: "dendroCookie",
+            store: sessionMongoStore,
+            proxy: true,
+            resave: true,
+            saveUninitialized: true
+        }));
+
         app.use(flash());
 
         if(Config.debug.active && Config.debug.session.auto_login)
@@ -889,30 +1002,21 @@ async.waterfall([
         app.use(express.static(Config.getPathToPublicFolder()));
 
         // all environments
-        app.configure(function() {
 
-            /*app.locals({
-             title: 'Dendro',
-             phone: '1-250-858-9990',
-             email: 'me@myapp.com'
-             }); */
-
+        var env = process.env.NODE_ENV || 'development';
+        if ('development' == env)
+        {
             app.set('title', 'Dendro');
             app.set('theme', Config.theme);
-        });
-
-        //validate permissions before calling the router middleware
-        // Authenticator
-//        app.use(express.basicAuth(function(user, pass, callback) {
-//            var result = (user === 'testUser' && pass === 'testPass');
-//            callback(null /* error */, result);
-//        }));
-
-        app.use(app.router);
+        }
 
         //		development only
         if ('development' == app.get('env')) {
-            app.use(express.errorHandler());
+            app.use(errorHandler({
+                secret: appSecret,
+                resave: true,
+                saveUninitialized: true
+            }));
         }
 
         app.get('/', index.index);
@@ -965,6 +1069,7 @@ async.waterfall([
         //people listing
         app.get('/users', users.all);
         app.get('/user/:username', async.apply(Permissions.require, [Permissions.acl.user]), users.show);
+        app.get('/users/loggedUser', users.getLoggedUser);
 
         app.all('/reset_password', users.reset_password);
         app.all('/set_new_password', users.set_new_password);
@@ -972,13 +1077,13 @@ async.waterfall([
         app.get('/me', async.apply(Permissions.require, [Permissions.acl.user]), users.me);
 
         //projects
-        app.get('/projects', async.apply(Permissions.require, [Permissions.acl.user]), projects.all);
+        app.get('/projects', projects.all);
         app.get('/projects/my', async.apply(Permissions.require, [Permissions.acl.user]), projects.my);
         app.get('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
         app.post('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
 
         app.get('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
-        app.post('/projects/import', multipartyMiddleware, async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
+        app.post('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
 
         app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);
         app.get('/project/:handle/view', projects.show);
@@ -1044,13 +1149,18 @@ async.waterfall([
 
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?$/,
-            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
+            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public, Permissions.resource_access_levels.metadata_only], [Permissions.acl.creator_or_contributor]),
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
                 req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
 
-                if(req.originalMethod == "GET")
+                if(req.query.upload != null)
+                {
+                    req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                    files.upload(req, res);
+                }
+                else if(req.originalMethod == "GET")
                 {
                     if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
                     {
@@ -1122,11 +1232,6 @@ async.waterfall([
                         req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
                         files.mkdir(req, res);
                     }
-                    else if(req.query.upload != null)
-                    {
-                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                        files.upload(req, res);
-                    }
                     else if(req.query.restore != null)
                     {
                         req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
@@ -1141,12 +1246,12 @@ async.waterfall([
                         datasets.export_to_repository(req, res);
                     }
                 }
-        });
+            });
 
         //      files and folders (data)
         //      downloads
         app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
+            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
@@ -1155,7 +1260,11 @@ async.waterfall([
                 req.params.filepath = req.params[1];   //relative path encodeuri needed because of spaces in filenames
                 req.params.requestedResource = req.params.requestedResource + req.params.filepath;
 
-                if(req.originalMethod == "GET")
+                if(req.query.upload != null)
+                {
+                    files.upload(req, res);
+                }
+                else if(req.originalMethod == "GET")
                 {
                     if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
                     {
@@ -1292,10 +1401,6 @@ async.waterfall([
                     {
                         files.mkdir(req, res);
                     }
-                    else if(req.query.upload != null)
-                    {
-                        files.upload(req, res);
-                    }
                     else if(req.query.restore != null)
                     {
                         files.restore(req, res);
@@ -1318,9 +1423,39 @@ async.waterfall([
 
         //      social
         app.get('/posts/all', async.apply(Permissions.require, [Permissions.acl.user]), posts.all);
+        app.post('/posts/post', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPost_controller);
         app.post('/posts/new', async.apply(Permissions.require, [Permissions.acl.user]), posts.new);
+        app.post('/posts/like', async.apply(Permissions.require, [Permissions.acl.user]), posts.like);
+        app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.acl.user]), posts.checkIfPostIsLikedByUser);
+        app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.acl.user]), posts.postLikesInfo);
+        app.post('/posts/comment', async.apply(Permissions.require, [Permissions.acl.user]), posts.comment);
+        app.post('/posts/comments', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostComments);
+        app.post('/posts/share', async.apply(Permissions.require, [Permissions.acl.user]), posts.share);
+        app.post('/posts/shares', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostShares);
+        app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.acl.user]), posts.numPostsDatabase);
+        app.get('/posts/:uri', async.apply(Permissions.require, [Permissions.acl.user]), posts.post);
 
-        //serve angularjs ejs-generated html partials
+        //file versions
+        app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.all);
+        app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.numFileVersionsInDatabase);
+        app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.getFileVersion);
+        app.get('/fileVersions/:uri', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.fileVersion);
+        app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.like);
+        app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.comment);
+        app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.share);
+        app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.fileVersionLikesInfo);
+        app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.getFileVersionShares);
+
+        //shares
+        app.get('/shares/:uri', async.apply(Permissions.require, [Permissions.acl.user]), posts.getShare);
+
+
+        //notifications
+        app.get('/notifications/all', async.apply(Permissions.require, [Permissions.acl.user]), notifications.get_unread_user_notifications);
+        app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.acl.user]), notifications.get_notification_info);
+        app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.acl.user]), notifications.delete)
+
+        //serve angular JS ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,
             function(req, res, next){
 
@@ -1351,63 +1486,110 @@ async.waterfall([
          * Register plugins
          */
 
-        app = PluginManager.registerPlugins(app);
+        PluginManager.registerPlugins(app, function(err, app){
+            //The 404 Route (ALWAYS Keep this as the last route)
+            // ERRO! Isto entra em conflito com as rotas dos plugins, porque esta é registada antes do registo das rotas dos
+            //plugins ter sido concluído
 
-        //The 404 Route (ALWAYS Keep this as the last route)
-        // ERRO! Isto entra em conflito com as rotas dos plugins, porque esta é registada antes do registo das rotas dos
-        //plugins ter sido concluído
-
-        /*app.get('*', function(req, res){
-            res.render('errors/404', 404);
-        });*/
+            /*app.get('*', function(req, res){
+             res.render('errors/404', 404);
+             });*/
 
 
-        var server = http.createServer(function (req, res) {
+            var server = http.createServer(function (req, res) {
 
-            var reqd = domain.create();
-            reqd.add(req);
-            reqd.add(res);
+                var reqd = domain.create();
+                reqd.add(req);
+                reqd.add(res);
 
-            // On error dispose of the domain
-            reqd.on('error', function (error) {
-                console.error('Error', error.code, error.message, req.url);
-                console.error('Stack Trace : ', error.stack);
-                reqd.dispose();
+                // On error dispose of the domain
+                reqd.on('error', function (error) {
+                    console.error('Error', error.code, error.message, req.url);
+                    console.error('Stack Trace : ', error.stack);
+                    reqd.dispose();
+                });
+
+                // Pass the request to express
+                app(req, res)
+
             });
 
-            // Pass the request to express
-            app(req, res)
+            //dont start server twice (for testing)
+            //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
 
-        });
-
-        //dont start server twice (for testing)
-        //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
-
-        if(process.env.NODE_ENV != 'test')
-        {
-            server.listen(app.get('port'), function() {
-                console.log('Express server listening on port ' + app.get('port'));
-                bootupPromise.resolve(app);
-            });
-        }
-        else
-        {
-            console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
-            bootupPromise.resolve(app);
-        }
-
-        if(Config.debug.diagnostics.ram_usage_reports)
-        {
-            setInterval(function ()
+            if(process.env.NODE_ENV != 'test')
             {
-                var pretty = require('prettysize');
-                console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
-                if (typeof gc === 'function')
+                server.listen(app.get('port'), function() {
+                    console.log('Express server listening on port ' + app.get('port'));
+                    bootupPromise.resolve(app);
+                });
+            }
+            else
+            {
+                console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
+                bootupPromise.resolve(app);
+            }
+
+            if(Config.debug.diagnostics.ram_usage_reports)
+            {
+                setInterval(function ()
                 {
-                    gc();
+                    var pretty = require('prettysize');
+                    console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
+                    if (typeof gc === 'function')
+                    {
+                        gc();
+                    }
+                }, 2000);
+            }
+
+            // Handle 404
+            app.use(function(req, res) {
+                var acceptsHTML = req.accepts('html');
+                var acceptsJSON = req.accepts('json');
+                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.status(404).json(
+                        {
+                            result : "error",
+                            message : "Page not found"
+                        }
+                    );
                 }
-            }, 2000);
-        }
+                else
+                {
+                    res.status(404).render('errors/404',
+                        {
+                            title : "Page not Found"
+                        }
+                    )
+                }
+            });
+
+            // Handle 500
+            app.use(function(error, req, res, next) {
+                var acceptsHTML = req.accepts('html');
+                var acceptsJSON = req.accepts('json');
+                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.status(500).json(
+                        {
+                            result : "error",
+                            error : error
+                        }
+                    );
+                }
+                else
+                {
+                    res.render('errors/500',
+                        {
+                            title : "Something went wrong",
+                            error : error
+                        }
+                    )
+                }
+            });
+        });
     }
 ]);
 

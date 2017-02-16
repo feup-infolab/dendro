@@ -25,6 +25,16 @@ function Event (object)
     return self;
 }
 
+
+/*Event.prototype.save = function (callback) {
+ console.log('Event save');
+ var self = this;
+
+ self.baseConstructor.save(function (err, newEvent) {
+ callback(err, newEvent);
+ });
+ };*/
+
 Event = Class.extend(Event, Resource);
 
 module.exports.Event = Event;

@@ -6,11 +6,6 @@ var stack_topright = {"dir1": "down", "dir2": "left", "push": "top"};
 
 // Declare app level module which depends on filters, and services
 angular.module('dendroApp', [
-        'dendroApp.controllers',
-        'dendroApp.filters',
-        'dendroApp.services',
-        'dendroApp.directives',
-        'dendroApp.factories',
         'ngRoute',
         'ngAnimate',
         'ngTagsInput',
@@ -23,9 +18,22 @@ angular.module('dendroApp', [
         'hljs',
         'ngFileUpload',
         'ngJSONPath',
-        'TreeWidget'
+        'TreeWidget',
+        'angularUtils.directives.dirPagination',
+        'ngAlerts',
+        'dendroApp.controllers',
+        'dendroApp.filters',
+        'dendroApp.services',
+        'dendroApp.directives',
+        'dendroApp.factories',
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
         return $sce.trustAsResourceUrl(val);
     };
-}]);
+}]).config(['ngAlertsProvider', function (ngAlertsProvider) {
+        // Global empty list text.
+        ngAlertsProvider.options.emptyListText = 'Nothing here...';
+
+        // The queue timeout for new alerts.
+        ngAlertsProvider.options.queue = null;
+}]);;
