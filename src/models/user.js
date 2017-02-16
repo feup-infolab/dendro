@@ -111,9 +111,11 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                         {
                             var userToReturn = new User(fetchedUser);
 
-                            userToReturn.loadOntologyRecommendations(function(err, user){
-                                callback(err, user);
-                            });
+                            callback(err, fetchedUser);
+
+                            /*userToReturn.loadOntologyRecommendations(function(err, user){
+
+                            });*/
                         }
                         else
                         {
