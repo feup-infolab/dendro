@@ -1486,63 +1486,110 @@ async.waterfall([
          * Register plugins
          */
 
-        app = PluginManager.registerPlugins(app);
+        PluginManager.registerPlugins(app, function(err, app){
+            //The 404 Route (ALWAYS Keep this as the last route)
+            // ERRO! Isto entra em conflito com as rotas dos plugins, porque esta é registada antes do registo das rotas dos
+            //plugins ter sido concluído
 
-        //The 404 Route (ALWAYS Keep this as the last route)
-        // ERRO! Isto entra em conflito com as rotas dos plugins, porque esta é registada antes do registo das rotas dos
-        //plugins ter sido concluído
-
-        /*app.get('*', function(req, res){
-            res.render('errors/404', 404);
-        });*/
+            /*app.get('*', function(req, res){
+             res.render('errors/404', 404);
+             });*/
 
 
-        var server = http.createServer(function (req, res) {
+            var server = http.createServer(function (req, res) {
 
-            var reqd = domain.create();
-            reqd.add(req);
-            reqd.add(res);
+                var reqd = domain.create();
+                reqd.add(req);
+                reqd.add(res);
 
-            // On error dispose of the domain
-            reqd.on('error', function (error) {
-                console.error('Error', error.code, error.message, req.url);
-                console.error('Stack Trace : ', error.stack);
-                reqd.dispose();
+                // On error dispose of the domain
+                reqd.on('error', function (error) {
+                    console.error('Error', error.code, error.message, req.url);
+                    console.error('Stack Trace : ', error.stack);
+                    reqd.dispose();
+                });
+
+                // Pass the request to express
+                app(req, res)
+
             });
 
-            // Pass the request to express
-            app(req, res)
+            //dont start server twice (for testing)
+            //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
 
-        });
-
-        //dont start server twice (for testing)
-        //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
-
-        if(process.env.NODE_ENV != 'test')
-        {
-            server.listen(app.get('port'), function() {
-                console.log('Express server listening on port ' + app.get('port'));
-                bootupPromise.resolve(app);
-            });
-        }
-        else
-        {
-            console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
-            bootupPromise.resolve(app);
-        }
-
-        if(Config.debug.diagnostics.ram_usage_reports)
-        {
-            setInterval(function ()
+            if(process.env.NODE_ENV != 'test')
             {
-                var pretty = require('prettysize');
-                console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
-                if (typeof gc === 'function')
+                server.listen(app.get('port'), function() {
+                    console.log('Express server listening on port ' + app.get('port'));
+                    bootupPromise.resolve(app);
+                });
+            }
+            else
+            {
+                console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
+                bootupPromise.resolve(app);
+            }
+
+            if(Config.debug.diagnostics.ram_usage_reports)
+            {
+                setInterval(function ()
                 {
-                    gc();
+                    var pretty = require('prettysize');
+                    console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
+                    if (typeof gc === 'function')
+                    {
+                        gc();
+                    }
+                }, 2000);
+            }
+
+            // Handle 404
+            app.use(function(req, res) {
+                var acceptsHTML = req.accepts('html');
+                var acceptsJSON = req.accepts('json');
+                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.status(404).json(
+                        {
+                            result : "error",
+                            message : "Page not found"
+                        }
+                    );
                 }
-            }, 2000);
-        }
+                else
+                {
+                    res.status(404).render('errors/404',
+                        {
+                            title : "Page not Found"
+                        }
+                    )
+                }
+            });
+
+            // Handle 500
+            app.use(function(error, req, res, next) {
+                var acceptsHTML = req.accepts('html');
+                var acceptsJSON = req.accepts('json');
+                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.status(500).json(
+                        {
+                            result : "error",
+                            error : error
+                        }
+                    );
+                }
+                else
+                {
+                    res.render('errors/500',
+                        {
+                            title : "Something went wrong",
+                            error : error
+                        }
+                    )
+                }
+            });
+        });
     }
 ]);
 

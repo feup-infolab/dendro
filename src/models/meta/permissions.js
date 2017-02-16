@@ -441,7 +441,7 @@ Permissions.require = function(permissionsRequired, req, res, next)
         }
         else
         {
-            req = Permissions.addToReasons(req, Permissions.acl.admin, true);
+            return Permissions.sendResponse(true, req, res, next, [Permissions.roles.system.admin]);
         }
     }
     else
