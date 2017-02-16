@@ -9,22 +9,24 @@
 <% } %>
 
 <link rel='stylesheet' type="text/css" href='/stylesheets/animations.css' />
-<link rel='stylesheet' type="text/css" href='/stylesheets/explorer.css' />
 <link rel='stylesheet' type="text/css" href='/stylesheets/uploads.css' />
 <link rel="stylesheet" type="text/css" href="/bower_components/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="/bower_components/font-awesome-animation/dist/font-awesome-animation.min.css">
 <link rel="stylesheet" type="text/css" href="/bower_components/pnotify/dist/pnotify.css"/>
+<link rel="stylesheet" type="text/css" href="/bower_components/pnotify/dist/pnotify.buttons.css"/>
 
 <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
 <link rel="stylesheet" type="text/css" href="/bower_components/ng-tags-input/ng-tags-input.min.css">
 <link rel="stylesheet" type="text/css" href="/bower_components/angular-ui-tree/dist/angular-ui-tree.min.css">
 <link rel="stylesheet" type="text/css" href="/bower_components/angular-loading-bar/build/loading-bar.min.css">
 <link rel="stylesheet" type="text/css" href="/bower_components/google-code-prettify/bin/prettify.min.css" />
+<link rel='stylesheet' type="text/css" href='/stylesheets/explorer.css' />
 
 <!--jQuery -->
-<script type="text/javascript" src="/bower_components/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="/bower_components/jquery/dist/jquery.js"></script>
 
 <!-- Angular Libs -->
-<script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
+<script type="text/javascript" src="/bower_components/angular/angular.js"></script>
 <script type="text/javascript" src="/bower_components/angular-route/angular-route.min.js"></script>
 <script type="text/javascript" src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <script type="text/javascript" src="/bower_components/angular-cookies/angular-cookies.min.js"></script>
@@ -65,6 +67,7 @@
 <script type="text/javascript" src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/bower_components/bootbox.js/bootbox.js"></script>
 <script type="text/javascript" src="/bower_components/pnotify/dist/pnotify.js"></script>
+<script type="text/javascript" src="/bower_components/pnotify/dist/pnotify.buttons.js"></script>
 <script type="text/javascript" src="/bower_components/underscore/underscore-min.js"></script>
 <script type="text/javascript" src="/bower_components/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="/bower_components/slider/dist/min/slider.min.js"></script>
@@ -78,6 +81,10 @@
 <script type="text/javascript" src="/bower_components/angular-moment/angular-moment.js"></script>
 <script type="text/javascript" src="/bower_components/google-code-prettify/bin/prettify.min.js"></script>
 <script type="text/javascript" src="/bower_components/urijs/src/URI.min.js"></script>
+<script type="text/javascript" src="/bower_components/browser-md5-file/dist/browser-md5-file.min.js"></script>
+<!--<script src="/bower_components/socket.io-client/socket.io.js"></script>--> <!--NELSON-->
+<script src="/bower_components/angular-utils-pagination/dirPagination.js"></script> <!--NELSON-->
+<script src="/bower_components/ng-alerts/dist/ng-alerts.js"></script>
 
 <script type="text/javascript" src="/bower_components/markdown-editpreview-ng.js/lib/codemwnci/Markdown.Converter.js"></script>
 <script type="text/javascript" src="/bower_components/markdown-editpreview-ng.js/lib/codemwnci/Markdown.Sanitizer.js"></script>
@@ -101,6 +108,12 @@
     <script type="text/javascript" src="/app/js/controllers/research_domains/research_domains_admin_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/window_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/social/timeline_controller.js"></script>
+    <script type="text/javascript" src="/app/js/controllers/social/projects_controller.js"></script><!--NELSON-->
+    <script type="text/javascript" src="/app/js/controllers/social/file_versions_controller.js"></script><!--NELSON-->
+    <script type="text/javascript" src="/app/js/controllers/notifications/notification_controller.js"></script><!--NELSON-->
+
+    <script type="text/javascript" src="/app/js/controllers/project/new_project_controller.js"></script>
+
 
     <!-- factories -->
 
@@ -124,6 +137,10 @@
     <script type="text/javascript" src="/app/js/services/social/timeline_service.js"></script>
     <script type="text/javascript" src="/app/js/services/uploads_service.js"></script>
     <script type="text/javascript" src="/app/js/services/users_service.js"></script>
+    <script type="text/javascript" src="/app/js/services/social/file_versions_service.js"></script>
+    <script type="text/javascript" src="/app/js/services/notifications/notification_service.js"></script><!--NELSON-->
+
+    <script type="text/javascript" src="/app/js/services/projects_service.js"></script>
 
 
     <!-- directives -->

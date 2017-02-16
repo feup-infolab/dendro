@@ -72,17 +72,29 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
 
         // streaming to gridfs
         var writestream = self.gfs.createWriteStream(requestObject);
+        var hasError = null;
 
         //error handling, e.g. file does not exist
         writestream.on('error', function (err) {
+            hasError = true;
             console.log('An error occurred saving the file to the database!', err);
             callback(1, err);
         });
 
         //callback on complete
         writestream.on('close', function (file) {
-            console.log('GridFS: Save complete for file with uri :'+fileUri);
-            callback(null, 'GridFS: Save complete for file uri :'+fileUri);
+            console.log('GridFS: Write stream closed for file with uri :'+fileUri);
+
+            if(!hasError)
+            {
+                var message = 'GridFS: Save complete for file uri :'+fileUri;
+            }
+            else
+            {
+                var message = 'GridFS: Error saving file with uri :'+fileUri;
+            }
+
+            callback(hasError, message, file);
         });
 
         inputStream.pipe(writestream);

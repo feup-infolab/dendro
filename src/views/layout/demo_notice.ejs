@@ -1,0 +1,19 @@
+<%if (Config.demo_mode.active) {%>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">This Dendro is in Demo Mode!</h3>
+    </div>
+    <div class="panel-body">
+        This is a demo instance of Dendro. To try out the platform please use the following credentials:
+
+        <br/>
+        <b>Username</b> : <%=Config.demo_mode.users[0].username%>
+        <br/>
+        <b>Password</b> : <%=Config.demo_mode.users[0].password%>
+        <br/>
+        <br/>
+        If you have any issues or enquiries, please contact the researchers at the <a href="http://dendro.fe.up.pt">Dendro home page</a>
+    </div>
+</div>
+
+<% } %>

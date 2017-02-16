@@ -15,6 +15,9 @@ var _ = require('underscore');
 
 exports.all = function(req, res){
 
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
     var viewVars = {
         title : 'Researchers in the knowledge base'
     };
@@ -23,54 +26,136 @@ exports.all = function(req, res){
         viewVars
     );
 
-    User.all(function(err, users)
+    var getUserCount = function(cb)
     {
-        if(!err)
-        {
-            viewVars.users = users;
+        User.getCount(function(err, count){
+            cb(err, count);
+        });
+    }
 
-            res.render('users/all',
-                viewVars
-            );
-        }
-        else
+    var getAllUsers = function(cb)
+    {
+        User.all(function(err, users) {
+            cb(err, users);
+        }, req, null, [Config.types.private, Config.types.locked], [Config.types.api_readable]);
+    }
+
+    async.parallel(
+        [
+            getUserCount, getAllUsers
+        ], function(err, results)
         {
-            viewVars.error_messages = [users];
-            res.render('users/all',
-                viewVars
-            );
+            if(!err)
+            {
+                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    var users = results[1];
+                    res.json(
+                        users
+                    );
+                }
+                else
+                {
+                    viewVars.count = results[0];
+                    viewVars.users = results[1];
+
+                    res.render('users/all',
+                        viewVars
+                    )
+                }
+            }
+            else
+            {
+                if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.json({
+                        result : "error",
+                        message : "Unable to fetch users list.",
+                        error : results
+                    });
+                }
+                else
+                {
+                    viewVars.users = [];
+                    viewVars.error_messages = [results];
+                    res.render('users/all',
+                        viewVars
+                    )
+                }
+            }
         }
-    });
+    );
 };
 
 exports.show = function(req, res){
     var username = req.params["username"];
 
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
     User.findByUsername(username, function(err, user)
     {
-        if(err == null)
+        if(!err)
         {
-            res.render('users/show',
+            if(user != null)
+            {
+                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
-                    title : "Viewing user " + username,
-                    user : user
+                    res.json(
+                        user
+                    );
                 }
-            )
+                else
+                {
+                    res.render('users/show',
+                        {
+                            title : "Viewing user " + username,
+                            user : user
+                        }
+                    )
+                }
+            }
+            else
+            {
+                if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.json({
+                        result : "error",
+                        message : "User " + username + " does not exist."
+                    });
+                }
+                else
+                {
+                    res.render('index',
+                        {
+                            error_messages : ["User " + username + " does not exist."]
+                        }
+                    )
+                }
+            }
         }
         else
         {
-            res.render('users/all',
-                {
-                    title : "Researchers",
-                    error_messages :
-                        [
-                            "Unable to retrieve information for user " + username ,
-                            err
-                        ]
-                }
-            );
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            {
+                res.json(
+                    {
+                        result : "error",
+                        message : "There is no user authenticated in the system."
+                    }
+                );
+            }
+            else
+            {
+                res.render('users/show',
+                    {
+                        title : "Viewing user " + username,
+                        user : user
+                    }
+                )
+            }
         }
-    });
+    }, true);
 };
 
 exports.me = function(req, res){
@@ -328,6 +413,33 @@ exports.reset_password = function(req, res){
 };
 
 exports.getLoggedUser = function (req, res) {
-    var loggedUser = req.session.user;
-    res.json(loggedUser);
+
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if(req.session.user != null)
+    {
+        req.params.username = req.session.user.ddr.username;
+        exports.show(req, res);
+    }
+    else
+    {
+        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+        {
+            res.json(
+                {
+                    result : "error",
+                    message : "There is no user authenticated in the system."
+                }
+            );
+        }
+        else
+        {
+            viewVars.projects = [];
+            viewVars.info_messages = ["There is no user authenticated in the system."];
+            res.render('index',
+                viewVars
+            );
+        }
+    }
 };

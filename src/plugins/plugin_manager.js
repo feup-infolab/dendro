@@ -8,7 +8,7 @@ function PluginManager ()
     var self = this;
 }
 
-PluginManager.registerPlugins = function(app)
+PluginManager.registerPlugins = function(app, callback)
 {
     var pluginsFolderAbsPath = Config.getAbsolutePathToPluginsFolder();
 
@@ -53,7 +53,7 @@ PluginManager.registerPlugins = function(app)
         }
     }
 
-    return app;
+    callback(null, app);
 };
 
 module.exports.PluginManager = PluginManager;
