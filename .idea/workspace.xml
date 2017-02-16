@@ -6,12 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="37a74947-2fdb-4da4-b1fb-85b8b233ca6b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app.js" afterPath="$PROJECT_DIR$/src/app.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/projects.js" afterPath="$PROJECT_DIR$/src/controllers/projects.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/permissions.js" afterPath="$PROJECT_DIR$/src/models/meta/permissions.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/views/interactions.ejs" afterPath="$PROJECT_DIR$/src/plugins/dendro_recommender/package/views/interactions.ejs" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/plugins/plugin_manager.js" afterPath="$PROJECT_DIR$/src/plugins/plugin_manager.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/errors/404.ejs" afterPath="$PROJECT_DIR$/src/views/errors/404.ejs" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/errors/500.ejs" afterPath="$PROJECT_DIR$/src/views/errors/500.ejs" />
     </list>
     <ignored path="dendro.iws" />
@@ -46,7 +40,7 @@
       <file leaf-file-name="interactions.ejs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/package/views/interactions.ejs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="341">
+            <state relative-caret-position="354">
               <caret line="134" column="38" selection-start-line="134" selection-start-column="0" selection-end-line="134" selection-end-column="0" />
               <folding />
             </state>
@@ -66,8 +60,8 @@
       <file leaf-file-name="app.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/app.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="308">
-              <caret line="1560" column="56" selection-start-line="1560" selection-start-column="56" selection-end-line="1560" selection-end-column="56" />
+            <state relative-caret-position="393">
+              <caret line="1586" column="41" selection-start-line="1586" selection-start-column="41" selection-end-line="1586" selection-end-column="41" />
               <folding>
                 <element signature="e#52773#57158#0" expanded="false" />
                 <element signature="e#57472#65069#0" expanded="false" />
@@ -76,11 +70,21 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="404.ejs" pinned="false" current-in-tab="true">
+      <file leaf-file-name="404.ejs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/views/errors/404.ejs">
           <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="357">
+              <caret line="21" column="73" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="index.ejs" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/views/index.ejs">
+          <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="51">
-              <caret line="3" column="24" selection-start-line="3" selection-start-column="24" selection-end-line="3" selection-end-column="24" />
+              <caret line="3" column="52" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -89,8 +93,8 @@
       <file leaf-file-name="500.ejs" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/views/errors/500.ejs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="357">
-              <caret line="21" column="41" selection-start-line="21" selection-start-column="41" selection-end-line="21" selection-end-column="41" />
+            <state relative-caret-position="354">
+              <caret line="25" column="80" selection-start-line="25" selection-start-column="80" selection-end-line="25" selection-end-column="80" />
               <folding />
             </state>
           </provider>
@@ -109,8 +113,8 @@
       <file leaf-file-name="plugin_manager.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/plugins/plugin_manager.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="17">
-              <caret line="10" column="53" selection-start-line="10" selection-start-column="53" selection-end-line="10" selection-end-column="53" />
+            <state relative-caret-position="255">
+              <caret line="24" column="77" selection-start-line="24" selection-start-column="77" selection-end-line="24" selection-end-column="77" />
               <folding />
             </state>
           </provider>
@@ -156,7 +160,6 @@
         <option value="$PROJECT_DIR$/src/views/projects/show/file_explorer.ejs" />
         <option value="$PROJECT_DIR$/src/views/layout/demo_notice.ejs" />
         <option value="$PROJECT_DIR$/src/views/auth/login.ejs" />
-        <option value="$PROJECT_DIR$/src/views/index.ejs" />
         <option value="$PROJECT_DIR$/src/views/projects/show.ejs" />
         <option value="$PROJECT_DIR$/src/views/layout/pagination/start.ejs" />
         <option value="$PROJECT_DIR$/src/views/vertexes/search.ejs" />
@@ -180,9 +183,10 @@
         <option value="$PROJECT_DIR$/src/models/meta/config.js" />
         <option value="$PROJECT_DIR$/src/plugins/dendro_recommender/package/views/interactions.ejs" />
         <option value="$PROJECT_DIR$/src/plugins/plugin_manager.js" />
-        <option value="$PROJECT_DIR$/src/views/errors/500.ejs" />
-        <option value="$PROJECT_DIR$/src/app.js" />
         <option value="$PROJECT_DIR$/src/views/errors/404.ejs" />
+        <option value="$PROJECT_DIR$/src/app.js" />
+        <option value="$PROJECT_DIR$/src/views/errors/500.ejs" />
+        <option value="$PROJECT_DIR$/src/views/index.ejs" />
       </list>
     </option>
   </component>
@@ -553,7 +557,7 @@
       <workItem from="1487013722486" duration="30181000" />
       <workItem from="1487168995277" duration="20443000" />
       <workItem from="1487207841857" duration="1577000" />
-      <workItem from="1487258065176" duration="3894000" />
+      <workItem from="1487258065176" duration="5209000" />
     </task>
     <servers />
   </component>
@@ -590,7 +594,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="382364000" />
+    <option name="totallyTimeSpent" value="383679000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -691,15 +695,15 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/app.js</url>
-          <line>1498</line>
+          <line>1583</line>
           <properties />
-          <option name="timeStamp" value="1221" />
+          <option name="timeStamp" value="1223" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/src/app.js</url>
-          <line>1488</line>
+          <line>1574</line>
           <properties />
-          <option name="timeStamp" value="1222" />
+          <option name="timeStamp" value="1224" />
         </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
@@ -714,20 +718,18 @@
           <properties />
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="1223" />
+      <option name="time" value="1225" />
     </breakpoint-manager>
     <watches-manager>
+      <configuration name="NodeJSConfigurationType">
+        <watch expression="error.get stack()" language="JavaScript" />
+      </configuration>
       <configuration name="mocha-javascript-test-runner">
         <watch expression="Config.absPathInSrcFolder(&quot;/models/meta/class.js&quot;)" language="JavaScript" />
       </configuration>
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/public/images/logo_micro.png">
-      <provider selected="true" editor-type-id="images">
-        <state />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/public/images/logos/Dendro_Logo.png">
       <provider selected="true" editor-type-id="images">
         <state />
@@ -1028,26 +1030,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/package/views/interactions.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="341">
-          <caret line="134" column="38" selection-start-line="134" selection-start-column="0" selection-end-line="134" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="264">
           <caret line="478" column="0" selection-start-line="478" selection-start-column="0" selection-end-line="478" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/plugins/plugin_manager.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="10" column="53" selection-start-line="10" selection-start-column="53" selection-end-line="10" selection-end-column="53" />
           <folding />
         </state>
       </provider>
@@ -1068,18 +1054,34 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/views/errors/500.ejs">
+    <entry file="file://$PROJECT_DIR$/src/plugins/dendro_recommender/package/views/interactions.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="354">
+          <caret line="134" column="38" selection-start-line="134" selection-start-column="0" selection-end-line="134" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/plugins/plugin_manager.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="24" column="77" selection-start-line="24" selection-start-column="77" selection-end-line="24" selection-end-column="77" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/errors/404.ejs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="357">
-          <caret line="21" column="41" selection-start-line="21" selection-start-column="41" selection-end-line="21" selection-end-column="41" />
+          <caret line="21" column="73" selection-start-line="21" selection-start-column="0" selection-end-line="21" selection-end-column="0" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="1560" column="56" selection-start-line="1560" selection-start-column="56" selection-end-line="1560" selection-end-column="56" />
+        <state relative-caret-position="393">
+          <caret line="1586" column="41" selection-start-line="1586" selection-start-column="41" selection-end-line="1586" selection-end-column="41" />
           <folding>
             <element signature="e#52773#57158#0" expanded="false" />
             <element signature="e#57472#65069#0" expanded="false" />
@@ -1087,10 +1089,18 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/views/errors/404.ejs">
+    <entry file="file://$PROJECT_DIR$/src/views/errors/500.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="354">
+          <caret line="25" column="80" selection-start-line="25" selection-start-column="80" selection-end-line="25" selection-end-column="80" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/index.ejs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="51">
-          <caret line="3" column="24" selection-start-line="3" selection-start-column="24" selection-end-line="3" selection-end-column="24" />
+          <caret line="3" column="52" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="0" />
           <folding />
         </state>
       </provider>
