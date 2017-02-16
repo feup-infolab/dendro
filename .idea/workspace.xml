@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="37a74947-2fdb-4da4-b1fb-85b8b233ca6b" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/layout/header.ejs" afterPath="$PROJECT_DIR$/src/views/layout/header.ejs" />
     </list>
     <ignored path="dendro.iws" />
@@ -93,8 +92,8 @@
       <file leaf-file-name="header.ejs" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/views/layout/header.ejs">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="408">
-              <caret line="33" column="62" selection-start-line="33" selection-start-column="62" selection-end-line="33" selection-end-column="62" />
+            <state relative-caret-position="357">
+              <caret line="30" column="96" selection-start-line="30" selection-start-column="95" selection-end-line="30" selection-end-column="95" />
               <folding />
             </state>
           </provider>
@@ -310,28 +309,6 @@
             </PATH_ELEMENT>
             <PATH_ELEMENT>
               <option name="myItemId" value="images" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-          </PATH>
-          <PATH>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="dendro" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="dendro" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="public" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="images" />
-              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
-            </PATH_ELEMENT>
-            <PATH_ELEMENT>
-              <option name="myItemId" value="logos" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -565,7 +542,7 @@
       <workItem from="1486994916460" duration="4081000" />
       <workItem from="1487013367156" duration="226000" />
       <workItem from="1487013722486" duration="30181000" />
-      <workItem from="1487168995277" duration="17183000" />
+      <workItem from="1487168995277" duration="17294000" />
     </task>
     <servers />
   </component>
@@ -602,7 +579,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="373633000" />
+    <option name="totallyTimeSpent" value="373744000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -1089,8 +1066,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/views/layout/header.ejs">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="33" column="62" selection-start-line="33" selection-start-column="62" selection-end-line="33" selection-end-column="62" />
+        <state relative-caret-position="357">
+          <caret line="30" column="96" selection-start-line="30" selection-start-column="95" selection-end-line="30" selection-end-column="95" />
           <folding />
         </state>
       </provider>
