@@ -161,6 +161,8 @@ module.exports.login = function(req, res){
 
 module.exports.logout = function(req, res){
     req.session.user = null;
+    req.session.isAdmin = null;
+    req.session.upload_manager = null;
 
     req.flash('success', "Successfully logged out");
 

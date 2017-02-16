@@ -427,12 +427,12 @@ angular.module('dendroApp.controllers')
 
     $scope.download_folder = function()
     {
-        windowService.download_url($scope.get_current_url(), "/download");
+        windowService.download_url($scope.get_current_url(), "?download");
     };
 
     $scope.backup_folder = function()
     {
-        windowService.download_url($scope.get_current_url(), "/backup");
+        windowService.download_url($scope.get_current_url(), "?backup");
     };
 
 

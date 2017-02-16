@@ -228,7 +228,7 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
             {
                 if(req.privacy)
                 {
-                    if(req.privacy === "metadataOnly")
+                    if(req.privacy === "metadata_only")
                     {
                         return res.redirect(req.originalUrl + '/request_access');
                     }
@@ -392,54 +392,57 @@ Permissions.require = function(permissionsRequired, req, res, next)
         var user = req.session.user;
 
         //Global Administrators are God
-        if(req.session.isAdmin)
+        if(!req.session.isAdmin)
+        {
+            var resource = Config.baseUri + require('url').parse(req.url).pathname;
+
+            async.map(permissionsRequired,
+                async.apply(checkPermissionsInAcl, req, res, next, user, resource),
+                function(err, results)
+                {
+                    var reasonsForDenying = [];
+
+                    for(var i = 0; i < results.length; i++)
+                    {
+                        var methodResults = results[i];
+                        methodResults = _.flatten(methodResults);
+                        methodResults = _.compact(methodResults);
+
+                        var reasonsForAuthorizing = _.filter(methodResults, function(result){return result.authorized});
+                        req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
+
+                        reasonsForDenying = reasonsForDenying.concat(_.filter(methodResults, function(result){return !result.authorized}));
+                        req = Permissions.addToReasons(req, reasonsForDenying, false);
+
+                        if(req.permissions_management.reasons_for_authorizing.length > 0)
+                        {
+                            //Since user is involved in the project, the project will be seen the normal way
+                            return Permissions.sendResponse(true, req, res, next, reasonsForAuthorizing);
+                        }
+                    }
+
+                    if(req.permissions_management.reasons_for_denying.length > 0)
+                    {
+                        if (Config.debug.permissions.log_denials)
+                        {
+                            console.log("REASONS FOR DENYING");
+                            console.log(reasonsForDenying);
+                        }
+
+                        return Permissions.sendResponse(false, req, res, next, reasonsForDenying);
+                    }
+                    else
+                    {
+                        //ommision case. No reasons to authorize nor to refuse access!
+                        return Permissions.sendResponse(true, req, res, next, []);
+                    }
+                }
+            );
+        }
+        else
         {
             req = Permissions.addToReasons(req, Permissions.acl.admin, true);
         }
-        var resource = Config.baseUri + require('url').parse(req.url).pathname;
-
-        async.map(permissionsRequired,
-            async.apply(checkPermissionsInAcl, req, res, next, user, resource),
-            function(err, results)
-            {
-                var reasonsForDenying = [];
-
-                for(var i = 0; i < results.length; i++)
-                {
-                    var methodResults = results[i];
-                    methodResults = _.flatten(methodResults);
-                    methodResults = _.compact(methodResults);
-
-                    var reasonsForAuthorizing = _.filter(methodResults, function(result){return result.authorized});
-                    req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
-
-                    reasonsForDenying = reasonsForDenying.concat(_.filter(methodResults, function(result){return !result.authorized}));
-                    req = Permissions.addToReasons(req, reasonsForDenying, false);
-
-                    if(req.permissions_management.reasons_for_authorizing.length > 0)
-                    {
-                        //Since user is involved in the project, the project will be seen the normal way
-                        return Permissions.sendResponse(true, req, res, next, reasonsForAuthorizing);
-                    }
-                }
-
-                if(req.permissions_management.reasons_for_denying.length > 0)
-                {
-                    if (Config.debug.permissions.log_denials)
-                    {
-                        console.log("REASONS FOR DENYING");
-                        console.log(reasonsForDenying);
-                    }
-
-                    return Permissions.sendResponse(false, req, res, next, reasonsForDenying);
-                }
-                else
-                {
-                    //ommision case. No reasons to authorize nor to refuse access!
-                    return Permissions.sendResponse(true, req, res, next, []);
-                }
-            }
-        );
     }
     else
     {

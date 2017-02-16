@@ -807,8 +807,8 @@ exports.administer = function(req, res) {
                             case "private":
                                 project.ddr.privacyStatus = 'private';
                                 break;
-                            case "metadataOnly":
-                                project.ddr.privacyStatus = 'metadataOnly';
+                            case "metadata_only":
+                                project.ddr.privacyStatus = 'metadata_only';
                                 break;
                         }
                     }
