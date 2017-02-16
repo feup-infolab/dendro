@@ -70,7 +70,7 @@ Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumen
     }
 };
 
-Resource.all = function(callback, req, customGraphUri)
+Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
 {
     var self = this;
     var type = self.prefixedRDFType;
@@ -133,6 +133,12 @@ Resource.all = function(callback, req, customGraphUri)
                     {
                         var aResource = new self.prototype.constructor(result);
                         self.findByUri(aResource.uri, function(err, completeResource){
+
+                            if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
+                            {
+                                completeResource.clearDescriptorTypesInMemory(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                            }
+
                             cb(err, completeResource);
                         });
                     },
@@ -1406,7 +1412,7 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
  * @param callback callback function
  */
 
-Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri, skipCache)
+Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
 {
     var self = this;
     var getFromCache = function (uri, callback)
@@ -1425,7 +1431,12 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                     // if they are not already present
                     resource.copyOrInitDescriptors(result);
 
-                    callback(err, result);
+                    if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
+                    {
+                        resource.clearDescriptorTypesInMemory(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                    }
+
+                    callback(err, resource);
                 }
                 else
                 {

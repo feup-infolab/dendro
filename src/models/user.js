@@ -165,13 +165,14 @@ User.createAndInsertFromObject = function(object, callback) {
 };
 
 
-User.all = function(callback, req) {
+User.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+{
     var self = this;
     User.baseConstructor.all.call(self, function(err, users) {
 
         callback(err, users);
 
-    }, req);
+    }, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
 };
 
 User.allInPage = function(page, pageSize, callback) {
