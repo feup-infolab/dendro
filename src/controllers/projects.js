@@ -880,41 +880,6 @@ exports.administer = function(req, res) {
                     }
 
 
-
-
-
-                    /*else
-                     {
-                     viewVars.error_messages = ["No contributors array specified in the request body."];
-                     res.render('projects/administration/administer',
-                     viewVars
-                     );
-                     }*/
-                }
-
-                project.save(function(err, result){
-                    if(!err)
-                    {
-                        viewVars.success_messages = ["Project " + req.params.handle + " successfully updated."];
-                        res.render('projects/administration/administer',
-                            viewVars
-                        );
-                    }
-                    else
-                    {
-                        viewVars.error_messages = [result];
-                        res.render('projects/administration/administer',
-                            viewVars
-                        );
-                    }
-                });
-            }
-            else if(req.originalMethod == "GET")
-            {
-                viewVars.project = project;
-                res.render('projects/administration/administer',
-                    viewVars
-                );
                     project.save(function (err, result)
                     {
                         if (!err)
@@ -935,6 +900,7 @@ exports.administer = function(req, res) {
                 }
                 else if (req.originalMethod == "GET")
                 {
+                    viewVars.project = project;
                     res.render('projects/administration/administer',
                         viewVars
                     );
@@ -952,13 +918,6 @@ exports.administer = function(req, res) {
         {
             viewVars.error_messages = ["Error reported " + project];
             res.render('projects/administration/administer',
-                viewVars
-            );
-        }
-        else
-        {
-            viewVars.error_messages = ["Project " + req.params.handle + " does not exist."];
-            res.render('index',
                 viewVars
             );
         }
