@@ -44,6 +44,7 @@ jspm_packages
 #ignore webstorm workspace file
 .idea/workspace.xml
 
+.idea/
 temp/
 
 *.pdf
