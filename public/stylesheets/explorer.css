@@ -32,12 +32,10 @@
   padding-right: 3px;
 }
 .spacer {
-  margin-top: 10px;
-/* define margin as you see fit */
+  margin-top: 10px; /* define margin as you see fit */
 }
 .navbar-spacer {
-  margin-top: 20px;
-/* define margin as you see fit */
+  margin-top: 20px; /* define margin as you see fit */
 }
 .changelog-table {
   table-layout: fixed;
@@ -168,4 +166,14 @@ Animations (uncomment to have animations)
   margin-top: -0.4em;
   margin-left: 0.5em;
   color: #f00;
+}
+#wrap {
+  padding-bottom: 120px;
+}
+.autohide-footer {
+  position: fixed;
+  left: 0px;
+  bottom: 0px;
+  height: 120px;
+  width: 100%;
 }
