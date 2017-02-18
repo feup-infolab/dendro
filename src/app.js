@@ -35,6 +35,7 @@ var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var GridFSConnection = require(Config.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
 var RedisConnection = require(Config.absPathInSrcFolder("/kb/redis.js")).RedisConnection;
 var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+var QueryBasedRouter = Object.create(require(Config.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
 var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
@@ -1148,13 +1149,152 @@ async.waterfall([
         app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]), repo_bookmarks.delete);
 
         //view a project's root
-        app.all(/\/project\/([^\/]+)(\/data)?$/,
-            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public, Permissions.resource_access_levels.metadata_only], [Permissions.acl.creator_or_contributor]),
-            function(req,res)
+        app.all(/\/project\/([^\/]+)(\/data)?$/, function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
                 req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
 
+
+                var defaultPermissionsInProjectRoot = [
+                        Permissions.project.public,
+                        Permissions.project.metadata_only,
+                        Permissions.acl.creator_or_contributor
+                ];
+
+                var modificationPermissions = [
+                    Permissions.acl.creator_or_contributor
+                ];
+
+                var administrationPermissions = [
+                    Permissions.acl.creator
+                ];
+
+                var queryBasedRoutes = {
+                        get: [
+                            //downloads
+                            {
+                                queryKeys : ['download'],
+                                handler : files.download,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //backups
+                            {
+                                queryKeys : ['backup'],
+                                handler : files.backup,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //bagits
+                            {
+                                queryKeys : ['bagit'],
+                                handler :files.bagit,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //list contents
+                            {
+                                queryKeys : ['ls'],
+                                handler :files.ls,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //descriptor recommendations
+                            {
+                                queryKeys : ['metadata_recommendations'],
+                                handler : recommendation.recommend_descriptors,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //recent changes
+                            {
+                                queryKeys : ['recent_changes'],
+                                handler : projects.recent_changes,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //project stats
+                            {
+                                queryKeys : ['stats'],
+                                handler : projects.stats,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //recommendation ontologies
+                            {
+                                queryKeys : ['recommendation_ontologies'],
+                                handler : ontologies.get_recommendation_ontologies,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //show versions of resources
+                            {
+                                queryKeys : ['version'],
+                                handler : records.show_version,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //auto completing descriptors
+                            {
+                                queryKeys : ['descriptors_autocomplete'],
+                                handler : descriptors.descriptors_autocomplete,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //auto completing ontologies
+                            {
+                                queryKeys : ['ontology_autocomplete'],
+                                handler : ontologies.ontologies_autocomplete,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //thumb nails
+                            {
+                                queryKeys : ['thumnail'],
+                                handler : files.serve_static, //(req, res, "images/icons/folder.png", "images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds)
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //default case
+                            {
+                                queryKeys : [],
+                                handler : projects.show,
+                                permissions : defaultPermissionsInProjectRoot
+                            }
+                        ],
+                        post: [
+                            {
+                                queryKeys : ['update_metadata'],
+                                handler : records.update,
+                                permissions : modificationPermissions
+                            },
+                            {
+                                queryKeys : ['restore_metadata_version'],
+                                handler : records.restore_metadata_version,
+                                permissions : modificationPermissions
+                            },
+                            {
+                                queryKeys : ['mkdir'],
+                                handler : files.mkdir,
+                                permissions : modificationPermissions
+                            },
+                            {
+                                queryKeys : ['restore'],
+                                handler : files.restore,
+                                permissions : modificationPermissions
+                            },
+                            {
+                                queryKeys : ['administer'],
+                                handler : projects.administer,
+                                permissions : administrationPermissions
+                            },
+                            {
+                                queryKeys : ['export_to_repository'],
+                                handler : datasets.export_to_repository,
+                                permissions : modificationPermissions
+                            }
+                        ],
+                        all: [
+                            //uploads
+                            {
+                                queries: ['upload'],
+                                handler: files.upload,
+                                permissions: modificationPermissions
+                            }
+                        ]
+                };
+
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res);
+
+                /*
                 if(req.query.upload != null)
                 {
                     req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
@@ -1245,13 +1385,13 @@ async.waterfall([
                     {
                         datasets.export_to_repository(req, res);
                     }
-                }
+                }*/
             });
 
         //      files and folders (data)
         //      downloads
         app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
+            async.apply(Permissions.require, [Permissions.resource_access_levels.public, Permissions.acl.creator_or_contributor]),
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
@@ -1561,6 +1701,29 @@ async.waterfall([
                     res.status(404).render('errors/404',
                         {
                             title : "Page not Found"
+                        }
+                    )
+                }
+            });
+
+            // Handle 405
+            app.use(function(req, res) {
+                var acceptsHTML = req.accepts('html');
+                var acceptsJSON = req.accepts('json');
+                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.status(405).json(
+                        {
+                            result : "error",
+                            message : "Method Not Supported"
+                        }
+                    );
+                }
+                else
+                {
+                    res.status(405).render('errors/404',
+                        {
+                            title : "Method Not Supported"
                         }
                     )
                 }

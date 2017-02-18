@@ -19,8 +19,7 @@ Permissions.messages = {
     }
 }
 
-Permissions.types =
-{
+Permissions.types = {
     system : "system",
     resource : "resource",
     project : "project"
@@ -73,6 +72,24 @@ Permissions.roles = {
     }
 }
 
+Permissions.resource_access_levels = {
+    public : {
+        access_level_required : "public",
+        error_message_user : "This is a public project.",
+        error_message_api : "This is a public project."
+    },
+    private : {
+        access_level_required : "private",
+        error_message_user : "This is a private project, and neither data nor metadata can be accessed.",
+        error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed."
+    },
+    metadata_only :  {
+        access_level_required : "metadata_only",
+        error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
+        error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
+    }
+}
+
 Permissions.acl =
 {
     admin :
@@ -95,24 +112,6 @@ Permissions.acl =
     }
 };
 
-Permissions.resource_access_levels = {
-    public : {
-        access_level_required : "public",
-        error_message_user : "This is a public project.",
-        error_message_api : "This is a public project."
-    },
-    private : {
-        access_level_required : "private",
-        error_message_user : "This is a private project, and neither data nor metadata can be accessed.",
-        error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed."
-    },
-    metadata_only :  {
-        access_level_required : "metadata_only",
-        error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
-        error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
-    }
-}
-
 Permissions.project =
 {
     public :
@@ -126,7 +125,7 @@ Permissions.project =
     },
     metadata_only :
     {
-        privacy_types_required : ["metadata_only"]
+        roles_required: [Permissions.resource_access_levels.metadata_only]
     }
 };
 
