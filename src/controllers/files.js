@@ -1676,6 +1676,7 @@ exports.thumbnail = function(req, res)
 {
     if(req.params.filepath != null)
     {
+        var path = require('path');
         var requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
         if(requestedExtension == null)

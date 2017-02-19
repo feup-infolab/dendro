@@ -1167,6 +1167,7 @@ async.waterfall([
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?$/, function(req,res, next)
             {
+                console.log("Entered Project Root Route. URL : " + req.originalUrl);
                 req.params.handle = req.params[0];                      //project handle
                 req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
 
@@ -1187,7 +1188,7 @@ async.waterfall([
                             //bagits
                             {
                                 queryKeys : ['bagit'],
-                                handler :files.bagit,
+                                handler : projects.bagit,
                                 permissions : defaultPermissionsInProjectRoot
                             },
                             //list contents
@@ -1312,8 +1313,9 @@ async.waterfall([
         //      files and folders (data)
         //      downloads
         app.all(/\/project\/([^\/]+)(\/data\/.+)$/,
-            function(req,res)
+            function(req,res, next)
             {
+                console.log("Entered Project branch Route. URL : " + req.originalUrl);
                 req.params.handle = req.params[0];                      //project handle
                 req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
 
@@ -1337,7 +1339,7 @@ async.waterfall([
                         //bagits
                         {
                             queryKeys : ['bagit'],
-                            handler :files.bagit,
+                            handler : exports.download,
                             permissions : defaultPermissionsInProjectRoot
                         },
                         //list contents
@@ -1531,6 +1533,8 @@ async.waterfall([
                         }
                     ]
                 };
+
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
             }
         );
 
