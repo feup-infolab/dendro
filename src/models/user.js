@@ -62,6 +62,73 @@ User.findByEmail = function(email, callback)
     User.findByPropertyValue(email, "foaf:mbox", callback);
 };
 
+User.autocomplete_search = function(value, maxResults, callback) {
+
+    if(Config.debug.users.log_fetch_by_username)
+    {
+        console.log("finding by username " + username);
+    }
+
+    var query =
+        "SELECT * \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   ?uri rdf:type [1] . \n" +
+        "   ?uri foaf:firstName ?firstname . \n" +
+        "   ?uri foaf:surname ?surname . \n" +
+        "   ?uri ddr:username ?username . \n" +
+        "   FILTER (regex(?firstname, [2], [3]) || regex(?surname, [2], [3]) || regex(?username, [2], [3])). \n" +
+        "} \n" +
+        " LIMIT [4]";
+
+
+    db.connection.execute(query,
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.prefixedResource,
+                value : User.prefixedRDFType
+            },
+            {
+                type : DbConnection.string,
+                value : value
+            },
+            {
+                type : DbConnection.string,
+                value : "i"
+            },
+            {
+                type : DbConnection.int,
+                value : maxResults
+            }
+        ],
+
+        function(err, users) {
+            if(!err && users instanceof Array)
+            {
+                var getUserProperties = function(resultRow, cb)
+                {
+                    User.findByUri(resultRow.uri, function(err, user)
+                    {
+                        cb(err, user);
+                    });
+                };
+
+                async.map(users, getUserProperties, function(err, results){
+                    callback(err, results);
+                })
+            }
+            else
+            {
+                callback(err, user);
+            }
+        });
+};
+
 User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
 
     if(Config.debug.users.log_fetch_by_username)
@@ -187,9 +254,9 @@ User.all = function(callback) {
                  {
                      var getUserProperties = function(resultRow, cb)
                      {
-                         User.findByUri(resultRow.uri, function(err, project)
+                         User.findByUri(resultRow.uri, function(err, user)
                          {
-                             cb(err, project);
+                             cb(err, user);
                          });
                      };
 
@@ -1393,6 +1460,8 @@ User.removeAllAdmins = function(callback)
 User.anonymous = {
     uri: "http://dendro.fe.up.pt/user/anonymous"
 };
+
+User.prefixedRDFType = "ddr:User";
 
 User = Class.extend(User, Resource);
 

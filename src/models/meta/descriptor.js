@@ -910,7 +910,6 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
         "   ?uri rdfs:label ?label . \n" +
         "   FILTER NOT EXISTS { ?uri rdf:type owl:Class } \n"+ //eliminate classes, as all descriptors are properties
         "   FILTER (regex(?label, \""+filterValue+"\", \"i\") || regex(?comment, \""+filterValue+"\", \"i\" )). \n" +
-        "   FILTER (regex(?label, \""+filterValue+"\", \"i\") || regex(?comment, \""+filterValue+"\", \"i\" )). \n" +
         "   FILTER( (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
         "   "+filterString +
         " } \n"+
