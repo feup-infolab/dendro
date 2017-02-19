@@ -1023,21 +1023,21 @@ async.waterfall([
         app.get('/', index.index);
 
         //nodes
-        app.get('/vertexes', async.apply(Permissions.require, [Permissions.acl.admin]), vertexes.all);
-        app.get('/vertexes/random', async.apply(Permissions.require, [Permissions.acl.admin]), vertexes.random);
-        app.get('/vertexes/show', async.apply(Permissions.require, [Permissions.acl.admin]), vertexes.show);
-        app.get('/vertexes/:source/with/:property', async.apply(Permissions.require, [Permissions.acl.admin]), vertexes.with_property);
+        app.get('/vertexes', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.all);
+        app.get('/vertexes/random', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.random);
+        app.get('/vertexes/show', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.show);
+        app.get('/vertexes/:source/with/:property', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.with_property);
 
         //search
         app.get('/search', vertexes.search);
 
         //admin area
-        app.get('/admin', async.apply(Permissions.require, [Permissions.acl.admin]), admin.home);
-        app.get('/admin/reindex', async.apply(Permissions.require, [Permissions.acl.admin]), admin.reindex);
-        app.get('/admin/reload', async.apply(Permissions.require, [Permissions.acl.admin]), admin.reload);
+        app.get('/admin', async.apply(Permissions.require, [Permissions.roles.system.admin]), admin.home);
+        app.get('/admin/reindex', async.apply(Permissions.require, [Permissions.roles.system.admin]), admin.reindex);
+        app.get('/admin/reload', async.apply(Permissions.require, [Permissions.roles.system.admin]), admin.reload);
 
         //low-level sparql endpoint
-        app.get('/sparql', async.apply(Permissions.require, [Permissions.acl.admin]), sparql.show);
+        app.get('/sparql', async.apply(Permissions.require, [Permissions.roles.system.admin]), sparql.show);
 
         //authentication
         app.get('/login', auth.login);
@@ -1046,128 +1046,129 @@ async.waterfall([
         //ontologies
 
         app.get('/ontologies/public', ontologies.public);
-        //app.get('/ontologies/all', async.apply(Permissions.require, [Permissions.acl.user]), ontologies.all);
+        //app.get('/ontologies/all', async.apply(Permissions.require, [Permissions.roles.system.user]), ontologies.all);
         app.get('/ontologies/all', ontologies.all);
-        app.get('/ontologies/autocomplete', async.apply(Permissions.require, [Permissions.acl.user]), ontologies.ontologies_autocomplete);
-        app.get('/ontologies/show/:prefix', async.apply(Permissions.require, [Permissions.acl.user]), ontologies.show);
-        app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.acl.admin]), ontologies.edit);
+        app.get('/ontologies/autocomplete', async.apply(Permissions.require, [Permissions.roles.system.user]), ontologies.ontologies_autocomplete);
+        app.get('/ontologies/show/:prefix', async.apply(Permissions.require, [Permissions.roles.system.user]), ontologies.show);
+        app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.roles.system.admin]), ontologies.edit);
 
         //descriptors
-        app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [Permissions.acl.user]), descriptors.from_ontology);
+        app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [Permissions.roles.system.user]), descriptors.from_ontology);
 
         //research domains
 
-        app.get('/research_domains/autocomplete', async.apply(Permissions.require, [Permissions.acl.user]), research_domains.autocomplete);
-        app.get('/research_domains', async.apply(Permissions.require, [Permissions.acl.user]), research_domains.all);
-        app.post('/research_domains', async.apply(Permissions.require, [Permissions.acl.admin]), research_domains.edit);
-        app.delete('/research_domains/:uri', async.apply(Permissions.require, [Permissions.acl.admin]), research_domains.delete);
+        app.get('/research_domains/autocomplete', async.apply(Permissions.require, [Permissions.roles.system.user]), research_domains.autocomplete);
+        app.get('/research_domains', async.apply(Permissions.require, [Permissions.roles.system.user]), research_domains.all);
+        app.post('/research_domains', async.apply(Permissions.require, [Permissions.roles.system.admin]), research_domains.edit);
+        app.delete('/research_domains/:uri', async.apply(Permissions.require, [Permissions.roles.system.admin]), research_domains.delete);
 
         //  registration and login
         app.get('/register', auth.register);
         app.post('/register', auth.register);
-        app.get('/logout', async.apply(Permissions.require, [Permissions.acl.user]), auth.logout);
+        app.get('/logout', async.apply(Permissions.require, [Permissions.roles.system.user]), auth.logout);
 
         //people listing
         app.get('/users', users.all);
-        app.get('/user/:username', async.apply(Permissions.require, [Permissions.acl.user]), users.show);
+        app.get('/user/:username', async.apply(Permissions.require, [Permissions.roles.system.user]), users.show);
         app.get('/users/loggedUser', users.getLoggedUser);
 
         app.all('/reset_password', users.reset_password);
         app.all('/set_new_password', users.set_new_password);
 
-        app.get('/me', async.apply(Permissions.require, [Permissions.acl.user]), users.me);
+        app.get('/me', async.apply(Permissions.require, [Permissions.roles.system.user]), users.me);
 
         //projects
         app.get('/projects', projects.all);
-        app.get('/projects/my', async.apply(Permissions.require, [Permissions.acl.user]), projects.my);
-        app.get('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
-        app.post('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
+        app.get('/projects/my', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.my);
+        app.get('/projects/new', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.new);
+        app.post('/projects/new', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.new);
 
-        app.get('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
-        app.post('/projects/import', async.apply(Permissions.require, [Permissions.acl.user]), projects.import);
+        app.get('/projects/import', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.import);
+        app.post('/projects/import', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.import);
 
-        app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);
+        app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.requestAccess);
         app.get('/project/:handle/view', projects.show);
-        app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.acl.user]), projects.requestAccess);
-        app.post('/project/:handle/delete', async.apply(Permissions.require, [Permissions.acl.admin]), projects.delete);
-        app.post('/project/:handle/undelete', async.apply(Permissions.require, [Permissions.acl.admin]), projects.undelete);
+        app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.requestAccess);
+        app.post('/project/:handle/delete', async.apply(Permissions.require, [Permissions.roles.system.admin]), projects.delete);
+        app.post('/project/:handle/undelete', async.apply(Permissions.require, [Permissions.roles.system.admin]), projects.undelete);
 
         //interactions
-        app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_descriptor_from_quick_list);
-        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_project_favorite);
-        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_favorite);
-        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
+        app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list);
+        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_project_favorite);
+        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_favorite);
+        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
 
 
-        app.post("/interactions/accept_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_descriptor_from_manual_list);
-        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_project_favorite);
-        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_favorite);
-        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
+        app.post("/interactions/accept_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list);
+        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_project_favorite);
+        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_favorite);
+        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
 
-        app.post("/interactions/hide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.acl.user]), interactions.hide_descriptor_from_quick_list_for_project);
-        app.post("/interactions/unhide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.acl.user]), interactions.unhide_descriptor_from_quick_list_for_project);
-        app.post("/interactions/hide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.acl.user]), interactions.hide_descriptor_from_quick_list_for_user);
-        app.post("/interactions/unhide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.acl.user]), interactions.unhide_descriptor_from_quick_list_for_user);
-        app.post("/interactions/favorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.acl.user]), interactions.favorite_descriptor_from_quick_list_for_project);
-        app.post("/interactions/favorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.acl.user]), interactions.favorite_descriptor_from_quick_list_for_user);
+        app.post("/interactions/hide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.hide_descriptor_from_quick_list_for_project);
+        app.post("/interactions/unhide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.unhide_descriptor_from_quick_list_for_project);
+        app.post("/interactions/hide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.hide_descriptor_from_quick_list_for_user);
+        app.post("/interactions/unhide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.unhide_descriptor_from_quick_list_for_user);
+        app.post("/interactions/favorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.favorite_descriptor_from_quick_list_for_project);
+        app.post("/interactions/favorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.favorite_descriptor_from_quick_list_for_user);
 
-        app.post("/interactions/unfavorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.acl.user]), interactions.unfavorite_descriptor_from_quick_list_for_user);
-        app.post("/interactions/unfavorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.acl.user]), interactions.unfavorite_descriptor_from_quick_list_for_project);
+        app.post("/interactions/unfavorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.unfavorite_descriptor_from_quick_list_for_user);
+        app.post("/interactions/unfavorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.unfavorite_descriptor_from_quick_list_for_project);
 
-        app.post("/interactions/accept_descriptor_from_autocomplete", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_descriptor_from_autocomplete);
-        app.post("/interactions/reject_ontology_from_quick_list", async.apply(Permissions.require, [Permissions.acl.user]), interactions.reject_ontology_from_quick_list);
-        app.post("/interactions/select_ontology_manually", async.apply(Permissions.require, [Permissions.acl.user]), interactions.select_ontology_manually);
-        app.post("/interactions/select_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.acl.user]), interactions.select_descriptor_manually);
+        app.post("/interactions/accept_descriptor_from_autocomplete", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_autocomplete);
+        app.post("/interactions/reject_ontology_from_quick_list", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.reject_ontology_from_quick_list);
+        app.post("/interactions/select_ontology_manually", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.select_ontology_manually);
+        app.post("/interactions/select_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.select_descriptor_manually);
 
-        app.post("/interactions/accept_smart_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_smart_descriptor_in_metadata_editor);
-        app.post("/interactions/accept_favorite_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.acl.user]), interactions.accept_favorite_descriptor_in_metadata_editor);
+        app.post("/interactions/accept_smart_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_smart_descriptor_in_metadata_editor);
+        app.post("/interactions/accept_favorite_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_favorite_descriptor_in_metadata_editor);
 
-        app.post("/interactions/delete_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.acl.user]), interactions.delete_descriptor_in_metadata_editor);
+        app.post("/interactions/delete_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.delete_descriptor_in_metadata_editor);
 
-        app.post("/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.acl.user]), interactions.fill_in_descriptor_from_manual_list_in_metadata_editor);
-        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite);
-        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite);
-        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
-
-
-        app.post("/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.acl.user]), interactions.fill_in_descriptor_from_quick_list_in_metadata_editor);
-        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite);
-        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite);
-        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.acl.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
-
-        app.post("/interactions/fill_in_inherited_descriptor", async.apply(Permissions.require, [Permissions.acl.user]), interactions.fill_in_inherited_descriptor);
+        app.post("/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_manual_list_in_metadata_editor);
+        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite);
+        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite);
+        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
 
 
-        app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.acl.admin]), interactions.delete_all_interactions);
+        app.post("/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_quick_list_in_metadata_editor);
+        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite);
+        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite);
+        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
+
+        app.post("/interactions/fill_in_inherited_descriptor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_inherited_descriptor);
+
+
+        app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.roles.system.admin]), interactions.delete_all_interactions);
 
         //external repository bookmarks
-        app.get('/external_repositories/types', async.apply(Permissions.require, [Permissions.acl.user]), repo_bookmarks.repository_types);
-        app.get('/external_repositories/my', async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]), repo_bookmarks.my);
-        app.get('/external_repositories', async.apply(Permissions.require, [Permissions.acl.admin]), repo_bookmarks.all);
-        app.post('/external_repositories/sword_collections', async.apply(Permissions.require, [Permissions.acl.user]), datasets.sword_collections);
-        app.post('/external_repositories/new', async.apply(Permissions.require, [Permissions.acl.user]), repo_bookmarks.new);
-        app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]), repo_bookmarks.delete);
+        app.get('/external_repositories/types', async.apply(Permissions.require, [Permissions.roles.system.user]), repo_bookmarks.repository_types);
+        app.get('/external_repositories/my', async.apply(Permissions.require, [ Permissions.roles.project.contributor, Permissions.roles.project.creator]), repo_bookmarks.my);
+        app.get('/external_repositories', async.apply(Permissions.require, [Permissions.roles.system.admin]), repo_bookmarks.all);
+        app.post('/external_repositories/sword_collections', async.apply(Permissions.require, [Permissions.roles.system.user]), datasets.sword_collections);
+        app.post('/external_repositories/new', async.apply(Permissions.require, [Permissions.roles.system.user]), repo_bookmarks.new);
+        app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.roles.project.contributor, Permissions.roles.project.creator]), repo_bookmarks.delete);
+
+        var defaultPermissionsInProjectRoot = [
+            Permissions.access_levels.public,
+            Permissions.access_levels.metadata_only,
+            Permissions.roles.project.contributor,
+            Permissions.roles.project.creator
+        ];
+
+        var modificationPermissions = [
+            Permissions.roles.project.contributor,
+            Permissions.roles.project.creator
+        ];
+
+        var administrationPermissions = [
+            Permissions.roles.project.creator
+        ];
 
         //view a project's root
-        app.all(/\/project\/([^\/]+)(\/data)?$/, function(req,res)
+        app.all(/\/project\/([^\/]+)(\/data)?$/, function(req,res, next)
             {
                 req.params.handle = req.params[0];                      //project handle
                 req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
-
-
-                var defaultPermissionsInProjectRoot = [
-                        Permissions.project.public,
-                        Permissions.project.metadata_only,
-                        Permissions.acl.creator_or_contributor
-                ];
-
-                var modificationPermissions = [
-                    Permissions.acl.creator_or_contributor
-                ];
-
-                var administrationPermissions = [
-                    Permissions.acl.creator
-                ];
 
                 var queryBasedRoutes = {
                         get: [
@@ -1239,8 +1240,26 @@ async.waterfall([
                             },
                             //thumb nails
                             {
-                                queryKeys : ['thumnail'],
-                                handler : files.serve_static, //(req, res, "images/icons/folder.png", "images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds)
+                                queryKeys : ['thumbnail'],
+                                handler : files.thumbnail,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //administration page
+                            {
+                                queryKeys : ['administer'],
+                                handler : projects.administer,
+                                permissions : administrationPermissions
+                            },
+                            //metadata
+                            {
+                                queryKeys: ['metadata'],
+                                handler : records.show,
+                                permissions : defaultPermissionsInProjectRoot
+                            },
+                            //metadata deep
+                            {
+                                queryKeys: ['metadata', 'deep'],
+                                handler : records.show_deep,
                                 permissions : defaultPermissionsInProjectRoot
                             },
                             //default case
@@ -1251,11 +1270,6 @@ async.waterfall([
                             }
                         ],
                         post: [
-                            {
-                                queryKeys : ['update_metadata'],
-                                handler : records.update,
-                                permissions : modificationPermissions
-                            },
                             {
                                 queryKeys : ['restore_metadata_version'],
                                 handler : records.restore_metadata_version,
@@ -1292,106 +1306,12 @@ async.waterfall([
                         ]
                 };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res);
-
-                /*
-                if(req.query.upload != null)
-                {
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                    files.upload(req, res);
-                }
-                else if(req.originalMethod == "GET")
-                {
-                    if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
-                    {
-                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                        files.download(req, res);
-                        return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
-                        // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
-                    }
-                    else if(req.query.ls != null)
-                    {
-                        files.ls(req, res);
-                    }
-                    else if(req.query.metadata_recommendations != null)
-                    {
-                        recommendation.recommend_descriptors(req, res);
-                    }
-                    else if(req.query.recent_changes != null)
-                    {
-                        projects.recent_changes(req, res);
-                    }
-                    else if(req.query.stats != null)
-                    {
-                        projects.stats(req, res);
-                    }
-                    else if(req.query.recommendation_ontologies != null)
-                    {
-                        ontologies.get_recommendation_ontologies(req, res);
-                    }
-                    else if(req.query.version != null)
-                    {
-                        records.show_version(req, res);
-                    }
-                    else if(req.query.administer != null)
-                    {
-                        projects.administer(req, res);
-                    }
-                    else if(req.query.descriptor_autocomplete != null)
-                    {
-                        descriptors.descriptors_autocomplete(req, res);
-                    }
-                    else if(req.query.ontology_autocomplete != null)
-                    {
-                        ontologies.ontologies_autocomplete(req, res);
-                    }
-                    else if(req.query.thumbnail != null)
-                    {
-                        files.serve_static(req, res, "images/icons/folder.png", "images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-                        return;
-                    }
-                    else
-                    {
-                        projects.show(req, res);
-                    }
-                }
-                else if(req.originalMethod == "POST")
-                {
-                    if(req.query.update_metadata != null)
-                    {
-                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
-                        records.update(req,res);
-                    }
-                    else if(req.query.restore_metadata_version != null)
-                    {
-                        records.restore_metadata_version(req, res);
-                    }
-
-                    else if(req.query.mkdir != null)
-                    {
-                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                        files.mkdir(req, res);
-                    }
-                    else if(req.query.restore != null)
-                    {
-                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                        files.restore(req, res);
-                    }
-                    else if(req.query.administer != null)
-                    {
-                        projects.administer(req, res);
-                    }
-                    else if(req.query.export_to_repository != null)
-                    {
-                        datasets.export_to_repository(req, res);
-                    }
-                }*/
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
             });
 
         //      files and folders (data)
         //      downloads
-        app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.require, [Permissions.resource_access_levels.public, Permissions.acl.creator_or_contributor]),
+        app.all(/\/project\/([^\/]+)(\/data\/.+)$/,
             function(req,res)
             {
                 req.params.handle = req.params[0];                      //project handle
@@ -1400,200 +1320,253 @@ async.waterfall([
                 req.params.filepath = req.params[1];   //relative path encodeuri needed because of spaces in filenames
                 req.params.requestedResource = req.params.requestedResource + req.params.filepath;
 
-                if(req.query.upload != null)
-                {
-                    files.upload(req, res);
-                }
-                else if(req.originalMethod == "GET")
-                {
-                    if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
-                    {
-                        files.download(req, res);
-                        return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
-                                // OR ELSE SYMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
-                    }
-                    else if(req.query.thumbnail != null)
-                    {
-                        if(req.params.filepath != null)
+                var queryBasedRoutes = {
+                    get: [
+                        //downloads
                         {
-                            var requestedExtension = path.extname(req.params.filepath).replace(".", "");
-
-                            if(requestedExtension == null)
-                            {
-                                files.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-                            }
-                            else if(requestedExtension != null && Config.thumbnailableExtensions[requestedExtension] != null)
-                            {
-                                files.get_thumbnail(req, res);
-                            }
-                            else if(requestedExtension == "")
-                            {
-                                files.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-                            }
-                            else
-                            {
-                                files.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-                            }
-
-                            return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
-                            // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
-                        }
-                        else
+                            queryKeys : ['download'],
+                            handler : files.download,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //backups
                         {
-                            files.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-                        }
-                    }
-                    else if(req.query.metadata != null)
-                    {
-                        if(req.query.deep != null && req.query.deep == 'true'){
-                            records.show_deep(req, res);
-                        }
-                        else {
-                            records.show(req, res);
-                        }
-                    }
-                    else if(req.query.parent_metadata != null)
-                    {
-                        records.show_parent(req, res);
-                    }
-                    else if(req.query.version != null)
-                    {
-                        records.show_version(req, res);
-                    }
-                    else if(req.query.change_log != null)
-                    {
-                        projects.change_log(req, res);
-                    }
-                    else if(req.query.metadata_recommendations != null)
-                    {
-                        recommendation.recommend_descriptors(req, res);
-                    }
-                    else if(req.query.recommendation_ontologies != null)
-                    {
-                        ontologies.get_recommendation_ontologies(req, res);
-                    }
-                    else if(req.query.descriptor_autocomplete != null)
-                    {
-                        descriptors.descriptors_autocomplete(req, res);
-                    }
-                    else if(req.query.ontology_autocomplete != null)
-                    {
-                        ontologies.ontologies_autocomplete(req, res);
-                    }
-                    else if(req.query.update_metadata != null)
-                    {
-                        records.update(req, res);
-                    }
-                    else if(req.query.ls != null)
-                    {
-                        files.ls(req, res);
-                    }
-                    else if(req.query.serve != null)
-                    {
-                        files.serve(req, res);
-                    }
-                    else if(req.query.serve_base64 != null)
-                    {
-                        files.serve_base64(req, res);
-                    }
-                    else if(req.query.data != null)
-                    {
-                        var requestedExtension = path.extname(req.params.filepath).replace(".", "");
-
-                        if(files.dataParsers[requestedExtension] != null)
+                            queryKeys : ['backup'],
+                            handler : files.backup,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //bagits
                         {
-                            files.data(req, res);
-                        }
-                        else
+                            queryKeys : ['bagit'],
+                            handler :files.bagit,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //list contents
                         {
-                            projects.show(req, res);
+                            queryKeys : ['ls'],
+                            handler :files.ls,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //descriptor recommendations
+                        {
+                            queryKeys : ['metadata_recommendations'],
+                            handler : recommendation.recommend_descriptors,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //recent changes
+                        {
+                            queryKeys : ['recent_changes'],
+                            handler : projects.recent_changes,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //project stats
+                        {
+                            queryKeys : ['stats'],
+                            handler : projects.stats,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //recommendation ontologies
+                        {
+                            queryKeys : ['recommendation_ontologies'],
+                            handler : ontologies.get_recommendation_ontologies,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //show versions of resources
+                        {
+                            queryKeys : ['version'],
+                            handler : records.show_version,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //auto completing descriptors
+                        {
+                            queryKeys : ['descriptors_autocomplete'],
+                            handler : descriptors.descriptors_autocomplete,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //auto completing ontologies
+                        {
+                            queryKeys : ['ontology_autocomplete'],
+                            handler : ontologies.ontologies_autocomplete,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //thumb nails
+                        {
+                            queryKeys : ['thumbnail'],
+                            handler : files.thumbnail,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //administration page
+                        {
+                            queryKeys : ['administer'],
+                            handler : projects.administer,
+                            permissions : administrationPermissions
+                        },
+                        //metadata
+                        {
+                            queryKeys: ['metadata'],
+                            handler : records.show,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //metadata deep
+                        {
+                            queryKeys: ['metadata', 'deep'],
+                            handler : records.show_deep,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //parent metadata
+                        {
+                            queryKeys: ['parent_metadata'],
+                            handler : records.show_parent,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //change_log
+                        {
+                            queryKeys: ['change_log'],
+                            handler : projects.change_log,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //recommendation_ontologies
+                        {
+                            queryKeys: ['recommendation_ontologies'],
+                            handler : ontologies.get_recommendation_ontologies,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //descriptor autocomplete
+                        {
+                            queryKeys: ['descritor_autocomplete'],
+                            handler : descriptors.descriptors_autocomplete,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //ontologies autocomplete
+                        {
+                            queryKeys: ['ontologies_autocomplete'],
+                            handler : descriptors.descriptors_autocomplete,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //serve files
+                        {
+                            queryKeys: ['serve'],
+                            handler : files.serve,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //serve files in base64
+                        {
+                            queryKeys: ['serve_base64'],
+                            handler : files.serve_base64,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //serve files serialized
+                        {
+                            queryKeys: ['data'],
+                            handler : files.data,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //metadata_evaluation
+                        {
+                            queryKeys: ['metadata_evaluation'],
+                            handler : evaluation.metadata_evaluation,
+                            permissions : defaultPermissionsInProjectRoot
+                        },
+                        //default case
+                        {
+                            queryKeys : [],
+                            handler : projects.show,
+                            permissions : defaultPermissionsInProjectRoot
                         }
-                        return;
-                    }
-                    else if(req.query.metadata_evaluation != null)
-                    {
-                        evaluation.metadata_evaluation(req, res);
-                    }
-                    else
-                    {
-                        projects.show(req, res);
-                    }
-                }
-                else if(req.originalMethod == "POST")
-                {
-                    if(req.query.update_metadata != null)
-                    {
-                        records.update(req,res);
-                    }
-                    else if(req.query.restore_metadata_version != null)
-                    {
-                        records.restore_metadata_version(req, res);
-                    }
-                    else if(req.query.register_interaction != null)
-                    {
-                        interactions.register(req, res);
-                    }
-                    else if(req.query.remove_recommendation_ontology != null)
-                    {
-                        interactions.reject_ontology_from_quick_list(req, res);
-                    }
-                    else if(req.query.mkdir != null)
-                    {
-                        files.mkdir(req, res);
-                    }
-                    else if(req.query.restore != null)
-                    {
-                        files.restore(req, res);
-                    }
-                    else if(req.query.undelete != null)
-                    {
-                        files.undelete(req, res);
-                    }
-                    else if(req.query.export_to_repository != null)
-                    {
-                        datasets.export_to_repository(req, res);
-                    }
-                }
-                else if(req.originalMethod == "DELETE")
-                {
-                    files.rm(req, res);
-                }
+                    ],
+                    post: [
+                        {
+                            queryKeys : ['update_metadata'],
+                            handler : records.update,
+                            permissions : modificationPermissions
+                        },
+                        {
+                            queryKeys : ['restore_metadata_version'],
+                            handler : records.restore_metadata_version,
+                            permissions : modificationPermissions
+                        },
+                        {
+                            queryKeys : ['register_interaction'],
+                            handler : interactions.register,
+                            permissions : modificationPermissions
+                        },
+                        {
+                            queryKeys : ['remove_recommendation_ontology'],
+                            handler : interactions.reject_ontology_from_quick_list,
+                            permissions : modificationPermissions
+                        },
+                        {
+                            queryKeys : ['mkdir'],
+                            handler : files.mkdir,
+                            permissions : modificationPermissions
+                        },
+                        {
+                            queryKeys : ['restore'],
+                            handler : files.restore,
+                            permissions : modificationPermissions
+                        },
+                        {
+                            queryKeys : ['undelete'],
+                            handler : projects.undelete,
+                            permissions : administrationPermissions
+                        },
+                        {
+                            queryKeys : ['export_to_repository'],
+                            handler : datasets.export_to_repository,
+                            permissions : modificationPermissions
+                        }
+                    ],
+                    delete : [
+                        {
+                            queryKeys : [],
+                            handler : files.rm,
+                            permissions : modificationPermissions
+                        }
+                    ],
+                    all: [
+                        //uploads
+                        {
+                            queries: ['upload'],
+                            handler: files.upload,
+                            permissions: modificationPermissions
+                        }
+                    ]
+                };
             }
         );
 
         //      social
-        app.get('/posts/all', async.apply(Permissions.require, [Permissions.acl.user]), posts.all);
-        app.post('/posts/post', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPost_controller);
-        app.post('/posts/new', async.apply(Permissions.require, [Permissions.acl.user]), posts.new);
-        app.post('/posts/like', async.apply(Permissions.require, [Permissions.acl.user]), posts.like);
-        app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.acl.user]), posts.checkIfPostIsLikedByUser);
-        app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.acl.user]), posts.postLikesInfo);
-        app.post('/posts/comment', async.apply(Permissions.require, [Permissions.acl.user]), posts.comment);
-        app.post('/posts/comments', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostComments);
-        app.post('/posts/share', async.apply(Permissions.require, [Permissions.acl.user]), posts.share);
-        app.post('/posts/shares', async.apply(Permissions.require, [Permissions.acl.user]), posts.getPostShares);
-        app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.acl.user]), posts.numPostsDatabase);
-        app.get('/posts/:uri', async.apply(Permissions.require, [Permissions.acl.user]), posts.post);
+        app.get('/posts/all', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.all);
+        app.post('/posts/post', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.getPost_controller);
+        app.post('/posts/new', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.new);
+        app.post('/posts/like', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.like);
+        app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.checkIfPostIsLikedByUser);
+        app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.postLikesInfo);
+        app.post('/posts/comment', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.comment);
+        app.post('/posts/comments', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.getPostComments);
+        app.post('/posts/share', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.share);
+        app.post('/posts/shares', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.getPostShares);
+        app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.numPostsDatabase);
+        app.get('/posts/:uri', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.post);
 
         //file versions
-        app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.all);
-        app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.numFileVersionsInDatabase);
-        app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.getFileVersion);
-        app.get('/fileVersions/:uri', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.fileVersion);
-        app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.like);
-        app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.comment);
-        app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.share);
-        app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.fileVersionLikesInfo);
-        app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.acl.user]), fileVersions.getFileVersionShares);
+        app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.all);
+        app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.numFileVersionsInDatabase);
+        app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.getFileVersion);
+        app.get('/fileVersions/:uri', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.fileVersion);
+        app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.like);
+        app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.comment);
+        app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.share);
+        app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.fileVersionLikesInfo);
+        app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.getFileVersionShares);
 
         //shares
-        app.get('/shares/:uri', async.apply(Permissions.require, [Permissions.acl.user]), posts.getShare);
+        app.get('/shares/:uri', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.getShare);
 
 
         //notifications
-        app.get('/notifications/all', async.apply(Permissions.require, [Permissions.acl.user]), notifications.get_unread_user_notifications);
-        app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.acl.user]), notifications.get_notification_info);
-        app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.acl.user]), notifications.delete)
+        app.get('/notifications/all', async.apply(Permissions.require, [Permissions.roles.system.user]), notifications.get_unread_user_notifications);
+        app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.roles.system.user]), notifications.get_notification_info);
+        app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.roles.system.user]), notifications.delete)
 
         //serve angular JS ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,

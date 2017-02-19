@@ -128,7 +128,8 @@
         "log_file_version_fetches" : false
       },
       "resources": {
-        "log_all_type_checks": false
+        "log_all_type_checks": false,
+        "log_missing_resources": false
       },
       "permissions" : {
         "enable_permissions_system" : true,
@@ -407,7 +408,8 @@
         "delete_temp_folder_on_startup" : true
       },
       "resources": {
-        "log_all_type_checks": false
+        "log_all_type_checks": false,
+        "log_missing_resources": false
       },
       "permissions" : {
         "enable_permissions_system" : true,

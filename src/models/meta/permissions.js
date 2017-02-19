@@ -72,62 +72,29 @@ Permissions.roles = {
     }
 }
 
-Permissions.resource_access_levels = {
+Permissions.access_levels = {
     public : {
+        type : Permissions.types.project,
         access_level_required : "public",
         error_message_user : "This is a public project.",
-        error_message_api : "This is a public project."
+        error_message_api : "This is a public project.",
+        predicate : "ddr:public"
     },
     private : {
+        type : Permissions.types.project,
         access_level_required : "private",
         error_message_user : "This is a private project, and neither data nor metadata can be accessed.",
-        error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed."
+        error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed.",
+        predicate : "ddr:private"
     },
     metadata_only :  {
+        type : Permissions.types.project,
         access_level_required : "metadata_only",
         error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
-        error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
+        error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed.",
+        predicate : "ddr:metadata_only"
     }
 }
-
-Permissions.acl =
-{
-    admin :
-    {
-        roles_required: [Permissions.roles.system.admin]
-    },
-
-    user :
-    {
-        roles_required: [Permissions.roles.system.user]
-    },
-
-    creator_or_contributor :
-    {
-        roles_required: [Permissions.roles.project.creator, Permissions.roles.project.contributor]
-    },
-    creator :
-    {
-        roles_required: [Permissions.roles.project.creator]
-    }
-};
-
-Permissions.project =
-{
-    public :
-    {
-        roles_required: [Permissions.resource_access_levels.public]
-    },
-
-    private :
-    {
-        roles_required: [Permissions.resource_access_levels.private]
-    },
-    metadata_only :
-    {
-        roles_required: [Permissions.resource_access_levels.metadata_only]
-    }
-};
 
 Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllowingOrDenying)
 {
@@ -147,7 +114,6 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
             console.log("[ALLOW-ACCESS] User " + user + " granted access to " + req.originalUrl + " .");
         }
 
-        Permissions.addToReasons(req, reasonsForAllowingOrDenying, true);
         return next();
     }
     else
@@ -256,96 +222,122 @@ var getOwnerProject = function(requestedResource, callback)
     });
 };
 
-var checkUsersRoleInSystem = function(req, res, next, user, role, callback)
+var checkUsersRoleInSystem = function(req, user, role, callback)
 {
     user.checkIfHasPredicateValue(role.predicate, role.object, function(err, result){
         callback(err, result);
     });
 };
 
-var checkUsersRoleInProject = function(req, res, next, user, role, project, callback)
+var checkUsersRoleInProject = function(req, user, role, project, callback)
 {
     project.checkIfHasPredicateValue(role.predicate, user.uri, function(err, result){
         callback(err, result);
     });
 };
 
-var checkUsersRoleInResource = function(req, res, next, user, role, resource, callback)
+var checkUsersRoleInResource = function(req, user, role, resource, callback)
 {
     resource.checkIfHasPredicateValue(role.predicate, user.uri, function(err, result){
         callback(err, result);
     });
 };
 
-var checkPermissionsForRole = function(req, res, next, user, resource, role, callback)
+var checkPermissionsForRole = function(req, user, resource, role, callback)
 {
-    var async = require('async');
-    user = new User(user);
+    if(!(user instanceof User) && user instanceof Object)
+        user = new User(user);
 
-    var rolesRequired = role.roles_required;
-
-    async.map(rolesRequired,
-        function (role, callback)
-        {
-            if(role.type == Permissions.types.system)
-            {
-                checkUsersRoleInSystem(req, res, next, user, role, function(err, hasRole){
-                    callback(err, {authorized : hasRole, role : role});
-                });
-            }
-            else if(role.type == Permissions.types.project)
-            {
-                getOwnerProject(resource, function(err, project){
-                    if(!err)
-                    {
-                        if(project instanceof Project)
-                        {
-                            checkUsersRoleInProject(req, res, next, user, role, project, function(err, hasRole){
-                                callback(err, {authorized : hasRole, role : role});
-                            });
-                        }
-                        else
-                        {
-                            callback(null, null);
-                        }
-                    }
-                    else
-                    {
-                        callback(err, null);
-                    }
-                });
-            }
-            else if(role.type == Permissions.types.resource)
-            {
-                checkUsersRoleInResource(req, res, next, user, role, function(err, hasRole){
-                    callback(err, {authorized : hasRole, role : role});
-                });
-            }
-        },
-        function (err, results)
-        {
-            callback(err, results);
-        }
-    );
-};
-
-var checkPermissionsInAcl = function(req, res, next, user, resource, acl_entry, callback){
-    if(user)
+    if(role.type == Permissions.types.system)
     {
-        checkPermissionsForRole(req, res, next, user, resource, acl_entry, function(err, results){
-            callback(err,results);
+        checkUsersRoleInSystem(req, user, role, function(err, hasRole){
+            callback(err, {authorized : hasRole, role : role});
         });
     }
-    else
+    else if(role.type == Permissions.types.project)
     {
-        callback(null,
-            [{
-                authorized : false,
-                role : Permissions.roles.system.user
-            }]
-        );
+        getOwnerProject(resource, function(err, project){
+            if(!err)
+            {
+                if(project instanceof Project)
+                {
+                    checkUsersRoleInProject(req, user, role, project, function(err, hasRole){
+                        callback(err, {authorized : hasRole, role : role});
+                    });
+                }
+                else
+                {
+                    callback(null, null);
+                }
+            }
+            else
+            {
+                callback(err, null);
+            }
+        });
+    }
+    else if(role.type == Permissions.types.resource)
+    {
+        checkUsersRoleInResource(req, user, role, resource, function(err, hasRole){
+            callback(err, {authorized : hasRole, role : role});
+        });
     }
 };
+
+var checkPermissionsForProject = function(req, permission, callback)
+{
+    var projectHandle = req.params[0];                      //project handle
+    var requestedProjectURI = Config.baseUri + "/project/" + projectHandle;
+
+    Project.findByUri(requestedProjectURI, function(err, project){
+        if(!err)
+        {
+            if(project != null)
+            {
+                var privacy = project.ddr.privacyStatus;
+
+                if(permission.access_level_required != null && privacy === permission.access_level_required)
+                {
+                    callback(null,
+                        {
+                            authorized : true,
+                            role : Permissions.access_levels[permission.access_level_required]
+                        }
+                    );
+                }
+                else
+                {
+                    callback(null,
+                        {
+                            authorized : false,
+                            role : permission
+                        }
+                    );
+                }
+            }
+            else
+            {
+                callback(null,
+                    {
+                        authorized : true,
+                        role : ["Project with uri" + requestedProjectURI + " does not exist."]
+                    }
+
+                );
+            }
+        }
+        else
+        {
+            callback(null,
+                {
+                    authorized: true,
+                    role: ["Error accessing project: " + project]
+                }
+            );
+        }
+    });
+}
+
 
 Permissions.addToReasons = function(req, reason, authorizing)
 {
@@ -366,77 +358,120 @@ Permissions.addToReasons = function(req, reason, authorizing)
     return req;
 }
 
+Permissions.check = function(permissionsRequired, req, callback)
+{
+    //Global Administrators are God, so they dont go through any checks
+    if(!req.session.isAdmin)
+    {
+        var resource = Config.baseUri + require('url').parse(req.url).pathname;
+        var user = req.session.user;
+
+        var checkPermissions = function(req, user, resource, permission, cb){
+            if(user)
+            {
+                checkPermissionsForRole(req, user, resource, permission, function(err, results){
+                    cb(err, results);
+                });
+            }
+            else if (permission.type == Permissions.types.project) {
+                checkPermissionsForProject(req, permission, function (err, results) {
+                    cb(err, results);
+                });
+            }
+            else
+            {
+                cb(null,
+                    {
+                        authorized : false,
+                        role : Permissions.roles.system.user
+                    }
+                );
+            }
+        };
+
+        async.map(permissionsRequired,
+            async.apply(checkPermissions, req, user, resource),
+            function(err, results)
+            {
+                var reasonsForDenying = _.filter(results, function(result){
+                    if(result != null)
+                    {
+                        return !result.authorized
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                });
+
+                req = Permissions.addToReasons(req, reasonsForDenying, false);
+
+                var reasonsForAuthorizing = _.filter(results, function(result){
+                    if(result != null)
+                    {
+                        return result.authorized
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                });
+
+                req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
+
+                callback(err, req, results);
+            }
+        );
+    }
+    else
+    {
+        var reasonsForAllowing = [{
+            authorized: true,
+            role: Permissions.roles.system.admin
+        }];
+
+        req = Permissions.addToReasons(req, reasonsForAllowing, true);
+
+        callback(null, req , reasonsForAllowing);
+    }
+}
+
 Permissions.require = function(permissionsRequired, req, res, next)
 {
     if(Config.debug.permissions.enable_permissions_system)
     {
         if(Config.debug.permissions.log_requests_and_permissions)
         {
-            var rolesString = "";
-            permissionsRequired.forEach(function(acl_entry){
-                acl_entry.roles_required.forEach(function(role){
-                    rolesString = rolesString + " " + role.predicate;
-                    if(role.object != null)
-                    {
-                        rolesString = rolesString + " " + role.object;
-                    }
-                })
-            });
-
-            console.log("[REQUEST] : Checking for permissions "+ rolesString + " on request " + req.originalUrl);
+            console.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
+            console.log(JSON.stringify(permissionsRequired, null, 2));
         }
 
         var async = require('async');
 
-        var user = req.session.user;
-
-        //Global Administrators are God
+        //Global Administrators are God, so they dont go through any checks
         if(!req.session.isAdmin)
         {
-            var resource = Config.baseUri + require('url').parse(req.url).pathname;
-
-            async.map(permissionsRequired,
-                async.apply(checkPermissionsInAcl, req, res, next, user, resource),
-                function(err, results)
+            Permissions.check(permissionsRequired, req, function(err, req){
+                if(req.permissions_management.reasons_for_authorizing.length > 0)
                 {
-                    var reasonsForDenying = [];
-
-                    for(var i = 0; i < results.length; i++)
-                    {
-                        var methodResults = results[i];
-                        methodResults = _.flatten(methodResults);
-                        methodResults = _.compact(methodResults);
-
-                        var reasonsForAuthorizing = _.filter(methodResults, function(result){return result.authorized});
-                        req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
-
-                        reasonsForDenying = reasonsForDenying.concat(_.filter(methodResults, function(result){return !result.authorized}));
-                        req = Permissions.addToReasons(req, reasonsForDenying, false);
-
-                        if(req.permissions_management.reasons_for_authorizing.length > 0)
-                        {
-                            //Since user is involved in the project, the project will be seen the normal way
-                            return Permissions.sendResponse(true, req, res, next, reasonsForAuthorizing);
-                        }
-                    }
-
-                    if(req.permissions_management.reasons_for_denying.length > 0)
-                    {
-                        if (Config.debug.permissions.log_denials)
-                        {
-                            console.log("REASONS FOR DENYING");
-                            console.log(reasonsForDenying);
-                        }
-
-                        return Permissions.sendResponse(false, req, res, next, reasonsForDenying);
-                    }
-                    else
-                    {
-                        //ommision case. No reasons to authorize nor to refuse access!
-                        return Permissions.sendResponse(true, req, res, next, []);
-                    }
+                    return Permissions.sendResponse(true, req, res, next, req.permissions_management.reasons_for_authorizing);
                 }
-            );
+                else if(req.permissions_management.reasons_for_denying.length > 0)
+                {
+                    if (Config.debug.permissions.log_denials)
+                    {
+                        console.log("REASONS FOR DENYING");
+                        console.log(reasonsForDenying);
+                    }
+
+                    return Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying);
+                }
+                else
+                {
+                    //ommision case. No reasons to authorize nor to refuse access!
+                    return Permissions.sendResponse(true, req, res, next, []);
+                }
+            });
         }
         else
         {
@@ -447,44 +482,6 @@ Permissions.require = function(permissionsRequired, req, res, next)
     {
         next();
     }
-};
-
-Permissions.project_access_override = function(projectPrivacyTypesAllowedToOverridePermissions, permissionsRequired, req, res, next)
-{
-    var projectHandle = req.params[0];                      //project handle
-    var requestedProjectURI = Config.baseUri + "/project/" + projectHandle;
-
-    Project.findByUri(requestedProjectURI, function(err, project){
-        if(!err)
-        {
-            if(project != null)
-            {
-                var privacy = project.ddr.privacyStatus;
-
-                for(var i = 0; i < projectPrivacyTypesAllowedToOverridePermissions.length; i++)
-                {
-                    var privacyType = projectPrivacyTypesAllowedToOverridePermissions[i].access_level_required;
-
-                    if(privacy === privacyType)
-                    {
-                        req = Permissions.addToReasons(req, projectPrivacyTypesAllowedToOverridePermissions[i], true);
-                    }
-                }
-
-                Permissions.require(permissionsRequired, req, res, next);
-            }
-            else
-            {
-                var reason_for_denying = "Project with uri" + requestedProjectURI + " does not exist.";
-                return Permissions.sendResponse(false, req, res, next, [reason_for_denying]);
-            }
-        }
-        else
-        {
-            var reason_for_denying = "Error accessing project: " + project;
-            return Permissions.sendResponse(false, req, res, next, [reason_for_denying]);
-        }
-    });
 };
 
 exports.Permissions = Permissions;

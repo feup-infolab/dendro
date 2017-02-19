@@ -53,42 +53,38 @@ exports.show_deep = function(req, res) {
 };
 
 exports.show = function(req, res) {
+    var requestedResourceURI = req.params.requestedResource;
 
-    if(req.params.filepath != null)
-    {
-        var requestedResourceURI = req.params.requestedResource;
+    var requestedResource = new InformationElement({
+        uri : requestedResourceURI
+    });
 
-        var requestedResource = new Resource({
-            uri : requestedResourceURI
-        });
+    requestedResource.findMetadata(function(err, result){
+        if(!err){
 
-        requestedResource.findMetadata(function(err, result){
-            if(!err){
-
-                var accept = req.header('Accept');
-                var serializer = null;
-                var contentType = null;
-                if(accept == null || accept in Config.metadataSerializers == false)
-                {
-                    serializer = Config.defaultMetadataSerializer;
-                    contentType = Config.defaultMetadataContentType;
-                }
-                else{
-                    serializer = Config.metadataSerializers[accept];
-                    contentType = Config.metadataContentTypes[accept];
-                }
-
-                res.set('Content-Type', contentType);
-                res.send(serializer(result));
-
+            var accept = req.header('Accept');
+            var serializer = null;
+            var contentType = null;
+            if(accept == null || accept in Config.metadataSerializers == false)
+            {
+                serializer = Config.defaultMetadataSerializer;
+                contentType = Config.defaultMetadataContentType;
             }
             else{
-                res.status(500).json({
-                    error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
-                });
+                serializer = Config.metadataSerializers[accept];
+                contentType = Config.metadataContentTypes[accept];
             }
-        });
-    }
+
+            res.set('Content-Type', contentType);
+            res.send(serializer(result));
+
+        }
+        else{
+            res.status(500).json({
+                error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
+            });
+        }
+    });
 };
 
 exports.show_parent = function(req, res) {
@@ -173,7 +169,7 @@ exports.show_parent = function(req, res) {
 
 exports.update = function(req, res) {
 
-    var requestedResourceURI = req.params.requestedResource;
+    var requestedResourceURI = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
 
     Resource.findByUri(requestedResourceURI, function(err, resource)
     {

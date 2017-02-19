@@ -200,6 +200,7 @@ exports.change_log = function(req, res){
         }
     });
 };
+
 exports.show = function(req, res) {
     var userIsLoggedIn = req.session.user ? true : false;
 
@@ -287,8 +288,9 @@ exports.show = function(req, res) {
         }
 
         var _ = require('underscore');
-        var isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
-            return _.isEqual(reason.role, Permissions.roles.project.creator) || _.isEqual(reason.role, Permissions.roles.project.contributor) || _.isEqual(reason, Permissions.roles.system.admin);
+        var isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
+            var reason = authorization.role;
+            return _.isEqual(reason, Permissions.roles.project.creator) || _.isEqual(reason, Permissions.roles.project.contributor) || _.isEqual(reason, Permissions.roles.system.admin);
         });
 
         if(isEditor.length > 0)
@@ -302,16 +304,19 @@ exports.show = function(req, res) {
         }
         else
         {
-            var isPublicOrMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
-                return _.isEqual(reason, Permissions.resource_access_levels.metadata_only) || _.isEqual(reason, Permissions.resource_access_levels.public) || _.isEqual(reason, Permissions.roles.system.admin);
+            var isPublicOrMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
+                var reason = authorization.role;
+                return _.isEqual(reason, Permissions.access_levels.metadata_only) || _.isEqual(reason, Permissions.access_levels.public) || _.isEqual(reason, Permissions.roles.system.admin);
             });
 
-            var isPublicProject = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
-                return _.isEqual(reason, Permissions.resource_access_levels.public) || _.isEqual(reason, Permissions.roles.system.admin);
+            var isPublicProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
+                var reason = authorization.role;
+                return _.isEqual(reason, Permissions.access_levels.public) || _.isEqual(reason, Permissions.roles.system.admin);
             });
 
-            var isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(reason){
-                return _.isEqual(reason, Permissions.resource_access_levels.metadata_only) || _.isEqual(reason, Permissions.roles.system.admin);
+            var isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
+                var reason = authorization.role;
+                return _.isEqual(reason, Permissions.access_levels.metadata_only) || _.isEqual(reason, Permissions.roles.system.admin);
             });
 
             if(isPublicOrMetadataOnlyProject.length > 0)
@@ -461,7 +466,11 @@ exports.show = function(req, res) {
             {
                 var flash = require('connect-flash');
                 flash('error', "Unable to retrieve the project : " + resourceURI + " . " + project);
-                res.redirect('back');
+                res.render('index',
+                    {
+                        error_messages : ["Project " + resourceURI + " not found."]
+                    }
+                );
             }
         });
     }
@@ -779,7 +788,7 @@ exports.administer = function(req, res) {
 
                 if (project.ddr.privacyStatus == null)
                 {
-                    project.ddr.privacyStatus = private;
+                    project.ddr.privacyStatus = 'private';
                 }
 
                 viewVars.privacy = project.ddr.privacyStatus;
@@ -1494,3 +1503,5 @@ exports.import = function(req, res) {
         }
     }
 };
+
+module.exports = exports;

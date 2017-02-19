@@ -14,7 +14,7 @@ var db_social = function() { return GLOBAL.db.social; }();
 
 exports.download = function(req, res){
     var self = this;
-    var requestedResourceURI = req.params.requestedResource;
+    var requestedResourceURI = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
     var filePath = req.params.filepath;
 
     var downloadFolder = function(requestedResourceURI, res)
@@ -624,7 +624,7 @@ exports.upload = function(req, res)
     var username = req.query.username;
     var file_md5 = req.query.md5_checksum;
     var filename = req.query.filename;
-    var requestedResource = req.params.requestedResource;
+    var requestedResource = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";;
     var size = req.query.size;
     var restart = req.query.restart;
 
@@ -1184,7 +1184,7 @@ exports.restore = function(req, res){
     }
     else if (req.originalMethod == "POST")
     {
-        var requestedResourceUri = req.params.requestedResource;
+        var requestedResourceUri = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
 
         req.form.on('error', function(err) {
             res.status(500).json(
@@ -1520,7 +1520,7 @@ exports.undelete = function(req, res){
 
 exports.mkdir = function(req, res){
 
-    var parentFolderURI = req.params.requestedResource;
+    var parentFolderURI = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
     var newFolderTitle = req.query.mkdir;
 
     if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
@@ -1672,6 +1672,35 @@ exports.ls = function(req, res){
     }
 };
 
+exports.thumbnail = function(req, res)
+{
+    if(req.params.filepath != null)
+    {
+        var requestedExtension = path.extname(req.params.filepath).replace(".", "");
+
+        if(requestedExtension == null)
+        {
+            exports.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+        }
+        else if(requestedExtension != null && Config.thumbnailableExtensions[requestedExtension] != null)
+        {
+            exports.get_thumbnail(req, res);
+        }
+        else if(requestedExtension == "")
+        {
+            exports.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+        }
+        else
+        {
+            exports.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+        }
+    }
+    else
+    {
+        exports.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+    }
+}
+
 exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoot, pathOfFileToServeOnError, staticFileCaching, cachePeriodInSeconds){
     var fs = require('fs');
     var path = require('path');
@@ -1776,68 +1805,79 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
 };
 
 exports.data = function(req, res){
-    var resourceURI = req.params.requestedResource;
 
-    File.findByUri(resourceURI, function(err, file){
-        if(!err)
-        {
-            var mimeType = Config.mimeType(file.ddr.fileExtension);
+    var requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
-            file.writeToTempFile(function(err, writtenFilePath)
+    if(files.dataParsers[requestedExtension] != null)
+    {
+        var resourceURI = req.params.requestedResource;
+
+        File.findByUri(resourceURI, function(err, file){
+            if(!err)
             {
-                if(!err)
+                var mimeType = Config.mimeType(file.ddr.fileExtension);
+
+                file.writeToTempFile(function(err, writtenFilePath)
                 {
-                    if(writtenFilePath != null)
+                    if(!err)
                     {
-                        if(exports.dataParsers[file.ddr.fileExtension] != null)
+                        if(writtenFilePath != null)
                         {
-                            exports.dataParsers[file.ddr.fileExtension](req, res, writtenFilePath);
+                            if(exports.dataParsers[file.ddr.fileExtension] != null)
+                            {
+                                exports.dataParsers[file.ddr.fileExtension](req, res, writtenFilePath);
+                            }
+                            else
+                            {
+                                var error = "Doesn't exist data parser for this format file : " + resourceURI;
+                                console.error(error);
+                                res.writeHead(500, error);
+                                res.end();
+                            }
+
+
                         }
                         else
                         {
-                            var error = "Doesn't exist data parser for this format file : " + resourceURI;
+                            var error = "There was an error streaming the requested resource : " + resourceURI;
                             console.error(error);
                             res.writeHead(500, error);
                             res.end();
                         }
-
-
                     }
                     else
                     {
-                        var error = "There was an error streaming the requested resource : " + resourceURI;
-                        console.error(error);
-                        res.writeHead(500, error);
-                        res.end();
+                        if(err == 404)
+                        {
+                            var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceURI;
+                            console.error(error);
+                            res.writeHead(404, error);
+                            res.end();
+                        }
+                        else
+                        {
+                            var error = "Unable to produce temporary file to download "+resourceURI +". Error reported :" + writtenFilePath;
+                            console.error(error);
+                            res.writeHead(500, error);
+                            res.end();
+                        }
                     }
-                }
-                else
-                {
-                    if(err == 404)
-                    {
-                        var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceURI;
-                        console.error(error);
-                        res.writeHead(404, error);
-                        res.end();
-                    }
-                    else
-                    {
-                        var error = "Unable to produce temporary file to download "+resourceURI +". Error reported :" + writtenFilePath;
-                        console.error(error);
-                        res.writeHead(500, error);
-                        res.end();
-                    }
-                }
-            });
-        }
-        else
-        {
-            var error = "Non-existent file : " + resourceURI;
-            console.error(error);
-            res.writeHead(404, error);
-            res.end();
-        }
-    });
+                });
+            }
+            else
+            {
+                var error = "Non-existent file : " + resourceURI;
+                console.error(error);
+                res.writeHead(404, error);
+                res.end();
+            }
+        });
+    }
+    else
+    {
+        var projects = require(Config.absPathInSrcFolder("/controllers/projects.js"));
+        projects.show(req, res);
+    }
 };
 
 
