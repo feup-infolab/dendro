@@ -6,7 +6,8 @@
     "start": "node app.js",
     "preinstall": "npm i -g gladstone && npm install -g istanbul",
     "test": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha -t 10000",
-    "posttest" : "nyc report"
+    "posttest" : "nyc report",
+    "watch": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha -t 10000 -w"
   },
   "dependencies": {
     "MD5": "1.1.0",
