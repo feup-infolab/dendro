@@ -1296,15 +1296,15 @@ async.waterfall([
                                 handler : datasets.export_to_repository,
                                 permissions : modificationPermissions
                             }
-                        ],
-                        all: [
+                        ]
+                        /*all: [
                             //uploads
                             {
                                 queries: ['upload'],
                                 handler: files.upload,
                                 permissions: modificationPermissions
                             }
-                        ]
+                        ]*/
                 };
 
                 QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
