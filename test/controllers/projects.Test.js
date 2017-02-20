@@ -8,8 +8,9 @@ var should = chai.should();
 
 describe('/projects', function () {
     it('lists all projects', function (done) {
-        var app = GLOBAL.tests.app;
-        chai.request(app)
+        var agent = GLOBAL.tests.agent;
+
+        agent
             .get('/projects')
             .end((err, res) => {
                 res.should.have.status(200);

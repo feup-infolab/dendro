@@ -51,4 +51,8 @@ temp/
 
 *.csv
 
+
+node_modules/
+
+.nyc_output
 build/config.gypi
