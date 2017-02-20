@@ -1366,7 +1366,17 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         });
 };
 
+Project.prototype.findMetadata = function(callback)
+{
+    var self = this;
+    var rootFolder = self.ddr.rootFolder;
 
+    var rootFolder = new Folder({
+        uri : rootFolder
+    })
+
+    rootFolder.findMetadata(callback);
+}
 
 /**
  * Attempts to determine the project of a requested resource based on its uri
@@ -1681,6 +1691,7 @@ Project.rebaseAllUris = function(structure, newBaseUri)
 
     modifyNode(structure);
 };
+
 
 Project.prefixedRDFType = "ddr:Project";
 

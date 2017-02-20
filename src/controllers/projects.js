@@ -222,7 +222,7 @@ exports.show = function(req, res) {
 		var resourceURI = project.uri;
 	}
 
-    function sendResponse(viewVars)
+    function sendResponse(viewVars, requestedResource)
     {
         var askedForHtml = function(req, res)
         {
@@ -233,13 +233,6 @@ exports.show = function(req, res) {
             {
                 serializer = Config.metadataSerializers[accept];
                 contentType = Config.metadataContentTypes[accept];
-
-
-                var requestedResourceURI = req.params.requestedResource;
-
-                var requestedResource = new Project({
-                    uri: requestedResourceURI
-                });
 
                 if (req.query.deep != null && req.query.deep == 'true')
                 {
@@ -423,7 +416,7 @@ exports.show = function(req, res) {
                                 {
 
                                     viewVars.versions = archivedResourcesWithFullAuthorInformation;
-                                    sendResponse(viewVars);
+                                    sendResponse(viewVars, project);
                                 }
                                 else
                                 {
@@ -450,7 +443,7 @@ exports.show = function(req, res) {
                             if(!err)
                             {
                                 viewVars.descriptors = descriptors;
-                                sendResponse(viewVars);
+                                sendResponse(viewVars, project);
                             }
                             else
                             {
@@ -550,7 +543,7 @@ exports.show = function(req, res) {
                                         if(!err)
                                         {
                                             viewVars.versions = fullVersions;
-                                            sendResponse(viewVars);
+                                            sendResponse(viewVars, containingFolder);
                                         }
                                         else
                                         {
@@ -577,7 +570,7 @@ exports.show = function(req, res) {
                                     if(!err)
                                     {
                                         viewVars.descriptors = descriptors;
-                                        sendResponse(viewVars);
+                                        sendResponse(viewVars, containingFolder);
                                     }
                                     else
                                     {

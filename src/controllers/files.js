@@ -624,7 +624,6 @@ exports.upload = function(req, res)
     var username = req.query.username;
     var file_md5 = req.query.md5_checksum;
     var filename = req.query.filename;
-    var requestedResource = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";;
     var size = req.query.size;
     var restart = req.query.restart;
 
@@ -1520,7 +1519,7 @@ exports.undelete = function(req, res){
 
 exports.mkdir = function(req, res){
 
-    var parentFolderURI = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+    var parentFolderURI = req.params.requestedResource;
     var newFolderTitle = req.query.mkdir;
 
     if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))

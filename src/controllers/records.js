@@ -177,7 +177,7 @@ exports.update = function(req, res) {
         {
             if(resource != null)
             {
-                var descriptors = [];
+                var descriptors = resource.getDescriptors();
 
                 if(req.body instanceof Array)
                 {
@@ -227,7 +227,8 @@ exports.update = function(req, res) {
 
                             resource.replaceDescriptorsInMemory(
                                 fusedDescriptors,
-                                [Config.types.locked, Config.types.private]
+                                [],
+                                [Config.types.locked]
                             );
 
                             resource.save(function(err, record)
