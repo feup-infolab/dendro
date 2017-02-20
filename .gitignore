@@ -50,3 +50,5 @@ temp/
 *.pdf
 
 *.csv
+
+build/config.gypi

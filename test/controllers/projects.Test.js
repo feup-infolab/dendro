@@ -18,3 +18,32 @@ describe('/projects', function () {
             });
     });
 });
+
+
+describe('/createProject public', function () {
+    it('create a project', function (done) {
+        var projectData = {
+            //http://127.0.0.1:3001/user/demouser1
+            dcterms : {
+                creator : "http://" + Config.host + "/user/demouser1",
+                title : 'This is a test project',
+                description : 'This is a test project description',
+                publisher: 'UP',
+                language: 'En',
+                coverage: 'Porto'
+            },
+            ddr : {
+                handle : 'testinhofixe1234',
+                privacyStatus: 'public'
+            }
+        };
+        var app = GLOBAL.tests.app;
+        chai.request(app)
+            .post('/projects/new')
+            .send(projectData)
+            .end((err, res) => {
+                //TODO check status
+                //console.log(res);
+            });
+    });
+});
