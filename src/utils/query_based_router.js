@@ -9,9 +9,16 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
 {
     var method = req.originalMethod.toLowerCase();
 
-    var methodRoutes = routes[method];
-    if(methodRoutes == null) {
-        return res.sendStatus(405);
+    var methodRoutes;
+    if(routes[method] == null) {
+        if(routes['all']== null)
+            return res.sendStatus(405);
+        else
+            methodRoutes = routes['all'];
+    }
+    else
+    {
+        methodRoutes = routes[method];
     }
 
     var queryKeysSent = Object.keys(req.query);
