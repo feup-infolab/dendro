@@ -50,3 +50,8 @@ temp/
 *.pdf
 
 *.csv
+
+
+node_modules/
+
+.nyc_output
