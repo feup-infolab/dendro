@@ -367,7 +367,7 @@ Permissions.check = function(permissionsRequired, req, callback)
         var user = req.session.user;
 
         var checkPermissions = function(req, user, resource, permission, cb){
-            if(user)
+            if(user != null)
             {
                 checkPermissionsForRole(req, user, resource, permission, function(err, results){
                     cb(err, results);
@@ -444,6 +444,7 @@ Permissions.require = function(permissionsRequired, req, res, next)
         {
             console.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
             console.log(JSON.stringify(permissionsRequired, null, 2));
+
         }
 
         var async = require('async');
@@ -454,14 +455,20 @@ Permissions.require = function(permissionsRequired, req, res, next)
             Permissions.check(permissionsRequired, req, function(err, req){
                 if(req.permissions_management.reasons_for_authorizing.length > 0)
                 {
+                    if(Config.debug.permissions.log_authorizations)
+                    {
+                        console.log("[AUTHORIZED] : Checking for permissions on request " + req.originalUrl);
+                        console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
+                    }
+
                     return Permissions.sendResponse(true, req, res, next, req.permissions_management.reasons_for_authorizing);
                 }
                 else if(req.permissions_management.reasons_for_denying.length > 0)
                 {
                     if (Config.debug.permissions.log_denials)
                     {
-                        console.log("REASONS FOR DENYING");
-                        console.log(reasonsForDenying);
+                        console.log("[DENIED] : Checking for permissions on request " + req.originalUrl);
+                        console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
                     }
 
                     return Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying);
