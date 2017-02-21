@@ -109,4 +109,20 @@ angular.module('dendroApp.services')
 
             iframe.src = url;
         };
+
+        this.register_server_side_event_source = function(event_name, handler, url)
+        {
+            if(!event_name)
+            {
+                throw "No event name provided."
+            }
+
+            if(url == null)
+            {
+                url = "";
+            }
+
+            var source = new EventSource(url);
+            source.addEventListener(event_name, handler, false);
+        }
     }]);

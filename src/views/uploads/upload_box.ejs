@@ -2,7 +2,7 @@
 <div class="up-buttons">
     <div ngf-select
          ngf-drop
-         ng-model="files"
+         ng-model="upload_files"
          ngf-model-invalid="invalidFiles"
          ngf-model-options="modelOptionsObj"
          ngf-multiple="multiple"
@@ -21,7 +21,7 @@
          ngf-drop-available="dropAvailable"
          class="btn btn-primary btn-block">
             <i class="fa fa-upload" aria-hidden="true"></i>Select File
-        <span ng-show="dropAvailable"> or Drop File</span>
+        <span ng-show="dropAvailable"> (Or Drag-and-Drop)</span>
     </div>
     <br/>
 </div>

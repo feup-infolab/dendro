@@ -25,20 +25,18 @@
     "angular-route": "1.6.1",
     "angular-sanitize": "^1.6.1",
     "angular-touch": "1.6.1",
-    "angular-animate": "^1.6.1",
     "angular-loading-bar": "^0.8.0",
     "angular-ui-tree": "^2.15.0",
     "bootbox.js": "bootbox#^4.4.0",
-    "bootstrap-contextmenu": "^0.3.4",
-    "bootstrap-datetimepicker": "^0.0.11",
-    "bootstrap-markdown": "^2.10.0",
+    "bootstrap-datetimepicker": "*",
+    "bootstrap-markdown": "*",
     "dropzone": "^4.3.0",
     "font-awesome": "^4.5.0",
     "highcharts": "^4.2.3",
-    "jquery": "^2.2.1",
+    "jquery": "~3",
     "jshash": "^2.9.1",
     "jstree": "^3.2.1",
-    "moment": "^2.12.0",
+    "moment": "*",
     "ng-tags-input": "^3.0.0",
     "ngstorage": "^0.3.10",
     "pnotify": "^3.0.0",
@@ -65,14 +63,15 @@
     "fileapi": "^2.0.20",
     "urijs": "uri.js#^1.18.4",
     "browser-md5-file": "^1.0.0",
-    "reclinejs" : "git://github.com/okfn/recline.git#0.6",
-    "slickgrid" : "git://github.com/6pac/SlickGrid.git#2.3.2"
+    "reclinejs": "git://github.com/okfn/recline.git#0.6",
+    "slickgrid": "git://github.com/6pac/SlickGrid.git#2.3.2",
+    "angular-animate": "^1.6.2",
+    "font-awesome-animation": "^0.0.10"
   },
   "resolutions": {
     "bootstrap": "~3",
-    "angular-animate": "^1.6.1",
     "jquery": "~3",
-    "moment": ">=2.8.0 <2.11.0",
-    "angular": "1.6.1"
+    "angular-animate": "^1.6.2",
+    "angular": "1.6.2"
   }
 }

@@ -15,16 +15,16 @@ var express = require('express'),
     flash = require('connect-flash'),
     http = require('http'),
     path = require('path');
-    fs = require('fs');
-    morgan = require('morgan');
-    favicon = require('serve-favicon');
-    bodyParser = require('body-parser');
-    methodOverride = require('method-override');
-    cookieParser = require('cookie-parser');
-    cookieSession = require('cookie-session');
-    expressSession = require('express-session');
-    errorHandler = require('express-session');
-    Q = require('q');
+fs = require('fs');
+morgan = require('morgan');
+favicon = require('serve-favicon');
+bodyParser = require('body-parser');
+methodOverride = require('method-override');
+cookieParser = require('cookie-parser');
+cookieSession = require('cookie-session');
+expressSession = require('express-session');
+errorHandler = require('express-session');
+Q = require('q');
 
 var bootupPromise = Q.defer();
 
@@ -46,19 +46,17 @@ var util = require('util');
 //create temporary uploads folder if not exists
 var tempUploadsFolder = Config.tempFilesDir;
 var fs = require('fs');
-try{
+try {
     fs.statSync(tempUploadsFolder).isDirectory();
 }
-catch(e)
-{
+catch (e) {
     console.log("[INFO] Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
-    try{
+    try {
         var mkdirp = require('mkdirp');
         mkdirp.sync(tempUploadsFolder);
         console.log("[SUCCESS] Temp uploads folder " + tempUploadsFolder + " created.")
     }
-    catch(e)
-    {
+    catch (e) {
         console.error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
         process.exit(1);
     }
@@ -72,17 +70,14 @@ var self = this;
 var appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::?=?)=)';
 
 
-if(Config.logging != null)
-{
+if (Config.logging != null) {
     var FileStreamRotator = require('file-stream-rotator');
     var mkpath = require('mkpath');
 
-    if(Config.logging.format != null && Config.logging.app_logs_folder != null)
-    {
+    if (Config.logging.format != null && Config.logging.app_logs_folder != null) {
         var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
         mkpath(absPath, function (err) {
-            if(!err)
-            {
+            if (!err) {
                 var accessLogStream = FileStreamRotator.getStream({
                     date_format: 'YYYYMMDD',
                     filename: path.join(absPath, Config.logging.format + '-%DATE%.log'),
@@ -95,16 +90,14 @@ if(Config.logging != null)
                     stream: accessLogStream
                 }));
             }
-            else
-            {
+            else {
                 console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(err));
                 process.exit(1);
             }
         });
     }
 
-    if(Config.logging.log_request_times && Config.logging.request_times_log_folder != null)
-    {
+    if (Config.logging.log_request_times && Config.logging.request_times_log_folder != null) {
         var absPath = Config.absPathInApp(Config.logging.request_times_log_folder);
 
         mkpath(absPath, function (err) {
@@ -115,15 +108,13 @@ if(Config.logging != null)
                 verbose: false
             });
 
-            if(!err)
-            {
+            if (!err) {
                 app.use(morgan(Config.logging.format, {
                     format: Config.logging.format,
                     stream: accessLogStream
                 }));
             }
-            else
-            {
+            else {
                 console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(err));
                 process.exit(1);
             }
@@ -131,14 +122,13 @@ if(Config.logging != null)
     }
 }
 
-var appendIndexToRequest = function(req, res, next)
-{
+var appendIndexToRequest = function (req, res, next) {
     req.index = self.index;
     // for debugging
     req.util = require('util');
     req.async = require('async');
 
-    req.sha1_encode = function(value){
+    req.sha1_encode = function (value) {
         var crypto = require('crypto');
         return crypto.createHash('sha1').update(value);
     };
@@ -146,19 +136,15 @@ var appendIndexToRequest = function(req, res, next)
     next(null, req, res);
 };
 
-var signInDebugUser = function(req, res, next)
-{
+var signInDebugUser = function (req, res, next) {
     //console.log("[INFO] Dendro is in debug mode, user " + Config.debug.session.login_user +" automatically logged in.");
     var User = require('./models/user.js').User;
 
-    if(req.session.user == null)
-    {
+    if (req.session.user == null) {
         User.findByUsername(Config.debug.session.login_user,
-            function(err, user) {
-                if(!err)
-                {
-                    if(req.session.user == null)
-                    {
+            function (err, user) {
+                if (!err) {
+                    if (req.session.user == null) {
                         req.session.user = user;
                         req.session.upload_manager = new UploadManager(user.ddr.username);
                     }
@@ -168,110 +154,91 @@ var signInDebugUser = function(req, res, next)
                 }
             });
     }
-    else
-    {
+    else {
         next(null, req, res);
     }
 };
 
-var appendLocalsToUseInViews = function(req, res, next)
-{
+var appendLocalsToUseInViews = function (req, res, next) {
     //append request and session to use directly in views and avoid passing around needless stuff
     res.locals.request = req;
     res.locals.baseURI = GLOBAL.db.default.baseURI;
 
-    if(res.locals.Config == null && Config != null)
-    {
+    if (res.locals.Config == null && Config != null) {
         res.locals.Config = Config;
     }
 
     var flashMessagesInfo = req.flash('info');
 
-    if( flashMessagesInfo != null &&
+    if (flashMessagesInfo != null &&
         flashMessagesInfo instanceof Array &&
-        flashMessagesInfo.length > 0)
-    {
-        if(res.locals.info_messages == null)
-        {
+        flashMessagesInfo.length > 0) {
+        if (res.locals.info_messages == null) {
             res.locals.info_messages = flashMessagesInfo;
         }
-        else
-        {
+        else {
             res.locals.info_messages = req.info_messages.concat(flashMessagesInfo);
         }
     }
 
     var flashMessagesError = req.flash('error');
 
-    if( flashMessagesError != null &&
+    if (flashMessagesError != null &&
         flashMessagesError instanceof Array &&
-        flashMessagesError.length > 0)
-    {
-        if(res.locals.error_messages == null)
-        {
+        flashMessagesError.length > 0) {
+        if (res.locals.error_messages == null) {
             res.locals.error_messages = flashMessagesError;
         }
-        else
-        {
+        else {
             res.locals.error_messages = res.locals.error_messages.concat(flashMessagesError);
         }
     }
 
     var flashMessagesSuccess = req.flash('success');
 
-    if( flashMessagesSuccess != null &&
+    if (flashMessagesSuccess != null &&
         flashMessagesSuccess instanceof Array &&
-        flashMessagesSuccess.length > 0)
-    {
-        if(res.locals.success_messages == null)
-        {
+        flashMessagesSuccess.length > 0) {
+        if (res.locals.success_messages == null) {
             res.locals.success_messages = flashMessagesSuccess;
         }
-        else
-        {
+        else {
             res.locals.success_messages = res.locals.success_messages.concat(flashMessagesSuccess);
         }
     }
 
-    if(Config.debug.session.auto_login)
-    {
-        if(req.session != null && req.session.user != null)
-        {
+    if (Config.debug.session.auto_login) {
+        if (req.session != null && req.session.user != null) {
             //append request and session to use directly in views and avoid passing around needless stuff
             res.locals.session = req.session;
 
-            if(req.session.isAdmin == null)
-            {
-                req.session.user.isAdmin(function(err, isAdmin){
+            if (req.session.isAdmin == null) {
+                req.session.user.isAdmin(function (err, isAdmin) {
                     req.session.isAdmin = isAdmin;
                     next(null, req, res);
 
-                    if(err)
-                    {
+                    if (err) {
                         console.error("Error checking for admin status of user " + req.session.user.uri + " !!");
                     }
                 });
             }
-            else
-            {
+            else {
                 next(null, req, res);
             }
         }
-        else
-        {
+        else {
             next(null, req, res);
         }
     }
-    else
-    {
+    else {
         res.locals.session = req.session;
 
         /*if(req.session != null && req.session.user != null)
-        {
-            //append request and session to use directly in views and avoid passing around needless stuff
-            res.locals.user = req.session.user;
-            res.locals.isAdmin = req.session.isAdmin;
-        }*/
+         {
+         //append request and session to use directly in views and avoid passing around needless stuff
+         res.locals.user = req.session.user;
+         res.locals.isAdmin = req.session.isAdmin;
+         }*/
 
         next(null, req, res);
     }
@@ -281,7 +248,7 @@ console.log("[INFO] Welcome! Booting up a Dendro Node on this machine");
 console.log("[INFO] Starting Dendro support services...");
 
 async.waterfall([
-    function(callback) {
+    function (callback) {
         var db = new DbConnection(
             Config.virtuosoHost,
             Config.virtuosoPort,
@@ -289,14 +256,12 @@ async.waterfall([
             Config.virtuosoAuth.password,
             Config.maxSimultanousConnectionsToDb);
 
-        db.create(function(db) {
-            if(!db)
-            {
+        db.create(function (db) {
+            if (!db) {
                 console.log("[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
                 process.exit(1);
             }
-            else
-            {
+            else {
                 console.log("[OK] Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
 
                 //set default connection. If you want to add other connections, add them in succession.
@@ -306,11 +271,10 @@ async.waterfall([
             }
         });
     },
-    function(callback) {
+    function (callback) {
 
-        if(Config.cache.active)
-        {
-            async.map(Config.cache.redis.instances, function(instance, callback){
+        if (Config.cache.active) {
+            async.map(Config.cache.redis.instances, function (instance, callback) {
 
                 var redisConn = new RedisConnection(
                     instance.options,
@@ -320,82 +284,68 @@ async.waterfall([
 
                 GLOBAL.redis[redisConn.id].connection = redisConn;
 
-                redisConn.openConnection(function(err, redisConn) {
-                    if(err)
-                    {
+                redisConn.openConnection(function (err, redisConn) {
+                    if (err) {
                         console.log("[ERROR] Unable to connect to Redis instance with ID: " + instance.id + " running on " + instance.options.host + ":" + instance.options.port + " : " + err.message);
                         process.exit(1);
                     }
-                    else
-                    {
-                        console.log("[OK] Connected to Redis cache service with ID : " + redisConn.id + " running on " +  redisConn.host + ":" + redisConn.port);
+                    else {
+                        console.log("[OK] Connected to Redis cache service with ID : " + redisConn.id + " running on " + redisConn.host + ":" + redisConn.port);
 
 
-                        redisConn.deleteAll(function(err, result){
-                            if(!err)
-                            {
-                                console.log("[INFO] Deleted all cache records on Redis instance \""+ redisConn.id +"\" during bootup");
+                        redisConn.deleteAll(function (err, result) {
+                            if (!err) {
+                                console.log("[INFO] Deleted all cache records on Redis instance \"" + redisConn.id + "\" during bootup");
                                 callback(null);
                             }
-                            else
-                            {
-                                console.log("[ERROR] Unable to delete all cache records on Redis instance \""+ instance.id +"\" during bootup");
+                            else {
+                                console.log("[ERROR] Unable to delete all cache records on Redis instance \"" + instance.id + "\" during bootup");
                                 process.exit(1);
                             }
                         });
                     }
                 });
-            }, function(err, results){
-                if(!err)
-                {
+            }, function (err, results) {
+                if (!err) {
                     console.log("[INFO] All Redis instances are up and running!");
                     callback(null);
                 }
-                else
-                {
+                else {
                     console.log("[ERROR] Unable to setup Redis instances.");
                     process.exit(1);
                 }
             });
         }
-        else
-        {
+        else {
             console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to cache server.");
             callback(null);
         }
     },
-    function(callback) {
+    function (callback) {
         console.log("[INFO] Loading ontology parametrization from database... ");
 
         var Ontology = require(Config.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
 
-        if(Config.startup.reload_ontologies_on_startup)
-        {
-            Ontology.initAllFromDatabase(function (err, ontologies)
-            {
-                if (!err)
-                {
+        if (Config.startup.reload_ontologies_on_startup) {
+            Ontology.initAllFromDatabase(function (err, ontologies) {
+                if (!err) {
                     GLOBAL.allOntologies = ontologies;
                     console.log("[OK] Ontology information successfully loaded from database.");
                     callback(null);
                 }
-                else
-                {
+                else {
                     console.error("[ERROR] Unable to retrieve parametrization information about the ontologies loaded in the system.");
                     process.exit(1);
                 }
             });
         }
-        else
-        {
-            Ontology.all(function(err, ontologies){
-                if(!err)
-                {
+        else {
+            Ontology.all(function (err, ontologies) {
+                if (!err) {
                     GLOBAL.allOntologies = ontologies;
                     callback(null);
                 }
-                else
-                {
+                else {
                     console.error("[ERROR] Unable to retrieve parametrization information about the ontologies loaded in the system from cache.");
                     process.exit(1);
                 }
@@ -403,59 +353,50 @@ async.waterfall([
             });
         }
     },
-    function(callback) {
+    function (callback) {
 
         console.log("[INFO] Checking ontology and descriptor parametrizations...");
 
-        Descriptor.validateDescriptorParametrization(function(err, result)
-        {
-            if(!err)
-            {
+        Descriptor.validateDescriptorParametrization(function (err, result) {
+            if (!err) {
                 console.log("[OK] All ontologies and descriptors seem correctly set up.");
                 callback(null);
             }
-            else
-            {
+            else {
                 console.error("[ERROR] Errors were detected while checking the configuration of descriptors and/or ontologies in the system.");
                 process.exit(1);
             }
         });
     },
-    function(callback)
-    {
+    function (callback) {
         console.log("[INFO] Connecting to ElasticSearch Cluster...");
         self.index = new IndexConnection();
 
-        self.index.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.indexes.dendro, function(index) {
-            if(index.client)
-            {
-                console.log("[OK] Created connection to ElasticSearch Cluster on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort +" but did not try to connect yet");
+        self.index.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.indexes.dendro, function (index) {
+            if (index.client) {
+                console.log("[OK] Created connection to ElasticSearch Cluster on " + Config.elasticSearchHost + ":" + Config.elasticSearchPort + " but did not try to connect yet");
             }
-            else
-            {
+            else {
                 console.log("[ERROR] Unable to create connection to index " + IndexConnection.indexes.dendro.short_name);
                 process.exit(1);
             }
             callback(null);
         });
     },
-    function(callback) {
+    function (callback) {
         console.log("[INFO] Now trying to connect to ElasticSearch Cluster to check if the required indexes exist or need to be created...");
-        self.index.create_new_index(1, 1, false, function(error,result)
-        {
-            if(error != null)
-            {
+        self.index.create_new_index(1, 1, false, function (error, result) {
+            if (error != null) {
                 console.log("[ERROR] Unable to create or link to index " + IndexConnection.indexes.dendro.short_name);
                 process.exit(1);
             }
-            else
-            {
-                console.log("[OK] Indexes are up and running on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort);
+            else {
+                console.log("[OK] Indexes are up and running on " + Config.elasticSearchHost + ":" + Config.elasticSearchPort);
                 callback(null);
             }
         });
     },
-    function(callback) {
+    function (callback) {
         var gfs = new GridFSConnection(
             Config.mongoDBHost,
             Config.mongoDbPort,
@@ -464,49 +405,41 @@ async.waterfall([
             Config.mongoDBAuth.password
         );
 
-        gfs.openConnection(function(err, gfsConn) {
-            if(err)
-            {
+        gfs.openConnection(function (err, gfsConn) {
+            if (err) {
                 console.log("[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn);
                 process.exit(1);
             }
-            else
-            {
+            else {
                 console.log("[OK] Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
                 GLOBAL.gfs.default.connection = gfs;
                 callback(null);
             }
         });
     },
-    function(callback)
-    {
-        var testDRConnection = function (callback)
-        {
+    function (callback) {
+        var testDRConnection = function (callback) {
             console.log("[INFO] Testing connection to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " ...");
             var needle = require("needle");
 
             var checkUri = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/about";
             // using callback
             needle.get(checkUri, {
-                    accept : "application/json"
+                    accept: "application/json"
                 },
-                function (error, response)
-                {
-                    if (!error)
-                    {
+                function (error, response) {
+                    if (!error) {
                         console.log("[OK] Successfully connected to Dendro Recommender instance, version " + response.body.version + " at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " :-)");
                         callback(null);
                     }
-                    else
-                    {
+                    else {
                         console.log("[ERROR] Unable to connect to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "! Aborting startup.");
                         process.exit(1);
                     }
                 });
         };
 
-        var setupMySQLConnection = function (callback)
-        {
+        var setupMySQLConnection = function (callback) {
             var mysql = require('mysql');
             var connection = mysql.createConnection({
                 host: Config.mySQLHost,
@@ -516,33 +449,25 @@ async.waterfall([
                 multipleStatements: true
             });
 
-            var callbackOK = function (connection)
-            {
+            var callbackOK = function (connection) {
                 console.log("[OK] Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
                 GLOBAL.mysql.connection = connection;
                 callback(null);
             };
 
-            connection.connect(function (err)
-            {
-                if (!err)
-                {
-                    var checkAndCreateTable = function(tablename, cb)
-                    {
-                        connection.query("SHOW TABLES LIKE '"+tablename+"';", function (err, result, fields)
-                        {
-                            if (!err)
-                            {
-                                if (result.length > 0)
-                                {
-                                    console.log("[INFO] Interactions table "+tablename+" exists in the MySQL database.");
+            connection.connect(function (err) {
+                if (!err) {
+                    var checkAndCreateTable = function (tablename, cb) {
+                        connection.query("SHOW TABLES LIKE '" + tablename + "';", function (err, result, fields) {
+                            if (!err) {
+                                if (result.length > 0) {
+                                    console.log("[INFO] Interactions table " + tablename + " exists in the MySQL database.");
                                     callbackOK(connection);
                                 }
-                                else
-                                {
+                                else {
                                     console.log("[INFO] Interactions table does not exists in the MySQL database. Attempting creation...");
 
-                                    var createTableQuery = "CREATE TABLE `"+tablename+"` (\n" +
+                                    var createTableQuery = "CREATE TABLE `" + tablename + "` (\n" +
                                         "   `id` int(11) NOT NULL AUTO_INCREMENT, \n" +
                                         "   `uri` text, \n" +
                                         "   `created` datetime DEFAULT NULL, \n" +
@@ -555,14 +480,12 @@ async.waterfall([
                                         "   PRIMARY KEY (`id`) \n" +
                                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n";
 
-                                    console.log("[INFO] Interactions table "+tablename+" does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
+                                    console.log("[INFO] Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
 
                                     connection.query(
                                         createTableQuery,
-                                        function (err, result, fields)
-                                        {
-                                            if (!err)
-                                            {
+                                        function (err, result, fields) {
+                                            if (!err) {
                                                 console.log("[INFO] Interactions table " + tablename + " succesfully created in the MySQL database.");
 
                                                 var createIndexesQuery =
@@ -574,31 +497,26 @@ async.waterfall([
 
                                                 connection.query(
                                                     createIndexesQuery,
-                                                    function (err, result, fields)
-                                                    {
-                                                        if (!err)
-                                                        {
+                                                    function (err, result, fields) {
+                                                        if (!err) {
                                                             console.log("[INFO] Indexes on table  " + tablename + " succesfully created in the MySQL database.");
                                                             cb(null, null);
                                                         }
-                                                        else
-                                                        {
+                                                        else {
                                                             console.log("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + result);
                                                             process.exit(1);
                                                         }
                                                     });
                                             }
-                                            else
-                                            {
-                                                console.log("[ERROR] Unable to create the interactions table "+tablename+" on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+                                            else {
+                                                console.log("[ERROR] Unable to create the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                                                 process.exit(1);
                                             }
                                         });
                                 }
                             }
-                            else
-                            {
-                                console.log("[ERROR] Unable to query for the interactions table "+tablename+" on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+                            else {
+                                console.log("[ERROR] Unable to query for the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                                 process.exit(1);
                             }
                         });
@@ -606,46 +524,38 @@ async.waterfall([
 
                     var table_to_write_recommendations = Config.recommendation.getTargetTable();
 
-                    checkAndCreateTable(table_to_write_recommendations, function(err, results)
-                    {
-                        if(err)
-                        {
+                    checkAndCreateTable(table_to_write_recommendations, function (err, results) {
+                        if (err) {
                             process.exit(1);
                         }
-                        else
-                        {
+                        else {
                             callbackOK(connection);
                         }
                     });
                 }
-                else
-                {
+                else {
                     console.log("[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                     process.exit(1);
                 }
             });
         };
 
-        if (Config.recommendation.modes.standalone.active || Config.recommendation.modes.none.active || Config.recommendation.modes.dendro_recommender.active)
-        {
+        if (Config.recommendation.modes.standalone.active || Config.recommendation.modes.none.active || Config.recommendation.modes.dendro_recommender.active) {
             async.series([
                     setupMySQLConnection
                 ],
-                function (err, result)
-                {
-                    if (!err)
-                    {
+                function (err, result) {
+                    if (!err) {
                         callback(null);
                     }
                 });
         }
-        else
-        {
+        else {
             console.err("[ERROR] No descriptor recommendation mode set up in deployment config: " + JSON.stringify(Config.recommendation) + ". Set up only one as active. ABORTING Startup.");
             process.exit(1);
         }
     },
-    function(callback) {
+    function (callback) {
         var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
         var nfs = require('node-fs');
         var fs = require('fs-extra')
@@ -654,152 +564,128 @@ async.waterfall([
         console.log("[INFO] Setting up temporary files directory at " + Config.tempFilesDir);
 
         async.waterfall([
-            function(cb)
-            {
-                if(Config.debug.files.delete_temp_folder_on_startup)
-                {
+            function (cb) {
+                if (Config.debug.files.delete_temp_folder_on_startup) {
                     console.log("[INFO] Deleting temp files dir at " + Config.tempFilesDir);
                     fs.remove(Config.tempFilesDir, function (err) {
-                        if(!err)
-                        {
+                        if (!err) {
                             console.log("[OK] Deleted temp files dir at " + Config.tempFilesDir);
                         }
-                        else
-                        {
+                        else {
                             console.log("[ERROR] Unable to delete temp files dir at " + Config.tempFilesDir);
                         }
 
                         cb(err);
                     })
                 }
-                else
-                {
+                else {
                     cb(null);
                 }
             },
-            function(cb)
-            {
-                fs.exists(Config.tempFilesDir, function(exists){
+            function (cb) {
+                fs.exists(Config.tempFilesDir, function (exists) {
 
-                    if(!exists)
-                    {
-                        nfs.mkdir(Config.tempFilesDir, Config.tempFilesCreationMode, true, function(err)
-                        {
-                            if(!err)
-                            {
+                    if (!exists) {
+                        nfs.mkdir(Config.tempFilesDir, Config.tempFilesCreationMode, true, function (err) {
+                            if (!err) {
                                 console.log("[OK] Temporary files directory successfully created at " + Config.tempFilesDir);
                             }
-                            else
-                            {
+                            else {
                                 console.log("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
                             }
                             cb(err);
                         });
 
                     }
+                    else {
+                        cb(null);
+                    }
                 });
             }
-        ], function(err){
-            if(!err)
-            {
+        ], function (err) {
+            if (!err) {
                 console.log("[OK] Temporary files directory successfully set up at " + Config.tempFilesDir);
                 callback(null);
             }
-            else
-            {
+            else {
                 console.error("[ERROR] Unable to set up files directory at " + Config.tempFilesDir);
                 process.exit(1);
             }
         });
     },
-    function(callback) {
+    function (callback) {
 
         //try to delete all demo users
 
-        var deleteUser = function(demoUser, callback)
-        {
+        var deleteUser = function (demoUser, callback) {
             var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-            User.findByUsername(demoUser.username, function(err, user){
+            User.findByUsername(demoUser.username, function (err, user) {
 
-                if(!err)
-                {
-                    if(user == null)
-                    {
+                if (!err) {
+                    if (user == null) {
                         //everything ok, user simply does not exist
                         callback(null, null);
                     }
-                    else
-                    {
+                    else {
                         console.log("[INFO] Demo user with username " + user.ddr.username + " found. Attempting to delete...");
-                        user.deleteAllMyTriples(function(err, result){
+                        user.deleteAllMyTriples(function (err, result) {
                             callback(err, result);
                         });
                     }
                 }
-                else
-                {
+                else {
                     console.log("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
                     callback(err, user);
                 }
             });
         };
 
-        async.map(Config.demo_mode.users, deleteUser, function(err, results) {
+        async.map(Config.demo_mode.users, deleteUser, function (err, results) {
             if (!err) {
                 console.log("[INFO] Existing demo users deleted. ");
-                if(Config.demo_mode.active)
-                {
-                    if(Config.startup.reload_demo_users_on_startup)
-                    {
+                if (Config.demo_mode.active) {
+                    if (Config.startup.reload_demo_users_on_startup) {
                         var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
                         console.log("[INFO] Loading demo users. Demo users (in config.js file) -->" + JSON.stringify(Config.demo_mode.users));
 
-                        var createUser = function(user, callback)
-                        {
+                        var createUser = function (user, callback) {
                             User.createAndInsertFromObject({
                                     foaf: {
                                         mbox: user.mbox,
-                                        firstName : user.firstname,
-                                        surname : user.surname
+                                        firstName: user.firstname,
+                                        surname: user.surname
                                     },
-                                    ddr:
-                                    {
-                                        username : user.username,
-                                        password : user.password
+                                    ddr: {
+                                        username: user.username,
+                                        password: user.password
                                     }
                                 },
-                                function(err, newUser){
-                                    if(!err && newUser != null)
-                                    {
-                                        callback(null,  newUser);
+                                function (err, newUser) {
+                                    if (!err && newUser != null) {
+                                        callback(null, newUser);
                                     }
-                                    else
-                                    {
+                                    else {
                                         console.log("[ERROR] Error creating new demo User " + JSON.stringify(user));
                                         callback(err, user);
                                     }
                                 });
                         };
 
-                        async.map(Config.demo_mode.users, createUser, function(err, results) {
-                            if(!err)
-                            {
+                        async.map(Config.demo_mode.users, createUser, function (err, results) {
+                            if (!err) {
                                 console.log("[INFO] Existing demo users recreated. ");
                                 callback(err);
                             }
-                            else
-                            {
+                            else {
                                 process.exit(1);
                             }
                         });
                     }
-                    else
-                    {
+                    else {
                         callback(null);
                     }
                 }
-                else
-                {
+                else {
                     callback(null);
                 }
             }
@@ -808,100 +694,87 @@ async.waterfall([
             }
         });
     },
-    function(callback) {
-        if(Config.startup.reload_administrators_on_startup)
-        {
+    function (callback) {
+        if (Config.startup.reload_administrators_on_startup) {
             var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
             console.log("[INFO] Loading default administrators. Admins (in config.js file) -->" + JSON.stringify(Config.administrators));
 
             async.series([
-                function(callback)
-                {
-                    User.removeAllAdmins(callback);
-                },
-                function(callback)
-                {
-                    var makeAdmin = function(newAdministrator, callback){
+                    function (callback) {
+                        User.removeAllAdmins(callback);
+                    },
+                    function (callback) {
+                        var makeAdmin = function (newAdministrator, callback) {
 
-                        var username = newAdministrator.username;
-                        var password = newAdministrator.password;
-                        var mbox = newAdministrator.mbox;
-                        var firstname = newAdministrator.firstname;
-                        var surname = newAdministrator.surname;
+                            var username = newAdministrator.username;
+                            var password = newAdministrator.password;
+                            var mbox = newAdministrator.mbox;
+                            var firstname = newAdministrator.firstname;
+                            var surname = newAdministrator.surname;
 
-                        User.findByUsername(username, function(err, user){
+                            User.findByUsername(username, function (err, user) {
 
-                            if(!err && user != null)
-                            {
-                                user.makeGlobalAdmin(function(err, result){
-                                    callback(err, result);
-                                });
+                                if (!err && user != null) {
+                                    user.makeGlobalAdmin(function (err, result) {
+                                        callback(err, result);
+                                    });
+                                }
+                                else {
+                                    console.log("Non-existent user " + username + ". Creating new for promoting to admin.");
+
+                                    User.createAndInsertFromObject({
+                                            foaf: {
+                                                mbox: mbox,
+                                                firstName: firstname,
+                                                surname: surname
+                                            },
+                                            ddr: {
+                                                username: username,
+                                                password: password
+                                            }
+                                        },
+                                        function (err, newUser) {
+                                            if (!err && newUser != null && newUser instanceof User) {
+                                                newUser.makeGlobalAdmin(function (err, newUser) {
+                                                    callback(err, newUser);
+                                                });
+                                            }
+                                            else {
+                                                var msg = "Error creating new User" + JSON.stringify(newUser);
+                                                console.error(msg);
+                                                callback(err, msg);
+                                            }
+                                        });
+                                }
+                            })
+                        };
+
+                        async.map(Config.administrators, makeAdmin, function (err) {
+                            if (!err) {
+                                console.log("[OK] Admins successfully loaded.");
                             }
-                            else
-                            {
-                                console.log("Non-existent user " + username + ". Creating new for promoting to admin.");
-
-                                User.createAndInsertFromObject({
-                                    foaf: {
-                                        mbox: mbox,
-                                        firstName : firstname,
-                                        surname : surname
-                                    },
-                                    ddr:
-                                    {
-                                        username : username,
-                                        password : password
-                                    }
-                                },
-                                    function(err, newUser){
-                                        if(!err && newUser != null && newUser instanceof User)
-                                        {
-                                            newUser.makeGlobalAdmin(function(err, newUser){
-                                                callback(err, newUser);
-                                            });
-                                        }
-                                        else
-                                        {
-                                            var msg = "Error creating new User" + JSON.stringify(newUser);
-                                            console.error(msg);
-                                            callback(err, msg);
-                                        }
-                                });
+                            else {
+                                console.log("[ERROR] Unable to load admins. Error : " + err);
                             }
-                        })
-                    };
 
-                    async.map(Config.administrators, makeAdmin, function(err){
-                        if(!err)
-                        {
-                            console.log("[OK] Admins successfully loaded.");
-                        }
-                        else {
-                            console.log("[ERROR] Unable to load admins. Error : " + err);
-                        }
-
-                        callback(err);
-                    });
-                }
-            ],
-            function(err, results){
-                if(!err)
-                {
-                    callback(null);
-                }
-                else
-                {
-                    process.exit(1);
-                }
-            });
+                            callback(err);
+                        });
+                    }
+                ],
+                function (err, results) {
+                    if (!err) {
+                        callback(null);
+                    }
+                    else {
+                        process.exit(1);
+                    }
+                });
         }
-        else
-        {
+        else {
             callback(null);
         }
     },
-    function(callback)
-    {
+    function (callback) {
         //app's own requires
         var index = require(Config.absPathInSrcFolder("/controllers/index"));
         var users = require(Config.absPathInSrcFolder("/controllers/users"));
@@ -924,16 +797,13 @@ async.waterfall([
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
 
-        if(Config.recommendation.modes.dendro_recommender.active)
-        {
+        if (Config.recommendation.modes.dendro_recommender.active) {
             var recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation"));
         }
-        else if(Config.recommendation.modes.standalone.active)
-        {
+        else if (Config.recommendation.modes.standalone.active) {
             var recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
         }
-        else if(Config.recommendation.modes.none.active)
-        {
+        else if (Config.recommendation.modes.none.active) {
             recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation"));
         }
 
@@ -950,7 +820,7 @@ async.waterfall([
 
         //app.use(express.logger('dev'));
 
-        app.use(bodyParser.urlencoded({ extended: true }));
+        app.use(bodyParser.urlencoded({extended: true}));
         app.use(bodyParser.json());
 
 
@@ -968,12 +838,12 @@ async.waterfall([
 
         const MongoStore = require('connect-mongo')(expressSession);
         var sessionMongoStore = new MongoStore(
-        {
-            "host": Config.mongoDBHost,
-            "port": Config.mongoDbPort,
-            "db": Config.mongoDbCollectionName,
-            "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDbCollectionName
-        });
+            {
+                "host": Config.mongoDBHost,
+                "port": Config.mongoDbPort,
+                "db": Config.mongoDbCollectionName,
+                "url": 'mongodb://' + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDbCollectionName
+            });
 
         app.use(expressSession({
             secret: appSecret,
@@ -986,8 +856,7 @@ async.waterfall([
 
         app.use(flash());
 
-        if(Config.debug.active && Config.debug.session.auto_login)
-        {
+        if (Config.debug.active && Config.debug.session.auto_login) {
             app.use(signInDebugUser);
         }
 
@@ -1000,8 +869,7 @@ async.waterfall([
         // all environments
 
         var env = process.env.NODE_ENV || 'development';
-        if ('development' == env)
-        {
+        if ('development' == env) {
             app.set('title', 'Dendro');
             app.set('theme', Config.theme);
         }
@@ -1065,7 +933,7 @@ async.waterfall([
         //people listing
         app.get('/users', users.all);
         app.get('/user/:username', async.apply(Permissions.require, [Permissions.acl.user]), users.show);
-        app.get('/users/loggedUser', async.apply(Permissions.require, [Permissions.acl.user]), users.getLoggedUser);
+        app.get('/users/loggedUser', users.getLoggedUser);
 
         app.all('/reset_password', users.reset_password);
         app.all('/set_new_password', users.set_new_password);
@@ -1073,7 +941,7 @@ async.waterfall([
         app.get('/me', async.apply(Permissions.require, [Permissions.acl.user]), users.me);
 
         //projects
-        app.get('/projects', async.apply(Permissions.require, [Permissions.acl.user]), projects.all);
+        app.get('/projects', projects.all);
         app.get('/projects/my', async.apply(Permissions.require, [Permissions.acl.user]), projects.my);
         app.get('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
         app.post('/projects/new', async.apply(Permissions.require, [Permissions.acl.user]), projects.new);
@@ -1144,305 +1012,219 @@ async.waterfall([
         app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.acl.creator_or_contributor]), repo_bookmarks.delete);
 
         //view a project's root
-            app.all(/\/project\/([^\/]+)(\/data)?$/,
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                function(req,res, next)
-                {
-                    req.params.handle = req.params[0];                      //project handle
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
+        app.all(/\/project\/([^\/]+)(\/data)?$/,
+            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public, Permissions.resource_access_levels.metadata_only], [Permissions.acl.creator_or_contributor]),
+            function (req, res) {
+                req.params.handle = req.params[0];                      //project handle
+                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
 
-                    if(req.originalMethod == "GET")
-                    {
-                        if(req.query.ls != null)
-                        {
-                            files.ls(req, res);
-                        }
-                        else if(req.query.metadata_recommendations != null)
-                        {
-                            recommendation.recommend_descriptors(req, res);
-                        }
-                        else if(req.query.recent_changes != null)
-                        {
-                            projects.recent_changes(req, res);
-                        }
-                        else if(req.query.stats != null)
-                        {
-                            projects.stats(req, res);
-                        }
-                        else if(req.query.recommendation_ontologies != null)
-                        {
-                            ontologies.get_recommendation_ontologies(req, res);
-                        }
-                        else if(req.query.version != null)
-                        {
-                            records.show_version(req, res);
-                        }
-                        else if(req.query.administer != null)
-                        {
-                            projects.administer(req, res);
-                        }
-                        else if(req.query.descriptor_autocomplete != null)
-                        {
-                            descriptors.descriptors_autocomplete(req, res);
-                        }
-                        else if(req.query.user_autocomplete != null)
-                        {
-                            users.users_autocomplete(req, res);
-                        }
-                        else if(req.query.ontology_autocomplete != null)
-                        {
-                            ontologies.ontologies_autocomplete(req, res);
-                        }
-                        else if(req.query.thumbnail != null)
-                        {
-                            files.serve_static(req, res, "images/icons/folder.png", "images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-                            return;
-                        }
-                        else
-                        {
-                            projects.show(req, res);
-                        }
+                if (req.query.upload != null) {
+                    req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                    files.upload(req, res);
+                }
+                else if (req.originalMethod == "GET") {
+                    if (req.query.download != null || req.query.backup != null || req.query.bagit != null) {
+
+                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                        files.download(req, res);
+                        return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
+                        // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
                     }
-                    else if(req.originalMethod == "POST")
-                    {
-                        if(req.query.update_metadata != null)
-                        {
-                            req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
-                            records.update(req,res);
-                        }
-                        else if(req.query.restore_metadata_version != null)
-                        {
-                            records.restore_metadata_version(req, res);
-                        }
-                        else if(req.query.mkdir != null)
-                        {
-                            req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                            files.mkdir(req, res);
-                        }
-                        else if(req.query.administer != null)
-                        {
-                            projects.administer(req, res);
-                        }
-                        else if(req.query.export_to_repository != null)
-                        {
-                            datasets.export_to_repository(req, res);
-                        }
+                    else if (req.query.ls != null) {
+                        files.ls(req, res);
                     }
+                    else if (req.query.metadata_recommendations != null) {
+                        recommendation.recommend_descriptors(req, res);
+                    }
+                    else if (req.query.recent_changes != null) {
+                        projects.recent_changes(req, res);
+                    }
+                    else if (req.query.stats != null) {
+                        projects.stats(req, res);
+                    }
+                    else if (req.query.recommendation_ontologies != null) {
+                        ontologies.get_recommendation_ontologies(req, res);
+                    }
+                    else if (req.query.version != null) {
+                        records.show_version(req, res);
+                    }
+                    else if (req.query.administer != null) {
+                        projects.administer(req, res);
+                    }
+                    else if (req.query.descriptor_autocomplete != null) {
+                        descriptors.descriptors_autocomplete(req, res);
+                    }
+                    else if (req.query.ontology_autocomplete != null) {
+                        ontologies.ontologies_autocomplete(req, res);
+                    }
+                    else if (req.query.thumbnail != null) {
+                        files.serve_static(req, res, "images/icons/folder.png", "images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                        return;
+                    }
+                    else {
+                        projects.show(req, res);
+                    }
+                }
+                else if (req.originalMethod == "POST") {
+                    if (req.query.update_metadata != null) {
+                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
+                        records.update(req, res);
+                    }
+                    else if (req.query.restore_metadata_version != null) {
+                        records.restore_metadata_version(req, res);
+                    }
+
+                    else if (req.query.mkdir != null) {
+                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                        files.mkdir(req, res);
+                    }
+                    else if (req.query.restore != null) {
+                        req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+                        files.restore(req, res);
+                    }
+                    else if (req.query.administer != null) {
+                        projects.administer(req, res);
+                    }
+                    else if (req.query.export_to_repository != null) {
+                        datasets.export_to_repository(req, res);
+                    }
+                }
             });
 
-
-        //for places inside a project
-            app.all(new RegExp(Config.regex_routes.projects.upload),
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                function(req,res, next)
-                {
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
-                    files.upload(req, res);
-                    return;
-                });
-
-            app.all(new RegExp(Config.regex_routes.projects.restore),
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                function(req,res, next)
-                {
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
-                    files.restore(req, res);
-                    return;
-                }
-            );
-
-            app.all(new RegExp(Config.regex_routes.projects.download),
-                async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
-                function(req,res, next)
-                {
-                    req.params.requestedResource = Config.baseUri + "/project/" + req.params[0] + "/data";
-                    files.download(req, res);
-                    return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
-                    // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
-                }
-            );
-
+        //      files and folders (data)
+        //      downloads
         app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
-            function(req,res, next)
-            {
+            async.apply(Permissions.project_access_override, [Permissions.resource_access_levels.public], [Permissions.acl.creator_or_contributor]),
+            function (req, res) {
                 req.params.handle = req.params[0];                      //project handle
-                req.params.requestedResource = Config.baseUri + "/project/" + req.params[0];
+                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
 
                 req.params.filepath = req.params[1];   //relative path encodeuri needed because of spaces in filenames
                 req.params.requestedResource = req.params.requestedResource + req.params.filepath;
 
-                if(req.originalMethod == "GET")
-                {
-                    if(req.query.thumbnail != null)
-                    {
-                        if(req.params.filepath != null)
-                        {
+                if (req.query.upload != null) {
+                    files.upload(req, res);
+                }
+                else if (req.originalMethod == "GET") {
+                    if (req.query.download != null || req.query.backup != null || req.query.bagit != null) {
+                        files.download(req, res);
+                        return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
+                                // OR ELSE SYMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
+                    }
+                    else if (req.query.thumbnail != null) {
+                        if (req.params.filepath != null) {
                             var requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
-                            if(requestedExtension == null)
-                            {
+                            if (requestedExtension == null) {
                                 files.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
                             }
-                            else if(requestedExtension != null && Config.thumbnailableExtensions[requestedExtension] != null)
-                            {
+                            else if (requestedExtension != null && Config.thumbnailableExtensions[requestedExtension] != null) {
                                 files.get_thumbnail(req, res);
                             }
-                            else if(requestedExtension == "")
-                            {
+                            else if (requestedExtension == "") {
                                 files.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
                             }
-                            else
-                            {
+                            else {
                                 files.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
                             }
 
                             return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
                             // OR ELSE SIMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
                         }
-                        else
-                        {
+                        else {
                             files.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
                         }
                     }
-                    else if(req.query.metadata != null)
-                    {
-                        if(req.query.deep != null && req.query.deep == 'true'){
+                    else if (req.query.metadata != null) {
+                        if (req.query.deep != null && req.query.deep == 'true') {
                             records.show_deep(req, res);
                         }
                         else {
                             records.show(req, res);
                         }
                     }
-                    else if(req.query.parent_metadata != null)
-                    {
+                    else if (req.query.parent_metadata != null) {
                         records.show_parent(req, res);
                     }
-                    else if(req.query.version != null)
-                    {
+                    else if (req.query.version != null) {
                         records.show_version(req, res);
                     }
-                    else if(req.query.change_log != null)
-                    {
+                    else if (req.query.change_log != null) {
                         projects.change_log(req, res);
                     }
-                    else if(req.query.metadata_recommendations != null)
-                    {
+                    else if (req.query.metadata_recommendations != null) {
                         recommendation.recommend_descriptors(req, res);
                     }
-                    else if(req.query.recommendation_ontologies != null)
-                    {
+                    else if (req.query.recommendation_ontologies != null) {
                         ontologies.get_recommendation_ontologies(req, res);
                     }
-                    else if(req.query.descriptor_autocomplete != null)
-                    {
+                    else if (req.query.descriptor_autocomplete != null) {
                         descriptors.descriptors_autocomplete(req, res);
                     }
-                    else if(req.query.user_autocomplete != null)
-                    {
+                    else if (req.query.user_autocomplete != null) {
                         users.users_autocomplete(req, res);
                     }
-                    else if(req.query.ontology_autocomplete != null)
-                    {
+                    else if (req.query.ontology_autocomplete != null) {
                         ontologies.ontologies_autocomplete(req, res);
                     }
-                    else if(req.query.update_metadata != null)
-                    {
+                    else if (req.query.update_metadata != null) {
                         records.update(req, res);
                     }
-                    else if(req.query.ls != null)
-                    {
+                    else if (req.query.ls != null) {
                         files.ls(req, res);
                     }
-                    else if(req.query.serve != null)
-                    {
+                    else if (req.query.serve != null) {
                         files.serve(req, res);
                     }
-                    else if(req.query.serve_base64 != null)
-                    {
+                    else if (req.query.serve_base64 != null) {
                         files.serve_base64(req, res);
                     }
-                    else if(req.query.data != null)
-                    {
+                    else if (req.query.data != null) {
                         var requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
-                        if(files.dataParsers[requestedExtension] != null)
-                        {
+                        if (files.dataParsers[requestedExtension] != null) {
                             files.data(req, res);
                         }
-                        else
-                        {
+                        else {
                             projects.show(req, res);
                         }
                         return;
                     }
-                    else if(req.query.metadata_evaluation != null)
-                    {
+                    else if (req.query.metadata_evaluation != null) {
                         evaluation.metadata_evaluation(req, res);
                     }
-                    else
-                    {
+                    else {
                         projects.show(req, res);
                     }
                 }
-                else if(req.originalMethod == "POST")
-                {
-                    if(req.query.update_metadata != null)
-                    {
-                        records.update(req,res);
+                else if (req.originalMethod == "POST") {
+                    if (req.query.update_metadata != null) {
+                        records.update(req, res);
                     }
-                    else if(req.query.restore_metadata_version != null)
-                    {
+                    else if (req.query.restore_metadata_version != null) {
                         records.restore_metadata_version(req, res);
                     }
-                    else if(req.query.register_interaction != null)
-                    {
+                    else if (req.query.register_interaction != null) {
                         interactions.register(req, res);
                     }
-                    else if(req.query.remove_recommendation_ontology != null)
-                    {
+                    else if (req.query.remove_recommendation_ontology != null) {
                         interactions.reject_ontology_from_quick_list(req, res);
                     }
-                    else if(req.query.mkdir != null)
-                    {
+                    else if (req.query.mkdir != null) {
                         files.mkdir(req, res);
                     }
-                    else if(req.query.undelete != null)
-                    {
+                    else if (req.query.restore != null) {
+                        files.restore(req, res);
+                    }
+                    else if (req.query.undelete != null) {
                         files.undelete(req, res);
                     }
-                    else if(req.query.export_to_repository != null)
-                    {
+                    else if (req.query.export_to_repository != null) {
                         datasets.export_to_repository(req, res);
                     }
                 }
-                else if(req.originalMethod == "DELETE")
-                {
+                else if (req.originalMethod == "DELETE") {
                     files.rm(req, res);
-                }
-            }
-        );
-
-        //downloads and uploads on files and folders (data)
-        app.all(/\/project\/([^\/]+)(\/data\/.*)$/,
-            async.apply(Permissions.project_access_override, [Permissions.project.public], [Permissions.acl.creator_or_contributor]),
-            function(req,res, next)
-            {
-                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
-                if(req.query.upload != null)
-                {
-                    files.upload(req, res);
-                }
-                else if(req.query.restore != null)
-                {
-                    files.restore(req, res);
-
-                }
-                else if(req.query.download != null || req.query.backup != null || req.query.bagit != null)
-                {
-                    files.download(req, res);
-                    return; //<<<<< WHEN RUNNING PIPED COMMANDS (STREAMED) THIS IS NECESSARY!!!!
-                            // OR ELSE SYMULTANEOUS DOWNLOADS WILL CRASH ON SECOND REQUEST!!! JROCHA
                 }
             }
         );
@@ -1483,29 +1265,23 @@ async.waterfall([
 
         //serve angular JS ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,
-            function(req, res, next)
-            {
-                next();
-            },
-            function(req, res, next){
+            function (req, res, next) {
 
                 var requestedEJSPath = path.join(Config.getPathToPublicFolder(), req.params[0]) + ".ejs";
 
-                fs.exists(requestedEJSPath, function(exists) {
+                fs.exists(requestedEJSPath, function (exists) {
                     if (exists) {
-                        fs.readFile(requestedEJSPath, 'utf-8', function(err, data) {
-                            if(!err) {
+                        fs.readFile(requestedEJSPath, 'utf-8', function (err, data) {
+                            if (!err) {
                                 var ejs = require('ejs');
-                                res.send(ejs.render(data, { locals : res.locals} ));
+                                res.send(ejs.render(data, {locals: res.locals}));
                             }
-                            else
-                            {
+                            else {
                                 res.status(500).render("/errors/500");
                             }
                         });
                     }
-                    else
-                    {
+                    else {
                         //fallback to other routes
                         next();
                     }
@@ -1516,63 +1292,103 @@ async.waterfall([
          * Register plugins
          */
 
-        app = PluginManager.registerPlugins(app);
+        PluginManager.registerPlugins(app, function (err, app) {
+            //The 404 Route (ALWAYS Keep this as the last route)
+            // ERRO! Isto entra em conflito com as rotas dos plugins, porque esta é registada antes do registo das rotas dos
+            //plugins ter sido concluído
 
-        //The 404 Route (ALWAYS Keep this as the last route)
-        // ERRO! Isto entra em conflito com as rotas dos plugins, porque esta é registada antes do registo das rotas dos
-        //plugins ter sido concluído
-
-        /*app.get('*', function(req, res){
-            res.render('errors/404', 404);
-        });*/
+            /*app.get('*', function(req, res){
+             res.render('errors/404', 404);
+             });*/
 
 
-        var server = http.createServer(function (req, res) {
+            var server = http.createServer(function (req, res) {
 
-            var reqd = domain.create();
-            reqd.add(req);
-            reqd.add(res);
+                var reqd = domain.create();
+                reqd.add(req);
+                reqd.add(res);
 
-            // On error dispose of the domain
-            reqd.on('error', function (error) {
-                console.error('Error', error.code, error.message, req.url);
-                console.error('Stack Trace : ', error.stack);
-                reqd.dispose();
+                // On error dispose of the domain
+                reqd.on('error', function (error) {
+                    console.error('Error', error.code, error.message, req.url);
+                    console.error('Stack Trace : ', error.stack);
+                    reqd.dispose();
+                });
+
+                // Pass the request to express
+                app(req, res)
+
             });
 
-            // Pass the request to express
-            app(req, res)
+            //dont start server twice (for testing)
+            //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
 
-        });
-
-        //dont start server twice (for testing)
-        //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
-
-        if(process.env.NODE_ENV != 'test')
-        {
-            server.listen(app.get('port'), function() {
-                console.log('Express server listening on port ' + app.get('port'));
+            if (process.env.NODE_ENV != 'test') {
+                server.listen(app.get('port'), function () {
+                    console.log('Express server listening on port ' + app.get('port'));
+                    bootupPromise.resolve(app);
+                });
+            }
+            else {
+                console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
                 bootupPromise.resolve(app);
-            });
-        }
-        else
-        {
-            console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
-            bootupPromise.resolve(app);
-        }
+            }
 
-        if(Config.debug.diagnostics.ram_usage_reports)
-        {
-            setInterval(function ()
-            {
-                var pretty = require('prettysize');
-                console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
-                if (typeof gc === 'function')
+            if (Config.debug.diagnostics.ram_usage_reports) {
+                setInterval(function () {
+                    var pretty = require('prettysize');
+                    console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
+                    if (typeof gc === 'function') {
+                        gc();
+                    }
+                }, 2000);
+            }
+
+            // Handle 404
+            app.use(function (req, res) {
+                var acceptsHTML = req.accepts('html');
+                var acceptsJSON = req.accepts('json');
+                if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
-                    gc();
+                    res.status(404).json(
+                        {
+                            result: "error",
+                            message: "Page not found"
+                        }
+                    );
                 }
-            }, 2000);
-        }
+                else {
+                    res.status(404).render('errors/404',
+                        {
+                            title: "Page not Found"
+                        }
+                    )
+                }
+            });
+
+            // Handle 500
+            app.use(function (error, req, res, next) {
+                var acceptsHTML = req.accepts('html');
+                var acceptsJSON = req.accepts('json');
+                if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.status(500).json(
+                        {
+                            result: "error",
+                            error: error
+                        }
+                    );
+                }
+                else {
+                    res.render('errors/500',
+                        {
+                            title: "Something went wrong",
+                            error: error
+                        }
+                    )
+                }
+            });
+        });
     }
 ]);
 

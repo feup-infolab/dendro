@@ -451,12 +451,12 @@ angular.module('dendroApp.controllers')
 
         $scope.download = function()
         {
-            windowService.download_url($scope.get_calling_uri(), "/download");
+            windowService.download_url($scope.get_calling_uri(), "?download");
         };
 
         $scope.backup = function()
         {
-            windowService.download_url($scope.get_calling_uri(), "/backup");
+            windowService.download_url($scope.get_calling_uri(), "?backup");
         };
 
 
@@ -468,7 +468,7 @@ angular.module('dendroApp.controllers')
 
                 if(item.selected)
                 {
-                    windowService.download_url(item.uri, "/download");
+                    windowService.download_url(item.uri, "?download");
                 }
             }
         };
@@ -481,7 +481,7 @@ angular.module('dendroApp.controllers')
 
                 if(item.selected)
                 {
-                    windowService.download_url(item.uri, "/backup");
+                    windowService.download_url(item.uri, "?backup");
                 }
             }
         };

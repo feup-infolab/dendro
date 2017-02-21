@@ -59,20 +59,20 @@
                             <div class="col-sm-10">
                                 <input type="radio"
                                        name="privacy"
-                                       value="publicStatus"
-                                       ng-checked="'<%=locals.privacy%>' == 'publicStatus'">Public: The project's metadata will be exposed and the project made publicly available, as read-only.
+                                       value="public"
+                                       ng-checked="'<%=locals.privacy%>' == 'public'">Public: The project's metadata will be exposed and the project made publicly available, as read-only.
                                 </input>
                                 <br>
                                 <input type="radio"
                                        name="privacy"
-                                       value="privateStatus"
-                                       ng-checked="'<%=locals.privacy%>' == 'privateStatus'">Private: Your project won't have any exposure.
+                                       value="private"
+                                       ng-checked="'<%=locals.privacy%>' == 'private'">Private: Your project won't have any exposure.
                                 </input>
                                 <br>
                                 <input type="radio"
                                        name="privacy"
-                                       value="metadataOnlyStatus"
-                                       ng-checked="'<%=locals.privacy%>' == 'metadataOnlyStatus'">Metadata Only: The project's metadata will be exposed, but access to the project will be required to you.
+                                       value="metadata_only"
+                                       ng-checked="'<%=locals.privacy%>' == 'metadata_only'">Metadata Only: The project's metadata will be exposed, but access to the project will be required to you.
                                 </input>
 
                             </div>

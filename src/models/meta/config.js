@@ -579,23 +579,23 @@ if(Config.demo_mode.active)
 {
     const exec = require('child_process').exec;
 
-    exec('git status', (error, stdout, stderr) => {
+    exec('git status', function(error, stdout, stderr) {
         if (error == null) {
             Config.demo_mode.git_info = {};
 
-            exec('git branch | grep "^\* .*$" | cut -c 3- | tr -d "\n"', (error, stdout, stderr) => {
+            exec('git branch | grep "^\* .*$" | cut -c 3- | tr -d "\n"', function(error, stdout, stderr) {
                 if (error == null) {
                     Config.demo_mode.git_info.active_branch = stdout;
                 }
             });
 
-            exec('git log -1 | grep "commit.*" | cut -c 8- | tr -d "\n"', (error, stdout, stderr) => {
+            exec('git log -1 | grep "commit.*" | cut -c 8- | tr -d "\n"', function (error, stdout, stderr) {
                 if (error == null) {
                     Config.demo_mode.git_info.commit_hash = stdout;
                 }
             });
 
-            exec('git log -1 | grep "Date:.*" | cut -c 9- | tr -d "\n"', (error, stdout, stderr) => {
+            exec('git log -1 | grep "Date:.*" | cut -c 9- | tr -d "\n"', function (error, stdout, stderr) {
                 if (error == null) {
                     Config.demo_mode.git_info.last_commit_date = stdout;
                 }
@@ -607,11 +607,16 @@ if(Config.demo_mode.active)
 Config.email = getConfigParameter("email");
 
 Config.regex_routes = {
-    projects :
+    project_root:
     {
-        upload : "\/project/([^\/]+)[\/data]?((?=.*\/upload\/?$).*)$",
-        restore : "\/project/([^\/]+)[\/data]?((?=.*\/restore\/?$).*)$",
-        download : "\/project/([^\/]+)[\/data]?((?=.*\/download\/?$).*)$"
+        restore : "\/project\/([^\/]+)[\/data]?$",
+        bagit : "\/project\/([^\/]+)[\/data]?$",
+    },
+    inside_projects :
+    {
+        upload : "\/project\/([^\/]+)[\/data]?((?=(.*)\/upload\/?$).*)$",
+        restore : "\/project\/([^\/]+)[\/data]?((?=(.*)\/restore\/?$).*)$",
+        download : "\/project\/([^\/]+)[\/data]?((?=(.*)\/download\/?$).*)$"
     }
 }
 

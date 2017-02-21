@@ -7,7 +7,7 @@
                 Results per page :
                 <select name="pageSize" id="pageSizeComboBox">
 
-                    <% var pageSizes = [20, 50, 200]; %>
+                    <% var pageSizes = [20, 50, 200, 300]; %>
                     <% for (var i = 0; i < pageSizes.length; i++) { %>
 
                 <option value="<%= pageSizes[i] %>"
@@ -20,9 +20,7 @@
                     <% } %>
 
 
-                <option value="50">50</option>
-                <option value="200">300</option>
-                <option value="0">ALL nodes</option>
+                <option value="0">ALL</option>
                 </select>
 
                 <input type=submit value="Update" class="btn"/>

@@ -6,11 +6,6 @@ var stack_topright = {"dir1": "down", "dir2": "left", "push": "top"};
 
 // Declare app level module which depends on filters, and services
 angular.module('dendroApp', [
-        'dendroApp.controllers',
-        'dendroApp.filters',
-        'dendroApp.services',
-        'dendroApp.directives',
-        'dendroApp.factories',
         'ngRoute',
         'ngAnimate',
         'ngTagsInput',
@@ -25,7 +20,12 @@ angular.module('dendroApp', [
         'ngJSONPath',
         'TreeWidget',
         'angularUtils.directives.dirPagination',
-        'ngAlerts'
+        'ngAlerts',
+        'dendroApp.controllers',
+        'dendroApp.filters',
+        'dendroApp.services',
+        'dendroApp.directives',
+        'dendroApp.factories',
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
         return $sce.trustAsResourceUrl(val);

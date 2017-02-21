@@ -73,6 +73,26 @@ Upload.create = function(object, callback)
     }
 }
 
+
+Upload.prototype.restart = function(callback)
+{
+    var self = this;
+
+    fs.unlink(self.temp_file, function(err)
+    {
+        if(!err)
+        {
+            self.loaded = 0;
+            callback(null);
+        }
+        else
+        {
+            var msg = "Unable to delete file " + self.temp_file + " when restarting the upload " + self.id;
+            callback(err, msg);
+        }
+    });
+}
+
 Upload.prototype.destroy = function(callback)
 {
     var self = this;

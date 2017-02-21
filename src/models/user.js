@@ -178,9 +178,11 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                         {
                             var userToReturn = new User(fetchedUser);
 
-                            userToReturn.loadOntologyRecommendations(function(err, user){
-                                callback(err, user);
-                            });
+                            callback(err, fetchedUser);
+
+                            /*userToReturn.loadOntologyRecommendations(function(err, user){
+
+                            });*/
                         }
                         else
                         {
@@ -232,13 +234,11 @@ User.createAndInsertFromObject = function(object, callback) {
 };
 
 
-User.all = function(callback) {
-    var query =
-            "SELECT ?uri \n" +
-            "FROM [0] \n" +
-            "WHERE {\n" +
-                "?uri rdf:type ddr:User  \n"+
-            "} \n";
+User.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+{
+    var self = this;
+    User.baseConstructor.all.call(self, function(err, users) {
+
 
     db.connection.execute(query,
         [
@@ -284,6 +284,9 @@ User.all = function(callback) {
                 callback(1, results);
             }
         });
+        callback(err, users);
+
+    }, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
 };
 
 User.allInPage = function(page, pageSize, callback) {
@@ -1230,11 +1233,11 @@ User.prototype.isAdmin = function(callback)
     {
         if(_.contains(self.rdf.type, "ddr:Administrator"))
         {
-            callback(null, true);
+            return true;
         }
         else
         {
-            callback(null, false);
+            return false;
         }
     }
 
