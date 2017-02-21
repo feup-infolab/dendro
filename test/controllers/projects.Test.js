@@ -27,22 +27,37 @@ describe('/projects', function () {
 
 describe('/createProject public access', function () {
     var publicProjectHandle = 'testprojectpublichandle';
+    var agent;
     before(function (done) {
         //login here
         var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        //var agent = chai.request.agent(app);
+        agent = chai.request.agent(app);
 
-        GLOBAL.tests.agent = agent;
+        //GLOBAL.tests.agent = agent;
 
         agent
             .post('/login')
             .send({'username': 'demouser1', 'password': 'demouserpassword2015'})
             .end((err, res) => {
-            res.should.have.status(200);
-            //res.text.should.include('Your projects');
-            done();
+                GLOBAL.tests.agent = agent;
+                res.should.have.status(200);
+                //res.text.should.include('Your projects');
+                done();
         });
     });
+
+    /*after(function(done) {
+        //var agent = GLOBAL.tests.agent;
+
+        agent
+            .get('/logout')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.include('Successfully logged out');
+                done();
+             });
+    });*/
 
     it('create a project', function (done) {
         var projectData = {
@@ -56,65 +71,76 @@ describe('/createProject public access', function () {
                 privacy: 'public'
         };
         var app = GLOBAL.tests.app;
-        chai.request(app)
+        //var agent = GLOBAL.tests.agent;
+        //chai.request(app)
+        agent
             .post('/projects/new')
             .send(projectData)
             .end((err, res) => {
                 //TODO check status
                 res.should.have.status(200);
+                res.text.should.include(publicProjectHandle);
                 console.log('project was created');
                 done();
             });
     });
 
     it('Logged in creator View the created public project', function (done) {
+        this.timeout(20000);
+        //var app = GLOBAL.tests.app;
         var app = GLOBAL.tests.app;
-        chai.request(app)
+        //var agent = GLOBAL.tests.agent;
+        //chai.request(app)
+        agent
             .get('/project/' + publicProjectHandle)
             .end((err, res) => {
-            res.should.have.status(200);
-            console.log('trying to view project');
-            done();
-        });
+                res.should.have.status(200);
+                res.text.should.include(publicProjectHandle);
+                console.log('trying to view project');
+                done();
+            });
     });
 
 
     it('Not Logged in, View the created public project', function (done) {
         var app = GLOBAL.tests.app;
 
-        var agent = GLOBAL.tests.agent;
+        //var agent = GLOBAL.tests.agent;
 
         agent
             .get('/logout')
             .end((err, res) => {
-                chai.request(app)
-                    .get('/project/' + publicProjectHandle)
-                    .end((err, res) => {
+                //chai.request(app)
+                agent
+                .get('/project/' + publicProjectHandle)
+                .end((err, res) => {
                         res.should.have.status(200);
+                        res.text.should.include(publicProjectHandle);
                         done();
-                    });
-        });
+                });
+            });
     });
 
 
     it('A user not collaborator is Logged in, View the created public project', function (done) {
         this.timeout(20000);
         var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
 
-        GLOBAL.tests.agent = agent;
+        //var agent = GLOBAL.tests.agent;
 
         agent
             .post('/login')
             .send({'username': 'demouser2', 'password': 'demouserpassword2015'})
             .end((err, res) => {
-            chai.request(app)
+                //chai.request(app)
+                agent
                 .get('/project/' + publicProjectHandle)
                 .end((err, res) => {
-                res.should.have.status(200);
-                done();
+                    res.should.have.status(200);
+                    res.text.should.include(publicProjectHandle);
+                    done();
+                });
             });
-        });
     });
 
 });
@@ -126,19 +152,33 @@ describe('/createProject metadata_only access', function () {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
-        GLOBAL.tests.agent = agent;
+        //GLOBAL.tests.agent = agent;
 
         agent
             .post('/login')
             .send({'username': 'demouser1', 'password': 'demouserpassword2015'})
             .end((err, res) => {
-            res.should.have.status(200);
-        //res.text.should.include('Your projects');
-        done();
-    });
+                res.should.have.status(200);
+                //res.text.should.include('Your projects');
+                GLOBAL.tests.agent = agent;
+                done();
+            });
     });
 
+    /*after(function(done) {
+        var agent = GLOBAL.tests.agent;
+
+        agent
+            .get('/logout')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.include('Successfully logged out');
+                done();
+            });
+    });*/
+
     it('create a project', function (done) {
+        this.timeout(20000);
         var projectData = {
             creator : "http://" + Config.host + "/user/demouser1",
             title : 'This is a test project',
@@ -150,12 +190,14 @@ describe('/createProject metadata_only access', function () {
             privacy: 'metadata_only'
         };
         var app = GLOBAL.tests.app;
-        chai.request(app)
+        var agent = GLOBAL.tests.agent;
+        //chai.request(app)
+        agent
             .post('/projects/new')
             .send(projectData)
             .end((err, res) => {
-            //TODO check status
                 res.should.have.status(200);
+                res.text.should.include(metadataonlyProjectHandle);
                 console.log('project was created');
                 done();
             });
@@ -163,10 +205,13 @@ describe('/createProject metadata_only access', function () {
 
     it('Logged in creator View the created metadata_only project', function (done) {
         var app = GLOBAL.tests.app;
-        chai.request(app)
+        var agent = GLOBAL.tests.agent;
+        //chai.request(app)
+        agent
             .get('/project/' + metadataonlyProjectHandle)
             .end((err, res) => {
                 res.should.have.status(200);
+                res.text.should.include(metadataonlyProjectHandle);
                 console.log('trying to view project');
                 done();
             });
@@ -174,6 +219,7 @@ describe('/createProject metadata_only access', function () {
 
 
     it('Not Logged in, View the created metadataonly project', function (done) {
+        this.timeout(20000);
         var app = GLOBAL.tests.app;
 
         var agent = GLOBAL.tests.agent;
@@ -181,7 +227,8 @@ describe('/createProject metadata_only access', function () {
         agent
             .get('/logout')
             .end((err, res) => {
-                chai.request(app)
+                //chai.request(app)
+                agent
                 .get('/project/' + metadataonlyProjectHandle)
                 .end((err, res) => {
                     res.should.have.status(200);
@@ -194,18 +241,22 @@ describe('/createProject metadata_only access', function () {
     it('A user not collaborator is Logged in, View the created metadata_only project', function (done) {
         this.timeout(20000);
         var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        //var agent = chai.request.agent(app);
+        var agent = GLOBAL.tests.agent;
 
-        GLOBAL.tests.agent = agent;
+        //GLOBAL.tests.agent = agent;
 
         agent
             .post('/login')
             .send({'username': 'demouser2', 'password': 'demouserpassword2015'})
             .end((err, res) => {
-                chai.request(app)
+                //chai.request(app)
+                agent
                 .get('/project/' + metadataonlyProjectHandle)
-                .end((err, res) => {
-                    res.should.have.status(200);
+                .end((err, response) => {
+                    response.should.have.status(200);
+                    response.text.should.include(metadataonlyProjectHandle);
+                    console.log('Im HERE AT LOGIN');
                     done();
                 });
             });
@@ -221,13 +272,14 @@ describe('/createProject private access', function () {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
-        GLOBAL.tests.agent = agent;
+        //GLOBAL.tests.agent = agent;
 
         agent
             .post('/login')
             .send({'username': 'demouser1', 'password': 'demouserpassword2015'})
             .end((err, res) => {
                 res.should.have.status(200);
+                GLOBAL.tests.agent = agent;
                 //res.text.should.include('Your projects');
                 done();
             });
@@ -251,6 +303,7 @@ describe('/createProject private access', function () {
     });
 
     it('create a project', function (done) {
+        this.timeout(20000);
         var projectData = {
             creator : "http://" + Config.host + "/user/demouser1",
             title : 'This is a test project',
@@ -262,12 +315,14 @@ describe('/createProject private access', function () {
             privacy: 'private'
         };
         var app = GLOBAL.tests.app;
-        chai.request(app)
+        var agent = GLOBAL.tests.agent;
+        //chai.request(app)
+        agent
             .post('/projects/new')
             .send(projectData)
             .end((err, res) => {
-            //TODO check status
-            res.should.have.status(200);
+                res.should.have.status(200);
+                res.text.should.include(privateProjectHandle);
                 console.log('project was created');
                 done();
             });
@@ -275,10 +330,13 @@ describe('/createProject private access', function () {
 
     it('Logged in creator View the created private project', function (done) {
         var app = GLOBAL.tests.app;
-        chai.request(app)
+        var agent = GLOBAL.tests.agent;
+        //chai.request(app)
+        agent
             .get('/project/' + privateProjectHandle)
             .end((err, res) => {
-            res.should.have.status(200);
+                res.should.have.status(200);
+                res.text.should.include(privateProjectHandle);
                 console.log('trying to view project');
                 done();
             });
@@ -286,19 +344,31 @@ describe('/createProject private access', function () {
 
 
     it('Not Logged in, View the created private project', function (done) {
+        this.timeout(20000);
         var app = GLOBAL.tests.app;
 
-        var agent = GLOBAL.tests.agent;
+        //var agent = GLOBAL.tests.agent;
 
+        /*
         agent
             .get('/logout')
             .end((err, res) => {
-                chai.request(app)
-                .get('/project/' + privateProjectHandle)
-                .end((err, res) => {
-                res.should.have.status(200);
+            agent
+            .get('/project/' + privateProjectHandle)
+                .end((err, response) => {
+                    response.should.have.status(200);
+                    response.text.should.include('Error trying to access a project');
                     done();
                 });
+            });
+
+        */
+        chai.request(app)
+            .get('/project/' + privateProjectHandle)
+            .end((err, response) => {
+                response.should.have.status(200);
+                response.text.should.not.include(privateProjectHandle);
+                done();
             });
     });
 
@@ -307,20 +377,24 @@ describe('/createProject private access', function () {
         this.timeout(20000);
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
+        //var agent = GLOBAL.tests.agent;
 
-        GLOBAL.tests.agent = agent;
+        //GLOBAL.tests.agent = agent;
+
 
         agent
             .post('/login')
             .send({'username': 'demouser2', 'password': 'demouserpassword2015'})
             .end((err, res) => {
-                chai.request(app)
+                agent
                 .get('/project/' + privateProjectHandle)
-                .end((err, res) => {
-                    res.should.have.status(200);
+                .end((err, response) => {
+                    response.should.have.status(200);
+                    response.text.should.not.include(privateProjectHandle);
                     done();
                 });
             });
+
     });
 
 });
