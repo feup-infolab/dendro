@@ -2,6 +2,10 @@ process.env.NODE_ENV = 'test';
 
 var chai = require('chai');
 var chaiHttp = require('chai-http');
+var db = function() { return GLOBAL.db.default; }();
+var db_social = function() { return GLOBAL.db.social; }();
+var db_notifications = function () { return GLOBAL.db.notifications;}();
+var async = require('async');
 chai.use(chaiHttp);
 
 var should = chai.should();
@@ -21,22 +25,35 @@ describe('/projects', function () {
 });
 
 
-describe('/createProject public', function () {
+describe('/createProject public access', function () {
+    var publicProjectHandle = 'testprojectpublichandle';
+    before(function (done) {
+        //login here
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        GLOBAL.tests.agent = agent;
+
+        agent
+            .post('/login')
+            .send({'username': 'demouser1', 'password': 'demouserpassword2015'})
+            .end((err, res) => {
+            res.should.have.status(200);
+            //res.text.should.include('Your projects');
+            done();
+        });
+    });
+
     it('create a project', function (done) {
         var projectData = {
-            //http://127.0.0.1:3001/user/demouser1
-            dcterms : {
                 creator : "http://" + Config.host + "/user/demouser1",
                 title : 'This is a test project',
                 description : 'This is a test project description',
                 publisher: 'UP',
                 language: 'En',
-                coverage: 'Porto'
-            },
-            ddr : {
-                handle : 'testinhofixe1234',
-                privacyStatus: 'public'
-            }
+                coverage: 'Porto',
+                handle : publicProjectHandle,
+                privacy: 'public'
         };
         var app = GLOBAL.tests.app;
         chai.request(app)
@@ -44,7 +61,266 @@ describe('/createProject public', function () {
             .send(projectData)
             .end((err, res) => {
                 //TODO check status
-                //console.log(res);
+                res.should.have.status(200);
+                console.log('project was created');
+                done();
             });
     });
+
+    it('Logged in creator View the created public project', function (done) {
+        var app = GLOBAL.tests.app;
+        chai.request(app)
+            .get('/project/' + publicProjectHandle)
+            .end((err, res) => {
+            res.should.have.status(200);
+            console.log('trying to view project');
+            done();
+        });
+    });
+
+
+    it('Not Logged in, View the created public project', function (done) {
+        var app = GLOBAL.tests.app;
+
+        var agent = GLOBAL.tests.agent;
+
+        agent
+            .get('/logout')
+            .end((err, res) => {
+                chai.request(app)
+                    .get('/project/' + publicProjectHandle)
+                    .end((err, res) => {
+                        res.should.have.status(200);
+                        done();
+                    });
+        });
+    });
+
+
+    it('A user not collaborator is Logged in, View the created public project', function (done) {
+        this.timeout(20000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        GLOBAL.tests.agent = agent;
+
+        agent
+            .post('/login')
+            .send({'username': 'demouser2', 'password': 'demouserpassword2015'})
+            .end((err, res) => {
+            chai.request(app)
+                .get('/project/' + publicProjectHandle)
+                .end((err, res) => {
+                res.should.have.status(200);
+                done();
+            });
+        });
+    });
+
+});
+
+describe('/createProject metadata_only access', function () {
+    var metadataonlyProjectHandle = 'metadataonlyprojectchandle';
+    before(function (done) {
+        //login here
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        GLOBAL.tests.agent = agent;
+
+        agent
+            .post('/login')
+            .send({'username': 'demouser1', 'password': 'demouserpassword2015'})
+            .end((err, res) => {
+            res.should.have.status(200);
+        //res.text.should.include('Your projects');
+        done();
+    });
+    });
+
+    it('create a project', function (done) {
+        var projectData = {
+            creator : "http://" + Config.host + "/user/demouser1",
+            title : 'This is a test project',
+            description : 'This is a test project description',
+            publisher: 'UP',
+            language: 'En',
+            coverage: 'Porto',
+            handle : metadataonlyProjectHandle,
+            privacy: 'metadata_only'
+        };
+        var app = GLOBAL.tests.app;
+        chai.request(app)
+            .post('/projects/new')
+            .send(projectData)
+            .end((err, res) => {
+            //TODO check status
+                res.should.have.status(200);
+                console.log('project was created');
+                done();
+            });
+    });
+
+    it('Logged in creator View the created metadata_only project', function (done) {
+        var app = GLOBAL.tests.app;
+        chai.request(app)
+            .get('/project/' + metadataonlyProjectHandle)
+            .end((err, res) => {
+                res.should.have.status(200);
+                console.log('trying to view project');
+                done();
+            });
+    });
+
+
+    it('Not Logged in, View the created metadataonly project', function (done) {
+        var app = GLOBAL.tests.app;
+
+        var agent = GLOBAL.tests.agent;
+
+        agent
+            .get('/logout')
+            .end((err, res) => {
+                chai.request(app)
+                .get('/project/' + metadataonlyProjectHandle)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    done();
+                });
+            });
+    });
+
+
+    it('A user not collaborator is Logged in, View the created metadata_only project', function (done) {
+        this.timeout(20000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        GLOBAL.tests.agent = agent;
+
+        agent
+            .post('/login')
+            .send({'username': 'demouser2', 'password': 'demouserpassword2015'})
+            .end((err, res) => {
+                chai.request(app)
+                .get('/project/' + metadataonlyProjectHandle)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    done();
+                });
+            });
+    });
+
+});
+
+
+describe('/createProject private access', function () {
+    var privateProjectHandle = 'privateprojectchandle';
+    before(function (done) {
+        //login here
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        GLOBAL.tests.agent = agent;
+
+        agent
+            .post('/login')
+            .send({'username': 'demouser1', 'password': 'demouserpassword2015'})
+            .end((err, res) => {
+                res.should.have.status(200);
+                //res.text.should.include('Your projects');
+                done();
+            });
+    });
+
+    after(function(done) {
+        async.series([
+            function (callback) {
+                db.connection.deleteGraph(db.graphUri, callback);
+            },
+            function (callback) {
+                db.connection.deleteGraph(db_social.graphUri, callback);
+            },
+            function (callback) {
+                db.connection.deleteGraph(db_notifications.graphUri, callback);
+            }
+        ], function (err, results) {
+            console.log('deleted info from all graphs');
+            done();
+        });
+    });
+
+    it('create a project', function (done) {
+        var projectData = {
+            creator : "http://" + Config.host + "/user/demouser1",
+            title : 'This is a test project',
+            description : 'This is a test project description',
+            publisher: 'UP',
+            language: 'En',
+            coverage: 'Porto',
+            handle : privateProjectHandle,
+            privacy: 'private'
+        };
+        var app = GLOBAL.tests.app;
+        chai.request(app)
+            .post('/projects/new')
+            .send(projectData)
+            .end((err, res) => {
+            //TODO check status
+            res.should.have.status(200);
+                console.log('project was created');
+                done();
+            });
+    });
+
+    it('Logged in creator View the created private project', function (done) {
+        var app = GLOBAL.tests.app;
+        chai.request(app)
+            .get('/project/' + privateProjectHandle)
+            .end((err, res) => {
+            res.should.have.status(200);
+                console.log('trying to view project');
+                done();
+            });
+    });
+
+
+    it('Not Logged in, View the created private project', function (done) {
+        var app = GLOBAL.tests.app;
+
+        var agent = GLOBAL.tests.agent;
+
+        agent
+            .get('/logout')
+            .end((err, res) => {
+                chai.request(app)
+                .get('/project/' + privateProjectHandle)
+                .end((err, res) => {
+                res.should.have.status(200);
+                    done();
+                });
+            });
+    });
+
+
+    it('A user not collaborator is Logged in, View the created private project', function (done) {
+        this.timeout(20000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        GLOBAL.tests.agent = agent;
+
+        agent
+            .post('/login')
+            .send({'username': 'demouser2', 'password': 'demouserpassword2015'})
+            .end((err, res) => {
+                chai.request(app)
+                .get('/project/' + privateProjectHandle)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    done();
+                });
+            });
+    });
+
 });

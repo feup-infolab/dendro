@@ -1087,7 +1087,6 @@ async.waterfall([
         app.post('/projects/import', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.import);
 
         app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.requestAccess);
-        app.get('/project/:handle/view', projects.show);
         app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.requestAccess);
         app.post('/project/:handle/delete', async.apply(Permissions.require, [Permissions.roles.system.admin]), projects.delete);
         app.post('/project/:handle/undelete', async.apply(Permissions.require, [Permissions.roles.system.admin]), projects.undelete);
