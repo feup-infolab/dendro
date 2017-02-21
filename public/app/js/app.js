@@ -21,6 +21,7 @@ angular.module('dendroApp', [
         'TreeWidget',
         'angularUtils.directives.dirPagination',
         'ngAlerts',
+        'angular-google-analytics',
         'dendroApp.controllers',
         'dendroApp.filters',
         'dendroApp.services',
@@ -36,4 +37,44 @@ angular.module('dendroApp', [
 
         // The queue timeout for new alerts.
         ngAlertsProvider.options.queue = null;
-}]);;
+}]).config(['$http', '$localStorage', 'AnalyticsProvider', function ($http, $localStorage, AnalyticsProvider) {
+
+        function setAnalyticsProviderProperties(token)
+        {
+            AnalyticsProvider.setAccount(token);  //UU-XXXXXXX-X should be your tracking code
+            // Track all routes (default is true).
+            AnalyticsProvider.trackPages(true);
+
+            // Track all URL query params (default is false).
+            AnalyticsProvider.trackUrlParams(true);
+
+            // Ignore first page view (default is false).
+            // Helpful when using hashes and whenever your bounce rate looks obscenely low.
+            AnalyticsProvider.ignoreFirstPageLoad(false);
+        }
+
+        if($localStorage.get('ganalytics_tracking_code') != null)
+        {
+            var token = $localStorage.get('ganalytics_tracking_code');
+            AnalyticsProvider.setAccount(token);
+            setAnalyticsProviderProperties(token);
+        }
+        else
+        {
+            $http({
+                method: 'GET',
+                url: "/analytics_tracking_code",
+                responseType: 'json'
+            }).then(function(response){
+                    if(response.data != null && response.data.length > 0)
+                    {
+                        var token = response.data;
+                        $localStorage.set('ganalytics_tracking_code', token);
+                        setAnalyticsProviderProperties(token);
+                    }
+                })
+                .catch(function(err){
+                    console.log("Unable to get google analytics tracking code");
+                });
+        }
+}]).run(['Analytics', function(Analytics) { }]);

@@ -1022,6 +1022,8 @@ async.waterfall([
 
         app.get('/', index.index);
 
+        app.get('/analytics_tracking_code', index.index);
+
         //nodes
         app.get('/vertexes', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.all);
         app.get('/vertexes/random', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.random);
