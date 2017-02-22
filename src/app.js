@@ -1300,7 +1300,7 @@ async.waterfall([
                         /*all: [
                             //uploads
                             {
-                                queries: ['upload'],
+                                queryKeys: ['upload'],
                                 handler: files.upload,
                                 permissions: modificationPermissions
                             }
@@ -1527,7 +1527,7 @@ async.waterfall([
                     all: [
                         //uploads
                         {
-                            queries: ['upload'],
+                            queryKeys: ['upload'],
                             handler: files.upload,
                             permissions: modificationPermissions
                         }

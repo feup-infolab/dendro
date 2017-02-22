@@ -699,8 +699,8 @@ exports.upload = function(req, res)
                     file_md5 != null &&
                     file_md5 != "" &&
 
-                    requestedResource != null &&
-                    requestedResource != ""
+                    req.params.requestedResource != null &&
+                    req.params.requestedResource != ""
                 )
                 {
                     UploadManager.add_upload(
@@ -708,7 +708,7 @@ exports.upload = function(req, res)
                         filename,
                         size,
                         file_md5,
-                        requestedResource,
+                        req.params.requestedResource,
                         function (err, newUpload)
                         {
                             if (!err)
