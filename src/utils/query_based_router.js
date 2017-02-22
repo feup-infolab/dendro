@@ -8,29 +8,98 @@ var QueryBasedRouter = function(){};
 QueryBasedRouter.applyRoutes = function(routes, req, res, next)
 {
     var method = req.originalMethod.toLowerCase();
+    var matchingRoute;
+    var routeThatMatchesTheMostQueries;
 
-    var methodRoutes = routes[method];
-    if(methodRoutes == null) {
-        return res.sendStatus(405);
+
+    function extractFirstElementFromArray(array)
+    {
+        if(array != null && array instanceof Array && array.length == 1)
+        {
+            return array[0];
+        }
+        else if( array instanceof Object)
+        {
+            return array;
+        }
+        else
+            return null;
+
     }
 
-    var queryKeysSent = Object.keys(req.query);
-
-    var matchingRoutes = _.filter(methodRoutes, function(route){
-        var queryKeysThatNeedToBePresent = route.queryKeys;
-        var missingQueryKeys = _.difference(queryKeysThatNeedToBePresent, queryKeysSent);
-        return missingQueryKeys.length == 0;
-    });
-
-    if(queryKeysSent.length == 0)
+    function getMatchingRoute(methodRoutes)
     {
-        var routeThatMatchesTheMostQueries = _.filter(matchingRoutes, function(route){
-            return (route.queryKeys.length === 0);
-        });
+        var queryKeysSent = Object.keys(req.query);
 
-        if(routeThatMatchesTheMostQueries instanceof Array && routeThatMatchesTheMostQueries.length == 1 )
+        if(queryKeysSent.length > 0)
         {
-            routeThatMatchesTheMostQueries = routeThatMatchesTheMostQueries[0];
+
+            var routesThatHaveAtLeastOneQuery = _.filter(methodRoutes, function (route) {
+
+                var queryKeysThatNeedToBePresent = route.queryKeys;
+                var queryKeysPresent = _.intersection(queryKeysThatNeedToBePresent, queryKeysSent);
+
+                if(queryKeysPresent.length == 0) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            });
+
+            if(routesThatHaveAtLeastOneQuery.length > 0)
+            {
+                routeThatMatchesTheMostQueries = _.max(routesThatHaveAtLeastOneQuery, function(route){
+                    var queryKeysThatNeedToBePresent = route.queryKeys;
+                    var queryKeysPresent = _.intersection(queryKeysThatNeedToBePresent, queryKeysSent);
+                    return queryKeysPresent.length == 0;
+                });
+
+                return extractFirstElementFromArray(routeThatMatchesTheMostQueries);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        else
+        {
+            routeThatMatchesTheMostQueries = _.filter(methodRoutes, function(route){
+                return (route.queryKeys.length === 0);
+            });
+
+            return extractFirstElementFromArray(routeThatMatchesTheMostQueries);
+        }
+    }
+
+    function passRequestToRoute (matchingRoute)
+    {
+        Permissions.check(matchingRoute.permissions, req, function(err, req)
+        {
+            if (req.permissions_management.reasons_for_authorizing != null && req.permissions_management.reasons_for_authorizing.length > 0)
+            {
+                matchingRoute.handler(req, res);
+            }
+            else
+            {
+                Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying);
+            }
+        });
+    }
+
+    var methodRoutes;
+    if(routes[method] != null) {
+        matchingRoute = getMatchingRoute(routes[method]);
+
+        //try all
+        if(matchingRoute == null)
+        {
+            matchingRoute = getMatchingRoute(routes['all']);
+        }
+
+        if(matchingRoute != null)
+        {
+            passRequestToRoute(matchingRoute);
         }
         else
         {
@@ -39,29 +108,18 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
     }
     else
     {
-        if(matchingRoutes.length > 0)
+        //try all
+        matchingRoute = getMatchingRoute(routes['all']);
+
+        if(matchingRoute != null)
         {
-            var routeThatMatchesTheMostQueries = _.max(matchingRoutes, function(route){
-                return route.queryKeys.length;
-            });
+            passRequestToRoute(matchingRoute);
         }
         else
         {
             next();
         }
     }
-
-    Permissions.check(routeThatMatchesTheMostQueries.permissions, req, function(err, req){
-        if(req.permissions_management.reasons_for_authorizing != null && req.permissions_management.reasons_for_authorizing.length > 0)
-        {
-            routeThatMatchesTheMostQueries.handler(req, res);
-        }
-        else
-        {
-            Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying);
-        }
-
-    });
 }
 
 module.exports.QueryBasedRouter = QueryBasedRouter;

@@ -1063,10 +1063,10 @@ Resource.prototype.clearDescriptorTypesInMemory = function(descriptorTypesToClea
 {
     var self = this;
 
-    var myDescriptors = self.getDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
+    var myDescriptors = self.getDescriptors([], exceptionedDescriptorTypes);
     self.clearAllDescriptorsInMemory();
 
-    self.updateDescriptorsInMemory(myDescriptors);
+    self.updateDescriptorsInMemory(myDescriptors, descriptorTypesToClear, exceptionedDescriptorTypes);
 }
 
 /**
@@ -1076,13 +1076,13 @@ Resource.prototype.clearDescriptorTypesInMemory = function(descriptorTypesToClea
  * @param callback
  */
 
-Resource.prototype.replaceDescriptorsInMemory = function(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes)
+Resource.prototype.replaceDescriptorsInMemory = function(descriptors, descriptorTypesToReplace, descriptorTypesThatShouldNotBeTouched)
 {
     var self = this;
 
-    self.clearDescriptorTypesInMemory(excludedDescriptorTypes, exceptionedDescriptorTypes);
+    self.clearDescriptorTypesInMemory(descriptorTypesToReplace, descriptorTypesThatShouldNotBeTouched);
 
-    self.updateDescriptorsInMemory(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
+    self.updateDescriptorsInMemory(descriptors, descriptorTypesToReplace, descriptorTypesThatShouldNotBeTouched);
     return self;
 };
 

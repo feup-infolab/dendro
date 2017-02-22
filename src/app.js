@@ -1164,7 +1164,7 @@ async.waterfall([
         ];
 
         //view a project's root
-        app.all(/\/project\/([^\/]+)(\/data)?$/, function(req,res, next)
+        app.all(/\/project\/([^\/]+)(\/data)?\/?$/, function(req,res, next)
             {
                 console.log("Entered Project Root Route. URL : " + req.originalUrl);
                 req.params.handle = req.params[0];                      //project handle
@@ -1193,7 +1193,7 @@ async.waterfall([
                             //list contents
                             {
                                 queryKeys : ['ls'],
-                                handler :files.ls,
+                                handler : files.ls,
                                 permissions : defaultPermissionsInProjectRoot
                             },
                             //descriptor recommendations
@@ -1253,7 +1253,7 @@ async.waterfall([
                             //metadata
                             {
                                 queryKeys: ['metadata'],
-                                handler : records.show,
+                                handler : projects.show,
                                 permissions : defaultPermissionsInProjectRoot
                             },
                             //metadata deep
@@ -1299,7 +1299,7 @@ async.waterfall([
                         /*all: [
                             //uploads
                             {
-                                queries: ['upload'],
+                                queryKeys: ['upload'],
                                 handler: files.upload,
                                 permissions: modificationPermissions
                             }
@@ -1311,7 +1311,7 @@ async.waterfall([
 
         //      files and folders (data)
         //      downloads
-        app.all(/\/project\/([^\/]+)(\/data\/.+)$/,
+        app.all(/\/project\/([^\/]+)(\/data\/.+\/?)$/,
             function(req,res, next)
             {
                 console.log("Entered Project branch Route. URL : " + req.originalUrl);
@@ -1526,7 +1526,7 @@ async.waterfall([
                     all: [
                         //uploads
                         {
-                            queries: ['upload'],
+                            queryKeys: ['upload'],
                             handler: files.upload,
                             permissions: modificationPermissions
                         }

@@ -624,7 +624,6 @@ exports.upload = function(req, res)
     var username = req.query.username;
     var file_md5 = req.query.md5_checksum;
     var filename = req.query.filename;
-    var requestedResource = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";;
     var size = req.query.size;
     var restart = req.query.restart;
 
@@ -700,8 +699,8 @@ exports.upload = function(req, res)
                     file_md5 != null &&
                     file_md5 != "" &&
 
-                    requestedResource != null &&
-                    requestedResource != ""
+                    req.params.requestedResource != null &&
+                    req.params.requestedResource != ""
                 )
                 {
                     UploadManager.add_upload(
@@ -709,7 +708,7 @@ exports.upload = function(req, res)
                         filename,
                         size,
                         file_md5,
-                        requestedResource,
+                        req.params.requestedResource,
                         function (err, newUpload)
                         {
                             if (!err)
@@ -1520,7 +1519,7 @@ exports.undelete = function(req, res){
 
 exports.mkdir = function(req, res){
 
-    var parentFolderURI = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+    var parentFolderURI = req.params.requestedResource;
     var newFolderTitle = req.query.mkdir;
 
     if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
