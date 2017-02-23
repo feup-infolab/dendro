@@ -50,3 +50,9 @@ temp/
 *.pdf
 
 *.csv
+
+
+.nyc_output
+build/config.gypi
+.idea/dendro.iml
+.idea/dendro.iml

@@ -1063,10 +1063,10 @@ Resource.prototype.clearDescriptorTypesInMemory = function(descriptorTypesToClea
 {
     var self = this;
 
-    var myDescriptors = self.getDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
+    var myDescriptors = self.getDescriptors([], exceptionedDescriptorTypes);
     self.clearAllDescriptorsInMemory();
 
-    self.updateDescriptorsInMemory(myDescriptors);
+    self.updateDescriptorsInMemory(myDescriptors, descriptorTypesToClear, exceptionedDescriptorTypes);
 }
 
 /**
@@ -1076,13 +1076,13 @@ Resource.prototype.clearDescriptorTypesInMemory = function(descriptorTypesToClea
  * @param callback
  */
 
-Resource.prototype.replaceDescriptorsInMemory = function(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes)
+Resource.prototype.replaceDescriptorsInMemory = function(descriptors, descriptorTypesToReplace, descriptorTypesThatShouldNotBeTouched)
 {
     var self = this;
 
-    self.clearDescriptorTypesInMemory(excludedDescriptorTypes, exceptionedDescriptorTypes);
+    self.clearDescriptorTypesInMemory(descriptorTypesToReplace, descriptorTypesThatShouldNotBeTouched);
 
-    self.updateDescriptorsInMemory(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
+    self.updateDescriptorsInMemory(descriptors, descriptorTypesToReplace, descriptorTypesThatShouldNotBeTouched);
     return self;
 };
 
@@ -1518,8 +1518,12 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                 }
                 else
                 {
-                    var msg = uri + " does not exist in Dendro.";
-                    console.log(msg);
+                    if(Config.debug.resources.log_missing_resources)
+                    {
+                        var msg = uri + " does not exist in Dendro.";
+                        console.log(msg);
+                    }
+
                     callback(0, null);
                 }
             }
@@ -2221,126 +2225,6 @@ Resource.prototype.findMetadataRecursive = function(callback){
     });
 };
 
-Resource.prototype.findMetadata = function(callback){
-    var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-    var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder")).Folder;
-
-    var self = this;
-    Resource.findByUri(self.uri, function(err, resource){
-        if(!err){
-            if(resource != null)
-            {
-                resource.getPropertiesFromOntologies(
-                    Ontology.getPublicOntologiesUris(),
-                    function(err, descriptors)
-                    {
-                        if(!err)
-                        {
-                            //remove locked descriptors
-                            for(var i = 0 ; i < descriptors.length ; i++)
-                            {
-                                if(descriptors[i].locked)
-                                {
-                                    descriptors.splice(i, 1);
-                                    i--;
-                                }
-                            }
-
-                            Folder.findByUri(resource.uri, function(err, folder) {
-                                var metadataResult = {
-                                    title: resource.nie.title,
-                                    descriptors: descriptors,
-                                    file_extension: resource.ddr.fileExtension,
-                                    hasLogicalParts : []
-                                };
-
-                                if(folder.ddr != null && folder.ddr.metadataQuality != null)
-                                {
-                                    metadataResult.metadata_quality = folder.ddr.metadataQuality;
-                                }
-                                else
-                                {
-                                    metadataResult.metadata_quality = 0;
-                                }
-
-                                if(!err){
-
-                                    folder.getLogicalParts(function (err, children) {
-                                        if (!err) {
-                                            var _ = require('underscore');
-                                            children = _.reject(children, function (child) {
-                                                return child.ddr.deleted;
-                                            });
-
-                                            if (children.length > 0) {
-
-                                                var async = require("async");
-
-                                                // 1st parameter in async.each() is the array of items
-                                                async.each(children,
-                                                    // 2nd parameter is the function that each item is passed into
-                                                    function(child, callback){
-                                                        // Call an asynchronous function
-                                                        metadataResult.hasLogicalParts.push({
-                                                            'title':child.nie.title
-                                                        });
-                                                        callback(null);
-                                                    },
-                                                    // 3rd parameter is the function call when everything is done
-                                                    function(err){
-                                                        if(!err) {
-                                                            // All tasks are done now
-                                                            callback(false, metadataResult);
-                                                        }
-                                                        else{
-                                                            callback(true, null);
-                                                        }
-                                                    }
-                                                );
-                                            }
-                                            else {
-                                                callback(false, metadataResult);
-                                            }
-                                        }
-                                        else {
-                                            console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
-                                            callback(true, null);
-                                        }
-                                    });
-                                }
-                                else {
-                                    console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
-                                    callback(false, metadataResult);
-                                }
-
-                            });
-                        }
-                        else
-                        {
-
-                            console.error("[findMetadataRecursive] error accessing properties from ontologies in " + self.uri)
-
-                            callback(true, [descriptors]);
-                        }
-                    });
-            }
-            else
-            {
-                var msg = self.uri + " does not exist in Dendro.";
-                console.error(msg);
-
-                callback(true, msg);
-            }
-        }
-        else
-        {
-            var msg = "Error fetching " + self.uri + " from the Dendro platform.";
-            console.error(msg);
-
-            callback(true, msg);
-        }
-    });
-}
 Resource.prototype.isOfClass = function(classNameInPrefixedForm, callback)
 {
     var self = this;

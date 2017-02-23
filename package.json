@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "preinstall": "npm i -g gladstone",
-    "test": "node node_modules/.bin/_mocha"
+    "preinstall": "npm i -g gladstone && npm install -g istanbul",
+    "test": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha -t 10000",
+    "posttest" : "nyc report",
+    "watch": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha -t 10000 -w"
   },
   "dependencies": {
     "MD5": "1.1.0",
@@ -91,6 +93,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
-    "mocha": "^3.2.0"
+    "mocha": "^3.2.0",
+    "nyc": "^10.1.2"
   }
 }

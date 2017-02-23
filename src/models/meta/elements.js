@@ -1255,7 +1255,7 @@ Elements.nie = {
         type : DbConnection.string,
         backuppable : true,
         restorable : true,
-        locked : true
+        locked_for_projects : true
     },
     version :
     {

@@ -21,11 +21,21 @@ Config.absPathInApp = function(relativePath)
     return path.join(Config.appDir, relativePath);
 };
 
-var configs_file_path = path.join(Config.appDir, "conf", "deployment_configs.json");
-var active_config_file_path = path.join(Config.appDir, "conf", "active_deployment_config.json");
+var configs_file_path = Config.absPathInApp("conf/deployment_configs.json");
+var active_config_file_path = Config.absPathInApp("conf/active_deployment_config.json");
 
 var configs = JSON.parse(fs.readFileSync(configs_file_path, 'utf8'));
-var active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
+
+var active_config_key;
+if(process.env.NODE_ENV == 'test')
+{
+    active_config_key = "test";
+}
+else
+{
+    active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
+}
+
 var active_config = configs[active_config_key];
 
 var getConfigParameter = function(parameter, defaultValue)
@@ -605,6 +615,8 @@ if(Config.demo_mode.active)
 }
 
 Config.email = getConfigParameter("email");
+
+Config.analytics_tracking_code = getConfigParameter("analytics_tracking_code");
 
 Config.regex_routes = {
     project_root:

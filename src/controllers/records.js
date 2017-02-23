@@ -53,42 +53,38 @@ exports.show_deep = function(req, res) {
 };
 
 exports.show = function(req, res) {
+    var requestedResourceURI = req.params.requestedResource;
 
-    if(req.params.filepath != null)
-    {
-        var requestedResourceURI = req.params.requestedResource;
+    var requestedResource = new InformationElement({
+        uri : requestedResourceURI
+    });
 
-        var requestedResource = new Resource({
-            uri : requestedResourceURI
-        });
+    requestedResource.findMetadata(function(err, result){
+        if(!err){
 
-        requestedResource.findMetadata(function(err, result){
-            if(!err){
-
-                var accept = req.header('Accept');
-                var serializer = null;
-                var contentType = null;
-                if(accept == null || accept in Config.metadataSerializers == false)
-                {
-                    serializer = Config.defaultMetadataSerializer;
-                    contentType = Config.defaultMetadataContentType;
-                }
-                else{
-                    serializer = Config.metadataSerializers[accept];
-                    contentType = Config.metadataContentTypes[accept];
-                }
-
-                res.set('Content-Type', contentType);
-                res.send(serializer(result));
-
+            var accept = req.header('Accept');
+            var serializer = null;
+            var contentType = null;
+            if(accept == null || accept in Config.metadataSerializers == false)
+            {
+                serializer = Config.defaultMetadataSerializer;
+                contentType = Config.defaultMetadataContentType;
             }
             else{
-                res.status(500).json({
-                    error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
-                });
+                serializer = Config.metadataSerializers[accept];
+                contentType = Config.metadataContentTypes[accept];
             }
-        });
-    }
+
+            res.set('Content-Type', contentType);
+            res.send(serializer(result));
+
+        }
+        else{
+            res.status(500).json({
+                error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
+            });
+        }
+    });
 };
 
 exports.show_parent = function(req, res) {
@@ -175,171 +171,146 @@ exports.update = function(req, res) {
 
     var requestedResourceURI = req.params.requestedResource;
 
-    Resource.findByUri(requestedResourceURI, function(err, resource)
+    InformationElement.findByUri(requestedResourceURI, function(err, resource)
     {
         if(!err)
         {
             if(resource != null)
             {
-                /** check if this is a project or not **/
-                Project.getOwnerProjectBasedOnUri(requestedResourceURI, function (err, project)
+                var descriptors = resource.getDescriptors();
+
+                if(req.body instanceof Array)
                 {
-                    if (!err)
+                    for(var i = 0; i < req.body.length; i++)
                     {
-                        var updateResource = function (itsAProject)
+                        var rawDescriptor = req.body[i];
+
+                        var descriptor = new Descriptor({
+                            prefix : rawDescriptor.prefix,
+                            shortName: rawDescriptor.shortName,
+                            value : rawDescriptor.value,
+                            uri : rawDescriptor.uri,
+                            prefixedForm : rawDescriptor.prefixedForm
+                        });
+
+                        if(!(descriptor instanceof Descriptor) && descriptor.error != null)
                         {
-                            var descriptors = [];
+                            res.status(400).json({
+                                result : "Error",
+                                message : descriptor.error
+                            });
 
-                            if(req.body instanceof Array)
+                            return;
+                        }
+                        else
+                        {
+                            //prevent changes on non-public/non-changeable descriptors
+                            if(!descriptor.private && !descriptor.locked)
                             {
-                                for(var i = 0; i < req.body.length; i++)
-                                {
-                                    var rawDescriptor = req.body[i];
+                                descriptors.push(descriptor);
+                            }
+                        }
+                    }
 
-                                    var descriptor = new Descriptor({
-                                        prefix : rawDescriptor.prefix,
-                                        shortName: rawDescriptor.shortName,
-                                        value : rawDescriptor.value,
-                                        uri : rawDescriptor.uri,
-                                        prefixedForm : rawDescriptor.prefixedForm
-                                    });
-
-                                    if(!(descriptor instanceof Descriptor) && descriptor.error != null)
-                                    {
-                                        res.status(400).json({
-                                            result : "Error",
-                                            message : descriptor.error
-                                        });
-
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        //prevent changes on non-public/non-changeable descriptors
-                                        if(!descriptor.private && !descriptor.locked && !(itsAProject && descriptor.locked_for_projects))
-                                        {
-                                            descriptors.push(descriptor);
-                                        }
-                                    }
-                                }
-
-                                Descriptor.mergeDescriptors(descriptors, function(err, fusedDescriptors)
-                                {
-                                    if(!err)
-                                    {
-                                        if(req.session.user != null)
-                                        {
-                                            var changeAuthor = req.session.user.uri;
-                                        }
-                                        else
-                                        {
-                                            var changeAuthor = null;
-                                        }
-
-                                        if(!itsAProject)
-                                        {
-                                            resource.replaceDescriptorsInMemory(
-                                                fusedDescriptors,
-                                                [Config.types.locked]
-                                            );
-                                        }
-                                        else
-                                        {
-                                            resource.replaceDescriptorsInMemory(
-                                                fusedDescriptors,
-                                                [Config.types.locked, Config.types.locked_for_project]
-                                            );
-                                        }
-
-                                        resource.save(function(err, record)
-                                        {
-                                            if(!err)
-                                            {
-                                                record.reindex(req.index, function(err, result)
-                                                {
-                                                    if(!err)
-                                                    {
-                                                        //Refresh metadata evaluation
-                                                        require(Config.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
-                                                        {
-                                                            if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
-                                                            {
-
-                                                                resource.ddr.metadataQuality = evaluation.metadata_evaluation;
-                                                                resource.save(function (err, result)
-                                                                {
-                                                                    if (!err)
-                                                                    {
-                                                                        res.json({
-                                                                            result: "OK",
-                                                                            message: "Updated successfully.",
-                                                                            new_metadata_quality_assessment: evaluation
-                                                                        });
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        res.status(500).json({
-                                                                            result: "Error",
-                                                                            message: "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body)
-                                                                        });
-                                                                    }
-                                                                });
-                                                            }
-                                                            else
-                                                            {
-                                                                res.json({
-                                                                    result: "OK",
-                                                                    message: "Updated successfully.",
-                                                                    new_metadata_quality_assessment: evaluation
-                                                                });
-                                                            }
-                                                        });
-                                                    }
-                                                    else
-                                                    {
-                                                        res.status(500).json({
-                                                            result : "Error",
-                                                            message : "Error updating resource : unable to reindex new values. Error reported : " + result
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                            else
-                                            {
-                                                res.status(500).json({
-                                                    result: "Error saving new record",
-                                                    message : record
-                                                })
-                                            }
-                                        }, true, changeAuthor, [Config.types.locked], null, [Config.types.audit]);
-                                    }
-                                    else
-                                    {
-                                        res.status(500).json({
-                                            result: "Error merging descriptors",
-                                            message : fusedDescriptors
-                                        })
-                                    }
-                                });
+                    Descriptor.mergeDescriptors(descriptors, function(err, fusedDescriptors)
+                    {
+                        if(!err)
+                        {
+                            if(req.session.user != null)
+                            {
+                                var changeAuthor = req.session.user.uri;
                             }
                             else
                             {
-                                var error = "Unable to update metadata for : " + req.params.requestedResource + ". JSON metadata must be sent in the body of the POST request and the Content-Type header should be set to 'application/json'";
-                                console.error(error);
-                                res.status(400).json({
-                                    result : "Error",
-                                    message : error
-                                });
+                                var changeAuthor = null;
                             }
-                        };
 
-                        var itsAProject = (project != null);
-                        if (project != null)
-                        {
-                            updateResource(itsAProject);
+                            resource.replaceDescriptorsInMemory(
+                                fusedDescriptors,
+                                [],
+                                [Config.types.locked]
+                            );
+
+                            resource.save(function(err, record)
+                            {
+                                if(!err)
+                                {
+                                    record.reindex(req.index, function(err, result)
+                                    {
+                                        if(!err)
+                                        {
+                                            //Refresh metadata evaluation
+                                            require(Config.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
+                                            {
+                                                if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
+                                                {
+
+                                                    resource.ddr.metadataQuality = evaluation.metadata_evaluation;
+                                                    resource.save(function (err, result)
+                                                    {
+                                                        if (!err)
+                                                        {
+                                                            res.json({
+                                                                result: "OK",
+                                                                message: "Updated successfully.",
+                                                                new_metadata_quality_assessment: evaluation
+                                                            });
+                                                        }
+                                                        else
+                                                        {
+                                                            res.status(500).json({
+                                                                result: "Error",
+                                                                message: "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body)
+                                                            });
+                                                        }
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    res.json({
+                                                        result: "OK",
+                                                        message: "Updated successfully.",
+                                                        new_metadata_quality_assessment: evaluation
+                                                    });
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            res.status(500).json({
+                                                result : "Error",
+                                                message : "Error updating resource : unable to reindex new values. Error reported : " + result
+                                            });
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json({
+                                        result: "Error saving new record",
+                                        message : record
+                                    })
+                                }
+                            }, true, changeAuthor, [Config.types.locked], null, [Config.types.audit]);
                         }
-                    }
-                });
+                        else
+                        {
+                            res.status(500).json({
+                                result: "Error merging descriptors",
+                                message : fusedDescriptors
+                            })
+                        }
+                    });
+                }
+                else
+                {
+                    var error = "Unable to update metadata for : " + req.params.requestedResource + ". JSON metadata must be sent in the body of the POST request and the Content-Type header should be set to 'application/json'";
+                    console.error(error);
+                    res.status(400).json({
+                        result : "Error",
+                        message : error
+                    });
+                }
             }
             else
             {
