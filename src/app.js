@@ -1022,7 +1022,7 @@ async.waterfall([
 
         app.get('/', index.index);
 
-        app.get('/analytics_tracking_code', index.index);
+        app.get('/analytics_tracking_code', index.analytics_tracking_code);
 
         //nodes
         app.get('/vertexes', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.all);

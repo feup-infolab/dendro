@@ -37,44 +37,42 @@ angular.module('dendroApp', [
 
         // The queue timeout for new alerts.
         ngAlertsProvider.options.queue = null;
-}]).config(['$http', '$localStorage', 'AnalyticsProvider', function ($http, $localStorage, AnalyticsProvider) {
+}]).config(['AnalyticsProvider', function (AnalyticsProvider) {
 
-        function setAnalyticsProviderProperties(token)
+    var httpInjector = angular.injector(['ng']);
+    //var localStorageInjector = angular.injector(['ng']);
+
+    var $http = httpInjector.get('$http');
+    //var $localStorage = localStorageInjector.get('$localStorage');
+
+    function setAnalyticsProviderProperties(token)
+    {
+        AnalyticsProvider.setAccount(token);  //UU-XXXXXXX-X should be your tracking code
+        // Track all routes (default is true).
+        AnalyticsProvider.trackPages(true);
+
+        // Track all URL query params (default is false).
+        AnalyticsProvider.trackUrlParams(true);
+
+        // Ignore first page view (default is false).
+        // Helpful when using hashes and whenever your bounce rate looks obscenely low.
+        AnalyticsProvider.ignoreFirstPageLoad(false);
+    }
+
+    $http({
+        method: 'GET',
+        url: "/analytics_tracking_code",
+        responseType: 'json',
+        headers: {'Accept': "application/json"}
+    }).then(function(response){
+        if(response.data != null && response.data.length > 0)
         {
-            AnalyticsProvider.setAccount(token);  //UU-XXXXXXX-X should be your tracking code
-            // Track all routes (default is true).
-            AnalyticsProvider.trackPages(true);
-
-            // Track all URL query params (default is false).
-            AnalyticsProvider.trackUrlParams(true);
-
-            // Ignore first page view (default is false).
-            // Helpful when using hashes and whenever your bounce rate looks obscenely low.
-            AnalyticsProvider.ignoreFirstPageLoad(false);
-        }
-
-        if($localStorage.get('ganalytics_tracking_code') != null)
-        {
-            var token = $localStorage.get('ganalytics_tracking_code');
-            AnalyticsProvider.setAccount(token);
+            var token = response.data;
             setAnalyticsProviderProperties(token);
         }
-        else
-        {
-            $http({
-                method: 'GET',
-                url: "/analytics_tracking_code",
-                responseType: 'json'
-            }).then(function(response){
-                    if(response.data != null && response.data.length > 0)
-                    {
-                        var token = response.data;
-                        $localStorage.set('ganalytics_tracking_code', token);
-                        setAnalyticsProviderProperties(token);
-                    }
-                })
-                .catch(function(err){
-                    console.log("Unable to get google analytics tracking code");
-                });
-        }
+    })
+    .catch(function(err){
+        //console.log("Unable to set google analytics tracking code");
+    });
+
 }]).run(['Analytics', function(Analytics) { }]);
