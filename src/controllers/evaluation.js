@@ -13,6 +13,10 @@ else if(Config.recommendation.modes.standalone.active)
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
 }
+else if(Config.recommendation.modes.fixed_descriptors.active)
+{
+    recommendation = require(Config.absPathInSrcFolder("/controllers/fixed_descriptors_recommendation.js")).shared;
+}
 else if(Config.recommendation.modes.none.active)
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;

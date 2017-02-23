@@ -937,6 +937,10 @@ async.waterfall([
         {
             var recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
         }
+        else if(Config.recommendation.modes.fixed_descriptors.active)
+        {
+            recommendation = require(Config.absPathInSrcFolder("/controllers/fixed_descriptors"));
+        }
         else if(Config.recommendation.modes.none.active)
         {
             recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation"));

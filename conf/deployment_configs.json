@@ -188,9 +188,9 @@
       "modes" : {
         "dendro_recommender" :
         {
-          "active" : true,
+          "active" : false,
           "host" : "127.0.0.1",
-          "port" : "9000",
+          "port" : "9000dendro-install",
           "log_modes" : {
             "phase_1" :
             {
@@ -206,6 +206,9 @@
         },
         "standalone" : {
           "active" : false
+        },
+        "fixed_descriptors" : {
+          "active" : true
         },
         "none" : {
           "active" : false
@@ -485,6 +488,9 @@
             }
           }
         },
+        "fixed_descriptors" : {
+          "active" : true
+        },
         "standalone" : {
           "active" : false
         },
@@ -748,7 +754,7 @@
     "recommendation": {
       "modes": {
         "dendro_recommender": {
-          "active": true,
+          "active": false,
           "host": "127.0.0.1",
           "port": "9000",
           "log_modes": {
@@ -761,6 +767,9 @@
               "active": true
             }
           }
+        },
+        "fixed_descriptors" : {
+          "active" : true
         },
         "standalone": {
           "active": false
