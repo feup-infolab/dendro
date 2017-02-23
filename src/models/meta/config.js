@@ -616,6 +616,8 @@ if(Config.demo_mode.active)
 
 Config.email = getConfigParameter("email");
 
+Config.analytics_tracking_code = getConfigParameter("analytics_tracking_code");
+
 Config.regex_routes = {
     project_root:
     {

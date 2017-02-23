@@ -278,7 +278,8 @@
       {
 
       }
-    }
+    },
+    "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE"
   },
   "prd" : {
     "port" : 3001,
@@ -558,6 +559,9 @@
       {
 
       }
+
+    },
+    "analytics_tracking_code" : "GOOGLE_ANALYTICS_PRODUCTION_ANALYTICS_TRACKING_CODE"
     }
   },
   "test" : {
@@ -845,7 +849,8 @@
       "ckan" :
       {
 
-      }
+      },
+      "analytics_tracking_code" : "GOOGLE_ANALYTICS_TEST_ANALYTICS_TRACKING_CODE"
     }
   }
 }
