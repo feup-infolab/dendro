@@ -205,7 +205,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
 
     var getRecommendationsFromDR = function(resourceUri, callback)
     {
-        var requestedResource = new Resource({
+        var requestedResource = new InformationElement({
             uri : resourceUri
         });
 

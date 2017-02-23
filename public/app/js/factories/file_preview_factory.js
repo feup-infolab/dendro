@@ -34,8 +34,8 @@ angular.module('dendroApp.factories')
                 var fileUri = file.uri + '?data';
 
                 $http.get(fileUri).
-                    success(function(data, e) {
-
+                    then(function(response) {
+                        var data = response.data;
                         var dataset = new recline.Model.Dataset({
                             records:data
                         });
@@ -99,10 +99,10 @@ angular.module('dendroApp.factories')
                         });
 
                     })
-                    .error(function(data) {
-                        if(data.message != null)
+                    .catch(function(error) {
+                        if(error.message != null)
                         {
-                            $scope.show_popup("error", "Error", data.message);
+                            $scope.show_popup("error", "Error", error.message);
                         }
                     });
             },
@@ -111,7 +111,8 @@ angular.module('dendroApp.factories')
                 var fileUri = file.uri + '?serve';
 
                 $http.get(fileUri).
-                    success(function(data, e) {
+                    then(function(response) {
+                        var data = response.data;
                         angular.element("#data-viewer").append('<div id="text-file-content"></div>');
                         var pre = angular.element('<pre class="prettyprint"></pre>');
                         if(data.constructor == Object)
@@ -122,10 +123,10 @@ angular.module('dendroApp.factories')
                         prettyPrint();
 
                     })
-                    .error(function(data) {
-                        if(data.message != null)
+                    .catch(function(error) {
+                        if(error.message != null)
                         {
-                            $scope.show_popup("error", "Error", data.message);
+                            $scope.show_popup("error", "Error", error.message);
                         }
                     });
             },
@@ -134,25 +135,25 @@ angular.module('dendroApp.factories')
                 var fileUri = file.uri + '?serve';
 
                 $http.get(fileUri).
-                    success(function(data, e) {
+                    then(function(response) {
+                        var data = response.data;
                         angular.element("#data-viewer").append('<img id="image-file-preview" src="'+fileUri+'" />');
                     })
-                    .error(function(data) {
-                        if(data.message != null)
+                    .catch(function(error) {
+                        if(error.message != null)
                         {
-                            $scope.show_popup("error", "Error", data.message);
+                            $scope.show_popup("error", "Error", error.message);
                         }
                     });
             },
             load_pdf: function($scope, file) {
                 angular.element("#data-viewer").html('');
                 var fileUri = file.uri + '?serve_base64';
-                var downloadFileUri = file.uri + '?download';
+                var downloadFileUri = file.uri + '/download';
 
                 $http.get(fileUri).
-                    success(function(data, e) {
-
-                        var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+                    then(function(response) {
+                        var data = response.data;var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 
                         if(is_chrome)
                         {
@@ -172,10 +173,10 @@ angular.module('dendroApp.factories')
                             angular.element("#data-viewer").append('<iframe id="pdf-file-preview" src="data:application/pdf;base64,'+data+'" ></iframe>');
                         }
                     })
-                    .error(function(data) {
-                        if(data.message != null)
+                    .catch(function(error) {
+                        if(error.message != null)
                         {
-                            $scope.show_popup("error", "Error", data.message);
+                            $scope.show_popup("error", "Error", error.message);
                         }
                     });
             },
@@ -194,7 +195,8 @@ angular.module('dendroApp.factories')
                 var fileUri = file.uri + '?serve_base64';
 
                 $http.get(fileUri).
-                    success(function(data, e) {
+                    then(function(response) {
+                        var data = response.data;
                         angular.element("#data-viewer").append('<audio preload="auto" controls="controls" id="audio-file-preview"></audio>');
 
                         var src = angular.element('<source src="data:'+types[file.ddr.fileExtension]+';base64,'+data+'">');
@@ -202,10 +204,10 @@ angular.module('dendroApp.factories')
                         angular.element("#audio-file-preview").append(src);
                         angular.element("#audio-file-preview").append("Your browser does not support the audio tag.");
                     })
-                    .error(function(data) {
-                        if(data.message != null)
+                    .catch(function(error) {
+                        if(error.message != null)
                         {
-                            $scope.show_popup("error", "Error", data.message);
+                            $scope.show_popup("error", "Error", error.message);
                         }
                     });
             },
@@ -226,7 +228,8 @@ angular.module('dendroApp.factories')
                 var fileUri = file.uri + '?serve_base64';
 
                 $http.get(fileUri).
-                    success(function(data, e) {
+                    then(function(response) {
+                        var data = response.data;
                         angular.element("#data-viewer").append('<video preload="auto" controls="controls"  id="video-file-preview"></video>');
 
                         var src = angular.element('<source src="data:'+types[file.ddr.fileExtension]+';base64,'+data+'">');
@@ -234,10 +237,10 @@ angular.module('dendroApp.factories')
                         angular.element("#video-file-preview").append(src);
                         angular.element("#video-file-preview").append("Your browser does not support the video tag.");
                     })
-                    .error(function(data) {
-                        if(data.message != null)
+                    .catch(function(error) {
+                        if(error.message != null)
                         {
-                            $scope.show_popup("error", "Error", data.message);
+                            $scope.show_popup("error", "Error", error.message);
                         }
                     });
             },

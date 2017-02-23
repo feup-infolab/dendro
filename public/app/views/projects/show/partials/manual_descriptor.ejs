@@ -36,7 +36,7 @@
                             </li>
                             <li ng-show="!manual_descriptor.recommendation_types['user_hidden']">
                                 <a data-ng-click="hide_descriptor_from_quick_list_for_user(manual_descriptor, $index)"  href="#">
-                                    Hide descriptor for me (<%=locals.session.user.ddr.username%>)
+                                    Hide descriptor for me
                                 </a>
                             </li>
                             <li ng-show="manual_descriptor.recommendation_types['project_hidden']">
@@ -46,12 +46,12 @@
                             </li>
                             <li ng-show="manual_descriptor.recommendation_types['user_hidden']">
                                 <a data-ng-click="unhide_descriptor_from_quick_list_for_user(manual_descriptor, $index)"  href="#">
-                                    Undo hide descriptor for me (<%=locals.session.user.ddr.username%>)
+                                    Undo hide descriptor for me
                                 </a>
                             </li>
                             <li ng-show="!manual_descriptor.recommendation_types['user_favorite']">
                                 <a data-ng-click="favorite_descriptor_from_quick_list_for_user(manual_descriptor, $index)"  href="#">
-                                    Add to my favorites (<%=locals.session.user.ddr.username%>)
+                                    Add to my favorites
                                 </a>
                             </li>
                             <li ng-show="!manual_descriptor.recommendation_types['project_favorite']">

@@ -1,7 +1,7 @@
 <%- include ../layout/header.ejs %>
 
 <h1 class="page-header">
-    Viewing user <%= user.foaf.firstName %> <%= user.foaf.surname %>
+    Viewing user <%= locals.user.foaf.firstName %> <%= locals.user.foaf.surname %>
 </h1>
 
 <br/>
@@ -12,7 +12,7 @@
             <b>Username</b>
         </td>
         <td>
-            <%= user.ddr.username%>
+            <%= locals.user.ddr.username%>
         </td>
     </tr>
     <tr>
@@ -20,7 +20,7 @@
             <b>Name</b>
         </td>
         <td>
-            <%= user.foaf.firstName %> <%= user.foaf.surname %>
+            <%= locals.user.foaf.firstName %> <%= locals.user.foaf.surname %>
         </td>
     </tr>
     <tr>
@@ -28,7 +28,7 @@
             <b>Email address</b>
         </td>
         <td>
-            <a href="mailto:<%= user.foaf.mbox %>"><%= user.foaf.mbox %></a>
+            <a href="mailto:<%= locals.user.foaf.mbox %>"><%= locals.user.foaf.mbox %></a>
         </td>
     </tr>
     <tr>
@@ -36,7 +36,7 @@
             <b>URI</b>
         </td>
         <td>
-            <a href="<%= user.uri %>"><%= user.uri %></a>
+            <a href="<%= locals.user.uri %>"><%= locals.user.uri %></a>
         </td>
     </tr>
 </table>

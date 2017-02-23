@@ -471,6 +471,45 @@ File.unzip = function(pathOfFolder, callback) {
     );
 };
 
+File.prototype.connectToMongo = function (callback) {
+    var MongoClient = require('mongodb').MongoClient;
+    var url = 'mongodb://'+Config.mongoDBHost+':'+Config.mongoDbPort+'/'+Config.mongoDbCollectionName;
+    MongoClient.connect(url, function(err, db) {
+        if(!err)
+        {
+            console.log("Connected successfully to MongoDB");
+            callback(null, db);
+        }
+        else
+        {
+            var msg = 'Error connecting to MongoDB';
+            callback(true, msg);
+        }
+    });
+};
+
+File.prototype.findFileInMongo = function (db, callback) {
+    var collection = db.collection('fs.files');
+    collection.find({filename: this.uri}).toArray(function(err, files) {
+
+        if(Config.debug.files.log_file_version_fetches)
+        {
+            console.log("Found the following Files");
+            console.log(files);
+        }
+
+        if(!err)
+        {
+            callback(null, files);
+        }
+        else
+        {
+            var msg = 'Error findind document with uri: ' + this.uri + ' in Mongo';
+            callback(true, msg);
+        }
+    });
+};
+
 File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     var self = this;
@@ -516,7 +555,7 @@ File.prototype.generateThumbnails = function(callback)
 {
     var self = this;
 
-    var generateThumbnail = function(localFile, ownerProject, sizeTag, callback)
+    var generateThumbnail = function(localFile, ownerProject, sizeTag, cb)
     {
         var easyimg = require('easyimage');
         var fileName = path.basename(localFile, path.extname(localFile));
@@ -547,11 +586,11 @@ File.prototype.generateThumbnails = function(callback)
                             {
                                 var msg = "Error saving thumbnail file in GridFS :" + result + " when generating " + sizeTag + " size thumbnail for file " + self.uri;
                                 console.error(msg);
-                                callback(err, msg);
+                                cb(err, msg);
                             }
                             else
                             {
-                                callback(null, null);
+                                cb(null, null);
                             }
                         },
                         {
@@ -579,13 +618,13 @@ File.prototype.generateThumbnails = function(callback)
                 self.writeToTempFile(function(err, tempFileAbsPath){
                     if(!err)
                     {
-                        async.map(Config.thumbnails.sizes, function(thumbnailSize){
+                        async.map(Config.thumbnails.sizes, function(thumbnailSize, callback){
                                 generateThumbnail(tempFileAbsPath, project.uri, thumbnailSize, callback);
                             },
                             function(err, results){
                                 if(!err)
                                 {
-                                    callback(null, null)
+                                    callback(null, null);
                                 }
                                 else
                                 {
@@ -606,9 +645,9 @@ File.prototype.generateThumbnails = function(callback)
         }
         else
         {
-            callback(null, "Unable to retrieve file " + self.uri + " for from GridFS for thumbnail generation.");
+            callback(null, "Unable to retrieve owner project of " + self.uri + " for thumbnail generation.");
         }
-    })
+    });
 };
 
 File.createBlankTempFile = function(fileName, callback)

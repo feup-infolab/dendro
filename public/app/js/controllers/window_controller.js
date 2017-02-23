@@ -23,9 +23,21 @@ angular.module('dendroApp.controllers')
         return newURL;
     };
 
+    $scope.get_host = function()
+    {
+        var newURL = window.location.protocol + "//" + window.location.host;
+        return newURL;
+    }
+
     $scope.get_thumbnail_uri = function(uri)
     {
         return uri+'?thumbnail&size=icon';
+    };
+
+    $scope.get_filename_icon = function(filename)
+    {
+        var extension = filename.split('.').pop();
+        return $scope.get_extension_icon(extension);
     };
 
     $scope.get_extension_icon = function(extension)
@@ -124,5 +136,18 @@ angular.module('dendroApp.controllers')
         }
 
     };
+
+    $scope.valid_word = function(word) {
+        if(word == null || word.length == 0)
+        {
+            return false;
+        }
+        else
+        {
+            var regexp = /^[0-9a-z]+$/;
+            return regexp.test(word);
+        }
+
+    }
 
 });

@@ -85,6 +85,18 @@ var validateNewBookmarkRequest = function(req, res)
             return false;
         }
     }
+    else if( req.body.ddr.hasPlatform.foaf.nick == 'ckan' )
+    {
+        if(req.body.ddr.hasAPIKey == null)
+        {
+            res.status(400).json({
+                result : "error",
+                message : "No API Key specified"
+            });
+
+            return false;
+        }
+    }
     else if(req.body.ddr.hasPlatform.foaf.nick == 'figshare' )
     {
         if(req.body.ddr.hasConsumerKey == null)
@@ -200,7 +212,8 @@ exports.new = function(req, res) {
                         hasConsumerSecret: req.body.ddr.hasConsumerSecret,
                         hasAccessToken: req.body.ddr.hasAccessToken,
                         hasAccessTokenSecret: req.body.ddr.hasAccessTokenSecret,
-                        hasOrganization: req.body.ddr.hasOrganization
+                        hasOrganization: req.body.ddr.hasOrganization,
+                        hasAPIKey: req.body.ddr.hasAPIKey
                     }
                 }, req.session.user.ddr.username);
 

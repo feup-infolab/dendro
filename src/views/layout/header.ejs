@@ -14,6 +14,16 @@
                 <%= settings.title %>
             <% } %>
         </title>
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/logos/apple-touch-icon.png">
+        <link rel="icon" type="image/png" href="/images/logos/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="/images/logos/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="/images/logos/manifest.json">
+        <link rel="mask-icon" href="/images/logos/safari-pinned-tab.svg" color="#5bbad5">
+        <link rel="shortcut icon" href="/images/logos/favicon.ico">
+        <meta name="msapplication-config" content="/images/logos/browserconfig.xml">
+        <meta name="theme-color" content="#ffffff">
+
     </head>
     <body>
     <div id="wrap" ng-controller="windowCtrl">
@@ -31,7 +41,7 @@
                 </div>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
                         <% if(locals.session != null && locals.session.user != null)
                         {
@@ -90,39 +100,59 @@
                         <% if(locals.session != null && locals.session.user != null)
                         {
                         %>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=locals.session.user.foaf.firstName%> <%=locals.session.user.foaf.surname%><b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="/me">Profile</a>
-                                </li>
-                                <% if(locals.session.isAdmin)
-                                {
-                                %>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=locals.session.user.foaf.firstName%> <%=locals.session.user.foaf.surname%><b class="caret"></b></a>
+                                <ul class="dropdown-menu">
                                     <li>
-                                        <a href="/admin">Admin Panel</a>
+                                        <a href="/me">Profile</a>
                                     </li>
-                                <%
-                                }
-                                %>
-                                <li>
-                                    <a href="/logout">Logout <%=locals.session.user.foaf.firstName%> <%=locals.session.user.foaf.surname%></a>
-                                </li>
-                            </ul>
-                        </li>
+                                    <% if(locals.session.isAdmin)
+                                    {
+                                    %>
+                                        <li>
+                                            <a href="/admin">Admin Panel</a>
+                                        </li>
+                                    <%
+                                    }
+                                    %>
+                                    <li>
+                                        <a href="/logout">Logout <%=locals.session.user.foaf.firstName%> <%=locals.session.user.foaf.surname%></a>
+                                    </li>
+                                </ul>
+                            </li>
                         <li>
                             <%
                             }
                             else
                             {
                             %>
-                        <li>
-                            <a href="/login">Login</a>
-                        </li>
-                        <%
-                        }
-                        %>
-                        <!--<li><a href="#">Link</a></li>-->
+                                <li>
+                                    <a href="/login">Login</a>
+                                </li>
+                            <%
+                            }
+                            %>
+
+                        <%if(locals.session.user != null) { %>
+
+                            <li ng-controller="notificationCtrl" ng-init="init();getAlerts()" class="dropdown">
+                                <a class="notifications-icon" href="#" ng-alerts-popover popover-placement="bottom-right" style="
+                                    padding-top: 10px;
+                                    padding-bottom: 4px;
+                                ">
+                                    <ng-alerts-count badge="true" hide-empty="true"> </ng-alerts-count>
+                                                        <span class="fa-stack fa-1x notifications-icon">
+                                                            <i class="fa fa-bell fa-stack-2x text-default" ng-class="{'faa-horizontal' : numNotifications > 0, 'animated' : numNotifications > 0}"></i>
+                                                            <i class="fa fa-circle fa-stack-2x text-default badge-circle text-danger" ng-show="numNotifications > 0"></i>
+                                                            <strong class="fa-stack-1x notifications-text badge-text" ng-show="numNotifications > 0">{{numNotifications}}</strong>
+                                                        </span>
+                                </a>
+                                <div ng-repeat="notifUri in notifsUris">
+                                    <div ng-init="get_notification_info(notifUri.uri)">
+                                    </div>
+                                </div>
+                            </li>
+                        <% } %>
                     </ul>
                 </div><!-- /.navbar-collapse -->
             </div>

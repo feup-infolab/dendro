@@ -451,26 +451,29 @@ Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptione
     }
 }
 
+
+//TODO calculate this at boot time and save it into a matrix for checking descriptor types
 Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     var authorizedDescriptors = {};
+
     for (var prefix in Elements)
     {
         authorizedDescriptors[prefix] = {};
 
         for(var shortName in Elements[prefix])
         {
-            authorizedDescriptors[prefix][shortName] = false;
+            authorizedDescriptors[prefix][shortName] = true;
 
-            var excluded = false;
-            var exceptioned = false;
+            var excluded = null;
+            var exceptioned = null;
 
             var descriptor = new Descriptor({
                 prefix : prefix,
                 shortName : shortName
             });
 
-            if(exceptionedDescriptorTypes != null)
+            if(exceptionedDescriptorTypes != null && exceptionedDescriptorTypes.length > 0)
             {
                 for(var i = 0; i < exceptionedDescriptorTypes.length; i++)
                 {
@@ -483,7 +486,7 @@ Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptio
                 }
             }
 
-            if(excludedDescriptorTypes != null)
+            if(excludedDescriptorTypes != null  && excludedDescriptorTypes.length > 0)
             {
                 if(!exceptioned)
                 {
@@ -499,9 +502,12 @@ Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptio
                 }
             }
 
-            if(!excluded || exceptioned)
+            if(exceptioned == null || exceptioned == false)
             {
-                authorizedDescriptors[prefix][shortName] = true;
+                if(excluded == true)
+                {
+                        authorizedDescriptors[prefix][shortName] = false;
+                }
             }
         }
     }

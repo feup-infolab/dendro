@@ -20,4 +20,9 @@
     </div>
 </div>
 
+<br/>
+
+<h3>Error details</h3>
+<%- locals.error.stack.replace(/\ \ \ at/g,"<br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;at") %>
+
 <%- include ../layout/footer.ejs %>

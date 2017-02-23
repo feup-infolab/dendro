@@ -1,12 +1,5 @@
-<script src='/js/jQueryFileUpload/js/vendor/jquery.ui.widget.js'></script>
-<script src='/js/jQueryFileUpload/js/jquery.iframe-transport.js'></script>
-<script src='/js/jQueryFileUpload/js/jquery.fileupload.js'></script>
-
-
-
-
 <ul class="list-group" id="file_explorer_area">
-        <%if(locals.breadcrumbs != null && locals.breadcrumbs.length > 1)
+        <%if(locals.breadcrumbs != null && locals.breadcrumbs.length > 0)
         {
         %>
             <a href="#" ng-click="go_up_in_folder_explorer()" class="list-group-item">
@@ -32,7 +25,7 @@
 
                                     </td>
                                     <td class="filename-tablecell">
-                                        Up to <%=locals.breadcrumbs[locals.breadcrumbs.length-2].title%>
+                                        <%=locals.breadcrumbs[0].title%>
                                     </td>
                                 </tr>
                             </table>

@@ -3,11 +3,15 @@ var redis = require('redis');
 var Config = function() { return GLOBAL.Config; }();
 var colors = require('colors');
 
-function RedisConnection (options, databaseNumber)
+function RedisConnection (options, databaseNumber, id)
 {
     var self = this;
     self.options = options;
     self.databaseNumber = databaseNumber;
+
+    self.port = options.port;
+    self.host = options.host;
+    self.id = id;
 }
 
 RedisConnection.prototype.openConnection = function(callback) {

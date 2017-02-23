@@ -28,12 +28,13 @@ angular.module('dendroApp.controllers')
             )
             {
                 //$scope.stage = {upload: true};
-                $scope.validate = {
+                /*$scope.validate = {
                     size: {max: '20MB', min: '10B'},
                     height: {max: 12000},
                     width: {max: 12000},
                     duration: {max: '5m'}
-                };
+                };*/
+
                 $scope.dragClass = {
                     pattern: 'application/zip',
                     accept: 'upload-area-dropped-accept',
