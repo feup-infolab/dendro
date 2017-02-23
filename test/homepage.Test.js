@@ -9,6 +9,7 @@ var bootup = require('../src/app.js').bootup;
 
 describe('/', function () {
     it('returns the homepage', function (done) {
+        this.timeout(20000);
         bootup.then(function(app){
             chai.request(app)
                 .get('/')
