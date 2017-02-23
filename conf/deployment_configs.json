@@ -190,7 +190,7 @@
         {
           "active" : false,
           "host" : "127.0.0.1",
-          "port" : "9000dendro-install",
+          "port" : "9000",
           "log_modes" : {
             "phase_1" :
             {
