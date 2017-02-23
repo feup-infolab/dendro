@@ -1385,7 +1385,7 @@ async.waterfall([
                         },
                         //auto completing descriptors
                         {
-                            queryKeys : ['descriptors_autocomplete'],
+                            queryKeys : ['descriptor_autocomplete'],
                             handler : descriptors.descriptors_autocomplete,
                             permissions : defaultPermissionsInProjectRoot
                         },
