@@ -118,7 +118,7 @@
       },
       "session": {
         "auto_login": true,
-        "login_user": "demouser1"
+        "login_user": "admin"
       },
       "files": {
         "log_all_restore_operations": true,
@@ -411,7 +411,7 @@
       },
       "session": {
         "auto_login": false,
-        "login_user": "demouser1"
+        "login_user": "admin"
       },
       "files": {
         "log_all_restore_operations": true,
@@ -697,7 +697,7 @@
       },
       "session": {
         "auto_login": false,
-        "login_user": "demouser1"
+        "login_user": "admin"
       },
       "files": {
         "log_all_restore_operations": true,
