@@ -572,8 +572,8 @@
       "ckan" :
       {
 
-      }
-
+      },
+      "public_ontologies" : []
     },
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_PRODUCTION_ANALYTICS_TRACKING_CODE"
     },
@@ -841,6 +841,7 @@
       "ckan": {
       }
     },
-    "analytics_tracking_code": "GOOGLE_ANALYTICS_TEST_ANALYTICS_TRACKING_CODE"
+    "analytics_tracking_code": "GOOGLE_ANALYTICS_TEST_ANALYTICS_TRACKING_CODE",
+    "public_ontologies" : []
   }
 }
