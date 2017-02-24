@@ -585,7 +585,7 @@ if(Config.demo_mode.active)
     const exec = require('child_process').exec;
 
     exec('git status', function(error, stdout, stderr) {
-        if (error == null) {
+        if (error == null || error.code == 0) {
             Config.demo_mode.git_info = {};
 
             exec('git branch | grep "^\* .*$" | cut -c 3- | tr -d "\n"', function(error, stdout, stderr) {
