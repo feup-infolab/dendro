@@ -167,7 +167,7 @@
       "reload_ontologies_on_startup": false
     },
     "baselines" : {
-      "dublin_core_only" : false
+
     },
     "logging" :
     {
@@ -207,7 +207,7 @@
         "standalone" : {
           "active" : false
         },
-        "fixed_descriptors" : {
+        "project_descriptors" : {
           "active" : true
         },
         "none" : {
@@ -282,7 +282,14 @@
 
       }
     },
-    "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE"
+    "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
+
+    "public_ontologies" : [
+      "foaf",
+      "dcterms",
+      "bdv",
+      "research"
+    ]
   },
   "prd" : {
     "port" : 3001,
@@ -451,7 +458,7 @@
       "reload_ontologies_on_startup": false
     },
     "baselines" : {
-      "dublin_core_only" : false
+
     },
     "logging" :
     {
@@ -488,7 +495,7 @@
             }
           }
         },
-        "fixed_descriptors" : {
+        "project_descriptors" : {
           "active" : true
         },
         "standalone" : {
@@ -737,7 +744,7 @@
       "reload_ontologies_on_startup": false
     },
     "baselines": {
-      "dublin_core_only": false
+
     },
     "logging": {
       "format": "dev",
@@ -768,7 +775,7 @@
             }
           }
         },
-        "fixed_descriptors" : {
+        "project_descriptors" : {
           "active" : true
         },
         "standalone": {

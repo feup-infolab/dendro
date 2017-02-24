@@ -627,7 +627,7 @@ async.waterfall([
             });
         };
 
-        if (Config.recommendation.modes.standalone.active || Config.recommendation.modes.none.active || Config.recommendation.modes.dendro_recommender.active)
+        if (Config.recommendation.modes.standalone.active || Config.recommendation.modes.none.active || Config.recommendation.modes.dendro_recommender.active ||  Config.recommendation.modes.project_descriptors.active )
         {
             async.series([
                     setupMySQLConnection
@@ -642,7 +642,7 @@ async.waterfall([
         }
         else
         {
-            console.err("[ERROR] No descriptor recommendation mode set up in deployment config: " + JSON.stringify(Config.recommendation) + ". Set up only one as active. ABORTING Startup.");
+            console.error("[ERROR] No descriptor recommendation mode set up in deployment config: " + JSON.stringify(Config.recommendation) + ". Set up only one as active. ABORTING Startup.");
             process.exit(1);
         }
     },
@@ -937,9 +937,9 @@ async.waterfall([
         {
             var recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
         }
-        else if(Config.recommendation.modes.fixed_descriptors.active)
+        else if(Config.recommendation.modes.project_descriptors.active)
         {
-            recommendation = require(Config.absPathInSrcFolder("/controllers/fixed_descriptors"));
+            recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
         }
         else if(Config.recommendation.modes.none.active)
         {
@@ -1102,7 +1102,6 @@ async.waterfall([
         app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_project_favorite);
         app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_favorite);
         app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
-
 
         app.post("/interactions/accept_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list);
         app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_project_favorite);

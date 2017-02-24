@@ -331,7 +331,7 @@ Descriptor.prototype.setValue = function(value)
     }
 };
 
-Descriptor.all_in_ontology = function(ontologyURI, callback) {
+Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesize) {
 
     var query =
         " SELECT ?uri ?type ?label ?comment \n"+
@@ -359,19 +359,42 @@ Descriptor.all_in_ontology = function(ontologyURI, callback) {
             "           FILTER (lang(?comment) = \"\" || lang(?comment) = [1] )\n" +
             "       } .\n" +
             "   } \n" +
-            " } \n";
+            " } \n" +
+            " ORDER BY ASC(?label) \n";
 
-    db.connection.execute(query,
-        [
+    var args = [
+        {
+            type : DbConnection.resourceNoEscape,
+            value : ontologyURI
+        },
+        {
+            type : DbConnection.string,
+            value : "en"
+        }
+    ]
+
+
+    if(typeof page_number == "number" && typeof pagesize == "number")
+    {
+        query = query  +
+            " OFFSET [2] \n" +
+            " LIMIT [3] \n";
+
+
+        args = args.concat([
             {
-                type : DbConnection.resourceNoEscape,
-                value : ontologyURI
+                type : DbConnection.int,
+                value :  page_number * pagesize
             },
             {
-                type : DbConnection.string,
-                value : "en"
+                type : DbConnection.int,
+                value : page_number * (pagesize + 1)
             }
-        ],
+        ]);
+    }
+
+
+    db.connection.execute(query, args,
         function(err, descriptors) {
             if(!err)
             {
@@ -392,6 +415,47 @@ Descriptor.all_in_ontology = function(ontologyURI, callback) {
             }
         });
 };
+
+
+Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number, page_size) {
+    var async = require('async');
+    async.map(ontologyURIsArray, function(uri, cb){
+        Descriptor.all_in_ontology(uri, cb);
+    },function(err, results){
+        if(!err)
+        {
+            var flat = _.flatten(results);
+            if(page_number != null && page_size != null)
+            {
+                try{
+                    page_number = parseInt(page_number);
+                    page_size = parseInt(page_size);
+
+                    if(typeof page_number == "number" && typeof page_size == "number")
+                    {
+                        var offset = page_number * page_size;
+                        flat = flat.slice(offset, offset + page_size);
+                    }
+
+                    callback(err, flat);
+                }
+                catch(e)
+                {
+                    callback(1, "Unable to parse page size of page number");
+                }
+            }
+            else
+            {
+
+            }
+        }
+        else
+        {
+            callback(err, results);
+        }
+
+    });
+}
 
 Descriptor.removeUnauthorizedFromObject = function(object, excludedDescriptorTypes, exceptionedDescriptorTypes)
 {

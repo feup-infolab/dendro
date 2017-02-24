@@ -205,7 +205,6 @@ Config.initGlobals = function()
             domain: "Generic",
             domain_specific: false
         },
-
         foaf: {
             prefix: "foaf",
             uri: "http://xmlns.com/foaf/0.1/",
@@ -215,7 +214,6 @@ Config.initGlobals = function()
             domain: "Generic",
             domain_specific: false
         },
-
         ddr: {
             prefix: "ddr",
             uri: "http://dendro.fe.up.pt/ontology/0.1/",
@@ -226,7 +224,6 @@ Config.initGlobals = function()
             domain: "Generic",
             domain_specific: false
         },
-
         rdf: {
             prefix: "rdf",
             uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -237,7 +234,6 @@ Config.initGlobals = function()
             domain: "Low-level, System",
             domain_specific: false
         },
-
         nie: {
             prefix: "nie",
             uri: "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
@@ -248,7 +244,6 @@ Config.initGlobals = function()
             domain: "Low-level, System",
             domain_specific: false
         },
-
         nfo: {
             prefix: "nfo",
             uri: "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#",
@@ -617,6 +612,7 @@ if(Config.demo_mode.active)
 Config.email = getConfigParameter("email");
 
 Config.analytics_tracking_code = getConfigParameter("analytics_tracking_code");
+Config.public_ontologies = getConfigParameter("public_ontologies");
 
 Config.regex_routes = {
     project_root:

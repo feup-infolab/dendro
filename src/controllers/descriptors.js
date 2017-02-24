@@ -12,11 +12,6 @@ exports.descriptors_autocomplete = function(req, res) {
 
     if(req.params.requestedResource != null)
     {
-        if(Config.baselines.dublin_core_only)
-        {
-            var allowedOntologies = [Ontology.allOntologies['dcterms'].uri];
-        }
-
         Descriptor.findByLabelOrComment(
             req.query.descriptor_autocomplete,
             Config.recommendation.max_autocomplete_results,
@@ -36,8 +31,7 @@ exports.descriptors_autocomplete = function(req, res) {
                         }
                     );
                 }
-            },
-            allowedOntologies);
+            });
     }
 };
 
@@ -51,11 +45,6 @@ exports.from_ontology = function(req, res)
     if(req.params.ontology_prefix != null)
     {
         var prefix = req.params.ontology_prefix;
-
-        if(Config.baselines.dublin_core_only)
-        {
-            prefix = Ontology.allOntologies["dcterms"].prefix;
-        }
 
         if(prefix != null)
         {

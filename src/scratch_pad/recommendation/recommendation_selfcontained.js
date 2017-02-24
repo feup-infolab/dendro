@@ -97,14 +97,7 @@ exports.recommend_descriptors = function(req, res) {
                 }
             };
 
-            if(Config.baselines.dublin_core_only)
-            {
-                var allowedOntologies = [Ontology.allOntologies['dcterms'].uri];
-            }
-            else
-            {
-                var allowedOntologies = getAllowedOntologies();
-            }
+            var allowedOntologies = getAllowedOntologies();
 
             exports.shared.recommend_descriptors(req.params.requestedResource, req.session.user.uri, req.query.page, allowedOntologies, req.index, function(err, descriptors){
                 if(!err)

@@ -523,7 +523,17 @@ Ontology.getPublicOntologies = function()
     {
         Ontology.publicOntologies = [];
 
-        var ontologies = Ontology.getAllOntologiesArray();
+        if(Config.public_ontologies != null)
+        {
+            var ontologies = _.filter(Ontology.getAllOntologiesArray(), function(ontology){
+                return _.contains(Config.public_ontologies, ontology.prefix);
+            });
+        }
+        else
+        {
+            var ontologies = Ontology.getAllOntologiesArray();
+        }
+
         for(var i = 0 ; i < ontologies.length; i++)
         {
             var ontology = ontologies[i];
