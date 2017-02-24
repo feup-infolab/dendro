@@ -590,6 +590,7 @@ if(Config.demo_mode.active)
 
             exec('git branch | grep "^\* .*$" | cut -c 3- | tr -d "\n"', function(error, stdout, stderr) {
                 if (error == null) {
+                    console.log("Active branch : " + JSON.stringify(stdout));
                     Config.demo_mode.git_info.active_branch = stdout;
                 }
                 else
@@ -600,6 +601,7 @@ if(Config.demo_mode.active)
 
             exec('git log -1 | grep "commit.*" | cut -c 8- | tr -d "\n"', function (error, stdout, stderr) {
                 if (error == null) {
+                    console.log("Last commit hash : " + JSON.stringify(stdout));
                     Config.demo_mode.git_info.commit_hash = stdout;
                 }
                 else
@@ -610,6 +612,7 @@ if(Config.demo_mode.active)
 
             exec('git log -1 | grep "Date:.*" | cut -c 9- | tr -d "\n"', function (error, stdout, stderr) {
                 if (error == null) {
+                    console.log("Last commit date : " + JSON.stringify(stdout));
                     Config.demo_mode.git_info.last_commit_date = stdout;
                 }
                 else
