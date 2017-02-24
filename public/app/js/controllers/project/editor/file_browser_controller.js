@@ -334,8 +334,13 @@ angular.module('dendroApp.controllers')
             {
                 $scope.clear_selected_files();
 
-                recommendationService.get_recommendations(
-                    $scope.get_calling_uri()
+               recommendationService.get_recommendations(
+                    $scope.get_calling_uri(),
+                    $scope.descriptor_filter,
+                    $scope.shared.metadata,
+                    $scope.recommend_already_filled_in,
+                    $scope.recommendations_page,
+                    $scope.recommendations_page_size
                 );
 
                 metadataService.load_metadata()
@@ -373,7 +378,15 @@ angular.module('dendroApp.controllers')
 
                             $scope.set_selected_file(index);
 
-                            recommendationService.get_recommendations($scope.get_calling_uri());
+                            recommendationService.get_recommendations(
+                                $scope.get_calling_uri(),
+                                $scope.descriptor_filter,
+                                $scope.shared.metadata,
+                                $scope.recommend_already_filled_in,
+                                $scope.recommendations_page,
+                                $scope.recommendations_page_size
+                            );
+
                             metadataService.load_metadata($scope.get_calling_uri())
                                 .then(function(metadata){
                                     $scope.shared.metadata = metadataService.deserialize_metadata(metadata);

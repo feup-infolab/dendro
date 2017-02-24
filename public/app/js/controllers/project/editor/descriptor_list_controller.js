@@ -184,13 +184,7 @@ angular.module('dendroApp.controllers')
                     $scope.get_calling_uri()
                 ).then(
                     function(result){
-                        $scope.get_recommendations(
-                            $scope.get_calling_uri()
-                        );
-
-                        recommendationService.get_recommendation_ontologies(
-                            $scope.get_calling_uri()
-                        );
+                        $scope.get_recommendations()
 
                         if(typeof callback == "function")
                         {
@@ -367,9 +361,7 @@ angular.module('dendroApp.controllers')
 
         $scope.toggle_recommend_already_filled_in = function() {
             recommendationService.toggle_recommend_already_filled_in();
-            $scope.get_recommendations(
-                $scope.get_calling_uri()
-            );
+            $scope.get_recommendations();
         };
 
         ///////////////////////////////////////////////////////////////////////////////////
@@ -389,9 +381,7 @@ angular.module('dendroApp.controllers')
             $scope.recommendations_page--;
             storageService.save_to_local_storage("recommendations_page", $scope.recommendations_page);
 
-            recommendationService.get_recommendations(
-                $scope.get_calling_uri()
-            );
+            $scope.get_recommendations();
         };
 
         $scope.get_next_descriptor_recommendations = function()
@@ -404,9 +394,7 @@ angular.module('dendroApp.controllers')
             $scope.recommendations_page++;
             storageService.save_to_local_storage("recommendations_page", $scope.recommendations_page);
 
-            $scope.get_recommendations(
-                $scope.get_calling_uri()
-            );
+            $scope.get_recommendations();
         };
 
         $scope.switch_selection_mode = function(newMode)
@@ -462,9 +450,7 @@ angular.module('dendroApp.controllers')
         {
             $scope.recommend_already_filled_in = !$scope.recommend_already_filled_in;
             storageService.save_to_local_storage('recommend_already_filled_in', $scope.recommend_already_filled_in);
-            return $scope.get_recommendations(
-                $scope.get_calling_uri()
-            );
+            $scope.get_recommendations();
         };
 
         $scope.set_ontology_description_html_popup = function(ontology)

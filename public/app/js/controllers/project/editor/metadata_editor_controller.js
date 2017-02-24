@@ -228,8 +228,15 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.fill_with_recommendations = function() {
-            recommendationService.get_recommendations($scope.get_calling_uri()).
-                then(
+            recommendationService.get_recommendations(
+                $scope.get_calling_uri(),
+                $scope.descriptor_filter,
+                $scope.shared.metadata,
+                $scope.recommend_already_filled_in,
+                $scope.recommendations_page,
+                $scope.recommendations_page_size)
+
+                .then(
                     function(data){
                         for(var i = 0; i < data.descriptors.length;i++){
 

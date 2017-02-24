@@ -131,14 +131,7 @@ exports.all = function(req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        if(Config.baselines.dublin_core_only)
-        {
-            var allOntologies = [Ontology.allOntologies['dcterms']];
-        }
-        else
-        {
-            var allOntologies = Ontology.getAllOntologiesArray();
-        }
+        var allOntologies = Ontology.getAllOntologiesArray();
 
         res.json(allOntologies);
     }

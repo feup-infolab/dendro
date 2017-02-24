@@ -13,6 +13,10 @@ else if(Config.recommendation.modes.standalone.active)
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
 }
+else if(Config.recommendation.modes.project_descriptors.active)
+{
+    recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation.js")).shared;
+}
 else if(Config.recommendation.modes.none.active)
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;
@@ -62,59 +66,31 @@ exports.shared.evaluate_metadata = function(req, callback)
         }
         else
         {
-            if(Config.baselines.dublin_core_only)
-            {
-                var recommendationOntologies = [Ontology.allOntologies['dcterms'].uri];
-            }
-            else if(req.session.recommendation != null && req.session.recommendation.ontologies.ontologies != null)
+            if(req.session.recommendation != null && req.session.recommendation.ontologies.ontologies != null)
             {
                 var recommendationOntologies = req.session.recommendation.ontologies.ontologies;
             }
 
-            if(Config.baselines.dublin_core_only && Config.recommendation.modes.none.active)
-            {
-                Descriptor.DCElements(function(err, descriptors)
+            recommendation.recommend_descriptors(
+                requestedResource.uri,
+                req.session.user.uri,
+                0,
+                recommendationOntologies,
+                req.index, function(err, descriptors)
                 {
-                    for(var i = 0; i < descriptors.length; i++)
+                    if (!err)
                     {
-                        //all elements will have the same score (No difference in importance)
-                        descriptors[i].score = 1;
-                        var dc_element_forced_rec_type = Descriptor.recommendation_types.dc_element_forced.key;
-
-                        if(descriptors[i].recommendation_types == null)
-                        {
-                            descriptors[i].recommendation_types = {};
-                        }
-
-                        descriptors[i].recommendation_types[dc_element_forced_rec_type] = true;
+                        callback(null, descriptors);
                     }
-
-                    callback(null, descriptors);
+                    else
+                    {
+                        callback(1, "Unable to retrieve metadata recommendations for uri: " + requestedResource.uri + ". Error reported : " + err + " Full Error : " + JSON.stringify(descriptors));
+                    }
+                },
+                {
+                    favorites : includeOnlyFavorites,
+                    smart : smartRecommendationMode
                 });
-            }
-            else
-            {
-                recommendation.recommend_descriptors(
-                    requestedResource.uri,
-                    req.session.user.uri,
-                    0,
-                    recommendationOntologies,
-                    req.index, function(err, descriptors)
-                    {
-                        if (!err)
-                        {
-                            callback(null, descriptors);
-                        }
-                        else
-                        {
-                            callback(1, "Unable to retrieve metadata recommendations for uri: " + requestedResource.uri + ". Error reported : " + err + " Full Error : " + JSON.stringify(descriptors));
-                        }
-                    },
-                    {
-                        favorites : includeOnlyFavorites,
-                        smart : smartRecommendationMode
-                    });
-            }
         }
     };
 

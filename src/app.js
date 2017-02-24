@@ -75,61 +75,90 @@ var appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::
 
 if(Config.logging != null)
 {
-    var FileStreamRotator = require('file-stream-rotator');
     var mkpath = require('mkpath');
 
-    if(Config.logging.format != null && Config.logging.app_logs_folder != null)
-    {
-        var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
-        mkpath(absPath, function (err) {
-            if(!err)
+    async.series([
+        function(cb)
+        {
+            if (Config.logging.app_logs_folder != null && Config.logging.pipe_console_to_logfile)
             {
-                var accessLogStream = FileStreamRotator.getStream({
-                    date_format: 'YYYYMMDD',
-                    filename: path.join(absPath, Config.logging.format + '-%DATE%.log'),
-                    frequency: 'daily',
-                    verbose: false
+                var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
+                mkpath(absPath, function (err)
+                {
+                    if (!err)
+                    {
+                        var util = require('util');
+                        var log_file = require('file-stream-rotator').getStream({
+                            date_format: 'YYYYMMDD',
+                            filename: path.join(absPath, '%DATE%.log'),
+                            frequency: 'daily',
+                            verbose: false
+                        });
+
+                        var log_stdout = process.stdout;
+
+                        console.log = function (d)
+                        { //
+                            log_file.write("[ " + new Date().toISOString() + " ] "+ util.format(d) + '\n');
+                            log_stdout.write(util.format(d) + '\n');
+                        };
+
+                        console.error = function (d)
+                        { //
+                            log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(d) + '\n');
+                            log_stdout.write(util.format(d) + '\n');
+                        };
+
+                        cb(err);
+                    }
+                    else
+                    {
+                        console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(err));
+                        process.exit(1);
+                    }
                 });
-
-                app.use(morgan(Config.logging.format, {
-                    format: Config.logging.format,
-                    stream: accessLogStream
-                }));
             }
-            else
+        },
+        function(cb)
+        {
+            if (Config.logging.log_request_times && Config.logging.request_times_log_folder != null)
             {
-                console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(err));
-                process.exit(1);
-            }
-        });
-    }
+                var absPath = Config.absPathInApp(Config.logging.request_times_log_folder);
 
-    if(Config.logging.log_request_times && Config.logging.request_times_log_folder != null)
-    {
-        var absPath = Config.absPathInApp(Config.logging.request_times_log_folder);
+                mkpath(absPath, function (err)
+                {
+                    var accessLogStream = require('file-stream-rotator').getStream({
+                        date_format: 'YYYYMMDD',
+                        filename: path.join(absPath, 'times-%DATE%.log'),
+                        frequency: 'daily',
+                        verbose: false
+                    });
 
-        mkpath(absPath, function (err) {
-            var accessLogStream = FileStreamRotator.getStream({
-                date_format: 'YYYYMMDD',
-                filename: path.join(absPath, 'times-%DATE%.log'),
-                frequency: 'daily',
-                verbose: false
-            });
+                    if (!err)
+                    {
+                        app.use(morgan(Config.logging.format, {
+                            format: Config.logging.format,
+                            stream: accessLogStream
+                        }));
 
-            if(!err)
-            {
-                app.use(morgan(Config.logging.format, {
-                    format: Config.logging.format,
-                    stream: accessLogStream
-                }));
+                        cb(err);
+                    }
+                    else
+                    {
+                        console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(err));
+                        process.exit(1);
+                    }
+                });
             }
-            else
-            {
-                console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(err));
-                process.exit(1);
-            }
-        });
-    }
+        }
+    ], function(err, results){
+        if(err)
+        {
+            console.error("Unable to setup logging!");
+            process.exit(1);
+        }
+    });
+
 }
 
 var appendIndexToRequest = function(req, res, next)
@@ -627,7 +656,7 @@ async.waterfall([
             });
         };
 
-        if (Config.recommendation.modes.standalone.active || Config.recommendation.modes.none.active || Config.recommendation.modes.dendro_recommender.active)
+        if (Config.recommendation.modes.standalone.active || Config.recommendation.modes.none.active || Config.recommendation.modes.dendro_recommender.active ||  Config.recommendation.modes.project_descriptors.active )
         {
             async.series([
                     setupMySQLConnection
@@ -642,7 +671,7 @@ async.waterfall([
         }
         else
         {
-            console.err("[ERROR] No descriptor recommendation mode set up in deployment config: " + JSON.stringify(Config.recommendation) + ". Set up only one as active. ABORTING Startup.");
+            console.error("[ERROR] No descriptor recommendation mode set up in deployment config: " + JSON.stringify(Config.recommendation) + ". Set up only one as active. ABORTING Startup.");
             process.exit(1);
         }
     },
@@ -937,6 +966,10 @@ async.waterfall([
         {
             var recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
         }
+        else if(Config.recommendation.modes.project_descriptors.active)
+        {
+            recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
+        }
         else if(Config.recommendation.modes.none.active)
         {
             recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation"));
@@ -1098,7 +1131,6 @@ async.waterfall([
         app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_project_favorite);
         app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_favorite);
         app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
-
 
         app.post("/interactions/accept_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list);
         app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_project_favorite);
@@ -1381,7 +1413,7 @@ async.waterfall([
                         },
                         //auto completing descriptors
                         {
-                            queryKeys : ['descriptors_autocomplete'],
+                            queryKeys : ['descriptor_autocomplete'],
                             handler : descriptors.descriptors_autocomplete,
                             permissions : defaultPermissionsInProjectRoot
                         },

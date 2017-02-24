@@ -118,7 +118,7 @@
       },
       "session": {
         "auto_login": true,
-        "login_user": "demouser1"
+        "login_user": "admin"
       },
       "files": {
         "log_all_restore_operations": true,
@@ -167,15 +167,16 @@
       "reload_ontologies_on_startup": false
     },
     "baselines" : {
-      "dublin_core_only" : false
+
     },
     "logging" :
     {
-      "format" : "dev",
+      "pipe_console_to_logfile" : true,
+      "format" : "combined",
       "app_logs_folder" : "logs/app",
       "log_request_times" : true,
       "request_times_log_folder" : "logs/request_times",
-      "log_requests_in_apache_format" : true,
+      "log_requests_in_apache_format" : false,
       "requests_in_apache_format_log_folder" : "logs/requests_apache_format"
     },
     "version" :
@@ -188,7 +189,7 @@
       "modes" : {
         "dendro_recommender" :
         {
-          "active" : true,
+          "active" : false,
           "host" : "127.0.0.1",
           "port" : "9000",
           "log_modes" : {
@@ -206,6 +207,9 @@
         },
         "standalone" : {
           "active" : false
+        },
+        "project_descriptors" : {
+          "active" : true
         },
         "none" : {
           "active" : false
@@ -279,7 +283,14 @@
 
       }
     },
-    "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE"
+    "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
+
+    "public_ontologies" : [
+      "foaf",
+      "dcterms",
+      "bdv",
+      "research"
+    ]
   },
   "prd" : {
     "port" : 3001,
@@ -400,7 +411,7 @@
       },
       "session": {
         "auto_login": false,
-        "login_user": "demouser1"
+        "login_user": "admin"
       },
       "files": {
         "log_all_restore_operations": true,
@@ -448,7 +459,7 @@
       "reload_ontologies_on_startup": false
     },
     "baselines" : {
-      "dublin_core_only" : false
+
     },
     "logging" :
     {
@@ -484,6 +495,9 @@
               "active" : true
             }
           }
+        },
+        "project_descriptors" : {
+          "active" : true
         },
         "standalone" : {
           "active" : false
@@ -631,7 +645,7 @@
       "user": "root",
       "password": "r00t_p4ssw0rd"
     },
-    "mySQLDBName": "dendroVagrantDemo",
+    "mySQLDBName": "TESTSdendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
     "maxSimultanousConnectionsToDb": 3,
@@ -683,7 +697,7 @@
       },
       "session": {
         "auto_login": false,
-        "login_user": "demouser1"
+        "login_user": "admin"
       },
       "files": {
         "log_all_restore_operations": true,
@@ -731,7 +745,7 @@
       "reload_ontologies_on_startup": false
     },
     "baselines": {
-      "dublin_core_only": false
+
     },
     "logging": {
       "format": "dev",
@@ -748,7 +762,7 @@
     "recommendation": {
       "modes": {
         "dendro_recommender": {
-          "active": true,
+          "active": false,
           "host": "127.0.0.1",
           "port": "9000",
           "log_modes": {
@@ -761,6 +775,9 @@
               "active": true
             }
           }
+        },
+        "project_descriptors" : {
+          "active" : true
         },
         "standalone": {
           "active": false
