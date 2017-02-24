@@ -95,6 +95,23 @@ if(Config.logging != null)
                     format: Config.logging.format,
                     stream: accessLogStream
                 }));
+
+                if(Config.logging.pipe_console_to_logfile)
+                {
+                    var util = require('util');
+                    var log_file = accessLogStream;
+                    var log_stdout = process.stdout;
+
+                    console.log = function(d) { //
+                        log_file.write(util.format(d) + '\n');
+                        log_stdout.write(util.format(d) + '\n');
+                    };
+
+                    console.error = function(d) { //
+                        log_file.write(util.format(d) + '\n');
+                        log_stdout.write(util.format(d) + '\n');
+                    };
+                }
             }
             else
             {

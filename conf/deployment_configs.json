@@ -171,6 +171,7 @@
     },
     "logging" :
     {
+      "pipe_console_to_logfile" : true,
       "format" : "dev",
       "app_logs_folder" : "logs/app",
       "log_request_times" : true,
