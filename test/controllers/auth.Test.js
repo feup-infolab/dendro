@@ -33,6 +33,7 @@ describe('/login', function () {
     });
 
     it('should login the demo user with correct password', function (done) {
+        this.timeout(5000);
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 

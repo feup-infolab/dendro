@@ -117,8 +117,8 @@
         "log_all_queries": false
       },
       "session": {
-        "auto_login": true,
-        "login_user": "admin"
+        "auto_login": false,
+        "login_user": "demouser1"
       },
       "files": {
         "log_all_restore_operations": true,
