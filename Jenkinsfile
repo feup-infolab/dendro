@@ -4,6 +4,8 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+                sh 'mkdir -p ~/.npm-global'
+                sh 'NPM_CONFIG_PREFIX=~/.npm-global'
                 sh 'npm install'
                 sh 'cd public'
                 sh 'bower install'
