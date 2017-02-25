@@ -31,7 +31,8 @@ build/Release
 # Dependency directories
 node_modules/
 public/bower_components/
-conf/
+conf/active_deployment_config.json
+conf/deployment_configs.json
 logs/
 jspm_packages
 
@@ -54,5 +55,4 @@ temp/
 
 .nyc_output
 build/config.gypi
-.idea/dendro.iml
 .idea/dendro.iml
