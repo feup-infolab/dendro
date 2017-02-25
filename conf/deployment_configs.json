@@ -714,7 +714,7 @@
         "enable_permissions_system": true,
         "log_authorizations": false,
         "log_denials": false,
-        "log_requests_and_permissions": true
+        "log_requests_and_permissions": false
       },
       "users": {
         "log_fetch_by_username": false

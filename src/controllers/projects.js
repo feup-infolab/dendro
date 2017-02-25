@@ -714,7 +714,7 @@ exports.new = function(req, res) {
                     }
                     else
                     {
-                        //creator will be the curently logged in user
+                        //creator will be the currently logged in user
 
                         var projectData = {
                             dcterms : {

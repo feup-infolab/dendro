@@ -13,6 +13,7 @@ var should = chai.should();
 
 describe('/projects', function () {
     it('lists all projects when not logged in', function (done) {
+        this.timeout('5000');
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.listAllProjects(agent, function (err, res) {
@@ -23,6 +24,7 @@ describe('/projects', function () {
     });
 
     it('lists all projects when logged in', function (done) {
+        this.timeout('5000');
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.listAllProjects(agent, function (err, res) {
                 res.should.have.status(200);
@@ -43,7 +45,7 @@ describe('/projects/my', function () {
 
         testUtils.listAllMyProjects(false, agent, function (err, res) {
             res.should.have.status(200);
-            res.text.should.contain('Please sign in');
+            res.text.should.contain('You are not authorized to perform this operation. You must be signed into Dendro');
             done();
         });
     });
@@ -59,6 +61,7 @@ describe('/projects/my', function () {
     });
 
     before(function (done) {
+        this.timeout('5000');
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             GLOBAL.tests.agent = agent;
             done();
@@ -125,7 +128,7 @@ describe('public project', function () {
         privacy: 'public'
     };
 
-    it('JSON-only create project not authenticated', function (done) {
+    it('JSON-only create public project not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.createNewProject(true, agent, projectData, function (err, res) {
@@ -135,7 +138,7 @@ describe('public project', function () {
         });
     });
 
-    it('HTML create project not authenticated', function (done) {
+    it('HTML create public project not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.createNewProject(false, agent, projectData, function (err, res) {
@@ -146,18 +149,25 @@ describe('public project', function () {
     });
 
 
-    it('JSON-only create project authenticated', function (done) {
+    it('JSON-only create public project authenticated as demouser1', function (done) {
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1','demouserpassword2015', function (err, agent) {
             testUtils.createNewProject(true, agent, projectData, function (err, res) {
+
+                //ignore redirection, make new request
+                if (err) return done(err);
                 res.should.have.status(200);
-                res.body.projects.should.be.instanceOf(Array);
-                done();
+
+                testUtils.listAllMyProjects(true, agent, function (err, res) {
+                    res.should.have.status(200);
+                    res.body.projects.should.be.instanceOf(Array);
+                    done();
+                });
             });
         });
     });
 
-    it('HTML create project authenticated', function (done) {
+    it('HTML create public project authenticated as demouser1', function (done) {
         var app = GLOBAL.tests.app;
         projectData.handle = publicProjectHandle + '3';
         this.timeout('5000');
@@ -171,7 +181,7 @@ describe('public project', function () {
     });
 
 
-    it('json-only view project not authenticated', function (done) {
+    it('JSON-only view public project of demouser1 not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
@@ -181,7 +191,7 @@ describe('public project', function () {
         });
     });
 
-    it('HTML view project not authenticated', function (done) {
+    it('HTML view public project of demouser1 not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
@@ -192,7 +202,7 @@ describe('public project', function () {
     });
 
 
-    it('JSON-only view project authenticated', function (done) {
+    it('JSON-only view public project authenticated as demouser1', function (done) {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
@@ -204,7 +214,7 @@ describe('public project', function () {
         });
     });
 
-    it('HTML view project authenticated', function (done) {
+    it('HTML view public project authenticated as demouser1', function (done) {
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
@@ -215,7 +225,7 @@ describe('public project', function () {
         });
     });
 
-     it('JSON-only view project authenticated other user', function (done) {
+     it('JSON-only view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
          var app = GLOBAL.tests.app;
          testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
              testUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
@@ -226,7 +236,7 @@ describe('public project', function () {
          });
      });
 
-    it('HTML view project authenticated other user', function (done) {
+    it('HTML-only view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
