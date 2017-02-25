@@ -354,7 +354,7 @@ describe('metadata_only project', function () {
         });
     });
 
-    it('JSON-only view project authenticated other user', function (done) {
+    it('JSON-only view metadata only project of demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
@@ -366,7 +366,7 @@ describe('metadata_only project', function () {
         });
     });
 
-    it('HTML view project authenticated other user', function (done) {
+    it('HTML-only view metadata only project of demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
