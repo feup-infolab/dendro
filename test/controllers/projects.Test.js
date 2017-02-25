@@ -48,7 +48,7 @@ describe('/projects/my', function () {
         });
     });
 
-    it('JSON-only does not list my projects when not logged in', function (done) {
+    it('API does not list my projects when not logged in', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.listAllMyProjects(true, agent, function (err, res) {
@@ -65,7 +65,7 @@ describe('/projects/my', function () {
         })
     });
 
-    it('JSON-only lists all my projects logged in', function (done) {
+    it('API lists all my projects logged in', function (done) {
         var agent = GLOBAL.tests.agent;
         testUtils.listAllMyProjects(true, agent, function (err, res) {
             res.should.have.status(200);
@@ -113,6 +113,8 @@ describe('/projects/new GET', function () {
 
 
 describe('public project', function () {
+    var folderName = 'pastinhaLinda';
+    var targetFolderInProject = '';
     var publicProjectHandle = 'testprojectpublichandlenew';
     var projectData = {
         creator : "http://" + Config.host + "/user/demouser1",
@@ -125,7 +127,7 @@ describe('public project', function () {
         privacy: 'public'
     };
 
-    it('JSON-only create project not authenticated', function (done) {
+    it('API create project not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.createNewProject(true, agent, projectData, function (err, res) {
@@ -146,7 +148,7 @@ describe('public project', function () {
     });
 
 
-    it('JSON-only create project authenticated', function (done) {
+    it('API create project authenticated', function (done) {
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1','demouserpassword2015', function (err, agent) {
             testUtils.createNewProject(true, agent, projectData, function (err, res) {
@@ -171,7 +173,7 @@ describe('public project', function () {
     });
 
 
-    it('json-only view project not authenticated', function (done) {
+    it('API view project not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
@@ -192,7 +194,7 @@ describe('public project', function () {
     });
 
 
-    it('JSON-only view project authenticated', function (done) {
+    it('API view project authenticated', function (done) {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
@@ -205,6 +207,7 @@ describe('public project', function () {
     });
 
     it('HTML view project authenticated', function (done) {
+        this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
@@ -215,7 +218,8 @@ describe('public project', function () {
         });
     });
 
-     it('JSON-only view project authenticated other user', function (done) {
+     it('API view project authenticated other user', function (done) {
+         this.timeout(5000);
          var app = GLOBAL.tests.app;
          testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
              testUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
@@ -237,10 +241,112 @@ describe('public project', function () {
         });
     });
 
+    it('API, create folder logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, creator see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.equal(folderName);
+                done();
+            });
+        });
+    });
+
+    it('HTML, creator see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.equal(folderName);
+                done();
+            });
+        });
+    });
+
+    it('API, not logged in see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.viewFolder(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.equal(folderName);
+            done();
+        });
+    });
+
+    it('HTML, not logged in see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.viewFolder(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.equal(folderName);
+            done();
+        });
+    });
+
+    it('API, logged in other user see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.equal(folderName);
+                done();
+            });
+        });
+    });
+
+    it('HTML, logged in other user see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.equal(folderName);
+                done();
+            });
+        });
+    });
+
+
 });
 
-//TODO test edit functions as well
+//TODO edit project not logged in -> error
+//TODO edit project logged in -> success
+//TODO edit project Logged in other user -> error
+//TODO view folder inside project not logged in -> error
+//TODO view folder inside project logged in -> success
+//TODO view folder inside project logged in other user -> error
 describe('metadata_only project', function () {
+    var folderName = 'pastinhaLinda';
+    var targetFolderInProject = '';
     var metadataProjectHandle = 'testprojectmetadata';
     var projectData = {
         creator : "http://" + Config.host + "/user/demouser1",
@@ -254,7 +360,7 @@ describe('metadata_only project', function () {
     };
 
 
-    it('JSON-only create project not authenticated', function (done) {
+    it('API create project not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.createNewProject(true, agent, projectData, function (err, res) {
@@ -275,7 +381,8 @@ describe('metadata_only project', function () {
     });
 
 
-    it('JSON-only create project authenticated', function (done) {
+    it('API create project authenticated', function (done) {
+        this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1','demouserpassword2015', function (err, agent) {
             testUtils.createNewProject(true, agent, projectData, function (err, res) {
@@ -300,7 +407,8 @@ describe('metadata_only project', function () {
     });
 
 
-    it('json-only view project not authenticated', function (done) {
+    it('API view project not authenticated', function (done) {
+        this.timeout(5000);
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
@@ -321,7 +429,7 @@ describe('metadata_only project', function () {
     });
 
 
-    it('JSON-only view project authenticated', function (done) {
+    it('API view project authenticated', function (done) {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
@@ -334,6 +442,7 @@ describe('metadata_only project', function () {
     });
 
     it('HTML view project authenticated', function (done) {
+        this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
@@ -344,7 +453,8 @@ describe('metadata_only project', function () {
         });
     });
 
-    it('JSON-only view project authenticated other user', function (done) {
+
+    it('API view project authenticated other user', function (done) {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
@@ -367,10 +477,107 @@ describe('metadata_only project', function () {
         });
     });
 
+    //FOLDERS HERE
+
+    it('API, create folder logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, creator see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.equal(folderName);
+                done();
+            });
+        });
+    });
+
+    it('HTML, creator see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.equal(folderName);
+                done();
+            });
+        });
+    });
+
+    it('API, not logged in see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.viewFolder(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            res.text.should.not.equal(folderName);
+            done();
+        });
+    });
+
+    it('HTML, not logged in see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.not.equal(folderName);
+            done();
+        });
+    });
+
+    it('API, logged in other user see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                res.text.should.not.equal(folderName);
+                done();
+            });
+        });
+    });
+
+    it('HTML, logged in other user see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.equal(folderName);
+                done();
+            });
+        });
+    });
+
 });
 
-
 describe('private project', function () {
+    var folderName = 'pastinhaLinda';
+    var targetFolderInProject = '';
     var privateProjectHandle = 'testprojectprivate';
     var projectData = {
         creator : "http://" + Config.host + "/user/demouser1",
@@ -401,7 +608,7 @@ describe('private project', function () {
     });
 
 
-    it('JSON-only create project not authenticated', function (done) {
+    it('API create project not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.createNewProject(true, agent, projectData, function (err, res) {
@@ -422,7 +629,8 @@ describe('private project', function () {
     });
 
 
-    it('JSON-only create project authenticated', function (done) {
+    it('API create project authenticated', function (done) {
+        this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1','demouserpassword2015', function (err, agent) {
             testUtils.createNewProject(true, agent, projectData, function (err, res) {
@@ -447,7 +655,7 @@ describe('private project', function () {
     });
 
 
-    it('json-only view project not authenticated', function (done) {
+    it('API view project not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
@@ -468,7 +676,7 @@ describe('private project', function () {
     });
 
 
-    it('JSON-only view project authenticated', function (done) {
+    it('API view project authenticated', function (done) {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
@@ -481,6 +689,7 @@ describe('private project', function () {
     });
 
     it('HTML view project authenticated', function (done) {
+        this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
@@ -491,7 +700,7 @@ describe('private project', function () {
         });
     });
 
-    it('JSON-only view project authenticated other user', function (done) {
+    it('API view project authenticated other user', function (done) {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
@@ -509,6 +718,100 @@ describe('private project', function () {
             testUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.not.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+    it('API, create folder logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, creator see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.equal(folderName);
+                done();
+            });
+        });
+    });
+
+    it('HTML, creator see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.equal(folderName);
+                done();
+            });
+        });
+    });
+
+    it('API, not logged in see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            res.text.should.not.equal(folderName);
+            done();
+        });
+    });
+
+    it('HTML, not logged in see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.not.equal(folderName);
+            done();
+        });
+    });
+
+    it('API, logged in other user see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                res.text.should.not.equal(folderName);
+                done();
+            });
+        });
+    });
+
+    it('HTML, logged in other user see the created folder', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.equal(folderName);
                 done();
             });
         });
