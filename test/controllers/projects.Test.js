@@ -240,9 +240,6 @@ describe('public project', function () {
 });
 
 //TODO test edit functions as well
-
-//TODO metadata_only
-
 describe('metadata_only project', function () {
     var metadataProjectHandle = 'testprojectmetadata';
     var projectData = {
@@ -255,23 +252,6 @@ describe('metadata_only project', function () {
         handle : metadataProjectHandle,
         privacy: 'metadata_only'
     };
-
-    after(function(done) {
-        async.series([
-            function (callback) {
-                db.connection.deleteGraph(db.graphUri, callback);
-            },
-            function (callback) {
-                db.connection.deleteGraph(db_social.graphUri, callback);
-            },
-            function (callback) {
-                db.connection.deleteGraph(db_notifications.graphUri, callback);
-            }
-        ], function (err, results) {
-            console.log('deleted info from all graphs');
-            done();
-        });
-    });
 
 
     it('JSON-only create project not authenticated', function (done) {
@@ -342,6 +322,7 @@ describe('metadata_only project', function () {
 
 
     it('JSON-only view project authenticated', function (done) {
+        this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
@@ -389,4 +370,148 @@ describe('metadata_only project', function () {
 });
 
 
-//TODO private access
+describe('private project', function () {
+    var privateProjectHandle = 'testprojectprivate';
+    var projectData = {
+        creator : "http://" + Config.host + "/user/demouser1",
+        title : 'This is a test project',
+        description : 'This is a test project description',
+        publisher: 'UP',
+        language: 'En',
+        coverage: 'Porto',
+        handle : privateProjectHandle,
+        privacy: 'private'
+    };
+
+    after(function(done) {
+        async.series([
+            function (callback) {
+                db.connection.deleteGraph(db.graphUri, callback);
+            },
+            function (callback) {
+                db.connection.deleteGraph(db_social.graphUri, callback);
+            },
+            function (callback) {
+                db.connection.deleteGraph(db_notifications.graphUri, callback);
+            }
+        ], function (err, results) {
+            console.log('deleted info from all graphs');
+            done();
+        });
+    });
+
+
+    it('JSON-only create project not authenticated', function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.createNewProject(true, agent, projectData, function (err, res) {
+            res.should.have.status(401);
+            res.body.message.should.equal('Error detected. You are not authorized to perform this operation. You must be signed into Dendro.');
+            done();
+        });
+    });
+
+    it('HTML create project not authenticated', function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.createNewProject(false, agent, projectData, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain('You are not authorized to perform this operation. You must be signed into Dendro.');
+            done();
+        });
+    });
+
+
+    it('JSON-only create project authenticated', function (done) {
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1','demouserpassword2015', function (err, agent) {
+            testUtils.createNewProject(true, agent, projectData, function (err, res) {
+                res.should.have.status(200);
+                res.body.projects.should.be.instanceOf(Array);
+                done();
+            });
+        });
+    });
+
+    it('HTML create project authenticated', function (done) {
+        var app = GLOBAL.tests.app;
+        projectData.handle = privateProjectHandle + '2';
+        this.timeout('5000');
+        testUtils.loginUser('demouser1','demouserpassword2015', function (err, agent) {
+            testUtils.createNewProject(false, agent, projectData, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(projectData.handle);
+                done();
+            });
+        });
+    });
+
+
+    it('json-only view project not authenticated', function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            JSON.parse(res.text).result.should.equal('error');
+            done();
+        });
+    });
+
+    it('HTML view project not authenticated', function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.not.contain(privateProjectHandle);
+            done();
+        });
+    });
+
+
+    it('JSON-only view project authenticated', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).title.should.equal(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+    it('HTML view project authenticated', function (done) {
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+    it('JSON-only view project authenticated other user', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                JSON.parse(res.text).result.should.equal('error');
+                done();
+            });
+        });
+    });
+
+    it('HTML view project authenticated other user', function (done) {
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+});
