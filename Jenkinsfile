@@ -4,16 +4,16 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh 'npm install'
-                sh 'cd public'
-                sh 'bower install'
-                sh 'cd ..''
+                npm install
+                cd public
+                bower install
+                cd ..
             }
         }
         stage('Test') {
             steps {
-                sh 'npm run test'
-                sh 'npm run coverage'
+                npm run test
+                npm run coverage
             }
         }
         stage('Deploy') {
