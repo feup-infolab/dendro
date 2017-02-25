@@ -338,12 +338,7 @@ describe('public project', function () {
 
 });
 
-//TODO edit project not logged in -> error
-//TODO edit project logged in -> success
-//TODO edit project Logged in other user -> error
-//TODO view folder inside project not logged in -> error
-//TODO view folder inside project logged in -> success
-//TODO view folder inside project logged in other user -> error
+
 describe('metadata_only project', function () {
     var folderName = 'pastinhaLinda';
     var targetFolderInProject = '';
