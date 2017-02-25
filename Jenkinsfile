@@ -7,7 +7,7 @@ pipeline {
                 sh 'npm install'
                 sh 'cd public'
                 sh 'bower install'
-                sh 'cd ..''
+                sh 'cd ..'
             }
         }
         stage('Test') {
