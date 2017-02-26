@@ -43,7 +43,7 @@ describe('/projects/my', function () {
 
         testUtils.listAllMyProjects(false, agent, function (err, res) {
             res.should.have.status(200);
-            res.text.should.contain('You are not authorized to perform this operation. You must be signed into Dendro');
+            res.text.should.contain('Please sign in');
             done();
         });
     });
@@ -53,7 +53,7 @@ describe('/projects/my', function () {
         var agent = chai.request.agent(app);
         testUtils.listAllMyProjects(true, agent, function (err, res) {
             res.should.have.status(401);
-            JSON.parse(res.text).message.should.equal("Error detected. You are not authorized to perform this operation. You must be signed into Dendro.");
+            res.body.result.should.equal('error');
             done();
         });
     });
@@ -92,7 +92,7 @@ describe('/projects/new GET', function () {
         var agent = chai.request.agent(app);
         testUtils.getNewProjectPage(agent, function (err, res) {
             res.should.have.status(200);
-            res.text.should.contain('You are not authorized to perform this operation. You must be signed into Dendro.');
+            res.text.should.contain('Please sign in');
             done();
         });
     });
@@ -132,7 +132,7 @@ describe('public project', function () {
         var agent = chai.request.agent(app);
         testUtils.createNewProject(true, agent, projectData, function (err, res) {
             res.should.have.status(401);
-            res.body.message.should.equal('Error detected. You are not authorized to perform this operation. You must be signed into Dendro.');
+            res.body.result.should.equal('error');
             done();
         });
     });
@@ -142,7 +142,7 @@ describe('public project', function () {
         var agent = chai.request.agent(app);
         testUtils.createNewProject(false, agent, projectData, function (err, res) {
             res.should.have.status(200);
-            res.text.should.contain('You are not authorized to perform this operation. You must be signed into Dendro.');
+            res.text.should.contain('Please sign in');
             done();
         });
     });
@@ -185,7 +185,7 @@ describe('public project', function () {
         var agent = chai.request.agent(app);
         testUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
             res.should.have.status(200);
-            JSON.parse(res.text).title.should.equal(publicProjectHandle);
+            JSON.parse(res.text).title.should.equal(projectData.title);
             done();
         });
     });
@@ -206,7 +206,7 @@ describe('public project', function () {
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                JSON.parse(res.text).title.should.equal(publicProjectHandle);
+                JSON.parse(res.text).title.should.equal(projectData.title);
                 done();
             });
         });
@@ -229,11 +229,11 @@ describe('public project', function () {
 
              //ignore redirection, make new request
              if (err) return done(err);
-             res.should.have.status(200);
+             //res.should.have.status(200);
 
              testUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
                  res.should.have.status(200);
-                 JSON.parse(res.text).title.should.equal(publicProjectHandle);
+                 JSON.parse(res.text).title.should.equal(projectData.title);
                  done();
              });
          });
@@ -280,7 +280,7 @@ describe('public project', function () {
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.equal(folderName);
+                JSON.parse(res.text).title.should.equal(folderName);
                 done();
             });
         });
@@ -292,7 +292,7 @@ describe('public project', function () {
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.equal(folderName);
+                res.text.should.not.contain('Please sign in');
                 done();
             });
         });
@@ -304,7 +304,7 @@ describe('public project', function () {
         var agent = chai.request.agent(app);
         testUtils.viewFolder(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
             res.should.have.status(200);
-            res.text.should.equal(folderName);
+            JSON.parse(res.text).title.should.equal(folderName);
             done();
         });
     });
@@ -315,7 +315,7 @@ describe('public project', function () {
         var agent = chai.request.agent(app);
         testUtils.viewFolder(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
             res.should.have.status(200);
-            res.text.should.equal(folderName);
+            res.text.should.not.equal('Please sign in');
             done();
         });
     });
@@ -326,7 +326,7 @@ describe('public project', function () {
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.equal(folderName);
+                JSON.parse(res.text).title.should.equal(folderName);
                 done();
             });
         });
@@ -338,7 +338,7 @@ describe('public project', function () {
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.equal(folderName);
+                res.text.should.not.equal('Please sign in');
                 done();
             });
         });
@@ -369,7 +369,7 @@ describe('metadata_only project', function () {
         var agent = chai.request.agent(app);
         testUtils.createNewProject(true, agent, projectData, function (err, res) {
             res.should.have.status(401);
-            res.body.message.should.equal('Error detected. You are not authorized to perform this operation. You must be signed into Dendro.');
+            res.body.result.should.equal('error');
             done();
         });
     });
@@ -379,7 +379,7 @@ describe('metadata_only project', function () {
         var agent = chai.request.agent(app);
         testUtils.createNewProject(false, agent, projectData, function (err, res) {
             res.should.have.status(200);
-            res.text.should.contain('You are not authorized to perform this operation. You must be signed into Dendro.');
+            res.text.should.contain('Please sign in');
             done();
         });
     });
@@ -416,7 +416,7 @@ describe('metadata_only project', function () {
         var agent = chai.request.agent(app);
         testUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
             res.should.have.status(200);
-            JSON.parse(res.text).title.should.equal(metadataProjectHandle);
+            JSON.parse(res.text).title.should.equal(projectData.title);
             done();
         });
     });
@@ -438,7 +438,7 @@ describe('metadata_only project', function () {
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                JSON.parse(res.text).title.should.equal(metadataProjectHandle);
+                JSON.parse(res.text).title.should.equal(projectData.title);
                 done();
             });
         });
@@ -462,7 +462,7 @@ describe('metadata_only project', function () {
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                JSON.parse(res.text).title.should.equal(metadataProjectHandle);
+                JSON.parse(res.text).title.should.equal(projectData.title);
                 done();
             });
         });
@@ -511,7 +511,7 @@ describe('metadata_only project', function () {
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.equal(folderName);
+                JSON.parse(res.text).title.should.equal(folderName);
                 done();
             });
         });
@@ -523,7 +523,7 @@ describe('metadata_only project', function () {
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.equal(folderName);
+                res.text.should.not.contain('Please sign in');
                 done();
             });
         });
@@ -534,8 +534,8 @@ describe('metadata_only project', function () {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.viewFolder(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
-            res.should.have.status(401);
-            res.text.should.not.equal(folderName);
+            res.should.have.status(200);
+            JSON.parse(res.text).title.should.equal(folderName);
             done();
         });
     });
@@ -546,7 +546,7 @@ describe('metadata_only project', function () {
         var agent = chai.request.agent(app);
         testUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
             res.should.have.status(200);
-            res.text.should.not.equal(folderName);
+            res.text.should.not.contain('Please sign in');
             done();
         });
     });
@@ -556,8 +556,8 @@ describe('metadata_only project', function () {
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
-                res.should.have.status(401);
-                res.text.should.not.equal(folderName);
+                res.should.have.status(200);
+                JSON.parse(res.text).title.should.equal(folderName);
                 done();
             });
         });
@@ -569,7 +569,7 @@ describe('metadata_only project', function () {
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.not.equal(folderName);
+                res.text.should.not.contain('Please sign in');
                 done();
             });
         });
@@ -592,30 +592,13 @@ describe('private project', function () {
         privacy: 'private'
     };
 
-    after(function(done) {
-        async.series([
-            function (callback) {
-                db.connection.deleteGraph(db.graphUri, callback);
-            },
-            function (callback) {
-                db.connection.deleteGraph(db_social.graphUri, callback);
-            },
-            function (callback) {
-                db.connection.deleteGraph(db_notifications.graphUri, callback);
-            }
-        ], function (err, results) {
-            console.log('deleted info from all graphs');
-            done();
-        });
-    });
-
 
     it('API create project not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         testUtils.createNewProject(true, agent, projectData, function (err, res) {
             res.should.have.status(401);
-            res.body.message.should.equal('Error detected. You are not authorized to perform this operation. You must be signed into Dendro.');
+            res.body.result.should.equal('error');
             done();
         });
     });
@@ -625,7 +608,7 @@ describe('private project', function () {
         var agent = chai.request.agent(app);
         testUtils.createNewProject(false, agent, projectData, function (err, res) {
             res.should.have.status(200);
-            res.text.should.contain('You are not authorized to perform this operation. You must be signed into Dendro.');
+            res.text.should.contain('Please sign in');
             done();
         });
     });
@@ -683,7 +666,7 @@ describe('private project', function () {
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                JSON.parse(res.text).title.should.equal(privateProjectHandle);
+                JSON.parse(res.text).title.should.equal(projectData.title);
                 done();
             });
         });
@@ -753,7 +736,7 @@ describe('private project', function () {
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.equal(folderName);
+                JSON.parse(res.text).title.should.equal(folderName);
                 done();
             });
         });
@@ -765,7 +748,7 @@ describe('private project', function () {
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.equal(folderName);
+                res.text.should.not.contain('Please sign in');
                 done();
             });
         });
@@ -777,7 +760,7 @@ describe('private project', function () {
         var agent = chai.request.agent(app);
         testUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
             res.should.have.status(401);
-            res.text.should.not.equal(folderName);
+            res.text.should.not.contain(folderName);
             done();
         });
     });
@@ -788,7 +771,7 @@ describe('private project', function () {
         var agent = chai.request.agent(app);
         testUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
             res.should.have.status(200);
-            res.text.should.not.equal(folderName);
+            res.text.should.not.contain(folderName);
             done();
         });
     });
@@ -799,7 +782,7 @@ describe('private project', function () {
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(401);
-                res.text.should.not.equal(folderName);
+                res.text.should.not.contain(folderName);
                 done();
             });
         });
@@ -811,7 +794,7 @@ describe('private project', function () {
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             testUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.not.equal(folderName);
+                res.text.should.not.contain(folderName);
                 done();
             });
         });
