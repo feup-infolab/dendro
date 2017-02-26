@@ -116,11 +116,10 @@ exports.createFolderInProject = function(jsonOnly, agent, targetFolderInProject,
 };
 
 exports.viewFolder= function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
-    var path = '/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName;
     if(jsonOnly)
     {
         agent
-            .get(path)
+            .get('/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName)
             .set('Accept', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -129,7 +128,7 @@ exports.viewFolder= function (jsonOnly, agent, targetFolderInProject, folderName
     else
     {
         agent
-            .get('/project/' + projectHandle + '/data/'  + targetFolderInProject + '/' + folderName)
+            .get('/project/' + projectHandle + '/data'  + targetFolderInProject + '/' + folderName)
             .end(function (err, res) {
                 cb(err, res);
             });
