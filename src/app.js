@@ -998,13 +998,15 @@ async.waterfall([
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
 
+        var recommendation;
+
         if(Config.recommendation.modes.dendro_recommender.active)
         {
-            var recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation"));
+            recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation"));
         }
         else if(Config.recommendation.modes.standalone.active)
         {
-            var recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
+            recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
         }
         else if(Config.recommendation.modes.project_descriptors.active)
         {

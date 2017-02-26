@@ -286,12 +286,7 @@
     },
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
 
-    "public_ontologies" : [
-      "foaf",
-      "dcterms",
-      "bdv",
-      "research"
-    ]
+    "public_ontologies" : "[\"foaf\",\"dcterms\",\"bdv\",\"research\"]"
   },
   "prd" : {
     "port" : 3001,
