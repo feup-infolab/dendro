@@ -283,7 +283,7 @@ exports.show = function(req, res) {
         var _ = require('underscore');
         var isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
             var reason = authorization.role;
-            return _.isEqual(reason, Permissions.roles.project.creator) || _.isEqual(reason, Permissions.roles.project.contributor) || _.isEqual(reason, Permissions.roles.system.admin);
+            return _.isEqual(reason, Permissions.role.project.creator) || _.isEqual(reason, Permissions.role.project.contributor) || _.isEqual(reason, Permissions.role.system.admin);
         });
 
         if(isEditor.length > 0)
@@ -299,17 +299,17 @@ exports.show = function(req, res) {
         {
             var isPublicOrMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
                 var reason = authorization.role;
-                return _.isEqual(reason, Permissions.access_levels.metadata_only) || _.isEqual(reason, Permissions.access_levels.public) || _.isEqual(reason, Permissions.roles.system.admin);
+                return _.isEqual(reason, Permissions.project_privacy_status.metadata_only) || _.isEqual(reason, Permissions.project_privacy_status.public) || _.isEqual(reason, Permissions.role.system.admin);
             });
 
             var isPublicProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
                 var reason = authorization.role;
-                return _.isEqual(reason, Permissions.access_levels.public) || _.isEqual(reason, Permissions.roles.system.admin);
+                return _.isEqual(reason, Permissions.project_privacy_status.public) || _.isEqual(reason, Permissions.role.system.admin);
             });
 
             var isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
                 var reason = authorization.role;
-                return _.isEqual(reason, Permissions.access_levels.metadata_only) || _.isEqual(reason, Permissions.roles.system.admin);
+                return _.isEqual(reason, Permissions.project_privacy_status.metadata_only) || _.isEqual(reason, Permissions.role.system.admin);
             });
 
             if(isPublicOrMetadataOnlyProject.length > 0)
@@ -732,7 +732,6 @@ exports.new = function(req, res) {
                         };
 
                         Project.createAndInsertFromObject(projectData, function(err, result){
-
                             if(!err)
                             {
                                 req.flash('success', "New project " + projectData.dcterms.title +" with handle "+ projectData.ddr.handle +" created successfully");

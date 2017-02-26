@@ -148,7 +148,7 @@ describe('public project', function () {
     });
 
 
-    it('API create project authenticated', function (done) {
+    it('API create public project '+projectData.handle+' while authenticated as demouser1', function (done) {
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1','demouserpassword2015', function (err, agent) {
             testUtils.createNewProject(true, agent, projectData, function (err, res) {
@@ -226,6 +226,11 @@ describe('public project', function () {
      it('API view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
          var app = GLOBAL.tests.app;
          testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+
+             //ignore redirection, make new request
+             if (err) return done(err);
+             res.should.have.status(200);
+
              testUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
                  res.should.have.status(200);
                  JSON.parse(res.text).title.should.equal(publicProjectHandle);

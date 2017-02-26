@@ -22,10 +22,11 @@ Permissions.messages = {
 Permissions.types = {
     system : "system",
     resource : "resource",
-    project : "project"
+    project : "project",
+    project_privacy_status : "project_privacy_status"
 };
 
-Permissions.roles = {
+Permissions.role = {
     system : {
         admin : {
             type : Permissions.types.system,
@@ -72,27 +73,27 @@ Permissions.roles = {
     }
 }
 
-Permissions.access_levels = {
+Permissions.project_privacy_status = {
     public : {
-        type : Permissions.types.project,
-        access_level_required : "public",
+        type : Permissions.types.project_privacy_status,
+        predicate : "ddr:privacyStatus",
+        object : "public",
         error_message_user : "This is a public project.",
-        error_message_api : "This is a public project.",
-        predicate : "ddr:public"
+        error_message_api : "This is a public project."
     },
     private : {
-        type : Permissions.types.project,
-        access_level_required : "private",
+        type : Permissions.types.project_privacy_status,
+        predicate : "ddr:privacyStatus",
+        object : "private",
         error_message_user : "This is a private project, and neither data nor metadata can be accessed.",
-        error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed.",
-        predicate : "ddr:private"
+        error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed."
     },
     metadata_only :  {
-        type : Permissions.types.project,
-        access_level_required : "metadata_only",
+        type : Permissions.types.project_privacy_status,
+        predicate : "ddr:privacyStatus",
+        object : "metadata_only",
         error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
-        error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed.",
-        predicate : "ddr:metadata_only"
+        error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
     }
 }
 
@@ -296,12 +297,12 @@ var checkPermissionsForProject = function(req, permission, callback)
             {
                 var privacy = project.ddr.privacyStatus;
 
-                if(permission.access_level_required != null && privacy === permission.access_level_required)
+                if(permission.object != null && privacy === permission.object)
                 {
                     callback(null,
                         {
                             authorized : true,
-                            role : Permissions.access_levels[permission.access_level_required]
+                            role : Permissions.project_privacy_status[permission.object]
                         }
                     );
                 }
@@ -367,13 +368,25 @@ Permissions.check = function(permissionsRequired, req, callback)
         var user = req.session.user;
 
         var checkPermissions = function(req, user, resource, permission, cb){
-            if(user != null)
+            if(permission.type == Permissions.types.system && user != null)
             {
                 checkPermissionsForRole(req, user, resource, permission, function(err, results){
                     cb(err, results);
                 });
             }
-            else if (permission.type == Permissions.types.project) {
+            else if(permission.type == Permissions.types.project && user != null)
+            {
+                checkPermissionsForRole(req, user, resource, permission, function(err, results){
+                    cb(err, results);
+                });
+            }
+            else if(permission.type == Permissions.types.resource && user != null)
+            {
+                checkPermissionsForRole(req, user, resource, permission, function(err, results){
+                    cb(err, results);
+                });
+            }
+            else if (permission.type == Permissions.types.project_privacy_status) {
                 checkPermissionsForProject(req, permission, function (err, results) {
                     cb(err, results);
                 });
@@ -383,7 +396,7 @@ Permissions.check = function(permissionsRequired, req, callback)
                 cb(null,
                     {
                         authorized : false,
-                        role : Permissions.roles.system.user
+                        role : "Permission required is badly configured. Ask your administrator to review your Dendro server's configuration"
                     }
                 );
             }
@@ -427,7 +440,7 @@ Permissions.check = function(permissionsRequired, req, callback)
     {
         var reasonsForAllowing = [{
             authorized: true,
-            role: Permissions.roles.system.admin
+            role: Permissions.role.system.admin
         }];
 
         req = Permissions.addToReasons(req, reasonsForAllowing, true);
@@ -482,7 +495,7 @@ Permissions.require = function(permissionsRequired, req, res, next)
         }
         else
         {
-            return Permissions.sendResponse(true, req, res, next, [Permissions.roles.system.admin]);
+            return Permissions.sendResponse(true, req, res, next, [Permissions.role.system.admin]);
         }
     }
     else

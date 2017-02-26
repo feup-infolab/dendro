@@ -1058,21 +1058,21 @@ async.waterfall([
         app.get('/analytics_tracking_code', index.analytics_tracking_code);
 
         //nodes
-        app.get('/vertexes', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.all);
-        app.get('/vertexes/random', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.random);
-        app.get('/vertexes/show', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.show);
-        app.get('/vertexes/:source/with/:property', async.apply(Permissions.require, [Permissions.roles.system.admin]), vertexes.with_property);
+        app.get('/vertexes', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.all);
+        app.get('/vertexes/random', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.random);
+        app.get('/vertexes/show', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.show);
+        app.get('/vertexes/:source/with/:property', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.with_property);
 
         //search
         app.get('/search', vertexes.search);
 
         //admin area
-        app.get('/admin', async.apply(Permissions.require, [Permissions.roles.system.admin]), admin.home);
-        app.get('/admin/reindex', async.apply(Permissions.require, [Permissions.roles.system.admin]), admin.reindex);
-        app.get('/admin/reload', async.apply(Permissions.require, [Permissions.roles.system.admin]), admin.reload);
+        app.get('/admin', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.home);
+        app.get('/admin/reindex', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.reindex);
+        app.get('/admin/reload', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.reload);
 
         //low-level sparql endpoint
-        app.get('/sparql', async.apply(Permissions.require, [Permissions.roles.system.admin]), sparql.show);
+        app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
 
         //authentication
         app.get('/login', auth.login);
@@ -1081,120 +1081,120 @@ async.waterfall([
         //ontologies
 
         app.get('/ontologies/public', ontologies.public);
-        //app.get('/ontologies/all', async.apply(Permissions.require, [Permissions.roles.system.user]), ontologies.all);
+        //app.get('/ontologies/all', async.apply(Permissions.require, [Permissions.role.system.user]), ontologies.all);
         app.get('/ontologies/all', ontologies.all);
-        app.get('/ontologies/autocomplete', async.apply(Permissions.require, [Permissions.roles.system.user]), ontologies.ontologies_autocomplete);
-        app.get('/ontologies/show/:prefix', async.apply(Permissions.require, [Permissions.roles.system.user]), ontologies.show);
-        app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.roles.system.admin]), ontologies.edit);
+        app.get('/ontologies/autocomplete', async.apply(Permissions.require, [Permissions.role.system.user]), ontologies.ontologies_autocomplete);
+        app.get('/ontologies/show/:prefix', async.apply(Permissions.require, [Permissions.role.system.user]), ontologies.show);
+        app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.role.system.admin]), ontologies.edit);
 
         //descriptors
-        app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [Permissions.roles.system.user]), descriptors.from_ontology);
+        app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [Permissions.role.system.user]), descriptors.from_ontology);
 
         //research domains
 
-        app.get('/research_domains/autocomplete', async.apply(Permissions.require, [Permissions.roles.system.user]), research_domains.autocomplete);
-        app.get('/research_domains', async.apply(Permissions.require, [Permissions.roles.system.user]), research_domains.all);
-        app.post('/research_domains', async.apply(Permissions.require, [Permissions.roles.system.admin]), research_domains.edit);
-        app.delete('/research_domains/:uri', async.apply(Permissions.require, [Permissions.roles.system.admin]), research_domains.delete);
+        app.get('/research_domains/autocomplete', async.apply(Permissions.require, [Permissions.role.system.user]), research_domains.autocomplete);
+        app.get('/research_domains', async.apply(Permissions.require, [Permissions.role.system.user]), research_domains.all);
+        app.post('/research_domains', async.apply(Permissions.require, [Permissions.role.system.admin]), research_domains.edit);
+        app.delete('/research_domains/:uri', async.apply(Permissions.require, [Permissions.role.system.admin]), research_domains.delete);
 
         //  registration and login
         app.get('/register', auth.register);
         app.post('/register', auth.register);
-        app.get('/logout', async.apply(Permissions.require, [Permissions.roles.system.user]), auth.logout);
+        app.get('/logout', async.apply(Permissions.require, [Permissions.role.system.user]), auth.logout);
 
         //people listing
         app.get('/users', users.all);
-        app.get('/user/:username', async.apply(Permissions.require, [Permissions.roles.system.user]), users.show);
+        app.get('/user/:username', async.apply(Permissions.require, [Permissions.role.system.user]), users.show);
         app.get('/users/loggedUser', users.getLoggedUser);
 
         app.all('/reset_password', users.reset_password);
         app.all('/set_new_password', users.set_new_password);
 
-        app.get('/me', async.apply(Permissions.require, [Permissions.roles.system.user]), users.me);
+        app.get('/me', async.apply(Permissions.require, [Permissions.role.system.user]), users.me);
 
         //projects
         app.get('/projects', projects.all);
-        app.get('/projects/my', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.my);
-        app.get('/projects/new', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.new);
-        app.post('/projects/new', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.new);
+        app.get('/projects/my', async.apply(Permissions.require, [Permissions.role.system.user]), projects.my);
+        app.get('/projects/new', async.apply(Permissions.require, [Permissions.role.system.user]), projects.new);
+        app.post('/projects/new', async.apply(Permissions.require, [Permissions.role.system.user]), projects.new);
 
-        app.get('/projects/import', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.import);
-        app.post('/projects/import', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.import);
+        app.get('/projects/import', async.apply(Permissions.require, [Permissions.role.system.user]), projects.import);
+        app.post('/projects/import', async.apply(Permissions.require, [Permissions.role.system.user]), projects.import);
 
-        app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.requestAccess);
-        app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.roles.system.user]), projects.requestAccess);
-        app.post('/project/:handle/delete', async.apply(Permissions.require, [Permissions.roles.system.admin]), projects.delete);
-        app.post('/project/:handle/undelete', async.apply(Permissions.require, [Permissions.roles.system.admin]), projects.undelete);
+        app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.role.system.user]), projects.requestAccess);
+        app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.role.system.user]), projects.requestAccess);
+        app.post('/project/:handle/delete', async.apply(Permissions.require, [Permissions.role.system.admin]), projects.delete);
+        app.post('/project/:handle/undelete', async.apply(Permissions.require, [Permissions.role.system.admin]), projects.undelete);
 
         //interactions
-        app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list);
-        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_project_favorite);
-        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_favorite);
-        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
+        app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list);
+        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_project_favorite);
+        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_favorite);
+        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
 
-        app.post("/interactions/accept_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list);
-        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_project_favorite);
-        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_favorite);
-        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
+        app.post("/interactions/accept_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list);
+        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_project_favorite);
+        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_favorite);
+        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
 
-        app.post("/interactions/hide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.hide_descriptor_from_quick_list_for_project);
-        app.post("/interactions/unhide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.unhide_descriptor_from_quick_list_for_project);
-        app.post("/interactions/hide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.hide_descriptor_from_quick_list_for_user);
-        app.post("/interactions/unhide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.unhide_descriptor_from_quick_list_for_user);
-        app.post("/interactions/favorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.favorite_descriptor_from_quick_list_for_project);
-        app.post("/interactions/favorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.favorite_descriptor_from_quick_list_for_user);
+        app.post("/interactions/hide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.hide_descriptor_from_quick_list_for_project);
+        app.post("/interactions/unhide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unhide_descriptor_from_quick_list_for_project);
+        app.post("/interactions/hide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.hide_descriptor_from_quick_list_for_user);
+        app.post("/interactions/unhide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unhide_descriptor_from_quick_list_for_user);
+        app.post("/interactions/favorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.favorite_descriptor_from_quick_list_for_project);
+        app.post("/interactions/favorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.favorite_descriptor_from_quick_list_for_user);
 
-        app.post("/interactions/unfavorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.unfavorite_descriptor_from_quick_list_for_user);
-        app.post("/interactions/unfavorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.unfavorite_descriptor_from_quick_list_for_project);
+        app.post("/interactions/unfavorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unfavorite_descriptor_from_quick_list_for_user);
+        app.post("/interactions/unfavorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unfavorite_descriptor_from_quick_list_for_project);
 
-        app.post("/interactions/accept_descriptor_from_autocomplete", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_descriptor_from_autocomplete);
-        app.post("/interactions/reject_ontology_from_quick_list", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.reject_ontology_from_quick_list);
-        app.post("/interactions/select_ontology_manually", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.select_ontology_manually);
-        app.post("/interactions/select_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.select_descriptor_manually);
+        app.post("/interactions/accept_descriptor_from_autocomplete", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_autocomplete);
+        app.post("/interactions/reject_ontology_from_quick_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.reject_ontology_from_quick_list);
+        app.post("/interactions/select_ontology_manually", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.select_ontology_manually);
+        app.post("/interactions/select_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.select_descriptor_manually);
 
-        app.post("/interactions/accept_smart_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_smart_descriptor_in_metadata_editor);
-        app.post("/interactions/accept_favorite_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.accept_favorite_descriptor_in_metadata_editor);
+        app.post("/interactions/accept_smart_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_smart_descriptor_in_metadata_editor);
+        app.post("/interactions/accept_favorite_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_favorite_descriptor_in_metadata_editor);
 
-        app.post("/interactions/delete_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.delete_descriptor_in_metadata_editor);
+        app.post("/interactions/delete_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.delete_descriptor_in_metadata_editor);
 
-        app.post("/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_manual_list_in_metadata_editor);
-        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite);
-        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite);
-        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
-
-
-        app.post("/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_quick_list_in_metadata_editor);
-        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite);
-        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite);
-        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
-
-        app.post("/interactions/fill_in_inherited_descriptor", async.apply(Permissions.require, [Permissions.roles.system.user]), interactions.fill_in_inherited_descriptor);
+        app.post("/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_in_metadata_editor);
+        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite);
+        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite);
+        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
 
 
-        app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.roles.system.admin]), interactions.delete_all_interactions);
+        app.post("/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_in_metadata_editor);
+        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite);
+        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite);
+        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
+
+        app.post("/interactions/fill_in_inherited_descriptor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_inherited_descriptor);
+
+
+        app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.role.system.admin]), interactions.delete_all_interactions);
 
         //external repository bookmarks
-        app.get('/external_repositories/types', async.apply(Permissions.require, [Permissions.roles.system.user]), repo_bookmarks.repository_types);
-        app.get('/external_repositories/my', async.apply(Permissions.require, [ Permissions.roles.project.contributor, Permissions.roles.project.creator]), repo_bookmarks.my);
-        app.get('/external_repositories', async.apply(Permissions.require, [Permissions.roles.system.admin]), repo_bookmarks.all);
-        app.post('/external_repositories/sword_collections', async.apply(Permissions.require, [Permissions.roles.system.user]), datasets.sword_collections);
-        app.post('/external_repositories/new', async.apply(Permissions.require, [Permissions.roles.system.user]), repo_bookmarks.new);
-        app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.roles.project.contributor, Permissions.roles.project.creator]), repo_bookmarks.delete);
+        app.get('/external_repositories/types', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.repository_types);
+        app.get('/external_repositories/my', async.apply(Permissions.require, [ Permissions.role.project.contributor, Permissions.role.project.creator]), repo_bookmarks.my);
+        app.get('/external_repositories', async.apply(Permissions.require, [Permissions.role.system.admin]), repo_bookmarks.all);
+        app.post('/external_repositories/sword_collections', async.apply(Permissions.require, [Permissions.role.system.user]), datasets.sword_collections);
+        app.post('/external_repositories/new', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.new);
+        app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.role.project.contributor, Permissions.role.project.creator]), repo_bookmarks.delete);
 
         var defaultPermissionsInProjectRoot = [
-            Permissions.access_levels.public,
-            Permissions.access_levels.metadata_only,
-            Permissions.roles.project.contributor,
-            Permissions.roles.project.creator
+            Permissions.project_privacy_status.public,
+            Permissions.project_privacy_status.metadata_only,
+            Permissions.role.project.contributor,
+            Permissions.role.project.creator
         ];
 
         var modificationPermissions = [
-            Permissions.roles.project.contributor,
-            Permissions.roles.project.creator
+            Permissions.role.project.contributor,
+            Permissions.role.project.creator
         ];
 
         var administrationPermissions = [
-            Permissions.roles.project.creator
+            Permissions.role.project.creator
         ];
 
         //view a project's root
@@ -1572,38 +1572,38 @@ async.waterfall([
         );
 
         //      social
-        app.get('/posts/all', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.all);
-        app.post('/posts/post', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.getPost_controller);
-        app.post('/posts/new', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.new);
-        app.post('/posts/like', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.like);
-        app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.checkIfPostIsLikedByUser);
-        app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.postLikesInfo);
-        app.post('/posts/comment', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.comment);
-        app.post('/posts/comments', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.getPostComments);
-        app.post('/posts/share', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.share);
-        app.post('/posts/shares', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.getPostShares);
-        app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.numPostsDatabase);
-        app.get('/posts/:uri', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.post);
+        app.get('/posts/all', async.apply(Permissions.require, [Permissions.role.system.user]), posts.all);
+        app.post('/posts/post', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPost_controller);
+        app.post('/posts/new', async.apply(Permissions.require, [Permissions.role.system.user]), posts.new);
+        app.post('/posts/like', async.apply(Permissions.require, [Permissions.role.system.user]), posts.like);
+        app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.role.system.user]), posts.checkIfPostIsLikedByUser);
+        app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.role.system.user]), posts.postLikesInfo);
+        app.post('/posts/comment', async.apply(Permissions.require, [Permissions.role.system.user]), posts.comment);
+        app.post('/posts/comments', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPostComments);
+        app.post('/posts/share', async.apply(Permissions.require, [Permissions.role.system.user]), posts.share);
+        app.post('/posts/shares', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPostShares);
+        app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.role.system.user]), posts.numPostsDatabase);
+        app.get('/posts/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), posts.post);
 
         //file versions
-        app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.all);
-        app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.numFileVersionsInDatabase);
-        app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.getFileVersion);
-        app.get('/fileVersions/:uri', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.fileVersion);
-        app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.like);
-        app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.comment);
-        app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.share);
-        app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.fileVersionLikesInfo);
-        app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.roles.system.user]), fileVersions.getFileVersionShares);
+        app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.all);
+        app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.numFileVersionsInDatabase);
+        app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersion);
+        app.get('/fileVersions/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.fileVersion);
+        app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.like);
+        app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.comment);
+        app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.share);
+        app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.fileVersionLikesInfo);
+        app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersionShares);
 
         //shares
-        app.get('/shares/:uri', async.apply(Permissions.require, [Permissions.roles.system.user]), posts.getShare);
+        app.get('/shares/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getShare);
 
 
         //notifications
-        app.get('/notifications/all', async.apply(Permissions.require, [Permissions.roles.system.user]), notifications.get_unread_user_notifications);
-        app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.roles.system.user]), notifications.get_notification_info);
-        app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.roles.system.user]), notifications.delete)
+        app.get('/notifications/all', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.get_unread_user_notifications);
+        app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.get_notification_info);
+        app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.delete)
 
         //serve angular JS ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,
