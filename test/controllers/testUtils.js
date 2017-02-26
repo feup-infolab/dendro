@@ -108,7 +108,6 @@ exports.createFolderInProject = function(jsonOnly, agent, targetFolderInProject,
     {
         agent
             .post('/project/' + projectHandle + targetFolderInProject  + '?mkdir=' + folderName)
-            .set('Accept', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -135,3 +134,91 @@ exports.viewFolder= function (jsonOnly, agent, targetFolderInProject, folderName
             });
     }
 };
+
+exports.getLoggedUserDetails = function (jsonOnly, agent, cb)
+{
+    if(jsonOnly)
+    {
+        agent
+            .get('/me')
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+        .get('/me')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+exports.updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb) {
+    if(jsonOnly)
+    {
+        agent
+        .post('/project/' + projectHandle +'?update_metadata')
+        .set('Accept', 'application/json')
+        .send(metadata)
+        .end(function (err, res) {
+            cb(err, res);
+        });
+    }
+    else
+    {
+        agent
+            .post('/project/' + projectHandle +'?update_metadata')
+            .send(metadata)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+
+exports.updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, metadata, cb) {
+    if(jsonOnly)
+    {
+        agent
+            .post('/project/' + projectHandle +'/data/teste?update_metadata')
+            .set('Accept', 'application/json')
+            .send(metadata)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post('/project/' + projectHandle +'/data/teste?update_metadata')
+            .send(metadata)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+exports.getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb) {
+    if(jsonOnly)
+    {
+        agent
+            .get('/project/' + projectHandle + '?metadata_recommendations')
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get('/project/' + projectHandle + '?metadata_recommendations')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+

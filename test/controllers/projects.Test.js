@@ -11,6 +11,7 @@ chai.use(chaiHttp);
 
 var should = chai.should();
 
+
 describe('/projects', function () {
     it('lists all projects when not logged in', function (done) {
         var app = GLOBAL.tests.app;
@@ -250,6 +251,54 @@ describe('public project', function () {
         });
     });
 
+
+    it('API, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
+    });
+
+
+    it('HTML, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain('Please sign in');
+            done();
+        });
+    });
+
+
+    it('API, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain('folderName');
+                done();
+            });
+        });
+    });
+
+
     it('API, create folder logged in', function (done) {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
@@ -481,6 +530,53 @@ describe('metadata_only project', function () {
 
     //FOLDERS HERE
 
+    it('API, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
+    });
+
+
+    it('HTML, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain('Please sign in');
+            done();
+        });
+    });
+
+
+    it('API, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain('folderName');
+                done();
+            });
+        });
+    });
+
+
     it('API, create folder logged in', function (done) {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
@@ -706,6 +802,53 @@ describe('private project', function () {
         });
     });
 
+    it('API, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
+    });
+
+
+    it('HTML, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain('Please sign in');
+            done();
+        });
+    });
+
+
+    it('API, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain('folderName');
+                done();
+            });
+        });
+    });
+
+
     it('API, create folder logged in', function (done) {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
@@ -800,4 +943,134 @@ describe('private project', function () {
         });
     });
 
+
+
+    it('API not authenticated get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.getMetadataRecomendationsForProject(true, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
+    });
+
+    it('HTML not authenticated get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.getMetadataRecomendationsForProject(false, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain('Please sign in');
+            done();
+        });
+    });
+
+
+    it('API creator get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            testUtils.getMetadataRecomendationsForProject(true, newAgent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                done();
+            });
+        });
+    });
+
+    it('HTML creator get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            testUtils.getMetadataRecomendationsForProject(false, newAgent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+    it('API demouser2 get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, newAgent) {
+            testUtils.getMetadataRecomendationsForProject(true, newAgent, privateProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
+    });
+
+    it('HTML demouser2 get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, newAgent) {
+            testUtils.getMetadataRecomendationsForProject(false, newAgent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+    /*
+    it('project creator updates metadata wrong route', function (done) {
+        var targetFolderInProject = '';
+        var metadata = {
+            creator : "http://" + Config.host + "/user/demouser1",
+            title : 'This is a private test project',
+            description : 'This is a test private project description',
+            publisher: 'UP',
+            language: 'En',
+            coverage: 'Porto',
+            handle : privateProjectHandle,
+            privacy: 'private'
+        };
+
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.updateMetadataWrongRoute(true, agent, privateProjectHandle, metadata, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain(folderName);
+                done();
+            });
+        });
+    });
+    */
+
+    /*
+    it('project creator updates metadata correct route', function (done) {
+        var targetFolderInProject = '';
+        var metadata = {
+            creator : "http://" + Config.host + "/user/demouser1",
+            title : 'This is a private test project',
+            description : 'This is a test private project description',
+            publisher: 'UP',
+            language: 'En',
+            coverage: 'Porto',
+            handle : privateProjectHandle,
+            privacy: 'private'
+        };
+
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.updateMetadataCorrectRoute(true, agent, privateProjectHandle, metadata, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain(folderName);
+                done();
+            });
+        });
+    });*/
+
+    /*
+    it('authenticated updates metadata wrong route', function (done) {
+
+    });
+
+    it('project creator updates metadata correct route', function (done) {
+
+    });
+
+    it('authenticated updates metadata wrong route', function (done) {
+
+    });
+    */
 });
