@@ -22,10 +22,11 @@ Permissions.messages = {
 Permissions.types = {
     system : "system",
     resource : "resource",
-    project : "project"
+    project : "project",
+    project_privacy_status : "project_privacy_status"
 };
 
-Permissions.roles = {
+Permissions.role = {
     system : {
         admin : {
             type : Permissions.types.system,
@@ -72,31 +73,31 @@ Permissions.roles = {
     }
 }
 
-Permissions.access_levels = {
+Permissions.project_privacy_status = {
     public : {
-        type : Permissions.types.project,
-        access_level_required : "public",
+        type : Permissions.types.project_privacy_status,
+        predicate : "ddr:privacyStatus",
+        object : "public",
         error_message_user : "This is a public project.",
-        error_message_api : "This is a public project.",
-        predicate : "ddr:public"
+        error_message_api : "This is a public project."
     },
     private : {
-        type : Permissions.types.project,
-        access_level_required : "private",
+        type : Permissions.types.project_privacy_status,
+        predicate : "ddr:privacyStatus",
+        object : "private",
         error_message_user : "This is a private project, and neither data nor metadata can be accessed.",
-        error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed.",
-        predicate : "ddr:private"
+        error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed."
     },
     metadata_only :  {
-        type : Permissions.types.project,
-        access_level_required : "metadata_only",
+        type : Permissions.types.project_privacy_status,
+        predicate : "ddr:privacyStatus",
+        object : "metadata_only",
         error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
-        error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed.",
-        predicate : "ddr:metadata_only"
+        error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
     }
 }
 
-Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllowingOrDenying)
+Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllowingOrDenying, errorMessage)
 {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
@@ -118,42 +119,12 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
     }
     else
     {
-        var messagesAPI = "";
-        var messagesUser = "";
+        var messageAPI = errorMessage;
+        var messageUser = errorMessage;
 
         req.permissions_management = {
             reasons_for_denying : reasonsForAllowingOrDenying
         };
-
-        for(var i = 0; i < reasonsForAllowingOrDenying.length ; i++)
-        {
-            if(reasonsForAllowingOrDenying[i] instanceof Object)
-            {
-                var denyingReason = reasonsForAllowingOrDenying[i].role;
-
-                messagesAPI = messagesAPI + denyingReason.error_message_api;
-                messagesUser = messagesUser + denyingReason.error_message_user;
-
-                if(i < reasonsForAllowingOrDenying.length - 1)
-                {
-                    messagesAPI = messagesAPI + " , ";
-                    messagesUser = messagesUser + " , ";
-                }
-            }
-            else if(typeof reasonsForAllowingOrDenying[i] == "string")
-            {
-                var denyingReason = reasonsForAllowingOrDenying[i];
-
-                messagesAPI = messagesAPI + denyingReason;
-                messagesUser = messagesUser + denyingReason;
-
-                if(i < denyingReason.length - 1)
-                {
-                    messagesAPI = messagesAPI + " , ";
-                    messagesUser = messagesUser + " , ";
-                }
-            }
-        }
 
         if(Config.debug.permissions.log_authorizations)
         {
@@ -163,53 +134,39 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
                 user = req.session.user.uri;
             }
 
-            console.log("[DENY-ACCESS] User " + user + " denied access to " + req.originalUrl + " . Reasons: " + messagesUser);
+            console.log("[DENY-ACCESS] User " + user + " denied access to " + req.originalUrl + " . Reasons: " + messageUser);
         }
 
         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
         {
-            if(messagesAPI == "")
+            if(messageAPI == "" || messageAPI == null)
             {
-                messagesAPI = Permissions.messages.generic.api;
+                messageAPI = Permissions.messages.generic.api;
             }
 
             return res.status(401).json(
                 {
                     result : "error",
-                    message : messagesAPI
+                    message : messageAPI
                 }
             );
         }
         else
         {
-            if(messagesUser == "")
+            if(messageUser == "" || messageUser == null)
             {
-                messagesUser = Permissions.messages.generic.user;
+                messageUser = Permissions.messages.generic.user;
             }
 
-            req.flash('error', messagesUser);
+            req.flash('error', messageUser);
 
             if(req.session.user)
             {
-                if(req.privacy)
-                {
-                    if(req.privacy === "metadata_only")
-                    {
-                        return res.redirect(req.originalUrl + '/request_access');
-                    }
-                    else if(req.privacy === "private")
-                    {
-                        return res.redirect("/");
-                    }
-                }
-                else
-                {
-                    return res.redirect('/');
-                }
+                return res.status(401).redirect('/');
             }
             else
             {
-                return res.redirect('/login');
+                return res.status(401).redirect('/login');
             }
         }
     }
@@ -296,12 +253,12 @@ var checkPermissionsForProject = function(req, permission, callback)
             {
                 var privacy = project.ddr.privacyStatus;
 
-                if(permission.access_level_required != null && privacy === permission.access_level_required)
+                if(permission.object != null && privacy === permission.object)
                 {
                     callback(null,
                         {
                             authorized : true,
-                            role : Permissions.access_levels[permission.access_level_required]
+                            role : Permissions.project_privacy_status[permission.object]
                         }
                     );
                 }
@@ -367,14 +324,53 @@ Permissions.check = function(permissionsRequired, req, callback)
         var user = req.session.user;
 
         var checkPermissions = function(req, user, resource, permission, cb){
-            if(user != null)
+            if(permission.type == Permissions.types.system)
             {
-                checkPermissionsForRole(req, user, resource, permission, function(err, results){
-                    cb(err, results);
-                });
+                if(user != null)
+                {
+                    checkPermissionsForRole(req, user, resource, permission, function(err, results){
+                        cb(err, results);
+                    });
+                }
+                else
+                {
+                    cb(null, {authorized : false, role : permission});
+                }
+
             }
-            else if (permission.type == Permissions.types.project) {
-                checkPermissionsForProject(req, permission, function (err, results) {
+            else if(permission.type == Permissions.types.project)
+            {
+                if(user != null)
+                {
+                    checkPermissionsForRole(req, user, resource, permission, function (err, results)
+                    {
+                        cb(err, results);
+                    });
+                }
+                else
+                {
+                    cb(null, {authorized : false, role : permission});
+                }
+
+            }
+            else if(permission.type == Permissions.types.resource)
+            {
+                if(user != null)
+                {
+                    checkPermissionsForRole(req, user, resource, permission, function (err, results)
+                    {
+                        cb(err, results);
+                    });
+                }
+                else
+                {
+                    cb(null, {authorized : hasRole, role : permission});
+                }
+            }
+            else if (permission.type == Permissions.types.project_privacy_status)
+            {
+                checkPermissionsForProject(req, permission, function (err, results)
+                {
                     cb(err, results);
                 });
             }
@@ -383,7 +379,7 @@ Permissions.check = function(permissionsRequired, req, callback)
                 cb(null,
                     {
                         authorized : false,
-                        role : Permissions.roles.system.user
+                        role : "Permission required is badly configured. Ask your administrator to review your Dendro server's configuration"
                     }
                 );
             }
@@ -427,7 +423,7 @@ Permissions.check = function(permissionsRequired, req, callback)
     {
         var reasonsForAllowing = [{
             authorized: true,
-            role: Permissions.roles.system.admin
+            role: Permissions.role.system.admin
         }];
 
         req = Permissions.addToReasons(req, reasonsForAllowing, true);
@@ -482,7 +478,7 @@ Permissions.require = function(permissionsRequired, req, res, next)
         }
         else
         {
-            return Permissions.sendResponse(true, req, res, next, [Permissions.roles.system.admin]);
+            return Permissions.sendResponse(true, req, res, next, [Permissions.role.system.admin]);
         }
     }
     else

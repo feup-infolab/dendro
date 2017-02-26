@@ -836,6 +836,38 @@ DbConnection.prototype.deleteGraph = function(graphUri, callback)
     );
 };
 
+DbConnection.prototype.graphExists = function(graphUri, callback)
+{
+    var self = this;
+
+    self.execute("ASK { GRAPH [0] { ?s ?p ?o . } }",
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : graphUri
+            }
+        ],
+        function(err, result)
+        {
+            if(err == null)
+            {
+                if(result == true)
+                {
+                    callback(err, true);
+                }
+                else
+                {
+                    callback(err, false);
+                }
+            }
+            else
+            {
+                callback(err, null);
+            }
+        }
+    );
+};
+
 DbConnection.buildFromStringAndArgumentsArrayForOntologies = function(ontologyURIsArray, startingArgumentCount)
 {
     var i;
