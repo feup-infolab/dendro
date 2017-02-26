@@ -1,23 +1,25 @@
 var Config = function() { return GLOBAL.Config; }();
+var RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
 var _ = require('underscore');
 var async = require('async');
 
+var recommendation_mode = RecommendationUtils.getActiveRecommender();
 var recommendation;
 
-if(Config.recommendation.modes.dendro_recommender.active)
+if(recommendation_mode == "dendro_recommender")
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation.js")).shared;
 }
-else if(Config.recommendation.modes.standalone.active)
+else if(recommendation_mode == "standalone")
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
 }
-else if(Config.recommendation.modes.project_descriptors.active)
+else if(recommendation_mode == "project_descriptors")
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation.js")).shared;
 }
-else if(Config.recommendation.modes.none.active)
+else if(recommendation_mode == "none")
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;
 }

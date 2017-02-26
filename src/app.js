@@ -40,6 +40,7 @@ var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/pl
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+var RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
 var async = require('async');
 var util = require('util');
@@ -696,7 +697,9 @@ async.waterfall([
             });
         };
 
-        if (Config.recommendation.modes.standalone.active || Config.recommendation.modes.none.active || Config.recommendation.modes.dendro_recommender.active ||  Config.recommendation.modes.project_descriptors.active )
+        var recommendation_mode = RecommendationUtils.getActiveRecommender();
+
+        if (recommendation_mode != null)
         {
             async.series([
                     setupMySQLConnection
@@ -1000,19 +1003,21 @@ async.waterfall([
 
         var recommendation;
 
-        if(Config.recommendation.modes.dendro_recommender.active)
+        var recommendation_mode = RecommendationUtils.getActiveRecommender();
+
+        if(recommendation_mode == "dendro_recommender")
         {
             recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation"));
         }
-        else if(Config.recommendation.modes.standalone.active)
+        else if(recommendation_mode == "standalone")
         {
             recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
         }
-        else if(Config.recommendation.modes.project_descriptors.active)
+        else if(recommendation_mode == "project_descriptors")
         {
             recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
         }
-        else if(Config.recommendation.modes.none.active)
+        else if(recommendation_mode == "none")
         {
             recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation"));
         }
