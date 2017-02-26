@@ -1203,6 +1203,7 @@ async.waterfall([
                 console.log("Entered Project Root Route. URL : " + req.originalUrl);
                 req.params.handle = req.params[0];                      //project handle
                 req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
+                req.params.is_project_root = true;
 
                 var queryBasedRoutes = {
                         get: [
@@ -1354,6 +1355,8 @@ async.waterfall([
 
                 req.params.filepath = req.params[1];   //relative path encodeuri needed because of spaces in filenames
                 req.params.requestedResource = req.params.requestedResource + req.params.filepath;
+
+                req.params.is_project_root = false;
 
                 var queryBasedRoutes = {
                     get: [

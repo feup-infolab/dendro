@@ -14,7 +14,15 @@ var db_social = function() { return GLOBAL.db.social; }();
 
 exports.download = function(req, res){
     var self = this;
-    var requestedResourceURI = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+    if(req.params.is_project_root)
+    {
+        var requestedResourceURI = req.params.requestedResource + "/data";
+    }
+    else
+    {
+        var requestedResourceURI = req.params.requestedResource;
+    }
+
     var filePath = req.params.filepath;
 
     var downloadFolder = function(requestedResourceURI, res)
@@ -1519,7 +1527,15 @@ exports.undelete = function(req, res){
 
 exports.mkdir = function(req, res){
 
-    var parentFolderURI = req.params.requestedResource;
+    if(req.params.is_project_root)
+    {
+        var parentFolderURI = req.params.requestedResource + "/data";
+    }
+    else
+    {
+        var parentFolderURI = req.params.requestedResource;
+    }
+
     var newFolderTitle = req.query.mkdir;
 
     if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
