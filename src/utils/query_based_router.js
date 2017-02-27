@@ -82,7 +82,7 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
             }
             else
             {
-                Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying);
+                Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying, matchingRoute.authentication_error);
             }
         });
     }

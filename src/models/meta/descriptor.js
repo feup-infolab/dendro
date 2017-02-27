@@ -430,24 +430,20 @@ Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number
                 try{
                     page_number = parseInt(page_number);
                     page_size = parseInt(page_size);
-
-                    if(typeof page_number == "number" && typeof page_size == "number")
-                    {
-                        var offset = page_number * page_size;
-                        flat = flat.slice(offset, offset + page_size);
-                    }
-
-                    callback(err, flat);
                 }
                 catch(e)
                 {
-                    callback(1, "Unable to parse page size of page number");
+                    return callback(1, "Unable to parse page size of page number");
                 }
             }
-            else
-            {
 
+            if(typeof page_number == "number" && typeof page_size == "number")
+            {
+                var offset = page_number * page_size;
+                flat = flat.slice(offset, offset + page_size);
             }
+
+            callback(err, flat);
         }
         else
         {
