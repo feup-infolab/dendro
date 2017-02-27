@@ -118,8 +118,8 @@
         "destroy_all_graphs_on_startup" : false
       },
       "session": {
-        "auto_login": false,
-        "login_user": "demouser"
+        "auto_login": true,
+        "login_user": "demouser1"
       },
       "files": {
         "log_all_restore_operations": true,
@@ -134,9 +134,9 @@
       },
       "permissions" : {
         "enable_permissions_system" : true,
-        "log_authorizations" : true,
-        "log_denials" : true,
-        "log_requests_and_permissions" : true
+        "log_authorizations" : false,
+        "log_denials" : false,
+        "log_requests_and_permissions" : false
       },
       "users" : {
         "log_fetch_by_username" : false
@@ -286,12 +286,7 @@
     },
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
 
-    "public_ontologies" : [
-      "foaf",
-      "dcterms",
-      "bdv",
-      "research"
-    ]
+    "public_ontologies" : "[\"foaf\",\"dcterms\",\"bdv\",\"research\"]"
   },
   "prd" : {
     "port" : 3001,
