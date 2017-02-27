@@ -85,7 +85,6 @@ describe('/projects/my', function () {
     });
 });
 
-
 describe('/projects/new GET', function () {
 
     it('not logged in', function (done) {
@@ -197,6 +196,7 @@ describe('public project', function () {
         testUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain(publicProjectHandle);
+            res.text.should.not.contain('Edit mode');
             done();
         });
     });
@@ -218,7 +218,7 @@ describe('public project', function () {
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             testUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.contain(publicProjectHandle);
+                res.text.should.contain('Edit mode');
                 done();
             });
         });
@@ -246,6 +246,7 @@ describe('public project', function () {
             testUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain(publicProjectHandle);
+                res.text.should.not.contain('Edit mode');
                 done();
             });
         });
@@ -524,10 +525,10 @@ describe('metadata_only project', function () {
         testUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain(metadataProjectHandle);
+            res.text.should.not.contain('Edit mode');
             done();
         });
     });
-
 
     it('API view project authenticated', function (done) {
         this.timeout(5000);
@@ -548,6 +549,7 @@ describe('metadata_only project', function () {
             testUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain(metadataProjectHandle);
+                res.text.should.contain('Edit mode');
                 done();
             });
         });
@@ -571,6 +573,7 @@ describe('metadata_only project', function () {
             testUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain(metadataProjectHandle);
+                res.text.should.not.contain('Edit mode');
                 done();
             });
         });
@@ -768,6 +771,7 @@ describe('metadata_only project', function () {
     });
 
 });
+
 
 describe('private project', function () {
     var folderName = 'pastinhaLinda';
