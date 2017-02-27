@@ -128,7 +128,7 @@ exports.viewFolder= function (jsonOnly, agent, targetFolderInProject, folderName
     else
     {
         agent
-            .get('/project/' + projectHandle + '/data/'  + targetFolderInProject + '/' + folderName)
+            .get(path)
             .end(function (err, res) {
                 cb(err, res);
             });

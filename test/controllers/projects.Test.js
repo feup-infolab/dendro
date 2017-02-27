@@ -740,7 +740,7 @@ describe('metadata_only project', function () {
         var agent = chai.request.agent(app);
         projectUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
             res.should.have.status(200);
-            res.text.should.not.contain('Please sign in');
+            res.text.should.contain('Please sign in');
             done();
         });
     });
