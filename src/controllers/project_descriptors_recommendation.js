@@ -7,10 +7,25 @@ var async = require('async');
 
 
 exports.recommend_descriptors = function(req, res) {
-    var page_number = req.query.page;
-    var page_size = req.query.page_size;
 
-    exports.shared.recommend_descriptors(function(err, descriptors){
+    var resourceUri = req.params.requestedResource;
+
+    if(req.session.user != null)
+    {
+        var userUri = req.session.user.uri;
+    }
+    else
+    {
+        var userUri = null;
+    }
+
+    var allowedOntologies = _.map(Config.public_ontologies, function(prefix){
+        return Ontology.allOntologies[prefix].uri;
+    });
+
+    var indexConnection = req.index;
+
+    exports.shared.recommend_descriptors(resourceUri, userUri, req.query.page, allowedOntologies, indexConnection, function(err, descriptors){
         if(!err)
         {
             res.json(
@@ -28,7 +43,10 @@ exports.recommend_descriptors = function(req, res) {
                 error : results
             })
         }
-    }, page_number, page_size);
+    }, {
+        page_number : req.query.page,
+        page_size : req.query.page_size
+    });
 }
 
 exports.shared = {};
@@ -39,13 +57,16 @@ exports.shared.recommendation_options = {
     hidden : "hidden"
 };
 
-exports.shared.recommend_descriptors = function(callback, page_number, page_size)
+exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allowedOntologies, indexConnection, callback, options)
 {
-    var ontologyUris = _.map(Config.public_ontologies, function(prefix){
-        return Ontology.allOntologies[prefix].uri;
-    });
+     if(allowedOntologies == null)
+     {
+         allowedOntologies = _.map(Config.public_ontologies, function(prefix){
+             return Ontology.allOntologies[prefix].uri;
+         });
+     }
 
-    Descriptor.all_in_ontologies(ontologyUris, function(err, descriptors){
+    Descriptor.all_in_ontologies(allowedOntologies, function(err, descriptors){
         if(!err)
         {
             callback(null, descriptors);
@@ -54,7 +75,7 @@ exports.shared.recommend_descriptors = function(callback, page_number, page_size
         {
             callback(err, []);
         }
-    }, page_number, page_size);
+    }, options.page_number, options.page_size);
 
 
 };

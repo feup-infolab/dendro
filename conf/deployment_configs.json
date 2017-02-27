@@ -118,8 +118,8 @@
         "destroy_all_graphs_on_startup" : false
       },
       "session": {
-        "auto_login": false,
-        "login_user": "demouser"
+        "auto_login": true,
+        "login_user": "demouser1"
       },
       "files": {
         "log_all_restore_operations": true,
@@ -134,9 +134,9 @@
       },
       "permissions" : {
         "enable_permissions_system" : true,
-        "log_authorizations" : true,
-        "log_denials" : true,
-        "log_requests_and_permissions" : true
+        "log_authorizations" : false,
+        "log_denials" : false,
+        "log_requests_and_permissions" : false
       },
       "users" : {
         "log_fetch_by_username" : false

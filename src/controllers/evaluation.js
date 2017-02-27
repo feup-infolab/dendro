@@ -25,9 +25,7 @@ else if(recommendation_mode == "none")
 }
 
 var records = require(Config.absPathInSrcFolder("/controllers/records.js"));
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 
 exports.metadata_evaluation = function(req, res)
 {
@@ -91,7 +89,9 @@ exports.shared.evaluate_metadata = function(req, callback)
                 },
                 {
                     favorites : includeOnlyFavorites,
-                    smart : smartRecommendationMode
+                    smart : smartRecommendationMode,
+                    page_number : req.query.page_number,
+                    page_size : req.query.page_size
                 });
         }
     };
@@ -157,7 +157,7 @@ exports.shared.evaluate_metadata = function(req, callback)
         return metadata_evaluation;
     };
 
-    Resource.findByUri(requestedResourceURI, function (err, requestedResource)
+    var calculateQuality = function(err, requestedResource)
     {
         if (!err)
         {
@@ -207,5 +207,15 @@ exports.shared.evaluate_metadata = function(req, callback)
         {
             callback(1, "Error "+err+" fetching metadata for resource " + requestedResourceURI + ": " + requestedResource);
         }
-    });
+    }
+
+
+    if(req.params.is_project_root)
+    {
+        Project.findByUri(requestedResourceURI, calculateQuality);
+    }
+    else
+    {
+        InformationElement.findByUri(requestedResourceURI, calculateQuality);
+    }
 };
