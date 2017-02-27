@@ -222,3 +222,24 @@ exports.getMetadataRecomendationsForProject = function (jsonOnly, agent, project
 };
 
 
+exports.getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
+    if(jsonOnly)
+    {
+        agent
+            .get('/project/' + projectHandle + '?ls')
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get('/project/' + projectHandle + '?ls')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+

@@ -315,9 +315,57 @@ describe('public project', function () {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
-            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '1', publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, create folder logged in again', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(true, agent, targetFolderInProject, folderName+'2', publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, logged in creator see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.getProjectRootContent(true, agent, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.body.length.should.equal(3);
+                done();
+            });
+        });
+    });
+
+
+    it('API, not logged see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.getProjectRootContent(true, agent, publicProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.body.length.should.equal(3);
+            done();
+        });
+    });
+
+    it('API, logged in demouser2 see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.getProjectRootContent(true, agent, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.body.length.should.equal(3);
                 done();
             });
         });
@@ -593,9 +641,57 @@ describe('metadata_only project', function () {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
-            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '1', metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in again', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '2', metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, logged in creator see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.getProjectRootContent(true, agent, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.body.length.should.equal(3);
+                done();
+            });
+        });
+    });
+
+
+    it('API, not logged see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.getProjectRootContent(true, agent, metadataProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.body.length.should.equal(3);
+            done();
+        });
+    });
+
+    it('API, logged in demouser2 see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.getProjectRootContent(true, agent, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.body.length.should.equal(3);
                 done();
             });
         });
@@ -865,9 +961,55 @@ describe('private project', function () {
         this.timeout(5000);
         var app = GLOBAL.tests.app;
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
-            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '1', privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in again', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '2', privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, logged in creator see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            testUtils.getProjectRootContent(true, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.body.length.should.equal(3);
+                done();
+            });
+        });
+    });
+
+
+    it('API, not logged see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        testUtils.getProjectRootContent(true, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
+    });
+
+    it('API, logged in demouser2 see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            testUtils.getProjectRootContent(true, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(401);
                 done();
             });
         });
@@ -1009,68 +1151,4 @@ describe('private project', function () {
         });
     });
 
-    /*
-    it('project creator updates metadata wrong route', function (done) {
-        var targetFolderInProject = '';
-        var metadata = {
-            creator : "http://" + Config.host + "/user/demouser1",
-            title : 'This is a private test project',
-            description : 'This is a test private project description',
-            publisher: 'UP',
-            language: 'En',
-            coverage: 'Porto',
-            handle : privateProjectHandle,
-            privacy: 'private'
-        };
-
-        this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
-            testUtils.updateMetadataWrongRoute(true, agent, privateProjectHandle, metadata, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.not.contain(folderName);
-                done();
-            });
-        });
-    });
-    */
-
-    /*
-    it('project creator updates metadata correct route', function (done) {
-        var targetFolderInProject = '';
-        var metadata = {
-            creator : "http://" + Config.host + "/user/demouser1",
-            title : 'This is a private test project',
-            description : 'This is a test private project description',
-            publisher: 'UP',
-            language: 'En',
-            coverage: 'Porto',
-            handle : privateProjectHandle,
-            privacy: 'private'
-        };
-
-        this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
-            testUtils.updateMetadataCorrectRoute(true, agent, privateProjectHandle, metadata, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.not.contain(folderName);
-                done();
-            });
-        });
-    });*/
-
-    /*
-    it('authenticated updates metadata wrong route', function (done) {
-
-    });
-
-    it('project creator updates metadata correct route', function (done) {
-
-    });
-
-    it('authenticated updates metadata wrong route', function (done) {
-
-    });
-    */
 });
