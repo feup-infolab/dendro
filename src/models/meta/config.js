@@ -642,27 +642,7 @@ Config.email = getConfigParameter("email");
 
 Config.analytics_tracking_code = getConfigParameter("analytics_tracking_code");
 
-if(getConfigParameter("public_ontologies") instanceof Array)
-{
-    Config.public_ontologies = getConfigParameter("public_ontologies");
-}
-else if(typeof getConfigParameter("public_ontologies") == "string")
-{
-    try{
-        var array = JSON.parse(getConfigParameter("public_ontologies"));
-        Config.public_ontologies = array;
-    }
-    catch(e)
-    {
-        console.error("[FATAL ERROR] Unable to parse public ontologies array.");
-        process.exit(1);
-    }
-}
-else
-{
-    console.error("[FATAL ERROR] Public ontologies array has an invalid type.");
-    process.exit(1);
-}
+Config.public_ontologies = getConfigParameter("public_ontologies");
 
 Config.regex_routes = {
     project_root:
