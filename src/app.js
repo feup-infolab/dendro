@@ -73,7 +73,6 @@ var self = this;
 
 var appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::?=?)=)';
 
-
 if(Config.logging != null)
 {
     var mkpath = require('mkpath');
