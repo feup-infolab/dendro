@@ -11,7 +11,6 @@ chai.use(chaiHttp);
 
 var should = chai.should();
 
-
 describe('/projects', function () {
     it('lists all projects when not logged in', function (done) {
         var app = GLOBAL.tests.app;
@@ -772,7 +771,6 @@ describe('metadata_only project', function () {
 
 });
 
-
 describe('private project', function () {
     var folderName = 'pastinhaLinda';
     var targetFolderInProject = '';
@@ -1112,7 +1110,7 @@ describe('private project', function () {
         });
     });
 
-
+    /*
     it('API creator get metatada recommendations for project', function (done) {
         this.timeout(5000);
         testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
@@ -1133,6 +1131,7 @@ describe('private project', function () {
             });
         });
     });
+    */
 
     it('API demouser2 get metatada recommendations for project', function (done) {
         this.timeout(5000);
@@ -1148,6 +1147,55 @@ describe('private project', function () {
         this.timeout(5000);
         testUtils.loginUser('demouser2', 'demouserpassword2015', function (err, newAgent) {
             testUtils.getMetadataRecomendationsForProject(false, newAgent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+    
+    it('API, wrong route for update metadata', function (done) {
+        this.timeout(5000);
+        var metadata = {
+                creator : "http://" + Config.host + "/user/demouser1",
+                title : 'This is a test project privado e alterado',
+                description : 'This is a test privado e alterado project description',
+                publisher: 'UP',
+                language: 'En',
+                coverage: 'Porto',
+                handle : privateProjectHandle,
+                privacy: 'private'
+        };
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            testUtils.updateMetadataWrongRoute(true, newAgent, privateProjectHandle, metadata, function (err, res) {
+                res.should.have.status(404);
+                res.text.should.not.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+
+    it('API, correct route for update metadata', function (done) {
+        this.timeout(5000);
+        //var folderName = 'pastinhaLinda';
+        //var targetFolderInProject = '';
+        var folderPath = targetFolderInProject + '/' + folderName;
+        var path = '/project/' + privateProjectHandle + '/data/'  + targetFolderInProject + folderName;
+        //http://127.0.0.1:3001/project/testprojectprivate/data/pastinhaLinda
+        //var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}];
+        /*var metadata = {
+            title: "title",
+            creator: "creatorsfdgfd"
+        };*/
+
+        var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}];
+
+
+
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            //jsonOnly, agent, projectHandle, metadata, cb
+            testUtils.updateMetadataCorrectRoute(true, newAgent, privateProjectHandle, folderPath, metadata, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.not.contain(privateProjectHandle);
                 done();

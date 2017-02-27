@@ -179,12 +179,15 @@ exports.updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, met
 };
 
 
-exports.updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, metadata, cb) {
+exports.updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb) {
+    ///project/:handle/data/folderpath?update_metadata
+    var path = '/project/' + projectHandle +'/data'+ folderPath + '?update_metadata';
     if(jsonOnly)
     {
         agent
-            .post('/project/' + projectHandle +'/data/teste?update_metadata')
+            .post(path)
             .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
             .send(metadata)
             .end(function (err, res) {
                 cb(err, res);
@@ -193,7 +196,8 @@ exports.updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, m
     else
     {
         agent
-            .post('/project/' + projectHandle +'/data/teste?update_metadata')
+            .post(path)
+            .set('Content-Type', 'application/json')
             .send(metadata)
             .end(function (err, res) {
                 cb(err, res);
