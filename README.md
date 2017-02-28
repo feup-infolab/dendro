@@ -1,4 +1,5 @@
 [![codecov](https://codecov.io/gh/feup-infolab/dendro/branch/master/graph/badge.svg)](https://codecov.io/gh/feup-infolab/dendro)
+[![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro.svg)
 
 #	Welcome to Dendro
 
