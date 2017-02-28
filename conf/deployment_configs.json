@@ -63,6 +63,7 @@
     "mongoDBHost" : "192.168.56.249",
     "mongoDbPort" : "27017",
     "mongoDbCollectionName" : "dendro_data_dev",
+    "mongoDBSessionStoreCollection" : "dendro_data_dev_sessions",
     "mongoDbVersion" : "",
     "mongoDBAuth" : {
       "user" : "",
@@ -352,6 +353,7 @@
     "mongoDBHost" : "127.0.0.1",
     "mongoDbPort" : "27017",
     "mongoDbCollectionName" : "dendro_data_dev",
+    "mongoDBSessionStoreCollection" : "dendro_data_dev_sessions",
     "mongoDbVersion" : "",
     "mongoDBAuth" : {
       "user" : "",
@@ -645,6 +647,7 @@
     "mongoDBHost" : "192.168.56.248",
     "mongoDbPort" : "27017",
     "mongoDbCollectionName" : "dendro_data_dev",
+    "mongoDBSessionStoreCollection" : "dendro_data_dev_sessions",
     "mongoDbVersion" : "",
     "mongoDBAuth" : {
       "user" : "",

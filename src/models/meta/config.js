@@ -86,6 +86,7 @@ Config.change_log =  parseInt(getConfigParameter("change_log"));
 Config.mongoDBHost =  getConfigParameter("mongoDBHost");
 Config.mongoDbPort =  getConfigParameter("mongoDbPort");
 Config.mongoDbCollectionName =  getConfigParameter("mongoDbCollectionName");
+Config.mongoDBSessionStoreCollection =  getConfigParameter("mongoDBSessionStoreCollection");
 Config.mongoDbVersion =  getConfigParameter("mongoDbVersion");
 Config.mongoDBAuth = getConfigParameter("mongoDBAuth");
 
