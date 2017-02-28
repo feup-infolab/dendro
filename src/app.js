@@ -1055,16 +1055,15 @@ async.waterfall([
         {
             "host": Config.mongoDBHost,
             "port": Config.mongoDbPort,
-            "db": Config.mongoDbCollectionName,
-            "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDbCollectionName
+            "db": Config.mongoDBSessionStoreCollection,
+            "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDBSessionStoreCollection
         });
 
         app.use(expressSession({
             secret: appSecret,
             name: "dendroCookie",
-            store: sessionMongoStore,
-            proxy: true,
-            resave: true,
+            //store: sessionMongoStore,
+            resave: false,
             saveUninitialized: true
         }));
 
