@@ -23,7 +23,7 @@ exports.analytics_tracking_code = function(req, res){
         }
         else
         {
-            res.send(405);
+            res.sendStatus(405);
         }
     }
 };
