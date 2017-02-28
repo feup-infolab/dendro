@@ -62,5 +62,12 @@ var dendroApp = angular.module('dendroApp', [
     );
 }]);
 
+        // The queue timeout for new alerts.
+        ngAlertsProvider.options.queue = null;
+    }]).config(['AnalyticsProvider', function (AnalyticsProvider) {
+        // Add configuration code as desired
+        AnalyticsProvider.setAccount(analytics_tracking_code);  //UU-XXXXXXX-X should be your tracking code
+    }]).run(['Analytics', function(Analytics) { }]);
+};
 
 
