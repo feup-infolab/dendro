@@ -3,8 +3,14 @@
 //this HAS TO BE A GLOBAL VAR https://github.com/sciactive/pnotify/issues/23
 PNotify.prototype.options.styling = "bootstrap3";
 var stack_topright = {"dir1": "down", "dir2": "left", "push": "top"};
+
+var startTrackingWithGoogleAnalytics = function(app)
+{
+    app.run(function(Analytics) {});
+}
+
 // Declare app level module which depends on filters, and services
-angular.module('dendroApp', [
+var dendroApp = angular.module('dendroApp', [
     'ngRoute',
     'ngAnimate',
     'ngTagsInput',
@@ -25,7 +31,7 @@ angular.module('dendroApp', [
     'dendroApp.filters',
     'dendroApp.services',
     'dendroApp.directives',
-    'dendroApp.factories',
+    'dendroApp.factories'
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
         return $sce.trustAsResourceUrl(val);
@@ -38,14 +44,23 @@ angular.module('dendroApp', [
     ngAlertsProvider.options.queue = null;
 }]).config(['AnalyticsProvider', function (AnalyticsProvider) {
     // Add configuration code as desired
-    $.ajax({
-            url: "/analytics_tracking_code",
-            headers: {"Accept": "application/json"},
-            success: function (analytics_tracking_code)
-            {
-                AnalyticsProvider.setAccount(analytics_tracking_code);  //UU-XXXXXXX-X should be your tracking code
-            }
+
+    var initInjector = angular.injector(['ng']);
+    var $http = initInjector.get('$http');
+
+    $http({
+        method: 'GET',
+        url: "/analytics_tracking_code",
+        contentType: "application/json",
+        headers: {'Accept': "application/json"}
+    }).then(
+        function (response)
+        {
+            AnalyticsProvider.setAccount(response.data);  //UU-XXXXXXX-X should be your tracking code
+            startTrackingWithGoogleAnalytics(dendroApp);
         }
     );
-}]).run(['Analytics', function(Analytics) { }]);
+}]);
+
+
 

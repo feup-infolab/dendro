@@ -9,9 +9,9 @@
 
        <title>
             <% if (locals.title != null) { %>
-                <%= settings.title %> - <%= title %>
+                <%= title %> - <%= Config.version.name%>
             <% } else { %>
-                <%= settings.title %>
+                <%= Config.version.name%>
             <% } %>
         </title>
 
