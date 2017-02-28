@@ -1250,7 +1250,7 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
 User.prototype.startPasswordReset = function(callback)
 {
     var self = this;
-    var uuid = require('node-uuid');
+    var uuid = require('uuid');
 
     var token = uuid.v4();
 

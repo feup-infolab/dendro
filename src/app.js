@@ -105,7 +105,7 @@ if(Config.logging != null)
 
                         console.error = function (d)
                         { //
-                            log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(d) + '\n');
+                            log_file.write("[ " + new Date().toISOString() + " ] [ERcd ..ROR] "+ util.format(d) + '\n');
                             log_stdout.write(util.format(d) + '\n');
                         };
 

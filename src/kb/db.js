@@ -2,7 +2,7 @@ var util = require('util');
 var Config = function() { return GLOBAL.Config; }();
 var needle = require('needle');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 var redis = function() { return GLOBAL.redis.default; }();
 
 function DbConnection (host, port, username, password, maxSimultaneousConnections)

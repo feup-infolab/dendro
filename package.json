@@ -13,11 +13,11 @@
     "remote_debug" : "node app.js --debug=5858"
   },
   "dependencies": {
-    "MD5": "1.1.0",
-    "archiver": "0.11.0",
+    "md5": "*",
+    "archiver": "*",
     "async": "^2.1.4",
     "base64-stream": "^0.1.2",
-    "bcrypt": "^1.0.2",
+    "bcrypt": "*",
     "body-parser": "^1.16.0",
     "chai-dom": "^1.4.3",
     "ckan": "git+https://github.com/feup-infolab-rdm/ckan.js.git",
@@ -37,7 +37,7 @@
     "elasticsearchclient": "0.4.0",
     "errorhandler": "^1.5.0",
     "etag": "^1.7.0",
-    "excel-parser": "^0.2.2",
+    "excel-parser": "*",
     "expect": "^1.20.2",
     "express": "~4",
     "express-session": "^1.14.2",
@@ -48,7 +48,7 @@
     "gladstone": "git+https://github.com/little9/gladstone.git",
     "gridfs-stream": "0.4.0",
     "humanize": "0.0.9",
-    "jade": "*",
+    "pug": "*",
     "jsdom": "^9.11.0",
     "jsonpath": "^0.2.7",
     "karma-coverage": "^1.1.1",
@@ -61,14 +61,14 @@
     "mkpath": "^1.0.0",
     "mocha": "^3.0.2",
     "moment": "2.5.0",
-    "mongodb": "1.3.19",
+    "mongodb": "*",
     "morgan": "^1.7.0",
     "multiparty": "^4.1.2",
     "mysql": "2.6.2",
     "n3": "0.1.1",
     "needle": "0.6.3",
     "node-fs": "0.1.7",
-    "node-uuid": "*",
+    "uuid": "*",
     "nodemailer": "0.7.1",
     "oboe": "2.0.2",
     "prettysize": "0.0.3",
@@ -98,8 +98,6 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
-    "jsdom": "^9.11.0",
-    "mocha": "^3.2.0",
     "nyc": "^10.1.2"
   }
 }

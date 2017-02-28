@@ -32,7 +32,7 @@ function Upload (object)
             self.loaded = object.loaded;
         }
 
-        var uuid = require('node-uuid');
+        var uuid = require('uuid');
         self.id = uuid.v4();
     }
     else

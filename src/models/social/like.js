@@ -4,7 +4,7 @@ var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 var Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 
 var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
