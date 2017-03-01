@@ -21,7 +21,6 @@ var express = require('express'),
     bodyParser = require('body-parser');
     methodOverride = require('method-override');
     cookieParser = require('cookie-parser');
-    cookieSession = require('cookie-session');
     expressSession = require('express-session');
     errorHandler = require('express-session');
     Q = require('q');
@@ -1041,14 +1040,6 @@ async.waterfall([
         app.use(methodOverride());
 
         app.use(cookieParser(appSecret));
-
-        app.use(cookieSession({
-            name: 'session',
-            keys: [appSecret],
-
-            // Cookie Options
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours
-        }));
 
         const MongoStore = require('connect-mongo')(expressSession);
         var sessionMongoStore = new MongoStore(
