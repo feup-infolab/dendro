@@ -14,6 +14,8 @@ PluginManager.registerPlugins = function(app, callback)
 
     var files = fs.readdirSync(pluginsFolderAbsPath);
 
+    files = _.without(files, "conf");
+
     for(var i = 0; i < files.length; i++)
     {
         var fileName = files[i];
