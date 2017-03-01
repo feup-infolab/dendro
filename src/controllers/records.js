@@ -227,8 +227,8 @@ exports.update = function(req, res) {
 
                             resource.replaceDescriptorsInMemory(
                                 fusedDescriptors,
-                                null,
-                                [Config.types.locked]
+                                [Config.types.locked, Config.types.private],
+                                []
                             );
 
                             resource.save(function(err, record)
