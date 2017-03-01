@@ -21,7 +21,6 @@ var express = require('express'),
     bodyParser = require('body-parser');
     methodOverride = require('method-override');
     cookieParser = require('cookie-parser');
-    cookieSession = require('cookie-session');
     expressSession = require('express-session');
     errorHandler = require('express-session');
     Q = require('q');
@@ -105,7 +104,7 @@ if(Config.logging != null)
 
                         console.error = function (d)
                         { //
-                            log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(d) + '\n');
+                            log_file.write("[ " + new Date().toISOString() + " ] [ERcd ..ROR] "+ util.format(d) + '\n');
                             log_stdout.write(util.format(d) + '\n');
                         };
 
@@ -1042,29 +1041,20 @@ async.waterfall([
 
         app.use(cookieParser(appSecret));
 
-        app.use(cookieSession({
-            name: 'session',
-            keys: [appSecret],
-
-            // Cookie Options
-            maxAge: 24 * 60 * 60 * 1000 // 24 hours
-        }));
-
         const MongoStore = require('connect-mongo')(expressSession);
         var sessionMongoStore = new MongoStore(
         {
             "host": Config.mongoDBHost,
             "port": Config.mongoDbPort,
-            "db": Config.mongoDbCollectionName,
-            "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDbCollectionName
+            "db": Config.mongoDBSessionStoreCollection,
+            "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDBSessionStoreCollection
         });
 
         app.use(expressSession({
             secret: appSecret,
             name: "dendroCookie",
-            store: sessionMongoStore,
-            proxy: true,
-            resave: true,
+            //store: sessionMongoStore,
+            resave: false,
             saveUninitialized: true
         }));
 
