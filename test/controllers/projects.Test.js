@@ -85,7 +85,6 @@ describe('/projects/my', function () {
     });
 });
 
-
 describe('/projects/new GET', function () {
 
     it('not logged in', function (done) {
@@ -198,6 +197,7 @@ describe('public project', function () {
         projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain(publicProjectHandle);
+            res.text.should.not.contain('Edit mode');
             done();
         });
     });
@@ -220,6 +220,7 @@ describe('public project', function () {
             projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain(publicProjectHandle);
+                res.text.should.contain('Edit mode');
                 done();
             });
         });
@@ -245,10 +246,58 @@ describe('public project', function () {
             projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain(publicProjectHandle);
+                res.text.should.not.contain('Edit mode');
                 done();
             });
         });
     });
+
+
+    it('API, create folder not logged in', function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
+    });
+
+
+    it('HTML, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain('Please sign in');
+            done();
+        });
+    });
+
+
+    it('API, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            projectUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain('folderName');
+                done();
+            });
+        });
+    });
+
 
     it('API, create folder logged in', function (done) {
         var app = GLOBAL.tests.app;
@@ -264,9 +313,57 @@ describe('public project', function () {
     it('HTML, create folder logged in', function (done) {
         var app = GLOBAL.tests.app;
         projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
-            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
+            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '1', publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, create folder logged in again', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            projectUtils.createFolderInProject(true, agent, targetFolderInProject, folderName+'2', publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, logged in creator see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            projectUtils.getProjectRootContent(true, agent, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.body.length.should.equal(3);
+                done();
+            });
+        });
+    });
+
+
+    it('API, not logged see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.getProjectRootContent(true, agent, publicProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.body.length.should.equal(3);
+            done();
+        });
+    });
+
+    it('API, logged in demouser2 see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            projectUtils.getProjectRootContent(true, agent, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.body.length.should.equal(3);
                 done();
             });
         });
@@ -433,10 +530,10 @@ describe('metadata_only project', function () {
         projectUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain(metadataProjectHandle);
+            res.text.should.not.contain('Edit mode');
             done();
         });
     });
-
 
     it('API view project authenticated', function (done) {
         var app = GLOBAL.tests.app;
@@ -455,6 +552,7 @@ describe('metadata_only project', function () {
             projectUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain(metadataProjectHandle);
+                res.text.should.contain('Edit mode');
                 done();
             });
         });
@@ -477,12 +575,60 @@ describe('metadata_only project', function () {
             projectUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain(metadataProjectHandle);
+                res.text.should.not.contain('Edit mode');
                 done();
             });
         });
     });
 
     //FOLDERS HERE
+
+    it('API, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
+    });
+
+
+    it('HTML, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain('Please sign in');
+            done();
+        });
+    });
+
+
+    it('API, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            projectUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain('folderName');
+                done();
+            });
+        });
+    });
+
 
     it('API, create folder logged in', function (done) {
         var app = GLOBAL.tests.app;
@@ -498,9 +644,57 @@ describe('metadata_only project', function () {
     it('HTML, create folder logged in', function (done) {
         var app = GLOBAL.tests.app;
         projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
-            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
+            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '1', metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in again', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '2', metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, logged in creator see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            projectUtils.getProjectRootContent(true, agent, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.body.length.should.equal(3);
+                done();
+            });
+        });
+    });
+
+
+    it('API, not logged see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.getProjectRootContent(true, agent, metadataProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.body.length.should.equal(3);
+            done();
+        });
+    });
+
+    it('API, logged in demouser2 see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            projectUtils.getProjectRootContent(true, agent, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.body.length.should.equal(3);
                 done();
             });
         });
@@ -546,7 +740,7 @@ describe('metadata_only project', function () {
         var agent = chai.request.agent(app);
         projectUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
             res.should.have.status(200);
-            res.text.should.not.equal(folderName);
+            res.text.should.contain('Please sign in');
             done();
         });
     });
@@ -567,7 +761,7 @@ describe('metadata_only project', function () {
         projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             projectUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.not.equal(folderName);
+                res.text.should.not.contain('Please sign in');
                 done();
             });
         });
@@ -589,23 +783,6 @@ describe('private project', function () {
         handle : privateProjectHandle,
         privacy: 'private'
     };
-
-    after(function(done) {
-        async.series([
-            function (callback) {
-                db.connection.deleteGraph(db.graphUri, callback);
-            },
-            function (callback) {
-                db.connection.deleteGraph(db_social.graphUri, callback);
-            },
-            function (callback) {
-                db.connection.deleteGraph(db_notifications.graphUri, callback);
-            }
-        ], function (err, results) {
-            console.log('deleted info from all graphs');
-            done();
-        });
-    });
 
 
     it('API create project not authenticated', function (done) {
@@ -718,6 +895,53 @@ describe('private project', function () {
         });
     });
 
+    it('API, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
+    });
+
+
+    it('HTML, create folder not logged in', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain('Please sign in');
+            done();
+        });
+    });
+
+
+    it('API, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            projectUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in not a collab', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain('folderName');
+                done();
+            });
+        });
+    });
+
+
     it('API, create folder logged in', function (done) {
         var app = GLOBAL.tests.app;
         projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
@@ -732,9 +956,55 @@ describe('private project', function () {
     it('HTML, create folder logged in', function (done) {
         var app = GLOBAL.tests.app;
         projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
-            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
+            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '1', privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
                 JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('HTML, create folder logged in again', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '2', privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });
+    });
+
+    it('API, logged in creator see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            projectUtils.getProjectRootContent(true, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.body.length.should.equal(3);
+                done();
+            });
+        });
+    });
+
+
+    it('API, not logged see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.getProjectRootContent(true, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
+    });
+
+    it('API, logged in demouser2 see project root content', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
+            projectUtils.getProjectRootContent(true, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(401);
                 done();
             });
         });
@@ -770,7 +1040,7 @@ describe('private project', function () {
         var agent = chai.request.agent(app);
         projectUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
             res.should.have.status(401);
-            res.text.should.not.equal(folderName);
+            res.text.should.not.contain(folderName);
             done();
         });
     });
@@ -780,7 +1050,7 @@ describe('private project', function () {
         var agent = chai.request.agent(app);
         projectUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
             res.should.have.status(200);
-            res.text.should.not.equal(folderName);
+            res.text.should.not.contain(folderName);
             done();
         });
     });
@@ -790,7 +1060,7 @@ describe('private project', function () {
         projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             projectUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(401);
-                res.text.should.not.equal(folderName);
+                res.text.should.not.contain(folderName);
                 done();
             });
         });
@@ -801,7 +1071,123 @@ describe('private project', function () {
         projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, agent) {
             projectUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.not.equal(folderName);
+                res.text.should.not.contain(folderName);
+                done();
+            });
+        });
+    });
+
+
+
+    it('API not authenticated get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.getMetadataRecomendationsForProject(true, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
+    });
+
+    it('HTML not authenticated get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.getMetadataRecomendationsForProject(false, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain('Please sign in');
+            done();
+        });
+    });
+
+    /*
+    it('API creator get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            testUtils.getMetadataRecomendationsForProject(true, newAgent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                done();
+            });
+        });
+    });
+
+    it('HTML creator get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        testUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            testUtils.getMetadataRecomendationsForProject(false, newAgent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+    */
+
+    it('API demouser2 get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, newAgent) {
+            projectUtils.getMetadataRecomendationsForProject(true, newAgent, privateProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
+    });
+
+    it('HTML demouser2 get metatada recommendations for project', function (done) {
+        this.timeout(5000);
+        projectUtils.loginUser('demouser2', 'demouserpassword2015', function (err, newAgent) {
+            projectUtils.getMetadataRecomendationsForProject(false, newAgent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+    
+    it('API, wrong route for update metadata', function (done) {
+        this.timeout(5000);
+        var metadata = {
+                creator : "http://" + Config.host + "/user/demouser1",
+                title : 'This is a test project privado e alterado',
+                description : 'This is a test privado e alterado project description',
+                publisher: 'UP',
+                language: 'En',
+                coverage: 'Porto',
+                handle : privateProjectHandle,
+                privacy: 'private'
+        };
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            projectUtils.updateMetadataWrongRoute(true, newAgent, privateProjectHandle, metadata, function (err, res) {
+                res.should.have.status(404);
+                res.text.should.not.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+
+    it('API, correct route for update metadata', function (done) {
+        this.timeout(5000);
+        //var folderName = 'pastinhaLinda';
+        //var targetFolderInProject = '';
+        var folderPath = targetFolderInProject + '/' + folderName;
+        var path = '/project/' + privateProjectHandle + '/data/'  + targetFolderInProject + folderName;
+        //http://127.0.0.1:3001/project/testprojectprivate/data/pastinhaLinda
+        //var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}];
+        /*var metadata = {
+            title: "title",
+            creator: "creatorsfdgfd"
+        };*/
+
+        var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}];
+
+
+
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            //jsonOnly, agent, projectHandle, metadata, cb
+            projectUtils.updateMetadataCorrectRoute(true, newAgent, privateProjectHandle, folderPath, metadata, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain(privateProjectHandle);
                 done();
             });
         });
