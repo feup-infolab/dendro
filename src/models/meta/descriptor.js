@@ -479,18 +479,18 @@ Descriptor.removeUnauthorizedFromObject = function(object, excludedDescriptorTyp
     }
 };
 
-Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
+Descriptor.prototype.isAuthorized = function(typesToUnauthorize, typesToForceAuthorization)
 {
     /**TODO make this more efficient**/
     var self = this;
 
-    if(excludedDescriptorTypes == null)
+    if(typesToUnauthorize == null)
     {
         return true;
     }
     else
     {
-        var authorizedDescriptors = Descriptor.getAuthorizedDescriptors(excludedDescriptorTypes, exceptionedDescriptorTypes);
+        var authorizedDescriptors = Descriptor.getAuthorizedDescriptors(typesToUnauthorize, typesToForceAuthorization);
 
         if(authorizedDescriptors[self.prefix][self.shortName] == true)
         {
@@ -513,7 +513,7 @@ Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptione
 
 
 //TODO calculate this at boot time and save it into a matrix for checking descriptor types
-Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
+Descriptor.getAuthorizedDescriptors = function(typesToUnauthorize, typesToForceAuthorization)
 {
     var authorizedDescriptors = {};
 
@@ -533,11 +533,11 @@ Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptio
                 shortName : shortName
             });
 
-            if(exceptionedDescriptorTypes != null && exceptionedDescriptorTypes.length > 0)
+            if(typesToForceAuthorization != null && typesToForceAuthorization.length > 0)
             {
-                for(var i = 0; i < exceptionedDescriptorTypes.length; i++)
+                for(var i = 0; i < typesToForceAuthorization.length; i++)
                 {
-                    var exceptionedType = exceptionedDescriptorTypes[i];
+                    var exceptionedType = typesToForceAuthorization[i];
 
                     if(descriptor[exceptionedType])
                     {
@@ -546,13 +546,13 @@ Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptio
                 }
             }
 
-            if(excludedDescriptorTypes != null  && excludedDescriptorTypes.length > 0)
+            if(typesToUnauthorize != null  && typesToUnauthorize.length > 0)
             {
                 if(!exceptioned)
                 {
-                    for(var i = 0; i < excludedDescriptorTypes.length; i++)
+                    for(var i = 0; i < typesToUnauthorize.length; i++)
                     {
-                        var excludedType = excludedDescriptorTypes[i];
+                        var excludedType = typesToUnauthorize[i];
 
                         if(Ontology.allOntologies[prefix][excludedType] || descriptor[excludedType])
                         {

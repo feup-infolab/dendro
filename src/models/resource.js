@@ -1063,7 +1063,8 @@ Resource.prototype.clearDescriptorTypesInMemory = function(descriptorTypesToClea
 {
     var self = this;
 
-    var myDescriptors = self.getDescriptors([], exceptionedDescriptorTypes);
+    var myDescriptors = self.getDescriptors(exceptionedDescriptorTypes, null);
+
     self.clearAllDescriptorsInMemory();
 
     self.updateDescriptorsInMemory(myDescriptors, descriptorTypesToClear, exceptionedDescriptorTypes);
@@ -1791,7 +1792,7 @@ var groupPropertiesArrayIntoObject = function(results)
     return properties;
 }
 
-Resource.prototype.getDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
+Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)
 {
     var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
@@ -1816,7 +1817,7 @@ Resource.prototype.getDescriptors = function(excludedDescriptorTypes, exceptione
                     }
                 );
 
-                if(newDescriptor.isAuthorized(excludedDescriptorTypes, exceptionedDescriptorTypes))
+                if(newDescriptor.isAuthorized(descriptorTypesNotToGet, descriptorTypesToForcefullyGet))
                 {
                     descriptorsArray.push(newDescriptor);
                 }
