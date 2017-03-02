@@ -1,5 +1,6 @@
 var folderData = {
-    name : 'pastinhaLinda'
+    name : 'pastinhaLinda',
+    pathInProject : ''
 };
 
 module.exports = folderData;
