@@ -1181,8 +1181,6 @@ describe('private project', function () {
 
         var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}];
 
-
-
         projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
             //jsonOnly, agent, projectHandle, metadata, cb
             projectUtils.updateMetadataCorrectRoute(true, newAgent, privateProjectHandle, folderPath, metadata, function (err, res) {
