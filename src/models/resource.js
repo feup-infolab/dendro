@@ -1020,7 +1020,7 @@ Resource.prototype.save = function
  * @param callback
  */
 
-Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes)
+Resource.prototype.updateDescriptorsInMemory = function(descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
 {
     var self = this;
 
@@ -1030,7 +1030,7 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDes
         var descriptor = descriptors[i];
         if(descriptor.prefix != null && descriptor.shortName != null)
         {
-            if(descriptor.isAuthorized(excludedDescriptorTypes, exceptionedDescriptorTypes))
+            if(descriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
             {
                 self[descriptor.prefix][descriptor.shortName] = descriptor.value;
             }
@@ -1052,21 +1052,37 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDes
  *
  * Only triples with this resource as their subject will be deleted.
  */
-Resource.prototype.clearAllDescriptorsInMemory = function()
+Resource.prototype.clearAllDescriptorsInMemory = function(doNotTouchTheseTypes, unlessTheyAreTheseTypes)
 {
     var self = this;
-    self.copyOrInitDescriptors({}, true);
+
+    if(doNotTouchTheseTypes !== null && unlessTheyAreTheseTypes !== null)
+    {
+        var descriptors = self.getDescriptors();
+        for(var i = 0; i < descriptors.length; i++)
+        {
+            var descriptor = descriptors[i];
+            if(descriptor.prefix != null && descriptor.shortName != null)
+            {
+                if(descriptor.isAuthorized(doNotTouchTheseTypes, unlessTheyAreTheseTypes))
+                {
+                    delete self[descriptor.prefix][descriptor.shortName];
+                }
+            }
+            else
+            {
+                var util = require('util');
+                var error = "Descriptor " + util.inspect(descriptor) + " does not have a prefix and a short name.";
+                console.error(error);
+            }
+        }
+    }
+    else
+    {
+        self.copyOrInitDescriptors({}, true);
+    }
+
     return self;
-}
-
-Resource.prototype.clearDescriptorTypesInMemory = function(descriptorTypesToClear, exceptionedDescriptorTypes)
-{
-    var self = this;
-
-    var myDescriptors = self.getDescriptors([], exceptionedDescriptorTypes);
-    self.clearAllDescriptorsInMemory();
-
-    self.updateDescriptorsInMemory(myDescriptors, descriptorTypesToClear, exceptionedDescriptorTypes);
 }
 
 /**
@@ -1076,13 +1092,12 @@ Resource.prototype.clearDescriptorTypesInMemory = function(descriptorTypesToClea
  * @param callback
  */
 
-Resource.prototype.replaceDescriptorsInMemory = function(descriptors, descriptorTypesToReplace, descriptorTypesThatShouldNotBeTouched)
+Resource.prototype.replaceDescriptorsInMemory = function(descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
 {
     var self = this;
 
-    self.clearDescriptorTypesInMemory(descriptorTypesToReplace, descriptorTypesThatShouldNotBeTouched);
-
-    self.updateDescriptorsInMemory(descriptors, descriptorTypesToReplace, descriptorTypesThatShouldNotBeTouched);
+    self.clearAllDescriptorsInMemory(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes);
+    self.updateDescriptorsInMemory(descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes);
     return self;
 };
 
@@ -1791,7 +1806,7 @@ var groupPropertiesArrayIntoObject = function(results)
     return properties;
 }
 
-Resource.prototype.getDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
+Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)
 {
     var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
@@ -1816,7 +1831,7 @@ Resource.prototype.getDescriptors = function(excludedDescriptorTypes, exceptione
                     }
                 );
 
-                if(newDescriptor.isAuthorized(excludedDescriptorTypes, exceptionedDescriptorTypes))
+                if(newDescriptor.isAuthorized(descriptorTypesNotToGet, descriptorTypesToForcefullyGet))
                 {
                     descriptorsArray.push(newDescriptor);
                 }
