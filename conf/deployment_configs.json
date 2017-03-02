@@ -693,6 +693,13 @@
           "firstname" : "Dendro 2",
           "surname" : "Demo User 2",
           "mbox" : "demouser2@dendro.fe.up.pt"
+        },
+        {
+          "username": "demouser3",
+          "password": "demouserpassword2015",
+          "firstname" : "Dendro 3",
+          "surname" : "Demo User 3",
+          "mbox" : "demouser3@dendro.fe.up.pt"
         }
       ]
     },

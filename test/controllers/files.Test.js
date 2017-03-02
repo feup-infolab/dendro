@@ -9,20 +9,34 @@ var should = chai.should();
 var agent = null;
 
 var demouser1 = require("../mockdata/users/demouser1.js");
+var demouser2 = require("../mockdata/users/demouser2.js");
+var demouser3 = require("../mockdata/users/demouser3.js");
+
 var folder = require("../mockdata/folders.js");
 
-describe('/download folder', function ()
+describe('/project/' + publicProject.handle + "/data/" + folder.pathInProject + folder.name + "?upload", function ()
 {
-    it('should download the folder', function (done)
+    it('should upload the mock files into a folder inside public project, user authenticated as ' + demouser1 + " (creator) ", function (done)
     {
-        var app = GLOBAL.tests.app;
-        chai.request(app)
-            .get('/login')
-            .end((err, res) =>
-            {
-                res.should.have.status(200);
-                res.text.should.contain('Please sign in');
-                done();
-            });
+        //TODO
+        done(1);
+    });
+
+    it('should upload the mock files into aa folder inside public project, user authenticated as ' + demouser2 + " (contributor) ", function (done)
+    {
+        //TODO
+        done(1);
+    });
+
+    it('should NOT upload the mock files into a folder inside public project, user authenticated as ' + demouser3 + " (NOT RELATED TO THE PROJECT) ", function (done)
+    {
+        //TODO
+        done(1);
+    });
+    
+    it('should NOT upload the mock files into a folder inside public project, user unauthenticated', function (done)
+    {
+        //TODO
+        done(1);
     });
 });
