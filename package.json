@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
-    "preinstall": "npm i -g gladstone && npm install -g istanbul  && npm install -g nyc && npm install -g codecov && npm install -g bower",
-    "postinstall": "cd public && bower install && cd ../src/plugins && ./conf/bower_install_in_plugins.sh && cd -",
+    "preinstall": "npm i -g gladstone && npm install -g istanbul && npm install -g nyc && npm install -g codecov && npm install -g bower",
+    "postinstall": "bower install $(pwd)/public && $(pwd)/src/plugins/conf/bower_install_in_plugins.sh",
     "test": "node node_modules/.bin/_mocha -t 10000",
     "watch": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha -t 10000 -w",
     "coverage": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha -t 10000",

@@ -32,7 +32,7 @@ build/Release
 node_modules/
 public/bower_components/
 bower_components/
-conf/
+./conf/
 logs/
 jspm_packages
 
