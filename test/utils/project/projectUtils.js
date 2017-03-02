@@ -247,3 +247,27 @@ exports.getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
 };
 
 
+exports.getResourceMetadata = function (jsonOnly, projectHandle, folderPath) {
+    //GET
+    //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
+    var path = '/project/' + projectHandle +'/data'+ folderPath + '?update_metadata';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+}
