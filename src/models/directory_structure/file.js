@@ -174,7 +174,7 @@ File.prototype.delete = function(callback, uriOfUserDeletingTheFile, reallyDelet
 File.prototype.undelete = function(callback, uriOfUserUnDeletingTheFile)
 {
     var self = this;
-    self.updateDescriptorsInMemory(
+    self.updateDescriptors(
         [
             new Descriptor({
                 prefixedForm : "ddr:deleted",
@@ -529,7 +529,7 @@ File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata,
             }
         }
 
-        self.replaceDescriptorsInMemory(descriptors,  excludedDescriptorTypes, exceptionedDescriptorTypes);
+        self.replaceDescriptors(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
 
         self.save(function(err, result){
             if(!err)

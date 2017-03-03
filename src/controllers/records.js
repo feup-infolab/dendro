@@ -225,11 +225,7 @@ exports.update = function(req, res) {
                                 var changeAuthor = null;
                             }
 
-                            resource.replaceDescriptorsInMemory(
-                                fusedDescriptors,
-                                [Config.types.locked, Config.types.private],
-                                []
-                            );
+                            resource.replaceDescriptors(fusedDescriptors, [Config.types.locked, Config.types.private], []);
 
                             resource.save(function(err, record)
                             {

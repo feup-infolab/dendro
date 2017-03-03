@@ -42,7 +42,7 @@ User.findByUsername = function(username, callback, removePrivateDescriptors)
         {
             if(removePrivateDescriptors)
             {
-                user.clearAllDescriptorsInMemory([Config.types.private, Config.types.locked], [Config.types.api_readable]);
+                user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
                 callback(err, user);
             }
             else
