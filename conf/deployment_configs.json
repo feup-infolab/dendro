@@ -764,7 +764,7 @@
     },
     "logging" :
     {
-      "pipe_console_to_logfile" : false,
+      "pipe_console_to_logfile" : true,
       "format" : "combined",
       "app_logs_folder" : "logs/app",
       "log_request_times" : true,

@@ -98,15 +98,41 @@ if(Config.logging != null)
 
                         console.log = function (d)
                         { //
-                            log_file.write("[ " + new Date().toISOString() + " ] "+ util.format(d) + '\n');
+                            var date = new Date().toISOString();
+                            log_file.write("[ " + date + " ] "+ util.format(d) + '\n');
                             log_stdout.write(util.format(d) + '\n');
+
+                            if(d.stack != null)
+                            {
+                                log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
+                                log_stdout.write(util.format(d.stack) + '\n');
+                            }
                         };
 
                         console.error = function (d)
-                        { //
-                            log_file.write("[ " + new Date().toISOString() + " ] [ERcd ..ROR] "+ util.format(d) + '\n');
+                        {
+                            var date = new Date().toISOString();
+                            log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(d) + '\n');
                             log_stdout.write(util.format(d) + '\n');
+
+                            if(d.stack != null)
+                            {
+                                log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
+                                log_stdout.write(util.format(d.stack) + '\n');
+                            }
                         };
+
+                        process.on('uncaughtException', function(err) {
+                            var date = new Date().toISOString();
+
+                            if(err.stack != null)
+                            {
+                                log_file.write("[ " + date + " ] [FATAL ERROR!] "+ util.format(err.stack) + "\n");
+                            }
+
+                            throw err;
+                        });
+
 
                         cb(err);
                     }

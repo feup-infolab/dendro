@@ -136,7 +136,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 
                             if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
                             {
-                                completeResource.clearDescriptorTypesInMemory(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                                completeResource.clearAllDescriptorsInMemory(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
                             }
 
                             cb(err, completeResource);
@@ -531,7 +531,7 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
                     "?uri  rdfs:comment   ?comment. \n" +
                     "FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
                 "} .\n" +
-            
+
                 filterString +
             " } \n";
 
@@ -1044,7 +1044,9 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, cannotChang
     }
 
     return self;
-}
+};
+
+
 
 /**
  * Used for deleting a resource.
@@ -1448,7 +1450,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
                     if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
                     {
-                        resource.clearDescriptorTypesInMemory(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                        resource.clearAllDescriptorsInMemory(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
                     }
 
                     callback(err, resource);
