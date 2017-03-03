@@ -1170,7 +1170,7 @@ describe('private project', function () {
         this.timeout(5000);
         var folderPath = targetFolderInProject + '/' + folderName;
         var path = '/project/' + privateProjectHandle + '/data/'  + targetFolderInProject + folderName;
-        var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}];
+        var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}, {"uri":"http://xmlns.com/foaf/0.1/surname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"surname","prefixedForm":"foaf:surname","type":3,"control":"input_box","label":"Surname","comment":"The surname of some person.","recommendation_types":{},"$$hashKey":"object:145","just_added":true,"added_from_manual_list":true,"rankingPosition":7,"interactionType":"accept_descriptor_from_manual_list","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}, {"uri":"http://xmlns.com/foaf/0.1/givenname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"givenname","prefixedForm":"foaf:givenname","type":3,"control":"input_box","label":"Given name","comment":"The given name of some person.","value":"lindo nome","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}];
 
         projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
             //jsonOnly, agent, projectHandle, metadata, cb
@@ -1191,7 +1191,7 @@ describe('private project', function () {
             //jsonOnly, agent, projectHandle, folderPath
             projectUtils.getResourceMetadata(true, newAgent, privateProjectHandle, folderPath, function (err, res) {
                 res.should.have.status(200);
-                JSON.parse(res.text).descriptors[0].value.should.be.equal('This is the creator');
+                JSON.parse(res.text).descriptors.length.should.be.equal(3);
                 done();
             });
         });
@@ -1206,8 +1206,11 @@ describe('private project', function () {
             projectUtils.removeDescriptorFromFolder(true, newAgent, privateProjectHandle, folderPath, 'dcterms:creator', function (error, res) {
                 res.should.have.status(200);
                 res.body.message.should.equal('Updated successfully.');
-                //TODO verificar se o removido já não consta na lista de descritores
-                done();
+                projectUtils.getResourceMetadata(true,  newAgent, privateProjectHandle, folderPath, function (newError, response) {
+                    response.should.have.status(200);
+                    JSON.parse(response.text).descriptors.length.should.be.equal(2);
+                    done();
+                });
             });
         });
     });
