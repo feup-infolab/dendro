@@ -447,6 +447,7 @@ Config.controls = {
 };
 
 Config.types = {
+    public : "public",                                  //can be shared, read and written
     private : "private",                                //cannot be shared to the outside world under any circumstance
     locked : "locked",                                  //can not be seen or edited from the main interface or via apis
     restorable : "restorable",                          //can be restorable from a metadata.json file in a zip backup file
