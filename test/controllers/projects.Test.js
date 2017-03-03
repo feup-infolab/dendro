@@ -1168,26 +1168,45 @@ describe('private project', function () {
 
     it('API, correct route for update metadata', function (done) {
         this.timeout(5000);
-        //var folderName = 'pastinhaLinda';
-        //var targetFolderInProject = '';
         var folderPath = targetFolderInProject + '/' + folderName;
         var path = '/project/' + privateProjectHandle + '/data/'  + targetFolderInProject + folderName;
-        //http://127.0.0.1:3001/project/testprojectprivate/data/pastinhaLinda
-        //var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}];
-        /*var metadata = {
-            title: "title",
-            creator: "creatorsfdgfd"
-        };*/
-
         var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}];
-
-
 
         projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
             //jsonOnly, agent, projectHandle, metadata, cb
             projectUtils.updateMetadataCorrectRoute(true, newAgent, privateProjectHandle, folderPath, metadata, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.not.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+
+    it('API, get metadata for a folder', function (done) {
+        this.timeout(5000);
+        var folderPath = targetFolderInProject + '/' + folderName;
+
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            //jsonOnly, agent, projectHandle, folderPath
+            projectUtils.getResourceMetadata(true, newAgent, privateProjectHandle, folderPath, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).descriptors[0].value.should.be.equal('This is the creator');
+                done();
+            });
+        });
+    });
+
+
+    it('API, remove title descriptor', function (done) {
+        this.timeout(5000);
+        var folderPath = targetFolderInProject + '/' + folderName;
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            //jsonOnly, agent, projectHandle, folderPath
+            projectUtils.removeDescriptorFromFolder(true, newAgent, privateProjectHandle, folderPath, 'dcterms:creator', function (error, res) {
+                res.should.have.status(200);
+                res.body.message.should.equal('Updated successfully.');
+                //TODO verificar se o removido já não consta na lista de descritores
                 done();
             });
         });
