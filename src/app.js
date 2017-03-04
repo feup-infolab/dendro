@@ -102,7 +102,7 @@ if(Config.logging != null)
                             log_file.write("[ " + date + " ] "+ util.format(d) + '\n');
                             log_stdout.write(util.format(d) + '\n');
 
-                            if(d.stack != null)
+                            if(d != null && d.stack != null)
                             {
                                 log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
                                 log_stdout.write(util.format(d.stack) + '\n');
@@ -115,7 +115,7 @@ if(Config.logging != null)
                             log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(d) + '\n');
                             log_stdout.write(util.format(d) + '\n');
 
-                            if(d.stack != null)
+                            if(d != null && d.stack != null)
                             {
                                 log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
                                 log_stdout.write(util.format(d.stack) + '\n');
