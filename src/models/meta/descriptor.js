@@ -196,6 +196,10 @@ Descriptor.recommendation_types = {
     dc_element_forced : {
         key : "dc_element_forced",
         weight : 0.0
+    },
+    project_descriptors : {
+        key : "dc_element_forced",
+        weight : 0.0
     }
 };
 
@@ -334,7 +338,7 @@ Descriptor.prototype.setValue = function(value)
 Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesize) {
 
     var query =
-        " SELECT ?uri ?type ?label ?comment \n"+
+        " SELECT DISTINCT ?uri ?type ?label ?comment \n"+
             " FROM [0] \n"+
             " WHERE \n" +
             " { \n"+
@@ -420,11 +424,18 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number, page_size) {
     var async = require('async');
     async.map(ontologyURIsArray, function(uri, cb){
-        Descriptor.all_in_ontology(uri, cb);
+        Descriptor.all_in_ontology(uri, function(err, descriptors){
+            cb(err, descriptors);
+        });
     },function(err, results){
         if(!err)
         {
             var flat = _.flatten(results);
+
+            flat = _.sortBy(flat, function(descriptor){
+                return descriptor.shortName;
+            });
+
             if(page_number != null && page_size != null)
             {
                 try{
@@ -509,8 +520,7 @@ Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptione
             return true;
         }
     }
-}
-
+};
 
 Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
 {

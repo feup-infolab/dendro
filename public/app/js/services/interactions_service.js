@@ -63,6 +63,10 @@ angular.module('dendroApp.services')
                                     return self.accept_favorite_descriptor_in_metadata_editor(descriptor);
                                 }
                             }
+                            else
+                            {
+                                return self.accept_descriptor_in_metadata_editor(descriptor);
+                            }
                         })
                     )
                     .catch(function(error){
@@ -118,7 +122,7 @@ angular.module('dendroApp.services')
 
                     if(descriptor.recommendation_types != null)
                     {
-                        if(
+                        if (
                             descriptor.recommendation_types.user_favorite &&
                             descriptor.recommendation_types.project_favorite
                         )
@@ -126,12 +130,12 @@ angular.module('dendroApp.services')
                             var url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
                             var interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite"
                         }
-                        else if(descriptor.recommendation_types.project_favorite)
+                        else if (descriptor.recommendation_types.project_favorite)
                         {
                             var url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite";
                             var interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite"
                         }
-                        else if(descriptor.recommendation_types.user_favorite)
+                        else if (descriptor.recommendation_types.user_favorite)
                         {
                             var url = "/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite";
                             var interactionType = "fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite"
@@ -141,18 +145,23 @@ angular.module('dendroApp.services')
                             var url = "/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor";
                             var interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor"
                         }
-
-                        return self.register_interaction(
-                            url,
-                            descriptor,
-                            interactionType,
-                            descriptor.rankingPosition, //previously saved at the time of selection from the list
-                            null,
-                            null,
-                            null,
-                            null
-                        );
                     }
+                    else
+                    {
+                        var url = "/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor";
+                        var interactionType = "fill_in_descriptor_from_manual_list_in_metadata_editor"
+                    }
+
+                    return self.register_interaction(
+                        url,
+                        descriptor,
+                        interactionType,
+                        descriptor.rankingPosition, //previously saved at the time of selection from the list
+                        null,
+                        null,
+                        null,
+                        null
+                    );
                 };
 
                 this.fill_in_inherited_descriptor = function(descriptor) {
@@ -406,24 +415,32 @@ angular.module('dendroApp.services')
 
                     var self = this;
 
-                    if(
-                        descriptor.recommendation_types.user_favorite
-                        &&
-                        descriptor.recommendation_types.project_favorite
-                    )
+                    if(descriptor.recommendation_types != null)
                     {
-                        var url = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite";
-                        var interactionType = "fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite"
-                    }
-                    else if(descriptor.recommendation_types.project_favorite)
-                    {
-                        var url = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite";
-                        var interactionType = "fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite"
-                    }
-                    else if(descriptor.recommendation_types.user_favorite)
-                    {
-                        var url = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite";
-                        var interactionType = "fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite"
+                        if (
+                            descriptor.recommendation_types.user_favorite
+                            &&
+                            descriptor.recommendation_types.project_favorite
+                        )
+                        {
+                            var url = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite";
+                            var interactionType = "fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite"
+                        }
+                        else if (descriptor.recommendation_types.project_favorite)
+                        {
+                            var url = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite";
+                            var interactionType = "fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite"
+                        }
+                        else if (descriptor.recommendation_types.user_favorite)
+                        {
+                            var url = "/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite";
+                            var interactionType = "fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite"
+                        }
+                        else
+                        {
+                            var url = "/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor";
+                            var interactionType = "fill_in_descriptor_from_quick_list_in_metadata_editor"
+                        }
                     }
                     else
                     {

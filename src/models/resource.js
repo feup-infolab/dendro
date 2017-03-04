@@ -1073,7 +1073,7 @@ Resource.prototype.clearDescriptors = function(descriptorTypesToClear, exception
     self.clearAllDescriptors();
 
     self.updateDescriptors(myDescriptors);
-};  
+};
 
 /**
  * Replace descriptors with the ones sent as argument
@@ -1081,12 +1081,46 @@ Resource.prototype.clearDescriptors = function(descriptorTypesToClear, exception
  * @param descriptors
  */
 
-Resource.prototype.replaceDescriptors = function (descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
-{
-    var self = this;
 
-    self.clearDescriptors(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes);
-    self.updateDescriptors(descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes);
+Resource.prototype.replaceDescriptors = function(newDescriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
+{
+    let self = this;
+    let currentDescriptors = self.getDescriptors();
+    let newDescriptorsUris = [];
+
+    //update descriptors with new ones
+    for(let i = 0; i < newDescriptors.length; i++)
+    {
+        let newDescriptor = newDescriptors[i];
+        let newDescriptorPrefix =  newDescriptor.prefix;
+        let newDescriptorShortName =  newDescriptor.shortName;
+        newDescriptorsUris.push(newDescriptor.uri);
+
+        if(newDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
+        {
+            self[newDescriptorPrefix][newDescriptorShortName] = newDescriptor.value;
+        }
+    }
+
+    //clean other authorized descriptors that
+    // were not changed not included in
+    // newDescriptors
+
+    for(let i = 0; i < currentDescriptors.length; i++)
+    {
+        let currentDescriptor = currentDescriptors[i];
+        let currentDescriptorPrefix =  currentDescriptor.prefix;
+        let currentDescriptorShortName =  currentDescriptor.shortName;
+
+        if(!_.contains(newDescriptorsUris, currentDescriptor.uri))
+        {
+            if(currentDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
+            {
+                delete self[currentDescriptorPrefix][currentDescriptorShortName];
+            }
+        }
+    }
+
     return self;
 };
 
@@ -1793,7 +1827,7 @@ var groupPropertiesArrayIntoObject = function(results)
     }
 
     return properties;
-}
+};
 
 Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)
 {
