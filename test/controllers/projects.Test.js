@@ -1215,4 +1215,34 @@ describe('private project', function () {
         });
     });
 
+
+    it('API, add descriptor to a children folder, after that "ls" the parent folder and check that the children is still shown.', function (done) {
+        this.timeout(5000);
+        var folder2Name = 'outraPastinhaLinda';
+        var parentFolder = '/' + folderName; //TODO dá not found com a barra no inicio e unauthorized sem a mesma
+        var folderPath = parentFolder + '/' + folder2Name;
+        var path = '/project/' + privateProjectHandle + '/data/'  + folderName + '/' + folder2Name;
+        var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}, {"uri":"http://xmlns.com/foaf/0.1/surname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"surname","prefixedForm":"foaf:surname","type":3,"control":"input_box","label":"Surname","comment":"The surname of some person.","recommendation_types":{},"$$hashKey":"object:145","just_added":true,"added_from_manual_list":true,"rankingPosition":7,"interactionType":"accept_descriptor_from_manual_list","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}, {"uri":"http://xmlns.com/foaf/0.1/givenname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"givenname","prefixedForm":"foaf:givenname","type":3,"control":"input_box","label":"Given name","comment":"The given name of some person.","value":"lindo nome","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}];
+
+        //TODO inspect network to see what request is sent when creating a children folder
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            projectUtils.createFolderInProject(true, newAgent, parentFolder, folder2Name, privateProjectHandle, function (err, res) {
+                projectUtils.updateMetadataCorrectRoute(true, newAgent, privateProjectHandle, folderPath, metadata, function (err, res) {
+                    //TODO do the ls of the parent folder and see if the folder still exists
+                    res.should.have.status(200);
+                    done();
+                });
+            });
+        });
+
+        /*
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            projectUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '2', privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).result.should.equal('ok');
+                done();
+            });
+        });*/
+    });
+
 });
