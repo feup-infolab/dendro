@@ -69,6 +69,12 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
     Descriptor.all_in_ontologies(allowedOntologies, function(err, descriptors){
         if(!err)
         {
+            for(let i = 0; i < descriptors.length; i++)
+            {
+                descriptors[i].recommendation_types = {};
+                descriptors[i].recommendation_types[Descriptor.recommendation_types.project_descriptors.key] = true;
+            }
+            
             callback(null, descriptors);
         }
         else

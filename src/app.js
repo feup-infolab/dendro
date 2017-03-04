@@ -102,7 +102,7 @@ if(Config.logging != null)
                             log_file.write("[ " + date + " ] "+ util.format(d) + '\n');
                             log_stdout.write(util.format(d) + '\n');
 
-                            if(d.stack != null)
+                            if(d != null && d.stack != null)
                             {
                                 log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
                                 log_stdout.write(util.format(d.stack) + '\n');
@@ -115,7 +115,7 @@ if(Config.logging != null)
                             log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(d) + '\n');
                             log_stdout.write(util.format(d) + '\n');
 
-                            if(d.stack != null)
+                            if(d != null && d.stack != null)
                             {
                                 log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
                                 log_stdout.write(util.format(d.stack) + '\n');
@@ -1765,8 +1765,14 @@ async.waterfall([
 
                 // On error dispose of the domain
                 reqd.on('error', function (error) {
-                    console.error('Error', error.code, error.message, req.url);
-                    console.error('Stack Trace : ', error.stack);
+                    console.error('Error!\n' +  "Code: \n" + error.code + " \nMessage: \n" +error.message + "Request URL: \n" + req.originalRequestUrl);
+
+                    if(error.stack != null)
+                    {
+                        var util = require('util');
+                        console.error('Stack Trace : ' + util.format(error.stack));
+                    }
+                    
                     reqd.dispose();
                 });
 

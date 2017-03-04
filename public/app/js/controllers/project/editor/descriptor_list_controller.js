@@ -149,23 +149,31 @@ angular.module('dendroApp.controllers')
                     newDescriptor.added_from_manual_list = true;
                     newDescriptor.rankingPosition = index;
 
-                    if (
-                        descriptor.recommendation_types.user_favorite &&
-                        descriptor.recommendation_types.project_favorite
-                    )
+                    if(descriptor.recommendation_types != null)
                     {
-                        var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
-                        var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite"
-                    }
-                    else if (descriptor.recommendation_types.project_favorite)
-                    {
-                        var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite";
-                        var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_project_favorite"
-                    }
-                    else if (descriptor.recommendation_types.user_favorite)
-                    {
-                        var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite";
-                        var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_favorite"
+                        if (
+                            descriptor.recommendation_types.user_favorite &&
+                            descriptor.recommendation_types.project_favorite
+                        )
+                        {
+                            var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
+                            var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite"
+                        }
+                        else if (descriptor.recommendation_types.project_favorite)
+                        {
+                            var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite";
+                            var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_project_favorite"
+                        }
+                        else if (descriptor.recommendation_types.user_favorite)
+                        {
+                            var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite";
+                            var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_favorite"
+                        }
+                        else
+                        {
+                            var uri = "/interactions/accept_descriptor_from_manual_list";
+                            var interactionType = "accept_descriptor_from_manual_list"
+                        }
                     }
                     else
                     {
@@ -218,54 +226,73 @@ angular.module('dendroApp.controllers')
                             if($scope.descriptor_selection_mode == recommendationService.descriptor_selection_modes.recommendation)
                             {
                                 if (
-                                    descriptor.recommendation_types.user_favorite &&
-                                    descriptor.recommendation_types.project_favorite
+                                    descriptor.recommendation_types != null
                                 )
                                 {
-                                    var uri = "/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite";
-                                    var interactionType = "accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite"
-                                }
-                                else if (descriptor.recommendation_types.project_favorite)
-                                {
-                                    var uri = "/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite";
-                                    var interactionType = "accept_descriptor_from_quick_list_while_it_was_a_project_favorite"
-                                }
-                                else if (descriptor.recommendation_types.user_favorite)
-                                {
-                                    var uri = "/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite";
-                                    var interactionType = "accept_descriptor_from_quick_list_while_it_was_a_user_favorite"
+                                    if (
+                                        descriptor.recommendation_types.user_favorite &&
+                                        descriptor.recommendation_types.project_favorite
+                                    )
+                                    {
+                                        var uri = "/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite";
+                                        var interactionType = "accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite";
+                                    }
+                                    else if (descriptor.recommendation_types.project_favorite)
+                                    {
+                                        var uri = "/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite";
+                                        var interactionType = "accept_descriptor_from_quick_list_while_it_was_a_project_favorite";
+                                    }
+                                    else if (descriptor.recommendation_types.user_favorite)
+                                    {
+                                        var uri = "/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite";
+                                        var interactionType = "accept_descriptor_from_quick_list_while_it_was_a_user_favorite";
+                                    }
+                                    else
+                                    {
+                                        var uri = "/interactions/accept_descriptor_from_quick_list";
+                                        var interactionType = "accept_descriptor_from_quick_list";
+                                    }
                                 }
                                 else
                                 {
                                     var uri = "/interactions/accept_descriptor_from_quick_list";
-                                    var interactionType = "accept_descriptor_from_quick_list"
+                                    var interactionType = "accept_descriptor_from_quick_list";
                                 }
-
                             }
                             else if($scope.descriptor_selection_mode == recommendationService.descriptor_selection_modes.manual)
                             {
                                 if (
-                                    descriptor.recommendation_types.user_favorite &&
-                                    descriptor.recommendation_types.project_favorite
+                                    descriptor.recommendation_types != null
                                 )
                                 {
-                                    var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
-                                    var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite"
-                                }
-                                else if (descriptor.recommendation_types.project_favorite)
-                                {
-                                    var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite";
-                                    var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_project_favorite"
-                                }
-                                else if (descriptor.recommendation_types.user_favorite)
-                                {
-                                    var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite";
-                                    var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_favorite"
+                                    if (
+                                        descriptor.recommendation_types.user_favorite &&
+                                        descriptor.recommendation_types.project_favorite
+                                    )
+                                    {
+                                        var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
+                                        var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite";
+                                    }
+                                    else if (descriptor.recommendation_types.project_favorite)
+                                    {
+                                        var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite";
+                                        var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_project_favorite";
+                                    }
+                                    else if (descriptor.recommendation_types.user_favorite)
+                                    {
+                                        var uri = "/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite";
+                                        var interactionType = "accept_descriptor_from_manual_list_while_it_was_a_user_favorite";
+                                    }
+                                    else
+                                    {
+                                        var uri = "/interactions/accept_descriptor_from_manual_list";
+                                        var interactionType = "accept_descriptor_from_manual_list";
+                                    }
                                 }
                                 else
                                 {
                                     var uri = "/interactions/accept_descriptor_from_manual_list";
-                                    var interactionType = "accept_descriptor_from_manual_list"
+                                    var interactionType = "accept_descriptor_from_manual_list";
                                 }
                             }
 
