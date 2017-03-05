@@ -169,7 +169,7 @@ exports.show_parent = function(req, res) {
 
 exports.update = function(req, res) {
 
-    var requestedResourceURI = req.params.requestedResource;
+    const requestedResourceURI = req.params.requestedResource;
 
     InformationElement.findByUri(requestedResourceURI, function(err, resource)
     {

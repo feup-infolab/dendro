@@ -31,6 +31,7 @@ function Folder (object)
 
     self.rdf.type = Folder.prefixedRDFType;
     self.ddr.fileExtension = "folder";
+    self.ddr.hasFontAwesomeClass = "fa-folder";
 
     if(object.nie != null && object.nie.title != null)
     {

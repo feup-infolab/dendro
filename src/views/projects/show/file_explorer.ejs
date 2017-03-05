@@ -12,13 +12,16 @@
                                         <%if(locals.breadcrumbs[0].show_home)
                                         {
                                         %>
-                                            <img src="/images/icons/house.png"/>
+                                            <i class="fa fa-home file_explorer_icon" aria-hidden="true" style="font-size:32px;"></i>
                                         <%
                                         }
                                         else
                                         {
                                         %>
-                                            <img src="/images/icons/extensions/folder-up.png"/>
+                                            <span class="fa-stack fa-lg file_explorer_icon">
+                                                <i class="fa fa-square-o fa-stack-2x" style="font-size:32px;"></i>
+                                                <i class="fa fa-twitter fa-stack-1x" style="font-size:32px;"></i>
+                                            </span>
                                         <%
                                         }
                                         %>
@@ -37,17 +40,6 @@
         }
         %>
 
-        <script type="text/javascript">
-            function noIcon(image){
-                var requestedDefaultImage;
-                if(requestedDefaultImage == false)
-                {
-                    image.src = "/images/icons/file.png";
-                    requestedDefaultImage = true;
-                }
-            }
-        </script>
-
         <a ng-repeat="file in shared.folder_contents"
            ng-show="shared.folder_contents != null && (!file.ddr.deleted || shared.showing_deleted_files)"
            class="list-group-item ng-hide"
@@ -64,7 +56,7 @@
                                         <input  type="checkbox" ng-model="file.selected" multiple>
                                     </td>
                                     <td>
-                                        <img ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" onerror="noIcon(this);"/>
+                                        <img ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" image-spinner width=32 height=32"/>
                                     </td>
                                     <td class="filename-tablecell">
                                         <small>{{file.nie.title}}</small>

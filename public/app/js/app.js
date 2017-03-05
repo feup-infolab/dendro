@@ -31,7 +31,8 @@ var dendroApp = angular.module('dendroApp', [
     'dendroApp.filters',
     'dendroApp.services',
     'dendroApp.directives',
-    'dendroApp.factories'
+    'dendroApp.factories',
+    'imageSpinner'
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
         return $sce.trustAsResourceUrl(val);
@@ -45,8 +46,8 @@ var dendroApp = angular.module('dendroApp', [
 }]).config(['AnalyticsProvider', function (AnalyticsProvider) {
     // Add configuration code as desired
 
-    var initInjector = angular.injector(['ng']);
-    var $http = initInjector.get('$http');
+    let initInjector = angular.injector(['ng']);
+    let $http = initInjector.get('$http');
 
     $http({
         method: 'GET',
@@ -60,4 +61,13 @@ var dendroApp = angular.module('dendroApp', [
             startTrackingWithGoogleAnalytics(dendroApp);
         }
     );
-}]);
+}]).run(function($http, $rootScope){
+    $http.get('/shared/public_config.json')
+        .then(function(response) {
+            $rootScope.config = response.data;
+        })
+        .catch(function(error) {
+            // log error
+            console.log('Unable to load remote config');
+        });
+});

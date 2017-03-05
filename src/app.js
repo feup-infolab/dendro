@@ -1282,7 +1282,7 @@ async.waterfall([
                             //backups
                             {
                                 queryKeys : ['backup'],
-                                handler : files.backup,
+                                handler : files.serve,
                                 permissions : defaultPermissionsInProjectRoot,
                                 authentication_error : "Permission denied : cannot backup this project."
                             },
@@ -1464,17 +1464,17 @@ async.waterfall([
                         //backups
                         {
                             queryKeys : ['backup'],
-                            handler : files.backup,
+                            handler : files.serve,
                             permissions : defaultPermissionsInProjectBranch,
                             authentication_error : "Permission denied : cannot backup this resource because you do not have permissions to access its project."
                         },
                         //bagits
-                        {
-                            queryKeys : ['bagit'],
-                            handler : exports.download,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot bagit this resource because you do not have permissions to access its project."
-                        },
+                        //{
+                        //    queryKeys : ['bagit'],
+                        //    handler : projects.download,
+                        //    permissions : defaultPermissionsInProjectBranch,
+                        //    authentication_error : "Permission denied : cannot bagit this resource because you do not have permissions to access its project."
+                        //},
                         //list contents
                         {
                             queryKeys : ['ls'],

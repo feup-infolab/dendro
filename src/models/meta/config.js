@@ -498,13 +498,26 @@ Config.absPathInPublicFolder = function(relativePath)
  * Thumbnail Generation
  */
 
-Config.thumbnailableExtensions = {
-    //"pdf" : 1,
-    "jpeg": 1,
-    "jpg" : 1,
-    "gif" : 1,
-    "png" : 1
-};
+if(Config.thumbnailableExtensions == null)
+{
+    Config.thumbnailableExtensions = require(Config.absPathInPublicFolder("/shared/public_config.json"))["thumbnailable_file_extensions"];
+}
+
+if(Config.iconableFileExtensions == null)
+{
+    Config.iconableFileExtensions = [];
+    let extensions = fs.readdirSync(Config.absPathInPublicFolder("/images/icons/extensions"));
+
+    for(let i = 0; i < extensions.length; i++)
+    {
+        if(extensions[i] != "." && extensions[i] != "..")
+        {
+            let extensionOnly = extensions[i].match(/file_extension_(.+)\.png/)[1];
+            if(extensionOnly != null)
+                Config.iconableFileExtensions.push(extensionOnly);
+        }
+    }
+}
 
 Config.thumbnails = {
     thumbnail_format_extension : "gif",

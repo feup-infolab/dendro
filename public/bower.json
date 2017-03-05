@@ -68,13 +68,16 @@
     "angular-animate": "^1.6.2",
     "font-awesome-animation": "^0.0.10",
     "angular-google-analytics": "^1.1.9",
-    "flint-sparql-editor" : "git://github.com/TSO-Openup/FlintSparqlEditor.git",
-    "bootswatch": "https://github.com/thomaspark/bootswatch.git"
+    "flint-sparql-editor": "git://github.com/TSO-Openup/FlintSparqlEditor.git",
+    "bootswatch": "https://github.com/thomaspark/bootswatch.git",
+    "angular-image-spinner": "*",
+    "spin.js": "spinjs#^2.3.2"
   },
   "resolutions": {
     "bootstrap": "~3",
     "jquery": "~3",
     "angular-animate": "^1.6.2",
-    "angular": "1.6.2"
+    "angular": "1.6.2",
+    "spin.js": "~2.0.0"
   }
 }
