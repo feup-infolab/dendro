@@ -74,7 +74,6 @@ var appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::
 
 if(Config.logging != null)
 {
-    var mkpath = require('mkpath');
 
     async.series([
         function(cb)
@@ -82,7 +81,8 @@ if(Config.logging != null)
             if (Config.logging.app_logs_folder != null && Config.logging.pipe_console_to_logfile)
             {
                 var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
-                mkpath(absPath, function (err)
+                var nfs = require('node-fs');
+                nfs.mkdir(absPath, null, true, function (err)
                 {
                     if (!err)
                     {
@@ -745,7 +745,7 @@ async.waterfall([
     function(callback) {
         var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
         var nfs = require('node-fs');
-        var fs = require('fs-extra')
+        var fs = require('fs-extra');
 
 
         console.log("[INFO] Setting up temporary files directory at " + Config.tempFilesDir);
