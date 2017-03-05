@@ -3,7 +3,7 @@
 <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
 
 <% if (settings.theme != null) { %>
-    <link rel='stylesheet' type="text/css" href='/themes/<%=settings.theme%>/bootstrap.min.css' />
+    <link rel='stylesheet' type="text/css" href='/bower_components/bootswatch/<%=settings.theme%>/bootstrap.min.css' />
 <% } else { %>
     <link rel='stylesheet' type="text/css" href='/bower_components/bootstrap/dist/css/bootstrap-theme.min.css' />
 <% } %>
@@ -25,6 +25,9 @@
 <!--jQuery -->
 <script type="text/javascript" src="/bower_components/jquery/dist/jquery.js"></script>
 
+<!--spinjs -->
+<script type="text/javascript" src="/bower_components/spin.js/spin.js"></script>
+
 <!-- Angular Libs -->
 <script type="text/javascript" src="/bower_components/angular/angular.js"></script>
 <script type="text/javascript" src="/bower_components/angular-route/angular-route.min.js"></script>
@@ -42,6 +45,7 @@
 <script type="text/javascript" src="/bower_components/angular-highlightjs/build/angular-highlightjs.min.js"></script>
 <script type="text/javascript" src="/bower_components/ng-file-upload/ng-file-upload-all.js"></script>
 <script type="text/javascript" src="/bower_components/angular-google-analytics/dist/angular-google-analytics.js"></script>
+<script type="text/javascript" src="/bower_components/angular-image-spinner/dist/angular-image-spinner.min.js"></script>
 
 <!--<script>
     //optional need to be loaded before angular-file-upload-shim(.min).js

@@ -98,15 +98,41 @@ if(Config.logging != null)
 
                         console.log = function (d)
                         { //
-                            log_file.write("[ " + new Date().toISOString() + " ] "+ util.format(d) + '\n');
+                            var date = new Date().toISOString();
+                            log_file.write("[ " + date + " ] "+ util.format(d) + '\n');
                             log_stdout.write(util.format(d) + '\n');
+
+                            if(d != null && d.stack != null)
+                            {
+                                log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
+                                log_stdout.write(util.format(d.stack) + '\n');
+                            }
                         };
 
                         console.error = function (d)
-                        { //
-                            log_file.write("[ " + new Date().toISOString() + " ] [ERcd ..ROR] "+ util.format(d) + '\n');
+                        {
+                            var date = new Date().toISOString();
+                            log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(d) + '\n');
                             log_stdout.write(util.format(d) + '\n');
+
+                            if(d != null && d.stack != null)
+                            {
+                                log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
+                                log_stdout.write(util.format(d.stack) + '\n');
+                            }
                         };
+
+                        process.on('uncaughtException', function(err) {
+                            var date = new Date().toISOString();
+
+                            if(err.stack != null)
+                            {
+                                log_file.write("[ " + date + " ] [FATAL ERROR!] "+ util.format(err.stack) + "\n");
+                            }
+
+                            throw err;
+                        });
+
 
                         cb(err);
                     }
@@ -1256,7 +1282,7 @@ async.waterfall([
                             //backups
                             {
                                 queryKeys : ['backup'],
-                                handler : files.backup,
+                                handler : files.serve,
                                 permissions : defaultPermissionsInProjectRoot,
                                 authentication_error : "Permission denied : cannot backup this project."
                             },
@@ -1438,17 +1464,17 @@ async.waterfall([
                         //backups
                         {
                             queryKeys : ['backup'],
-                            handler : files.backup,
+                            handler : files.serve,
                             permissions : defaultPermissionsInProjectBranch,
                             authentication_error : "Permission denied : cannot backup this resource because you do not have permissions to access its project."
                         },
                         //bagits
-                        {
-                            queryKeys : ['bagit'],
-                            handler : exports.download,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot bagit this resource because you do not have permissions to access its project."
-                        },
+                        //{
+                        //    queryKeys : ['bagit'],
+                        //    handler : projects.download,
+                        //    permissions : defaultPermissionsInProjectBranch,
+                        //    authentication_error : "Permission denied : cannot bagit this resource because you do not have permissions to access its project."
+                        //},
                         //list contents
                         {
                             queryKeys : ['ls'],
@@ -1739,8 +1765,14 @@ async.waterfall([
 
                 // On error dispose of the domain
                 reqd.on('error', function (error) {
-                    console.error('Error', error.code, error.message, req.url);
-                    console.error('Stack Trace : ', error.stack);
+                    console.error('Error!\n' +  "Code: \n" + error.code + " \nMessage: \n" +error.message + "Request URL: \n" + req.originalRequestUrl);
+
+                    if(error.stack != null)
+                    {
+                        var util = require('util');
+                        console.error('Stack Trace : ' + util.format(error.stack));
+                    }
+                    
                     reqd.dispose();
                 });
 

@@ -169,7 +169,7 @@ exports.show_parent = function(req, res) {
 
 exports.update = function(req, res) {
 
-    var requestedResourceURI = req.params.requestedResource;
+    const requestedResourceURI = req.params.requestedResource;
 
     InformationElement.findByUri(requestedResourceURI, function(err, resource)
     {
@@ -225,11 +225,7 @@ exports.update = function(req, res) {
                                 var changeAuthor = null;
                             }
 
-                            resource.replaceDescriptorsInMemory(
-                                fusedDescriptors,
-                                [Config.types.locked, Config.types.private],
-                                []
-                            );
+                            resource.replaceDescriptors(fusedDescriptors, [Config.types.locked, Config.types.private], []);
 
                             resource.save(function(err, record)
                             {

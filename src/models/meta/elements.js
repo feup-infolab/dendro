@@ -1017,6 +1017,12 @@ Elements.ddr = {
         locked : true,
         private :true,
         control : Config.controls.input_box
+    },
+    hasFontAwesomeClass :
+    {
+        type : DbConnection.string,
+        locked : true,
+        control : Config.controls.input_box
     }
 };
 
@@ -1066,6 +1072,11 @@ Elements.rdf = {
     {
         type : DbConnection.boolean,
         control : Config.controls.input_box
+    },
+    type : {
+        type : DbConnection.prefixedResource,
+        control : Config.controls.input_box,
+        locked: true
     }
 }
 
