@@ -95,11 +95,14 @@ var viewProject = function (jsonOnly, agent, projectHandle, cb) {
 };
 
 var createFolderInProject = function(jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
+    //var path = '/project/' + projectHandle  + targetFolderInProject  + '?mkdir=' + folderName;
+    var path = '/project/' + projectHandle + '/data'  + targetFolderInProject  + '?mkdir=' + folderName;
     if(jsonOnly)
     {
         ///project/PROJECTHANDLE?mkdir=FOLDERNAME
+        //http://127.0.0.1:3001/project/testproject/data/folder1?mkdir=folder3
         agent
-            .post('/project/' + projectHandle  + targetFolderInProject  + '?mkdir=' + folderName)
+            .post(path)
             .set('Accept', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -108,7 +111,7 @@ var createFolderInProject = function(jsonOnly, agent, targetFolderInProject, fol
     else
     {
         agent
-            .post('/project/' + projectHandle + targetFolderInProject  + '?mkdir=' + folderName)
+            .post(path)
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -116,6 +119,7 @@ var createFolderInProject = function(jsonOnly, agent, targetFolderInProject, fol
 };
 
 var viewFolder= function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
+    //var path = '/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName;
     var path = '/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName;
     if(jsonOnly)
     {
@@ -182,7 +186,7 @@ var updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadat
 
 var updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb) {
     ///project/:handle/data/folderpath?update_metadata
-    var path = '/project/' + projectHandle +'/data'+ folderPath + '?update_metadata';
+    var path = '/project/' + projectHandle +'/data/'+ folderPath + '?update_metadata';
     if(jsonOnly)
     {
         agent
@@ -250,7 +254,7 @@ var getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
 
 var getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
-    var path = '/project/' + projectHandle +'/data'+ folderPath + '?metadata';
+    var path = '/project/' + projectHandle +'/data/'+ folderPath + '?metadata';
     if(jsonOnly)
     {
         agent
