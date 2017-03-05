@@ -65,8 +65,8 @@ InformationElement.getType = function(resourceURI, callback)
             {
                 if(types instanceof Array)
                 {
-                    var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-                    var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+                    const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                    const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
                     if(types.length == 0)
                     {
