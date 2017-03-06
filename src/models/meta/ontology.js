@@ -341,28 +341,16 @@ Ontology.initAllFromDatabase = function(callback)
     {
         async.map(ontologiesArray, function(ontologyObject, callback)
         {
-            async.waterfall([
-                    function(callback)
-                    {
-                        checkForOntology(ontologyObject, callback);
-                    },
-                    function (ontology, callback)
-                    {
-                        if(ontology == null)
-                        {
-                            createOntologyRecordInDatabase(ontologyObject, callback);
-                        }
-                        else
-                        {
-                            callback(null, null);
-                        }
-                    }
-                ],
-                function (err, results)
+            checkForOntology(ontologyObject, function(err, ontology){
+                if(ontology == null)
                 {
-                    callback(err, results);
+                    createOntologyRecordInDatabase(ontologyObject, callback);
                 }
-            );
+                else
+                {
+                    callback(null, null);
+                }
+            });
         }, function(err, results){
             callback(err, results);
         });
@@ -381,8 +369,8 @@ Ontology.initAllFromDatabase = function(callback)
                                 {
                                     console.log("[INFO] Finished loading research domain configurations for descriptors from database");
                                 }
-                                callback(err, loadedOntologies);
 
+                                callback(err, loadedOntologies);
                             });
                         },
                         function(loadedOntologies, callback){
@@ -422,11 +410,15 @@ Ontology.initAllFromDatabase = function(callback)
     async.series([
         function(callback)
         {
-            recreateOntologiesInDatabase(Ontology.getAllOntologiesArray(), callback)
+            recreateOntologiesInDatabase(Ontology.getAllOntologiesArray(), function(err, result){
+                callback(err, result);
+            });
         },
         function(callback)
         {
-            loadOntologyConfigurationsFromDatabase(callback)
+            loadOntologyConfigurationsFromDatabase(function(err, result){
+                callback(err, result);
+            });
         }
     ],
     function(err, results)
