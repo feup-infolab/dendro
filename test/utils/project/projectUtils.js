@@ -95,7 +95,6 @@ var viewProject = function (jsonOnly, agent, projectHandle, cb) {
 };
 
 var createFolderInProject = function(jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
-    //var path = '/project/' + projectHandle  + targetFolderInProject  + '?mkdir=' + folderName;
     var path = '/project/' + projectHandle + '/data'  + targetFolderInProject  + '?mkdir=' + folderName;
     if(jsonOnly)
     {
@@ -119,7 +118,6 @@ var createFolderInProject = function(jsonOnly, agent, targetFolderInProject, fol
 };
 
 var viewFolder= function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
-    //var path = '/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName;
     var path = '/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName;
     if(jsonOnly)
     {
