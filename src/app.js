@@ -673,6 +673,7 @@ async.waterfall([
                                         "   `executedOver` text, \n" +
                                         "   `originallyRecommendedFor` text, \n" +
                                         "   `rankingPosition` int(11) DEFAULT NULL, \n" +
+                                        "   `pageNumber` int(11) DEFAULT NULL, \n" +
                                         "   PRIMARY KEY (`id`) \n" +
                                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n";
 
@@ -1088,6 +1089,7 @@ async.waterfall([
         app.use(cookieParser(appSecret));
 
         const MongoStore = require('connect-mongo')(expressSession);
+        
         var sessionMongoStore = new MongoStore(
         {
             "host": Config.mongoDBHost,
@@ -1099,7 +1101,7 @@ async.waterfall([
         app.use(expressSession({
             secret: appSecret,
             name: "dendroCookie",
-            //store: sessionMongoStore,
+            store: sessionMongoStore,
             resave: false,
             saveUninitialized: true
         }));
