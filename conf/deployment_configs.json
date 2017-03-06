@@ -119,7 +119,7 @@
         "destroy_all_graphs_on_startup" : false
       },
       "session": {
-        "auto_login": true,
+        "auto_login": false,
         "login_user": "demouser1"
       },
       "files": {
