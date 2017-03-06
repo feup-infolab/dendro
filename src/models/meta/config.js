@@ -599,56 +599,48 @@ if(Config.demo_mode.active)
 {
     const exec = require('child_process').exec;
 
-    exec('git status',
+    Config.demo_mode.git_info = {};
+
+    exec('git branch | grep "^\* .*$" | cut -c 3- | tr -d "\n"',
         {
             cwd: Config.appDir
         },
         function(error, stdout, stderr) {
-        if (error == null || error.code == 0) {
-            Config.demo_mode.git_info = {};
+            if (error == null) {
+                console.log("Active branch : " + JSON.stringify(stdout));
+                Config.demo_mode.git_info.active_branch = stdout;
+            }
+            else
+            {
+                console.err("Unable to get active branch : " + JSON.stringify(error));
+            }
+        });
 
-            exec('git branch | grep "^\* .*$" | cut -c 3- | tr -d "\n"',
-                {
-                    cwd: Config.appDir
-                },
-                function(error, stdout, stderr) {
-                    if (error == null) {
-                        console.log("Active branch : " + JSON.stringify(stdout));
-                        Config.demo_mode.git_info.active_branch = stdout;
-                    }
-                    else
-                    {
-                        console.error("Unable to get active branch : " + JSON.stringify(error));
-                    }
-                });
+    exec('git log -1 | grep "commit.*" | cut -c 8- | tr -d "\n"',
+        {
+            cwd: Config.appDir
+        }, function (error, stdout, stderr) {
+        if (error == null) {
+            console.log("Last commit hash : " + JSON.stringify(stdout));
+            Config.demo_mode.git_info.commit_hash = stdout;
+        }
+        else
+        {
+            console.err("Unable to get commit hash : " + JSON.stringify(error));
+        }
+    });
 
-            exec('git log -1 | grep "commit.*" | cut -c 8- | tr -d "\n"',
-                {
-                    cwd: Config.appDir
-                }, function (error, stdout, stderr) {
-                if (error == null) {
-                    console.log("Last commit hash : " + JSON.stringify(stdout));
-                    Config.demo_mode.git_info.commit_hash = stdout;
-                }
-                else
-                {
-                    console.error("Unable to get commit hash : " + JSON.stringify(error));
-                }
-            });
-
-            exec('git log -1 | grep "Date:.*" | cut -c 9- | tr -d "\n"',
-                {
-                    cwd: Config.appDir
-                }, function (error, stdout, stderr) {
-                if (error == null) {
-                    console.log("Last commit date : " + JSON.stringify(stdout));
-                    Config.demo_mode.git_info.last_commit_date = stdout;
-                }
-                else
-                {
-                    console.error("Unable to get last commit date : " + JSON.stringify(error));
-                }
-            });
+    exec('git log -1 | grep "Date:.*" | cut -c 9- | tr -d "\n"',
+        {
+            cwd: Config.appDir
+        }, function (error, stdout, stderr) {
+        if (error == null) {
+            console.log("Last commit date : " + JSON.stringify(stdout));
+            Config.demo_mode.git_info.last_commit_date = stdout;
+        }
+        else
+        {
+            console.err("Unable to get last commit date : " + JSON.stringify(error));
         }
     });
 }

@@ -2,7 +2,7 @@
     <div class="col-md-12">
             <div class="btn-group">
                 <button class="btn btn-sm"
-                        ng-class="{button_of_filled_in_descriptor : descriptor_is_present(recommendation), 'btn-success' : descriptor_is_filled_in(recommendation)}"
+                        ng-class="{ 'btn-warning' : shared.descriptor_is_present(recommendation) && !shared.descriptor_is_filled_in(recommendation), 'btn-success' : shared.descriptor_is_filled_in(recommendation)}"
                         ng-click="accept_descriptor_from_quick_list(recommendation, $index)"
                         onclick="return false;"
                         onmouseover="$(this).toggleClass('btn-info');"

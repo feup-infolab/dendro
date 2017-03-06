@@ -1050,7 +1050,7 @@ Descriptor.validateDescriptorParametrization = function(callback)
                         }
                         catch(e)
                         {
-                            callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
+                            return callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
                         }
                     }
 

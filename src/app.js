@@ -43,10 +43,12 @@ var RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendati
 
 var async = require('async');
 var util = require('util');
+var mkdirp = require('mkdirp');
 
 //create temporary uploads folder if not exists
 var tempUploadsFolder = Config.tempFilesDir;
 var fs = require('fs');
+
 try{
     fs.statSync(tempUploadsFolder).isDirectory();
 }
@@ -54,7 +56,6 @@ catch(e)
 {
     console.log("[INFO] Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
     try{
-        var mkdirp = require('mkdirp');
         mkdirp.sync(tempUploadsFolder);
         console.log("[SUCCESS] Temp uploads folder " + tempUploadsFolder + " created.")
     }
@@ -74,106 +75,131 @@ var appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::
 
 if(Config.logging != null)
 {
-    var mkpath = require('mkpath');
-
     async.series([
         function(cb)
         {
             if (Config.logging.app_logs_folder != null && Config.logging.pipe_console_to_logfile)
             {
                 var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
-                mkpath(absPath, function (err)
+
+                fs.exists(absPath, function (exists)
                 {
-                    if (!err)
+                    if (!exists)
                     {
-                        var util = require('util');
-                        var log_file = require('file-stream-rotator').getStream({
-                            date_format: 'YYYYMMDD',
-                            filename: path.join(absPath, '%DATE%.log'),
-                            frequency: 'daily',
-                            verbose: false
-                        });
-
-                        var log_stdout = process.stdout;
-
-                        console.log = function (d)
-                        { //
-                            var date = new Date().toISOString();
-                            log_file.write("[ " + date + " ] "+ util.format(d) + '\n');
-                            log_stdout.write(util.format(d) + '\n');
-
-                            if(d != null && d.stack != null)
-                            {
-                                log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
-                                log_stdout.write(util.format(d.stack) + '\n');
-                            }
-                        };
-
-                        console.error = function (d)
+                        try
                         {
-                            var date = new Date().toISOString();
-                            log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(d) + '\n');
-                            log_stdout.write(util.format(d) + '\n');
-
-                            if(d != null && d.stack != null)
-                            {
-                                log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
-                                log_stdout.write(util.format(d.stack) + '\n');
-                            }
-                        };
-
-                        process.on('uncaughtException', function(err) {
-                            var date = new Date().toISOString();
-
-                            if(err.stack != null)
-                            {
-                                log_file.write("[ " + date + " ] [FATAL ERROR!] "+ util.format(err.stack) + "\n");
-                            }
-
-                            throw err;
-                        });
-
-
-                        cb(err);
+                            mkdirp.sync(absPath);
+                            console.log("[SUCCESS] Temp uploads folder " + absPath + " created.");
+                        }
+                        catch (e)
+                        {
+                            console.error("[FATAL] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(e));
+                            process.exit(1);
+                        }
                     }
-                    else
+
+                    var util = require('util');
+                    var log_file = require('file-stream-rotator').getStream({
+                        date_format: 'YYYYMMDD',
+                        filename: path.join(absPath, '%DATE%.log'),
+                        frequency: 'daily',
+                        verbose: false
+                    });
+
+                    var log_stdout = process.stdout;
+
+                    console.log = function (d)
+                    { //
+                        var date = new Date().toISOString();
+                        log_file.write("[ " + date + " ] "+ util.format(d) + '\n');
+                        log_stdout.write(util.format(d) + '\n');
+
+                        if(d != null && d.stack != null)
+                        {
+                            log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
+                            log_stdout.write(util.format(d.stack) + '\n');
+                        }
+                    };
+
+                    console.error = function (d)
                     {
-                        console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(err));
-                        process.exit(1);
-                    }
-                });
+                        var date = new Date().toISOString();
+                        log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(d) + '\n');
+                        log_stdout.write(util.format(d) + '\n');
+
+                        if(d != null && d.stack != null)
+                        {
+                            log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
+                            log_stdout.write(util.format(d.stack) + '\n');
+                        }
+                    };
+
+                    process.on('uncaughtException', function (err)
+                    {
+                        var date = new Date().toISOString();
+
+                        if (err.stack != null)
+                        {
+                            log_file.write("[ " + date + " ] [FATAL ERROR!] " + util.format(err.stack) + "\n");
+                        }
+
+                        throw err;
+                    });
+
+
+                    cb(null);
+                })
+            }
+            else
+            {
+                cb(null);
             }
         },
         function(cb)
         {
             if (Config.logging.log_request_times && Config.logging.request_times_log_folder != null)
             {
-                var absPath = Config.absPathInApp(Config.logging.request_times_log_folder);
+                var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
 
-                mkpath(absPath, function (err)
+                fs.exists(absPath, function (exists)
                 {
-                    var accessLogStream = require('file-stream-rotator').getStream({
-                        date_format: 'YYYYMMDD',
-                        filename: path.join(absPath, 'times-%DATE%.log'),
-                        frequency: 'daily',
-                        verbose: false
-                    });
-
-                    if (!err)
+                    if (!exists)
                     {
-                        app.use(morgan(Config.logging.format, {
-                            format: Config.logging.format,
-                            stream: accessLogStream
-                        }));
+                        try
+                        {
+                            mkdirp.sync(absPath);
+                            var accessLogStream = require('file-stream-rotator').getStream({
+                                date_format: 'YYYYMMDD',
+                                filename: path.join(absPath, 'times-%DATE%.log'),
+                                frequency: 'daily',
+                                verbose: false
+                            });
 
-                        cb(err);
+                            if (!err)
+                            {
+                                app.use(morgan(Config.logging.format, {
+                                    format: Config.logging.format,
+                                    stream: accessLogStream
+                                }));
+
+                                cb(err);
+                            }
+                        }
+                        catch (e)
+                        {
+                            console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(e));
+                            process.exit(1);
+                        }
                     }
                     else
                     {
-                        console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(err));
-                        process.exit(1);
+                        cb(null);
                     }
                 });
+            }
+            else
+            {
+                cb(null);
             }
         }
     ], function(err, results){
@@ -743,11 +769,6 @@ async.waterfall([
         }
     },
     function(callback) {
-        var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-        var nfs = require('node-fs');
-        var fs = require('fs-extra')
-
-
         console.log("[INFO] Setting up temporary files directory at " + Config.tempFilesDir);
 
         async.waterfall([
@@ -756,7 +777,8 @@ async.waterfall([
                 if(Config.debug.files.delete_temp_folder_on_startup)
                 {
                     console.log("[INFO] Deleting temp files dir at " + Config.tempFilesDir);
-                    fs.remove(Config.tempFilesDir, function (err) {
+                    var fsextra = require('fs-extra');
+                    fsextra.remove(Config.tempFilesDir, function (err) {
                         if(!err)
                         {
                             console.log("[OK] Deleted temp files dir at " + Config.tempFilesDir);
@@ -776,23 +798,21 @@ async.waterfall([
             },
             function(cb)
             {
-                fs.exists(Config.tempFilesDir, function(exists){
-
+                var fsextra = require('fs-extra');
+                fsextra.exists(Config.tempFilesDir, function(exists){
                     if(!exists)
                     {
-                        nfs.mkdir(Config.tempFilesDir, Config.tempFilesCreationMode, true, function(err)
+                        try{
+                            mkdirp.sync(Config.tempFilesDir);
+                            console.log("[OK] Temporary files directory successfully created at " + Config.tempFilesDir);
+                            cb();
+                        }
+                        catch(e)
                         {
-                            if(!err)
-                            {
-                                console.log("[OK] Temporary files directory successfully created at " + Config.tempFilesDir);
-                            }
-                            else
-                            {
-                                console.log("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
-                            }
-                            cb(err);
-                        });
-
+                            var msg = "[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir;
+                            console.error(msg, e);
+                            process.exit(1);
+                        }
                     }
                     else
                     {
@@ -1772,7 +1792,7 @@ async.waterfall([
                         var util = require('util');
                         console.error('Stack Trace : ' + util.format(error.stack));
                     }
-                    
+
                     reqd.dispose();
                 });
 
