@@ -205,6 +205,7 @@ Ontology.initAllFromDatabase = function(callback)
                     else
                     {
                         console.error("Error retrieving valid alternatives for descriptor " + elementUri + "! Error returned " + JSON.stringify(alternatives));
+                        callback(null, null);
                     }
 
                 }
@@ -254,6 +255,7 @@ Ontology.initAllFromDatabase = function(callback)
                     else
                     {
                         console.error("Error retrieving Regular Expression that validates " + elementUri + "! Error returned " + JSON.stringify(regex));
+                        callback(null, null);
                     }
 
                 }
