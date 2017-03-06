@@ -76,15 +76,18 @@ Ontology.findByUri = function(uri, callback)
                     description : ontology.dcterms.description,
                     domain : ontology.ddr.hasResearchDomain
                 });
+                
+                callback(null, newOntology);
             }
             else
             {
                 callback(null, null);
             }
         }
-
-
-        callback(err, newOntology);
+        else
+        {
+            callback(err, ontology);
+        }
     });
 };
 
@@ -346,7 +349,9 @@ Ontology.initAllFromDatabase = function(callback)
             checkForOntology(ontologyObject, function(err, ontology){
                 if(ontology == null)
                 {
-                    createOntologyRecordInDatabase(ontologyObject, callback);
+                    createOntologyRecordInDatabase(ontologyObject, function(err, result){
+                        callback(err, result);
+                    });
                 }
                 else
                 {
