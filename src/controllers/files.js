@@ -1720,7 +1720,7 @@ exports.thumbnail = function(req, res)
     }
     else
     {
-        exports.serve_static(req, res, "/images/icons/blank_document.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+        exports.serve_static(req, res, "/images/icons/package.png", "/images/icons/package.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
     }
 };
 
