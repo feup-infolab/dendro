@@ -301,10 +301,12 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
             "   interactionType," +
             "   executedOver," +
             "   originallyRecommendedFor," +
-            "   rankingPosition" +
+            "   rankingPosition," +
+            "   pageNumber" +
             ")" +
             "VALUES " +
             "(" +
+            "   ?," +
             "   ?," +
             "   ?," +
             "   ?," +
@@ -325,7 +327,8 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                 self.ddr.interactionType,
                 self.ddr.executedOver,
                 self.ddr.originallyRecommendedFor,
-                self.ddr.rankingPosition
+                self.ddr.rankingPosition,
+                self.ddr.pageNumber
             ];
 
         console.log(insertNewInteractionQuery);

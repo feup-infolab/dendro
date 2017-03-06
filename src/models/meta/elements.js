@@ -1023,6 +1023,11 @@ Elements.ddr = {
         type : DbConnection.string,
         locked : true,
         control : Config.controls.input_box
+    },
+    pageNumber :
+    {
+        type : DbConnection.int,
+        control : Config.controls.input_box
     }
 };
 
