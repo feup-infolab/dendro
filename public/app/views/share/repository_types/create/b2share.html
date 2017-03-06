@@ -9,7 +9,7 @@
 
 <div class="control-group has-feedback" ng-init="new_repository.ddr.hasExternalUrl = new_repository_type.foaf.homepage" ng-class="{'has-success' : new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl), 'has-warning' : new_repository.ddr.hasExternalUrl && !valid_url(new_repository.ddr.hasExternalUrl)}">
     <label for="new_b2share_repository_url">External repository address</label>
-    <input type="text" ng-model="new_repository.ddr.hasExternalUrl"  value="" class="form-control" id="new_b2share_repository_url" placeholder="External Repository Address"  required disabled >
+    <input type="text" ng-model="new_repository.ddr.hasExternalUrl"  value="" class="form-control" id="new_b2share_repository_url" placeholder="External Repository Address"  required >
     <p class="help-block">The base address of the repository you wish to upload to.</p>
     <span ng-show="new_repository.ddr.hasExternalUrl && valid_url(new_repository.ddr.hasExternalUrl)" class="glyphicon glyphicon-ok form-control-feedback"></span>
     <span ng-show="!new_repository.ddr.hasExternalUrl" class="glyphicon glyphicon-remove form-control-feedback"></span>

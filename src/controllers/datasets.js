@@ -1112,15 +1112,13 @@ export_to_repository_zenodo = function(req, res){
 export_to_repository_b2share = function(req, res){
     var requestedResourceUri = req.params.requestedResource;
     var targetRepository = req.body.repository;
-
-    //targetRepository.dcterms.title -> export b2share name
     //targetRepository.ddr.hasExternalUri -> the b2share host url
 
     Folder.findByUri(requestedResourceUri, function(err, folder){
         if(!err){
             if(folder != null) {
-                if(folder.dcterms.title == null){
-                    var msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
+                if(folder.dcterms.title == null || folder.dcterms.creator == null){
+                    var msg = "Folder " + folder.uri + " has no title or creator! Please set these properties (from the dcterms metadata schema) and try the exporting process again.";
                     console.error(msg);
                     res.status(400).json(
                         {
@@ -1155,21 +1153,12 @@ export_to_repository_b2share = function(req, res){
                                             description = folder.dcterms.description;
                                         }
 
-                                        /*
-                                        var data = {
-                                            "title": title,
-                                            "description": description,
-                                            "creator": folder.dcterms.creator,
-                                            "open_access": "true",
-                                            "domain": "generic"
-                                        };*/
-
                                         var dratfData = {
-                                            "titles":[{"title":"B2ShareDendroTest1"}],
+                                            "titles":[{"title":title}],
                                             "community":"e9b9792e-79fb-4b07-b6b4-b9c2bd06d095",
                                             "open_access":true,
                                             "community_specific": {},
-                                            "creators":[{"creator_name":"Nelson Pereira"}],
+                                            "creators":[{"creator_name": folder.dcterms.creator}]
                                         };
 
                                         if(folder.dcterms.publisher)
@@ -1218,10 +1207,8 @@ export_to_repository_b2share = function(req, res){
 
                                             dratfData["contributors"] = contributors;
                                         }
-
-                                        var b2shareClient = new B2ShareClient('trng-b2share.eudat.eu', accessToken);
-                                        //var dratfData = {"titles":[{"title":"B2ShareDendroTest1"}], "community":"e9b9792e-79fb-4b07-b6b4-b9c2bd06d095", "open_access":true, "community_specific": {}};
-                                        console.log(files);
+                                        
+                                        var b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
                                         b2shareClient.createADraftRecord(dratfData, function (err, body) {
                                             if (err) {
                                                 deleteFolderRecursive(parentFolderPath);
@@ -1236,8 +1223,6 @@ export_to_repository_b2share = function(req, res){
                                             }
                                             else
                                             {
-                                                //TODO upload multiple files
-                                                //TODO publish draft
                                                 //TODO send email
                                                 var recordIDToUpdate = body.data.id;
                                                 var bucketUrlToListFiles = body.data.links.files;
@@ -1248,7 +1233,6 @@ export_to_repository_b2share = function(req, res){
                                                     {
                                                         deleteFolderRecursive(parentFolderPath);
                                                         var msg = "Error uploading a file into a draft in B2Share";
-                                                        console.error(msg);
                                                         res.status(500).json(
                                                             {
                                                                 "result": "error",
@@ -1258,8 +1242,7 @@ export_to_repository_b2share = function(req, res){
                                                     }
                                                     else
                                                     {
-                                                        //TODO publish draft and send email
-                                                        console.log(result);
+                                                        //TODO send email
                                                         b2shareClient.submitDraftRecordForPublication(recordIDToUpdate, function (err, body) {
                                                             if(err)
                                                             {
