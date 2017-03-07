@@ -673,6 +673,9 @@ async.waterfall([
                                         "   `executedOver` text, \n" +
                                         "   `originallyRecommendedFor` text, \n" +
                                         "   `rankingPosition` int(11) DEFAULT NULL, \n" +
+                                        "   `pageNumber` int(11) DEFAULT NULL, \n" +
+                                        "   `recommendationCallId` text DEFAULT NULL, \n" +
+                                        "   `recommendationCallTimeStamp` datetime DEFAULT NULL, \n" +
                                         "   PRIMARY KEY (`id`) \n" +
                                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n";
 
@@ -1088,6 +1091,7 @@ async.waterfall([
         app.use(cookieParser(appSecret));
 
         const MongoStore = require('connect-mongo')(expressSession);
+        
         var sessionMongoStore = new MongoStore(
         {
             "host": Config.mongoDBHost,
@@ -1095,14 +1099,20 @@ async.waterfall([
             "db": Config.mongoDBSessionStoreCollection,
             "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDBSessionStoreCollection
         });
-
-        app.use(expressSession({
-            secret: appSecret,
-            name: "dendroCookie",
-            //store: sessionMongoStore,
-            resave: false,
-            saveUninitialized: true
-        }));
+        
+        var slug = require('slug');
+        var key = "dendro_" + slug(Config.host)+ "_sessionKey";
+        app.use(expressSession(
+            {
+                secret: appSecret,
+                genid: function(){ const uuid = require('uuid'); return uuid.v4() },
+                key: key,
+                cookie: { maxAge: 1000 * 60 * 60 * 24 * 5 },
+                store: sessionMongoStore,
+                resave: false,
+                saveUninitialized: false
+            })
+        );
 
         app.use(flash());
 

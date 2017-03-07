@@ -76,15 +76,18 @@ Ontology.findByUri = function(uri, callback)
                     description : ontology.dcterms.description,
                     domain : ontology.ddr.hasResearchDomain
                 });
+                
+                callback(null, newOntology);
             }
             else
             {
                 callback(null, null);
             }
         }
-
-
-        callback(err, newOntology);
+        else
+        {
+            callback(err, ontology);
+        }
     });
 };
 
@@ -205,6 +208,7 @@ Ontology.initAllFromDatabase = function(callback)
                     else
                     {
                         console.error("Error retrieving valid alternatives for descriptor " + elementUri + "! Error returned " + JSON.stringify(alternatives));
+                        callback(null, null);
                     }
 
                 }
@@ -254,6 +258,7 @@ Ontology.initAllFromDatabase = function(callback)
                     else
                     {
                         console.error("Error retrieving Regular Expression that validates " + elementUri + "! Error returned " + JSON.stringify(regex));
+                        callback(null, null);
                     }
 
                 }
@@ -344,7 +349,9 @@ Ontology.initAllFromDatabase = function(callback)
             checkForOntology(ontologyObject, function(err, ontology){
                 if(ontology == null)
                 {
-                    createOntologyRecordInDatabase(ontologyObject, callback);
+                    createOntologyRecordInDatabase(ontologyObject, function(err, result){
+                        callback(err, result);
+                    });
                 }
                 else
                 {

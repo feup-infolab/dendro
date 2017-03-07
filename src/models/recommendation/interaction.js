@@ -301,10 +301,16 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
             "   interactionType," +
             "   executedOver," +
             "   originallyRecommendedFor," +
-            "   rankingPosition" +
+            "   rankingPosition," +
+            "   pageNumber," +
+            "   recommendationCallId," +
+            "   recommendationCallTimeStamp" +
             ")" +
             "VALUES " +
             "(" +
+            "   ?," +
+            "   ?," +
+            "   ?," +
             "   ?," +
             "   ?," +
             "   ?," +
@@ -325,8 +331,15 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                 self.ddr.interactionType,
                 self.ddr.executedOver,
                 self.ddr.originallyRecommendedFor,
-                self.ddr.rankingPosition
+                self.ddr.rankingPosition,
+                self.ddr.pageNumber,
+                self.ddr.recommendationCallId
             ];
+
+        if(self.ddr.recommendationCallTimeStamp != null && self.ddr.recommendationCallTimeStamp.slice(0, 19) != null)
+        {
+            inserts.push(moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"));
+        }
 
         console.log(insertNewInteractionQuery);
 

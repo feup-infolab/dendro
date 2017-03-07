@@ -9,7 +9,7 @@ angular.module('dendroApp.services')
                  * Give notice to server
                  */
 
-                this.register_interaction = function(url, objectOfInteraction, interactionType, rankingPosition, recommendedFor)
+                this.register_interaction = function(url, objectOfInteraction, interactionType, rankingPosition, recommendedFor, pageNumber)
                 {
                     if(objectOfInteraction != null && objectOfInteraction instanceof Object)
                     {
@@ -28,6 +28,11 @@ angular.module('dendroApp.services')
                         if(objectOfInteraction.recommendedFor == null && recommendedFor != null)
                         {
                             objectOfInteraction.recommendedFor = recommendedFor;
+                        }
+
+                        if(objectOfInteraction.pageNumber == null && pageNumber != null)
+                        {
+                            objectOfInteraction.pageNumber = pageNumber;
                         }
 
                         //serialize for sending

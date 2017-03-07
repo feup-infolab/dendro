@@ -1168,18 +1168,9 @@ describe('private project', function () {
 
     it('API, correct route for update metadata', function (done) {
         this.timeout(5000);
-        //var folderName = 'pastinhaLinda';
-        //var targetFolderInProject = '';
-        var folderPath = targetFolderInProject + '/' + folderName;
+        var folderPath = targetFolderInProject + folderName;
         var path = '/project/' + privateProjectHandle + '/data/'  + targetFolderInProject + folderName;
-        //http://127.0.0.1:3001/project/testprojectprivate/data/pastinhaLinda
-        //var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}];
-        /*var metadata = {
-            title: "title",
-            creator: "creatorsfdgfd"
-        };*/
-
-        var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}];
+        var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}, {"uri":"http://xmlns.com/foaf/0.1/surname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"surname","prefixedForm":"foaf:surname","type":3,"control":"input_box","label":"Surname","comment":"The surname of some person.","recommendation_types":{},"$$hashKey":"object:145","just_added":true,"added_from_manual_list":true,"rankingPosition":7,"interactionType":"accept_descriptor_from_manual_list","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}, {"uri":"http://xmlns.com/foaf/0.1/givenname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"givenname","prefixedForm":"foaf:givenname","type":3,"control":"input_box","label":"Given name","comment":"The given name of some person.","value":"lindo nome","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}];
 
         projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
             //jsonOnly, agent, projectHandle, metadata, cb
@@ -1189,6 +1180,71 @@ describe('private project', function () {
                 done();
             });
         });
+    });
+
+
+    it('API, get metadata for a folder', function (done) {
+        this.timeout(5000);
+        var folderPath = targetFolderInProject + folderName;
+
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            //jsonOnly, agent, projectHandle, folderPath
+            projectUtils.getResourceMetadata(true, newAgent, privateProjectHandle, folderPath, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).descriptors.length.should.be.equal(3);
+                done();
+            });
+        });
+    });
+
+
+    it('API, remove title descriptor', function (done) {
+        this.timeout(5000);
+        var folderPath = targetFolderInProject + folderName;
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            //jsonOnly, agent, projectHandle, folderPath
+            projectUtils.removeDescriptorFromFolder(true, newAgent, privateProjectHandle, folderPath, 'dcterms:creator', function (error, res) {
+                res.should.have.status(200);
+                res.body.message.should.equal('Updated successfully.');
+                projectUtils.getResourceMetadata(true,  newAgent, privateProjectHandle, folderPath, function (newError, response) {
+                    response.should.have.status(200);
+                    JSON.parse(response.text).descriptors.length.should.be.equal(2);
+                    done();
+                });
+            });
+        });
+    });
+
+
+    it('API, add descriptor to a children folder, after that "ls" the parent folder and check that the children is still shown.', function (done) {
+        this.timeout(5000);
+        var folder2Name = 'outraPastinhaLinda';
+        var folderPath = folder2Name;
+        var path = '/project/' + privateProjectHandle + '/data/'  + folderPath;
+        var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}, {"uri":"http://xmlns.com/foaf/0.1/surname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"surname","prefixedForm":"foaf:surname","type":3,"control":"input_box","label":"Surname","comment":"The surname of some person.","recommendation_types":{},"$$hashKey":"object:145","just_added":true,"added_from_manual_list":true,"rankingPosition":7,"interactionType":"accept_descriptor_from_manual_list","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}, {"uri":"http://xmlns.com/foaf/0.1/givenname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"givenname","prefixedForm":"foaf:givenname","type":3,"control":"input_box","label":"Given name","comment":"The given name of some person.","value":"lindo nome","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}];
+
+        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
+            //http://127.0.0.1:3001/project/testproject/data/folder1?mkdir=folder3
+            projectUtils.createFolderInProject(true, newAgent, targetFolderInProject, folder2Name, privateProjectHandle, function (err, res) {
+                projectUtils.updateMetadataCorrectRoute(true, newAgent, privateProjectHandle, folderPath, metadata, function (err, res) {
+                    res.should.have.status(200);
+                    projectUtils.getResourceMetadata(true,  newAgent, privateProjectHandle, folderPath, function (newError, response) {
+                        response.should.have.status(200);
+                        JSON.parse(response.text).descriptors.length.should.be.equal(3);
+                        projectUtils.getProjectRootContent(true, newAgent, privateProjectHandle, function (err, res) {
+                            res.should.have.status(200);
+                            res.text.should.contain(folderPath);
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
+    it('API, try to change locked descriptors', function (done) {
+        //TODO what is the route for this???
+        done();
     });
 
 });

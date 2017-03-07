@@ -119,7 +119,7 @@
         "destroy_all_graphs_on_startup" : false
       },
       "session": {
-        "auto_login": true,
+        "auto_login": false,
         "login_user": "demouser1"
       },
       "files": {
@@ -173,7 +173,7 @@
     },
     "logging" :
     {
-      "pipe_console_to_logfile" : true,
+      "pipe_console_to_logfile" : false,
       "format" : "combined",
       "app_logs_folder" : "logs/app",
       "log_request_times" : true,
@@ -774,7 +774,7 @@
     },
     "logging" :
     {
-      "pipe_console_to_logfile" : true,
+      "pipe_console_to_logfile" : false,
       "format" : "combined",
       "app_logs_folder" : "logs/app",
       "log_request_times" : true,

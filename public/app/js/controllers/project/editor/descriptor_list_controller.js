@@ -81,9 +81,7 @@ angular.module('dendroApp.controllers')
                 storageService.save_to_local_storage('manually_selected_ontology', $scope.manually_selected_ontology);
 
                 $scope.get_manual_descriptors_from_ontology(autocompletedOntology.prefix);
-
-
-
+                
                 interactionsService.register_interaction(
                     "/interactions/select_ontology_manually",
                     autocompletedOntology,
@@ -142,12 +140,14 @@ angular.module('dendroApp.controllers')
                     newDescriptor.just_added = true;
                     newDescriptor.added_from_quick_list = true;
                     newDescriptor.rankingPosition = index;
+                    newDescriptor.pageNumber = $scope.recommendations_page;
                 }
                 else if($scope.descriptor_selection_mode == recommendationService.descriptor_selection_modes.manual)
                 {
                     newDescriptor.just_added = true;
                     newDescriptor.added_from_manual_list = true;
                     newDescriptor.rankingPosition = index;
+                    newDescriptor.pageNumber = $scope.recommendations_page;
 
                     if(descriptor.recommendation_types != null)
                     {
@@ -181,7 +181,7 @@ angular.module('dendroApp.controllers')
                         var interactionType = "accept_descriptor_from_manual_list"
                     }
                 }
-
+                
                 $scope.add_descriptor(newDescriptor);
 
                 interactionsService.register_interaction(
@@ -192,7 +192,7 @@ angular.module('dendroApp.controllers')
                     $scope.get_calling_uri()
                 ).then(
                     function(result){
-                        $scope.get_recommendations()
+                        //$scope.get_recommendations()
 
                         if(typeof callback == "function")
                         {
@@ -313,6 +313,7 @@ angular.module('dendroApp.controllers')
                                 }
 
                                 newDescriptor.rankingPosition = index;
+                                newDescriptor.recommendations_page = $scope.recommendations_page;
 
                                 if (newDescriptor.control == "date_picker")
                                 {
@@ -511,10 +512,10 @@ angular.module('dendroApp.controllers')
             {
                 $scope.set_from_local_storage_and_then_from_value("manual_descriptors");
 
-                if($scope.manual_descriptors == null)
-                {
+                //if($scope.manual_descriptors == null)
+                //{
                     $scope.get_manual_descriptors_from_ontology($scope.manually_selected_ontology.prefix);
-                }
+                //}
             }
         };
     });

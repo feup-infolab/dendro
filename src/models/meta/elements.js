@@ -1023,6 +1023,21 @@ Elements.ddr = {
         type : DbConnection.string,
         locked : true,
         control : Config.controls.input_box
+    },
+    pageNumber :
+    {
+        type : DbConnection.int,
+        control : Config.controls.input_box
+    },
+    recommendationCallId :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    recommendationCallTimeStamp :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
     }
 };
 
