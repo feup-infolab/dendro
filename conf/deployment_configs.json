@@ -659,7 +659,7 @@
       "user" : "root",
       "password" : "r00t_p4ssw0rd"
     },
-    "mySQLDBName" : "TESTSdendroVagrantDemo",
+    "mySQLDBName" : "dendroVagrantDemo",
     "maxUploadSize" : 2147483648,
     "maxProjectSize" : 5368709120,
     "maxSimultanousConnectionsToDb" : 3,

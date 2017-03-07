@@ -13,6 +13,7 @@ let agent = null;
 
 const demouser1 = require("../mockdata/users/demouser1.js");
 const demouser2 = require("../mockdata/users/demouser1.js");
+const demouser3 = require("../mockdata/users/demouser1.js");
 
 const folder = require('../mockdata/folders/folder.js');
 
@@ -22,6 +23,7 @@ const privateProject= require("../mockdata/projects/private_project.js");
 
 const fileUtils= require("../utils/file/fileUtils.js");
 const folderUtils= require("../utils/folder/folderUtils.js");
+const userUtils = require("../utils/user/userUtils.js");
 
 describe('/project/' + publicProject.handle + "/data/" + folder.pathInProject + folder.name + "?download", function ()
 {

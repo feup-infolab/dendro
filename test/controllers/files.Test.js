@@ -12,7 +12,9 @@ var demouser1 = require("../mockdata/users/demouser1.js");
 var demouser2 = require("../mockdata/users/demouser2.js");
 var demouser3 = require("../mockdata/users/demouser3.js");
 
-var folder = require("../mockdata/folders.js");
+const publicProject = require("../mockdata/projects/public_project.js");
+
+var folder = require("../mockdata/folders/folder.js");
 
 describe('/project/' + publicProject.handle + "/data/" + folder.pathInProject + folder.name + "?upload", function ()
 {

@@ -1,5 +1,5 @@
 var userData = {
-    username : 'demouser3',
+    username : 'demouser1',
     password : 'demouserpassword2015'
 };
 

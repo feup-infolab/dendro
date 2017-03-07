@@ -604,7 +604,7 @@ if(Config.demo_mode.active)
                     }
                     else
                     {
-                        console.err("Unable to get active branch : " + JSON.stringify(error));
+                        console.error("Unable to get active branch : " + JSON.stringify(error));
                     }
                 });
 
@@ -618,7 +618,7 @@ if(Config.demo_mode.active)
                 }
                 else
                 {
-                    console.err("Unable to get commit hash : " + JSON.stringify(error));
+                    console.error("Unable to get commit hash : " + JSON.stringify(error));
                 }
             });
 
@@ -632,7 +632,7 @@ if(Config.demo_mode.active)
                 }
                 else
                 {
-                    console.err("Unable to get last commit date : " + JSON.stringify(error));
+                    console.error("Unable to get last commit date : " + JSON.stringify(error));
                 }
             });
         }
