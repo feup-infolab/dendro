@@ -1207,7 +1207,7 @@ export_to_repository_b2share = function(req, res){
 
                                             dratfData["contributors"] = contributors;
                                         }
-                                        
+
                                         var b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
                                         b2shareClient.createADraftRecord(dratfData, function (err, body) {
                                             if (err) {
