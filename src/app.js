@@ -674,6 +674,8 @@ async.waterfall([
                                         "   `originallyRecommendedFor` text, \n" +
                                         "   `rankingPosition` int(11) DEFAULT NULL, \n" +
                                         "   `pageNumber` int(11) DEFAULT NULL, \n" +
+                                        "   `recommendationCallId` text DEFAULT NULL, \n" +
+                                        "   `recommendationCallTimeStamp` datetime DEFAULT NULL, \n" +
                                         "   PRIMARY KEY (`id`) \n" +
                                         ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n";
 
