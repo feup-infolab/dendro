@@ -333,9 +333,13 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                 self.ddr.originallyRecommendedFor,
                 self.ddr.rankingPosition,
                 self.ddr.pageNumber,
-                self.ddr.recommendationCallId,
-                self.ddr.recommendationCallTimeStamp.slice(0, 19).replace('T', ' ')
+                self.ddr.recommendationCallId
             ];
+
+        if(self.ddr.recommendationCallTimeStamp != null && self.ddr.recommendationCallTimeStamp.slice(0, 19) != null)
+        {
+            inserts.push(moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"));
+        }
 
         console.log(insertNewInteractionQuery);
 

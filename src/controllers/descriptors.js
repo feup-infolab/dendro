@@ -309,6 +309,16 @@ exports.from_ontology = function(req, res)
                                                     descriptors = removeDuplicates(descriptors);
                                                     descriptors = removeLockedAndPrivate(descriptors);
 
+                                                    var uuid = require('uuid');
+                                                    var recommendation_call_id = uuid.v4();
+                                                    var recommendation_call_timestamp = new Date().toISOString();
+
+                                                    for(let i = 0; i < descriptors.length; i++)
+                                                    {
+                                                        descriptors[i].recommendationCallId = recommendation_call_id;
+                                                        descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
+                                                    }
+
                                                     res.json(
                                                         {
                                                             result: "ok",

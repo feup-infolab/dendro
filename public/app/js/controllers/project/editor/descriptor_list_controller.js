@@ -81,9 +81,7 @@ angular.module('dendroApp.controllers')
                 storageService.save_to_local_storage('manually_selected_ontology', $scope.manually_selected_ontology);
 
                 $scope.get_manual_descriptors_from_ontology(autocompletedOntology.prefix);
-
-
-
+                
                 interactionsService.register_interaction(
                     "/interactions/select_ontology_manually",
                     autocompletedOntology,
@@ -514,10 +512,10 @@ angular.module('dendroApp.controllers')
             {
                 $scope.set_from_local_storage_and_then_from_value("manual_descriptors");
 
-                if($scope.manual_descriptors == null)
-                {
+                //if($scope.manual_descriptors == null)
+                //{
                     $scope.get_manual_descriptors_from_ontology($scope.manually_selected_ontology.prefix);
-                }
+                //}
             }
         };
     });
