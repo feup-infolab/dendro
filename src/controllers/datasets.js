@@ -8,6 +8,7 @@ var Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
 var swordConnection = require(Config.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
 var Figshare = require(Config.absPathInSrcFolder("/export_libs/figshare/figshare.js"));
 var B2ShareClient = require('node-b2share-v2');
+var Zenodo = require(Config.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
 var Utils = require(Config.absPathInPublicFolder("/js/utils.js")).Utils;
 
 var async = require('async');
@@ -100,7 +101,7 @@ var createPackage = function(parentFolderPath, folder, callback){
                                             console.log("The file " + outputFilenameTXT + " was saved!");
                                             filesToIncludeInPackage.push(outputFilenameTXT);
                                             extraFiles.push(outputFilenameTXT);
-                                            
+
                                             var metadataJSON = require('pretty-data').pd.json(JSON.stringify(result));
 
                                             fs.writeFile(outputFilenameJSON, metadataJSON, function(err) {
