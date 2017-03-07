@@ -194,7 +194,7 @@ angular.module('dendroApp.controllers')
                     $scope.get_calling_uri()
                 ).then(
                     function(result){
-                        $scope.get_recommendations()
+                        //$scope.get_recommendations()
 
                         if(typeof callback == "function")
                         {

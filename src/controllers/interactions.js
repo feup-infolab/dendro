@@ -65,7 +65,9 @@ var recordInteractionOverAResource = function(user, resource, req, res)
                                                 executedOver : resource.uri,
                                                 originallyRecommendedFor : req.body.recommendedFor,
                                                 rankingPosition : req.body.rankingPosition,
-                                                pageNumber : req.body.pageNumber
+                                                pageNumber : req.body.pageNumber,
+                                                recommendationCallId : req.body.recommendationCallId,
+                                                recommendationCallTimeStamp : req.body.recommendationCallTimeStamp
                                             }
                                         }, function(err, interaction){
                                             interaction.save(

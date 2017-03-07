@@ -302,10 +302,14 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
             "   executedOver," +
             "   originallyRecommendedFor," +
             "   rankingPosition," +
-            "   pageNumber" +
+            "   pageNumber," +
+            "   recommendationCallId," +
+            "   recommendationCallTimeStamp" +
             ")" +
             "VALUES " +
             "(" +
+            "   ?," +
+            "   ?," +
             "   ?," +
             "   ?," +
             "   ?," +
@@ -328,7 +332,9 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                 self.ddr.executedOver,
                 self.ddr.originallyRecommendedFor,
                 self.ddr.rankingPosition,
-                self.ddr.pageNumber
+                self.ddr.pageNumber,
+                self.ddr.recommendationCallId,
+                self.ddr.recommendationCallTimeStamp.slice(0, 19).replace('T', ' ')
             ];
 
         console.log(insertNewInteractionQuery);
