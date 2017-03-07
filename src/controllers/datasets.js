@@ -7,7 +7,6 @@ var records = require(Config.absPathInSrcFolder("/controllers/records.js"));
 var Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
 var swordConnection = require(Config.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
 var Figshare = require(Config.absPathInSrcFolder("/export_libs/figshare/figshare.js"));
-//var B2Share = require(Config.absPathInSrcFolder("/export_libs/b2share/b2share.js"));
 var B2ShareClient = require('node-b2share-v2');
 var Utils = require(Config.absPathInPublicFolder("/js/utils.js")).Utils;
 
@@ -86,7 +85,6 @@ var createPackage = function(parentFolderPath, folder, callback){
 
                     folder.findMetadataRecursive(function(err, result) {
                         if (!err) {
-                            //var metadataRDF = require(Config.absPathInPublicFolder('js/pretty-data')).pd.xml(Serializers.metadataToRDF(result));
                             var metadataRDF = require('pretty-data').pd.xml(Serializers.metadataToRDF(result));
 
                             fs.writeFile(outputFilenameRDF, metadataRDF, function(err) {
@@ -102,8 +100,7 @@ var createPackage = function(parentFolderPath, folder, callback){
                                             console.log("The file " + outputFilenameTXT + " was saved!");
                                             filesToIncludeInPackage.push(outputFilenameTXT);
                                             extraFiles.push(outputFilenameTXT);
-
-                                            //var metadataJSON = require(Config.absPathInPublicFolder('js/pretty-data')).pd.json(JSON.stringify(result));
+                                            
                                             var metadataJSON = require('pretty-data').pd.json(JSON.stringify(result));
 
                                             fs.writeFile(outputFilenameJSON, metadataJSON, function(err) {
