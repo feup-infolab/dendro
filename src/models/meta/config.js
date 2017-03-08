@@ -63,6 +63,7 @@ Config.host = getConfigParameter("host");
 Config.baseUri = getConfigParameter("baseUri");
 Config.eudatBaseUrl = getConfigParameter("eudatBaseUrl");
 Config.eudatToken = getConfigParameter("eudatToken");
+Config.eudatCommunityId = getConfigParameter("eudatCommunityId");
 Config.sendGridUser = getConfigParameter("sendGridUser");
 Config.sendGridPassword = getConfigParameter("sendGridPassword");
 

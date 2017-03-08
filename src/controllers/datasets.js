@@ -1126,294 +1126,328 @@ export_to_repository_b2share = function(req, res){
                     );
                 }
                 else{
-                    folder.createTempFolderWithContents(false, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata){
-                        if(!err){
-                            createPackage(parentFolderPath, folder, function (err, files){
-                                if(!err){
-                                    console.log("Package for export " + requestedResourceUri + " created.");
+                    Project.getOwnerProjectBasedOnUri(requestedResourceUri, function(err, project)
+                    {
+                       if(!err)
+                       {
+                           folder.createTempFolderWithContents(false, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata){
+                               if(!err){
+                                   createPackage(parentFolderPath, folder, function (err, files){
+                                       if(!err){
+                                           console.log("Package for export " + requestedResourceUri + " created.");
 
-                                    try{
-                                        var accessToken = targetRepository.ddr.hasAccessToken;
+                                           try{
+                                               var accessToken = targetRepository.ddr.hasAccessToken;
 
-                                        var title;
+                                               var title;
 
-                                        if (Array.isArray(folder.dcterms.title)) {
-                                            title = folder.dcterms.title[0]
-                                        }
-                                        else {
-                                            title = folder.dcterms.title;
-                                        }
-                                        var description;
-                                        if (Array.isArray(folder.dcterms.description)) {
-                                            description = folder.dcterms.description[0]
-                                        }
-                                        else {
-                                            description = folder.dcterms.description;
-                                        }
+                                               if (Array.isArray(folder.dcterms.title)) {
+                                                   title = folder.dcterms.title[0]
+                                               }
+                                               else {
+                                                   title = folder.dcterms.title;
+                                               }
+                                               var description;
+                                               if (Array.isArray(folder.dcterms.description)) {
+                                                   description = folder.dcterms.description[0]
+                                               }
+                                               else {
+                                                   description = folder.dcterms.description;
+                                               }
 
-                                        var dratfData = {
-                                            "titles":[{"title":title}],
-                                            "community":"e9b9792e-79fb-4b07-b6b4-b9c2bd06d095",
-                                            "open_access":true,
-                                            "community_specific": {},
-                                            "creators":[{"creator_name": folder.dcterms.creator}]
-                                        };
+                                               var draftData = {
+                                                   "titles":[{"title":title}],
+                                                   "community": Config.eudatCommunityId,
+                                                   "open_access":true,
+                                                   "community_specific": {},
+                                                   "creators":[{"creator_name": folder.dcterms.creator}]
+                                               };
 
-                                        if(folder.dcterms.publisher)
-                                        {
-                                            dratfData["publisher"] = folder.dcterms.publisher;
-                                        }
-                                        else
-                                        {
-                                            dratfData["publisher"] = "http://dendro.fe.up.pt";
-                                        }
+                                               if(folder.dcterms.publisher)
+                                               {
+                                                   draftData["publisher"] = folder.dcterms.publisher;
+                                               }
+                                               else if(project.dcterms.publisher != null)
+                                               {
+                                                   draftData["publisher"] = project.dcterms.publisher;
+                                               }
+                                               else
+                                               {
+                                                   draftData["publisher"] = "http://dendro.fe.up.pt";
+                                               }
 
-                                        if(folder.dcterms.subject){
-                                            var subject = '';
-                                            if(Array.isArray(folder.dcterms.subject)){
-                                                for(var i = 0; i < folder.dcterms.subject.length; i++){
-                                                    subject += folder.dcterms.subject[i];
-                                                    if(i != folder.dcterms.subject.length - 1){
-                                                        subject += ',';
-                                                    }
-                                                }
-                                            }
-                                            else{
-                                                subject = folder.dcterms.subject;
-                                            }
+                                               if(folder.dcterms.subject){
+                                                   var subject = '';
+                                                   if(Array.isArray(folder.dcterms.subject)){
+                                                       for(var i = 0; i < folder.dcterms.subject.length; i++){
+                                                           subject += folder.dcterms.subject[i];
+                                                           if(i != folder.dcterms.subject.length - 1){
+                                                               subject += ',';
+                                                           }
+                                                       }
+                                                   }
+                                                   else{
+                                                       subject = folder.dcterms.subject;
+                                                   }
 
-                                            dratfData["keywords"] = subject;
-                                        }
+                                                   draftData["keywords"] = subject;
+                                               }
 
-                                        if(folder.dcterms.language){
-                                            dratfData["language"] = folder.dcterms.language;
-                                        }
+                                               if(folder.dcterms.language){
+                                                   draftData["language"] = folder.dcterms.language;
+                                               }
+                                               else if(project.dcterms.language != null)
+                                               {
+                                                   draftData["language"] = project.dcterms.language;
+                                               }
+                                               else
+                                               {
+                                                   draftData["language"] = "en";
+                                               }
 
-                                        if(folder.dcterms.contributor){
-                                            var contributors = '';
-                                            if(Array.isArray(folder.dcterms.contributor)){
-                                                for(var i = 0; i < folder.dcterms.contributor.length; i++){
-                                                    contributors += folder.dcterms.contributor[i];
-                                                    if(i != folder.dcterms.contributor.length - 1){
-                                                        contributors += ';';
-                                                    }
-                                                }
-                                            }
-                                            else{
-                                                contributors = folder.dcterms.contributor;
-                                            }
+                                               if(folder.dcterms.contributor){
+                                                   var contributors = '';
+                                                   if(Array.isArray(folder.dcterms.contributor)){
+                                                       for(var i = 0; i < folder.dcterms.contributor.length; i++){
+                                                           contributors += folder.dcterms.contributor[i];
+                                                           if(i != folder.dcterms.contributor.length - 1){
+                                                               contributors += ';';
+                                                           }
+                                                       }
+                                                   }
+                                                   else{
+                                                       contributors = folder.dcterms.contributor;
+                                                   }
 
-                                            dratfData["contributors"] = contributors;
-                                        }
+                                                   draftData["contributors"] = contributors;
+                                               }
 
-                                        var b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
-                                        b2shareClient.createADraftRecord(dratfData, function (err, body) {
-                                            if (err) {
-                                                deleteFolderRecursive(parentFolderPath);
-                                                var msg = "Error creating new draft resource in B2Share";
-                                                console.error(msg);
-                                                res.status(500).json(
-                                                    {
-                                                        "result": "error",
-                                                        "message": msg
-                                                    }
-                                                );
-                                            }
-                                            else
-                                            {
-                                                //TODO send email
-                                                var recordIDToUpdate = body.data.id;
-                                                var bucketUrlToListFiles = body.data.links.files;
-                                                var fileBucketID = bucketUrlToListFiles.split('/').pop();
+                                               var b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
+                                               b2shareClient.createADraftRecord(draftData, function (err, body) {
+                                                   if (err) {
+                                                       deleteFolderRecursive(parentFolderPath);
+                                                       var msg = "Error creating new draft resource in B2Share";
+                                                       console.error(msg);
+                                                       res.status(500).json(
+                                                           {
+                                                               "result": "error",
+                                                               "message": msg
+                                                           }
+                                                       );
+                                                   }
+                                                   else
+                                                   {
+                                                       //TODO send email
+                                                       var recordIDToUpdate = body.data.id;
+                                                       var bucketUrlToListFiles = body.data.links.files;
+                                                       var fileBucketID = bucketUrlToListFiles.split('/').pop();
 
-                                                prepareFilesForUploadToB2share(files, fileBucketID, b2shareClient, function (error, result) {
-                                                    if(error)
-                                                    {
-                                                        deleteFolderRecursive(parentFolderPath);
-                                                        var msg = "Error uploading a file into a draft in B2Share";
-                                                        res.status(500).json(
-                                                            {
-                                                                "result": "error",
-                                                                "message": msg
-                                                            }
-                                                        );
-                                                    }
-                                                    else
-                                                    {
-                                                        //TODO send email
-                                                        b2shareClient.submitDraftRecordForPublication(recordIDToUpdate, function (err, body) {
-                                                            if(err)
-                                                            {
-                                                                var msg = "Error publishing a draft in B2Share";
-                                                                console.error(msg);
-                                                                res.status(500).json(
-                                                                    {
-                                                                        "result": "error",
-                                                                        "message": msg
-                                                                    }
-                                                                );
-                                                            }
-                                                            else
-                                                            {
-                                                                deleteFolderRecursive(parentFolderPath);
-                                                                var msg = "Folder " + folder.nie.title + " successfully exported from Dendro";
-                                                                /*
-                                                                var msg = "Folder " + folder.nie.title + " successfully exported from Dendro" ;
-                                                                var recordURL = B2Share.recordPath + "/" + data.body.record_id;
+                                                       prepareFilesForUploadToB2share(files, fileBucketID, b2shareClient, function (error, result) {
+                                                           if(error)
+                                                           {
+                                                               deleteFolderRecursive(parentFolderPath);
+                                                               var msg = "Error uploading a file into a draft in B2Share";
+                                                               res.status(500).json(
+                                                                   {
+                                                                       "result": "error",
+                                                                       "message": msg
+                                                                   }
+                                                               );
+                                                           }
+                                                           else
+                                                           {
+                                                               //TODO send email
+                                                               b2shareClient.submitDraftRecordForPublication(recordIDToUpdate, function (err, body) {
+                                                                   if(err)
+                                                                   {
+                                                                       var msg = "Error publishing a draft in B2Share";
+                                                                       console.error(msg);
+                                                                       res.status(500).json(
+                                                                           {
+                                                                               "result": "error",
+                                                                               "message": msg
+                                                                           }
+                                                                       );
+                                                                   }
+                                                                   else
+                                                                   {
+                                                                       deleteFolderRecursive(parentFolderPath);
+                                                                       var msg = "Folder " + folder.nie.title + " successfully exported from Dendro";
 
-                                                                var client = nodemailer.createTransport("SMTP", {
-                                                                    service: 'SendGrid',
-                                                                    auth: {
+                                                                       if(body.data != null && body.data.metadata != null && body.data.metadata.ePIC_PID != null)
+                                                                       {
+                                                                           msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>"
+                                                                       }
+
+                                                                       /*
+                                                                        var msg = "Folder " + folder.nie.title + " successfully exported from Dendro" ;
+                                                                        var recordURL = B2Share.recordPath + "/" + data.body.record_id;
+
+                                                                        var client = nodemailer.createTransport("SMTP", {
+                                                                        service: 'SendGrid',
+                                                                        auth: {
                                                                         user: Config.sendGridUser,
                                                                         pass: Config.sendGridPassword
-                                                                    }
-                                                                });
+                                                                        }
+                                                                        });
 
-                                                                var email = {
-                                                                    from: 'support@dendro.fe.up.pt',
-                                                                    to: req.session.user.foaf.mbox,
-                                                                    subject: requestedResourceUri + ' exported',
-                                                                    text: requestedResourceUri + ' was deposited in B2Share. The URL is ' + recordURL
-                                                                };
+                                                                        var email = {
+                                                                        from: 'support@dendro.fe.up.pt',
+                                                                        to: req.session.user.foaf.mbox,
+                                                                        subject: requestedResourceUri + ' exported',
+                                                                        text: requestedResourceUri + ' was deposited in B2Share. The URL is ' + recordURL
+                                                                        };
 
-                                                                client.sendMail(email, function(err, info){
-                                                                    if(err)
-                                                                    {
+                                                                        client.sendMail(email, function(err, info){
+                                                                        if(err)
+                                                                        {
                                                                         console.log("[NODEMAILER] " + err);
                                                                         flash('error', "Error sending request to user. Please try again later");
-                                                                    }
-                                                                    else
-                                                                    {
+                                                                        }
+                                                                        else
+                                                                        {
                                                                         console.log("[NODEMAILER] email sent: " + info);
                                                                         flash('success', "Sent request to project's owner");
-                                                                    }
-                                                                });
-                                                                */
-                                                                /*
-                                                                res.json(
-                                                                    {
+                                                                        }
+                                                                        });
+                                                                        */
+                                                                       /*
+                                                                        res.json(
+                                                                        {
                                                                         "result": "OK",
                                                                         "message": msg,
                                                                         "recordURL": recordURL
-                                                                    }
-                                                                );*/
-                                                                res.json(
-                                                                    {
-                                                                        "result": "OK",
-                                                                        "message": msg
-                                                                    }
-                                                                );
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                        });
+                                                                        }
+                                                                        );*/
+                                                                       res.json(
+                                                                           {
+                                                                               "result": "OK",
+                                                                               "message": msg
+                                                                           }
+                                                                       );
+                                                                   }
+                                                               });
+                                                           }
+                                                       });
+                                                   }
+                                               });
 
 
-                                        /*
-                                        var b2share = new B2Share(accessToken);
+                                               /*
+                                                var b2share = new B2Share(accessToken);
 
-                                        b2share.createDeposition(function(error, deposition){
-                                            if (error) {
+                                                b2share.createDeposition(function(error, deposition){
+                                                if (error) {
                                                 deleteFolderRecursive(parentFolderPath);
                                                 var msg = "Error creating new deposition resource in B2Share";
                                                 console.error(msg);
                                                 res.status(500).json(
-                                                    {
-                                                        "result": "error",
-                                                        "message": msg
-                                                    }
+                                                {
+                                                "result": "error",
+                                                "message": msg
+                                                }
                                                 );
-                                            }
-                                            else{
+                                                }
+                                                else{
                                                 var depositionID = JSON.parse(deposition).deposit_id;
 
                                                 b2share.uploadMultipleFilesToDeposition(depositionID, files, function(error){
-                                                    if (error) {
-                                                        deleteFolderRecursive(parentFolderPath);
-                                                        var msg = "Error uploading multiple files to deposition in Zenodo";
-                                                        console.error(msg);
-                                                        res.status(500).json(
-                                                            {
-                                                                "result": "error",
-                                                                "message": msg
-                                                            }
-                                                        );
-                                                    }
-                                                    else{
-                                                        b2share.depositionPublish(depositionID, data, function(error, data){
-                                                            if (error) {
-                                                                var msg = "Error publishing a deposition in Zenodo";
-                                                                console.error(msg);
-                                                                res.status(500).json(
-                                                                    {
-                                                                        "result": "error",
-                                                                        "message": msg
-                                                                    }
-                                                                );
-                                                            }
-                                                            else{
-                                                                deleteFolderRecursive(parentFolderPath);
-
-                                                                var msg = "Folder " + folder.nie.title + " successfully exported from Dendro" ;
-                                                                var recordURL = B2Share.recordPath + "/" + data.body.record_id;
-
-                                                                var client = nodemailer.createTransport("SMTP", {
-                                                                    service: 'SendGrid',
-                                                                    auth: {
-                                                                        user: Config.sendGridUser,
-                                                                        pass: Config.sendGridPassword
-                                                                    }
-                                                                });
-
-                                                                var email = {
-                                                                    from: 'support@dendro.fe.up.pt',
-                                                                    to: req.session.user.foaf.mbox,
-                                                                    subject: requestedResourceUri + ' exported',
-                                                                    text: requestedResourceUri + ' was deposited in B2Share. The URL is ' + recordURL
-                                                                };
-
-                                                                client.sendMail(email, function(err, info){
-                                                                    if(err)
-                                                                    {
-                                                                        console.log("[NODEMAILER] " + err);
-                                                                        flash('error', "Error sending request to user. Please try again later");
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        console.log("[NODEMAILER] email sent: " + info);
-                                                                        flash('success', "Sent request to project's owner");
-                                                                    }
-                                                                });
-
-                                                                res.json(
-                                                                    {
-                                                                        "result": "OK",
-                                                                        "message": msg,
-                                                                        "recordURL": recordURL
-                                                                    }
-                                                                );
-                                                            }
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                        });*/
-                                    }
-                                    catch(err){
-                                        deleteFolderRecursive(parentFolderPath);
-                                        console.error(err);
-                                        res.status(500).json(
-                                            {
+                                                if (error) {
+                                                deleteFolderRecursive(parentFolderPath);
+                                                var msg = "Error uploading multiple files to deposition in Zenodo";
+                                                console.error(msg);
+                                                res.status(500).json(
+                                                {
                                                 "result": "error",
-                                                "message": err
-                                            }
-                                        );
-                                    }
-                                }
-                            });
-                        }
+                                                "message": msg
+                                                }
+                                                );
+                                                }
+                                                else{
+                                                b2share.depositionPublish(depositionID, data, function(error, data){
+                                                if (error) {
+                                                var msg = "Error publishing a deposition in Zenodo";
+                                                console.error(msg);
+                                                res.status(500).json(
+                                                {
+                                                "result": "error",
+                                                "message": msg
+                                                }
+                                                );
+                                                }
+                                                else{
+                                                deleteFolderRecursive(parentFolderPath);
+
+                                                var msg = "Folder " + folder.nie.title + " successfully exported from Dendro" ;
+                                                var recordURL = B2Share.recordPath + "/" + data.body.record_id;
+
+                                                var client = nodemailer.createTransport("SMTP", {
+                                                service: 'SendGrid',
+                                                auth: {
+                                                user: Config.sendGridUser,
+                                                pass: Config.sendGridPassword
+                                                }
+                                                });
+
+                                                var email = {
+                                                from: 'support@dendro.fe.up.pt',
+                                                to: req.session.user.foaf.mbox,
+                                                subject: requestedResourceUri + ' exported',
+                                                text: requestedResourceUri + ' was deposited in B2Share. The URL is ' + recordURL
+                                                };
+
+                                                client.sendMail(email, function(err, info){
+                                                if(err)
+                                                {
+                                                console.log("[NODEMAILER] " + err);
+                                                flash('error', "Error sending request to user. Please try again later");
+                                                }
+                                                else
+                                                {
+                                                console.log("[NODEMAILER] email sent: " + info);
+                                                flash('success', "Sent request to project's owner");
+                                                }
+                                                });
+
+                                                res.json(
+                                                {
+                                                "result": "OK",
+                                                "message": msg,
+                                                "recordURL": recordURL
+                                                }
+                                                );
+                                                }
+                                                });
+                                                }
+                                                });
+                                                }
+                                                });*/
+                                           }
+                                           catch(err){
+                                               deleteFolderRecursive(parentFolderPath);
+                                               console.error(err);
+                                               res.status(500).json(
+                                                   {
+                                                       "result": "error",
+                                                       "message": err
+                                                   }
+                                               );
+                                           }
+                                       }
+                                   });
+                               }
+                           });
+                       }
+                       else
+                       {
+                           res.status(500).json(
+                               {
+                                   "result" : "error",
+                                   "message" : "Unable to get owner project of " + requestedResourceUri,
+                                   "error" : project
+                               }
+                           )
+                       }
                     });
                 }
             }
