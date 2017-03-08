@@ -99,6 +99,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
-    "nyc": "^10.1.2"
+    "nyc": "^10.1.2",
+    "supertest" : "*"
   }
 }

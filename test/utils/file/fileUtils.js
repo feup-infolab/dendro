@@ -9,3 +9,18 @@ module.exports.binaryParser = function (res, cb) {
     });
 };
 
+
+module.exports.uploadFile = function(acceptsJSON, agent, file, targetUrl, fileType, cb)
+{
+    const Config = GLOBAL.Config;
+    supertest = require('supertest');
+
+    let request = supertest(Config.host);
+    request.set("Cookie", agent.cookies); //TODO FIX
+
+    request.post(targetUrl)
+        .field('extra_info', '{"in":"case you want to send json along with your file"}')
+        .attach(fileType, file.location)
+        .end(cb);
+};
+
