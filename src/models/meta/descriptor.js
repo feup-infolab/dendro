@@ -196,6 +196,10 @@ Descriptor.recommendation_types = {
     dc_element_forced : {
         key : "dc_element_forced",
         weight : 0.0
+    },
+    project_descriptors : {
+        key : "dc_element_forced",
+        weight : 0.0
     }
 };
 
@@ -334,7 +338,7 @@ Descriptor.prototype.setValue = function(value)
 Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesize) {
 
     var query =
-        " SELECT ?uri ?type ?label ?comment \n"+
+        " SELECT DISTINCT ?uri ?type ?label ?comment \n"+
             " FROM [0] \n"+
             " WHERE \n" +
             " { \n"+
@@ -420,11 +424,18 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number, page_size) {
     var async = require('async');
     async.map(ontologyURIsArray, function(uri, cb){
-        Descriptor.all_in_ontology(uri, cb);
+        Descriptor.all_in_ontology(uri, function(err, descriptors){
+            cb(err, descriptors);
+        });
     },function(err, results){
         if(!err)
         {
             var flat = _.flatten(results);
+
+            flat = _.sortBy(flat, function(descriptor){
+                return descriptor.shortName;
+            });
+
             if(page_number != null && page_size != null)
             {
                 try{
@@ -479,18 +490,18 @@ Descriptor.removeUnauthorizedFromObject = function(object, excludedDescriptorTyp
     }
 };
 
-Descriptor.prototype.isAuthorized = function(typesToUnauthorize, typesToForceAuthorization)
+Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     /**TODO make this more efficient**/
     var self = this;
 
-    if(typesToUnauthorize == null)
+    if(excludedDescriptorTypes == null)
     {
         return true;
     }
     else
     {
-        var authorizedDescriptors = Descriptor.getAuthorizedDescriptors(typesToUnauthorize, typesToForceAuthorization);
+        var authorizedDescriptors = Descriptor.getAuthorizedDescriptors(excludedDescriptorTypes, exceptionedDescriptorTypes);
 
         if(authorizedDescriptors[self.prefix][self.shortName] == true)
         {
@@ -509,35 +520,32 @@ Descriptor.prototype.isAuthorized = function(typesToUnauthorize, typesToForceAut
             return true;
         }
     }
-}
+};
 
-
-//TODO calculate this at boot time and save it into a matrix for checking descriptor types
-Descriptor.getAuthorizedDescriptors = function(typesToUnauthorize, typesToForceAuthorization)
+Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     var authorizedDescriptors = {};
-
     for (var prefix in Elements)
     {
         authorizedDescriptors[prefix] = {};
 
         for(var shortName in Elements[prefix])
         {
-            authorizedDescriptors[prefix][shortName] = true;
+            authorizedDescriptors[prefix][shortName] = false;
 
-            var excluded = null;
-            var exceptioned = null;
+            var excluded = false;
+            var exceptioned = false;
 
             var descriptor = new Descriptor({
                 prefix : prefix,
                 shortName : shortName
             });
 
-            if(typesToForceAuthorization != null && typesToForceAuthorization.length > 0)
+            if(exceptionedDescriptorTypes != null)
             {
-                for(var i = 0; i < typesToForceAuthorization.length; i++)
+                for(var i = 0; i < exceptionedDescriptorTypes.length; i++)
                 {
-                    var exceptionedType = typesToForceAuthorization[i];
+                    var exceptionedType = exceptionedDescriptorTypes[i];
 
                     if(descriptor[exceptionedType])
                     {
@@ -546,13 +554,13 @@ Descriptor.getAuthorizedDescriptors = function(typesToUnauthorize, typesToForceA
                 }
             }
 
-            if(typesToUnauthorize != null  && typesToUnauthorize.length > 0)
+            if(excludedDescriptorTypes != null)
             {
                 if(!exceptioned)
                 {
-                    for(var i = 0; i < typesToUnauthorize.length; i++)
+                    for(var i = 0; i < excludedDescriptorTypes.length; i++)
                     {
-                        var excludedType = typesToUnauthorize[i];
+                        var excludedType = excludedDescriptorTypes[i];
 
                         if(Ontology.allOntologies[prefix][excludedType] || descriptor[excludedType])
                         {
@@ -562,12 +570,9 @@ Descriptor.getAuthorizedDescriptors = function(typesToUnauthorize, typesToForceA
                 }
             }
 
-            if(exceptioned == null || exceptioned == false)
+            if(!excluded || exceptioned)
             {
-                if(excluded == true)
-                {
-                        authorizedDescriptors[prefix][shortName] = false;
-                }
+                authorizedDescriptors[prefix][shortName] = true;
             }
         }
     }
@@ -1045,7 +1050,7 @@ Descriptor.validateDescriptorParametrization = function(callback)
                         }
                         catch(e)
                         {
-                            callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
+                            return callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
                         }
                     }
 

@@ -559,10 +559,10 @@ exports.get_thumbnail = function(req, res) {
                     {
                         if(writtenFilePath != null)
                         {
-                            var fs = require('fs');
-                            var path = require('path');
-                            var fileStream = fs.createReadStream(writtenFilePath);
-                            var filename = path.basename(writtenFilePath);
+                            const fs = require('fs');
+                            const path = require('path');
+                            let fileStream = fs.createReadStream(writtenFilePath);
+                            let filename = path.basename(writtenFilePath);
 
                             res.writeHead(200,
                                 {
@@ -574,7 +574,7 @@ exports.get_thumbnail = function(req, res) {
                         }
                         else
                         {
-                            var error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                            const error = "There was an error streaming the requested resource : " + requestedResourceURI;
                             console.error(error);
                             res.writeHead(500, error);
                             res.end();
@@ -1696,26 +1696,33 @@ exports.thumbnail = function(req, res)
 
         if(requestedExtension == null)
         {
-            exports.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+            exports.serve_static(req, res, "/images/icons/document_empty.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
         }
         else if(requestedExtension != null && Config.thumbnailableExtensions[requestedExtension] != null)
         {
             exports.get_thumbnail(req, res);
         }
-        else if(requestedExtension == "")
+        else if(requestedExtension === "" || requestedExtension === "folder")
         {
             exports.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
         }
         else
         {
-            exports.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+            if(Config.iconableFileExtensions[requestedExtension])
+            {
+                exports.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+            }
+            else
+            {
+                exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+            }
         }
     }
     else
     {
-        exports.serve_static(req, res, "/images/icons/file.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+        exports.serve_static(req, res, "/images/icons/package.png", "/images/icons/package.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
     }
-}
+};
 
 exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoot, pathOfFileToServeOnError, staticFileCaching, cachePeriodInSeconds){
     var fs = require('fs');

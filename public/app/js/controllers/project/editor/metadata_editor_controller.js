@@ -286,10 +286,6 @@ angular.module('dendroApp.controllers')
             });
         };
 
-        $scope.descriptor_is_filled_in = function(descriptor) {
-            metadataService.descriptor_is_filled_in(descriptor);
-        };
-
         $scope.toggle_datepicker = function(descriptorIndex)
         {
             if($scope.shared.metadata != null && $scope.shared.metadata instanceof Array)
@@ -334,14 +330,6 @@ angular.module('dendroApp.controllers')
             $localStorage.editor_recommendations_mode = $scope.editor_recommendations_mode;
         };
 
-        $scope.descriptor_is_present = function(descriptor)
-        {
-            return metadataService.descriptor_is_present(
-                descriptor,
-                $scope.shared.metadata
-            );
-        };
-
         $scope.fill_with_missing_recommendations = function(recommended_descriptors_missing)
         {
             if(recommended_descriptors_missing != null && recommended_descriptors_missing instanceof Array)
@@ -380,6 +368,22 @@ angular.module('dendroApp.controllers')
         $scope.get_map_src = function(descriptor, key)
         {
             return "https://www.google.com/maps/embed/v1/place?key=" + key + "&q="+descriptor.value;
+        };
+
+
+        $scope.shared.descriptor_is_filled_in = function(descriptor) {
+            return metadataService.descriptor_is_filled_in(
+                descriptor,
+                $scope.shared.metadata
+            );
+        };
+        
+        $scope.shared.descriptor_is_present = function(descriptor)
+        {
+            return metadataService.descriptor_is_present(
+                descriptor,
+                $scope.shared.metadata
+            );
         };
 
         $scope.init = function()

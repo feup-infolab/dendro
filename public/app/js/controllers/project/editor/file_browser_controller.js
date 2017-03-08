@@ -4,6 +4,7 @@ angular.module('dendroApp.controllers')
     */
     .controller('fileBrowserCtrl', function (
         $scope,
+        $rootScope,
         $http,
         $filter,
         $q,
@@ -25,6 +26,27 @@ angular.module('dendroApp.controllers')
         usersService
     )
 {
+    $scope.thumbnailable = function(file)
+    {
+        if($rootScope.config != null)
+        {
+            const thumbnailable = $rootScope.config.thumbnailable_file_extensions[file.ddr.fileExtension];
+
+            if(thumbnailable != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    };
+    
     $scope.delete_file_or_folder = function()
     {
         var selectedFiles = $scope.get_selected_files();

@@ -18,4 +18,4 @@ require("./controllers/folders.Test.js");
 require("./controllers/users.Test.js");
 
 //destroy graphs
-//require('./models/kb/db.Test.js');
+require('./models/kb/db.Test.js');

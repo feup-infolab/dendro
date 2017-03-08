@@ -447,6 +447,7 @@ Config.controls = {
 };
 
 Config.types = {
+    public : "public",                                  //can be shared, read and written
     private : "private",                                //cannot be shared to the outside world under any circumstance
     locked : "locked",                                  //can not be seen or edited from the main interface or via apis
     restorable : "restorable",                          //can be restorable from a metadata.json file in a zip backup file
@@ -497,13 +498,26 @@ Config.absPathInPublicFolder = function(relativePath)
  * Thumbnail Generation
  */
 
-Config.thumbnailableExtensions = {
-    //"pdf" : 1,
-    "jpeg": 1,
-    "jpg" : 1,
-    "gif" : 1,
-    "png" : 1
-};
+if(Config.thumbnailableExtensions == null)
+{
+    Config.thumbnailableExtensions = require(Config.absPathInPublicFolder("/shared/public_config.json"))["thumbnailable_file_extensions"];
+}
+
+if(Config.iconableFileExtensions == null)
+{
+    Config.iconableFileExtensions = [];
+    let extensions = fs.readdirSync(Config.absPathInPublicFolder("/images/icons/extensions"));
+
+    for(let i = 0; i < extensions.length; i++)
+    {
+        if(extensions[i] != "." && extensions[i] != "..")
+        {
+            let extensionOnly = extensions[i].match(/file_extension_(.+)\.png/)[1];
+            if(extensionOnly != null)
+                Config.iconableFileExtensions.push(extensionOnly);
+        }
+    }
+}
 
 Config.thumbnails = {
     thumbnail_format_extension : "gif",
@@ -585,56 +599,48 @@ if(Config.demo_mode.active)
 {
     const exec = require('child_process').exec;
 
-    exec('git status',
+    Config.demo_mode.git_info = {};
+
+    exec('git branch | grep "^\* .*$" | cut -c 3- | tr -d "\n"',
         {
             cwd: Config.appDir
         },
         function(error, stdout, stderr) {
-        if (error == null || error.code == 0) {
-            Config.demo_mode.git_info = {};
+            if (error == null) {
+                console.log("Active branch : " + JSON.stringify(stdout));
+                Config.demo_mode.git_info.active_branch = stdout;
+            }
+            else
+            {
+                console.error("Unable to get active branch : " + JSON.stringify(error));
+            }
+        });
 
-            exec('git branch | grep "^\* .*$" | cut -c 3- | tr -d "\n"',
-                {
-                    cwd: Config.appDir
-                },
-                function(error, stdout, stderr) {
-                    if (error == null) {
-                        console.log("Active branch : " + JSON.stringify(stdout));
-                        Config.demo_mode.git_info.active_branch = stdout;
-                    }
-                    else
-                    {
-                        console.error("Unable to get active branch : " + JSON.stringify(error));
-                    }
-                });
+    exec('git log -1 | grep "commit.*" | cut -c 8- | tr -d "\n"',
+        {
+            cwd: Config.appDir
+        }, function (error, stdout, stderr) {
+        if (error == null) {
+            console.log("Last commit hash : " + JSON.stringify(stdout));
+            Config.demo_mode.git_info.commit_hash = stdout;
+        }
+        else
+        {
+            console.error("Unable to get commit hash : " + JSON.stringify(error));
+        }
+    });
 
-            exec('git log -1 | grep "commit.*" | cut -c 8- | tr -d "\n"',
-                {
-                    cwd: Config.appDir
-                }, function (error, stdout, stderr) {
-                if (error == null) {
-                    console.log("Last commit hash : " + JSON.stringify(stdout));
-                    Config.demo_mode.git_info.commit_hash = stdout;
-                }
-                else
-                {
-                    console.error("Unable to get commit hash : " + JSON.stringify(error));
-                }
-            });
-
-            exec('git log -1 | grep "Date:.*" | cut -c 9- | tr -d "\n"',
-                {
-                    cwd: Config.appDir
-                }, function (error, stdout, stderr) {
-                if (error == null) {
-                    console.log("Last commit date : " + JSON.stringify(stdout));
-                    Config.demo_mode.git_info.last_commit_date = stdout;
-                }
-                else
-                {
-                    console.error("Unable to get last commit date : " + JSON.stringify(error));
-                }
-            });
+    exec('git log -1 | grep "Date:.*" | cut -c 9- | tr -d "\n"',
+        {
+            cwd: Config.appDir
+        }, function (error, stdout, stderr) {
+        if (error == null) {
+            console.log("Last commit date : " + JSON.stringify(stdout));
+            Config.demo_mode.git_info.last_commit_date = stdout;
+        }
+        else
+        {
+            console.error("Unable to get last commit date : " + JSON.stringify(error));
         }
     });
 }

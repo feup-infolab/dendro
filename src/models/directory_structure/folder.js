@@ -31,6 +31,7 @@ function Folder (object)
 
     self.rdf.type = Folder.prefixedRDFType;
     self.ddr.fileExtension = "folder";
+    self.ddr.hasFontAwesomeClass = "fa-folder";
 
     if(object.nie != null && object.nie.title != null)
     {
@@ -942,7 +943,7 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                             async.map(node.children, loadMetadataForChildFolder, function(err, results){
                                 if(!err)
                                 {
-                                    currentFolder.replaceDescriptorsInMemory(oldDescriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
+                                    currentFolder.replaceDescriptors(oldDescriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
                                     currentFolder.save(function(err, result){
                                         if(!err)
                                         {
@@ -1090,12 +1091,12 @@ Folder.prototype.setDescriptorsRecursively = function(descriptors, callback, uri
     {
         if(node instanceof File)
         {
-            node.updateDescriptorsInMemory(descriptors);
+            node.updateDescriptors(descriptors);
             node.save(cb);
         }
         else if(node instanceof Folder)
         {
-            node.updateDescriptorsInMemory(descriptors);
+            node.updateDescriptors(descriptors);
             node.save(function(err, result){
                 if(!err)
                 {
@@ -1184,7 +1185,7 @@ Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecu
         }
         else
         {
-            self.updateDescriptorsInMemory(
+            self.updateDescriptors(
                 [
                     new Descriptor({
                         prefixedForm : "ddr:deleted",
@@ -1268,7 +1269,7 @@ Folder.prototype.undelete = function(callback, uriOfUserUnDeletingTheFolder, not
 
     if(notRecursive)
     {
-        self.updateDescriptorsInMemory(
+        self.updateDescriptors(
             [
                 new Descriptor({
                     prefixedForm : "ddr:deleted",

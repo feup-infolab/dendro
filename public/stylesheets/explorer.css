@@ -177,3 +177,6 @@ Animations (uncomment to have animations)
   height: 120px;
   width: 100%;
 }
+.file_explorer_icon {
+  text-shadow: 1px 1px 1px #ccc;
+}

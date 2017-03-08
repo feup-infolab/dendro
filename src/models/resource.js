@@ -136,7 +136,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 
                             if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
                             {
-                                completeResource.clearDescriptorTypesInMemory(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                                completeResource.clearDescriptors(descriptorTypesToExemptFromRemoval, descriptorTypesToRemove);
                             }
 
                             cb(err, completeResource);
@@ -156,7 +156,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 
 /**
  * Removes all the triples with this resource as their subject
- * @type {updateDescriptorsInMemory}
+ * @type {updateDescriptors}
  */
 Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
 {
@@ -531,7 +531,7 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
                     "?uri  rdfs:comment   ?comment. \n" +
                     "FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
                 "} .\n" +
-            
+
                 filterString +
             " } \n";
 
@@ -1020,7 +1020,7 @@ Resource.prototype.save = function
  * @param callback
  */
 
-Resource.prototype.updateDescriptorsInMemory = function(descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
+Resource.prototype.updateDescriptors = function(descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
 {
     var self = this;
 
@@ -1044,7 +1044,7 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, cannotChang
     }
 
     return self;
-}
+};
 
 /**
  * Used for deleting a resource.
@@ -1052,52 +1052,75 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, cannotChang
  *
  * Only triples with this resource as their subject will be deleted.
  */
-Resource.prototype.clearAllDescriptorsInMemory = function(doNotTouchTheseTypes, unlessTheyAreTheseTypes)
+Resource.prototype.clearAllDescriptors = function()
+{
+    var self = this;
+    self.copyOrInitDescriptors({}, true);
+    return self;
+};
+
+/**
+ * Used for deleting a resource.
+ * Resources pointing to this resource will not be deleted.
+ *
+ * Only triples with this resource as their subject will be deleted.
+ */
+Resource.prototype.clearDescriptors = function(descriptorTypesToClear, exceptionedDescriptorTypes)
 {
     var self = this;
 
-    if(doNotTouchTheseTypes !== null && unlessTheyAreTheseTypes !== null)
-    {
-        var descriptors = self.getDescriptors();
-        for(var i = 0; i < descriptors.length; i++)
-        {
-            var descriptor = descriptors[i];
-            if(descriptor.prefix != null && descriptor.shortName != null)
-            {
-                if(descriptor.isAuthorized(doNotTouchTheseTypes, unlessTheyAreTheseTypes))
-                {
-                    delete self[descriptor.prefix][descriptor.shortName];
-                }
-            }
-            else
-            {
-                var util = require('util');
-                var error = "Descriptor " + util.inspect(descriptor) + " does not have a prefix and a short name.";
-                console.error(error);
-            }
-        }
-    }
-    else
-    {
-        self.copyOrInitDescriptors({}, true);
-    }
+    var myDescriptors = self.getDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
+    self.clearAllDescriptors();
 
-    return self;
-}
+    self.updateDescriptors(myDescriptors);
+};
 
 /**
  * Replace descriptors with the ones sent as argument
  * MERGE DESCRIPTORS BEFORE CALLING
  * @param descriptors
- * @param callback
  */
 
-Resource.prototype.replaceDescriptorsInMemory = function(descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
-{
-    var self = this;
 
-    self.clearAllDescriptorsInMemory(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes);
-    self.updateDescriptorsInMemory(descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes);
+Resource.prototype.replaceDescriptors = function(newDescriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
+{
+    let self = this;
+    let currentDescriptors = self.getDescriptors();
+    let newDescriptorsUris = [];
+
+    //update descriptors with new ones
+    for(let i = 0; i < newDescriptors.length; i++)
+    {
+        let newDescriptor = newDescriptors[i];
+        let newDescriptorPrefix =  newDescriptor.prefix;
+        let newDescriptorShortName =  newDescriptor.shortName;
+        newDescriptorsUris.push(newDescriptor.uri);
+
+        if(newDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
+        {
+            self[newDescriptorPrefix][newDescriptorShortName] = newDescriptor.value;
+        }
+    }
+
+    //clean other authorized descriptors that
+    // were not changed not included in
+    // newDescriptors
+
+    for(let i = 0; i < currentDescriptors.length; i++)
+    {
+        let currentDescriptor = currentDescriptors[i];
+        let currentDescriptorPrefix =  currentDescriptor.prefix;
+        let currentDescriptorShortName =  currentDescriptor.shortName;
+
+        if(!_.contains(newDescriptorsUris, currentDescriptor.uri))
+        {
+            if(currentDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
+            {
+                delete self[currentDescriptorPrefix][currentDescriptorShortName];
+            }
+        }
+    }
+
     return self;
 };
 
@@ -1448,7 +1471,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
                     if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
                     {
-                        resource.clearDescriptorTypesInMemory(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                        resource.clearDescriptors(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
                     }
 
                     callback(err, resource);
@@ -1804,7 +1827,7 @@ var groupPropertiesArrayIntoObject = function(results)
     }
 
     return properties;
-}
+};
 
 Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)
 {
@@ -2111,7 +2134,7 @@ Resource.prototype.restoreFromArchivedVersion = function(version, callback, uriO
 
     var oldDescriptors = version.getDescriptors(typesToExclude);
 
-    self.replaceDescriptorsInMemory(oldDescriptors, typesToExclude);
+    self.replaceDescriptors(oldDescriptors, typesToExclude);
 
     self.save(
         callback,
