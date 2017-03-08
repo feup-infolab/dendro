@@ -182,7 +182,7 @@
                 <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
                     <li class="active">
                         <a href="#metadata-editor" data-toggle="tab" ng-click="load_metadata()">
-                            About <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}" onerror="noIcon(this);"/> {{get_calling_uri_filename()}}
+                            About <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_calling_uri_filename()}}
                         </a>
                     </li>
                     <li>
@@ -260,37 +260,7 @@
                 </div>
 
         <div class="col-md-3 col-xs-12 col-sm-12" id="improvements" ng-show="showing_descriptor_selection_area()" ng-controller="descriptorListCtrl" ng-init="init()" ng-show="!(shared.multiple_selection_active && file_explorer_selected_something())">
-            <%if(locals.Config.baselines.dublin_core_only)
-            {
-            %>
-                <%if(locals.Config.recommendation.modes.none.active)
-                {
-                %>
-                    <%- include show/descriptor_selection_variants/descriptors_selection_area_dc_non_rec.ejs %>
-                <%
-                } else {
-                %>
-                    <%- include show/descriptor_selection_variants/descriptors_selection_area_dc_rec.ejs %>
-                <%
-                }
-                %>
-            <%
-            } else {
-            %>
-                <%if(locals.Config.recommendation.modes.none.active)
-                {
-                %>
-                    <%- include show/descriptor_selection_variants/descriptors_selection_area_non_rec.ejs %>
-                <%
-                } else {
-                %>
-                    <%- include show/descriptor_selection_variants/descriptors_selection_area_rec.ejs %>
-                <%
-                }
-                %>
-            <%
-            }
-            %>
+            <%- include show/descriptor_selection_variants/descriptors_selection_area_rec.ejs %>
         </div>
 
         <div ng-show="shared.multiple_selection_active && file_explorer_selected_something()" class="panel panel-warning">

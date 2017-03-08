@@ -4,6 +4,7 @@ angular.module('dendroApp.controllers')
     */
     .controller('fileBrowserCtrl', function (
         $scope,
+        $rootScope,
         $http,
         $filter,
         $q,
@@ -25,6 +26,27 @@ angular.module('dendroApp.controllers')
         usersService
     )
 {
+    $scope.thumbnailable = function(file)
+    {
+        if($rootScope.config != null)
+        {
+            const thumbnailable = $rootScope.config.thumbnailable_file_extensions[file.ddr.fileExtension];
+
+            if(thumbnailable != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    };
+    
     $scope.delete_file_or_folder = function()
     {
         var selectedFiles = $scope.get_selected_files();
@@ -334,8 +356,13 @@ angular.module('dendroApp.controllers')
             {
                 $scope.clear_selected_files();
 
-                recommendationService.get_recommendations(
-                    $scope.get_calling_uri()
+               recommendationService.get_recommendations(
+                    $scope.get_calling_uri(),
+                    $scope.descriptor_filter,
+                    $scope.shared.metadata,
+                    $scope.recommend_already_filled_in,
+                    $scope.recommendations_page,
+                    $scope.recommendations_page_size
                 );
 
                 metadataService.load_metadata()
@@ -373,7 +400,15 @@ angular.module('dendroApp.controllers')
 
                             $scope.set_selected_file(index);
 
-                            recommendationService.get_recommendations($scope.get_calling_uri());
+                            recommendationService.get_recommendations(
+                                $scope.get_calling_uri(),
+                                $scope.descriptor_filter,
+                                $scope.shared.metadata,
+                                $scope.recommend_already_filled_in,
+                                $scope.recommendations_page,
+                                $scope.recommendations_page_size
+                            );
+
                             metadataService.load_metadata($scope.get_calling_uri())
                                 .then(function(metadata){
                                     $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
@@ -438,7 +473,7 @@ angular.module('dendroApp.controllers')
 
     $scope.init = function()
     {
-        $scope.set_from_local_storage_and_then_from_value("upload_area_visible", true);
+        $scope.set_from_local_storage_and_then_from_value("upload_area_visible", false);
         $scope.set_from_local_storage_and_then_from_value("restore_area_visible", false);
         $scope.set_from_local_storage_and_then_from_value("showing_deleted_files", false, $scope, "shared");
         $scope.get_folder_contents(true);

@@ -11,7 +11,7 @@ var gfs = function() { return GLOBAL.gfs.default; }();
 
 var _ = require('underscore');
 var async = require('async');
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 
 //NFO ontology or NIE ontology
 /*

@@ -136,7 +136,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 
                             if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
                             {
-                                completeResource.clearDescriptorTypesInMemory(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                                completeResource.clearDescriptors(descriptorTypesToExemptFromRemoval, descriptorTypesToRemove);
                             }
 
                             cb(err, completeResource);
@@ -156,7 +156,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 
 /**
  * Removes all the triples with this resource as their subject
- * @type {updateDescriptorsInMemory}
+ * @type {updateDescriptors}
  */
 Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
 {
@@ -531,7 +531,7 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
                     "?uri  rdfs:comment   ?comment. \n" +
                     "FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
                 "} .\n" +
-            
+
                 filterString +
             " } \n";
 
@@ -1020,7 +1020,7 @@ Resource.prototype.save = function
  * @param callback
  */
 
-Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes)
+Resource.prototype.updateDescriptors = function(descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
 {
     var self = this;
 
@@ -1030,7 +1030,7 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDes
         var descriptor = descriptors[i];
         if(descriptor.prefix != null && descriptor.shortName != null)
         {
-            if(descriptor.isAuthorized(excludedDescriptorTypes, exceptionedDescriptorTypes))
+            if(descriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
             {
                 self[descriptor.prefix][descriptor.shortName] = descriptor.value;
             }
@@ -1044,7 +1044,7 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDes
     }
 
     return self;
-}
+};
 
 /**
  * Used for deleting a resource.
@@ -1052,37 +1052,75 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDes
  *
  * Only triples with this resource as their subject will be deleted.
  */
-Resource.prototype.clearAllDescriptorsInMemory = function()
+Resource.prototype.clearAllDescriptors = function()
 {
     var self = this;
     self.copyOrInitDescriptors({}, true);
     return self;
-}
+};
 
-Resource.prototype.clearDescriptorTypesInMemory = function(descriptorTypesToClear, exceptionedDescriptorTypes)
+/**
+ * Used for deleting a resource.
+ * Resources pointing to this resource will not be deleted.
+ *
+ * Only triples with this resource as their subject will be deleted.
+ */
+Resource.prototype.clearDescriptors = function(descriptorTypesToClear, exceptionedDescriptorTypes)
 {
     var self = this;
 
     var myDescriptors = self.getDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
-    self.clearAllDescriptorsInMemory();
+    self.clearAllDescriptors();
 
-    self.updateDescriptorsInMemory(myDescriptors);
-}
+    self.updateDescriptors(myDescriptors);
+};
 
 /**
  * Replace descriptors with the ones sent as argument
  * MERGE DESCRIPTORS BEFORE CALLING
  * @param descriptors
- * @param callback
  */
 
-Resource.prototype.replaceDescriptorsInMemory = function(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes)
+
+Resource.prototype.replaceDescriptors = function(newDescriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
 {
-    var self = this;
+    let self = this;
+    let currentDescriptors = self.getDescriptors();
+    let newDescriptorsUris = [];
 
-    self.clearDescriptorTypesInMemory(excludedDescriptorTypes, exceptionedDescriptorTypes);
+    //update descriptors with new ones
+    for(let i = 0; i < newDescriptors.length; i++)
+    {
+        let newDescriptor = newDescriptors[i];
+        let newDescriptorPrefix =  newDescriptor.prefix;
+        let newDescriptorShortName =  newDescriptor.shortName;
+        newDescriptorsUris.push(newDescriptor.uri);
 
-    self.updateDescriptorsInMemory(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
+        if(newDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
+        {
+            self[newDescriptorPrefix][newDescriptorShortName] = newDescriptor.value;
+        }
+    }
+
+    //clean other authorized descriptors that
+    // were not changed not included in
+    // newDescriptors
+
+    for(let i = 0; i < currentDescriptors.length; i++)
+    {
+        let currentDescriptor = currentDescriptors[i];
+        let currentDescriptorPrefix =  currentDescriptor.prefix;
+        let currentDescriptorShortName =  currentDescriptor.shortName;
+
+        if(!_.contains(newDescriptorsUris, currentDescriptor.uri))
+        {
+            if(currentDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
+            {
+                delete self[currentDescriptorPrefix][currentDescriptorShortName];
+            }
+        }
+    }
+
     return self;
 };
 
@@ -1433,7 +1471,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
                     if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
                     {
-                        resource.clearDescriptorTypesInMemory(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                        resource.clearDescriptors(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
                     }
 
                     callback(err, resource);
@@ -1518,8 +1556,12 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                 }
                 else
                 {
-                    var msg = uri + " does not exist in Dendro.";
-                    console.log(msg);
+                    if(Config.debug.resources.log_missing_resources)
+                    {
+                        var msg = uri + " does not exist in Dendro.";
+                        console.log(msg);
+                    }
+
                     callback(0, null);
                 }
             }
@@ -1785,9 +1827,9 @@ var groupPropertiesArrayIntoObject = function(results)
     }
 
     return properties;
-}
+};
 
-Resource.prototype.getDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
+Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)
 {
     var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
@@ -1812,7 +1854,7 @@ Resource.prototype.getDescriptors = function(excludedDescriptorTypes, exceptione
                     }
                 );
 
-                if(newDescriptor.isAuthorized(excludedDescriptorTypes, exceptionedDescriptorTypes))
+                if(newDescriptor.isAuthorized(descriptorTypesNotToGet, descriptorTypesToForcefullyGet))
                 {
                     descriptorsArray.push(newDescriptor);
                 }
@@ -2092,7 +2134,7 @@ Resource.prototype.restoreFromArchivedVersion = function(version, callback, uriO
 
     var oldDescriptors = version.getDescriptors(typesToExclude);
 
-    self.replaceDescriptorsInMemory(oldDescriptors, typesToExclude);
+    self.replaceDescriptors(oldDescriptors, typesToExclude);
 
     self.save(
         callback,
@@ -2221,126 +2263,6 @@ Resource.prototype.findMetadataRecursive = function(callback){
     });
 };
 
-Resource.prototype.findMetadata = function(callback){
-    var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-    var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder")).Folder;
-
-    var self = this;
-    Resource.findByUri(self.uri, function(err, resource){
-        if(!err){
-            if(resource != null)
-            {
-                resource.getPropertiesFromOntologies(
-                    Ontology.getPublicOntologiesUris(),
-                    function(err, descriptors)
-                    {
-                        if(!err)
-                        {
-                            //remove locked descriptors
-                            for(var i = 0 ; i < descriptors.length ; i++)
-                            {
-                                if(descriptors[i].locked)
-                                {
-                                    descriptors.splice(i, 1);
-                                    i--;
-                                }
-                            }
-
-                            Folder.findByUri(resource.uri, function(err, folder) {
-                                var metadataResult = {
-                                    title: resource.nie.title,
-                                    descriptors: descriptors,
-                                    file_extension: resource.ddr.fileExtension,
-                                    hasLogicalParts : []
-                                };
-
-                                if(folder.ddr != null && folder.ddr.metadataQuality != null)
-                                {
-                                    metadataResult.metadata_quality = folder.ddr.metadataQuality;
-                                }
-                                else
-                                {
-                                    metadataResult.metadata_quality = 0;
-                                }
-
-                                if(!err){
-
-                                    folder.getLogicalParts(function (err, children) {
-                                        if (!err) {
-                                            var _ = require('underscore');
-                                            children = _.reject(children, function (child) {
-                                                return child.ddr.deleted;
-                                            });
-
-                                            if (children.length > 0) {
-
-                                                var async = require("async");
-
-                                                // 1st parameter in async.each() is the array of items
-                                                async.each(children,
-                                                    // 2nd parameter is the function that each item is passed into
-                                                    function(child, callback){
-                                                        // Call an asynchronous function
-                                                        metadataResult.hasLogicalParts.push({
-                                                            'title':child.nie.title
-                                                        });
-                                                        callback(null);
-                                                    },
-                                                    // 3rd parameter is the function call when everything is done
-                                                    function(err){
-                                                        if(!err) {
-                                                            // All tasks are done now
-                                                            callback(false, metadataResult);
-                                                        }
-                                                        else{
-                                                            callback(true, null);
-                                                        }
-                                                    }
-                                                );
-                                            }
-                                            else {
-                                                callback(false, metadataResult);
-                                            }
-                                        }
-                                        else {
-                                            console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
-                                            callback(true, null);
-                                        }
-                                    });
-                                }
-                                else {
-                                    console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
-                                    callback(false, metadataResult);
-                                }
-
-                            });
-                        }
-                        else
-                        {
-
-                            console.error("[findMetadataRecursive] error accessing properties from ontologies in " + self.uri)
-
-                            callback(true, [descriptors]);
-                        }
-                    });
-            }
-            else
-            {
-                var msg = self.uri + " does not exist in Dendro.";
-                console.error(msg);
-
-                callback(true, msg);
-            }
-        }
-        else
-        {
-            var msg = "Error fetching " + self.uri + " from the Dendro platform.";
-            console.error(msg);
-
-            callback(true, msg);
-        }
-    });
-}
 Resource.prototype.isOfClass = function(classNameInPrefixedForm, callback)
 {
     var self = this;

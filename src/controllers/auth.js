@@ -164,10 +164,13 @@ module.exports.logout = function(req, res){
     req.session.isAdmin = null;
     req.session.upload_manager = null;
 
-    req.flash('success', "Successfully logged out");
+    //req.flash('success', "Successfully logged out");
 
     console.log("Redirecting...");
-    res.redirect('/');
+    res.render('index', {
+        title : "Dendro",
+        success_messages: ["Successfully logged out"]
+    });
 
 };
 

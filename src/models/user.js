@@ -42,7 +42,7 @@ User.findByUsername = function(username, callback, removePrivateDescriptors)
         {
             if(removePrivateDescriptors)
             {
-                user.clearDescriptorTypesInMemory([Config.types.private, Config.types.locked], [Config.types.api_readable]);
+                user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
                 callback(err, user);
             }
             else
@@ -1317,7 +1317,7 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
 User.prototype.startPasswordReset = function(callback)
 {
     var self = this;
-    var uuid = require('node-uuid');
+    var uuid = require('uuid');
 
     var token = uuid.v4();
 

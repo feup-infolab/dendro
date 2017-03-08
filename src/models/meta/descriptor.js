@@ -196,6 +196,10 @@ Descriptor.recommendation_types = {
     dc_element_forced : {
         key : "dc_element_forced",
         weight : 0.0
+    },
+    project_descriptors : {
+        key : "dc_element_forced",
+        weight : 0.0
     }
 };
 
@@ -331,10 +335,10 @@ Descriptor.prototype.setValue = function(value)
     }
 };
 
-Descriptor.all_in_ontology = function(ontologyURI, callback) {
+Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesize) {
 
     var query =
-        " SELECT ?uri ?type ?label ?comment \n"+
+        " SELECT DISTINCT ?uri ?type ?label ?comment \n"+
             " FROM [0] \n"+
             " WHERE \n" +
             " { \n"+
@@ -359,19 +363,42 @@ Descriptor.all_in_ontology = function(ontologyURI, callback) {
             "           FILTER (lang(?comment) = \"\" || lang(?comment) = [1] )\n" +
             "       } .\n" +
             "   } \n" +
-            " } \n";
+            " } \n" +
+            " ORDER BY ASC(?label) \n";
 
-    db.connection.execute(query,
-        [
+    var args = [
+        {
+            type : DbConnection.resourceNoEscape,
+            value : ontologyURI
+        },
+        {
+            type : DbConnection.string,
+            value : "en"
+        }
+    ]
+
+
+    if(typeof page_number == "number" && typeof pagesize == "number")
+    {
+        query = query  +
+            " OFFSET [2] \n" +
+            " LIMIT [3] \n";
+
+
+        args = args.concat([
             {
-                type : DbConnection.resourceNoEscape,
-                value : ontologyURI
+                type : DbConnection.int,
+                value :  page_number * pagesize
             },
             {
-                type : DbConnection.string,
-                value : "en"
+                type : DbConnection.int,
+                value : page_number * (pagesize + 1)
             }
-        ],
+        ]);
+    }
+
+
+    db.connection.execute(query, args,
         function(err, descriptors) {
             if(!err)
             {
@@ -392,6 +419,50 @@ Descriptor.all_in_ontology = function(ontologyURI, callback) {
             }
         });
 };
+
+
+Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number, page_size) {
+    var async = require('async');
+    async.map(ontologyURIsArray, function(uri, cb){
+        Descriptor.all_in_ontology(uri, function(err, descriptors){
+            cb(err, descriptors);
+        });
+    },function(err, results){
+        if(!err)
+        {
+            var flat = _.flatten(results);
+
+            flat = _.sortBy(flat, function(descriptor){
+                return descriptor.shortName;
+            });
+
+            if(page_number != null && page_size != null)
+            {
+                try{
+                    page_number = parseInt(page_number);
+                    page_size = parseInt(page_size);
+                }
+                catch(e)
+                {
+                    return callback(1, "Unable to parse page size of page number");
+                }
+            }
+
+            if(typeof page_number == "number" && typeof page_size == "number")
+            {
+                var offset = page_number * page_size;
+                flat = flat.slice(offset, offset + page_size);
+            }
+
+            callback(err, flat);
+        }
+        else
+        {
+            callback(err, results);
+        }
+
+    });
+}
 
 Descriptor.removeUnauthorizedFromObject = function(object, excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
@@ -449,31 +520,28 @@ Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptione
             return true;
         }
     }
-}
+};
 
-
-//TODO calculate this at boot time and save it into a matrix for checking descriptor types
 Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     var authorizedDescriptors = {};
-
     for (var prefix in Elements)
     {
         authorizedDescriptors[prefix] = {};
 
         for(var shortName in Elements[prefix])
         {
-            authorizedDescriptors[prefix][shortName] = true;
+            authorizedDescriptors[prefix][shortName] = false;
 
-            var excluded = null;
-            var exceptioned = null;
+            var excluded = false;
+            var exceptioned = false;
 
             var descriptor = new Descriptor({
                 prefix : prefix,
                 shortName : shortName
             });
 
-            if(exceptionedDescriptorTypes != null && exceptionedDescriptorTypes.length > 0)
+            if(exceptionedDescriptorTypes != null)
             {
                 for(var i = 0; i < exceptionedDescriptorTypes.length; i++)
                 {
@@ -486,7 +554,7 @@ Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptio
                 }
             }
 
-            if(excludedDescriptorTypes != null  && excludedDescriptorTypes.length > 0)
+            if(excludedDescriptorTypes != null)
             {
                 if(!exceptioned)
                 {
@@ -502,12 +570,9 @@ Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptio
                 }
             }
 
-            if(exceptioned == null || exceptioned == false)
+            if(!excluded || exceptioned)
             {
-                if(excluded == true)
-                {
-                        authorizedDescriptors[prefix][shortName] = false;
-                }
+                authorizedDescriptors[prefix][shortName] = true;
             }
         }
     }
@@ -984,7 +1049,7 @@ Descriptor.validateDescriptorParametrization = function(callback)
                         }
                         catch(e)
                         {
-                            callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
+                            return callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
                         }
                     }
 

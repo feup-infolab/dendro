@@ -3,7 +3,7 @@
         <div>
             <div class="row">
                 <div class="col-xs-2">
-                    <img ng-src="{{get_filename_icon(f.name)}}">
+                    <img ng-src="{{get_thumbnail_uri(f.name)}}">
                 </div>
                 <div class="col-xs-8">
                     <div class="row">
@@ -33,9 +33,12 @@
                                 ng-show="isResumeSupported && f.upload != null && f.upload.aborted"><i class="fa fa-play"></i>  Resume
                         </button>
                     </div>-->
+
+                    <!-- ng-show="f.upload != null && (f.progress == 100 || f.upload.aborted)"><i class="fa fa-repeat"></i> Repeat -->
+
                     <div class="row">
                         <button class="btn btn-xs btn-primary" ng-click="restart(f);f.upload.aborted=false"
-                                ng-show="f.upload != null && (f.progress == 100 || f.upload.aborted)"><i class="fa fa-repeat"></i> Repeat
+                                ng-show="f.uploading == false"><i class="fa fa-repeat"></i> Repeat
                         </button>
                     </div>
                 </div>

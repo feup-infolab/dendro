@@ -1,7 +1,7 @@
 var Config = require("../meta/config.js").Config;
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 
 function Notification (object)
 {

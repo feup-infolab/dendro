@@ -18,12 +18,12 @@ DendroInteraction2CSV.setup = function(app)
 
     var csv_generator = require(path.join(pluginRootFolder, "package", "controllers", "csv_generator.js"));
 
-    app = DendroInteraction2CSV.registerRoute(app, 'GET', '/', [Permissions.acl.admin], csv_generator.home);
-    app = DendroInteraction2CSV.registerRoute(app, 'GET', 'all', [Permissions.acl.admin], csv_generator.all);
-    app = DendroInteraction2CSV.registerRoute(app, 'GET', 'average_metadata_sheet_size_per_interaction', [Permissions.acl.admin], csv_generator.average_metadata_sheet_size_per_interaction);
-    app = DendroInteraction2CSV.registerRoute(app, 'GET', 'average_descriptor_length_per_interaction', [Permissions.acl.admin], csv_generator.average_descriptor_length_per_interaction);
-    app = DendroInteraction2CSV.registerRoute(app, 'GET', 'total_number_of_descriptors_per_interaction', [Permissions.acl.admin], csv_generator.total_number_of_descriptors_per_interaction);
-    app = DendroInteraction2CSV.registerRoute(app, 'GET', 'number_of_descriptors_of_each_type_per_interaction', [Permissions.acl.admin], csv_generator.number_of_descriptors_of_each_type_per_interaction);
+    app = DendroInteraction2CSV.registerRoute(app, 'GET', '/', [Permissions.role.system.admin], csv_generator.home);
+    app = DendroInteraction2CSV.registerRoute(app, 'GET', 'all', [Permissions.role.system.admin], csv_generator.all);
+    app = DendroInteraction2CSV.registerRoute(app, 'GET', 'average_metadata_sheet_size_per_interaction', [Permissions.role.system.admin], csv_generator.average_metadata_sheet_size_per_interaction);
+    app = DendroInteraction2CSV.registerRoute(app, 'GET', 'average_descriptor_length_per_interaction', [Permissions.role.system.admin], csv_generator.average_descriptor_length_per_interaction);
+    app = DendroInteraction2CSV.registerRoute(app, 'GET', 'total_number_of_descriptors_per_interaction', [Permissions.role.system.admin], csv_generator.total_number_of_descriptors_per_interaction);
+    app = DendroInteraction2CSV.registerRoute(app, 'GET', 'number_of_descriptors_of_each_type_per_interaction', [Permissions.role.system.admin], csv_generator.number_of_descriptors_of_each_type_per_interaction);
 
     /**
      * If the plugin has to serve its own static files (JS files, for example, register route).

@@ -258,11 +258,9 @@ angular.module('dendroApp.factories')
 
         this.descriptor_is_present = function(descriptor, metadata_array)
         {
-            var self = this;
-
             if(metadata_array != null && metadata_array instanceof Array)
             {
-                for(var i = 0; i < metadata_array.length;i++)
+                for(var i = 0; i < metadata_array.length; i++)
                 {
                     if(descriptor.uri == metadata_array[i].uri)
                     {

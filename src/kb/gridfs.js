@@ -1,14 +1,9 @@
-var util = require('util');
-
-var MongoClient = require('mongodb').MongoClient,
-    mongo = require('mongodb'),
-    ObjectID = require('mongodb').ObjectID,
-    GridStore = require('mongodb').GridStore,
-    Grid = require('mongodb').Grid;
+const util = require('util');
+const GridFSBucket = require('mongodb').GridFSBucket;
 
 function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, password)
 {
-    var self = this;
+    let self = this;
 
     self.hostname = mongodbHost;
     self.port = mongodbPort;
@@ -16,7 +11,7 @@ function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, p
 
     self.username = username;
     self.password = password;
-}
+};
 
 GridFSConnection.prototype.openConnection = function(callback) {
     var self = this;
@@ -60,44 +55,48 @@ GridFSConnection.prototype.openConnection = function(callback) {
     }
 };
 
-GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metadata) {
-    var self = this;
+GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metadata, customBucket) {
+    let self = this;
+    let message;
 
     if(self.gfs != null)
     {
-        var requestObject = {
-            filename : fileUri,
-            metadata: metadata
-        };
+        let bucket = new GridFSBucket(self.db, { bucketName: customBucket });
+        let uploadStream = bucket.openUploadStream(
+            fileUri,
+            {
+                metadata : metadata
+            }
+        );
+
+        let hasError = null;
 
         // streaming to gridfs
-        var writestream = self.gfs.createWriteStream(requestObject);
-        var hasError = null;
-
         //error handling, e.g. file does not exist
-        writestream.on('error', function (err) {
+        uploadStream.on('error', function (err) {
             hasError = true;
             console.log('An error occurred saving the file to the database!', err);
             callback(1, err);
         });
 
         //callback on complete
-        writestream.on('close', function (file) {
+        uploadStream.once('finish', function (file) {
             console.log('GridFS: Write stream closed for file with uri :'+fileUri);
-
+            
             if(!hasError)
             {
-                var message = 'GridFS: Save complete for file uri :'+fileUri;
+                
+                message = 'GridFS: Save complete for file uri :'+fileUri;
             }
             else
             {
-                var message = 'GridFS: Error saving file with uri :'+fileUri;
+                message = 'GridFS: Error saving file with uri :'+fileUri;
             }
 
             callback(hasError, message, file);
         });
 
-        inputStream.pipe(writestream);
+        inputStream.pipe(uploadStream);
     }
     else
     {
@@ -105,45 +104,41 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
     }
 };
 
-GridFSConnection.prototype.get = function(fileUri, outputStream, callback) {
-    var self = this;
+GridFSConnection.prototype.get = function(fileUri, outputStream, callback, customBucket) {
+    let self = this;
 
     if(self.gfs != null && self.db != null)
     {
-        new GridStore(self.db, fileUri, "r").open(function(err, gridStore) {
-            if(!err)
+        let bucket = new GridFSBucket(self.db, { bucketName: customBucket });
+        let downloadStream = bucket.openDownloadStreamByName(fileUri);
+
+        downloadStream.on('error', function(error) {
+            if(error.code === "ENOENT" )
             {
-                // streaming from gridfs
-                var stream = gridStore.stream(true);
-
-                stream.on("data", function(chunk) {
-                    //console.log('read another chunk of data : ');
-                });
-
-                stream.on("end", function() {
-                    var msg = "EOF of file";
-                    console.log(msg);
-                });
-
-                stream.on("close", function() {
-                    var msg = "Finished reading the file";
-                    console.log(msg);
-                    callback(0, msg);
-                });
-
-                stream.on("error", function(err){
-                    var msg = "Error reading the file : "+ err;
-                    console.log(msg);
-                    callback(1, msg);
-                });
-
-                stream.pipe(outputStream);
+                callback(404, error);
             }
             else
             {
-                callback(404, "Nothing to be done for file "+ fileUri +" Message reported "+ err);
+                callback(1, error);
             }
+
         });
+        
+        downloadStream.on('data', function(data) {
+        });
+
+        downloadStream.on('end', function() {
+            var msg = "EOF of file";
+            console.log(msg);
+        });
+
+        downloadStream.on('close', function() {
+            var msg = "Finished reading the file";
+            console.log(msg);
+            callback(0, msg);
+        });
+
+        downloadStream.pipe(outputStream);
     }
     else
     {
@@ -152,39 +147,32 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback) {
 
 };
 
-GridFSConnection.prototype.delete = function(fileUri, callback) {
-    var self = this;
+GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
+    let self = this;
 
     if(self.gfs != null && self.db != null)
     {
-        new GridStore(self.db, fileUri, "r").open(function(err, gridStore) {
-            if(gridStore)
+        let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
+        bucket.delete(fileUri, function (err)
+        {
+            if (!err)
             {
-                // Unlink the file
-                gridStore.unlink(function(err, result) {
-                    if(!err)
+                // Verify that the file no longer exists
+                self.db.find(fileUri, function (err, exists)
+                {
+                    if (!err && !exists)
                     {
-                        // Verify that the file no longer exists
-                        GridStore.exist(self.db, fileUri, function(err, exists) {
-                            if(!err && !exists)
-                            {
-                                callback(null, "File "+ fileUri +"successfully deleted");
-                            }
-                            else
-                            {
-                                callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
-                            }
-                        });
+                        callback(null, "File " + fileUri + "successfully deleted");
                     }
                     else
                     {
-                        callback(err, "Error deleting file " + fileUri + ". Error reported " + result);
+                        callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
                     }
                 });
             }
             else
             {
-                callback(404, "Nothing to be done for file "+ fileUri +" Message reported "+ err);
+                callback(err, "Error deleting file " + fileUri + ". Error reported " + result);
             }
         });
     }
