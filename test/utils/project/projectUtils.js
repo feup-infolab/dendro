@@ -40,7 +40,6 @@ var getNewProjectPage = function (agent, cb) {
     });
 };
 
-
 var createNewProject = function (jsonOnly, agent, projectData, cb) {
     if(jsonOnly)
     {
