@@ -8,7 +8,7 @@ chai.use(chaiHttp);
 
 var should = chai.should();
 
-describe('/models/kb/db.js', function () {
+describe('db.js', function () {
     it('deletes all graphs', function (done) {
         var graphs = Object.keys(GLOBAL.db);
         var conn = GLOBAL.db.default.connection;

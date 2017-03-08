@@ -3,17 +3,6 @@ var chaiHttp = require('chai-http');
 var _ = require('underscore');
 chai.use(chaiHttp);
 
-var loginUser = function (username, password, cb) {
-    var app = GLOBAL.tests.app;
-    var agent = chai.request.agent(app);
-    agent
-        .post('/login')
-        .send({'username': username, 'password': password})
-        .end(function (err, res) {
-            cb(err, agent);
-        });
-};
-
 
 var listAllMyProjects = function (jsonOnly, agent, cb) {
     if(jsonOnly)
@@ -50,7 +39,6 @@ var getNewProjectPage = function (agent, cb) {
         cb(err, res);
     });
 };
-
 
 var createNewProject = function (jsonOnly, agent, projectData, cb) {
     if(jsonOnly)
@@ -90,71 +78,6 @@ var viewProject = function (jsonOnly, agent, projectHandle, cb) {
             .get('/project/' + projectHandle)
             .end(function (err, res) {
                cb(err, res);
-            });
-    }
-};
-
-var createFolderInProject = function(jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
-    var path = '/project/' + projectHandle + '/data'  + targetFolderInProject  + '?mkdir=' + folderName;
-    if(jsonOnly)
-    {
-        ///project/PROJECTHANDLE?mkdir=FOLDERNAME
-        //http://127.0.0.1:3001/project/testproject/data/folder1?mkdir=folder3
-        agent
-            .post(path)
-            .set('Accept', 'application/json')
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-    else
-    {
-        agent
-            .post(path)
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-};
-
-var viewFolder= function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
-    var path = '/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName;
-    if(jsonOnly)
-    {
-        agent
-            .get(path)
-            .set('Accept', 'application/json')
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-    else
-    {
-        agent
-            .get(path)
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-};
-
-var getLoggedUserDetails = function (jsonOnly, agent, cb)
-{
-    if(jsonOnly)
-    {
-        agent
-            .get('/me')
-            .set('Accept', 'application/json')
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-    else
-    {
-        agent
-        .get('/me')
-            .end(function (err, res) {
-                cb(err, res);
             });
     }
 };
@@ -288,15 +211,11 @@ var removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folde
 
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
-    loginUser : loginUser,
     listAllMyProjects : listAllMyProjects,
     listAllProjects : listAllProjects,
     getNewProjectPage : getNewProjectPage,
     createNewProject : createNewProject,
     viewProject : viewProject,
-    createFolderInProject : createFolderInProject,
-    viewFolder : viewFolder,
-    getLoggedUserDetails : getLoggedUserDetails,
     updateMetadataWrongRoute : updateMetadataWrongRoute,
     getMetadataRecomendationsForProject : getMetadataRecomendationsForProject,
     getProjectRootContent : getProjectRootContent,

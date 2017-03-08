@@ -8,6 +8,8 @@ var should = chai.should();
 
 var agent = null;
 
+var demouser1 = require("../mockdata/users/demouser1.js");
+
 describe('/login', function () {
     it('should show the login page', function (done) {
         var app = GLOBAL.tests.app;
@@ -24,7 +26,7 @@ describe('/login', function () {
         var app = GLOBAL.tests.app;
         chai.request(app)
             .post('/login')
-            .send({'username': 'demouser1', 'password': 'demouserpassword2015WROOOOOOOONG'})
+            .send({'username': demouser1.username, 'password': 'WRONG_PASSWORD'})
             .end((err, res) => {
                 res.should.have.status(200);
                 res.text.should.contain('Please sign in');
@@ -41,7 +43,7 @@ describe('/login', function () {
 
         agent
             .post('/login')
-            .send({'username': 'demouser1', 'password': 'demouserpassword2015'})
+            .send({'username': demouser1.username, 'password':  demouser1.password })
             .end((err, res) => {
                 res.should.have.status(200);
                 res.text.should.include('Your projects');
