@@ -54,3 +54,5 @@ temp/
 build/config.gypi
 .idea/dendro.iml
 .idea/dendro.iml
+
+*.pdf
