@@ -1,8 +1,8 @@
 <!--<pre>Model: {{asyncSelected | json}}</pre> -->
 
 <input type="text"
-       ng-model="asyncSelected"
-       name="newContributor"
+       ng-model="contributor.name"
+       name=contributor
        placeholder="Search for user..."
        uib-typeahead="result.uri for result in get_users_by_text_search($viewValue)"
        typeahead-template-url="/app/views/projects/show/partials/user_ac_template.html"
@@ -11,8 +11,7 @@
        typeahead-loading="loadingUsers"
        typeahead-wait-ms="400"
        typeahead-no-results="noResults"
-       typeahead-on-select="select_user_from_autocomplete($item, $model, $label)"
-       class="form-control">
+       class="form-control input-large">
 
 <i ng-show="loadingUsers" class="glyphicon glyphicon-refresh">Searching users...</i>
 <div ng-show="noResults">

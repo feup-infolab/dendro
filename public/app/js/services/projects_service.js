@@ -41,4 +41,37 @@ angular.module('dendroApp.services')
                     return deferred.promise;
 
                 };
+
+                this.update_contributors = function(contributors){
+
+                    var deferred = $q.defer();
+
+                    var requestPayload = {
+                        contributors: contributors
+                    };
+
+                    var URL = windowService.get_current_url();
+                    URL += "?administer";
+
+                    $http({
+                        method: 'POST',
+                        url: URL,
+                        data: requestPayload,
+                        contentType: "application/json",
+                        headers: {'Accept': "application/json"}
+                    }).then(function (response)
+                        {
+                            $location.url('/');
+                            var data = response.data;
+                            deferred.resolve(data);
+                        }
+                    ).catch(function(error)
+                        {
+                            var serverResponse = error.data;
+                            deferred.reject(serverResponse);
+                        }
+                    );
+
+                    return deferred.promise;
+                };
         }]);

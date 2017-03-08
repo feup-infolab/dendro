@@ -1,8 +1,8 @@
 angular.module('dendroApp.controllers')
-    /**
-     *  Project administration controller
-     */
-    .controller('projectAdminCtrl', function ($scope, $http, $filter)
+/**
+ *  Project administration controller
+ */
+    .controller('projectAdminCtrl', function ($scope, $http, $location)
     {
         $scope.get_project = function()
         {
@@ -15,28 +15,28 @@ angular.module('dendroApp.controllers')
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             }).then(function(response) {
-                    //console.log(data);
-                    $scope.project = response.data;
+                //console.log(data);
+                $scope.project = response.data;
 
-                    for(var i = 0; i < $scope.project.descriptors.length; i++)
+                for(var i = 0; i < $scope.project.descriptors.length; i++)
+                {
+                    var descriptor = $scope.project.descriptors[i];
+                    if(descriptor.prefixedForm == "ddr:deleted" && descriptor.value == true)
                     {
-                        var descriptor = $scope.project.descriptors[i];
-                        if(descriptor.prefixedForm == "ddr:deleted" && descriptor.value == true)
-                        {
-                            project.deleted = true;
-                        }
+                        project.deleted = true;
                     }
-                })
-            .catch(function(error){
-                if(error.message != null && error.title != null)
-                {
-                    Utils.show_popup("error", error.title, error.message);
                 }
-                else
-                {
-                    Utils.show_popup("error", "Error occurred", JSON.stringify(error));
-                }
-            });
+            })
+                .catch(function(error){
+                    if(error.message != null && error.title != null)
+                    {
+                        Utils.show_popup("error", error.title, error.message);
+                    }
+                    else
+                    {
+                        Utils.show_popup("error", "Error occurred", JSON.stringify(error));
+                    }
+                });
         };
 
         $scope.delete_project = function ()
@@ -74,5 +74,8 @@ angular.module('dendroApp.controllers')
             node.uri = $scope.get_current_url() + '/data';
         };
 
-        $scope.get_project();
+        $scope.init = function()
+        {
+            return $location.url();
+        }
     });

@@ -15,8 +15,11 @@ angular.module('dendroApp.controllers')
         $timeout,
         metadataService,
         windowService,
+        projectsService,
         usersService
     ) {
+
+        $scope.contributors = [];
 
 
         $scope.get_users_by_text_search = function(typed) {
@@ -26,13 +29,12 @@ angular.module('dendroApp.controllers')
 
         $scope.select_user_from_autocomplete = function(suggestion, model, label)
         {
-            if(suggestion != null && suggestion instanceof Object)
+            if(model != null)
             {
-                var autocompletedUser = JSON.parse(JSON.stringify(suggestion));
-                autocompletedUser.just_added = true;
+                projectsService.add_contributor(model);
+                window.location.reload();
+                $scope.show_popup("success", "Success", "Project updated");
 
-
-                $scope.accept_user_from_autocomplete(suggestion);
             }
         };
 
@@ -63,5 +65,38 @@ angular.module('dendroApp.controllers')
 
             return uri;
         };
+
+
+        $scope.get_contributors = function(contributors){
+            var names = contributors.split(",");
+            for(var i in names){
+                $scope.contributors.push({"name":names[i], "remove": false});
+            }
+        }
+
+        $scope.add_new_contributor = function(){
+            $scope.contributors.push({"name":"", "remove": false});
+
+        }
+
+        $scope.update_contributors = function(){
+            var contributors = [];
+            for (var i = 0; i < $scope.contributors.length; i++){
+                var person = $scope.contributors[i];
+                if(!person.remove){
+                    if(person.name != "") {
+                        contributors.push(person.name);
+                    }
+                }
+            }
+
+            projectsService.update_contributors(contributors)
+                .then(function (result){
+                    location.reload();
+                    $scope.show_popup("success", "Success", "Project updated");
+                }).catch(function (error){
+                    $scope.show_popup("error", "Error", error.message);
+                });
+        }
 
     });

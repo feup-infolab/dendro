@@ -217,7 +217,7 @@ exports.show = function(req, res) {
 					}
 				}
 		);
-		
+
 		var resourceURI = project.uri;
 	}
 
@@ -818,67 +818,64 @@ exports.administer = function(req, res) {
                     //from http://www.dzone.com/snippets/validate-url-regexp
                     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 
-                    if (req.body.contributor != null && req.body.contributor instanceof Array)
+                    if (req.body.contributors != null && req.body.contributors instanceof Array)
                     {
 
-                        for (var i = 0; i < req.body.contributor.length; i++)
-                        {
-                            var contributor = req.body.contributor[i];
-
+                        async.each(req.body.contributors, function (contributor, callback) {
 
                             if (regexp.test(contributor))
                             {
+                                //if(req.body.remove != null && re.body.remove instanceof Array)
                                 contributors.push(contributor);
+
+                                var client = nodemailer.createTransport("SMTP", {
+                                    service: 'SendGrid',
+                                    auth: {
+                                        user: Config.sendGridUser,
+                                        pass: Config.sendGridPassword
+                                    }
+                                });
+
+                                User.findByUri(contributor, function (err, user) {
+
+                                    if (!err && user && user.foaf.mbox) {
+                                        var email = {
+                                            from: 'support@dendro.fe.up.pt',
+                                            to: user.foaf.mbox,
+                                            subject: 'Added as contributor for project "' + req.params.handle + '"',
+                                            text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
+                                        };
+
+                                        client.sendMail(email, function (err, info) {
+                                            if (err) {
+                                                console.log("[NODEMAILER] " + err);
+                                                flash('error', "Error sending request to user. Please try again later");
+                                            }
+                                            else {
+                                                console.log("[NODEMAILER] email sent: " + info);
+                                                flash('success', "Sent request to project's owner");
+                                            }
+                                        });
+                                        callback(false);
+                                    } else {
+                                        callback(true, contributor);
+                                    }
+                                });
+                            } else{
+                                callback(true, contributor)
                             }
-                        }
+
+                        }, function(err, contributor){
+                            if(!err){
+                                project.dcterms.contributor = contributors;
+                            } else{
+                                res.status(500).json({
+                                    message: "Error finding user " + contributor
+                                });
+                            }
+                        });
+
                     }
-
-                    if (req.body.newContributor)
-                    {
-                        if (regexp.test(req.body.newContributor))
-                        {
-                            contributors.push(req.body.newContributor);
-
-                            var client = nodemailer.createTransport("SMTP", {
-                                service: 'SendGrid',
-                                auth: {
-                                    user: Config.sendGridUser,
-                                    pass: Config.sendGridPassword
-                                }
-                            });
-
-                            User.findByUri(req.body.newContributor, function (err, user)
-                            {
-
-                                if (!err && user && user.foaf.mbox)
-                                {
-                                    var email = {
-                                        from: 'support@dendro.fe.up.pt',
-                                        to: user.foaf.mbox,
-                                        subject: 'Added as contributor for project "' + req.params.handle + '"',
-                                        text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
-                                    };
-
-                                    client.sendMail(email, function (err, info)
-                                    {
-                                        if (err)
-                                        {
-                                            console.log("[NODEMAILER] " + err);
-                                            flash('error', "Error sending request to user. Please try again later");
-                                        }
-                                        else
-                                        {
-                                            console.log("[NODEMAILER] email sent: " + info);
-                                            flash('success', "Sent request to project's owner");
-                                        }
-                                    });
-                                }
-                            });
-                        }
-
-                        project.dcterms.contributor = contributors;
-                    }
-
 
                     project.save(function (err, result)
                     {

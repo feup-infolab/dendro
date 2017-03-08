@@ -239,51 +239,6 @@ User.all = function(callback, req, customGraphUri, descriptorTypesToRemove, desc
     var self = this;
     User.baseConstructor.all.call(self, function(err, users) {
 
-
-    db.connection.execute(query,
-        [
-            {
-                type: DbConnection.resourceNoEscape,
-                value : db.graphUri
-            }
-        ],
-        function(err, users) {
-            if(!err)
-            {
-                 if(users instanceof Array && users.length > 0)
-                 {
-                     var getUserProperties = function(resultRow, cb)
-                     {
-                         User.findByUri(resultRow.uri, function(err, user)
-                         {
-                             cb(err, user);
-                         });
-                     };
-
-                     //get all the information about all the projects
-                     // and return the array of projects, complete with that info
-                     async.map(users, getUserProperties, function(err, usersToReturn)
-                     {
-                         if(!err)
-                         {
-                             callback(null, usersToReturn);
-                         }
-                         else
-                         {
-                             callback("error fetching user information : " + err, usersToReturn);
-                         }
-                     });
-                 }
-                 else
-                 {
-                     callback(null, []);
-                 }
-            }
-            else
-            {
-                callback(1, results);
-            }
-        });
         callback(err, users);
 
     }, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);

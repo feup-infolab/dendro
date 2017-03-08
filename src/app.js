@@ -1054,6 +1054,9 @@ async.waterfall([
                     else if (req.query.descriptor_autocomplete != null) {
                         descriptors.descriptors_autocomplete(req, res);
                     }
+                    else if (req.query.user_autocomplete != null) {
+                        users.users_autocomplete(req, res);
+                    }
                     else if (req.query.ontology_autocomplete != null) {
                         ontologies.ontologies_autocomplete(req, res);
                     }
