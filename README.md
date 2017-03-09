@@ -1,4 +1,5 @@
 [![Demo](https://img.shields.io/badge/demo-instance-ff69b4.svg)](http://dendro.fe.up.pt/demo)
+[![Installation](https://img.shields.io/badge/installation-guide-blue.svg)](https://github.com/feup-infolab/dendro-install)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![codecov](https://codecov.io/gh/feup-infolab/dendro/branch/master/graph/badge.svg)](https://codecov.io/gh/feup-infolab/dendro)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
@@ -19,6 +20,10 @@ Pull requests are welcome!
 ##Demo instance
 
 See the [DEMO PAGE](http://dendro.fe.up.pt/demo). If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
+
+##Installation Scripts
+
+See the [Installation scripts](https://github.com/feup-infolab/dendro-install). 
 
 ##Dependencies
 
