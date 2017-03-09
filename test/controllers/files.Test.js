@@ -45,3 +45,94 @@ describe('/project/' + publicProject.handle + "/data/" + folder.pathInProject + 
         done();
     });
 });
+
+describe("[POST] /project/:handle/data/:filename?delete", function () {
+    //TODO HTML AND API
+
+    it("Should give an error message when the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the file does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a file created by demouser1", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the file", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the file", function (done) {
+        done(1);
+    })
+});
+
+
+describe("[POST] /project/:handle/data/:filename?undelete", function() {
+    //TODO HTML AND API
+    it("Should give an error message when a project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the file does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the file is not deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a file that is currently deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete a file that is currently deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete a file that is currently deleted", function (done) {
+        done(1);
+    })
+});
+
+describe("[POST] /project/:handle/data/:filename?update_metadata", function() {
+    //TODO API ONLY
+    it("Should give an error message when a project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the filename does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when an invalid descriptor is used to update the metadata of a filename", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to update a metadata of a filename with a valid descriptor", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to update a metadata of a filename with a valid descriptor", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to update a metadata of a filename with a valid descriptor", function (done) {
+        done(1);
+    })
+});

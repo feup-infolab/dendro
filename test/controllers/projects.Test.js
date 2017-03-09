@@ -199,9 +199,34 @@ describe("[POST] /project/:handle/undelete", function () {
 });
 
 
-describe("[POST] /project/:handle?export_to_repository", function () {
+describe("[POST] /project/:handle?mkdir", function () {
+    //TODO API ONLY
+    it("Should give an error when the user is unauthenticated", function (done) {
+        done(1);
+    });
 
+    it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
+        done(1);
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser3(a collaborator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        done(1);
+    });
 });
+
+
 
 /*
 describe('/projects', function () {

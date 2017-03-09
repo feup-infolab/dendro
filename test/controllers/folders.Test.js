@@ -87,3 +87,124 @@ describe("/project/" + publicProject.handle + "/data/" + folder.pathInProject + 
         });
     });
 });
+
+
+describe("[POST] /project/:handle/data/:foldername?mkdir", function () {
+    //TODO API ONLY
+    it("Should give an error when the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
+        done(1);
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser3(a collaborator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if an invalid folder parent is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        done(1);
+    });
+});
+
+describe("[POST] /project/:handle/data/:foldername?delete", function () {
+    //TODO HTML AND API
+
+    it("Should give an error message when the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the folder does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a folder created by demouser1", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the folder", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the folder", function (done) {
+        done(1);
+    })
+});
+
+describe("[POST] /project/:handle/data/:foldername?undelete", function() {
+    it("Should give an error message when a project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the folder does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the folder is not deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a folder that is currently deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete a folder that is currently deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete a folder that is currently deleted", function (done) {
+        done(1);
+    })
+});
+
+describe("[POST] /project/:handle/data/:foldername?update_metadata", function() {
+    //TODO API ONLY
+    it("Should give an error message when a project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the folder does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when an invalid descriptor is used to update the metadata of a folder", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to update a metadata of a folder with a valid descriptor", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to update a metadata of a folder with a valid descriptor", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to update a metadata of a folder with a valid descriptor", function (done) {
+        done(1);
+    })
+});
