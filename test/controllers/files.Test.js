@@ -136,3 +136,31 @@ describe("[POST] /project/:handle/data/:filename?update_metadata", function() {
         done(1);
     })
 });
+
+
+describe("[GET] /project/:handle/data/filename?recent_changes", function () {
+    //TODO API ONLY
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the file does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the file changes if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the file changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(1);
+    });
+});
