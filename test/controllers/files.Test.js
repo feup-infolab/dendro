@@ -45,3 +45,9 @@ describe('/project/' + publicProject.handle + "/data/" + folder.pathInProject + 
         done();
     });
 });
+
+describe('project/' + publicProject.handle + '?download', function(){
+
+    it('')
+
+});

@@ -38,7 +38,7 @@ describe('/analytics_tracking_code', function() {
             });
     });
 
-    it('[JSON] fails analytics_tracking_code', function (done) {
+    it('[HTML] fails analytics_tracking_code', function (done) {
         var app = GLOBAL.tests.app;
         chai.request(app)
             .get('/analytics_tracking_code')
