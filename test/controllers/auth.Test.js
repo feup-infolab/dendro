@@ -1,14 +1,14 @@
 process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+let chai = require('chai');
+let chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
-var should = chai.should();
+let should = chai.should();
 
-var agent = null;
+let agent = null;
 
-var demouser1 = require("../mockdata/users/demouser1.js");
+let demouser1 = require("../mockdata/users/demouser1.js");
 
 describe('/login', function () {
     it('should show the login page', function (done) {
@@ -61,6 +61,63 @@ describe('/login', function () {
                 res.text.should.include('Successfully logged out');
                 done();
             });
+    });
+
+    /**
+     * HTML logins and logouts
+     */
+    
+    it('[HTML] should not logout an authenticated user', function (done) {
+        //TODO @silvae86
+        done();
+    });
+
+    it('[HTML] should login ' + demouser1.handle, function (done) {
+        //TODO @silvae86
+        done();
+    });
+
+    it('[HTML] logout the ' + demouser1.handle + " user if correctly authenticated.", function (done) {
+        //TODO @silvae86
+        done();
+    });
+
+    it('[HTML] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
+        //TODO @silvae86
+        done();
+    });
+
+    it('[HTML] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
+        //TODO @silvae86
+        done();
+    });
+
+    /**
+     * API logins and logouts
+     */
+    it('[API] should not logout an authenticated user', function (done) {
+        //TODO @silvae86
+        done();
+    });
+
+    it('[API] should login ' + demouser1.handle, function (done) {
+        //TODO @silvae86
+        done();
+    });
+
+    it('[API] logout the ' + demouser1.handle + " user if authenticated as " + demouser1.handle, function (done) {
+        //TODO @silvae86
+        done();
+    });
+
+    it('[API] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
+        //TODO @silvae86
+        done();
+    });
+
+    it('[API] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
+        //TODO @silvae86
+        done();
     });
 });
 

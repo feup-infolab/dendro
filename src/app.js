@@ -1267,11 +1267,11 @@ async.waterfall([
 
         //external repository bookmarks
         app.get('/external_repositories/types', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.repository_types);
-        app.get('/external_repositories/my', async.apply(Permissions.require, [ Permissions.role.project.contributor, Permissions.role.project.creator]), repo_bookmarks.my);
+        app.get('/external_repositories/my', async.apply(Permissions.require, [Permissions.role.system.user ]), repo_bookmarks.my);
         app.get('/external_repositories', async.apply(Permissions.require, [Permissions.role.system.admin]), repo_bookmarks.all);
         app.post('/external_repositories/sword_collections', async.apply(Permissions.require, [Permissions.role.system.user]), datasets.sword_collections);
         app.post('/external_repositories/new', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.new);
-        app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.role.project.contributor, Permissions.role.project.creator]), repo_bookmarks.delete);
+        app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.delete);
 
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?\/?$/, function(req,res, next)
