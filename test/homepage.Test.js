@@ -25,3 +25,27 @@ describe('/', function () {
     });
 });
 
+describe('/analytics_tracking_code', function() {
+    it('[JSON] returns analytics_tracking_code', function (done) {
+        var app = GLOBAL.tests.app;
+        chai.request(app)
+            .get('/analytics_tracking_code')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.contain('ANALYTICS_TRACKING_CODE');
+                done();
+            });
+    });
+
+    it('[JSON] fails analytics_tracking_code', function (done) {
+        var app = GLOBAL.tests.app;
+        chai.request(app)
+            .get('/analytics_tracking_code')
+            .end((err, res) => {
+            res.should.have.status(405);
+            done();
+        });
+    });
+});
+
