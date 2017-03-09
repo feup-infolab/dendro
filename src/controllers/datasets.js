@@ -3,6 +3,7 @@ var Config = function() { return GLOBAL.Config; }();
 var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
 var records = require(Config.absPathInSrcFolder("/controllers/records.js"));
 var Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
 var swordConnection = require(Config.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
