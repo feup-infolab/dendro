@@ -1,7 +1,7 @@
 const demouser1 = require("../users/demouser1.js");
 
 
-//TODO @silvae86
+//TODO
 const interactionTemplate = {
     ddr : {
         performedBy : demouser1.uri,

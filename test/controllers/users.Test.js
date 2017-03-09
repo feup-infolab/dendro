@@ -19,7 +19,7 @@ const demouser3 = require("../mockdata/users/demouser3");
 describe('/users', function () {
 
     it('API /me  with authenticated used', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             userUtils.getLoggedUserDetails(true, agent, function (err, res) {
                 res.should.have.status(200);
@@ -31,7 +31,7 @@ describe('/users', function () {
 
 
     it('HTML /me  with authenticated used', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             userUtils.getLoggedUserDetails(false, agent, function (err, res) {
                 res.should.have.status(200);
@@ -43,8 +43,8 @@ describe('/users', function () {
 
 
     it('API /me  not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         userUtils.getLoggedUserDetails(true, agent, function (err, res) {
             res.should.have.status(401);
             res.text.should.not.contain('Editing user');
@@ -53,8 +53,8 @@ describe('/users', function () {
     });
 
     it('HTML /me  not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         userUtils.getLoggedUserDetails(false, agent, function (err, res) {
             res.should.have.status(200);
             res.text.should.not.contain('Editing user');
@@ -63,32 +63,32 @@ describe('/users', function () {
     });
 
     it('[HTML] should fetch the registration page', function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[HTML] should register the ' + demouser1.handle + " user", function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[HTML] should not be able to register the ' + demouser1.handle + " user because it was already registered", function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[HTML] should register the ' + demouser2.handle + " user because it does not exist.", function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[API] should register the ' + demouser3.handle + " user", function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[API] should not be able to register the ' + demouser3.handle + " user because it was already registered", function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
     

@@ -9,10 +9,11 @@ let should = chai.should();
 let agent = null;
 
 let demouser1 = require("../mockdata/users/demouser1.js");
+let demouser2 = require("../mockdata/users/demouser2.js");
 
 describe('/login', function () {
     it('should show the login page', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         chai.request(app)
             .get('/login')
             .end((err, res) => {
@@ -23,7 +24,7 @@ describe('/login', function () {
     });
 
     it('should not login the demo user when wrong password is provided', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         chai.request(app)
             .post('/login')
             .send({'username': demouser1.username, 'password': 'WRONG_PASSWORD'})
@@ -36,8 +37,8 @@ describe('/login', function () {
 
     it('should login the demo user with correct password', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
 
         GLOBAL.tests.agent = agent;
 
@@ -52,7 +53,7 @@ describe('/login', function () {
     });
 
     it('should logout the demo user', function (done) {
-        var agent = GLOBAL.tests.agent;
+        const agent = GLOBAL.tests.agent;
 
         agent
             .get('/logout')
@@ -68,27 +69,27 @@ describe('/login', function () {
      */
     
     it('[HTML] should not logout an authenticated user', function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[HTML] should login ' + demouser1.handle, function (done) {
-        //TODO @silvae86
+        //TODO 
         done();
     });
 
     it('[HTML] logout the ' + demouser1.handle + " user if correctly authenticated.", function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[HTML] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[HTML] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
@@ -96,27 +97,27 @@ describe('/login', function () {
      * API logins and logouts
      */
     it('[API] should not logout an authenticated user', function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[API] should login ' + demouser1.handle, function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[API] logout the ' + demouser1.handle + " user if authenticated as " + demouser1.handle, function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[API] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 
     it('[API] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
-        //TODO @silvae86
+        //TODO
         done();
     });
 });

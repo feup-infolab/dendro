@@ -1,11 +1,11 @@
 process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
-var should = chai.should();
-var bootup = require('../src/app.js').bootup;
+let should = chai.should();
+const bootup = require('../src/app.js').bootup;
 
 describe('/', function () {
     it('returns the homepage', function (done) {

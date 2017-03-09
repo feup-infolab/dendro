@@ -1,5 +1,5 @@
 exports.loginUser = function (username, password, cb) {
-    var app = GLOBAL.tests.app;
+    const app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
     agent
         .post('/login')

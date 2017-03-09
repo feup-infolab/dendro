@@ -1,9 +1,9 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
 exports.loginUser = function (username, password, cb) {
-    var app = GLOBAL.tests.app;
+    const app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
     agent
         .post('/login')

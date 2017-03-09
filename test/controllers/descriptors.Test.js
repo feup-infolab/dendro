@@ -1,22 +1,31 @@
 process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
+const chai = require('chai');
 chai.use(require('chai-http'));
 
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
-var db_notifications = function () { return GLOBAL.db.notifications;}();
-var async = require('async');
-var projectUtils = require('./../utils/project/projectUtils.js');
-var userUtils = require('./../utils/user/userUtils.js');
-var folderUtils = require('./../utils/folder/folderUtils.js');
-var httpUtils = require('./../utils/http/httpUtils.js');
+let db = function ()
+{
+    return GLOBAL.db.default;
+}();
+let db_social = function ()
+{
+    return GLOBAL.db.social;
+}();
+let db_notifications = function ()
+{
+    return GLOBAL.db.notifications;
+}();
+let async = require('async');
+let projectUtils = require('./../utils/project/projectUtils.js');
+let userUtils = require('./../utils/user/userUtils.js');
+let folderUtils = require('./../utils/folder/folderUtils.js');
+let httpUtils = require('./../utils/http/httpUtils.js');
 
-var should = chai.should();
+let should = chai.should();
 
-var demouser1 = require("../mockdata/users/demouser1");
-var demouser2 = require("../mockdata/users/demouser2");
-var demouser3 = require("../mockdata/users/demouser3");
+let demouser1 = require("../mockdata/users/demouser1");
+let demouser2 = require("../mockdata/users/demouser2");
+let demouser3 = require("../mockdata/users/demouser3");
 
 describe("/descriptors/from_ontology/:ontology_prefix", function () {
 
