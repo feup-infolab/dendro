@@ -134,11 +134,11 @@ describe('/users', function () {
 
 describe('/users/:username', function () {
 
-    it('[JSON] should NOT acess demouser1 profile when given demouser1 and NOT logged in',function (done) {
+    it('[JSON] should NOT access demouser1 profile when given demouser1 and NOT logged in',function (done) {
         done(1);
     });
 
-    it('[HTML] should NOT acess demouser1 profile when given demouser1 and  NOT logged in',function (done) {
+    it('[HTML] should NOT access demouser1 profile when given demouser1 and  NOT logged in',function (done) {
         done(1);
     });
 
@@ -175,6 +175,7 @@ describe('/users/:username', function () {
     });
 
 });
+<<<<<<< HEAD
 
 
 describe('/users/loggedUser', function () {
@@ -236,3 +237,5 @@ describe('/reset_password', function () {
 describe('/set_new_password', function () {
     //TODO
 });
+=======
+>>>>>>> 7c2df69e98c2b103b341b2eb12e263cd5c56add9
