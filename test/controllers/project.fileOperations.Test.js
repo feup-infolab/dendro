@@ -10,6 +10,14 @@ describe('project/' + publicProject.handle + '?download', function () {
 
     });
 
+    it("[HTML] downloading without being creator", function (done) {
+
+    });
+
+    it("[HTML] downloading without being contributor", function (done) {
+
+    });
+
     it("[HTML] getting non-existing project", function (done) {
 
     });
@@ -42,6 +50,14 @@ describe('project/' + publicProject.handle + '?backup', function () {
 
     });
 
+    it("[HTML] creating backup without being creator", function (done) {
+
+    });
+
+    it("[HTML] creating backup without being contributor", function (done) {
+
+    });
+
     it("[HTML] getting non-existing project", function (done) {
 
     });
@@ -68,6 +84,15 @@ describe('project/' + publicProject.handle + '?backup', function () {
 });
 
 describe('project/' + publicProject.handle + '?bagit', function () {
+
+    it("[HTML] bag it without being creator", function (done) {
+
+    });
+
+    it("[HTML] bag it without being contributor", function (done) {
+
+    });
+
     it("[JSON] getting non-existing project", function (done) {
 
     });
@@ -90,6 +115,15 @@ describe('project/' + publicProject.handle + '?bagit', function () {
 });
 
 describe('project/' + publicProject.handle + '?thumbnail', function () {
+
+    it("[HTML] operating without being creator", function (done) {
+
+    });
+
+    it("[HTML] operating without being contributor", function (done) {
+
+    });
+
     it("[HTML] requested extension is null", function (done) {
 
     });

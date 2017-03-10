@@ -36,6 +36,11 @@ describe('/ontologies/autocomplete', function(){
 });
 
 describe('/ontologies/show/:prefix', function () {
+
+    it('[JSON] opeating without being logged in«', function () {
+
+    });
+
     it('[HTML] unable to retrieve ontology', function () {
 
     });
