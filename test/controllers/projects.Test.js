@@ -249,9 +249,36 @@ describe("[GET] /project/:handle?recent_changes", function () {
     });
 });
 
+describe("[GET] /project/:handle?version", function () {
+    //TODO API ONLY
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the resource versions if the resource exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the resource versions if the resource exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the descriptors in the resource version are locked for alterations", function (done) {
+        done(1);
+    })
+});
 
 
-/*
+
+//OLD ITERATION OF TESTS GOES HERE
 describe('/projects', function () {
     it('lists all projects when not logged in', function (done) {
         var app = GLOBAL.tests.app;
@@ -1446,4 +1473,3 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
 });
-*/
