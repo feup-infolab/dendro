@@ -2,7 +2,7 @@ const publicProjectHandle = 'publicprojectcreatedbydemouser1';
 
 const projectData = {
     creator: "http://" + Config.host + "/user/demouser1",
-    contributors: ["http://" + Config.host + "/user/demouser2"],
+    contributors: ["http://" + Config.host + "/user/demouser3"],
     title: 'This is a public test project with handle ' + publicProjectHandle + " and created by demouser1",
     description: 'This is a test project description',
     publisher: 'UP',

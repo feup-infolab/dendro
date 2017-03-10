@@ -12,8 +12,8 @@ const should = chai.should();
 let agent = null;
 
 const demouser1 = require("../mockdata/users/demouser1.js");
-const demouser2 = require("../mockdata/users/demouser1.js");
-const demouser3 = require("../mockdata/users/demouser1.js");
+const demouser2 = require("../mockdata/users/demouser2.js");
+const demouser3 = require("../mockdata/users/demouser3.js");
 
 const folder = require("../mockdata/folders/folder.js");
 
