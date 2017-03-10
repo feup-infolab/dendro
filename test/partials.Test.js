@@ -9,11 +9,13 @@ let bootup = require('../src/app.js').bootup;
 
 describe('/app/views/*', function () {
     it('[HTML] it should render an html for the public/app/views/projects/show/partials/manual_descriptor.ejs EJS file', function (done) {
-        
+        //TODO
+        done();
     });
 
     it('[HTML] it should not render html inexistent for the public/app/views/projects/show/partials/manual_descriptor_MISSING.ejs EJS file', function (done) {
-
+        //TODO
+        done();
     });
 });
 
