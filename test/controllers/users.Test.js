@@ -175,3 +175,64 @@ describe('/users/:username', function () {
     });
 
 });
+
+
+describe('/users/loggedUser', function () {
+
+    it('[JSON] should NOT display demouser1 info when NOT logged in',function (done) {
+        done(1);
+    });
+
+    it('[HTML] should NOT display demouser1 info when NOT logged in',function (done) {
+        done(1);
+    });
+
+    it('[JSON] should NOT display demouser2 info when NOT logged in',function (done) {
+        done(1);
+    });
+
+    it('[HTML] should NOT display demouser2 info when NOT logged in',function (done) {
+        done(1);
+    });
+
+    it('[JSON] should display demouser1 info when logged in as demouser1',function (done) {
+        done(1);
+    });
+
+    it('[HTML] should display demouser1 info when logged in as demouser1',function (done) {
+        done(1);
+    });
+
+    it('[JSON] should display demouser2 info when logged in as demouser2',function (done) {
+        done(1);
+    });
+
+    it('[HTML] should display demouser2 info when logged in as demouser2',function (done) {
+        done(1);
+    });
+
+    it('[JSON] should NOT display demouser1 info when logged in as demouser2',function (done) {
+        done(1);
+    });
+
+    it('[HTML] should NOT display demouser1 info when logged in as demouser2',function (done) {
+        done(1);
+    });
+
+    it('[JSON] should NOT display demouser2 info when logged in as demouser1',function (done) {
+        done(1);
+    });
+
+    it('[HTML] should NOT display demouser2 info when logged in as demouser1',function (done) {
+        done(1);
+    });
+});
+
+
+describe('/reset_password', function () {
+    //TODO
+});
+
+describe('/set_new_password', function () {
+    //TODO
+});
