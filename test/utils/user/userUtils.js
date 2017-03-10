@@ -34,3 +34,21 @@ exports.getLoggedUserDetails = function (jsonOnly, agent, cb)
             });
     }
 };
+
+exports.listAllUsers= function (jsonOnly, agent, cb) {
+    if(jsonOnly){
+        agent
+            .get('/users')
+            .set('Accept','application/json')
+            .end(function(err,res){
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .get('/users')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
