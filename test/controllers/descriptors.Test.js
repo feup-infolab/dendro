@@ -3,18 +3,6 @@ process.env.NODE_ENV = 'test';
 const chai = require('chai');
 chai.use(require('chai-http'));
 
-let db = function ()
-{
-    return GLOBAL.db.default;
-}();
-let db_social = function ()
-{
-    return GLOBAL.db.social;
-}();
-let db_notifications = function ()
-{
-    return GLOBAL.db.notifications;
-}();
 let async = require('async');
 let projectUtils = require('./../utils/project/projectUtils.js');
 let userUtils = require('./../utils/user/userUtils.js');
