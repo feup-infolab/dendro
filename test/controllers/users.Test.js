@@ -134,11 +134,11 @@ describe('/users', function () {
 
 describe('/users/:username', function () {
 
-    it('[JSON] should NOT acess demouser1 profile when given demouser1 and NOT logged in',function (done) {
+    it('[JSON] should NOT access demouser1 profile when given demouser1 and NOT logged in',function (done) {
         done(1);
     });
 
-    it('[HTML] should NOT acess demouser1 profile when given demouser1 and  NOT logged in',function (done) {
+    it('[HTML] should NOT access demouser1 profile when given demouser1 and  NOT logged in',function (done) {
         done(1);
     });
 
