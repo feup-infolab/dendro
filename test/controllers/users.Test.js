@@ -175,8 +175,6 @@ describe('/users/:username', function () {
     });
 
 });
-<<<<<<< HEAD
-
 
 describe('/users/loggedUser', function () {
 
@@ -237,5 +235,3 @@ describe('/reset_password', function () {
 describe('/set_new_password', function () {
     //TODO
 });
-=======
->>>>>>> 7c2df69e98c2b103b341b2eb12e263cd5c56add9
