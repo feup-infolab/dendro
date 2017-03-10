@@ -18,7 +18,7 @@ var demouser1 = require("../mockdata/users/demouser1");
 var demouser2 = require("../mockdata/users/demouser2");
 var demouser3 = require("../mockdata/users/demouser3");
 
-describe("/descriptors/from_ontology/:ontology_prefix", function () {
+describe("[GET] /descriptors/from_ontology/:ontology_prefix", function () {
 
     //TODO Exemplo of a request to this route
     /*
