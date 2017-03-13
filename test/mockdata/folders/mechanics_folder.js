@@ -3,7 +3,7 @@ let folderData = {
     pathInProject : '',
     download_md5 : '',
     backup_md5 : '',
-    search_terms : 'pastinha linda',
+    search_terms : 'fracture mechanics',
     files : [
         require("../files/pdfMockfile"),
         require("../files/pngMockfile"),
@@ -13,7 +13,7 @@ let folderData = {
         {
             dcterms:
                 {
-                    abstract : "This is a test folder and its search tag is pastinha linda. It is a fantastic test of search for specific metadata."
+                    abstract : "This is a test folder that contains fracture mechanics base data."
                 }
         }
 };
