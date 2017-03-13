@@ -124,7 +124,7 @@ describe(privateProjectUrl +"?metadata_recommendations", function ()
         done();
     });
 
-    it('[JSON] should allow requests for recommendations in project '+ privateProject.handle +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    it('[JSON] should not allow requests for recommendations in project '+ privateProject.handle +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
     {
         //TODO
         done();
@@ -229,7 +229,7 @@ describe(privateProjectFolderUrl+"?metadata_recommendations", function ()
         done();
     });
 
-    it('[JSON] should allow requests for recommendations in folder '+ privateProjectFolderUrl +' if user ' + demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    it('[JSON] should not allow requests for recommendations in folder '+ privateProjectFolderUrl +' if user ' + demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
     {
         //TODO
         done();
@@ -268,13 +268,13 @@ describe(publicProjectUrl + "?ontology_autocomplete", function ()
         done();
     });
 
-    it('[JSON] should forbid requests for recommendations in project '+ publicProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    it('[JSON] should forbid autocomplete requests in project '+ publicProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
     {
         //TODO
         done();
     });
 
-    it('[JSON] should allow requests for recommendations in project '+ publicProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
+    it('[JSON] should allow autocomplete requests in project '+ publicProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
     {
         //TODO
         done();
@@ -301,20 +301,20 @@ describe(metadataOnlyProjectUrl + "?ontology_autocomplete", function ()
         done();
     });
 
-    it('[JSON] should forbid requests for recommendations in project '+ metadataOnlyProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    it('[JSON] should forbid autocomplete requests in project '+ metadataOnlyProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
     {
         //TODO
         done();
     });
 
-    it('[JSON] should allow requests for recommendations in project '+ metadataOnlyProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
+    it('[JSON] should allow autocomplete requests in project '+ metadataOnlyProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
     {
         //TODO
         done();
     });
 });
 
-describe(privateProjectUrl + "?metadata_recommendations", function ()
+describe(privateProjectUrl + "?ontology_autocomplete", function ()
 {
     it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
     {
@@ -322,25 +322,25 @@ describe(privateProjectUrl + "?metadata_recommendations", function ()
         done();
     });
 
-    it('[JSON] should forbid requests for recommendations in project '+ privateProjectUrl +' if no user is authenticated.', function (done)
+    it('[JSON] should forbid autocomplete requests in project '+ privateProjectUrl +' if no user is authenticated.', function (done)
     {
         //TODO
         done();
     });
 
-    it('[JSON] should allow requests for recommendations in project '+ privateProjectUrl +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
+    it('[JSON] should allow autocomplete requests in project '+ privateProjectUrl +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
     {
         //TODO
         done();
     });
 
-    it('[JSON] should forbid requests for recommendations in project '+ privateProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    it('[JSON] should forbid autocomplete requests in project '+ privateProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
     {
         //TODO
         done();
     });
 
-    it('[JSON] should allow requests for recommendations in project '+ privateProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
+    it('[JSON] should allow autocomplete requests in project '+ privateProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
     {
         //TODO
         done();
@@ -418,7 +418,7 @@ describe(metadataOnlyProjectFolderUrl+"?ontology_autocomplete", function ()
     });
 });
 
-describe(privateProjectFolderUrl+"?metadata_recommendations", function ()
+describe(privateProjectFolderUrl+"?ontology_autocomplete", function ()
 {
     it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
     {
@@ -476,13 +476,13 @@ describe(publicProjectUrl + "?descriptor_autocomplete", function ()
         done();
     });
 
-    it('[JSON] should forbid requests for recommendations in project '+ publicProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    it('[JSON] should forbid requests for descriptor autocomplete in project '+ publicProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
     {
         //TODO
         done();
     });
 
-    it('[JSON] should allow requests for recommendations in project '+ publicProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
+    it('[JSON] should allow requests for descriptor autocomplete in project '+ publicProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
     {
         //TODO
         done();

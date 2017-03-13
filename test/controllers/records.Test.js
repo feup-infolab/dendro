@@ -240,7 +240,7 @@ describe("/project/"+publicProject.handle+"?metadata&deep (public project)", fun
         done();
     });
 
-    it('[JSON] should fetch metadata of the ' + publicProject.handle + ' project, authenticated as '+ demouser3.username  +' (contributor)', function (done)
+    it('[JSON] should fetch metadata recursively of the ' + publicProject.handle + ' project, authenticated as '+ demouser3.username  +' (contributor)', function (done)
     {
         //TODO
         done();
