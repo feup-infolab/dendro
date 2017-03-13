@@ -64,7 +64,7 @@ describe('/users', function () {
     });
     /*all the way here----------------------------------------------------------*/
 
-    it('[HTML] should list all users when logged in as demouser1', function (done){
+    it('[HTML] should list all users when logged in as demouser1.username', function (done){
         /*This was just an experiment, to understand the testing mecanism**/
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
@@ -77,7 +77,7 @@ describe('/users', function () {
         })
     });
 
-    it('[JSON]  should list all users when logged in as demouser1', function (done) {
+    it('[JSON]  should list all users when logged in as demouser1.username', function (done) {
         /*This was just an experiment, to understand the testing mecanism**/
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
@@ -91,7 +91,7 @@ describe('/users', function () {
     });
 
 
-    it('[HTML] should list all users when logged in as demouser1', function (done){
+    it('[HTML] should list all users when logged in as demouser2.username', function (done){
         /*This was just an experiment, to understand the testing mecanism**/
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
@@ -104,7 +104,7 @@ describe('/users', function () {
         })
     });
 
-    it('[JSON]  should list all users when logged in as demouser1', function (done) {
+    it('[JSON]  should list all users when logged in as demouser2.username', function (done) {
         /*This was just an experiment, to understand the testing mecanism**/
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
@@ -134,43 +134,43 @@ describe('/users', function () {
 
 describe('/users/:username', function () {
 
-    it('[JSON] should NOT access demouser1 profile when given demouser1 and NOT logged in',function (done) {
+    it('[JSON] should NOT access demouser1.username profile when given demouser1.username and NOT logged in',function (done) {
         done(1);
     });
 
-    it('[HTML] should NOT access demouser1 profile when given demouser1 and  NOT logged in',function (done) {
+    it('[HTML] should NOT access demouser1.username profile when given demouser1.username and  NOT logged in',function (done) {
         done(1);
     });
 
-    it('[JSON] should access demouser1 profile when given demouser1 and logged in',function (done) {
+    it('[JSON] should access demouser1.username profile when given demouser1.username and logged in',function (done) {
         done(1);
     });
 
-    it('[HTML] should access demouser1 profile when given demouser1 and logged in',function (done) {
+    it('[HTML] should access demouser1.username profile when given demouser1.username and logged in',function (done) {
         done(1);
     });
 
-    it('[JSON] should access demouser2 profile when given demouser2 and logged in ',function (done) {
+    it('[JSON] should access demouser2.username profile when given demouser2.username and logged in ',function (done) {
         done(1);
     });
 
-    it('[HTML] should access demouser2 profile when given demouser2 and logged in ',function (done) {
+    it('[HTML] should access demouser2.username profile when given demouser2.username and logged in ',function (done) {
         done(1);
     });
 
-    it('[JSON] should NOT access demouser1 profile when given non-existent username and logged in',function (done) {
+    it('[JSON] should NOT access demouser1.username profile when given non-existent username and logged in',function (done) {
         done(1);
     });
 
-    it('[HTML] should NOT access demouser1 profile when given non-existent username and logged in',function (done) {
+    it('[HTML] should NOT access demouser1.username profile when given non-existent username and logged in',function (done) {
         done(1);
     });
 
-    it('[JSON] should NOT access demouser1 profile when given non-existent username and NOT logged in',function (done) {
+    it('[JSON] should NOT access demouser1.username profile when given non-existent username and NOT logged in',function (done) {
         done(1);
     });
 
-    it('[HTML] should NOT access demouser1 profile when given non-existent username and NOT logged in',function (done) {
+    it('[HTML] should NOT access demouser1.username profile when given non-existent username and NOT logged in',function (done) {
         done(1);
     });
 
@@ -178,51 +178,51 @@ describe('/users/:username', function () {
 
 describe('/users/loggedUser', function () {
 
-    it('[JSON] should NOT display demouser1 info when NOT logged in',function (done) {
+    it('[JSON] should NOT display demouser1.username info when NOT logged in',function (done) {
         done(1);
     });
 
-    it('[HTML] should NOT display demouser1 info when NOT logged in',function (done) {
+    it('[HTML] should NOT display demouser1.username info when NOT logged in',function (done) {
         done(1);
     });
 
-    it('[JSON] should NOT display demouser2 info when NOT logged in',function (done) {
+    it('[JSON] should NOT display demouser2.username info when NOT logged in',function (done) {
         done(1);
     });
 
-    it('[HTML] should NOT display demouser2 info when NOT logged in',function (done) {
+    it('[HTML] should NOT display demouser2.username info when NOT logged in',function (done) {
         done(1);
     });
 
-    it('[JSON] should display demouser1 info when logged in as demouser1',function (done) {
+    it('[JSON] should display demouser1.username info when logged in as demouser1.username',function (done) {
         done(1);
     });
 
-    it('[HTML] should display demouser1 info when logged in as demouser1',function (done) {
+    it('[HTML] should display demouser1.username info when logged in as demouser1.username',function (done) {
         done(1);
     });
 
-    it('[JSON] should display demouser2 info when logged in as demouser2',function (done) {
+    it('[JSON] should display demouser2.username info when logged in as demouser2.username',function (done) {
         done(1);
     });
 
-    it('[HTML] should display demouser2 info when logged in as demouser2',function (done) {
+    it('[HTML] should display demouser2.username info when logged in as demouser2.username',function (done) {
         done(1);
     });
 
-    it('[JSON] should NOT display demouser1 info when logged in as demouser2',function (done) {
+    it('[JSON] should NOT display demouser1.username info when logged in as demouser2.username',function (done) {
         done(1);
     });
 
-    it('[HTML] should NOT display demouser1 info when logged in as demouser2',function (done) {
+    it('[HTML] should NOT display demouser1.username info when logged in as demouser2.username',function (done) {
         done(1);
     });
 
-    it('[JSON] should NOT display demouser2 info when logged in as demouser1',function (done) {
+    it('[JSON] should NOT display demouser2.username info when logged in as demouser1.username',function (done) {
         done(1);
     });
 
-    it('[HTML] should NOT display demouser2 info when logged in as demouser1',function (done) {
+    it('[HTML] should NOT display demouser2.username info when logged in as demouser1.username',function (done) {
         done(1);
     });
 });
