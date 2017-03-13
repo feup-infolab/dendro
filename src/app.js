@@ -1744,7 +1744,7 @@ async.waterfall([
         //notifications
         app.get('/notifications/all', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.get_unread_user_notifications);
         app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.get_notification_info);
-        app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.delete)
+        app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.delete);
 
         //serve angular JS ejs-generated html partials
         app.get(/(\/app\/views\/.+)\.html$/,

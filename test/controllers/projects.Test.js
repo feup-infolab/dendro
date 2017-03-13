@@ -28,6 +28,266 @@ const demouser2 = require("../mockdata/users/demouser2");
 
 let publicproject = require("../mockdata/users/demouser2");
 
+
+describe("[GET] /projects", function () {
+    //TODO this route has HTML ONLY
+    it("Should only get public and metadata_only projects when unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should get all public and metadata_only projects as well as private_projects created by demouser1 when logged in as demouser1(CREATOR)", function (done) {
+        done(1);
+    });
+
+    it("Should get all public and metadata_only projects as well as private_projects created by demouser1 where demouser3 collaborates when logged in as demouser3(COLLABORATOR WITH DEMOUSER1 ON PRIVATEPROJECTA)", function (done) {
+        done(1);
+    });
+
+    it("Should only get public and metadata_only projects and not private projects created by demouser1 when logged in as demouser2(NOR CREATOR NOR COLLABORATOR)", function (done) {
+        done(1);
+    });
+
+    it("Should not show any projects if none exist", function (done) {
+        done(1);
+    });
+});
+
+describe("[GET] /projects/my", function () {
+    //TODO API as well as HTML
+    it("Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
+        done(1);
+    });
+
+    it("Should not show projects created by demouser1 and where demouser2 does not collaborate when logged in as demouser2", function (done) {
+        done(1);
+    });
+
+    it("Should give error when the user is not authenticated", function (done) {
+        done(1);
+    });
+});
+
+describe("[GET] /projects/new", function () {
+    //TODO HTML ONLY
+    it("Should show the new project Html page when logged in as demouser1", function (done) {
+        done(1);
+    });
+
+    it("Should not show the new project Html page when unauthenticated", function (done) {
+        done(1);
+    });
+});
+
+describe("[POST] /projects/new", function () {
+    //TODO HTML AND API
+    it("Should show an error when trying to create a project unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should get a status code of 201 when creating any type of project logged in as demouser1", function (done) {
+        done(1);
+    });
+});
+
+
+describe("[GET] /projects/import", function () {
+    //TODO HTML only
+    it("Should get an error when trying to access the html page to import a project when unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should get the html import a project page when logged in as any user", function (done) {
+        done(1);
+    });
+});
+
+describe("[POST] /projects/import", function () {
+    //TODO API ONLY
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give a status code of 200 when the user is logged in and the zip file used to import the project is not corrupted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error with a status code of 500 when the zip file used to import the project is corrupted even thought the user is logged in", function (done) {
+        done(1);
+    });
+});
+
+describe("[GET] /project/:handle/request_access", function () {
+    //TODO HTML ONLY
+    it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should get an error when trying to access the request access to a project that does not exist event when authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should get the request access to a project HTML page when authenticated as any user", function (done) {
+        done(1);
+    });
+});
+
+describe("[POST] /project/:handle/request_access", function () {
+    //TODO HTML ONLY -> also sends flash messages with success or error responses
+
+    it("Should get an error when user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should successfully request access to an existing project authenticated as demouser2 to a project created by demouser1", function (done) {
+        done(1);
+    });
+
+    it("Should give an error trying to request access to a project that does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error trying to request access, logged in as demouser1, to a project where demouser1 already is a creator", function (done) {
+        done(1);
+    });
+
+    it("Should give an error trying to request access, logged in as demouser1, to a project where demouser1 already is a collaborator", function (done) {
+        done(1);
+    });
+});
+
+describe("[POST] /project/:handle/delete", function () {
+    //TODO HTML AND API
+
+    it("Should give an error message when a project does not exist", function (done) {
+        done(1);
+    });
+    
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a project created by demouser1", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the project", function (done) {
+        done(1);
+    });
+    
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the project", function (done) {
+        done(1);
+    })
+});
+
+describe("[POST] /project/:handle/undelete", function () {
+    //TODO HTML AND API
+
+    it("Should give an error message when a project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when a project is not deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a project created by demouser1 that is currently deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete the project that is currently deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete the project that is currently deleted", function (done) {
+        done(1);
+    })
+});
+
+
+describe("[POST] /project/:handle?mkdir", function () {
+    //TODO API ONLY
+    it("Should give an error when the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
+        done(1);
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser3(a collaborator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        done(1);
+    });
+});
+
+describe("[GET] /project/:handle?recent_changes", function () {
+    //TODO API ONLY
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the project changes if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the project changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(1);
+    });
+});
+
+describe("[GET] /project/:handle?version", function () {
+    //TODO API ONLY
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the resource versions if the resource exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the resource versions if the resource exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the descriptors in the resource version are locked for alterations", function (done) {
+        done(1);
+    })
+});
+
+
+
+//OLD ITERATION OF TESTS GOES HERE
 describe('/projects', function () {
     it('lists all projects when not logged in', function (done) {
         const app = GLOBAL.tests.app;
@@ -1093,29 +1353,6 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
             done();
         });
     });
-
-    /*
-    it('API creator get metatada recommendations for project', function (done) {
-        this.timeout(5000);
-        testUtils.loginUser(demouser1.username, demouser1.password, function (err, newAgent) {
-            testUtils.getMetadataRecomendationsForProject(true, newAgent, privateProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                done();
-            });
-        });
-    });
-
-    it('HTML creator get metatada recommendations for project', function (done) {
-        this.timeout(5000);
-        testUtils.loginUser(demouser1.username, demouser1.password, function (err, newAgent) {
-            testUtils.getMetadataRecomendationsForProject(false, newAgent, privateProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.contain(privateProjectHandle);
-                done();
-            });
-        });
-    });
-    */
 
     it('API demouser2 get metatada recommendations for project', function (done) {
         this.timeout(5000);
