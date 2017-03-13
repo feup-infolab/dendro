@@ -242,13 +242,14 @@ describe("[GET] /project/:handle?recent_changes", function () {
     });
 
     it("Should give the project changes if the user is logged in as demouser1(the creator of the project)", function (done) {
-        //TODO HERE
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, cb
             projectUtils.getProjectRecentChanges(true, agent, publicproject.handle, function (err, res) {
-
+                res.should.have.status(200);
+                //TODO
+                done(1);
             });
         });
-        //done(1);
     });
 
     it("Should give the project changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
@@ -271,7 +272,14 @@ describe("[GET] /project/:handle?version", function () {
     });
 
     it("Should give the resource versions if the resource exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, cb
+            projectUtils.getProjectVersion(true, agent, publicproject.handle, function (err, res) {
+                res.should.have.status(200);
+                //TODO
+                done(1);
+            });
+        });
     });
 
     it("Should give the resource versions if the resource exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {

@@ -233,6 +233,30 @@ var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
+var getProjectVersion = function (jsonOnly, agent, projectHandle, cb) {
+    //project/:handle?version
+    var path = '/project/' + projectHandle +'?version';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -245,5 +269,6 @@ module.exports = {
     getProjectRootContent : getProjectRootContent,
     getResourceMetadata : getResourceMetadata,
     removeDescriptorFromFolder : removeDescriptorFromFolder,
-    getProjectRecentChanges : getProjectRecentChanges
+    getProjectRecentChanges : getProjectRecentChanges,
+    getProjectVersion : getProjectVersion
 };
