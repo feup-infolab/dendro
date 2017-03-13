@@ -658,3 +658,211 @@ describe(privateProjectFolderUrl+"?descriptor_autocomplete", function ()
         done();
     });
 });
+
+/**
+ * Project-level ontology recommendation functions
+ */
+
+
+describe(publicProjectUrl + "?recommendation_ontologies", function ()
+{
+    it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid ontology recommendation requests for ontologies in project '+ publicProjectUrl +' if no user is authenticated.', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow ontology recommendation requests for ontologies in project '+ publicProjectUrl +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid ontology recommendation requests in project '+ publicProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow ontology recommendation requests in project '+ publicProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
+    {
+        //TODO
+        done();
+    });
+});
+
+describe(metadataOnlyProjectUrl + "?recommendation_ontologies", function ()
+{
+    it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid ontology recommendation requests for ontologies in project '+ metadataOnlyProjectUrl +' if no user is authenticated.', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow ontology recommendation requests for ontologies in project '+ metadataOnlyProjectUrl +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid ontology recommendation requests in project '+ metadataOnlyProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow ontology recommendation requests in project '+ metadataOnlyProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
+    {
+        //TODO
+        done();
+    });
+});
+
+describe(privateProjectUrl + "?recommendation_ontologies", function ()
+{
+    it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid ontology recommendation requests in project '+ privateProjectUrl +' if no user is authenticated.', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow ontology recommendation requests in project '+ privateProjectUrl +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid ontology recommendation requests in project '+ privateProjectUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow ontology recommendation requests in project '+ privateProjectUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
+    {
+        //TODO
+        done();
+    });
+});
+
+/**
+ * Folder-level ontology autocomplete functions
+ */
+
+
+describe(publicProjectFolderUrl + "?ontology_autocomplete", function ()
+{
+    it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid ontology autocomplete requests for ontologies in folder '+ publicProjectFolderUrl +' if no user is authenticated.', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow ontology autocomplete requests for ontologies in folder '+ publicProjectFolderUrl +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid requests for recommendations in folder '+ publicProjectFolderUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow requests for recommendations in folder '+ publicProjectFolderUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
+    {
+        //TODO
+        done();
+    });
+});
+
+describe(metadataOnlyProjectFolderUrl+"?ontology_autocomplete", function ()
+{
+    it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid ontology autocomplete requests for ontologies in folder '+ metadataOnlyProjectFolderUrl +' if no user is authenticated.', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow ontology autocomplete requests for ontologies in folder '+ metadataOnlyProjectFolderUrl +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid requests for recommendations in folder '+ metadataOnlyProjectFolderUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow requests for recommendations in folder '+ metadataOnlyProjectFolderUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
+    {
+        //TODO
+        done();
+    });
+});
+
+describe(privateProjectFolderUrl+"?ontology_autocomplete", function ()
+{
+    it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid requests for recommendations in folder '+ privateProjectFolderUrl +' if no user is authenticated.', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow requests for recommendations in folder '+ privateProjectFolderUrl +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should forbid requests for recommendations in folder '+ privateProjectFolderUrl +' if user ' +demouser2.username+ ' is authenticated (not contributor nor creator).', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should allow requests for recommendations in folder '+ privateProjectFolderUrl +' if user ' +demouser3.username+ ' is authenticated (contributor).', function (done)
+    {
+        //TODO
+        done();
+    });
+});

@@ -299,8 +299,48 @@ describe("[GET] /project/:handle/data/foldername?change_log", function () {
     });
 });
 
+describe("[GET] /project/:handle/data/foldername?stats", function () {
+    //TODO API AND HTML ONLY
+
+    it("[HTML] Should give an error if the Accept: \"application/json\" is not specified (API-only access)", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the folder identified by foldername does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2 (not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(1);
+    });
+
+    it("Should show in the change log the edited descriptors made by demouser1 to the folder if demouser1 is authenticated", function (done) {
+        done(1);
+    });
+});
+
 describe("[POST] /project/:handle/data/foldername?restore_metadata_version", function () {
     //TODO API ONLY
+    it("[HTML] Should give an error if the Accept: \"application/json\" is not specified (API-only access)", function (done) {
+        done(1);
+    });
+
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });

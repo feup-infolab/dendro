@@ -3,18 +3,6 @@ process.env.NODE_ENV = 'test';
 const chai = require('chai');
 chai.use(require('chai-http'));
 
-let db = function ()
-{
-    return GLOBAL.db.default;
-}();
-let db_social = function ()
-{
-    return GLOBAL.db.social;
-}();
-let db_notifications = function ()
-{
-    return GLOBAL.db.notifications;
-}();
 let async = require('async');
 const projectUtils = require('./../utils/project/projectUtils.js');
 const userUtils = require('./../utils/user/userUtils.js');
@@ -285,7 +273,32 @@ describe("[GET] /project/:handle?version", function () {
     })
 });
 
+describe("[GET] /project/:handle?stats", function () {
+    //TODO API ONLY
+    it("[HTML] Should give an error if the Accept: \"application/json\" is not specified (API only access)", function (done) {
+        done(1);
+    });
 
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the project changes if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the project changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(1);
+    });
+});
 
 //OLD ITERATION OF TESTS GOES HERE
 describe('/projects', function () {

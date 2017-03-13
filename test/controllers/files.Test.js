@@ -288,3 +288,38 @@ describe("[POST] /project/:handle/data/filename?restore_metadata_version", funct
         done(1);
     });
 });
+
+describe("[POST] /project/:handle/data/filename?data", function () {
+    //TODO API ONLY
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the file identified by filename does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the metadata_version sent in the body is in an invalid format", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should fetch a preview of a JPG uploaded to the system", function (done) {
+        done(1);
+    });
+    
+    it("Should fetch a preview of a PDF uploaded to the system", function (done) {
+        done(1);
+    });
+
+    it("Should fetch a preview of a XLS uploaded to the system", function (done) {
+        done(1);
+    });
+});

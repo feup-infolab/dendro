@@ -11,7 +11,7 @@ let agent = null;
 let demouser1 = require("../mockdata/users/demouser1.js");
 let demouser2 = require("../mockdata/users/demouser2.js");
 
-describe('/interactions/*', function ()
+describe('/interactions/:project/data/:filepath?register_interaction', function ()
 {
     it('[HTML] should not register an interaction if "application/json" Accept header is absent', function (done)
     {
@@ -49,3 +49,4 @@ describe('/interactions/*', function ()
         done();
     });
 });
+
