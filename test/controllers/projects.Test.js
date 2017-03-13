@@ -16,8 +16,9 @@ var should = chai.should();
 
 var demouser1 = require("../mockdata/users/demouser1");
 var demouser2 = require("../mockdata/users/demouser2");
+var demouser3 = require("../mockdata/users/demouser3");
 
-var publicproject = require("../mockdata/users/demouser2");
+var publicproject = require("../mockdata/projects/public_project");
 
 
 describe("[GET] /projects", function () {
@@ -241,7 +242,13 @@ describe("[GET] /project/:handle?recent_changes", function () {
     });
 
     it("Should give the project changes if the user is logged in as demouser1(the creator of the project)", function (done) {
-        done(1);
+        //TODO HERE
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getProjectRecentChanges(true, agent, publicproject.handle, function (err, res) {
+
+            });
+        });
+        //done(1);
     });
 
     it("Should give the project changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {

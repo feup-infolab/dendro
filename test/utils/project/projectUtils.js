@@ -209,6 +209,30 @@ var removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folde
     });
 };
 
+var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
+    ///project/:handle?recent_changes
+    var path = '/project/' + projectHandle +'?recent_changes';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -220,5 +244,6 @@ module.exports = {
     getMetadataRecomendationsForProject : getMetadataRecomendationsForProject,
     getProjectRootContent : getProjectRootContent,
     getResourceMetadata : getResourceMetadata,
-    removeDescriptorFromFolder : removeDescriptorFromFolder
+    removeDescriptorFromFolder : removeDescriptorFromFolder,
+    getProjectRecentChanges : getProjectRecentChanges
 };

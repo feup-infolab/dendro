@@ -11,12 +11,17 @@ var projectUtils = require('./../utils/project/projectUtils.js');
 var userUtils = require('./../utils/user/userUtils.js');
 var folderUtils = require('./../utils/folder/folderUtils.js');
 var httpUtils = require('./../utils/http/httpUtils.js');
+var descriptorUtils = require("../utils/descriptor/descriptorUtils");
 
 var should = chai.should();
 
 var demouser1 = require("../mockdata/users/demouser1");
 var demouser2 = require("../mockdata/users/demouser2");
 var demouser3 = require("../mockdata/users/demouser3");
+
+var publicProject = require("../mockdata/projects/public_project");
+var metadataOnlyProject = require("../mockdata/projects/metadata_only_project");
+var privateProject = require("../mockdata/projects/private_project");
 
 describe("[GET] /descriptors/from_ontology/:ontology_prefix", function () {
 
@@ -44,7 +49,14 @@ describe("[GET] /descriptors/from_ontology/:ontology_prefix", function () {
     //PUBLIC PROJECT
     it("[Public Project] It should get descriptors from dcterms ontology when logged in as demouser1(The creator of the project in question)", function (done) {
         //TODO should return all the descriptors from this ontology -> currently 52 elements
-        done(1);
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                res.should.have.status(200);
+                res.body.descriptors.length.should.equal(52);
+                done();
+            });
+        });
     });
 
     it("[Public Project] It should not get descriptors from dcterms ontology when logged in as demouser2(Not creator nor collaborator of the project in question)", function (done) {
@@ -146,6 +158,11 @@ describe("[GET] /descriptors/from_ontology/:ontology_prefix", function () {
 
     it("[Private Project] It should not get descriptors from xy ontology(This ontology does not exist) (when unauthenticated)", function (done) {
         //TODO Should return error
+        done(1);
+    });
+    
+    
+    it("Should Give an error when the project identified by the project_handle does not exist", function (done) {
         done(1);
     });
 
