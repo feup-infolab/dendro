@@ -10,6 +10,80 @@ var ontologiesUtils = require('./../utils/ontologies/ontologiesUtils.js');
 const should = chai.should();
 
 var demouser1 = require("../mockdata/users/demouser1");
+var demouser2 = require("../mockdata/users/demouser2");
+var demouser3 = require("../mockdata/users/demouser3");
+
+describe('/ontologies/public', function () {
+
+    it('[JSON] it should return public ontologies logged in as demouser1.username', function (done) {
+        done(1);
+    });
+    it('[HTML] it should return public ontologies logged in as demouser1.username', function (done) {
+        done(1);
+    });
+    it('[JSON] it should return public ontologies logged in as demouser2.username', function (done) {
+        done(1);
+    });
+    it('[HTML] it should return public ontologies logged in as demouser2.username', function (done) {
+        done(1);
+    });
+    it('[JSON] it should return public ontologies logged in as demouser3.username', function (done) {
+        done(1);
+    });
+    it('[HTML] it should return public ontologies logged in as demouser3.username', function (done) {
+        done(1);
+    });
+
+    it('[JSON] it should return public ontologies not logged in', function (done) {
+        done(1);
+    });
+    it('[HTML] it should return public ontologies not logged in', function (done) {
+        done(1);
+    });
+
+});
+
+
+describe('/ontologies/all', function () {
+
+    it('[JSON] it should return all ontologies logged in as demouser1.username', function (done) {
+        done(1);
+    });
+    it('[HTML] it should return all ontologies logged in as demouser1.username', function (done) {
+        done(1);
+    });
+    it('[JSON] it should return all ontologies logged in as demouser2.username', function (done) {
+        done(1);
+    });
+    it('[HTML] it should return all ontologies logged in as demouser2.username', function (done) {
+        done(1);
+    });
+    it('[JSON] it should return all ontologies logged in as demouser3.username', function (done) {
+        done(1);
+    });
+    it('[HTML] it should return all ontologies logged in as demouser3.username', function (done) {
+        done(1);
+    });
+
+    it('[JSON] it should return all ontologies not logged in', function (done) {
+        done(1);
+    });
+    it('[HTML] it should return all ontologies not logged in', function (done) {
+        done(1);
+    });
+});
+
+describe('/ontologies/edit', function () {
+    //Not sure who is allowed to edit or not in this section I must review the users
+    it('[JSON] should allow for the editing of the ontology by demouser1.username', function (done) {
+        done(1);
+    });
+
+    it('[JSON] should NOT allow for the editing of the ontology by demouser1.username', function (done) {
+        done(1);
+    });
+});
+
 
 describe('/ontologies/autocomplete', function(){
 
@@ -48,4 +122,4 @@ describe('/ontologies/show/:prefix', function () {
     it('[HTML] get ontology', function () {
 
     });
-})
+});
