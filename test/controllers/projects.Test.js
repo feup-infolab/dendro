@@ -20,6 +20,7 @@ var demouser3 = require("../mockdata/users/demouser3");
 
 var publicproject = require("../mockdata/projects/public_project");
 
+/*
 
 describe("[GET] /projects", function () {
     //TODO this route has HTML ONLY
@@ -272,14 +273,9 @@ describe("[GET] /project/:handle?version", function () {
     });
 
     it("Should give the resource versions if the resource exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            //jsonOnly, agent, projectHandle, cb
-            projectUtils.getProjectVersion(true, agent, publicproject.handle, function (err, res) {
-                res.should.have.status(200);
-                //TODO
-                done(1);
-            });
-        });
+        //jsonOnly, agent, projectHandle, cb
+        //TODO
+        done(1);
     });
 
     it("Should give the resource versions if the resource exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
@@ -291,9 +287,10 @@ describe("[GET] /project/:handle?version", function () {
     })
 });
 
-
+*/
 
 //OLD ITERATION OF TESTS GOES HERE
+/*
 describe('/projects', function () {
     it('lists all projects when not logged in', function (done) {
         var app = GLOBAL.tests.app;
@@ -391,6 +388,7 @@ describe('/projects/new GET', function () {
     });
 
 });
+*/
 
 describe('/project/'+require("../mockdata/projects/public_project.js").handle, function () {
     var folderData = require("../mockdata/folders/folder.js");
@@ -725,7 +723,7 @@ describe('/project/'+require("../mockdata/projects/public_project.js").handle, f
 
 });
 
-
+/*
 describe('/project/'+require("../mockdata/projects/metadata_only_project.js").handle, function () {
     var folderData = require("../mockdata/folders/folder.js");
     var folderName = folderData.name;
@@ -1488,3 +1486,4 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
 });
+*/
