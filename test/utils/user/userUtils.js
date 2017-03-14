@@ -52,3 +52,20 @@ exports.listAllUsers= function (jsonOnly, agent, cb) {
             });
     }
 };
+
+exports.getUserInfo= function (jsonOnly, agent, cb) {
+    if(jsonOnly){
+        agent
+            .get('/user/demouser1')
+            .end(function(err,res){
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .get('/user/demouser1')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};

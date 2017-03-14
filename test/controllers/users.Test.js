@@ -98,7 +98,7 @@ describe('/users', function () {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             userUtils.listAllUsers(false, agent, function (err, res){
                 res.should.have.status(200);
-                res.text.should.contain('demouser1');
+                res.text.should.contain('demouser2');
                 done();
             })
         })
@@ -112,6 +112,8 @@ describe('/users', function () {
             userUtils.listAllUsers(true, agent, function (err, res){
                 res.should.have.status(200);
                 res.text.should.contain('demouser1');
+                res.text.should.contain('demouser2');
+                res.text.should.contain('demouser3');
                 done();
             })
         })
@@ -119,31 +121,65 @@ describe('/users', function () {
 
 
     it('[HTML] should list all users when NOT logged in', function (done){
-        //TODO
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        userUtils.listAllUsers(false, agent, function (err, res){
+            res.should.have.status(200);
+            res.text.should.contain('demouser1');
+            res.text.should.contain('demouser2');
+            res.text.should.contain('demouser3');
+            done();
+        })
     });
 
     it('[JSON] should list all users when NOT logged in', function (done) {
-        //TODO
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        userUtils.listAllUsers(true, agent, function (err, res){
+            res.should.have.status(200);
+            res.text.should.contain('demouser1');
+            res.text.should.contain('demouser2');
+            res.text.should.contain('demouser3');
+            done();
+        })
     });
 
 
 });
 
 
-describe('/users/:username', function () {
+describe('/user/:username', function () {
 
     it('[JSON] should NOT access demouser1.username profile when given demouser1.username and NOT logged in',function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+            userUtils.getUserInfo(true, agent, function (err, res) {
+                res.should.have.status(200);
+                res.redirects[0].should.contain('login');
+                done();
+            })
     });
 
     it('[HTML] should NOT access demouser1.username profile when given demouser1.username and  NOT logged in',function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        userUtils.getUserInfo(false, agent, function(err, res){
+            res.should.have.status(200);
+            res.redirects[0].should.contain('login');
+            done();
+            })
     });
 
     it('[JSON] should access demouser1.username profile when given demouser1.username and logged in',function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            userUtils.getUserInfo(false, agent, function(err, res){
+                res.should.have.status(200);
+                res.redirects[0].should.contain('demouser1');
+                done();
+            })
+        })
     });
 
     it('[HTML] should access demouser1.username profile when given demouser1.username and logged in',function (done) {

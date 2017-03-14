@@ -1,5 +1,5 @@
 GLOBAL.tests = {};
-
+/*
 require("./homepage.Test.js");
 
 //test login
@@ -13,12 +13,13 @@ require("./controllers/files.Test.js");
 
 //test folders
 require("./controllers/folders.Test.js");
-
+*/
 //test users
 require("./controllers/users.Test.js");
-
+/*
 //test descriptors
 require("./controllers/descriptors.Test.js");
 
 //destroy graphs
 require('./models/kb/db.Test.js');
+*/
