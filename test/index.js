@@ -12,7 +12,7 @@ require("./controllers/projects.Test.js");
 //require("./controllers/files.Test.js");
 
 //test folders
-//require("./controllers/folders.Test.js");
+require("./controllers/folders.Test.js");
 
 //test users
 //require("./controllers/users.Test.js");
@@ -31,7 +31,7 @@ require("./controllers/projects.Test.js");
 //require("./controllers/social/notifications.Test.js");
 
 //test external repository exports
-require("./controllers/datasets.Test");
+//require("./controllers/datasets.Test");
 
 //destroy graphs
 require('./models/kb/db.Test.js');

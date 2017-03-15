@@ -24,6 +24,7 @@ const privateProject= require("../mockdata/projects/private_project.js");
 const fileUtils= require("../utils/file/fileUtils.js");
 const folderUtils= require("../utils/folder/folderUtils.js");
 const userUtils = require("../utils/user/userUtils.js");
+const itemUtils = require("../utils/item/itemUtils");
 
 describe("/project/" + publicProject.handle + "/data/" + folder.pathInProject + folder.name + "?download", function ()
 {
@@ -205,7 +206,17 @@ describe("[POST] /project/:handle/data/:foldername?update_metadata", function() 
     });
 
     it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to update a metadata of a folder with a valid descriptor", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.updateItemMetadata(true, agent, publicProject.handle, folder.name, folder.metadata, function (err, res) {
+                res.statusCode.should.equal(200);
+                //jsonOnly, agent, projectHandle, itemPath, cb
+                itemUtils.getItemMetadata(true, agent, publicProject.handle, folder.name, function (error, response) {
+                    response.statusCode.should.equal(200);
+                    JSON.parse(response.text).descriptors.length.should.equal(folder.metadata.length);
+                    done();
+                });
+            });
+        });
     })
 });
 
