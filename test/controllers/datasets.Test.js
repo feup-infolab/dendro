@@ -37,6 +37,7 @@ var figshare = require("../mockdata/external_datasets/figshare");
 
 var createdB2shareConfigInvalidToken = require("../mockdata/external_datasets/createdB2shareWithInvalidToken");
 var createdB2shareConfigInvalidUrl = require("../mockdata/external_datasets/createdB2shareWithInvalidUrl");
+var createdZenodoConfigInvalidToken = require("../mockdata/external_datasets/createdZenodoWithInvalidToken");
 
 var b2shareData;
 var ckanData;
@@ -162,71 +163,54 @@ describe("[GET] /external_repositories/my", function () {
 });
 
 
-describe("[POST] /project/:handle?export_to_repository", function () {
+describe("[POST] [B2SHARE] /project/:handle?export_to_repository", function () {
     //TODO API ONLY
     it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
         done(1);
+        //TODO this is not implemented i think
     });
 
     it("Should give an error when the user is unauthenticated", function (done) {
         done(1);
+        //TODO this is not implemented i think
     });
 
     it("Should give an error when the user is logged in as demouser2(nor creator nor collaborator of the project)", function (done) {
         done(1);
+        //TODO this is not implemented i think
     });
 
     it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
         done(1);
+        //TODO this is not implemented i think
     });
 
     it("Should give an error when there is an invalid external url for deposit although a creator or collaborator is logged in", function (done) {
         done(1);
+        //TODO this is not implemented i think
     });
 
     it("Should give an error when the project to export does not exist although a creator or collaborator is logged in", function (done) {
         done(1);
+        //TODO this is not implemented i think
     });
 
     it("Should give a success message when the project to export exists and a creator or collaborator is logged in", function (done) {
+        /*
+        this.timeout(10000);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            datasetUtils.exportToRepository(true, publicProject.handle, agent, {repository: b2shareData}, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });*/
         done(1);
+        //TODO this is not implemented i think
     });
 });
 
 
 describe("[POST] [B2SHARE] /project/:handle/data/:foldername?export_to_repository", function () {
-    //TODO http://127.0.0.1:3001/project/privateproj/data/folder1?export_to_repository
-    //TODO http://127.0.0.1:3001/project/publicproject/data/folder1?export_to_repository
-
-    /*
-     {"repository":
-        {"uri":"http://127.0.0.1:3001/external_repository/nelsonpereira1991/b2share-training-export",
-        "dcterms":{"modified":"2017-03-09T14:44:17.833Z","title":"b2share training export","creator":"http://127.0.0.1:3001/user/nelsonpereira1991"},
-        "foaf":{},
-        "ddr":{"hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/b2share",
-        "dcterms":{"title":"EUDAT B2Share","description":"A EUDAT B2Share deposition"},
-        "foaf":{"nick":"b2share","homepage":"https://b2share.eudat.eu/"}},
-        "hasExternalUri":"trng-b2share.eudat.eu",
-        "hasAccessToken":"MmGKBzjpdlT382lag38zxhsKttZDw9e7u6zZmzucVFUu1aYM5i55WpeUSgFE"},
-        "rdf":{"type":"http://dendro.fe.up.pt/ontology/0.1/ExternalRepository"},
-        "nie":{},
-        "nfo":{},
-        "research":{},
-        "dcb":{},
-        "achem":{},
-        "bdv":{},
-        "biocn":{},
-        "grav":{},
-        "hdg":{},
-        "tsim":{},
-        "cep":{},
-        "social":{},
-        "cfd":{},
-        "$$hashKey":"object:733"},
-        "new_dataset":{}
-        }
-     */
-
 
     it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -316,6 +300,93 @@ describe("[POST] [B2SHARE] /project/:handle/data/:foldername?export_to_repositor
             projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, mockFolder.pathInProject + mockFolder.name, mockFolder.metadata, function (error, response) {
                 response.statusCode.should.equal(200);
                 datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: b2shareData}, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    done();
+                });
+            });
+        });
+    });
+});
+
+describe("[POST] [ZENODO] /project/:handle/data/:foldername?export_to_repository", function () {
+
+    it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, projectHandle, folderPath, agent, exportData, cb
+            datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, createdUnknownRepo, function (err, res) {
+                console.log(res);
+                res.statusCode.should.equal(500);
+                res.body.message.should.equal("Invalid target repository");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error when the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: zenodoData}, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Permission denied : cannot export resource because you do not have permissions to edit this project.");
+            done();
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser2(nor creator nor collaborator of the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, mockFolder.pathInProject + mockFolder.name, mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(401);
+                datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: zenodoData}, function (err, res) {
+                    res.statusCode.should.equal(401);
+                    done();
+                });
+            });
+        });
+    });
+
+
+    it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, mockFolder.pathInProject + mockFolder.name, mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(200);
+                datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: createdZenodoConfigInvalidToken}, function (err, res) {
+                    res.statusCode.should.equal(500);
+                    done();
+                });
+            });
+        });
+    });
+
+    it("Should give an error when the project does not exist although a creator or collaborator is logged in", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.updateMetadataCorrectRoute(true, agent, "unknownProjectHandle", mockFolder.pathInProject + mockFolder.name, mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
+                datasetUtils.exportFolderToRepository(true, "unknownProjectHandle", mockFolder.pathInProject + mockFolder.name, agent, {repository: zenodoData}, function (err, res) {
+                    res.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
+                    done();
+                });
+            });
+        });
+    });
+
+    it("Should give an error when the folder to export does not exist although a creator or collaborator is logged in", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, "randomfoldername", mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(404);
+                datasetUtils.exportFolderToRepository(true, publicProject.handle, "randomfoldername", agent, {repository: zenodoData}, function (err, res) {
+                    res.statusCode.should.equal(400);
+                    done();
+                });
+            });
+        });
+    });
+
+    it("Should give a success message when the folder to export exists and a creator or collaborator is logged in", function (done) {
+        this.timeout(10000);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, mockFolder.pathInProject + mockFolder.name, mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(200);
+                datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: zenodoData}, function (err, res) {
                     res.statusCode.should.equal(200);
                     done();
                 });

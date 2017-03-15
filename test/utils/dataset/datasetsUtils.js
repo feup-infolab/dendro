@@ -2,6 +2,31 @@ var chai = require('chai');
 var chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
+var exportToRepository = function (jsonOnly, projectHandle, agent, exportData, cb) {
+    //TODO /project/:handle?export_to_repository
+    //TODO this is not implemented i think
+    var path = "/project/" + projectHandle + "?export_to_repository";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .send(exportData)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(exportData)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 var exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, agent, exportData, cb)
 {
     //http://127.0.0.1:3001/project/publicproject/data/folder1?export_to_repository
@@ -26,7 +51,6 @@ var exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, ag
                 cb(err, res);
             });
     }
-
 };
 
 var createExportConfig = function (jsonOnly, agent, externalRepositoryData, cb) {
@@ -79,6 +103,7 @@ var getMyExternalRepositories = function (jsonOnly, agent, cb) {
 
 module.exports = {
     exportFolderToRepository: exportFolderToRepository,
+    exportToRepository: exportToRepository,
     createExportConfig: createExportConfig,
     getMyExternalRepositories : getMyExternalRepositories
 };
