@@ -21,6 +21,7 @@ var newExportRepoData =
                 }
             },
             hasExternalUri: "http://www.zenodo.org/",
+            hasAccessToken: "1234567Cenasdfksdfd"
         },
         foaf: {},
         nie: {},
