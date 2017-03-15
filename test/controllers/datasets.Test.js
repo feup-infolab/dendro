@@ -35,6 +35,9 @@ var dspace = require("../mockdata/external_datasets/dspace");
 var eprints = require("../mockdata/external_datasets/eprints");
 var figshare = require("../mockdata/external_datasets/figshare");
 
+var createdB2shareConfigInvalidToken = require("../mockdata/external_datasets/createdB2shareWithInvalidToken");
+var createdB2shareConfigInvalidUrl = require("../mockdata/external_datasets/createdB2shareWithInvalidUrl");
+
 var b2shareData;
 var ckanData;
 var zenodoData;
@@ -191,7 +194,7 @@ describe("[POST] /project/:handle?export_to_repository", function () {
 });
 
 
-describe("[POST] /project/:handle/data/:foldername?export_to_repository", function () {
+describe("[POST] [B2SHARE] /project/:handle/data/:foldername?export_to_repository", function () {
     //TODO http://127.0.0.1:3001/project/privateproj/data/folder1?export_to_repository
     //TODO http://127.0.0.1:3001/project/publicproject/data/folder1?export_to_repository
 
@@ -248,32 +251,74 @@ describe("[POST] /project/:handle/data/:foldername?export_to_repository", functi
     });
 
     it("Should give an error when the user is logged in as demouser2(nor creator nor collaborator of the project)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, mockFolder.pathInProject + mockFolder.name, mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(401);
+                datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: b2shareData}, function (err, res) {
+                    res.statusCode.should.equal(401);
+                    done();
+                });
+            });
+        });
     });
 
     it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, mockFolder.pathInProject + mockFolder.name, mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(200);
+                datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: createdB2shareConfigInvalidToken}, function (err, res) {
+                    res.statusCode.should.equal(500);
+                    done();
+                });
+            });
+        });
     });
 
     it("Should give an error when there is an invalid external url for deposit although a creator or collaborator is logged in", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, mockFolder.pathInProject + mockFolder.name, mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(200);
+                datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: createdB2shareConfigInvalidUrl}, function (err, res) {
+                    res.statusCode.should.equal(500);
+                    done();
+                });
+            });
+        });
     });
 
     it("Should give an error when the project does not exist although a creator or collaborator is logged in", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.updateMetadataCorrectRoute(true, agent, "unknownProjectHandle", mockFolder.pathInProject + mockFolder.name, mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
+                datasetUtils.exportFolderToRepository(true, "unknownProjectHandle", mockFolder.pathInProject + mockFolder.name, agent, {repository: b2shareData}, function (err, res) {
+                    res.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
+                    done();
+                });
+            });
+        });
     });
 
     it("Should give an error when the folder to export does not exist although a creator or collaborator is logged in", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, "randomfoldername", mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(404);
+                datasetUtils.exportFolderToRepository(true, publicProject.handle, "randomfoldername", agent, {repository: b2shareData}, function (err, res) {
+                    res.statusCode.should.equal(404);
+                    done();
+                });
+            });
+        });
     });
 
     it("Should give a success message when the folder to export exists and a creator or collaborator is logged in", function (done) {
+        this.timeout(10000);
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            //jsonOnly, projectHandle, folderPath, agent, exportData, cb
-            datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: b2shareData}, function (err, res) {
-                //TODO add dcterms creator and dcterms title
-                res.statusCode.should.equal(200);
-                done();
+            projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, mockFolder.pathInProject + mockFolder.name, mockFolder.metadata, function (error, response) {
+                response.statusCode.should.equal(200);
+                datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: b2shareData}, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    done();
+                });
             });
         });
     });
