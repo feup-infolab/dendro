@@ -209,6 +209,23 @@ var removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folde
     });
 };
 
+var administerProject = function (agent, modify, projectData, projectHandle, cb) {
+    if(modify) {
+        agent
+            .post('/project/' + projectHandle + '?administer')
+            .send(projectData)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    } else{
+        agent
+            .get('/project/' + projectHandle + '?administer')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -220,5 +237,6 @@ module.exports = {
     getMetadataRecomendationsForProject : getMetadataRecomendationsForProject,
     getProjectRootContent : getProjectRootContent,
     getResourceMetadata : getResourceMetadata,
-    removeDescriptorFromFolder : removeDescriptorFromFolder
+    removeDescriptorFromFolder : removeDescriptorFromFolder,
+    administerProject : administerProject
 };
