@@ -13,6 +13,8 @@ var demouser1 = require("../mockdata/users/demouser1");
 var demouser2 = require("../mockdata/users/demouser2");
 var demouser3 = require("../mockdata/users/demouser3");
 
+require("../mockdata/ontologies/ontologies");
+
 describe('/ontologies/public', function () {
 
     it('[JSON] it should return public ontologies logged in as demouser1.username', function (done) {
@@ -93,19 +95,26 @@ describe('/ontologies/autocomplete', function(){
 
 
     it('[JSON] did not send query', function (done) {
-        var app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             var path = '/ontologies/autocomplete';
-            ontologiesUtils.autocomplete(agent, {}, function(err, res){
+            ontologiesUtils.autocomplete(agent, path, "", function(err, res){
                 res.should.have.status(400);
-                res.body.message.should.equal('You did not send the autocomplete query. The request should be something like /ontologies/autocomplete?query=dummy_query_string.');
+                res.body.error_messages[0].should.contain('You did not send the autocomplete query. The request should be something like /ontologies/autocomplete?query=dummy_query_string.');
                 done();
             });
         });
     });
 
     it('[JSON] got \'Abstract\' from \'Abstr\'', function (done) {
-
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            var path = '/ontologies/autocomplete';
+            query = '?ontology_autocomplete=title';
+            ontologiesUtils.autocomplete(agent, path, query, function(err, res){
+                res.should.have.status(200);
+                res.body[0].description.should.equal('Generic description. Creator, title, subject...');
+                done();
+            });
+        });
     });
 });
 
