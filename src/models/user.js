@@ -38,7 +38,7 @@ function User (object)
 User.findByUsername = function(username, callback, removePrivateDescriptors)
 {
     User.findByPropertyValue(username, "ddr:username", function(err, user){
-        if(!err && user != null)
+        if(!err && user != null && user instanceof User)
         {
             if(removePrivateDescriptors)
             {

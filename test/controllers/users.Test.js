@@ -9,14 +9,16 @@ var async = require('async');
 var projectUtils = require('./../utils/project/projectUtils.js');
 chai.use(chaiHttp);
 
+var userUtils = require('./../utils/user/userUtils.js');
+
 var should = chai.should();
 
-describe('users', function () {
+describe('/users', function () {
 
     it('API /me  with authenticated used', function (done) {
         var app = GLOBAL.tests.app;
-        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
-            projectUtils.getLoggedUserDetails(true, agent, function (err, res) {
+        userUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            userUtils.getLoggedUserDetails(true, agent, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain('Editing user');
                 done();
@@ -27,8 +29,8 @@ describe('users', function () {
 
     it('HTML /me  with authenticated used', function (done) {
         var app = GLOBAL.tests.app;
-        projectUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
-            projectUtils.getLoggedUserDetails(false, agent, function (err, res) {
+        userUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
+            userUtils.getLoggedUserDetails(false, agent, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain('Editing user');
                 done();
@@ -40,7 +42,7 @@ describe('users', function () {
     it('API /me  not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
-        projectUtils.getLoggedUserDetails(true, agent, function (err, res) {
+        userUtils.getLoggedUserDetails(true, agent, function (err, res) {
             res.should.have.status(401);
             res.text.should.not.contain('Editing user');
             done();
@@ -50,7 +52,7 @@ describe('users', function () {
     it('HTML /me  not authenticated', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
-        projectUtils.getLoggedUserDetails(false, agent, function (err, res) {
+        userUtils.getLoggedUserDetails(false, agent, function (err, res) {
             res.should.have.status(200);
             res.text.should.not.contain('Editing user');
             done();
