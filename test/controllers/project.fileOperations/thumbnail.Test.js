@@ -12,26 +12,32 @@ var demouser3 = require("../../mockdata/users/demouser3");
 describe('project/' + publicProject.handle + '?thumbnail', function () {
 
     it("[HTML] operating without being creator", function (done) {
+        done();
 
     });
 
     it("[HTML] operating without being contributor", function (done) {
+        done();
 
     });
 
     it("[HTML] requested extension is null", function (done) {
+        done();
 
     });
 
     it("[HTML] requested extension is null", function (done) {
+        done();
 
     });
 
     it("[HTML] requested extension is folder", function (done) {
+        done();
 
     });
 
     it("[HTML] extension is iconable", function (done) {
+        done();
 
     });
 });

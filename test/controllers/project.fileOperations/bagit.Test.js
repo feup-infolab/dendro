@@ -10,36 +10,44 @@ var demouser3 = require("../../mockdata/users/demouser3");
 describe('project/' + publicProject.handle + '?bagit', function () {
 
     it("[HTML] bag it without being creator", function (done) {
+        done();
 
     });
 
     it("[HTML] bag it without being contributor", function (done) {
+        done();
 
     });
 
     it("[JSON] getting non-existing project", function (done) {
+        done();
 
     });
 
     it("[JSON] error deleting project", function (done) {
+        done();
 
     });
 
     it("[JSON] error creating backup", function (done) {
+        done();
 
     });
 
     it("[HTML] getting non-existing project", function (done) {
+        done();
 
     });
 
     it("[HTML] delete folder on local fileSystem", function (done) {
+        done();
 
     });
 
 
     //TODO not implemented for filepath yet
     it("[HTML] bagging a project with filepath", function (done) {
+        done();
 
     });
 });
