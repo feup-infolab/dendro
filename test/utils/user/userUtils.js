@@ -34,3 +34,60 @@ exports.getLoggedUserDetails = function (jsonOnly, agent, cb)
             });
     }
 };
+
+exports.listAllUsers= function (jsonOnly, agent, cb) {
+    if(jsonOnly){
+        agent
+            .get('/users')
+            .set('Accept','application/json')
+            .end(function(err,res){
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .get('/users')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+exports.getUserInfo= function (user, jsonOnly, agent, cb) {
+    if(jsonOnly){
+        agent
+            .get('/user/' + user)
+            .set('Accept','application/json')
+            .end(function(err,res){
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .get('/user/' + user)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+exports.getCurrentLoggedUser= function (jsonOnly, agent, cb)
+{
+    if(jsonOnly)
+    {
+        agent
+            .get('/users/loggedUser')
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get('/users/loggedUser')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
