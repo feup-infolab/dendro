@@ -53,17 +53,18 @@ exports.listAllUsers= function (jsonOnly, agent, cb) {
     }
 };
 
-exports.getUserInfo= function (jsonOnly, agent, cb) {
+exports.getUserInfo= function (user, jsonOnly, agent, cb) {
     if(jsonOnly){
         agent
-            .get('/user/demouser1')
+            .get('/user/' + user)
+            .set('Accept','application/json')
             .end(function(err,res){
                 cb(err, res);
             });
     }
     else{
         agent
-            .get('/user/demouser1')
+            .get('/user/' + user)
             .end(function (err, res) {
                 cb(err, res);
             });
