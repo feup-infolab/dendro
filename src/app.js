@@ -1381,6 +1381,13 @@ async.waterfall([
                                 permissions : defaultPermissionsInProjectRoot,
                                 authentication_error : "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
                             },
+                            //auto completing users
+                            {
+                                queryKeys : ['user_autocomplete'],
+                                handler : users.users_autocomplete,
+                                permissions : defaultPermissionsInProjectRoot,
+                                authentication_error : "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
+                            },
                             //thumb nails
                             {
                                 queryKeys : ['thumbnail'],
@@ -1560,13 +1567,6 @@ async.waterfall([
                             handler : ontologies.ontologies_autocomplete,
                             permissions : defaultPermissionsInProjectBranch,
                             authentication_error : "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
-                        },
-                        //auto completing descriptors
-                        {
-                            queryKeys : ['users_autocomplete'],
-                            handler : users.users_autocomplete,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
                         },
                         //thumb nails
                         {

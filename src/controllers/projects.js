@@ -829,7 +829,7 @@ exports.administer = function(req, res) {
                                 //if(req.body.remove != null && re.body.remove instanceof Array)
                                 contributors.push(contributor);
 
-                                var client = nodemailer.createTransport("SMTP", {
+                                var client = nodemailer.createTransport("SMTPS:", {
                                     service: 'SendGrid',
                                     auth: {
                                         user: Config.sendGridUser,

@@ -15,7 +15,7 @@
         </li>
 
         <li >
-            <a href="#people" role="tab" data-toggle="tab" ng-init="get_contributors(locals.project.dcterms.contributor)">People</a>
+            <a href="#people" role="tab" data-toggle="tab" ng-init="get_contributors('<%=locals.project.dcterms.contributor%>')">People</a>
         </li>
         <!--<li>
             <a href="#actions" role="tab" data-toggle="tab">Actions</a>
@@ -103,8 +103,8 @@
                 </div>
             </div>
 
-            <div ng-controller="UserListCtrl" class="row">
-                <div ng-init="get_contributors('<%=locals.project.dcterms.contributor%>')" class="col-lg-12">
+            <div class="row">
+                <div class="col-lg-12">
                     <h4>
                         Contributors
                     </h4>
