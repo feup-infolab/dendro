@@ -35,7 +35,7 @@ const nonExistentProjectUri = "/project/I_DO_NOT_EXIST";
 /**
  * Test for fetching metadata on a missing project
  */
-describe("/project/NON_EXISTENT_PROJECT?metadata (non-existant project)", function ()
+describe(nonExistentProjectUri + "?metadata (non-existent project)", function ()
 {
     it('[HTML] should give a 404 because the project NON_EXISTENT_PROJECT does not exist', function (done)
     {
@@ -332,6 +332,21 @@ describe(privateProjectUrl+"?metadata&deep (private project)", function ()
     });
 });
 
+
+describe(nonExistentProjectUri+"?metadata&deep (non-existant project)", function ()
+{
+    it('[HTML] should give a 404 because the project NON_EXISTENT_PROJECT does not exist', function (done)
+    {
+        //TODO
+        done();
+    });
+
+    it('[JSON] should give a 404 because the project NON_EXISTENT_PROJECT does not exist', function (done)
+    {
+        //TODO
+        done();
+    });
+});
 
 /***
  *

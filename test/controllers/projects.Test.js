@@ -459,80 +459,7 @@ describe('/project/'+require("../mockdata/projects/public_project.js").handle, f
             });
         });
     });
-
-
-    it('API view public project of demouser1 not authenticated', function (done) {
-        const app = GLOBAL.tests.app;
-        const agent = chai.request.agent(app);
-        projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
-            res.should.have.status(200);
-            JSON.parse(res.text).title.should.equal(projectData.title);
-            done();
-        });
-    });
-
-    it('HTML view public project of demouser1 not authenticated', function (done) {
-        const app = GLOBAL.tests.app;
-        const agent = chai.request.agent(app);
-        projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
-            res.should.have.status(200);
-            res.text.should.contain(publicProjectHandle);
-            res.text.should.not.contain('Edit mode');
-            done();
-        });
-    });
-
-
-    it('API view public project authenticated as demouser1', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                JSON.parse(res.text).title.should.equal(projectData.title);
-                done();
-            });
-        });
-    });
-
-    it('HTML view public project authenticated as demouser1', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.contain(publicProjectHandle);
-                res.text.should.contain('Edit mode');
-                done();
-            });
-        });
-    });
-
-     it('API view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
-         const app = GLOBAL.tests.app;
-         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
-             projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
-                 //ignore redirection, make new request
-                 if (err) return done(err);
-                 res.should.have.status(200);
-
-                 JSON.parse(res.text).title.should.equal(projectData.title);
-                 done();
-             });
-         });
-     });
-
-    it('HTML-only view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
-            projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.contain(publicProjectHandle);
-                res.text.should.not.contain('Edit mode');
-                done();
-            });
-        });
-    });
-
-
+    
     it('API, create folder not logged in', function (done) {
         const app = GLOBAL.tests.app;
         const agent = chai.request.agent(app);
@@ -728,10 +655,86 @@ describe('/project/'+require("../mockdata/projects/public_project.js").handle, f
             });
         });
     });
-
-
 });
+describe('/project/'+require("../mockdata/projects/public_project.js").handle + " (default case where the root of the project is shown, without any query)", function () {
+    const folderData = require("../mockdata/folders/folder.js");
+    const folderName = folderData.name;
+    const targetFolderInProject = folderData.pathInProject;
 
+    const projectData = require("../mockdata/projects/public_project.js");
+    const publicProjectHandle = projectData.handle;
+
+    it('API view public project of demouser1 not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            JSON.parse(res.text).title.should.equal(projectData.title);
+            done();
+        });
+    });
+
+    it('HTML view public project of demouser1 not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain(publicProjectHandle);
+            res.text.should.not.contain('Edit mode');
+            done();
+        });
+    });
+
+
+    it('API view public project authenticated as demouser1', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).title.should.equal(projectData.title);
+                done();
+            });
+        });
+    });
+
+    it('HTML view public project authenticated as demouser1', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(publicProjectHandle);
+                res.text.should.contain('Edit mode');
+                done();
+            });
+        });
+    });
+
+    it('API view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
+            projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
+                //ignore redirection, make new request
+                if (err) return done(err);
+                res.should.have.status(200);
+
+                JSON.parse(res.text).title.should.equal(projectData.title);
+                done();
+            });
+        });
+    });
+
+    it('HTML-only view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
+            projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(publicProjectHandle);
+                res.text.should.not.contain('Edit mode');
+                done();
+            });
+        });
+    });
+});
 
 describe('/project/'+require("../mockdata/projects/metadata_only_project.js").handle, function () {
     const folderData = require("../mockdata/folders/folder.js");
@@ -781,74 +784,6 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
             projectUtils.createNewProject(false, agent, projectData, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain(projectData.handle);
-                done();
-            });
-        });
-    });
-
-
-    it('API view project not authenticated', function (done) {
-        const app = GLOBAL.tests.app;
-        const agent = chai.request.agent(app);
-        projectUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
-            res.should.have.status(200);
-            JSON.parse(res.text).title.should.equal(projectData.title);
-            done();
-        });
-    });
-
-    it('HTML view project not authenticated', function (done) {
-        const app = GLOBAL.tests.app;
-        const agent = chai.request.agent(app);
-        projectUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
-            res.should.have.status(200);
-            res.text.should.contain(metadataProjectHandle);
-            res.text.should.not.contain('Edit mode');
-            done();
-        });
-    });
-
-    it('API view project authenticated', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                JSON.parse(res.text).title.should.equal(projectData.title);
-                done();
-            });
-        });
-    });
-
-    it('HTML view project authenticated', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.contain(metadataProjectHandle);
-                res.text.should.contain('Edit mode');
-                done();
-            });
-        });
-    });
-
-    it('API view metadata only project of demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
-            projectUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                JSON.parse(res.text).title.should.equal(projectData.title);
-                done();
-            });
-        });
-    });
-
-    it('HTML-only view metadata only project of demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
-            projectUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.contain(metadataProjectHandle);
-                res.text.should.not.contain('Edit mode');
                 done();
             });
         });
@@ -1041,6 +976,74 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
     });
 
 });
+describe('/project/'+require("../mockdata/projects/metadata_only_project.js").handle + " (default case where the root of the project is shown, without any query)", function () {
+    it('API view project not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            JSON.parse(res.text).title.should.equal(projectData.title);
+            done();
+        });
+    });
+
+    it('HTML view project not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain(metadataProjectHandle);
+            res.text.should.not.contain('Edit mode');
+            done();
+        });
+    });
+
+    it('API view project authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).title.should.equal(projectData.title);
+                done();
+            });
+        });
+    });
+
+    it('HTML view project authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(metadataProjectHandle);
+                res.text.should.contain('Edit mode');
+                done();
+            });
+        });
+    });
+
+    it('API view metadata only project of demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
+            projectUtils.viewProject(true, agent, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).title.should.equal(projectData.title);
+                done();
+            });
+        });
+    });
+
+    it('HTML-only view metadata only project of demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
+            projectUtils.viewProject(false, agent, metadataProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(metadataProjectHandle);
+                res.text.should.not.contain('Edit mode');
+                done();
+            });
+        });
+    });
+});
 
 describe('/project/'+require("../mockdata/projects/private_project.js").handle, function () {
 
@@ -1091,72 +1094,6 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
             projectUtils.createNewProject(false, agent, projectData, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain(projectData.handle);
-                done();
-            });
-        });
-    });
-
-
-    it('API view project not authenticated', function (done) {
-        const app = GLOBAL.tests.app;
-        const agent = chai.request.agent(app);
-        projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
-            res.should.have.status(401);
-            JSON.parse(res.text).result.should.equal('error');
-            done();
-        });
-    });
-
-    it('HTML view project not authenticated', function (done) {
-        const app = GLOBAL.tests.app;
-        const agent = chai.request.agent(app);
-        projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
-            res.should.have.status(200);
-            res.text.should.not.contain(privateProjectHandle);
-            done();
-        });
-    });
-
-
-    it('API view project authenticated', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                JSON.parse(res.text).title.should.equal(projectData.title);
-                done();
-            });
-        });
-    });
-
-    it('HTML view project authenticated', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.contain(privateProjectHandle);
-                done();
-            });
-        });
-    });
-
-    it('API view project authenticated other user', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
-            projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
-                res.should.have.status(401);
-                JSON.parse(res.text).result.should.equal('error');
-                done();
-            });
-        });
-    });
-
-    it('HTML view project authenticated other user', function (done) {
-        const app = GLOBAL.tests.app;
-        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
-            projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.not.contain(privateProjectHandle);
                 done();
             });
         });
@@ -1582,4 +1519,70 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
         done();
     });
 
+});
+describe('/project/'+require("../mockdata/projects/private_project.js").handle + " (default case where the root of the project is shown, without any query)", function () {
+    it('API view project not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            JSON.parse(res.text).result.should.equal('error');
+            done();
+        });
+    });
+
+    it('HTML view project not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.not.contain(privateProjectHandle);
+            done();
+        });
+    });
+
+
+    it('API view project authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).title.should.equal(projectData.title);
+                done();
+            });
+        });
+    });
+
+    it('HTML view project authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+    it('API view project authenticated other user', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
+            projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                JSON.parse(res.text).result.should.equal('error');
+                done();
+            });
+        });
+    });
+
+    it('HTML view project authenticated other user', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
+            projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
 });
