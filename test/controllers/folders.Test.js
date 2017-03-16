@@ -314,7 +314,14 @@ describe("[GET] /project/:handle/data/foldername?change_log", function () {
     });
 
     it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
-        done(1);
+        //jsonOnly, agent, projectHandle, itemPath, cb
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body[0].changes.length.should.equal(2);
+                done();
+            });
+        });
     });
 
     it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
@@ -349,7 +356,13 @@ describe("[POST] /project/:handle/data/foldername?restore_metadata_version", fun
     });
 
     it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser1(the creator of the project) and if the version sent in the body is a valid one", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, publicProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("succesfully restored to version " + 0);
+                done();
+            });
+        });
     });
 
     it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser3(a collaborator on the project) and if the version sent in the body is a valid one", function (done) {
