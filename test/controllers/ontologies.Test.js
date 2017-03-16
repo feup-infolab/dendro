@@ -89,15 +89,22 @@ describe('/ontologies/edit', function () {
 
 describe('/ontologies/autocomplete', function(){
 
-    it('[JSON] search while not logged in', function () {
+    it('[JSON] search while not logged in', function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
 
+        var query = '?ontology_autocomplete=title';
+        ontologiesUtils.autocomplete(agent, query, function(err, res){
+            res.should.have.status(200);
+            res.text.should.contain("error_messages");
+            done();
+        });
     });
 
 
     it('[JSON] did not send query', function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            var path = '/ontologies/autocomplete';
-            ontologiesUtils.autocomplete(agent, path, "", function(err, res){
+            ontologiesUtils.autocomplete(agent, "", function(err, res){
                 res.should.have.status(400);
                 res.body.error_messages[0].should.contain('You did not send the autocomplete query. The request should be something like /ontologies/autocomplete?query=dummy_query_string.');
                 done();
@@ -107,9 +114,8 @@ describe('/ontologies/autocomplete', function(){
 
     it('[JSON] got \'Abstract\' from \'Abstr\'', function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            var path = '/ontologies/autocomplete';
-            query = '?ontology_autocomplete=title';
-            ontologiesUtils.autocomplete(agent, path, query, function(err, res){
+            var query = '?ontology_autocomplete=title';
+            ontologiesUtils.autocomplete(agent, query, function(err, res){
                 res.should.have.status(200);
                 res.body[0].description.should.equal('Generic description. Creator, title, subject...');
                 done();
@@ -120,15 +126,36 @@ describe('/ontologies/autocomplete', function(){
 
 describe('/ontologies/show/:prefix', function () {
 
-    it('[JSON] opeating without being logged in«', function () {
+    it('[JSON] operating without being logged in', function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
 
+        ontologiesUtils.showPrefix(agent, 'dcterms', function(err, res){
+            res.should.have.status(200);
+            res.text.should.contain("error_messages");
+            done();
+        });
     });
 
-    it('[HTML] unable to retrieve ontology', function () {
-
+    it('[HTML] unable to retrieve ontology', function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            var prefix = 'daaaaaaaaadr';
+            ontologiesUtils.showPrefix(agent, prefix, function(err, res){
+                res.should.have.status(200);
+                res.text.should.contain('Unable to retrieve ontology with prefix ' + prefix);
+                done();
+            });
+        });
     });
 
-    it('[HTML] get ontology', function () {
-
+    it('[HTML] get ontology', function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            var prefix = 'ddr';
+            ontologiesUtils.showPrefix(agent, prefix, function(err, res){
+                res.should.have.status(200);
+                res.text.should.contain('Viewing ontology ' + prefix);
+                done();
+            });
+        });
     });
 });
