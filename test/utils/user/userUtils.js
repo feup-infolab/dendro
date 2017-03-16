@@ -70,3 +70,24 @@ exports.getUserInfo= function (user, jsonOnly, agent, cb) {
             });
     }
 };
+
+exports.getCurrentLoggedUser= function (jsonOnly, agent, cb)
+{
+    if(jsonOnly)
+    {
+        agent
+            .get('/users/loggedUser')
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get('/users/loggedUser')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
