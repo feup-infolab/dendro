@@ -24,44 +24,59 @@ var publicproject = require("../mockdata/projects/public_project");
 
 describe("[GET] /projects", function () {
     //TODO this route has HTML ONLY
-    it("Should only get public and metadata_only projects when unauthenticated", function (done) {
+    //TODO make a request to JSON API, should return invalid request
+    it("[HTML] Should only get public and metadata_only projects when unauthenticated", function (done) {
         done(1);
     });
 
-    it("Should get all public and metadata_only projects as well as private_projects created by demouser1 when logged in as demouser1(CREATOR)", function (done) {
+    it("[HTML] Should get all public and metadata_only projects as well as private_projects created by demouser1 when logged in as demouser1(CREATOR)", function (done) {
         done(1);
     });
 
-    it("Should get all public and metadata_only projects as well as private_projects created by demouser1 where demouser3 collaborates when logged in as demouser3(COLLABORATOR WITH DEMOUSER1 ON PRIVATEPROJECTA)", function (done) {
+    it("[HTML] Should get all public and metadata_only projects as well as private_projects created by demouser1 where demouser3 collaborates when logged in as demouser3(COLLABORATOR WITH DEMOUSER1 ON PRIVATEPROJECTA)", function (done) {
         done(1);
     });
 
-    it("Should only get public and metadata_only projects and not private projects created by demouser1 when logged in as demouser2(NOR CREATOR NOR COLLABORATOR)", function (done) {
+    it("[HTML] Should only get public and metadata_only projects and not private projects created by demouser1 when logged in as demouser2(NOR CREATOR NOR COLLABORATOR)", function (done) {
         done(1);
     });
 
-    it("Should not show any projects if none exist", function (done) {
+    it("[HTML] Should not show any projects if none exist", function (done) {
         done(1);
     });
 });
 
 describe("[GET] /projects/my", function () {
     //TODO API as well as HTML
-    it("Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
+  
+    it("[HTML] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
         done(1);
     });
 
-    it("Should not show projects created by demouser1 and where demouser2 does not collaborate when logged in as demouser2", function (done) {
+    it("[HTML] Should not show projects created by demouser1 and where demouser2 does not collaborate when logged in as demouser2", function (done) {
         done(1);
     });
 
-    it("Should give error when the user is not authenticated", function (done) {
+    it("[HTML] Should give error when the user is not authenticated", function (done) {
         done(1);
     });
+
+     it("[JSON] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
+        done(1);
+     });
+
+     it("[JSON] Should not show projects created by demouser1 and where demouser2 does not collaborate when logged in as demouser2", function (done) {
+        done(1);
+     });
+
+     it("[JSON] Should give error when the user is not authenticated", function (done) {
+        done(1);
+     });
 });
 
 describe("[GET] /projects/new", function () {
     //TODO HTML ONLY
+    //TODO make a request to JSON API, should return invalid request
     it("Should show the new project Html page when logged in as demouser1", function (done) {
         done(1);
     });
@@ -85,6 +100,7 @@ describe("[POST] /projects/new", function () {
 
 describe("[GET] /projects/import", function () {
     //TODO HTML only
+    //TODO make a request to JSON API, should return invalid request
     it("Should get an error when trying to access the html page to import a project when unauthenticated", function (done) {
         done(1);
     });
@@ -96,6 +112,7 @@ describe("[GET] /projects/import", function () {
 
 describe("[POST] /projects/import", function () {
     //TODO API ONLY
+    //TODO make a request for HTML, should return invalid request
     it("Should give an error when the user is not authenticated", function (done) {
         done(1);
     });
@@ -111,6 +128,8 @@ describe("[POST] /projects/import", function () {
 
 describe("[GET] /project/:handle/request_access", function () {
     //TODO HTML ONLY
+    //TODO make a request to JSON API, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
     it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
         done(1);
     });
@@ -126,7 +145,8 @@ describe("[GET] /project/:handle/request_access", function () {
 
 describe("[POST] /project/:handle/request_access", function () {
     //TODO HTML ONLY -> also sends flash messages with success or error responses
-
+    //TODO make a request to JSON API, should return invalid request
+    
     it("Should get an error when user is not authenticated", function (done) {
         done(1);
     });
@@ -203,11 +223,14 @@ describe("[POST] /project/:handle/undelete", function () {
 
 describe("[POST] /project/:handle?mkdir", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
+
     it("Should give an error when the user is unauthenticated", function (done) {
         done(1);
     });
 
-    it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
+    it("Should give an error when the user is logged in as demouser2(not a collaborator nor creator in a project by demouser1)", function (done) {
         done(1);
     });
 
@@ -226,10 +249,33 @@ describe("[POST] /project/:handle?mkdir", function () {
     it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
         done(1);
     });
+
+    //TODO @silvae86: improve descriptions of these tests
+    it("Should create a folder at the root of a public project while authenticated as its creator", function (done) {
+       done(1);
+    });
+
+    it("Should create a folder at the root of a public project while authenticated as a contributor", function (done) {
+       done(1);
+    });
+
+    it("Should NOT create a folder at the root of a public project if not authenticated as its creator or contributor", function (done) {
+        done(1);
+    });
+
+     it("Should NOT create a folder at the root of a private project if not authenticated as its creator or contributor", function (done) {
+        done(1);
+     });
+
+     it("Should NOT create a folder at the root of a metadata only project if not authenticated as its creator or contributor", function (done) {
+        done(1);
+     });
 });
 
 describe("[GET] /project/:handle?recent_changes", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -260,6 +306,9 @@ describe("[GET] /project/:handle?recent_changes", function () {
 
 describe("[GET] /project/:handle?version", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
+    
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -1482,6 +1531,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('API, try to change locked descriptors', function (done) {
         //TODO what is the route for this???
+        //TODO @silvae86 says: try to edit the ddr:password on a user, try to edit dcterms:modified on a folder or file (see more "locked" descriptors on elements.js)
         done();
     });
 

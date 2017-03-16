@@ -20,6 +20,7 @@ var demouser3 = require("../../mockdata/users/demouser3");
 
 describe("[GET] /fileVersions/all", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not authenticated", function (done) {
         done(1);
     });
@@ -44,6 +45,7 @@ describe("[GET] /fileVersions/all", function () {
 describe("[GET] /fileVersions/countNum", function () {
     //TODO API ONLY
     //TODO maybe this route needs to be changed
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -56,6 +58,7 @@ describe("[GET] /fileVersions/countNum", function () {
 describe("[POST] /fileVersions/fileVersion", function () {
     //TODO API ONLY
     //TODO this route makes no sense & needs to be changed in the future
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not authenticated", function (done) {
         done(1);
     });
@@ -75,6 +78,7 @@ describe("[POST] /fileVersions/fileVersion", function () {
 
 describe("[GET] /fileVersions/:uri", function () {
     //TODO HTML ONLY
+    //TODO make a request to JSON API, should return invalid request
     it("Should return an error if the user is not authenticated", function (done) {
         done(1);
     });
@@ -94,6 +98,7 @@ describe("[GET] /fileVersions/:uri", function () {
 
 describe("[POST] /fileVersions/like", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -113,6 +118,7 @@ describe("[POST] /fileVersions/like", function () {
 
 describe("[POST] /fileVersions/comment", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -132,6 +138,7 @@ describe("[POST] /fileVersions/comment", function () {
 
 describe("[POST] /fileVersions/share", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -151,6 +158,7 @@ describe("[POST] /fileVersions/share", function () {
 
 describe("[POST] /fileVersions/fileVersion/likesInfo", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -170,6 +178,7 @@ describe("[POST] /fileVersions/fileVersion/likesInfo", function () {
 
 describe("[POST] /fileVersions/shares", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });

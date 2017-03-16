@@ -48,6 +48,7 @@ describe('/project/' + publicProject.handle + "/data/" + folder.pathInProject + 
 
 describe("[POST] /project/:handle/data/:filename?delete", function () {
     //TODO HTML AND API
+    //TODO test all three types of project accesses (public, private, metadata only)
 
     it("Should give an error message when the project does not exist", function (done) {
         done(1);
@@ -77,6 +78,8 @@ describe("[POST] /project/:handle/data/:filename?delete", function () {
 
 describe("[POST] /project/:handle/data/:filename?undelete", function() {
     //TODO HTML AND API
+    //TODO test all three types of project accesses (public, private, metadata only)
+    
     it("Should give an error message when a project does not exist", function (done) {
         done(1);
     });
@@ -108,6 +111,9 @@ describe("[POST] /project/:handle/data/:filename?undelete", function() {
 
 describe("[POST] /project/:handle/data/:filename?update_metadata", function() {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
+    
     it("Should give an error message when a project does not exist", function (done) {
         done(1);
     });
@@ -140,6 +146,9 @@ describe("[POST] /project/:handle/data/:filename?update_metadata", function() {
 
 describe("[GET] /project/:handle/data/filename?recent_changes", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
+    
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -152,21 +161,25 @@ describe("[GET] /project/:handle/data/filename?recent_changes", function () {
         done(1);
     });
 
-    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+    it("Should give an error if the user is logged in as demouser2 (not a collaborator nor creator of the project)", function (done) {
         done(1);
     });
 
-    it("Should give the file changes if the user is logged in as demouser1(the creator of the project)", function (done) {
+    it("Should give the file changes if the user is logged in as demouser1 (the creator of the project)", function (done) {
         done(1);
     });
 
-    it("Should give the file changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+    it("Should give the file changes if the user is logged in as demouser3 (a collaborator on the project)", function (done) {
         done(1);
     });
 });
 
 describe("[GET] /project/:handle/data/filename?version", function () {
+    
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
+    
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -197,7 +210,10 @@ describe("[GET] /project/:handle/data/filename?version", function () {
 });
 
 describe("[GET] /project/:handle/data/filename?change_log", function () {
+
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -228,7 +244,9 @@ describe("[GET] /project/:handle/data/filename?change_log", function () {
 });
 
 describe("[GET] /project/:handle/data/filename?change_log", function () {
-    //TODO API AND HTML ONLY
+    //TODO API AND HTML 
+    //TODO test all three types of project accesses (public, private, metadata only)
+
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -259,7 +277,10 @@ describe("[GET] /project/:handle/data/filename?change_log", function () {
 });
 
 describe("[POST] /project/:handle/data/filename?restore_metadata_version", function () {
+    
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });

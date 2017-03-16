@@ -20,6 +20,7 @@ var demouser3 = require("../../mockdata/users/demouser3");
 
 describe("[GET] /posts/all", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not authenticated", function (done) {
         done(1);
     });
@@ -44,6 +45,7 @@ describe("[GET] /posts/all", function () {
 describe("[POST] /posts/post", function () {
     //TODO API ONLY
     //TODO this route makes no sense & needs to be changed in the future
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not authenticated", function (done) {
         done(1);
     });
@@ -85,6 +87,7 @@ describe("[POST] /posts/new", function () {
 
 describe("[POST] /posts/like", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -104,6 +107,7 @@ describe("[POST] /posts/like", function () {
 
 describe("[POST] /posts/like/liked" , function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -123,6 +127,7 @@ describe("[POST] /posts/like/liked" , function () {
 
 describe("[POST] /posts/post/likesInfo", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -142,6 +147,7 @@ describe("[POST] /posts/post/likesInfo", function () {
 
 describe("[POST] /posts/comment", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -161,6 +167,7 @@ describe("[POST] /posts/comment", function () {
 
 describe("[POST] /posts/comments", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -180,6 +187,7 @@ describe("[POST] /posts/comments", function () {
 
 describe("[POST] /posts/share", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -199,6 +207,7 @@ describe("[POST] /posts/share", function () {
 
 describe("[POST] /posts/shares", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
     });
@@ -218,6 +227,7 @@ describe("[POST] /posts/shares", function () {
 
 describe("[GET] /posts/countNum", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     //TODO maybe this route needs to be changed
     it("Should return an error if the user is not logged in", function (done) {
         done(1);
@@ -230,6 +240,7 @@ describe("[GET] /posts/countNum", function () {
 
 describe("[GET] /posts/:uri", function () {
     //TODO HTML ONLY
+    //TODO make a request to JSON API, should return invalid request
     it("Should return an error if the user is not authenticated", function (done) {
         done(1);
     });
@@ -249,6 +260,7 @@ describe("[GET] /posts/:uri", function () {
 
 describe("[GET] /shares/:uri", function () {
     //TODO HTML ONLY
+    //TODO make a request to JSON API, should return invalid request
     it("Should return an error if the user is not authenticated", function (done) {
         done(1);
     });

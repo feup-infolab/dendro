@@ -92,6 +92,8 @@ describe("/project/" + publicProject.handle + "/data/" + folder.pathInProject + 
 
 describe("[POST] /project/:handle/data/:foldername?mkdir", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
     it("Should give an error when the user is unauthenticated", function (done) {
         done(1);
     });
@@ -117,6 +119,27 @@ describe("[POST] /project/:handle/data/:foldername?mkdir", function () {
     });
 
     it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        done(1);
+    });
+
+    //TODO @silvae86: improve descriptions of these tests
+    it("Should create a folder at the root of a public project while authenticated as its creator", function (done) {
+        done(1);
+    });
+
+    it("Should create a folder at the root of a public project while authenticated as a contributor", function (done) {
+        done(1);
+    });
+
+    it("Should NOT create a folder at the root of a public project if not authenticated as its creator or contributor", function (done) {
+        done(1);
+    });
+
+    it("Should NOT create a folder at the root of a private project if not authenticated as its creator or contributor", function (done) {
+        done(1);
+    });
+
+    it("Should NOT create a folder at the root of a metadata only project if not authenticated as its creator or contributor", function (done) {
         done(1);
     });
 });
@@ -150,6 +173,9 @@ describe("[POST] /project/:handle/data/:foldername?delete", function () {
 });
 
 describe("[POST] /project/:handle/data/:foldername?undelete", function() {
+    //TODO HTML AND API
+    //TODO test all three types of project accesses (public, private, metadata only)
+    
     it("Should give an error message when a project does not exist", function (done) {
         done(1);
     });
@@ -181,6 +207,7 @@ describe("[POST] /project/:handle/data/:foldername?undelete", function() {
 
 describe("[POST] /project/:handle/data/:foldername?update_metadata", function() {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should give an error message when a project does not exist", function (done) {
         done(1);
     });
@@ -222,6 +249,7 @@ describe("[POST] /project/:handle/data/:foldername?update_metadata", function() 
 
 describe("[GET] /project/:handle/data/foldername?recent_changes", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -249,6 +277,8 @@ describe("[GET] /project/:handle/data/foldername?recent_changes", function () {
 
 describe("[GET] /project/:handle/data/foldername?version", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -273,6 +303,7 @@ describe("[GET] /project/:handle/data/foldername?version", function () {
         done(1);
     });
 
+    //TODO @silvae86: is this correct? I don't think it is needed...
     it("Should give an error if the descriptors of the folder version are locked for alterations", function (done) {
         done(1);
     })
@@ -280,7 +311,7 @@ describe("[GET] /project/:handle/data/foldername?version", function () {
 
 
 describe("[GET] /project/:handle/data/foldername?change_log", function () {
-    //TODO API AND HTML ONLY
+    //TODO API AND HTML
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -312,6 +343,9 @@ describe("[GET] /project/:handle/data/foldername?change_log", function () {
 
 describe("[POST] /project/:handle/data/foldername?restore_metadata_version", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
+
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
