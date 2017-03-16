@@ -103,9 +103,61 @@ var getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVer
     }
 };
 
+var deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reallyDelete) {
+    ///project/:handle/data/:foldername
+    var path = '/project/' + projectHandle +'/data/'+ itemPath;
+    var reallyDelete = reallyDelete ? reallyDelete : false;
+    if(jsonOnly)
+    {
+        agent
+            .del(path)
+            .query({really_delete: reallyDelete})
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .del(path)
+            .query({really_delete: reallyDelete})
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    var path = '/project/' + projectHandle +'/data/'+ itemPath + "?undelete";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateItemMetadata: updateItemMetadata,
     getItemMetadata: getItemMetadata,
     getItemRecentChanges: getItemRecentChanges,
-    getItemVersion: getItemVersion
+    getItemVersion: getItemVersion,
+    deleteItem: deleteItem,
+    undeleteItem: undeleteItem
 };

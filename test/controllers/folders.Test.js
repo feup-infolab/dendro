@@ -8,6 +8,7 @@ const md5 = require("md5");
 chai.use(chaiHttp);
 
 const should = chai.should();
+const expect = chai.expect();
 
 let agent = null;
 
@@ -21,6 +22,7 @@ const metadataOnlyProject = require("../mockdata/projects/metadata_only_project.
 const publicProject = require("../mockdata/projects/public_project.js");
 const privateProject= require("../mockdata/projects/private_project.js");
 
+const projectUtils = require("../utils/project/projectUtils.js");
 const fileUtils= require("../utils/file/fileUtils.js");
 const folderUtils= require("../utils/folder/folderUtils.js");
 const userUtils = require("../utils/user/userUtils.js");
@@ -119,64 +121,6 @@ describe("[POST] /project/:handle/data/:foldername?mkdir", function () {
     it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
         done(1);
     });
-});
-
-describe("[POST] /project/:handle/data/:foldername?delete", function () {
-    //TODO HTML AND API
-
-    it("Should give an error message when the project does not exist", function (done) {
-        done(1);
-    });
-
-    it("Should give an error message when the folder does not exist", function (done) {
-        done(1);
-    });
-
-    it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
-    });
-
-    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a folder created by demouser1", function (done) {
-        done(1);
-    });
-
-    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the folder", function (done) {
-        done(1);
-    });
-
-    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the folder", function (done) {
-        done(1);
-    })
-});
-
-describe("[POST] /project/:handle/data/:foldername?undelete", function() {
-    it("Should give an error message when a project does not exist", function (done) {
-        done(1);
-    });
-
-    it("Should give an error message when the folder does not exist", function (done) {
-        done(1);
-    });
-
-    it("Should give an error message when the folder is not deleted", function (done) {
-        done(1);
-    });
-
-    it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
-    });
-
-    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a folder that is currently deleted", function (done) {
-        done(1);
-    });
-
-    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete a folder that is currently deleted", function (done) {
-        done(1);
-    });
-
-    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete a folder that is currently deleted", function (done) {
-        done(1);
-    })
 });
 
 describe("[POST] /project/:handle/data/:foldername?update_metadata", function() {
@@ -411,4 +355,114 @@ describe("[POST] /project/:handle/data/foldername?restore_metadata_version", fun
     it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser3(a collaborator on the project) and if the version sent in the body is a valid one", function (done) {
         done(1);
     });
+});
+
+describe("[DELETE] /project/:handle/data/:foldername", function () {
+    //TODO HTML AND API
+
+    it("Should give an error message when the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the folder does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a folder created by demouser1", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the folder", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the folder", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("Successfully deleted");
+                done();
+            });
+        });
+    })
+});
+
+describe("[POST] /project/:handle/data/:foldername?undelete", function() {
+    it("Should give an error message when a project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the folder does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the folder is not deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a folder that is currently deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete a folder that is currently deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete a folder that is currently deleted", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.undeleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("Successfully undeleted");
+                done();
+            });
+        });
+    })
+});
+
+describe("[DELETE] HARD DELETE /project/:handle/data/:foldername", function () {
+    //TODO HTML AND API
+
+    it("Should give an error message when the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the folder does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to hard delete a folder created by demouser1", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to hard delete the folder", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to hard delete the folder", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("Successfully deleted");
+                projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, response) {
+                    response.statusCode.should.equal(200);
+                    response.text.should.not.contain("\"title\":" + "\"" + folder.name + "\"");
+                    done();
+                });
+            }, true);
+        });
+    })
 });
