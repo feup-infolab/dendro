@@ -12,8 +12,8 @@ const should = chai.should();
 let agent = null;
 
 const demouser1 = require("../mockdata/users/demouser1.js");
-const demouser2 = require("../mockdata/users/demouser1.js");
-const demouser3 = require("../mockdata/users/demouser1.js");
+const demouser2 = require("../mockdata/users/demouser2.js");
+const demouser3 = require("../mockdata/users/demouser3.js");
 
 const folder = require("../mockdata/folders/folder.js");
 
@@ -182,27 +182,85 @@ describe("[POST] /project/:handle/data/:foldername?undelete", function() {
 describe("[POST] /project/:handle/data/:foldername?update_metadata", function() {
     //TODO API ONLY
     it("Should give an error message when a project does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.updateItemMetadata(true, agent, "randomProjectHandle", folder.name, folder.metadata, function (err, res) {
+                res.statusCode.should.equal(401);
+                //jsonOnly, agent, projectHandle, itemPath, cb
+                itemUtils.getItemMetadata(true, agent, "randomProjectHandle", folder.name, function (error, response) {
+                    response.statusCode.should.equal(500);
+                    done();
+                });
+            });
+        });
     });
 
     it("Should give an error message when the folder does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.updateItemMetadata(true, agent, publicProject.handle, "randomFolderName", folder.metadata, function (err, res) {
+                res.statusCode.should.equal(404);
+                //jsonOnly, agent, projectHandle, itemPath, cb
+                itemUtils.getItemMetadata(true, agent, publicProject.handle, "randomFolderName", function (error, response) {
+                    response.statusCode.should.equal(500);
+                    done();
+                });
+            });
+        });
     });
 
     it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        itemUtils.updateItemMetadata(true, agent, publicProject.handle, folder.name, folder.metadata, function (err, res) {
+            res.statusCode.should.equal(401);
+            //Because the project is public, the unauthenticated user can see metadata
+            itemUtils.getItemMetadata(true, agent, publicProject.handle, folder.name, function (error, response) {
+                response.statusCode.should.equal(200);
+                JSON.parse(response.text).descriptors.length.should.equal(0);
+                done();
+            });
+        });
     });
 
     it("Should give an error when an invalid descriptor is used to update the metadata of a folder", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.updateItemMetadata(true, agent, publicProject.handle, folder.name, folder.invalidMetadata, function (err, res) {
+                res.statusCode.should.equal(400);
+                itemUtils.getItemMetadata(true, agent, publicProject.handle, folder.name, function (error, response) {
+                    response.statusCode.should.equal(200);
+                    JSON.parse(response.text).descriptors.length.should.equal(0);
+                    done();
+                });
+            });
+        });
     });
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to update a metadata of a folder with a valid descriptor", function (done) {
-        done(1);
+        //TODO find a way to add demouser2 as collaborator
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.updateItemMetadata(true, agent, publicProject.handle, folder.name, folder.metadata, function (err, res) {
+                res.statusCode.should.equal(200);
+                //jsonOnly, agent, projectHandle, itemPath, cb
+                itemUtils.getItemMetadata(true, agent, publicProject.handle, folder.name, function (error, response) {
+                    response.statusCode.should.equal(200);
+                    JSON.parse(response.text).descriptors.length.should.equal(folder.metadata.length);
+                    done();
+                });
+            });
+        });
     });
 
     it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to update a metadata of a folder with a valid descriptor", function (done) {
-        done(1);
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.updateItemMetadata(true, agent, publicProject.handle, folder.name, folder.metadata, function (err, res) {
+                res.statusCode.should.equal(401);
+                //jsonOnly, agent, projectHandle, itemPath, cb
+                itemUtils.getItemMetadata(true, agent, publicProject.handle, folder.name, function (error, response) {
+                    response.statusCode.should.equal(200);
+                    JSON.parse(response.text).descriptors.length.should.equal(0);
+                    done();
+                });
+            });
+        });
     });
 
     it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to update a metadata of a folder with a valid descriptor", function (done) {
@@ -239,7 +297,14 @@ describe("[GET] /project/:handle/data/foldername?recent_changes", function () {
     });
 
     it("Should give the folder changes if the user is logged in as demouser1(the creator of the project)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.getItemRecentChanges(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body[0].changes.length.should.equal(2);//The title and creator that were added to the folder
+                done();
+            });
+        });
     });
 
     it("Should give the folder changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
@@ -270,7 +335,14 @@ describe("[GET] /project/:handle/data/foldername?version", function () {
     });
 
     it("Should give the folder versions if the folder exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //Todo if no version is specified dendro crashes
+            itemUtils.getItemVersion(true, agent, publicProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.descriptors.length.should.equal(5);
+                done();
+            });
+        });
     });
 
     it("Should give an error if the descriptors of the folder version are locked for alterations", function (done) {

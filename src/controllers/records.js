@@ -342,22 +342,22 @@ exports.show_version = function(req, res) {
             if(resource != null)
             {
                 ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
-                    version.getAuthorizedDescriptors([Config.types.locked], [Config.types.api_readable],
-                        function(err, descriptors)
-                        {
-                            if(!err)
-                            {
-                                res.json({
-                                    descriptors : descriptors
-                                });
-                            }
-                            else
-                            {
-                                res.status(500).json({
-                                    error_messages : [descriptors]
-                                });
-                            }
-                    });
+                    if(err)
+                    {
+                        var error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI + ". Error retrieved : " + version;
+                        console.error(error);
+                        res.status(500).json({
+                            result : "Error",
+                            message : error
+                        });
+                    }
+                    else
+                    {
+                        var descriptors = version.getDescriptors([Config.types.locked], [Config.types.api_readable]);
+                        res.json({
+                            descriptors : descriptors
+                        });
+                    }
                 });
             }
         }

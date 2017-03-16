@@ -57,7 +57,8 @@ let folderData = {
             recommendedFor:"http://" + Config.host + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + folderName,
             value: folderName + " title"
         }
-    ]
+    ],
+    invalidMetadata : ["Garbage"]
 };
 
 module.exports = folderData;

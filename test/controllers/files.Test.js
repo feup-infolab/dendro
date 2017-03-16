@@ -13,10 +13,11 @@ const demouser2 = require("../mockdata/users/demouser2.js");
 const demouser3 = require("../mockdata/users/demouser3.js");
 const publicProject = require("../mockdata/projects/public_project.js");
 const folder = require("../mockdata/folders/folder.js");
-const pdfMockFile= require("../mockdata/folders/folder.js");
+const pdfMockFile= require("../mockdata/files/pdfMockfile.js");
 
 const userUtils =  require("../utils/user/userUtils.js");
 const fileUtils =  require("../utils/file/fileUtils.js");
+const itemUtils = require("../utils/item/itemUtils.js");
 
 describe('/project/' + publicProject.handle + "/data/" + folder.pathInProject + folder.name + "?upload", function ()
 {
@@ -133,7 +134,17 @@ describe("[POST] /project/:handle/data/:filename?update_metadata", function() {
     });
 
     it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to update a metadata of a filename with a valid descriptor", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.updateItemMetadata(true, agent, publicProject.handle, pdfMockFile.name, pdfMockFile.metadata, function (err, res) {
+                res.statusCode.should.equal(200);
+                //jsonOnly, agent, projectHandle, itemPath, cb
+                itemUtils.getItemMetadata(true, agent, publicProject.handle, pdfMockFile.name, function (error, response) {
+                    response.statusCode.should.equal(200);
+                    JSON.parse(response.text).descriptors.length.should.equal(pdfMockFile.metadata.length);
+                    done();
+                });
+            });
+        });
     })
 });
 
