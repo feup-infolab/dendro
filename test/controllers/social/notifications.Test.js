@@ -20,6 +20,7 @@ var demouser3 = require("../../mockdata/users/demouser3");
 
 describe("[GET] /notifications/all", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
     it("Should give an error if the user is not authenticated", function (done) {
         done(1);
     });
@@ -30,6 +31,8 @@ describe("[GET] /notifications/all", function () {
 });
 
 describe("[GET] /notifications/notification", function () {
+
+    //TODO test both cases (HTML and JSON - I assume it is valid to make requests on both cases)
     it("Should give an error if the user is not authenticated", function (done) {
         done(1);
     });
@@ -48,6 +51,8 @@ describe("[GET] /notifications/notification", function () {
 });
 
 describe("[DELETE] /notifications/notification", function () {
+    
+    //TODO test both cases (HTML and JSON - I assume it is valid to make requests on both cases)
     it("Should give an error if the user is not authenticated", function (done) {
         done(1);
     });

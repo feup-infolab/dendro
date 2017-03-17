@@ -39,12 +39,12 @@ var createdB2shareConfigInvalidToken = require("../mockdata/external_datasets/cr
 var createdB2shareConfigInvalidUrl = require("../mockdata/external_datasets/createdB2shareWithInvalidUrl");
 var createdZenodoConfigInvalidToken = require("../mockdata/external_datasets/createdZenodoWithInvalidToken");
 
-var b2shareData;
-var ckanData;
-var zenodoData;
-var dspaceData;
-var eprintsData;
-var figshareData;
+let b2shareData;
+let ckanData;
+let zenodoData;
+let dspaceData;
+let eprintsData;
+let figshareData;
 
 
 describe("[POST] /external_repositories/new", function () {
@@ -59,8 +59,8 @@ describe("[POST] /external_repositories/new", function () {
     });
 
     it("Should give an error when trying to create a export config not authenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         datasetUtils.createExportConfig(true, agent, b2share, function (err, res) {
             res.statusCode.should.equal(401);
             res.body.message.should.equal("Action not permitted. You are not logged into the system.");
@@ -135,8 +135,8 @@ describe("[POST] /external_repositories/new", function () {
 describe("[GET] /external_repositories/my", function () {
     //[{"uri":"http://127.0.0.1:3001/external_repository/nelsonpereira1991/ckan-export-config-1","dcterms":{"modified":"2017-03-14T14:03:04.263Z","title":"ckan export config 1","creator":"http://127.0.0.1:3001/user/nelsonpereira1991"},"foaf":{},"ddr":{"hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/ckan","dcterms":{"title":"CKAN"},"foaf":{"nick":"ckan","homepage":"http://ckan.org"}},"hasExternalUri":"http://demo.ckan.org","hasUsername":"nelsonpereira1991","hasAPIKey":"b193a37e-de06-4b08-90db-a3cdc7ffad0f","hasOrganization":"infolab-devs"},"rdf":{"type":"http://dendro.fe.up.pt/ontology/0.1/ExternalRepository"},"nie":{},"nfo":{},"research":{},"dcb":{},"achem":{},"bdv":{},"biocn":{},"grav":{},"hdg":{},"tsim":{},"cep":{},"social":{},"cfd":{}},{"uri":"http://127.0.0.1:3001/external_repository/nelsonpereira1991/b2share-training-export","dcterms":{"modified":"2017-03-09T14:44:17.833Z","title":"b2share training export","creator":"http://127.0.0.1:3001/user/nelsonpereira1991"},"foaf":{},"ddr":{"hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/b2share","dcterms":{"title":"EUDAT B2Share","description":"A EUDAT B2Share deposition"},"foaf":{"nick":"b2share","homepage":"https://b2share.eudat.eu/"}},"hasExternalUri":"trng-b2share.eudat.eu","hasAccessToken":"MmGKBzjpdlT382lag38zxhsKttZDw9e7u6zZmzucVFUu1aYM5i55WpeUSgFE"},"rdf":{"type":"http://dendro.fe.up.pt/ontology/0.1/ExternalRepository"},"nie":{},"nfo":{},"research":{},"dcb":{},"achem":{},"bdv":{},"biocn":{},"grav":{},"hdg":{},"tsim":{},"cep":{},"social":{},"cfd":{}},{"uri":"http://127.0.0.1:3001/external_repository/nelsonpereira1991/zenodo-export-config-1","dcterms":{"modified":"2017-03-14T14:12:14.789Z","title":"zenodo export config 1","creator":"http://127.0.0.1:3001/user/nelsonpereira1991"},"foaf":{},"ddr":{"hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/zenodo","dcterms":{"title":"Zenodo"},"foaf":{"nick":"zenodo","homepage":"http://www.zenodo.org/"}},"hasExternalUri":"http://www.zenodo.org/","hasAccessToken":"dgOQrI0zzx5tZ1zSTSaBCtmik3SbJmxaJKW1GZV9ZUe7b7EV9Rr4XSTWMcTs"},"rdf":{"type":"http://dendro.fe.up.pt/ontology/0.1/ExternalRepository"},"nie":{},"nfo":{},"research":{},"dcb":{},"achem":{},"bdv":{},"biocn":{},"grav":{},"hdg":{},"tsim":{},"cep":{},"social":{},"cfd":{}},{"uri":"http://127.0.0.1:3001/external_repository/nelsonpereira1991/eprints-export-config-1","dcterms":{"modified":"2017-03-14T14:36:57.386Z","title":"eprints export config 1","creator":"http://127.0.0.1:3001/user/nelsonpereira1991"},"foaf":{},"ddr":{"hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/eprints","dcterms":{"title":"EPrints"},"foaf":{"nick":"eprints","homepage":"http://www.eprints.org/"}},"hasExternalUri":"http://demoprints.eprints.org","hasUsername":"nelsonpereira1991","hasSwordCollectionUri":"http://demoprints.eprints.org/id/contents","hasSwordCollectionLabel":"EPrints"},"rdf":{"type":"http://dendro.fe.up.pt/ontology/0.1/ExternalRepository"},"nie":{},"nfo":{},"research":{},"dcb":{},"achem":{},"bdv":{},"biocn":{},"grav":{},"hdg":{},"tsim":{},"cep":{},"social":{},"cfd":{}},{"uri":"http://127.0.0.1:3001/external_repository/nelsonpereira1991/figshare-export-config","dcterms":{"modified":"2017-03-14T14:54:42.366Z","title":"figshare export config","creator":"http://127.0.0.1:3001/user/nelsonpereira1991"},"foaf":{},"ddr":{"hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/figshare","dcterms":{"title":"Figshare"},"foaf":{"nick":"figshare","homepage":"http://www.figshare.com/"}},"hasExternalUri":"http://www.figshare.com/","hasAccessToken":"7fb6cdcb1c89d3e11d42c28afec6028327da1abdb07260a3c9188279363937d1593d61dac1220f2433b7add0562cd63169fa0ce1c41a3ac9fe7b35de24f1b125","hasConsumerKey":"5b20a02208d83301ae8dd5d6ddb868b75f5de2b4","hasConsumerSecret":"98c1bb7bbb4cd465d44023a4baedc1e898bca485a5d5ea1803fbad8a2221621344e54aec481cbdcfb3f8902af161d58c859619bf020ba796c687e54cb4518d93","hasAccessTokenSecret":"7fb6cdcb1c89d3e11d42c28afec6028327da1abdb07260a3c9188279363937d1593d61dac1220f2433b7add0562cd63169fa0ce1c41a3ac9fe7b35de24f1b125"},"rdf":{"type":"http://dendro.fe.up.pt/ontology/0.1/ExternalRepository"},"nie":{},"nfo":{},"research":{},"dcb":{},"achem":{},"bdv":{},"biocn":{},"grav":{},"hdg":{},"tsim":{},"cep":{},"social":{},"cfd":{}},{"uri":"http://127.0.0.1:3001/external_repository/nelsonpereira1991/b2share-config-2","dcterms":{"modified":"2017-03-14T11:38:16.461Z","title":"b2share config 2","creator":"http://127.0.0.1:3001/user/nelsonpereira1991"},"foaf":{},"ddr":{"hasPlatform":{"uri":"http://127.0.0.1:3001/repository_platform/b2share","dcterms":{"title":"EUDAT B2Share","description":"A EUDAT B2Share deposition"},"foaf":{"nick":"b2share","homepage":"https://b2share.eudat.eu/"}},"hasExternalUri":"trng-b2share.eudat.eu","hasAccessToken":"MmGKBzjpdlT382lag38zxhsKttZDw9e7u6zZmzucVFUu1aYM5i55WpeUSgFE"},"rdf":{"type":"http://dendro.fe.up.pt/ontology/0.1/ExternalRepository"},"nie":{},"nfo":{},"research":{},"dcb":{},"achem":{},"bdv":{},"biocn":{},"grav":{},"hdg":{},"tsim":{},"cep":{},"social":{},"cfd":{}}]
     it("Should get an error when the user is unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         datasetUtils.getMyExternalRepositories(true, agent, function (err, res) {
             res.statusCode.should.equal(401);
             res.body.message.should.equal("Action not permitted. You are not logged into the system.");
@@ -165,6 +165,8 @@ describe("[GET] /external_repositories/my", function () {
 
 describe("[POST] [B2SHARE] /project/:handle?export_to_repository", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    
     it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
         done(1);
         //TODO this is not implemented i think
@@ -207,6 +209,8 @@ describe("[POST] [B2SHARE] /project/:handle?export_to_repository", function () {
         done(1);
         //TODO this is not implemented i think
     });
+
+    
 });
 
 
@@ -225,8 +229,8 @@ describe("[POST] [B2SHARE] /project/:handle/data/:foldername?export_to_repositor
     });
 
     it("Should give an error when the user is unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: b2shareData}, function (err, res) {
             res.statusCode.should.equal(401);
             res.body.message.should.equal("Permission denied : cannot export resource because you do not have permissions to edit this project.");
@@ -323,8 +327,8 @@ describe("[POST] [ZENODO] /project/:handle/data/:foldername?export_to_repository
     });
 
     it("Should give an error when the user is unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, {repository: zenodoData}, function (err, res) {
             res.statusCode.should.equal(401);
             res.body.message.should.equal("Permission denied : cannot export resource because you do not have permissions to edit this project.");
