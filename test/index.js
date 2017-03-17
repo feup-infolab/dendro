@@ -8,11 +8,11 @@ require("./homepage.Test.js");
 //test projects
 require("./controllers/projects.Test.js");
 
-//test file uploads
-//require("./controllers/files.Test.js");
-
 //test folders
 require("./controllers/folders.Test.js");
+
+//test file uploads
+//require("./controllers/files.Test.js");
 
 //test users
 //require("./controllers/users.Test.js");

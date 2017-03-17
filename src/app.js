@@ -1678,7 +1678,7 @@ async.waterfall([
                         },
                         {
                             queryKeys : ['undelete'],
-                            handler : projects.undelete,
+                            handler : files.undelete,
                             permissions : modificationPermissionsBranch,
                             authentication_error : "Permission denied : cannot undelete resource because you do not have permissions to edit this project."
                         },
@@ -1690,6 +1690,12 @@ async.waterfall([
                         }
                     ],
                     delete : [
+                        {
+                            queryKeys : ['really_delete'],
+                            handler : files.rm,
+                            permissions : modificationPermissionsBranch,
+                            authentication_error : "Permission denied : cannot delete resource because you do not have permissions to edit this project."
+                        },
                         {
                             queryKeys : [],
                             handler : files.rm,
