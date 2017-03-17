@@ -1,4 +1,4 @@
-var publicProjectHandle = 'publicprojectcreatedbydemouser1';
+var publicProjectHandle = 'publicprojecthtmlcreatedbydemouser1';
 
 var projectData = {
     creator : "http://" + Config.host + "/user/demouser1",

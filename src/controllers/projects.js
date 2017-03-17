@@ -604,18 +604,30 @@ exports.show = function(req, res) {
 };
 
 exports.new = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
     if(req.originalMethod == "GET")
     {
-        res.render('projects/new',
-            {
-                title: "Create a new project"
-            }
-        );
+        if(acceptsJSON && !acceptsHTML){
+            res.status(400).json({
+                result: "error",
+                message : "API Request not valid for this route."
+            })
+        }
+        else
+        {
+            res.render('projects/new',
+                {
+                    title: "Create a new project"
+                }
+            );
+        }
     }
     else if (req.originalMethod == "POST")
     {
-        var acceptsHTML = req.accepts('html');
-        var acceptsJSON = req.accepts('json');
+        acceptsHTML = req.accepts('html');
+        acceptsJSON = req.accepts('json');
 
         if(req.body.handle == null || req.body.handle == "")
         {

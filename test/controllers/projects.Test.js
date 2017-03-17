@@ -19,9 +19,180 @@ var demouser2 = require("../mockdata/users/demouser2");
 var demouser3 = require("../mockdata/users/demouser3");
 
 var publicproject = require("../mockdata/projects/public_project");
+var publicprojectHTMLTests = require("../mockdata/projects/public_project_for_html");
+
+var metadaOnlyProject = require("../mockdata/projects/metadata_only_project");
+var metadataOnlyHTMLTests = require("../mockdata/projects/metadata_only_project_for_html");
+
+var privateProject = require("../mockdata/projects/private_project");
+var privateProjectHTMLTests = require("../mockdata/projects/private_project_for_html");
+
+describe("[GET] /projects/new", function () {
+    //TODO HTML ONLY
+    //TODO make a request to JSON API, should return invalid request
+    it("[HTML] Should show the new project Html page when logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getNewProjectPage(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<h1 class=\"page-header\">\n    Create a new project\n</h1>");
+                res.text.should.not.contain("<p>Please log into the system.</p>");
+                done();
+            });
+        });
+    });
+
+    it("[HTML] Should not show the new project Html page when unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        projectUtils.getNewProjectPage(false, agent, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[JSON] Should give an error if the request for this route is of type JSON", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getNewProjectPage(true, agent, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
+    });
+});
+
+describe("[POST] with project handle: "+ publicproject.handle + " [/projects/new]", function () {
+    //TODO HTML AND API
+    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(true, agent, publicproject, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
+
+    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(true, agent, publicproject, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.projects.length.should.equal(1);
+                done();
+            });
+        });
+    });
+
+    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(false, agent, publicprojectHTMLTests, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(false, agent, publicprojectHTMLTests, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>New project This is a public test project with handle publicprojecthtmlcreatedbydemouser1 and created by demouser1 with handle publicprojecthtmlcreatedbydemouser1 created successfully</p>");
+                done();
+            });
+        });
+    });
+});
+
+describe("[POST] with project handle: "+ metadaOnlyProject.handle + " [/projects/new]", function () {
+    //TODO HTML AND API
+    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(true, agent, metadaOnlyProject, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
+
+    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(true, agent, metadaOnlyProject, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.projects.length.should.equal(3);
+                done();
+            });
+        });
+    });
+
+    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>New project This is a metadata only test project with handle metadataonlyhtmlprojectcreatedbydemouser1 and created by demouser1 with handle metadataonlyhtmlprojectcreatedbydemouser1 created successfully</p>");
+                done();
+            });
+        });
+    });
+});
+
+describe("[POST] with project handle: "+ privateProject.handle + " [/projects/new]", function () {
+    //TODO HTML AND API
+    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(true, agent, privateProject, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
+
+    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(true, agent, privateProject, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.projects.length.should.equal(5);
+                done();
+            });
+        });
+    });
+
+    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>New project This is a private test project with handle privateprojecthtmlcreatedbydemouser1 and created by demouser1 with handle privateprojecthtmlcreatedbydemouser1 created successfully</p>");
+                done();
+            });
+        });
+    });
+});
 
 /*
-
 describe("[GET] /projects", function () {
     //TODO this route has HTML ONLY
     //TODO make a request to JSON API, should return invalid request
@@ -73,30 +244,6 @@ describe("[GET] /projects/my", function () {
         done(1);
      });
 });
-
-describe("[GET] /projects/new", function () {
-    //TODO HTML ONLY
-    //TODO make a request to JSON API, should return invalid request
-    it("Should show the new project Html page when logged in as demouser1", function (done) {
-        done(1);
-    });
-
-    it("Should not show the new project Html page when unauthenticated", function (done) {
-        done(1);
-    });
-});
-
-describe("[POST] /projects/new", function () {
-    //TODO HTML AND API
-    it("Should show an error when trying to create a project unauthenticated", function (done) {
-        done(1);
-    });
-
-    it("Should get a status code of 201 when creating any type of project logged in as demouser1", function (done) {
-        done(1);
-    });
-});
-
 
 describe("[GET] /projects/import", function () {
     //TODO HTML only
@@ -439,7 +586,7 @@ describe('/projects/new GET', function () {
 });
 */
 
-describe('/project/'+require("../mockdata/projects/public_project.js").handle, function () {
+/*describe('/project/'+require("../mockdata/projects/public_project.js").handle, function () {
     var folderData = require("../mockdata/folders/folder.js");
     var folderName = folderData.name;
     var targetFolderInProject = folderData.pathInProject;
@@ -770,7 +917,7 @@ describe('/project/'+require("../mockdata/projects/public_project.js").handle, f
     });
 
 
-});
+});*/
 
 /*
 describe('/project/'+require("../mockdata/projects/metadata_only_project.js").handle, function () {

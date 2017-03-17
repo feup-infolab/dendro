@@ -32,12 +32,25 @@ var listAllProjects = function (agent, cb) {
         });
 };
 
-var getNewProjectPage = function (agent, cb) {
-    agent
-    .get('/projects/new')
-    .end(function (err, res) {
-        cb(err, res);
-    });
+var getNewProjectPage = function (jsonOnly, agent, cb) {
+    var path = "/projects/new";
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
 };
 
 var createNewProject = function (jsonOnly, agent, projectData, cb) {
