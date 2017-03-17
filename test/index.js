@@ -8,11 +8,11 @@ require("./homepage.Test.js");
 //test projects
 require("./controllers/projects.Test.js");
 
-//test folders
-require("./controllers/folders.Test.js");
-
 //test file uploads
 //require("./controllers/files.Test.js");
+
+//test folders
+require("./controllers/folders.Test.js");
 
 //test users
 //require("./controllers/users.Test.js");
@@ -22,16 +22,15 @@ require("./controllers/folders.Test.js");
 
 //SOCIAL DENDRO
 //test Social Dendro Posts
-//require("./controllers/social/posts.Test.js");
+/*
+require("./controllers/social/posts.Test.js");
 
 //test Social Dendro File Versions
-//require("./controllers/social/fileVersions.Test.js");
+require("./controllers/social/fileVersions.Test.js");
 
 //test Social Dendro Notifications
-//require("./controllers/social/notifications.Test.js");
-
-//test external repository exports
-//require("./controllers/datasets.Test");
+require("./controllers/social/notifications.Test.js");
+*/
 
 //destroy graphs
 require('./models/kb/db.Test.js');
