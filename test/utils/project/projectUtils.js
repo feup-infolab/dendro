@@ -5,10 +5,11 @@ chai.use(chaiHttp);
 
 
 var listAllMyProjects = function (jsonOnly, agent, cb) {
+    var path = "/projects/my";
     if(jsonOnly)
     {
         agent
-            .get('/projects/my')
+            .get(path)
             .set('Accept', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -17,19 +18,32 @@ var listAllMyProjects = function (jsonOnly, agent, cb) {
     else
     {
         agent
-            .get('/projects/my')
+            .get(path)
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var listAllProjects = function (agent, cb) {
-    agent
-        .get('/projects')
-        .end(function (err, res) {
-            cb(err, res);
-        });
+var listAllProjects = function (jsonOnly, agent, cb) {
+    var path = "/projects";
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
 };
 
 var getNewProjectPage = function (jsonOnly, agent, cb) {
@@ -270,6 +284,56 @@ var getProjectVersion = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
+var importProjectHTMLPage = function (jsonOnly, agent, cb) {
+    // /projects/import
+    var path = "/projects/import";
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
+    // /projects/import
+    var path = "/projects/import";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .attach('file', projectBackupPath)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .attach('file', projectBackupPath)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -283,5 +347,7 @@ module.exports = {
     getResourceMetadata : getResourceMetadata,
     removeDescriptorFromFolder : removeDescriptorFromFolder,
     getProjectRecentChanges : getProjectRecentChanges,
-    getProjectVersion : getProjectVersion
+    getProjectVersion : getProjectVersion,
+    importProjectHTMLPage: importProjectHTMLPage,
+    importProject: importProject
 };

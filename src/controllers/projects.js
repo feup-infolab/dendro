@@ -24,6 +24,23 @@ exports.all = function(req, res) {
         viewVars
     );
 
+    var validateRequestType = function (cb) {
+        var acceptsHTML = req.accepts('html');
+        var acceptsJSON = req.accepts('json');
+
+        if(acceptsJSON && !acceptsHTML){
+            res.status(400).json({
+                result: "error",
+                message : "API Request not valid for this route."
+            })
+        }
+        else
+        {
+            cb(null, null);
+        }
+
+    };
+
     var getProjectCount = function (cb)
     {
         Project.getCount(function (err, count)
@@ -61,13 +78,13 @@ exports.all = function(req, res) {
 
     async.parallel(
         [
-            getProjectCount, getAllProjects
+            validateRequestType, getProjectCount, getAllProjects
         ], function (err, results)
         {
             if (!err)
             {
-                viewVars.count = results[0];
-                viewVars.projects = results[1];
+                viewVars.count = results[1];
+                viewVars.projects = results[2];
 
                 res.render('projects/all',
                     viewVars
@@ -1435,17 +1452,29 @@ exports.requestAccess = function(req, res){
 };
 
 exports.import = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
     if(req.originalMethod == "GET")
     {
-        var filesize = require('file-size');
+        if(acceptsJSON && !acceptsHTML){
+            res.status(400).json({
+                result: "error",
+                message : "API Request not valid for this route."
+            })
+        }
+        else
+        {
+            var filesize = require('file-size');
 
-        res.render('projects/import/import',
-            {
-                title: "Import a project",
-                maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
-                maxProjectSize : filesize(Config.maxProjectSize).human('jedec')
-            }
-        );
+            res.render('projects/import/import',
+                {
+                    title: "Import a project",
+                    maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
+                    maxProjectSize : filesize(Config.maxProjectSize).human('jedec')
+                }
+            );
+        }
     }
     else if (req.originalMethod == "POST")
     {

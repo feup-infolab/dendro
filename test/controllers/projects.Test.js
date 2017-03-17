@@ -27,9 +27,10 @@ var metadataOnlyHTMLTests = require("../mockdata/projects/metadata_only_project_
 var privateProject = require("../mockdata/projects/private_project");
 var privateProjectHTMLTests = require("../mockdata/projects/private_project_for_html");
 
+var projectBackupData = require("../mockdata/projects/projectBackups/publicProject");
+
+//CREATE A PROJECT
 describe("[GET] /projects/new", function () {
-    //TODO HTML ONLY
-    //TODO make a request to JSON API, should return invalid request
     it("[HTML] Should show the new project Html page when logged in as demouser1", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             projectUtils.getNewProjectPage(false, agent, function (err, res) {
@@ -64,7 +65,6 @@ describe("[GET] /projects/new", function () {
 });
 
 describe("[POST] with project handle: "+ publicproject.handle + " [/projects/new]", function () {
-    //TODO HTML AND API
     it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
@@ -107,7 +107,6 @@ describe("[POST] with project handle: "+ publicproject.handle + " [/projects/new
 });
 
 describe("[POST] with project handle: "+ metadaOnlyProject.handle + " [/projects/new]", function () {
-    //TODO HTML AND API
     it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
@@ -192,76 +191,212 @@ describe("[POST] with project handle: "+ privateProject.handle + " [/projects/ne
     });
 });
 
-/*
+//LIST ALL PROJECTS
 describe("[GET] /projects", function () {
-    //TODO this route has HTML ONLY
-    //TODO make a request to JSON API, should return invalid request
     it("[HTML] Should only get public and metadata_only projects when unauthenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        projectUtils.listAllProjects(false, agent, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">metadataonlyprojectcreatedbydemouser1</a>");
+            res.text.should.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">metadataonlyhtmlprojectcreatedbydemouser1</a>");
+
+            res.text.should.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">publicprojectcreatedbydemouser1</a>");
+            res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">publicprojecthtmlcreatedbydemouser1</a>");
+
+            res.text.should.not.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">privateprojectcreatedbydemouser1</a>");
+            res.text.should.not.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">privateprojecthtmlcreatedbydemouser1</a>");
+            done();
+        });
     });
 
     it("[HTML] Should get all public and metadata_only projects as well as private_projects created by demouser1 when logged in as demouser1(CREATOR)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.listAllProjects(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">metadataonlyprojectcreatedbydemouser1</a>");
+                res.text.should.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">metadataonlyhtmlprojectcreatedbydemouser1</a>");
+
+                res.text.should.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">publicprojectcreatedbydemouser1</a>");
+                res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">publicprojecthtmlcreatedbydemouser1</a>");
+
+                res.text.should.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">privateprojectcreatedbydemouser1</a>");
+                res.text.should.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">privateprojecthtmlcreatedbydemouser1</a>");
+                done();
+            });
+        });
     });
 
     it("[HTML] Should get all public and metadata_only projects as well as private_projects created by demouser1 where demouser3 collaborates when logged in as demouser3(COLLABORATOR WITH DEMOUSER1 ON PRIVATEPROJECTA)", function (done) {
+        //TODO must merge with william code first so that collaborators can be added
         done(1);
     });
 
     it("[HTML] Should only get public and metadata_only projects and not private projects created by demouser1 when logged in as demouser2(NOR CREATOR NOR COLLABORATOR)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, res) {
+            projectUtils.listAllProjects(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">metadataonlyprojectcreatedbydemouser1</a>");
+                res.text.should.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">metadataonlyhtmlprojectcreatedbydemouser1</a>");
+
+                res.text.should.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">publicprojectcreatedbydemouser1</a>");
+                res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">publicprojecthtmlcreatedbydemouser1</a>");
+
+                res.text.should.not.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">privateprojectcreatedbydemouser1</a>");
+                res.text.should.not.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">privateprojecthtmlcreatedbydemouser1</a>");
+                done();
+            });
+        });
     });
 
     it("[HTML] Should not show any projects if none exist", function (done) {
+        //TODO must think of a way to test this
         done(1);
+    });
+
+    it("[JSON] Should give an error if the request for this route is of type JSON", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.listAllProjects(true, agent, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
     });
 });
 
 describe("[GET] /projects/my", function () {
-    //TODO API as well as HTML
-  
     it("[HTML] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.listAllMyProjects(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">");
+                res.text.should.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">");
+
+                res.text.should.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">");
+                res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">");
+
+                res.text.should.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">");
+                res.text.should.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">");
+                done();
+            });
+        });
     });
 
     it("[HTML] Should not show projects created by demouser1 and where demouser2 does not collaborate when logged in as demouser2", function (done) {
-        done(1);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.listAllMyProjects(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.not.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">");
+                res.text.should.not.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">");
+
+                res.text.should.not.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">");
+                res.text.should.not.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">");
+
+                res.text.should.not.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">");
+                res.text.should.not.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">");
+                done();
+            });
+        });
     });
 
     it("[HTML] Should give error when the user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.listAllMyProjects(false, agent, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
     });
 
-     it("[JSON] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
-        done(1);
-     });
+    it("[JSON] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.listAllMyProjects(true, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("metadataonlyprojectcreatedbydemouser1");
+                res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1");
 
-     it("[JSON] Should not show projects created by demouser1 and where demouser2 does not collaborate when logged in as demouser2", function (done) {
-        done(1);
-     });
+                res.text.should.contain("publicprojectcreatedbydemouser1");
+                res.text.should.contain("publicprojecthtmlcreatedbydemouser1");
 
-     it("[JSON] Should give error when the user is not authenticated", function (done) {
-        done(1);
-     });
+                res.text.should.contain("privateprojectcreatedbydemouser1");
+                res.text.should.contain("privateprojecthtmlcreatedbydemouser1");
+                done();
+            });
+        });
+    });
+
+    it("[JSON] Should not show projects created by demouser1 and where demouser2 does not collaborate when logged in as demouser2", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.listAllMyProjects(true, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.not.contain("metadataonlyprojectcreatedbydemouser1");
+                res.text.should.not.contain("metadataonlyhtmlprojectcreatedbydemouser1");
+
+                res.text.should.not.contain("publicprojectcreatedbydemouser1");
+                res.text.should.not.contain("publicprojecthtmlcreatedbydemouser1");
+
+                res.text.should.not.contain("privateprojectcreatedbydemouser1");
+                res.text.should.not.contain("privateprojecthtmlcreatedbydemouser1");
+                done();
+            });
+        });
+    });
+
+    it("[JSON] Should give error when the user is not authenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.listAllMyProjects(true, agent, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
 });
 
 describe("[GET] /projects/import", function () {
-    //TODO HTML only
-    //TODO make a request to JSON API, should return invalid request
     it("Should get an error when trying to access the html page to import a project when unauthenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.importProjectHTMLPage(false, agent, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
     });
 
     it("Should get the html import a project page when logged in as any user", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.importProjectHTMLPage(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<h1 class=\"page-header\">\n    Import a project\n</h1>");
+                done();
+            });
+        });
+    });
+
+    it("[JSON] Should give an error if the request for this route is of type JSON", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.importProjectHTMLPage(true, agent, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
     });
 });
 
 describe("[POST] /projects/import", function () {
     //TODO API ONLY
-    //TODO make a request for HTML, should return invalid request
     it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.importProject(true, agent, projectBackupData.path, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
     });
 
     it("Should give a status code of 200 when the user is logged in and the zip file used to import the project is not corrupted", function (done) {
@@ -271,8 +406,13 @@ describe("[POST] /projects/import", function () {
     it("Should give an error with a status code of 500 when the zip file used to import the project is corrupted even thought the user is logged in", function (done) {
         done(1);
     });
+
+    it("[HTML] Should give an error if the request type for this route is the HTML type", function (done) {
+        done(1);
+    });
 });
 
+/*
 describe("[GET] /project/:handle/request_access", function () {
     //TODO HTML ONLY
     //TODO make a request to JSON API, should return invalid request
