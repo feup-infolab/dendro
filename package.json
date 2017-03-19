@@ -19,6 +19,7 @@
     "base64-stream": "^0.1.2",
     "bcrypt": "*",
     "body-parser": "^1.16.0",
+    "bower-shrinkwrap-resolver": "^0.4.2",
     "chai-dom": "^1.4.3",
     "ckan": "git+https://github.com/feup-infolab-rdm/ckan.js.git",
     "colors": "^1.1.2",
@@ -99,9 +100,10 @@
     "xmlhttprequest": "1.5.0"
   },
   "devDependencies": {
+    "bower-shrinkwrap-resolver": "^0.4.2",
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
     "nyc": "^10.1.2",
-    "supertest" : "*"
+    "supertest": "*"
   }
 }
