@@ -26,7 +26,7 @@ function User (object)
 
     if(self.ddr.salt == null)
     {
-        var bcrypt = require('bcrypt');
+        var bcrypt = require('bcryptjs');
         self.ddr.salt = bcrypt.genSaltSync(10);
     }
 
@@ -142,7 +142,7 @@ User.createAndInsertFromObject = function(object, callback) {
     console.log("creating user from object" + util.inspect(object));
 
     //encrypt password
-    var bcrypt = require('bcrypt');
+    var bcrypt = require('bcryptjs');
     self.ddr.password = bcrypt.hashSync(self.ddr.password, self.ddr.salt);
 
     //TODO CACHE DONE
