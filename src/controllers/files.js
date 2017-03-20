@@ -1557,73 +1557,75 @@ exports.mkdir = function(req, res){
                 }
             );
         }
-
-        Folder.findByUri(parentFolderURI, function(err, parentFolder)
+        else
         {
-            if(!err)
+            Folder.findByUri(parentFolderURI, function(err, parentFolder)
             {
-                var newChildFolder = new Folder({
-                    nie :
-                        {
-                            title : newFolderTitle,
-                            isLogicalPartOf : parentFolderURI
-                        }
-                });
-
-                //save parent folder
-                parentFolder.insertDescriptors([new Descriptor ({
-                        prefixedForm : "nie:hasLogicalPart",
-                        value : newChildFolder.uri
-                    })
-                    ],
-                    function(err, result)
-                    {
-                        if(!err)
-                        {
-                            newChildFolder.save(function(err, result)
+                if(!err)
+                {
+                    var newChildFolder = new Folder({
+                        nie :
                             {
-                                if(!err)
-                                {
-                                    res.json(
-                                        {
-                                            "status" : "1",
-                                            "id" : newChildFolder.uri,
-                                            "result" : "ok"
-                                        }
-                                    );
-                                }
-                                else
-                                {
-                                    res.status(500).json(
-                                        {
-                                            "result" : "error",
-                                            "message" : "error 1 saving new folder :" + result
-                                        }
-                                    );
-                                }
-                            });
-                        }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    "result" : "error",
-                                    "message" : "error 2 saving new folder :" + result
-                                }
-                            );
-                        }
+                                title : newFolderTitle,
+                                isLogicalPartOf : parentFolderURI
+                            }
                     });
-            }
-            else
-            {
-                res.status(500).json(
-                    {
-                        "result" : "error",
-                        "message" : "error 3 saving new folder :" + parentFolder
-                    }
-                );
-            }
-        });
+
+                    //save parent folder
+                    parentFolder.insertDescriptors([new Descriptor ({
+                            prefixedForm : "nie:hasLogicalPart",
+                            value : newChildFolder.uri
+                        })
+                        ],
+                        function(err, result)
+                        {
+                            if(!err)
+                            {
+                                newChildFolder.save(function(err, result)
+                                {
+                                    if(!err)
+                                    {
+                                        res.json(
+                                            {
+                                                "status" : "1",
+                                                "id" : newChildFolder.uri,
+                                                "result" : "ok"
+                                            }
+                                        );
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json(
+                                            {
+                                                "result" : "error",
+                                                "message" : "error 1 saving new folder :" + result
+                                            }
+                                        );
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : "error 2 saving new folder :" + result
+                                    }
+                                );
+                            }
+                        });
+                }
+                else
+                {
+                    res.status(500).json(
+                        {
+                            "result" : "error",
+                            "message" : "error 3 saving new folder :" + parentFolder
+                        }
+                    );
+                }
+            });
+        }
     }
 };
 

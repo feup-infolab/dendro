@@ -869,7 +869,7 @@ describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
 
     it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, "thisIsAnInvalidFolderName", function (err, res) {
+            projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, "thisIsAn*InvalidFolderName", function (err, res) {
                 res.statusCode.should.equal(500);
                 res.body.message.should.equal("invalid file name specified");
                 done();
@@ -940,7 +940,7 @@ describe("[POST] /project/:handle?mkdir " + metadaOnlyProject.handle, function (
 
     it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createFolderInProjectRoot(true, agent, metadaOnlyProject.handle, "this??IsAnInvalidFolderName???", function (err, res) {
+            projectUtils.createFolderInProjectRoot(true, agent, metadaOnlyProject.handle, "this*IsAnInvalidFolderName", function (err, res) {
                 res.statusCode.should.equal(500);
                 res.body.message.should.equal("invalid file name specified");
                 done();
@@ -1011,7 +1011,7 @@ describe("[POST] /project/:handle?mkdir " + privateProject.handle, function () {
 
     it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createFolderInProjectRoot(true, agent, privateProject.handle, "this??IsAnInvalidFolderName???", function (err, res) {
+            projectUtils.createFolderInProjectRoot(true, agent, privateProject.handle, "this*IsAnInvalidFolderName", function (err, res) {
                 res.statusCode.should.equal(500);
                 res.body.message.should.equal("invalid file name specified");
                 done();
