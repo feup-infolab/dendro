@@ -334,6 +334,129 @@ var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
     }
 };
 
+var getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb) {
+    // /project/:handle/request_access
+    var path = "/project/"+ projectHandle + "/request_access";
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var requestAccessToProject = function (jsonOnly, agent, projectHandle, cb) {
+    // /project/:handle/request_access
+    var path = "/project/"+ projectHandle + "/request_access";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var deleteProject = function (jsonOnly, agent, projectHandle, cb) {
+    // /project/:handle/delete
+    var path = "/project/"+ projectHandle + "/delete";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var undeleteProject = function (jsonOnly, agent, projectHandle, cb) {
+    // /project/:handle/undelete
+    var path = "/project/"+ projectHandle + "/undelete";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folderName, cb) {
+    // /project/:handle?mkdir
+    var path = "/project/"+ projectHandle;
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .query({mkdir : folderName})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .query({mkdir : folderName})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -349,5 +472,10 @@ module.exports = {
     getProjectRecentChanges : getProjectRecentChanges,
     getProjectVersion : getProjectVersion,
     importProjectHTMLPage: importProjectHTMLPage,
-    importProject: importProject
+    importProject: importProject,
+    getRequestProjectAccessPage: getRequestProjectAccessPage,
+    requestAccessToProject: requestAccessToProject,
+    deleteProject: deleteProject,
+    undeleteProject: undeleteProject,
+    createFolderInProjectRoot: createFolderInProjectRoot
 };

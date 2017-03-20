@@ -1383,12 +1383,21 @@ exports.interactions = function(req, res) {
 };
 
 exports.requestAccess = function(req, res){
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
     if(req.originalMethod == "GET")
     {
-        res.render('projects/request_access',
-            {
-                handle: req.params.handle
-            });
+        if(acceptsJSON && !acceptsHTML){
+            res.status(400).json({
+                result: "error",
+                message : "API Request not valid for this route."
+            })
+        }
+        else
+        {
+
+        }
     }
     else if(req.originalMethod == "POST")
     {

@@ -1526,94 +1526,105 @@ exports.undelete = function(req, res){
 };
 
 exports.mkdir = function(req, res){
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    if(req.params.is_project_root)
-    {
-        var parentFolderURI = req.params.requestedResource + "/data";
+    if(!acceptsJSON && acceptsHTML){
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        })
     }
     else
     {
-        var parentFolderURI = req.params.requestedResource;
-    }
-
-    var newFolderTitle = req.query.mkdir;
-
-    if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
-    {
-        res.status(500).json(
-            {
-                "result" : "error",
-                "message" : "invalid file name specified"
-            }
-        );
-    }
-
-    Folder.findByUri(parentFolderURI, function(err, parentFolder)
-    {
-        if(!err)
+        if(req.params.is_project_root)
         {
-            var newChildFolder = new Folder({
-                nie :
-                {
-                    title : newFolderTitle,
-                    isLogicalPartOf : parentFolderURI
-                }
-            });
+            var parentFolderURI = req.params.requestedResource + "/data";
+        }
+        else
+        {
+            var parentFolderURI = req.params.requestedResource;
+        }
 
-            //save parent folder
-            parentFolder.insertDescriptors([new Descriptor ({
-                    prefixedForm : "nie:hasLogicalPart",
-                    value : newChildFolder.uri
-                })
-            ],
-            function(err, result)
-            {
-                if(!err)
+        var newFolderTitle = req.query.mkdir;
+
+        if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
+        {
+            res.status(500).json(
                 {
-                    newChildFolder.save(function(err, result)
+                    "result" : "error",
+                    "message" : "invalid file name specified"
+                }
+            );
+        }
+
+        Folder.findByUri(parentFolderURI, function(err, parentFolder)
+        {
+            if(!err)
+            {
+                var newChildFolder = new Folder({
+                    nie :
+                        {
+                            title : newFolderTitle,
+                            isLogicalPartOf : parentFolderURI
+                        }
+                });
+
+                //save parent folder
+                parentFolder.insertDescriptors([new Descriptor ({
+                        prefixedForm : "nie:hasLogicalPart",
+                        value : newChildFolder.uri
+                    })
+                    ],
+                    function(err, result)
                     {
                         if(!err)
                         {
-                            res.json(
+                            newChildFolder.save(function(err, result)
+                            {
+                                if(!err)
                                 {
-                                    "status" : "1",
-                                    "id" : newChildFolder.uri,
-                                    "result" : "ok"
+                                    res.json(
+                                        {
+                                            "status" : "1",
+                                            "id" : newChildFolder.uri,
+                                            "result" : "ok"
+                                        }
+                                    );
                                 }
-                            );
+                                else
+                                {
+                                    res.status(500).json(
+                                        {
+                                            "result" : "error",
+                                            "message" : "error 1 saving new folder :" + result
+                                        }
+                                    );
+                                }
+                            });
                         }
                         else
                         {
                             res.status(500).json(
                                 {
                                     "result" : "error",
-                                    "message" : "error 1 saving new folder :" + result
+                                    "message" : "error 2 saving new folder :" + result
                                 }
                             );
                         }
                     });
-                }
-                else
-                {
-                    res.status(500).json(
-                        {
-                            "result" : "error",
-                            "message" : "error 2 saving new folder :" + result
-                        }
-                    );
-                }
-            });
-        }
-        else
-        {
-            res.status(500).json(
-                {
-                    "result" : "error",
-                    "message" : "error 3 saving new folder :" + parentFolder
-                }
-            );
-        }
-    });
+            }
+            else
+            {
+                res.status(500).json(
+                    {
+                        "result" : "error",
+                        "message" : "error 3 saving new folder :" + parentFolder
+                    }
+                );
+            }
+        });
+    }
 };
 
 exports.ls = function(req, res){
