@@ -1,6 +1,7 @@
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 [![codecov](https://codecov.io/gh/feup-infolab/dendro/branch/master/graph/badge.svg)](https://codecov.io/gh/feup-infolab/dendro)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
+[![Built with Grunt](https://cdn.gruntjs.com/builtwith.svg)](https://gruntjs.com/)
 [![Code Climate](https://codeclimate.com/github/feup-infolab/dendro/badges/gpa.svg)](https://codeclimate.com/github/feup-infolab/dendro)
 [![Issue Count](https://codeclimate.com/github/feup-infolab/dendro/badges/issue_count.svg)](https://codeclimate.com/github/feup-infolab/dendro)
 
