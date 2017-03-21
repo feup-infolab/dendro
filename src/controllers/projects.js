@@ -819,50 +819,63 @@ exports.administer = function(req, res) {
                         callback(null, project);
                     };
 
-                    let updateProjectContributors = function(callback)
+                    let notifyContributor = function(user){
+
+                        const client = nodemailer.createTransport("SMTPS:", {
+                            service: 'SendGrid',
+                            auth: {
+                                user: Config.sendGridUser,
+                                pass: Config.sendGridPassword
+                            }
+                        });
+
+                        const email = {
+                            from: 'support@dendro.fe.up.pt',
+                            to: user.foaf.mbox,
+                            subject: 'Added as contributor for project "' + req.params.handle + '"',
+                            text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
+                        };
+
+                        client.sendMail(email, function (err, info) {
+                            if (err) {
+                                console.log("[NODEMAILER] " + err);
+                                flash('error', "Error sending request to user. Please try again later");
+                            }
+                            else {
+                                console.log("[NODEMAILER] email sent: " + info);
+                                flash('success', "Sent request to project's owner");
+                            }
+                        });
+                    };
+
+                    let updateProjectContributors = function(project, callback)
                     {
                         //from http://www.dzone.com/snippets/validate-url-regexp
-                        const regexp = /(\w+)?/;
+                        const regexpUri = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+                        const regexpUsername = /(\w+)?/;
 
                         if (req.body.contributors != null && req.body.contributors instanceof Array)
                         {
                             async.map(req.body.contributors, function (contributor, callback) {
 
-                                if (regexp.test(contributor))
+                                if (regexpUri.test(contributor))
                                 {
 
-                                    const client = nodemailer.createTransport("SMTPS:", {
-                                        service: 'SendGrid',
-                                        auth: {
-                                            user: Config.sendGridUser,
-                                            pass: Config.sendGridPassword
+                                    User.findByUri(contributor, function (err, user) {
+
+                                        if (!err && user && user.foaf.mbox) {
+                                            notifyContributor(user);
+                                            callback(false, user.uri);
+                                        } else {
+                                            callback(true, contributor);
                                         }
                                     });
-
+                                } else if(regexpUsername.test(contributor)){
                                     User.findByUsername(contributor, function (err, user) {
 
                                         if (!err && user && user.foaf.mbox) {
-
-                                            const email = {
-                                                from: 'support@dendro.fe.up.pt',
-                                                to: user.foaf.mbox,
-                                                subject: 'Added as contributor for project "' + req.params.handle + '"',
-                                                text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
-                                            };
-
-                                            client.sendMail(email, function (err, info) {
-                                                if (err) {
-                                                    console.log("[NODEMAILER] " + err);
-                                                    flash('error', "Error sending request to user. Please try again later");
-                                                }
-                                                else {
-                                                    console.log("[NODEMAILER] email sent: " + info);
-                                                    flash('success', "Sent request to project's owner");
-                                                }
-                                            });
-                                            
+                                            notifyContributor(user);
                                             callback(false, user.uri);
-                                            
                                         } else {
                                             callback(true, contributor);
                                         }
@@ -872,7 +885,7 @@ exports.administer = function(req, res) {
                                 }
 
                             }, function(err, contributors){
-                                if(!err){
+                               if(!err){
                                     project.dcterms.contributor = contributors;
                                     callback(null, project);
                                 }
@@ -881,6 +894,8 @@ exports.administer = function(req, res) {
                                     callback(err, contributors);
                                 }
                             });
+                        }else{
+                            callback(null, project);
                         }
                     };
 
@@ -947,17 +962,25 @@ exports.get_contributors = function(req, res){
     Project.findByUri(requestedProjectURI, function(err, project) {
         if (!err) {
             if (project != null) {
-                var regexp = /(\w+)?/;
+                //from http://www.dzone.com/snippets/validate-url-regexp
+                var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+                var contributorsUri = [];
+                if (project.dcterms.contributor != null){
 
-                if (req.body.contributors != null && req.body.contributors instanceof Array) {
+                    if(project.dcterms.contributor instanceof Array){
+                        contributorsUri = project.dcterms.contributor;
+                    }else{
+                        contributorsUri.push(project.dcterms.contributor);
+                    }
+
                     var contributors = [];
-                    async.each(req.body.contributors, function (contributor, callback) {
+                    async.each(contributorsUri, function (contributor, callback) {
 
                         if (regexp.test(contributor)) {
-                            User.findByUsername(contributor, function (err, user) {
+                            User.findByUri(contributor, function (err, user) {
                                 if (!err && user) {
                                     contributors.push(user);
-                                    callback(false);
+                                    callback(null);
                                 } else {
                                     callback(true, contributor);
                                 }

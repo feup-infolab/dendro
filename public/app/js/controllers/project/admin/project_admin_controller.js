@@ -23,7 +23,7 @@ angular.module('dendroApp.controllers')
 
         $scope.contributors = [];
 
-        $scope.hostUrl = window.location.protocol + "//" + window.location.host;
+        $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
 
         $scope.get_project = function()
         {
@@ -107,7 +107,9 @@ angular.module('dendroApp.controllers')
 
         $scope.select_user_from_autocomplete = function(suggestion, model, label)
         {
-
+            if(suggestion != null){
+                $scope.contributors[this.$index].info = suggestion;
+            }
         };
 
         $scope.get_calling_uri = function(queryParametersString, uri)
@@ -142,15 +144,19 @@ angular.module('dendroApp.controllers')
         $scope.get_contributors = function(contributors){
             if(contributors != "") {
                 var names = contributors.split(",");
-                var users = projectsService.get_contributors(names);
-                for (var i in users) {
-                    $scope.contributors.push({"name": users[i].ddr.username, "remove": false});
-                }
+                projectsService.get_contributors(names)
+                    .then(function(response){
+                        var users = response.contributors;
+                        for (var i in users) {
+                            $scope.contributors.push({"info": users[i], "remove": false});
+                        }
+                    });
+
             }
         }
 
         $scope.add_new_contributor = function(){
-            $scope.contributors.push({"name":"", "remove": false});
+            $scope.contributors.push({"info":{ddr: {username: ""}}, "remove": false});
 
         }
 
@@ -159,8 +165,12 @@ angular.module('dendroApp.controllers')
             for (var i = 0; i < $scope.contributors.length; i++){
                 var person = $scope.contributors[i];
                 if(!person.remove){
-                    if(person.name != "") {
-                        contributors.push(person.name);
+                    if(person.info.ddr.username != "") {
+                        if (person.info.uri){
+                            contributors.push(person.info.uri);
+                        }else{
+                            contributors.push(person.info.ddr.username);
+                        }
                     }
                 }
             }

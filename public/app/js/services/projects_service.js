@@ -78,9 +78,8 @@ angular.module('dendroApp.services')
                 this.get_contributors = function(contributors){
                     var deferred = $q.defer();
 
-                    var requestPayload = {
-                        contributors: contributors
-                    };
+                    var payload = JSON.stringify(contributors);
+
 
                     var URL = windowService.get_current_url();
                     URL += "?get_contributors";
@@ -88,7 +87,7 @@ angular.module('dendroApp.services')
                     $http({
                         method: 'GET',
                         url: URL,
-                        data: requestPayload,
+                        data: payload,
                         contentType: "application/json",
                         headers: {'Accept': "application/json"}
                     }).then(function (response)
