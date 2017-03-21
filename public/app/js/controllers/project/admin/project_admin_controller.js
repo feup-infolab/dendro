@@ -23,6 +23,8 @@ angular.module('dendroApp.controllers')
 
         $scope.contributors = [];
 
+        $scope.hostUrl = window.location.protocol + "//" + window.location.host;
+
         $scope.get_project = function()
         {
             var url = $scope.get_current_url()+"?metadata&deep=true";
@@ -105,13 +107,7 @@ angular.module('dendroApp.controllers')
 
         $scope.select_user_from_autocomplete = function(suggestion, model, label)
         {
-            if(model != null)
-            {
-                projectsService.add_contributor(model);
-                window.location.reload();
-                $scope.show_popup("success", "Success", "Project updated");
 
-            }
         };
 
         $scope.get_calling_uri = function(queryParametersString, uri)
@@ -144,9 +140,12 @@ angular.module('dendroApp.controllers')
 
 
         $scope.get_contributors = function(contributors){
-            var names = contributors.split(",");
-            for(var i in names){
-                $scope.contributors.push({"name":names[i], "remove": false});
+            if(contributors != "") {
+                var names = contributors.split(",");
+                var users = projectsService.get_contributors(names);
+                for (var i in users) {
+                    $scope.contributors.push({"name": users[i].ddr.username, "remove": false});
+                }
             }
         }
 

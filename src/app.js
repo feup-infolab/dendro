@@ -1395,6 +1395,12 @@ async.waterfall([
                                 permissions : defaultPermissionsInProjectRoot,
                                 authentication_error : "Permission denied : cannot get thumbnail for this project because you do not have permissions to access this project."
                             },
+                            {
+                                queryKeys : ['get_contributors'],
+                                handler : projects.get_contributors,
+                                permissions : defaultPermissionsInProjectRoot,
+                                authentication_error : "Permission denied : cannot get contributors for this project because you do not have permissions to access this project."
+                            },
                             //administration page
                             {
                                 queryKeys : ['administer'],

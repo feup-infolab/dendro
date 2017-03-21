@@ -111,21 +111,25 @@
                     <form action="" method="POST">
                         <table class="table table-striped table-hover">
                             <thead>
-                            <tr>
-                                <th>#</th>
-                            </tr>
                             </thead>
                             <tbody>
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <button class="btn btn-default" type="button" ng-click="add_new_contributor()"><i class="fa fa-plus" aria-hidden="true"></i>
+                                         Add new Contributor</button>
+                                </div>
+                            </div>
 
                             <tr ng-repeat="contributor in contributors track by $index">
                                 <td>
                                     <div class="row">
-                                        <div class="col-xs-10">
+                                        <div class="col-xs-10 input-group">
+                                            <span class="input-group-addon" ng-bind="hostUrl"></span>
                                             <%- include users_autocomplete.ejs%>
                                         </div>
                                         <div class="col-xs-2">
                                             <label>Remove</label>
-                                            <input type="checkbox" class="btn btn-sm btn-danger fa fa-user" ng-checked="contributor.remove" >
+                                            <input type="checkbox" class="btn btn-sm btn-danger fa fa-user" ng-model="contributor.remove" >
                                         </div>
                                     </div>
                                 </td>
@@ -133,11 +137,9 @@
                             </tbody>
                         </table>
                         <div class="form-group">
-                            <div class="col-sm-offset-2 col-sm-2">
-                                <button class="btn btn-primary" type="button" ng-click="add_new_contributor()">Add new Contributor</button>
-                            </div>
                             <div class="col-sm-7">
-                                <button class="btn btn-primary" type="button" ng-click="update_contributors()">Update</button>
+                                <button class="btn btn-primary" type="button" ng-click="update_contributors()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save changes
+                                </button>
                             </div>
                         </div>
                     </form>

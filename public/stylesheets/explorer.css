@@ -32,12 +32,10 @@
   padding-right: 3px;
 }
 .spacer {
-  margin-top: 10px;
-/* define margin as you see fit */
+  margin-top: 10px; /* define margin as you see fit */
 }
 .navbar-spacer {
-  margin-top: 20px;
-/* define margin as you see fit */
+  margin-top: 20px; /* define margin as you see fit */
 }
 .changelog-table {
   table-layout: fixed;

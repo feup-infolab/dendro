@@ -4,14 +4,15 @@
        ng-model="contributor.name"
        name=contributor
        placeholder="Search for user..."
-       uib-typeahead="result.uri for result in get_users_by_text_search($viewValue)"
+       uib-typeahead="result.ddr.username for result in get_users_by_text_search($viewValue)"
        typeahead-template-url="/app/views/projects/show/partials/user_ac_template.html"
        typeahead-show-hint="true"
        typeahead-min-length="2"
        typeahead-loading="loadingUsers"
        typeahead-wait-ms="400"
+       typeahead-on-select="select_user_from_autocomplete($item, $model, $label)"
        typeahead-no-results="noResults"
-       class="form-control input-large">
+       class="form-control">
 
 <i ng-show="loadingUsers" class="glyphicon glyphicon-refresh">Searching users...</i>
 <div ng-show="noResults">
