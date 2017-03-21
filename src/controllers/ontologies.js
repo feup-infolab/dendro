@@ -118,7 +118,7 @@ exports.public = function(req, res) {
     }
     else
     {
-        res.render('ontologies/all');
+        res.render('ontologies/public');
     }
 };
 

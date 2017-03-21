@@ -3,6 +3,52 @@ var chaiHttp = require('chai-http');
 var _ = require('underscore');
 chai.use(chaiHttp);
 
+exports.publicDisplay = function (jsonOnly, agent, cb) {
+    var path = '/ontologies/public';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .get(path)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+
+exports.allDisplay = function (jsonOnly, agent, cb) {
+    var path = '/ontologies/all';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .get(path)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+
+
+
+
+
 exports.autocomplete = function (agent, query, cb) {
     var path = '/ontologies/autocomplete';
     path += query;
