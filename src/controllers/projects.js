@@ -787,100 +787,117 @@ exports.administer = function(req, res) {
 
                 if (req.originalMethod == "POST")
                 {
-                    if (req.body.description != null)
+                    let updateProjectMetadata = function(callback)
                     {
-                        project.dcterms.description = req.body.description;
-                    }
-                    if (req.body.title != null)
-                    {
-                        project.dcterms.title = req.body.title;
-                    }
-
-
-                    if (req.body.privacy != null)
-                    {
-                        viewVars.privacy = req.body.privacy;
-                        switch (req.body.privacy)
+                        if (req.body.description != null)
                         {
-                            case "public":
-                                project.ddr.privacyStatus = 'public';
-                                break;
-                            case "private":
-                                project.ddr.privacyStatus = 'private';
-                                break;
-                            case "metadata_only":
-                                project.ddr.privacyStatus = 'metadata_only';
-                                break;
+                            project.dcterms.description = req.body.description;
                         }
-                    }
+                        if (req.body.title != null)
+                        {
+                            project.dcterms.title = req.body.title;
+                        }
 
-                    var contributors = [];
 
-                    //from http://www.dzone.com/snippets/validate-url-regexp
-                    var regexp = /(\w+)?/;
-
-                    if (req.body.contributors != null && req.body.contributors instanceof Array)
-                    {
-
-                        async.each(req.body.contributors, function (contributor, callback) {
-
-                            if (regexp.test(contributor))
+                        if (req.body.privacy != null)
+                        {
+                            viewVars.privacy = req.body.privacy;
+                            switch (req.body.privacy)
                             {
-
-                                var client = nodemailer.createTransport("SMTPS:", {
-                                    service: 'SendGrid',
-                                    auth: {
-                                        user: Config.sendGridUser,
-                                        pass: Config.sendGridPassword
-                                    }
-                                });
-
-                                User.findByUsername(contributor, function (err, user) {
-
-                                    if (!err && user && user.foaf.mbox) {
-
-                                        var email = {
-                                            from: 'support@dendro.fe.up.pt',
-                                            to: user.foaf.mbox,
-                                            subject: 'Added as contributor for project "' + req.params.handle + '"',
-                                            text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
-                                        };
-
-                                        client.sendMail(email, function (err, info) {
-                                            if (err) {
-                                                console.log("[NODEMAILER] " + err);
-                                                flash('error', "Error sending request to user. Please try again later");
-                                            }
-                                            else {
-                                                console.log("[NODEMAILER] email sent: " + info);
-                                                flash('success', "Sent request to project's owner");
-                                            }
-                                        });
-
-                                        contributors.push(user.uri);
-
-                                        callback(false);
-                                    } else {
-                                        callback(true, contributor);
-                                    }
-                                });
-                            } else{
-                                callback(true, contributor)
+                                case "public":
+                                    project.ddr.privacyStatus = 'public';
+                                    break;
+                                case "private":
+                                    project.ddr.privacyStatus = 'private';
+                                    break;
+                                case "metadata_only":
+                                    project.ddr.privacyStatus = 'metadata_only';
+                                    break;
                             }
+                        }
 
-                        }, function(err, contributor){
-                            if(!err){
-                                project.dcterms.contributor = contributors;
-                            } else{
-                                res.status(500).json({
-                                    message: "Error finding user " + contributor
-                                });
-                            }
-                        });
-                    }
+                        callback(null, project);
+                    };
 
-                    project.save(function (err, result)
+                    let updateProjectContributors = function(callback)
                     {
+                        //from http://www.dzone.com/snippets/validate-url-regexp
+                        const regexp = /(\w+)?/;
+
+                        if (req.body.contributors != null && req.body.contributors instanceof Array)
+                        {
+                            async.map(req.body.contributors, function (contributor, callback) {
+
+                                if (regexp.test(contributor))
+                                {
+
+                                    const client = nodemailer.createTransport("SMTPS:", {
+                                        service: 'SendGrid',
+                                        auth: {
+                                            user: Config.sendGridUser,
+                                            pass: Config.sendGridPassword
+                                        }
+                                    });
+
+                                    User.findByUsername(contributor, function (err, user) {
+
+                                        if (!err && user && user.foaf.mbox) {
+
+                                            const email = {
+                                                from: 'support@dendro.fe.up.pt',
+                                                to: user.foaf.mbox,
+                                                subject: 'Added as contributor for project "' + req.params.handle + '"',
+                                                text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
+                                            };
+
+                                            client.sendMail(email, function (err, info) {
+                                                if (err) {
+                                                    console.log("[NODEMAILER] " + err);
+                                                    flash('error', "Error sending request to user. Please try again later");
+                                                }
+                                                else {
+                                                    console.log("[NODEMAILER] email sent: " + info);
+                                                    flash('success', "Sent request to project's owner");
+                                                }
+                                            });
+                                            
+                                            callback(false, user.uri);
+                                            
+                                        } else {
+                                            callback(true, contributor);
+                                        }
+                                    });
+                                } else{
+                                    callback(true, contributor)
+                                }
+
+                            }, function(err, contributors){
+                                if(!err){
+                                    project.dcterms.contributor = contributors;
+                                    callback(null, project);
+                                }
+                                else
+                                {
+                                    callback(err, contributors);
+                                }
+                            });
+                        }
+                    };
+
+                    let saveProject = function(project, callback)
+                    {
+                        project.save(function (err, result)
+                        {
+                            callback(err, project);
+                        });
+                    };
+
+
+                    async.waterfall([
+                        updateProjectMetadata,
+                        updateProjectContributors,
+                        saveProject
+                    ], function(err, project){
                         if (!err)
                         {
                             viewVars.project = project;
@@ -896,8 +913,7 @@ exports.administer = function(req, res) {
                                 viewVars
                             );
                         }
-                    });
-
+                    })
                 }
                 else if (req.originalMethod == "GET")
                 {
