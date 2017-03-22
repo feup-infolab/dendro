@@ -1315,10 +1315,10 @@ exports.rm = function(req, res){
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsJSON && !acceptsHTML){
+    if(!acceptsJSON && acceptsHTML){
         res.status(400).json({
             result: "error",
-            message : "API Request not valid for this route."
+            message : "HTML Request not valid for this route."
         })
     }
     else

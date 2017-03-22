@@ -326,7 +326,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicPro
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.deleteItem(false, agent, publicProject.handle, folder.name, function (err, res) {
                 res.statusCode.should.equal(400);
-                res.body.message.should.equal("API Request not valid for this route.");
+                res.body.message.should.equal("HTML Request not valid for this route.");
                 done();
             });
         });
