@@ -116,21 +116,18 @@
                             <div class="form-group">
                                 <div class="col-sm-2">
                                     <button class="btn btn-default" type="button" ng-click="add_new_contributor()"><i class="fa fa-plus" aria-hidden="true"></i>
-                                         Add new Contributor</button>
+                                        Add new Contributor</button>
                                 </div>
                             </div>
 
                             <tr ng-repeat="contributor in contributors track by $index">
                                 <td>
-                                    <div class="row">
-                                        <div class="col-xs-10 input-group">
-                                            <span class="input-group-addon" ng-bind="hostUrl"></span>
-                                            <%- include users_autocomplete.ejs%>
-                                        </div>
-                                        <div class="col-xs-2">
-                                            <label>Remove</label>
-                                            <input type="checkbox" class="btn btn-sm btn-danger fa fa-user" ng-model="contributor.remove" >
-                                        </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" ng-bind="hostUrl"></span>
+                                        <%- include users_autocomplete.ejs%>
+                                        <span class="input-group-addon">
+                                            <input type="checkbox" ng-model="contributor.remove"> Remove
+                                        </span>
                                     </div>
                                 </td>
                             </tr>
