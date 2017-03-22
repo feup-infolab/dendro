@@ -1,5 +1,10 @@
 GLOBAL.tests = {};
 
+//test users
+require("./controllers/users.Test.js");
+
+return;
+
 require("./homepage.Test.js");
 
 //test login

@@ -16,7 +16,6 @@ const demouser2 = require("../mockdata/users/demouser2");
 
 let publicproject = require("../mockdata/users/demouser2");
 
-
 describe("[GET] /projects", function () {
     //TODO this route has HTML ONLY
     it("Should only get public and metadata_only projects when unauthenticated", function (done) {

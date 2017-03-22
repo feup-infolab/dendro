@@ -18,6 +18,41 @@ const demouser3 = require("../mockdata/users/demouser3");
 
 describe('/users', function () {
 
+    it('[HTML] should fetch the registration page', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        userUtils.getRegisterUser(false, agent, function (err, agent) {
+            res.should.have.status(200);
+            res.text.should.contain('Editing user');
+            done();
+        });
+    });
+
+    it('[HTML] should register the ' + demouser1.username + " user", function (done) {
+        //TODO
+        done();
+    });
+
+    it('[HTML] should not be able to register the ' + demouser1.username + " user because it was already registered", function (done) {
+        //TODO
+        done();
+    });
+
+    it('[HTML] should register the ' + demouser2.username + " user because it does not exist.", function (done) {
+        //TODO
+        done();
+    });
+
+    it('[API] should register the ' + demouser3.username + " user", function (done) {
+        //TODO
+        done();
+    });
+
+    it('[API] should not be able to register the ' + demouser3.username + " user because it was already registered", function (done) {
+        //TODO
+        done();
+    });
+
     it('API /me  with authenticated used', function (done) {
         const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
@@ -61,35 +96,4 @@ describe('/users', function () {
             done();
         });
     });
-
-    it('[HTML] should fetch the registration page', function (done) {
-        //TODO
-        done();
-    });
-
-    it('[HTML] should register the ' + demouser1.handle + " user", function (done) {
-        //TODO
-        done();
-    });
-
-    it('[HTML] should not be able to register the ' + demouser1.handle + " user because it was already registered", function (done) {
-        //TODO
-        done();
-    });
-
-    it('[HTML] should register the ' + demouser2.handle + " user because it does not exist.", function (done) {
-        //TODO
-        done();
-    });
-
-    it('[API] should register the ' + demouser3.handle + " user", function (done) {
-        //TODO
-        done();
-    });
-
-    it('[API] should not be able to register the ' + demouser3.handle + " user because it was already registered", function (done) {
-        //TODO
-        done();
-    });
-    
 });

@@ -73,22 +73,22 @@ describe('/login', function () {
         done();
     });
 
-    it('[HTML] should login ' + demouser1.handle, function (done) {
+    it('[HTML] should login ' + demouser1.username, function (done) {
         //TODO 
         done();
     });
 
-    it('[HTML] logout the ' + demouser1.handle + " user if correctly authenticated.", function (done) {
+    it('[HTML] logout the ' + demouser1.username + " user if correctly authenticated.", function (done) {
         //TODO
         done();
     });
 
-    it('[HTML] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
+    it('[HTML] should login ' + demouser1.username + " while " + demouser2.username + " is logged in, replacing it", function (done) {
         //TODO
         done();
     });
 
-    it('[HTML] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
+    it('[HTML] should login ' + demouser1.username + " while " + demouser2.username + " is logged in, replacing it", function (done) {
         //TODO
         done();
     });
@@ -101,22 +101,22 @@ describe('/login', function () {
         done();
     });
 
-    it('[API] should login ' + demouser1.handle, function (done) {
+    it('[API] should login ' + demouser1.username, function (done) {
         //TODO
         done();
     });
 
-    it('[API] logout the ' + demouser1.handle + " user if authenticated as " + demouser1.handle, function (done) {
+    it('[API] logout the ' + demouser1.username + " user if authenticated as " + demouser1.username, function (done) {
         //TODO
         done();
     });
 
-    it('[API] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
+    it('[API] should login ' + demouser1.username + " while " + demouser2.username + " is logged in, replacing it", function (done) {
         //TODO
         done();
     });
 
-    it('[API] should login ' + demouser1.handle + " while " + demouser2.handle + " is logged in, replacing it", function (done) {
+    it('[API] should login ' + demouser1.username + " while " + demouser2.username + " is logged in, replacing it", function (done) {
         //TODO
         done();
     });
