@@ -151,6 +151,7 @@ var deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reallyD
         agent
             .del(path)
             .query({really_delete: reallyDelete})
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
