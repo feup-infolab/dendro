@@ -7,6 +7,18 @@
 
 #	Welcome to Dendro
 
+## Demo instance
+
+[![Demo](https://img.shields.io/badge/demo-instance-ff69b4.svg)](http://dendro.fe.up.pt/demo)
+
+If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
+
+## How to install
+
+[![Installation](https://img.shields.io/badge/installation-guide-blue.svg)](https://github.com/feup-infolab/dendro-install)
+
+## What is Dendro?
+
 The Dendro platform is a completely open-source platform designed to help researchers describe their datasets, fully build on Linked Open Data. It is designed to capture data and metadata during the research workflow. Whenever researchers want to publish a dataset, they can export to repositories such as [CKAN](http://ckan.org/), [DSpace](http://www.dspace.org/), [Invenio](http://invenio-software.org/), or [EUDAT's B2Share](https://www.eudat.eu/services/b2share). Any repository can be added by writing small plug-ins.
 
 It is under development at [Faculdade de Engenharia da Universidade do Porto](https://www.fe.up.pt/)'s [Infolab](http://infolab.fe.up.pt) since 2013. If you are interested in the academic foundations and innovations behind Dendro, please check out our **publications** at the [Dendro official website](http://dendro.fe.up.pt).
@@ -16,17 +28,7 @@ You are free to use Dendro to build any service for your research group or insti
 
 Pull requests are welcome!
 
-##Demo instance
-
-[![Demo](https://img.shields.io/badge/demo-instance-ff69b4.svg)](http://dendro.fe.up.pt/demo)
-
-If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
-
-##How to install
-
-[![Installation](https://img.shields.io/badge/installation-guide-blue.svg)](https://github.com/feup-infolab/dendro-install)
-
-##Dependencies
+## Dependencies
 
 Dendro relies on
 
