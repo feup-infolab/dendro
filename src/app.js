@@ -49,6 +49,8 @@ var mkdirp = require('mkdirp');
 var tempUploadsFolder = Config.tempFilesDir;
 var fs = require('fs');
 
+let pid;
+
 try{
     fs.statSync(tempUploadsFolder).isDirectory();
 }
@@ -121,32 +123,35 @@ if(Config.logging != null)
                         }
                     };
 
-                    console.error = function (d)
+                    console.error = function (err)
                     {
                         var date = new Date().toISOString();
-                        log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(d) + '\n');
-                        log_stdout.write(util.format(d) + '\n');
+                        log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(err) + '\n');
+                        log_stdout.write(util.format(err) + '\n');
 
-                        if(d != null && d.stack != null)
+                        if(err != null && err.stack != null)
                         {
-                            log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
-                            log_stdout.write(util.format(d.stack) + '\n');
+                            log_file.write("[ " + date + " ] "+ util.format(err.stack) + "\n");
+                            log_stdout.write(util.format(err.stack) + '\n');
                         }
+                        
+                        throw err;
                     };
 
                     process.on('uncaughtException', function (err)
                     {
-                        var date = new Date().toISOString();
+                        const date = new Date().toISOString();
 
                         if (err.stack != null)
                         {
-                            log_file.write("[ " + date + " ] [FATAL ERROR!] " + util.format(err.stack) + "\n");
+                            log_file.write("[ " + date + " ] [ uncaughtException ] " + util.format(err.stack) + "\n");
                         }
+
+                        pid.remove();
 
                         throw err;
                     });
-
-
+                    
                     cb(null);
                 })
             }
@@ -1817,6 +1822,33 @@ async.waterfall([
             if(process.env.NODE_ENV != 'test')
             {
                 server.listen(app.get('port'), function() {
+                    const npid = require('npid');
+                    const path = require('path');
+                    pid = npid.create(Config.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
+
+                    pid.removeOnExit();
+
+                    process.on('SIGTERM', function (err)
+                    {
+                        pid.remove();
+                        process.exit(err);
+                    });
+
+                    process.on('SIGINT', function (err)
+                    {
+                        pid.remove();
+                        process.exit(err);
+                    });
+
+                    if (!(Config.logging.app_logs_folder != null && Config.logging.pipe_console_to_logfile))
+                    {
+                        process.on('uncaughtException', function (err)
+                        {
+                            pid.remove();
+                            throw err;
+                        });
+                    }
+                    
                     console.log('Express server listening on port ' + app.get('port'));
                     bootupPromise.resolve(app);
                 });
