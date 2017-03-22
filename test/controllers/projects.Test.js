@@ -809,7 +809,7 @@ describe("[HTML] [POST] /project/:handle/undelete", function () {
 });
 */
 
-/*
+
 describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
 
     it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
@@ -1023,6 +1023,7 @@ describe("[POST] /project/:handle?mkdir " + privateProject.handle, function () {
     });
 });
 
+/*
 describe("[GET] /project/:handle?recent_changes", function () {
     //TODO API ONLY
     //TODO make a request to HTML, should return invalid request

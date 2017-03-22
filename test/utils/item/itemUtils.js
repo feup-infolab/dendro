@@ -3,6 +3,34 @@ var chaiHttp = require('chai-http');
 var _ = require('underscore');
 chai.use(chaiHttp);
 
+
+var createFolder = function (jsonOnly, agent, projectHandle, parentFolderName, newFolderName, cb) {
+    // /project/:handle/data/:foldername?mkdir
+    var path = '/project/' + projectHandle +'/data/'+ parentFolderName;
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .query({mkdir : newFolderName})
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .query({mkdir : newFolderName})
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 var updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, metadata, cb) {
     ///project/:handle/data/itemPath?update_metadata
     var path = '/project/' + projectHandle +'/data/'+ itemPath + '?update_metadata';
@@ -211,5 +239,6 @@ module.exports = {
     deleteItem: deleteItem,
     undeleteItem: undeleteItem,
     itemRestoreMetadataVersion: itemRestoreMetadataVersion,
-    getItemChangeLog: getItemChangeLog
+    getItemChangeLog: getItemChangeLog,
+    createFolder: createFolder
 };

@@ -92,85 +92,417 @@ describe("/project/" + publicProject.handle + "/data/" + folder.pathInProject + 
 });
 
 
-describe("[POST] /project/:handle/data/:foldername?mkdir", function () {
-    //TODO API ONLY
-    //TODO make a request to HTML, should return invalid request
-    //TODO test all three types of project accesses (public, private, metadata only)
+describe("[POST] [FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?mkdir", function () {
+    it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(false, agent, publicProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("HTML Request not valid for this route.");
+                done();
+            });
+        });
+    });
+
     it("Should give an error when the user is unauthenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        itemUtils.createFolder(true, agent, publicProject.handle, folder.name, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
     });
 
     it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, publicProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
     });
 
     it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, publicProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
     });
 
     it("Should create the folder with success if the user is logged in as demouser3(a collaborator of the project)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, publicProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
     });
 
     it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, publicProject.handle, folder.name, "*aRandomFolder", function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.equal("invalid file name specified");
+                done();
+            });
+        });
     });
 
     it("Should give an error if an invalid folder parent is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, publicProject.handle, "*invalidFolder", folder.name, function (err, res) {
+                res.statusCode.should.equal(500);
+                done();
+            });
+        });
     });
 
     it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
-        done(1);
-    });
-
-    //TODO @silvae86: improve descriptions of these tests
-    it("Should create a folder at the root of a public project while authenticated as its creator", function (done) {
-        done(1);
-    });
-
-    it("Should create a folder at the root of a public project while authenticated as a contributor", function (done) {
-        done(1);
-    });
-
-    it("Should NOT create a folder at the root of a public project if not authenticated as its creator or contributor", function (done) {
-        done(1);
-    });
-
-    it("Should NOT create a folder at the root of a private project if not authenticated as its creator or contributor", function (done) {
-        done(1);
-    });
-
-    it("Should NOT create a folder at the root of a metadata only project if not authenticated as its creator or contributor", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, "unKnownProjectHandle", folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
     });
 });
 
-describe("[POST] /project/:handle/data/:foldername?delete", function () {
-    //TODO HTML AND API
+describe("[POST] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/:foldername?mkdir", function () {
+    it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(false, agent, metadataOnlyProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("HTML Request not valid for this route.");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error when the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        itemUtils.createFolder(true, agent, metadataOnlyProject.handle, folder.name, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, metadataOnlyProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, metadataOnlyProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser3(a collaborator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, metadataOnlyProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, metadataOnlyProject.handle, folder.name, "*aRandomFolder", function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.equal("invalid file name specified");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if an invalid folder parent is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, metadataOnlyProject.handle, "*invalidFolder", folder.name, function (err, res) {
+                res.statusCode.should.equal(500);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, "unKnownProjectHandle", folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+});
+
+describe("[POST] [FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:foldername?mkdir", function () {
+    it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(false, agent, privateProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("HTML Request not valid for this route.");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error when the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        itemUtils.createFolder(true, agent, privateProject.handle, folder.name, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, privateProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, privateProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser3(a collaborator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, privateProject.handle, folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, privateProject.handle, folder.name, "*aRandomFolder", function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.equal("invalid file name specified");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if an invalid folder parent is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res) {
+                res.statusCode.should.equal(500);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, "unKnownProjectHandle", folder.name, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+});
+
+describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?delete", function () {
+
+    it("Should give an error when the request is of type HTML for this route", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(false, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
+    });
 
     it("Should give an error message when the project does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, "unknownProjectHandle", folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
     });
 
     it("Should give an error message when the folder does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, publicProject.handle, "randomFolder", function (err, res) {
+                res.statusCode.should.equal(404);
+                done();
+            });
+        });
     });
 
     it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
+        //done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        itemUtils.deleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
     });
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a folder created by demouser1", function (done) {
-        done(1);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
     });
 
     it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the folder", function (done) {
-        done(1);
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
     });
 
     it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the folder", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
+    })
+});
+
+describe("[DELETE] [DELETE FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/:foldername?delete", function () {
+    //TODO API only
+
+    it("Should give an error message when the project does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, "unknownProjectHandle", folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error message when the folder does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, "randomFolder", function (err, res) {
+                res.statusCode.should.equal(404);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        //done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a folder created by demouser1", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the folder", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the folder", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
+    })
+});
+
+describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:foldername?delete", function () {
+    //TODO API only
+
+    it("Should give an error message when the project does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, "unknownProjectHandle", folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error message when the folder does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, privateProject.handle, "randomFolder", function (err, res) {
+                res.statusCode.should.equal(404);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        //done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        itemUtils.deleteItem(true, agent, privateProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a folder created by demouser1", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the folder", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the folder", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(true, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
     })
 });
 
@@ -383,7 +715,6 @@ describe("[GET] /project/:handle/data/foldername?version", function () {
     })
 });
 
-
 describe("[GET] /project/:handle/data/foldername?change_log", function () {
     //TODO API AND HTML
     it("Should give an error if the user is unauthenticated", function (done) {
@@ -460,77 +791,6 @@ describe("[POST] /project/:handle/data/foldername?restore_metadata_version", fun
     it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser3(a collaborator on the project) and if the version sent in the body is a valid one", function (done) {
         done(1);
     });
-});
-
-describe("[DELETE] /project/:handle/data/:foldername", function () {
-    //TODO HTML AND API
-
-    it("Should give an error message when the project does not exist", function (done) {
-        done(1);
-    });
-
-    it("Should give an error message when the folder does not exist", function (done) {
-        done(1);
-    });
-
-    it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
-    });
-
-    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a folder created by demouser1", function (done) {
-        done(1);
-    });
-
-    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the folder", function (done) {
-        done(1);
-    });
-
-    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the folder", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            //jsonOnly, agent, projectHandle, itemPath, cb
-            itemUtils.deleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.body.message.should.contain("Successfully deleted");
-                done();
-            });
-        });
-    })
-});
-
-describe("[POST] /project/:handle/data/:foldername?undelete", function() {
-    it("Should give an error message when a project does not exist", function (done) {
-        done(1);
-    });
-
-    it("Should give an error message when the folder does not exist", function (done) {
-        done(1);
-    });
-
-    it("Should give an error message when the folder is not deleted", function (done) {
-        done(1);
-    });
-
-    it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
-    });
-
-    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a folder that is currently deleted", function (done) {
-        done(1);
-    });
-
-    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete a folder that is currently deleted", function (done) {
-        done(1);
-    });
-
-    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete a folder that is currently deleted", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            itemUtils.undeleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.body.message.should.contain("Successfully undeleted");
-                done();
-            });
-        });
-    })
 });
 
 describe("[DELETE] HARD DELETE /project/:handle/data/:foldername", function () {

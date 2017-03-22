@@ -12,7 +12,7 @@ require("./controllers/projects.Test.js");
 //require("./controllers/files.Test.js");
 
 //test folders
-//require("./controllers/folders.Test.js");
+require("./controllers/folders.Test.js");
 
 //test users
 //require("./controllers/users.Test.js");
