@@ -51,12 +51,38 @@ describe("[GET] /descriptors/from_ontology/:ontology_prefix", function () {
      */
 
     it("[HTML] It should give a 405 error (method not supported) if the Accept: application/json Header was not sent. User logged in as demouser1(The creator of the Public project "+publicProject.handle +")", function (done) {
-        //TODO Should not return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(false, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                res.should.have.status(405);
+                err.message.should.equal("Method Not Allowed");
+                done();
+            });
+        });
+    });
+
+    it("[JSON] It should give an error when trying to get descriptors from dcterms ontology when logged in as demouser1 and passing an unknown project handle in the query", function (done) {
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, "unknownProjectHandle", function (err, res) {
+                res.should.have.status(500);
+                done();
+            });
+        });
+    });
+
+    it("[JSON] It should give an error when trying to get descriptors from dcterms ontology when logged in as demouser1 and passing null project handle in the query", function (done) {
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, null, function (err, res) {
+                res.should.have.status(500);
+                done();
+            });
+        });
     });
 
     it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser1(The creator of the Public project "+publicProject.handle +")", function (done) {
-        //TODO should return all the descriptors from this ontology -> currently 52 elements
+        //should return all the descriptors from this ontology -> currently 52 elements
         let ontologyPrefix = "dcterms";
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
@@ -68,33 +94,66 @@ describe("[GET] /descriptors/from_ontology/:ontology_prefix", function () {
     });
 
     it("[JSON] It should not get descriptors from dcterms ontology when logged in as demouser2(Not creator nor collaborator of the Public project "+publicProject.handle +")", function (done) {
-        //TODO Should not return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
     });
 
     it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser3 (Collaborator of the Public project "+publicProject.handle +")", function (done) {
-        //TODO Should return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                res.should.have.status(200);
+                res.body.descriptors.length.should.equal(52);
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and accessing Public project "+publicProject.handle +")", function (done) {
-        //TODO Should not return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
     });
 
     it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1(The creator of the Public project "+publicProject.handle +")", function (done) {
-        //TODO Should return error
-        done(1);
+        let ontologyPrefix = "xy";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                res.should.have.status(404);
+                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3(Collaborator of Public project "+publicProject.handle +")", function (done) {
-        //TODO Should return error
-        done(1);
+        let ontologyPrefix = "xy";
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                res.should.have.status(404);
+                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) (when unauthenticated and accessing Public project "+publicProject.handle +")", function (done) {
-        //TODO Should return error
-        done(1);
+        let ontologyPrefix = "xy";
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
     });
 
     /**
@@ -102,43 +161,89 @@ describe("[GET] /descriptors/from_ontology/:ontology_prefix", function () {
      */
 
     it("[HTML] It should give a 405 error (method not supported) if the Accept: application/json Header was not sent. User logged in as demouser1 (The creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        //TODO Should not return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(false, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                res.should.have.status(405);
+                err.message.should.equal("Method Not Allowed");
+                done();
+            });
+        });
     });
 
     it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser1 (The creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        //TODO should return all the descriptors from this ontology -> currently 52 elements
-        done(1);
+        //should return all the descriptors from this ontology -> currently 52 elements
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                res.should.have.status(200);
+                res.body.descriptors.length.should.equal(52);
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from dcterms ontology when logged in as demouser2 (Not creator nor collaborator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        //TODO Should not return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
     });
 
     it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser3 (Collaborator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        //TODO Should return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                res.should.have.status(200);
+                res.body.descriptors.length.should.equal(52);
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and inside of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        //TODO Should not return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
     });
 
     it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) when logged in as demouser1(The creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        //TODO Should return error
-        done(1);
+        let ontologyPrefix = "xy";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                res.should.have.status(404);
+                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) when logged in as demouser3(Collaborator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        //TODO Should return error
-        done(1);
+        let ontologyPrefix = "xy";
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                res.should.have.status(404);
+                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) (when unauthenticated trying to access the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        //TODO Should return error
-        done(1);
+        let ontologyPrefix = "xy";
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
     });
 
     /**
@@ -146,44 +251,88 @@ describe("[GET] /descriptors/from_ontology/:ontology_prefix", function () {
      */
 
     it("[HTML] It should give a 405 error (method not supported) if the Accept: application/json Header was not sent. User logged in as demouser1 (The creator of the Private project "+privateProject.handle +")", function (done) {
-        //TODO Should not return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(false, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                res.should.have.status(405);
+                err.message.should.equal("Method Not Allowed");
+                done();
+            });
+        });
+    });
+
+    it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser1 (The creator of the Private project "+privateProject.handle +")", function (done) {
+        //should return all the descriptors from this ontology -> currently 52 elements
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                res.should.have.status(200);
+                res.body.descriptors.length.should.equal(52);
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from dcterms ontology when logged in as demouser2 (Not creator nor collaborator of the Private project "+privateProject.handle +")", function (done) {
-        //TODO Should not return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                res.should.have.status(401);
+                done();
+            });
+        });
     });
 
     it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser3 (Collaborator of the Private project "+privateProject.handle +")", function (done) {
-        //TODO Should return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                res.should.have.status(200);
+                res.body.descriptors.length.should.equal(52);
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and inside of the Private project "+privateProject.handle +")", function (done) {
-        //TODO Should not return the descriptors
-        done(1);
+        let ontologyPrefix = "dcterms";
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
     });
 
     it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1 (The creator of the Private project "+privateProject.handle +")", function (done) {
-        //TODO Should return error
-        done(1);
+        let ontologyPrefix = "xy";
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                res.should.have.status(404);
+                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3 (Collaborator of the Private project "+privateProject.handle +")", function (done) {
-        //TODO Should return error
-        done(1);
+        let ontologyPrefix = "xy";
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                res.should.have.status(404);
+                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                done();
+            });
+        });
     });
 
     it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) (when unauthenticated trying to access the Private project "+privateProject.handle +")", function (done) {
-        //TODO Should return error
-        done(1);
+        let ontologyPrefix = "xy";
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+            res.should.have.status(401);
+            done();
+        });
     });
-
-    
-    it("Should Give an error when the project identified by the project_handle does not exist", function (done) {
-        done(1);
-    });
-
-
 });

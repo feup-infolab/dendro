@@ -110,6 +110,7 @@ describe("[POST] with project handle: "+ publicproject.handle + " [/projects/new
     });
 });
 
+
 describe("[POST] with project handle: "+ metadaOnlyProject.handle + " [/projects/new]", function () {
     it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
         var app = GLOBAL.tests.app;
@@ -151,6 +152,7 @@ describe("[POST] with project handle: "+ metadaOnlyProject.handle + " [/projects
         });
     });
 });
+
 
 describe("[POST] with project handle: "+ privateProject.handle + " [/projects/new]", function () {
     //TODO HTML AND API
@@ -807,6 +809,7 @@ describe("[HTML] [POST] /project/:handle/undelete", function () {
 });
 */
 
+/*
 describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
 
     it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
@@ -1020,11 +1023,12 @@ describe("[POST] /project/:handle?mkdir " + privateProject.handle, function () {
     });
 });
 
-/*
 describe("[GET] /project/:handle?recent_changes", function () {
     //TODO API ONLY
     //TODO make a request to HTML, should return invalid request
     //TODO test all three types of project accesses (public, private, metadata only)
+    //TODO WITH LIMIT AND OFFSET
+
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -1042,8 +1046,7 @@ describe("[GET] /project/:handle?recent_changes", function () {
             //jsonOnly, agent, projectHandle, cb
             projectUtils.getProjectRecentChanges(true, agent, publicproject.handle, function (err, res) {
                 res.should.have.status(200);
-                //TODO
-                done(1);
+                done();
             });
         });
     });
@@ -1072,8 +1075,12 @@ describe("[GET] /project/:handle?version", function () {
 
     it("Should give the resource versions if the resource exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
         //jsonOnly, agent, projectHandle, cb
-        //TODO
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getProjectVersion(true, agent, publicproject.handle, 0, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
     });
 
     it("Should give the resource versions if the resource exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
@@ -1084,7 +1091,6 @@ describe("[GET] /project/:handle?version", function () {
         done(1);
     })
 });
-
 */
 
 //OLD ITERATION OF TESTS GOES HERE

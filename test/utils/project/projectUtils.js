@@ -236,37 +236,14 @@ var removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folde
     });
 };
 
-var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
-    ///project/:handle?recent_changes
-    var path = '/project/' + projectHandle +'?recent_changes';
-    if(jsonOnly)
-    {
-        agent
-            .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-    else
-    {
-        agent
-            .get(path)
-            .set('Content-Type', 'application/json')
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-};
-
-var getProjectVersion = function (jsonOnly, agent, projectHandle, cb) {
+var getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb) {
     //project/:handle?version
-    var path = '/project/' + projectHandle +'?version';
+    var path = '/project/' + projectHandle;
     if(jsonOnly)
     {
         agent
             .get(path)
+            .query({version : version})
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
@@ -277,6 +254,7 @@ var getProjectVersion = function (jsonOnly, agent, projectHandle, cb) {
     {
         agent
             .get(path)
+            .query({version : version})
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -451,6 +429,30 @@ var createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folder
             .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .query({mkdir : folderName})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
+    ///project/:handle?recent_changes
+    var path = '/project/' + projectHandle +'?recent_changes';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
             });

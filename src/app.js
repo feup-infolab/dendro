@@ -1180,7 +1180,7 @@ async.waterfall([
         app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.role.system.admin]), ontologies.edit);
 
         //descriptors
-        app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [Permissions.role.system.user]), descriptors.from_ontology);
+        app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [ Permissions.role.project.contributor, Permissions.role.project.creator]), descriptors.from_ontology);
 
         //research domains
 
