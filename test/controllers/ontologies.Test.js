@@ -236,7 +236,7 @@ describe('/ontologies/edit', function () {
 
 describe('/ontologies/autocomplete', function(){
 
-    it('[JSON] search while not logged in', function (done) {
+    it('[JSON] should not search while not logged in', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
@@ -249,7 +249,7 @@ describe('/ontologies/autocomplete', function(){
     });
 
 
-    it('[JSON] did not send query', function (done) {
+    it('[JSON] should give error when not sending query', function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             ontologiesUtils.autocomplete(agent, "", function(err, res){
                 res.should.have.status(400);
@@ -259,7 +259,7 @@ describe('/ontologies/autocomplete', function(){
         });
     });
 
-    it('[JSON] got \'Abstract\' from \'Abstr\'', function (done) {
+    it('[JSON] should return demo ontology from \'title\'', function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             var query = '?ontology_autocomplete=title';
             ontologiesUtils.autocomplete(agent, query, function(err, res){
@@ -273,7 +273,7 @@ describe('/ontologies/autocomplete', function(){
 
 describe('/ontologies/show/:prefix', function () {
 
-    it('[JSON] operating without being logged in', function (done) {
+    it('[JSON] should fail when operating without logging in', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
@@ -284,7 +284,7 @@ describe('/ontologies/show/:prefix', function () {
         });
     });
 
-    it('[HTML] unable to retrieve ontology', function (done) {
+    it('[HTML] should fail to retrieve ontology', function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             var prefix = 'daaaaaaaaadr';
             ontologiesUtils.showPrefix(agent, prefix, function(err, res){
@@ -295,7 +295,7 @@ describe('/ontologies/show/:prefix', function () {
         });
     });
 
-    it('[HTML] get ontology', function (done) {
+    it('[HTML] shuold get ontology', function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             var prefix = 'ddr';
             ontologiesUtils.showPrefix(agent, prefix, function(err, res){

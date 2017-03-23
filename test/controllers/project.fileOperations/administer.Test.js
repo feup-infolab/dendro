@@ -19,7 +19,7 @@ var demouser3 = require("../../mockdata/users/demouser3");
 
 describe('/project/' + publicProject.handle + '?administer', function () {
 
-    it("[HTML] access project without logging in GET", function (done) {
+    it("[HTML] should access project without logging in GET", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         projectUtils.administer(agent, false, {}, publicProject.handle, function(err, res){
@@ -29,7 +29,7 @@ describe('/project/' + publicProject.handle + '?administer', function () {
         });
     });
 
-    it("[HTML] access project without admin rights GET", function (done) {
+    it("[HTML] should access project without admin rights GET", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             projectUtils.administer(agent, false, {}, publicProject.handle, function(err, res){
                 res.should.have.status(200);
