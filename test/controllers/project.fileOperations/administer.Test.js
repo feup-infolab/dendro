@@ -6,7 +6,7 @@ chai.use(chaiHttp);
 
 var Config = function() { return GLOBAL.Config; }();
 var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-
+var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
 const should = chai.should();
 
@@ -103,8 +103,9 @@ describe('/project/' + publicProject.handle + '?administer', function () {
 
     it("[HTML] add non-existent contributors", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.administer(agent, true, {contributors: ['nonexistinguser', 'thisUserHandleDoesNotExist']}, function(err, res){
-
+            projectUtils.administer(agent, true, {contributors: ['nonexistinguser', 'thisUserHandleDoesNotExist']}, publicProject.handle, function(err, res){
+                var hello;
+                res.should.have.status(200);
             });
         });
         done();
@@ -112,7 +113,23 @@ describe('/project/' + publicProject.handle + '?administer', function () {
     });
 
     it("[HTML] add contributors", function (done) {
-        done();
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            var user3data;
+            User.findByUsername(demouser3.username, function(err, user){
+               err.should.equal(null);
+               user3data = user;
+
+                projectUtils.administer(agent, true, {contributors: [demouser2.username, user3data.uri ]}, function(err, res){
+                    Project.findByHandle(publicProject.handle, function(err, project){
+                        
+                        done();
+
+                    });
+
+                });
+            });
+
+        });
     });
 
 
