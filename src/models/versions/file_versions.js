@@ -11,7 +11,7 @@ var gfs = function() { return GLOBAL.gfs.default; }();
 
 var _ = require('underscore');
 var async = require('async');
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 
 //NFO ontology or NIE ontology
 /*
@@ -30,9 +30,9 @@ var uuid = require('node-uuid');
  },
  "md5" : "b3bbe77e563bd4784c21db08bbc3066a" -> nfo.hashAlgorithm
  }*/
-function FileVersions (object)
+function FileVersion (object)
 {
-    FileVersions.baseConstructor.call(this, object);
+    FileVersion.baseConstructor.call(this, object);
     var self = this;
 
     if(object.uri != null)
@@ -41,18 +41,17 @@ function FileVersions (object)
     }
     else
     {
-        self.uri = Config.baseUri + "/fileVersions/" + uuid.v4();
+        self.uri = Config.baseUri + "/fileVersion/" + uuid.v4();
     }
 
     self.copyOrInitDescriptors(object);
 
-    self.rdf.type = "ddr:FileVersions";
-
+    self.rdf.type = "ddr:FileVersion";
 
     return self;
 }
 
-FileVersions = Class.extend(FileVersions, Resource);
+FileVersion = Class.extend(FileVersion, Resource);
 
-module.exports.FileVersions = FileVersions;
+module.exports.FileVersion = FileVersion;
 
