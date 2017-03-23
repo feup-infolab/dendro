@@ -2,32 +2,32 @@
 
 
 
-<div ng-controller="projectAdminCtrl">
+<div ng-controller="projectAdminCtrl" ng-init="init('<%=locals.project.dcterms.contributor%>')">
 
     <h1 class="page-header">Editing project "<%=locals.project.dcterms.title%>"</h1>
 
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist" >
 
-        <li class="active">
+        <li ng-class="{active : active_tab == 'information'}">
 
-            <a href="#information" role="tab" data-toggle="tab">Information</a>
+            <a href="#information" role="tab" data-toggle="tab" ng-click="clicked_information_tab()">Information</a>
         </li>
 
-        <li >
-            <a href="#people" role="tab" data-toggle="tab" ng-init="get_contributors('<%=locals.project.dcterms.contributor%>')">People</a>
+        <li ng-class="{active : active_tab == 'people'}">
+            <a href="#people" role="tab" data-toggle="tab" ng-click="clicked_people_tab()">People</a>
         </li>
         <!--<li>
             <a href="#actions" role="tab" data-toggle="tab">Actions</a>
         </li>-->
-        <li >
-            <a href="#metadata_quality" role="tab" data-toggle="tab">Metadata Quality</a>
+        <li ng-class="{active : active_tab == 'metadataquality'}">
+            <a href="#metadata_quality" role="tab" data-toggle="tab" ng-click="clicked_metadataquality_tab()">Metadata Quality</a>
         </li>
     </ul>
 
     <!-- Tab panes -->
     <div class="tab-content">
-        <div class="tab-pane active" id="information">
+        <div class="tab-pane" id="information" ng-class="{active : active_tab == 'information'}">
             <div class="row">
                 <div class="col-lg-12">
                     <h4>
@@ -91,7 +91,7 @@
                 </div>
             </div>
         </div>
-        <div class="tab-pane" id="people">
+        <div class="tab-pane" id="people" ng-class="{active : active_tab == 'people'}">
             <div class="row">
                 <div class="col-lg-12">
                     <h4>
@@ -143,8 +143,7 @@
                 </div>
             </div>
         </div>
-
-        <div class="tab-pane" id="metadata_quality">
+        <div class="tab-pane" id="metadata_quality" ng-class="{active : active_tab == 'metadataquality'}">
             <div class="row">
                 <div class="col-lg-12">
                     <h4>

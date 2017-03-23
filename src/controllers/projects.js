@@ -923,7 +923,7 @@ exports.administer = function(req, res) {
                         }
                         else
                         {
-                            viewVars.error_messages = [result];
+                            viewVars.error_messages = [project];
                             res.render('projects/administration/administer',
                                 viewVars
                             );

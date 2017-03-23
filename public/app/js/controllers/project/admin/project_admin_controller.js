@@ -20,7 +20,7 @@ angular.module('dendroApp.controllers')
         usersService
     )
     {
-
+        $scope.active_tab = null;
         $scope.contributors = [];
 
         $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
@@ -95,10 +95,12 @@ angular.module('dendroApp.controllers')
             node.uri = $scope.get_current_url() + '/data';
         };
 
-        $scope.init = function()
+        $scope.init = function(contributors)
         {
-            return $location.url();
-        }
+            $scope.get_contributors(contributors);
+            $scope.active_tab = $localStorage.active_tab;
+            //return $location.url();
+        };
 
         $scope.get_users_by_text_search = function(typed) {
             var current_url = $scope.get_calling_uri();
@@ -139,7 +141,7 @@ angular.module('dendroApp.controllers')
 
             return uri;
         };
-
+        
 
         $scope.get_contributors = function(contributors){
             if(contributors != "") {
@@ -147,13 +149,14 @@ angular.module('dendroApp.controllers')
                 projectsService.get_contributors(names)
                     .then(function(response){
                         var users = response.contributors;
+                        $scope.contributors = [];
                         for (var i in users) {
                             $scope.contributors.push({"info": users[i], "remove": false});
                         }
                     });
 
             }
-        }
+        };
 
         $scope.add_new_contributor = function(){
             $scope.contributors.push({"info":{ddr: {username: ""}}, "remove": false});
@@ -182,5 +185,23 @@ angular.module('dendroApp.controllers')
                 }).catch(function (error){
                 $scope.show_popup("error", "Error", error.message);
             });
-        }
+        };
+
+        $scope.clicked_information_tab = function()
+        {
+            $scope.active_tab = 'information';
+            $localStorage.active_tab = $scope.active_tab;
+        };
+
+        $scope.clicked_metadataquality_tab = function()
+        {
+            $scope.active_tab = 'metadataquality';
+            $localStorage.active_tab = $scope.active_tab;
+        };
+
+        $scope.clicked_people_tab = function()
+        {
+            $scope.active_tab = 'people';
+            $localStorage.active_tab = $scope.active_tab;
+        };
     });
