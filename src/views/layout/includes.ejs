@@ -3,27 +3,33 @@
 <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap/dist/css/bootstrap.min.css">
 
 <% if (settings.theme != null) { %>
-    <link rel='stylesheet' type="text/css" href='/themes/<%=settings.theme%>/bootstrap.min.css' />
+    <link rel='stylesheet' type="text/css" href='/bower_components/bootswatch/<%=settings.theme%>/bootstrap.min.css' />
 <% } else { %>
     <link rel='stylesheet' type="text/css" href='/bower_components/bootstrap/dist/css/bootstrap-theme.min.css' />
 <% } %>
 
 <link rel='stylesheet' type="text/css" href='/stylesheets/animations.css' />
-<link rel='stylesheet' type="text/css" href='/stylesheets/explorer.css' />
+<link rel='stylesheet' type="text/css" href='/stylesheets/uploads.css' />
 <link rel="stylesheet" type="text/css" href="/bower_components/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" type="text/css" href="/bower_components/font-awesome-animation/dist/font-awesome-animation.min.css">
 <link rel="stylesheet" type="text/css" href="/bower_components/pnotify/dist/pnotify.css"/>
+<link rel="stylesheet" type="text/css" href="/bower_components/pnotify/dist/pnotify.buttons.css"/>
 
 <link rel="stylesheet" type="text/css" href="/bower_components/bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css" />
 <link rel="stylesheet" type="text/css" href="/bower_components/ng-tags-input/ng-tags-input.min.css">
 <link rel="stylesheet" type="text/css" href="/bower_components/angular-ui-tree/dist/angular-ui-tree.min.css">
 <link rel="stylesheet" type="text/css" href="/bower_components/angular-loading-bar/build/loading-bar.min.css">
 <link rel="stylesheet" type="text/css" href="/bower_components/google-code-prettify/bin/prettify.min.css" />
+<link rel='stylesheet' type="text/css" href='/stylesheets/explorer.css' />
 
 <!--jQuery -->
-<script type="text/javascript" src="/bower_components/jquery/jquery.min.js"></script>
+<script type="text/javascript" src="/bower_components/jquery/dist/jquery.js"></script>
+
+<!--spinjs -->
+<script type="text/javascript" src="/bower_components/spin.js/spin.js"></script>
 
 <!-- Angular Libs -->
-<script type="text/javascript" src="/bower_components/angular/angular.min.js"></script>
+<script type="text/javascript" src="/bower_components/angular/angular.js"></script>
 <script type="text/javascript" src="/bower_components/angular-route/angular-route.min.js"></script>
 <script type="text/javascript" src="/bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 <script type="text/javascript" src="/bower_components/angular-cookies/angular-cookies.min.js"></script>
@@ -37,7 +43,25 @@
 <script type="text/javascript" src="/bower_components/angular-ui-tree/dist/angular-ui-tree.min.js"></script>
 <script type="text/javascript" src="/bower_components/angular-loading-bar/build/loading-bar.min.js"></script>
 <script type="text/javascript" src="/bower_components/angular-highlightjs/build/angular-highlightjs.min.js"></script>
-<script type="text/javascript" src="/bower_components/ng-file-upload-shim/ng-file-upload-all.min.js"></script>
+<script type="text/javascript" src="/bower_components/ng-file-upload/ng-file-upload-all.js"></script>
+<script type="text/javascript" src="/bower_components/angular-google-analytics/dist/angular-google-analytics.js"></script>
+<script type="text/javascript" src="/bower_components/angular-image-spinner/dist/angular-image-spinner.min.js"></script>
+
+<!--<script>
+    //optional need to be loaded before angular-file-upload-shim(.min).js
+    FileAPI = {
+        //only one of jsPath or jsUrl.
+        jsUrl: '/bower_components/fileapi/FileAPI.min.js',
+
+        //only one of staticPath or flashUrl.
+        flashUrl: '/bower_components/fileapi/FileAPI.flash.swf'
+
+        //forceLoad: true, html5: false //to debug flash in HTML5 browsers
+        //noContentTimeout: 10000 (see #528)
+    }
+</script>
+
+<script type="text/javascript" src="/bower_components/ng-file-upload-shim/ng-file-upload-all.js"></script> -->
 <script type="text/javascript" src="/bower_components/ng-jsonpath/dist/ng-jsonpath.min.js"></script>
 <script type="text/javascript" src="/bower_components/angular-recursion/angular-recursion.min.js"></script>
 <script type="text/javascript" src="/bower_components/angular-tree-widget/dist/angular-tree-widget.js"></script>
@@ -48,6 +72,7 @@
 <script type="text/javascript" src="/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="/bower_components/bootbox.js/bootbox.js"></script>
 <script type="text/javascript" src="/bower_components/pnotify/dist/pnotify.js"></script>
+<script type="text/javascript" src="/bower_components/pnotify/dist/pnotify.buttons.js"></script>
 <script type="text/javascript" src="/bower_components/underscore/underscore-min.js"></script>
 <script type="text/javascript" src="/bower_components/bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="/bower_components/slider/dist/min/slider.min.js"></script>
@@ -60,6 +85,11 @@
 <script type="text/javascript" src="/bower_components/showdown/dist/showdown.js"></script>
 <script type="text/javascript" src="/bower_components/angular-moment/angular-moment.js"></script>
 <script type="text/javascript" src="/bower_components/google-code-prettify/bin/prettify.min.js"></script>
+<script type="text/javascript" src="/bower_components/urijs/src/URI.min.js"></script>
+<script type="text/javascript" src="/bower_components/browser-md5-file/dist/browser-md5-file.min.js"></script>
+<!--<script src="/bower_components/socket.io-client/socket.io.js"></script>--> <!--NELSON-->
+<script src="/bower_components/angular-utils-pagination/dirPagination.js"></script> <!--NELSON-->
+<script src="/bower_components/ng-alerts/dist/ng-alerts.js"></script>
 
 <script type="text/javascript" src="/bower_components/markdown-editpreview-ng.js/lib/codemwnci/Markdown.Converter.js"></script>
 <script type="text/javascript" src="/bower_components/markdown-editpreview-ng.js/lib/codemwnci/Markdown.Sanitizer.js"></script>
@@ -76,6 +106,7 @@
     <script type="text/javascript" src="/app/js/controllers/project/editor/descriptor_list_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/file_browser_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/metadata_editor_controller.js"></script>
+    <script type="text/javascript" src="/app/js/controllers/uploads/uploads_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/project_editor_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/change_log_controller.js"></script>
     <script type="text/javascript" src="/app/js/controllers/project/editor/share_controller.js"></script>
@@ -85,6 +116,9 @@
     <script type="text/javascript" src="/app/js/controllers/social/projects_controller.js"></script><!--NELSON-->
     <script type="text/javascript" src="/app/js/controllers/social/file_versions_controller.js"></script><!--NELSON-->
     <script type="text/javascript" src="/app/js/controllers/notifications/notification_controller.js"></script><!--NELSON-->
+
+    <script type="text/javascript" src="/app/js/controllers/project/new_project_controller.js"></script>
+
 
     <!-- factories -->
 
@@ -107,11 +141,11 @@
     <script type="text/javascript" src="/app/js/services/events_service.js"></script>
     <script type="text/javascript" src="/app/js/services/social/timeline_service.js"></script>
     <script type="text/javascript" src="/app/js/services/uploads_service.js"></script>
+    <script type="text/javascript" src="/app/js/services/users_service.js"></script>
     <script type="text/javascript" src="/app/js/services/social/file_versions_service.js"></script>
     <script type="text/javascript" src="/app/js/services/notifications/notification_service.js"></script><!--NELSON-->
-    <!--<script src="/bower_components/socket.io-client/socket.io.js"></script>--> <!--NELSON-->
-    <script src="/bower_components/angular-utils-pagination/dirPagination.js"></script> <!--NELSON-->
-    <script src="/bower_components/ng-alerts/dist/ng-alerts.js"></script>
+
+    <script type="text/javascript" src="/app/js/services/projects_service.js"></script>
 
 
     <!-- directives -->

@@ -1,12 +1,5 @@
-<script src='/js/jQueryFileUpload/js/vendor/jquery.ui.widget.js'></script>
-<script src='/js/jQueryFileUpload/js/jquery.iframe-transport.js'></script>
-<script src='/js/jQueryFileUpload/js/jquery.fileupload.js'></script>
-
-
-
-
 <ul class="list-group" id="file_explorer_area">
-        <%if(locals.breadcrumbs != null && locals.breadcrumbs.length > 1)
+        <%if(locals.breadcrumbs != null && locals.breadcrumbs.length > 0)
         {
         %>
             <a href="#" ng-click="go_up_in_folder_explorer()" class="list-group-item">
@@ -19,20 +12,22 @@
                                         <%if(locals.breadcrumbs[0].show_home)
                                         {
                                         %>
-                                            <img src="/images/icons/house.png"/>
+                                            <i class="fa fa-home file_explorer_icon" aria-hidden="true" style="font-size:32px;"></i>
                                         <%
                                         }
                                         else
                                         {
                                         %>
-                                            <img src="/images/icons/extensions/folder-up.png"/>
+                                            <span class="fa-stack fa-lg file_explorer_icon">
+                                                <i class="fa fa-globe file_explorer_icon" aria-hidden="true" style="font-size:32px;"></i>
+                                            </span>
                                         <%
                                         }
                                         %>
 
                                     </td>
                                     <td class="filename-tablecell">
-                                        Up to <%=locals.breadcrumbs[locals.breadcrumbs.length-2].title%>
+                                        <%=locals.breadcrumbs[0].title%>
                                     </td>
                                 </tr>
                             </table>
@@ -43,17 +38,6 @@
         <%
         }
         %>
-
-        <script type="text/javascript">
-            function noIcon(image){
-                var requestedDefaultImage;
-                if(requestedDefaultImage == false)
-                {
-                    image.src = "/images/icons/file.png";
-                    requestedDefaultImage = true;
-                }
-            }
-        </script>
 
         <a ng-repeat="file in shared.folder_contents"
            ng-show="shared.folder_contents != null && (!file.ddr.deleted || shared.showing_deleted_files)"
@@ -71,7 +55,7 @@
                                         <input  type="checkbox" ng-model="file.selected" multiple>
                                     </td>
                                     <td>
-                                        <img ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" onerror="noIcon(this);"/>
+                                        <img ng-src="{{get_thumbnail_uri(file.uri) | trustAsResourceUrl}}" image-spinner width=32 height=32"/>
                                     </td>
                                     <td class="filename-tablecell">
                                         <small>{{file.nie.title}}</small>

@@ -633,7 +633,9 @@ Elements.ddr = {
     password :
     {
         type : DbConnection.string,
-        control : Config.controls.input_box
+        control : Config.controls.input_box,
+        private : true,
+        locked : true
     },
     password_reset_token :
     {
@@ -650,7 +652,8 @@ Elements.ddr = {
     username :
     {
         type : DbConnection.string,
-        control : Config.controls.input_box
+        control : Config.controls.input_box,
+        api_readable : true
     },
     contentType :
     {
@@ -843,6 +846,12 @@ Elements.ddr = {
         api_readable: true,
         control : Config.controls.url_box
     },
+    hasAPIKey :
+    {
+        type : DbConnection.string,
+        api_readable: true,
+        control : Config.controls.input_box
+    },
     hasOrganization :
     {
         type : DbConnection.resource,
@@ -1002,6 +1011,34 @@ Elements.ddr = {
         locked : true,
         control : Config.controls.input_box
     },
+    salt :
+    {
+        type : DbConnection.string,
+        locked : true,
+        private :true,
+        control : Config.controls.input_box
+    },
+    hasFontAwesomeClass :
+    {
+        type : DbConnection.string,
+        locked : true,
+        control : Config.controls.input_box
+    },
+    pageNumber :
+    {
+        type : DbConnection.int,
+        control : Config.controls.input_box
+    },
+    recommendationCallId :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    recommendationCallTimeStamp :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    }
 };
 
 /**
@@ -1050,6 +1087,11 @@ Elements.rdf = {
     {
         type : DbConnection.boolean,
         control : Config.controls.input_box
+    },
+    type : {
+        type : DbConnection.prefixedResource,
+        control : Config.controls.input_box,
+        locked: true
     }
 }
 
@@ -1239,7 +1281,7 @@ Elements.nie = {
         type : DbConnection.string,
         backuppable : true,
         restorable : true,
-        locked : true
+        locked_for_projects : true
     },
     version :
     {

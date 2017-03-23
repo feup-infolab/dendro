@@ -24,14 +24,37 @@ function User (object)
         self.uri = db.baseURI+"/user/"+self.ddr.username;
     }
 
+    if(self.ddr.salt == null)
+    {
+        var bcrypt = require('bcryptjs');
+        self.ddr.salt = bcrypt.genSaltSync(10);
+    }
+
     self.rdf.type = "ddr:User";
 
     return self;
 }
 
-User.findByUsername = function(username, callback)
+User.findByUsername = function(username, callback, removePrivateDescriptors)
 {
-    User.findByPropertyValue(username, "ddr:username", callback);
+    User.findByPropertyValue(username, "ddr:username", function(err, user){
+        if(!err && user != null && user instanceof User)
+        {
+            if(removePrivateDescriptors)
+            {
+                user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
+                callback(err, user);
+            }
+            else
+            {
+                callback(err, user);
+            }
+        }
+        else
+        {
+            callback(err, user);
+        }
+    });
 };
 
 User.findByEmail = function(email, callback)
@@ -88,9 +111,11 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                         {
                             var userToReturn = new User(fetchedUser);
 
-                            userToReturn.loadOntologyRecommendations(function(err, user){
-                                callback(err, user);
-                            });
+                            callback(err, fetchedUser);
+
+                            /*userToReturn.loadOntologyRecommendations(function(err, user){
+
+                            });*/
                         }
                         else
                         {
@@ -116,11 +141,9 @@ User.createAndInsertFromObject = function(object, callback) {
 
     console.log("creating user from object" + util.inspect(object));
 
-    var crypto = require('crypto')
-      , shasum = crypto.createHash('sha1');
-
-    shasum.update(object.ddr.password);
-    self.ddr.password = shasum.digest('hex');
+    //encrypt password
+    var bcrypt = require('bcryptjs');
+    self.ddr.password = bcrypt.hashSync(self.ddr.password, self.ddr.salt);
 
     //TODO CACHE DONE
 
@@ -144,58 +167,14 @@ User.createAndInsertFromObject = function(object, callback) {
 };
 
 
-User.all = function(callback) {
-    var query =
-            "SELECT ?uri \n" +
-            "FROM [0] \n" +
-            "WHERE {\n" +
-                "?uri rdf:type ddr:User  \n"+
-            "} \n";
+User.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+{
+    var self = this;
+    User.baseConstructor.all.call(self, function(err, users) {
 
-    db.connection.execute(query,
-        [
-            {
-                type: DbConnection.resourceNoEscape,
-                value : db.graphUri
-            }
-        ],
-        function(err, users) {
-            if(!err)
-            {
-                 if(users instanceof Array && users.length > 0)
-                 {
-                     var getUserProperties = function(resultRow, cb)
-                     {
-                         User.findByUri(resultRow.uri, function(err, project)
-                         {
-                             cb(err, project);
-                         });
-                     };
+        callback(err, users);
 
-                     //get all the information about all the projects
-                     // and return the array of projects, complete with that info
-                     async.map(users, getUserProperties, function(err, usersToReturn)
-                     {
-                         if(!err)
-                         {
-                             callback(null, usersToReturn);
-                         }
-                         else
-                         {
-                             callback("error fetching user information : " + err, usersToReturn);
-                         }
-                     });
-                 }
-                 else
-                 {
-                     callback(null, []);
-                 }
-            }
-            else
-            {
-                callback(1, results);
-            }
-        });
+    }, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
 };
 
 User.allInPage = function(page, pageSize, callback) {
@@ -1142,11 +1121,11 @@ User.prototype.isAdmin = function(callback)
     {
         if(_.contains(self.rdf.type, "ddr:Administrator"))
         {
-            callback(null, true);
+            return true;
         }
         else
         {
-            callback(null, false);
+            return false;
         }
     }
 
@@ -1271,7 +1250,7 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
 User.prototype.startPasswordReset = function(callback)
 {
     var self = this;
-    var uuid = require('node-uuid');
+    var uuid = require('uuid');
 
     var token = uuid.v4();
 
@@ -1372,6 +1351,8 @@ User.removeAllAdmins = function(callback)
 User.anonymous = {
     uri: "http://dendro.fe.up.pt/user/anonymous"
 };
+
+User.prefixedRDFType = "ddr:User";
 
 User = Class.extend(User, Resource);
 

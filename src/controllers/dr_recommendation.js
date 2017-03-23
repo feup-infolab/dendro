@@ -98,14 +98,7 @@ exports.recommend_descriptors = function(req, res) {
                 }
             };
 
-            if(Config.baselines.dublin_core_only)
-            {
-                var allowedOntologies = [Ontology.allOntologies['dcterms'].uri];
-            }
-            else
-            {
-                var allowedOntologies = getAllowedOntologies();
-            }
+            var allowedOntologies = getAllowedOntologies();
 
             exports.shared.recommend_descriptors(req.params.requestedResource, req.session.user.uri, req.query.page, allowedOntologies, req.index, function(err, descriptors){
                 if(!err)
@@ -205,7 +198,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
 
     var getRecommendationsFromDR = function(resourceUri, callback)
     {
-        var requestedResource = new Resource({
+        var requestedResource = new InformationElement({
             uri : resourceUri
         });
 
@@ -351,6 +344,17 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
         if(!err)
         {
             results = removeLockedAndPrivate(results);
+
+            var uuid = require('uuid');
+            var recommendation_call_id = uuid.v4();
+            var recommendation_call_timestamp = new Date().toISOString();
+            
+            for(var i = 0; i < results.length; i++)
+            {
+                results[i].recommendationCallId = recommendation_call_id;
+                results[i].recommendationCallTimeStamp = recommendation_call_timestamp;
+            }
+
             callback(null, results);
         }
         else

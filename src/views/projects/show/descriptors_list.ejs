@@ -1,6 +1,6 @@
 <ul class="list-group">
     <li class="list-group-item" ng-show="recommendations_page != null && recommendations_page > 0">
-        <a href="#" class="recommendation-previous-label" ng-click="get_previous_descriptor_recommendations()"><h4 class="list-group-item-heading"><i class="fa fa-angle-up"> Previous page</i></h4></a>
+        <a href="#" class="recommendation-previous-label" ng-click="get_previous_descriptor_recommendations()"><h4 class="list-group-item-heading">Previous page <span class="fa fa-arrow-up"></span></h4></a>
         <script type="text/javascript">
             $('.recommendation-previous-label').tooltip({title : "<h4>&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;More&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;</h4>Click to return to the previous recommendations", html: true, placement : "left"});
         </script>
@@ -17,6 +17,15 @@
 
             <label class="btn btn-warning btn-block" id="change_descriptor_selection_to_recommendation_button_error" ng-click="switch_selection_mode('manual')">Switch to manual selection</label>
 
+        </div>
+    </div>
+
+    <div class="panel panel-info" ng-show="recommendations != null && recommendations.length == 0">
+        <div class="panel-heading">
+            <h3 class="panel-title">No descriptors</h3>
+        </div>
+        <div class="panel-body">
+            No descriptors to show.
         </div>
     </div>
 
@@ -63,7 +72,7 @@
     <li class="list-group-item" ng-show="recommendations.length >= recommendations_page_size && recommendations.length > 0">
         <div class="row">
             <div class="col-xs-12">
-                <a href="#" class="recommendation-next-label" ng-click="get_next_descriptor_recommendations()"><h4 class="list-group-item-heading"><i class="fa fa-angle-down"> Next page</i></h4></a>
+                <a href="#" class="recommendation-next-label" ng-click="get_next_descriptor_recommendations()"><h4 class="list-group-item-heading">Next page <span class="fa fa-arrow-down"></span></h4></a>
                 <script type="text/javascript">
                     $('.recommendation-next-label').tooltip({title : "<h4>&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;More&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;&NonBreakingSpace;</h4>Click to get another set suggestions", html: true, placement : "left"});
                 </script>

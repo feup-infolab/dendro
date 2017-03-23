@@ -2,7 +2,7 @@ var util = require('util');
 var Config = function() { return GLOBAL.Config; }();
 var needle = require('needle');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var uuid = require('node-uuid');
+var uuid = require('uuid');
 var redis = function() { return GLOBAL.redis.default; }();
 
 function DbConnection (host, port, username, password, maxSimultaneousConnections)
@@ -832,6 +832,38 @@ DbConnection.prototype.deleteGraph = function(graphUri, callback)
         function(err, resultsOrErrMessage)
         {
             callback(err, resultsOrErrMessage);
+        }
+    );
+};
+
+DbConnection.prototype.graphExists = function(graphUri, callback)
+{
+    var self = this;
+
+    self.execute("ASK { GRAPH [0] { ?s ?p ?o . } }",
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : graphUri
+            }
+        ],
+        function(err, result)
+        {
+            if(err == null)
+            {
+                if(result == true)
+                {
+                    callback(err, true);
+                }
+                else
+                {
+                    callback(err, false);
+                }
+            }
+            else
+            {
+                callback(err, null);
+            }
         }
     );
 };

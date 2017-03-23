@@ -76,15 +76,18 @@ Ontology.findByUri = function(uri, callback)
                     description : ontology.dcterms.description,
                     domain : ontology.ddr.hasResearchDomain
                 });
+                
+                callback(null, newOntology);
             }
             else
             {
                 callback(null, null);
             }
         }
-
-
-        callback(err, newOntology);
+        else
+        {
+            callback(err, ontology);
+        }
     });
 };
 
@@ -205,6 +208,7 @@ Ontology.initAllFromDatabase = function(callback)
                     else
                     {
                         console.error("Error retrieving valid alternatives for descriptor " + elementUri + "! Error returned " + JSON.stringify(alternatives));
+                        callback(null, null);
                     }
 
                 }
@@ -254,6 +258,7 @@ Ontology.initAllFromDatabase = function(callback)
                     else
                     {
                         console.error("Error retrieving Regular Expression that validates " + elementUri + "! Error returned " + JSON.stringify(regex));
+                        callback(null, null);
                     }
 
                 }
@@ -341,28 +346,18 @@ Ontology.initAllFromDatabase = function(callback)
     {
         async.map(ontologiesArray, function(ontologyObject, callback)
         {
-            async.waterfall([
-                    function(callback)
-                    {
-                        checkForOntology(ontologyObject, callback);
-                    },
-                    function (ontology, callback)
-                    {
-                        if(ontology == null)
-                        {
-                            createOntologyRecordInDatabase(ontologyObject, callback);
-                        }
-                        else
-                        {
-                            callback(null, null);
-                        }
-                    }
-                ],
-                function (err, results)
+            checkForOntology(ontologyObject, function(err, ontology){
+                if(ontology == null)
                 {
-                    callback(err, results);
+                    createOntologyRecordInDatabase(ontologyObject, function(err, result){
+                        callback(err, result);
+                    });
                 }
-            );
+                else
+                {
+                    callback(null, null);
+                }
+            });
         }, function(err, results){
             callback(err, results);
         });
@@ -381,8 +376,8 @@ Ontology.initAllFromDatabase = function(callback)
                                 {
                                     console.log("[INFO] Finished loading research domain configurations for descriptors from database");
                                 }
-                                callback(err, loadedOntologies);
 
+                                callback(err, loadedOntologies);
                             });
                         },
                         function(loadedOntologies, callback){
@@ -422,11 +417,15 @@ Ontology.initAllFromDatabase = function(callback)
     async.series([
         function(callback)
         {
-            recreateOntologiesInDatabase(Ontology.getAllOntologiesArray(), callback)
+            recreateOntologiesInDatabase(Ontology.getAllOntologiesArray(), function(err, result){
+                callback(err, result);
+            });
         },
         function(callback)
         {
-            loadOntologyConfigurationsFromDatabase(callback)
+            loadOntologyConfigurationsFromDatabase(function(err, result){
+                callback(err, result);
+            });
         }
     ],
     function(err, results)
@@ -523,7 +522,17 @@ Ontology.getPublicOntologies = function()
     {
         Ontology.publicOntologies = [];
 
-        var ontologies = Ontology.getAllOntologiesArray();
+        if(Config.public_ontologies != null && Config.public_ontologies != [])
+        {
+            var ontologies = _.filter(Ontology.getAllOntologiesArray(), function(ontology){
+                return _.contains(Config.public_ontologies, ontology.prefix);
+            });
+        }
+        else
+        {
+            var ontologies = Ontology.getAllOntologiesArray();
+        }
+
         for(var i = 0 ; i < ontologies.length; i++)
         {
             var ontology = ontologies[i];

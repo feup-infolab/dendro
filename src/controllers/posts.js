@@ -162,7 +162,7 @@ exports.all = function(req, res){
     }
     else
     {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing";
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
             result : "Error",
@@ -1079,7 +1079,7 @@ exports.post = function (req, res) {
 exports.getShare = function (req, res) {
     var currentUser = req.session.user;
     var shareUri = "http://"+req.headers.host + req.url;
-    var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersions";
+    var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersion";
 
     //TODO find the share in database
     //TODO see if it has ddr:postURI or ddr:fileVersionUri

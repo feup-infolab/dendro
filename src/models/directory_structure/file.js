@@ -36,8 +36,8 @@ function File (object)
 
     self.rdf.type = File.prefixedRDFType;
 
-    var re = /(?:\.([^.]+))?$/;
-    var ext = re.exec(self.nie.title)[1];   // "txt"
+    const re = /(?:\.([^.]+))?$/;
+    let ext = re.exec(self.nie.title)[1];   // "txt"
 
     if(ext == null)
     {
@@ -45,7 +45,9 @@ function File (object)
     }
     else
     {
+        let getClassNameForExtension = require('font-awesome-filetypes').getClassNameForExtension;
         self.ddr.fileExtension = ext;
+        self.ddr.hasFontAwesomeClass = getClassNameForExtension(ext);
     }
 
     return self;
@@ -174,7 +176,7 @@ File.prototype.delete = function(callback, uriOfUserDeletingTheFile, reallyDelet
 File.prototype.undelete = function(callback, uriOfUserUnDeletingTheFile)
 {
     var self = this;
-    self.updateDescriptorsInMemory(
+    self.updateDescriptors(
         [
             new Descriptor({
                 prefixedForm : "ddr:deleted",
@@ -227,37 +229,30 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
 
 File.prototype.writeToTempFile = function(callback)
 {
-    var self = this;
-    var tmp = require('tmp');
+    let self = this;
+    const tmp = require('tmp');
 
-    var fetchMetadataCallback = function (err, tempFolderPath) {
+    let fetchMetadataCallback = function (err, tempFolderPath) {
         if (!err)
         {
-            var writeToFileCallback = function(callback)
+            let writeToFileCallback = function(callback)
             {
-                if(!err)
-                {
-                    var tempFilePath = tempFolderPath + path.sep + self.nie.title;
+                var tempFilePath = tempFolderPath + path.sep + self.nie.title;
 
-                    console.log("Temp file location: " + tempFilePath);
+                console.log("Temp file location: " + tempFilePath);
 
-                    var fs = require('fs');
-                    var writeStream = fs.createWriteStream(tempFilePath);
-                    gfs.connection.get(self.uri, writeStream, function(err, result){
-                        if(!err)
-                        {
-                            callback(0, tempFilePath);
-                        }
-                        else
-                        {
-                            callback(1, result);
-                        }
-                    });
-                }
-                else
-                {
-                    callback(1, err);
-                }
+                var fs = require('fs');
+                var writeStream = fs.createWriteStream(tempFilePath);
+                gfs.connection.get(self.uri, writeStream, function(err, result){
+                    if(!err)
+                    {
+                        callback(null, tempFilePath);
+                    }
+                    else
+                    {
+                        callback(1, result);
+                    }
+                });
             };
 
             if(self.nie.title == null)
@@ -288,9 +283,9 @@ File.prototype.writeToTempFile = function(callback)
 
 File.prototype.getThumbnail = function(size, callback)
 {
-    var self = this;
-    var tmp = require('tmp');
-    var fs = require('fs');
+    let self = this;
+    const tmp = require('tmp');
+    const fs = require('fs');
 
     if(size == null)
     {
@@ -304,22 +299,23 @@ File.prototype.getThumbnail = function(size, callback)
         },
         function(err, tempFolderPath){
 
-            var tempFilePath = tempFolderPath + path.sep + path.basename(self.nie.title) + "_thumbnail_" + size + path.extname(self.nie.title);
-            var writeStream = fs.createWriteStream(tempFilePath);
+            const tempFilePath = tempFolderPath + path.sep + path.basename(self.nie.title) + "_thumbnail_" + size + path.extname(self.nie.title);
+            let writeStream = fs.createWriteStream(tempFilePath);
             gfs.connection.get(self.uri + "?thumbnail&size=" + size, writeStream, function(err, result){
-                if(!err)
+                if(err == 404)
+                {
+                    //try to regenerate thumbnails, fire and forget
+                    self.generateThumbnails(function(err, result){
+                        callback(0, Config.absPathInPublicFolder("images/icons/extensions/file_generating_thumbnail.png"));
+                    })
+                }
+                else if(!err)
                 {
                     console.log("Thumbnail temp file location: " + tempFilePath);
                     callback(0, tempFilePath);
                 }
                 else
                 {
-                    if(err == 404)
-                    {
-                        //try to regenerate thumbnails, fire and forget
-                        self.generateThumbnails(function(){});
-                    }
-
                     callback(1, result);
                 }
             });
@@ -360,14 +356,14 @@ File.prototype.loadFromLocalFile = function(localFile, callback)
 
 File.prototype.extract_text = function(callback)
 {
-    var self = this;
+    let self = this;
 
     if(Config.indexableFileExtensions[self.ddr.fileExtension] != null)
     {
         self.writeToTempFile(function(err, locationOfTempFile)
         {
-            var textract = require('textract');
-            textract(locationOfTempFile, function(err, textContent){
+            const textract = require('textract');
+            textract.fromFileWithPath(locationOfTempFile, function(err, textContent){
                 if(!err)
                 {
                     callback(null, textContent);
@@ -378,7 +374,7 @@ File.prototype.extract_text = function(callback)
                 }
 
                 //delete temporary file, we are done with it
-                var fs = require('fs');
+                const fs = require('fs');
                 fs.unlink(locationOfTempFile, function (err) {
                     if (err)
                     {
@@ -491,8 +487,13 @@ File.prototype.connectToMongo = function (callback) {
 File.prototype.findFileInMongo = function (db, callback) {
     var collection = db.collection('fs.files');
     collection.find({filename: this.uri}).toArray(function(err, files) {
-        console.log("Found the following Files");
-        console.log(files);
+
+        if(Config.debug.files.log_file_version_fetches)
+        {
+            console.log("Found the following Files");
+            console.log(files);
+        }
+
         if(!err)
         {
             callback(null, files);
@@ -524,7 +525,7 @@ File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata,
             }
         }
 
-        self.replaceDescriptorsInMemory(descriptors,  excludedDescriptorTypes, exceptionedDescriptorTypes);
+        self.replaceDescriptors(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
 
         self.save(function(err, result){
             if(!err)
@@ -548,15 +549,15 @@ File.rdfType = "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDat
 
 File.prototype.generateThumbnails = function(callback)
 {
-    var self = this;
+    let self = this;
 
-    var generateThumbnail = function(localFile, ownerProject, sizeTag, cb)
+    const generateThumbnail = function(localFile, ownerProject, sizeTag, cb)
     {
-        var easyimg = require('easyimage');
-        var fileName = path.basename(localFile, path.extname(localFile));
-        var parentDir = path.dirname(localFile);
-        var thumbnailFile = path.join(parentDir, fileName + "_thumbnail_"+ sizeTag +"." + Config.thumbnails.thumbnail_format_extension);
-        var fs = require('fs');
+        let easyimg = require('easyimage');
+        const fileName = path.basename(localFile, path.extname(localFile));
+        const parentDir = path.dirname(localFile);
+        const thumbnailFile = path.join(parentDir, fileName + "_thumbnail_"+ sizeTag +"." + Config.thumbnails.thumbnail_format_extension);
+        const fs = require('fs');
 
         easyimg.resize(
             {
@@ -566,43 +567,37 @@ File.prototype.generateThumbnails = function(callback)
                 height: Config.thumbnails.size_parameters[sizeTag].height,
                 x: 0,
                 y: 0
-            },
-            function(err, image) {
-                if(!err)
-                {
-                    console.log('Resized and cropped: ' + image.width + ' x ' + image.height);
+            }).then(function(image) {
+                console.log('Resized and cropped: ' + image.width + ' x ' + image.height);
 
-                    gfs.connection.put(
-                            self.uri + "?thumbnail&size=" + sizeTag,
-                        fs.createReadStream(thumbnailFile),
-                        function(err, result)
+                gfs.connection.put(
+                        self.uri + "?thumbnail&size=" + sizeTag,
+                    fs.createReadStream(thumbnailFile),
+                    function(err, result)
+                    {
+                        if(err != null)
                         {
-                            if(err != null)
-                            {
-                                var msg = "Error saving thumbnail file in GridFS :" + result + " when generating " + sizeTag + " size thumbnail for file " + self.uri;
-                                console.error(msg);
-                                cb(err, msg);
-                            }
-                            else
-                            {
-                                cb(null, null);
-                            }
-                        },
-                        {
-                            project : ownerProject,
-                            type : "nie:File",
-                            thumbnail : true,
-                            thumbnailOf : self.uri,
-                            size : sizeTag
+                            var msg = "Error saving thumbnail file in GridFS :" + result + " when generating " + sizeTag + " size thumbnail for file " + self.uri;
+                            console.error(msg);
+                            cb(err, msg);
                         }
-                    );
-                }
-                else
-                {
-                    callback(err,  + "Error saving thumbnail for file " + self.uri + " . \nCheck that you have the xpdf ghostscript-x tesseract-ocr dependencies installed in the server." + image);
-                }
-            }
-        );
+                        else
+                        {
+                            cb(null, null);
+                        }
+                    },
+                    {
+                        project : ownerProject,
+                        type : "nie:File",
+                        thumbnail : true,
+                        thumbnailOf : self.uri,
+                        size : sizeTag
+                    }
+                );
+            })
+            .catch(function(err){
+                callback(err,  + "Error saving thumbnail for file " + self.uri + " . \nCheck that you have the xpdf ghostscript-x tesseract-ocr dependencies installed in the server." + err);
+            });
     };
 
     self.getOwnerProject(function(err, project){
@@ -640,9 +635,9 @@ File.prototype.generateThumbnails = function(callback)
         }
         else
         {
-            callback(null, "Unable to retrieve file " + self.uri + " for from GridFS for thumbnail generation.");
+            callback(null, "Unable to retrieve owner project of " + self.uri + " for thumbnail generation.");
         }
-    })
+    });
 };
 
 File.createBlankTempFile = function(fileName, callback)

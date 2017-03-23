@@ -83,7 +83,7 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function () {
             $scope.get_unread_notifications();
-            $interval($scope.get_unread_notifications, 60000);
+            //$interval($scope.get_unread_notifications, 60000); //TODO DEACTIVATED FOR DEBUGGING JROCHA
         };
 
         $scope.get_notification_info = function (notificationUri) {
