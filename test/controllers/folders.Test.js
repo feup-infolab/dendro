@@ -321,7 +321,7 @@ describe("[POST] [FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.ha
 });
 
 describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?delete", function () {
-
+    //API only
     it("Should give an error when the request is of type HTML for this route", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.deleteItem(false, agent, publicProject.handle, folder.name, function (err, res) {
@@ -389,7 +389,17 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicPro
 });
 
 describe("[DELETE] [DELETE FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/:foldername?delete", function () {
-    //TODO API only
+    //API only
+
+    it("Should give an error when the request is of type HTML for this route", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(false, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("HTML Request not valid for this route.");
+                done();
+            });
+        });
+    });
 
     it("Should give an error message when the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -448,7 +458,16 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + me
 });
 
 describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:foldername?delete", function () {
-    //TODO API only
+    //API only
+    it("Should give an error when the request is of type HTML for this route", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(false, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("HTML Request not valid for this route.");
+                done();
+            });
+        });
+    });
 
     it("Should give an error message when the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
