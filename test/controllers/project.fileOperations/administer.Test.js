@@ -4,6 +4,10 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
+var Config = function() { return GLOBAL.Config; }();
+var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+
+
 const should = chai.should();
 
 const publicProject = require("../../mockdata/projects/public_project.js");
@@ -39,7 +43,7 @@ describe('/project/' + publicProject.handle + '?administer', function () {
         });
     });
 
-    it("[HTML] access project's info GET", function (done) {
+    it("[HTML] should access project's info GET", function (done) {
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             //
@@ -59,7 +63,7 @@ describe('/project/' + publicProject.handle + '?administer', function () {
     });
 
 
-    it("[HTML] modify project without logging in POST", function (done) {
+    it("[HTML] should not modify project without logging in POST", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         projectUtils.administer(agent, true, {}, publicProject.handle, function(err, res){
@@ -69,7 +73,7 @@ describe('/project/' + publicProject.handle + '?administer', function () {
         });
     });
 
-    it("[HTML] modify project without admin rights POST", function (done) {
+    it("[HTML] should not modify project without admin rights POST", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             projectUtils.administer(agent, true, {}, publicProject.handle, function(err, res){
                 res.should.have.status(200);
@@ -79,39 +83,41 @@ describe('/project/' + publicProject.handle + '?administer', function () {
         });
     });
 
-
-    it("[HTML] access non-existent project", function (done) {
+    it("[HTML] should change project's privacy status, title and description", function (done) {
+        var metadata = 'metadata_only';
+        var title = 'mockTitle';
+        var description = 'this is a testing description with no other purposes';
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.administer(agent, true, {}, "nonexistinghandleseriousiswear", function(err, res){
+            projectUtils.administer(agent, true, {privacy: metadata, title: title, description: description}, publicProject.handle, function(err, res){
                 res.should.have.status(200);
-                res.text.should.contain('Permission denied : cannot access the administration area of the project because you are not its creator.');
-                done();
+                Project.findByHandle(publicProject.handle, function(err, project){
+                    project.ddr.privacyStatus.should.equal(metadata);
+                    project.dcterms.title.should.equal(title);
+                    project.dcterms.description.should.equal(description);
+                    done();
+                });
+
             });
         });
-    });
-
-
-    it("[HTML] change project's privacy status", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.administer(agent, true, {}, publicProject.handle, function(err, res){
-                res.should.have.status(200);
-                res.text.should.contain('Permission denied : cannot access the administration area of the project because you are not its creator.');
-                done();
-            });
-        });
-    });
-
-    it("[HTML] remove contributors", function (done) {
-        done();
-
     });
 
     it("[HTML] add non-existent contributors", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.administer(agent, true, {contributors: ['nonexistinguser', 'thisUserHandleDoesNotExist']}, function(err, res){
+
+            });
+        });
         done();
 
     });
 
     it("[HTML] add contributors", function (done) {
         done();
+    });
+
+
+    it("[HTML] remove contributors", function (done) {
+        done();
+
     });
 });
