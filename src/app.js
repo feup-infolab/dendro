@@ -134,7 +134,7 @@ if(Config.logging != null)
                             log_file.write("[ " + date + " ] "+ util.format(err.stack) + "\n");
                             log_stdout.write(util.format(err.stack) + '\n');
                         }
-                        
+
                         throw err;
                     };
 
@@ -151,7 +151,7 @@ if(Config.logging != null)
 
                         throw err;
                     });
-                    
+
                     cb(null);
                 })
             }
@@ -1861,7 +1861,7 @@ async.waterfall([
                             throw err;
                         });
                     }
-                    
+
                     console.log('Express server listening on port ' + app.get('port'));
                     bootupPromise.resolve(app);
                 });
