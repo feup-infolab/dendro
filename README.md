@@ -9,13 +9,13 @@
 
 ## Demo instance
 
-[![Demo](https://img.shields.io/badge/demo-instance-ff69b4.svg)](http://dendro.fe.up.pt/demo)
+[DEMO](http://dendro.fe.up.pt/demo)
 
 If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
 
 ## How to install
 
-[![Installation](https://img.shields.io/badge/installation-guide-blue.svg)](https://github.com/feup-infolab/dendro-install)
+[Installation](https://github.com/feup-infolab/dendro-install)
 
 ## What is Dendro?
 
