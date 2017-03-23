@@ -1096,7 +1096,7 @@ async.waterfall([
         app.use(cookieParser(appSecret));
 
         const MongoStore = require('connect-mongo')(expressSession);
-        
+
         var sessionMongoStore = new MongoStore(
         {
             "host": Config.mongoDBHost,
@@ -1104,7 +1104,7 @@ async.waterfall([
             "db": Config.mongoDBSessionStoreCollection,
             "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDBSessionStoreCollection
         });
-        
+
         var slug = require('slug');
         var key = "dendro_" + slug(Config.host)+ "_sessionKey";
         app.use(expressSession(
@@ -1386,12 +1386,25 @@ async.waterfall([
                                 permissions : defaultPermissionsInProjectRoot,
                                 authentication_error : "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
                             },
+                            //auto completing users
+                            {
+                                queryKeys : ['user_autocomplete'],
+                                handler : users.users_autocomplete,
+                                permissions : defaultPermissionsInProjectRoot,
+                                authentication_error : "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
+                            },
                             //thumb nails
                             {
                                 queryKeys : ['thumbnail'],
                                 handler : files.thumbnail,
                                 permissions : defaultPermissionsInProjectRoot,
                                 authentication_error : "Permission denied : cannot get thumbnail for this project because you do not have permissions to access this project."
+                            },
+                            {
+                                queryKeys : ['get_contributors'],
+                                handler : projects.get_contributors,
+                                permissions : defaultPermissionsInProjectRoot,
+                                authentication_error : "Permission denied : cannot get contributors for this project because you do not have permissions to access this project."
                             },
                             //administration page
                             {
