@@ -68,6 +68,8 @@ describe("[GET] /projects/new", function () {
 });
 */
 
+//CREATE PROJECTS TESTS
+/*
 describe("[POST] with project handle: "+ publicproject.handle + " [/projects/new]", function () {
     it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
         var app = GLOBAL.tests.app;
@@ -109,7 +111,7 @@ describe("[POST] with project handle: "+ publicproject.handle + " [/projects/new
         });
     });
 });
-
+*/
 
 describe("[POST] with project handle: "+ metadaOnlyProject.handle + " [/projects/new]", function () {
     it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
@@ -153,7 +155,6 @@ describe("[POST] with project handle: "+ metadaOnlyProject.handle + " [/projects
     });
 });
 
-
 describe("[POST] with project handle: "+ privateProject.handle + " [/projects/new]", function () {
     //TODO HTML AND API
     it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
@@ -190,12 +191,14 @@ describe("[POST] with project handle: "+ privateProject.handle + " [/projects/ne
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
                 res.statusCode.should.equal(200);
-                res.text.should.contain("<p>New project This is a private test project with handle privateprojecthtmlcreatedbydemouser1 and created by demouser1 with handle privateprojecthtmlcreatedbydemouser1 created successfully</p>");
+                res.text.should.contain("New project This is a private test project with handle privateprojecthtmlcreatedbydemouser1 and created by demouser1 with handle privateprojecthtmlcreatedbydemouser1 created successfully");
                 done();
             });
         });
     });
 });
+
+
 
 //LIST ALL PROJECTS
 /*
@@ -809,7 +812,8 @@ describe("[HTML] [POST] /project/:handle/undelete", function () {
 });
 */
 
-
+//PROJECT LEVEL MKDIR TESTS
+/*
 describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
 
     it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
@@ -880,6 +884,7 @@ describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
         });
     });
 });
+*/
 
 describe("[POST] /project/:handle?mkdir " + metadaOnlyProject.handle, function () {
 
@@ -1022,6 +1027,7 @@ describe("[POST] /project/:handle?mkdir " + privateProject.handle, function () {
         });
     });
 });
+
 
 /*
 describe("[GET] /project/:handle?recent_changes", function () {

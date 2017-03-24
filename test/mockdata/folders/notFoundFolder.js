@@ -1,4 +1,4 @@
-var folderName = "pastinhaLinda";
+var folderName = "notFoundFolder";
 var publicProject = require("../projects/public_project");
 var privateProject = require("../projects/private_project");
 var metadataOnlyProject = require("../projects/metadata_only_project");

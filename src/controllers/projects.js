@@ -1149,48 +1149,60 @@ exports.undelete = function(req,res)
 };
 
 exports.recent_changes = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    if(!acceptsJSON && acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
 
-    Project.findByUri(req.params.requestedResource, function(err, project){
-        if(!err)
-        {
-            if(project != null)
+        Project.findByUri(req.params.requestedResource, function(err, project){
+            if(!err)
             {
-                var offset = parseInt(req.query.offset);
-                var limit = parseInt(req.query.limit);
+                if(project != null)
+                {
+                    var offset = parseInt(req.query.offset);
+                    var limit = parseInt(req.query.limit);
 
-                project.getRecentProjectWideChanges(function(err, changes){
-                    if(!err)
-                    {
-                        res.json(changes);
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result : "error",
-                            message : "Invalid project : " + requestedProjectURI + " : " + project
-                        });
-                    }
-                },offset , limit);
+                    project.getRecentProjectWideChanges(function(err, changes){
+                        if(!err)
+                        {
+                            res.json(changes);
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result : "error",
+                                message : "Invalid project : " + requestedProjectURI + " : " + project
+                            });
+                        }
+                    },offset , limit);
+                }
+                else
+                {
+                    res.status(404).json({
+                        result : "error",
+                        message : "Unable to find project with handle : " + req.params.handle
+                    });
+                }
             }
             else
             {
-                res.status(404).json({
+                res.status(500).json({
                     result : "error",
-                    message : "Unable to find project with handle : " + req.params.handle
+                    message : "Invalid project : " + requestedProjectURI + " : " + project
                 });
             }
-        }
-        else
-        {
-            res.status(500).json({
-                result : "error",
-                message : "Invalid project : " + requestedProjectURI + " : " + project
-            });
-        }
-    });
+        });
+    }
 };
 
 exports.stats = function(req, res) {

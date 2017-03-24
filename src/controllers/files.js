@@ -1396,7 +1396,7 @@ exports.rm = function(req, res){
                     else if(type == Folder)
                     {
                         Folder.findByUri(resourceToDelete, function(err, folder){
-                            if(!err && folder != null)
+                            if(!err)
                             {
                                 if(req.session.user != null)
                                 {
@@ -1448,91 +1448,122 @@ exports.rm = function(req, res){
                         });
                     }
                 }
+                else
+                {
+                    res.status(500).json(
+                        {
+                            "result" : "error",
+                            "message" : "Unable to retrieve resource with uri " + resourceToDelete
+                        }
+                    );
+                }
             });
         }
     }
 };
 
 exports.undelete = function(req, res){
-    var resourceToUnDelete = req.params.requestedResource;
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    if(resourceToUnDelete != null)
+    if(acceptsJSON && !acceptsHTML)
     {
-        InformationElement.getType(resourceToUnDelete, function(err, type)
+        var resourceToUnDelete = req.params.requestedResource;
+
+        if(resourceToUnDelete != null)
         {
-            if(!err)
+            InformationElement.getType(resourceToUnDelete, function(err, type)
             {
-                if(type == File)
+                if(!err)
                 {
-                    File.findByUri(resourceToUnDelete, function(err, file){
-                        if(!err)
-                        {
-                            file.undelete(function(err, result){
-                                if(!err)
-                                {
-                                    res.status(200).json({
-                                        "result" : "success",
-                                        "message" : "Successfully undeleted " + resourceToUnDelete
-                                    });
-                                }
-                                else
-                                {
-                                    res.status(500).json(
-                                        {
-                                            "result" : "error",
-                                            "message" : "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
-                                        }
-                                    );
-                                }
-                            });
-                        }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    "result" : "error",
-                                    "message" : "Unable to retrieve resource with uri " + resourceToUnDelete
-                                }
-                            );
-                        }
-                    });
+                    if(type == File)
+                    {
+                        File.findByUri(resourceToUnDelete, function(err, file){
+                            if(!err)
+                            {
+                                file.undelete(function(err, result){
+                                    if(!err)
+                                    {
+                                        res.status(200).json({
+                                            "result" : "success",
+                                            "message" : "Successfully undeleted " + resourceToUnDelete
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json(
+                                            {
+                                                "result" : "error",
+                                                "message" : "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
+                                            }
+                                        );
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : "Unable to retrieve resource with uri " + resourceToUnDelete
+                                    }
+                                );
+                            }
+                        });
+                    }
+                    else if(type == Folder)
+                    {
+                        Folder.findByUri(resourceToUnDelete, function(err, folder){
+                            if(!err)
+                            {
+                                folder.undelete(function(err, result){
+                                    if(!err)
+                                    {
+                                        res.status(200).json({
+                                            "result" : "success",
+                                            "message" : "Successfully undeleted " + resourceToUnDelete
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json(
+                                            {
+                                                "result" : "error",
+                                                "message" : "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
+                                            }
+                                        );
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : "Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + folder
+                                    }
+                                );
+                            }
+                        });
+                    }
                 }
-                else if(type == Folder)
+                else
                 {
-                    Folder.findByUri(resourceToUnDelete, function(err, folder){
-                        if(!err)
+                    res.status(500).json(
                         {
-                            folder.undelete(function(err, result){
-                                if(!err)
-                                {
-                                    res.status(200).json({
-                                        "result" : "success",
-                                        "message" : "Successfully undeleted " + resourceToUnDelete
-                                    });
-                                }
-                                else
-                                {
-                                    res.status(500).json(
-                                        {
-                                            "result" : "error",
-                                            "message" : "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
-                                        }
-                                    );
-                                }
-                            });
+                            "result" : "error",
+                            "message" : "Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + type
                         }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    "result" : "error",
-                                    "message" : "Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + folder
-                                }
-                            );
-                        }
-                    });
+                    );
                 }
-            }
+            });
+        }
+    }
+    else
+    {
+        res.status(400).json({
+            result : "error",
+            msg : "HTML Request not valid for this route."
         });
     }
 };

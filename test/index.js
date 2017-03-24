@@ -18,7 +18,7 @@ require("./controllers/folders.Test.js");
 //require("./controllers/users.Test.js");
 
 //test descriptors
-require("./controllers/descriptors.Test.js");
+//require("./controllers/descriptors.Test.js");
 
 //SOCIAL DENDRO
 //test Social Dendro Posts

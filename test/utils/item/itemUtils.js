@@ -49,6 +49,7 @@ var updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, met
     {
         agent
             .post(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .send(metadata)
             .end(function (err, res) {
@@ -98,6 +99,7 @@ var getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, c
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -124,6 +126,7 @@ var getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVer
         agent
             .get(path)
             .query({version: itemVersion})
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
