@@ -95,7 +95,7 @@ describe('/register', function () {
 });
 
 describe('/login', function () {
-    it('should show the login page', function (done) {
+    it('[HTML] should show the login page', function (done) {
         const app = GLOBAL.tests.app;
         chai.request(app)
             .get('/login')
@@ -106,7 +106,7 @@ describe('/login', function () {
             });
     });
 
-    it('should not login the demo user when wrong password is provided', function (done) {
+    it('[HTML] should not login the demo user when wrong password is provided', function (done) {
         const app = GLOBAL.tests.app;
         chai.request(app)
             .post('/login')
@@ -118,8 +118,7 @@ describe('/login', function () {
             });
     });
 
-    it('should login the demo user with correct password', function (done) {
-        this.timeout(5000);
+    it('[HTML] should login ' + demouser1.username + ' with correct password', function (done) {
         const app = GLOBAL.tests.app;
         const agent = chai.request.agent(app);
 
@@ -135,7 +134,7 @@ describe('/login', function () {
             });
     });
 
-    it('should logout the demo user', function (done) {
+    it('[HTML] should logout the ' + demouser1.username + " user if correctly authenticated.", function (done) {
         const agent = GLOBAL.tests.agent;
 
         agent
@@ -147,61 +146,159 @@ describe('/login', function () {
             });
     });
 
-    /**
-     * HTML logins and logouts
-     */
-    
-    it('[HTML] should not logout an authenticated user', function (done) {
-        //TODO
-        done();
-    });
+    it('[HTML] should not logout an unauthenticated user', function (done) {
+        const agent = GLOBAL.tests.agent;
 
-    it('[HTML] should login ' + demouser1.username, function (done) {
-        //TODO 
-        done();
-    });
-
-    it('[HTML] logout the ' + demouser1.username + " user if correctly authenticated.", function (done) {
-        //TODO
-        done();
+        agent
+            .get('/logout')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.not.include('Successfully logged out');
+                res.text.should.include.include('Cannot log you out because you are not logged in');
+                done();
+            });
     });
 
     it('[HTML] should login ' + demouser1.username + " while " + demouser2.username + " is logged in, replacing it", function (done) {
-        //TODO
-        done();
-    });
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
 
-    it('[HTML] should login ' + demouser1.username + " while " + demouser2.username + " is logged in, replacing it", function (done) {
-        //TODO
-        done();
+        GLOBAL.tests.agent = agent;
+
+        agent
+            .post('/login')
+            .send({'username': demouser2.username, 'password':  demouser2.password })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.contain('Your projects');
+
+                agent
+                    .get('/users/loggedUser')
+                    .end((err, res) =>
+                    {
+                        res.should.have.status(200);
+                        res.text.should.equal(demouser2.username);
+                        
+                        agent
+                            .post('/login')
+                            .send({'username': demouser2.username, 'password':  demouser2.password })
+                            .end((err, res) => {
+                                res.should.have.status(200);
+                                res.text.should.contain('Your projects');
+
+                                agent
+                                    .get('/users/loggedUser')
+                                    .end((err, res) =>
+                                    {
+                                        res.should.have.status(200);
+                                        res.text.should.equal(demouser1.username);
+                                        done()
+                                    });
+                            });
+                    });
+            });
     });
 
     /**
-     * API logins and logouts
+     * API Coverage
      */
-    it('[API] should not logout an authenticated user', function (done) {
-        //TODO
-        done();
+
+    it('[JSON] should not login the demo user when wrong password is provided', function (done) {
+        const app = GLOBAL.tests.app;
+        chai.request(app)
+            .post('/login')
+            .set('Accept', 'application/json')
+            .send({'username': demouser1.username, 'password': 'WRONG_PASSWORD'})
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.contain('Please sign in');
+                done();
+            });
     });
 
-    it('[API] should login ' + demouser1.username, function (done) {
-        //TODO
-        done();
+    it('[JSON] should login ' + demouser1.username + ' with correct password', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+
+        GLOBAL.tests.agent = agent;
+
+        agent
+            .post('/login')
+            .set('Accept', 'application/json')
+            .send({'username': demouser1.username, 'password':  demouser1.password })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.include('Your projects');
+                done();
+            });
     });
 
-    it('[API] logout the ' + demouser1.username + " user if authenticated as " + demouser1.username, function (done) {
-        //TODO
-        done();
+    it('[JSON] should logout the ' + demouser1.username + " user if correctly authenticated.", function (done) {
+        const agent = GLOBAL.tests.agent;
+
+        agent
+            .get('/logout')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.include('Successfully logged out');
+                done();
+            });
     });
 
-    it('[API] should login ' + demouser1.username + " while " + demouser2.username + " is logged in, replacing it", function (done) {
-        //TODO
-        done();
+    it('[JSON] should not logout an unauthenticated user', function (done) {
+        const agent = GLOBAL.tests.agent;
+
+        agent
+            .get('/logout')
+            .set('Accept', 'application/json')
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.not.include('Successfully logged out');
+                res.text.should.include.include('Cannot log you out because you are not logged in');
+                done();
+            });
     });
 
-    it('[API] should login ' + demouser1.username + " while " + demouser2.username + " is logged in, replacing it", function (done) {
-        //TODO
-        done();
+    it('[JSON] should login ' + demouser1.username + " while " + demouser2.username + " is logged in, replacing it", function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+
+        GLOBAL.tests.agent = agent;
+
+        agent
+            .post('/login')
+            .set('Accept', 'application/json')
+            .send({'username': demouser2.username, 'password':  demouser2.password })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.contain('Your projects');
+
+                agent
+                    .get('/users/loggedUser')
+                    .end((err, res) =>
+                    {
+                        res.should.have.status(200);
+                        res.text.should.equal(demouser2.username);
+
+                        agent
+                            .post('/login')
+                            .send({'username': demouser2.username, 'password':  demouser2.password })
+                            .end((err, res) => {
+                                res.should.have.status(200);
+                                res.text.should.contain('Your projects');
+
+                                agent
+                                    .get('/users/loggedUser')
+                                    .end((err, res) =>
+                                    {
+                                        res.should.have.status(200);
+                                        res.text.should.equal(demouser1.username);
+                                        done()
+                                    });
+                            });
+                    });
+            });
     });
 });
 

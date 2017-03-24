@@ -160,18 +160,25 @@ module.exports.login = function(req, res){
 };
 
 module.exports.logout = function(req, res){
-    req.session.user = null;
-    req.session.isAdmin = null;
-    req.session.upload_manager = null;
 
-    //req.flash('success', "Successfully logged out");
+    if(req.session.user != null)
+    {
+        req.session.user = null;
+        req.session.isAdmin = null;
+        req.session.upload_manager = null;
 
-    console.log("Redirecting...");
-    res.render('index', {
-        title : "Dendro",
-        success_messages: ["Successfully logged out"]
-    });
-
+        res.render('index', {
+            title : "Dendro",
+            success_messages: ["Successfully logged out"]
+        });
+    }
+    else
+    {
+        res.render('index', {
+            title : "Dendro",
+            success_messages: ["Cannot log you out because you are not logged in"]
+        });
+    }
 };
 
 module.exports.register = function(req, res){
