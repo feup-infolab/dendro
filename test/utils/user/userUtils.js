@@ -91,3 +91,27 @@ exports.getCurrentLoggedUser= function (jsonOnly, agent, cb)
             });
     }
 };
+
+exports.addUserAscontributorToProject = function (jsonOnly, agent, username, projectHandle, cb) {
+    var contributors = {contributors:["http://" + Config.host + "/user/" + username]};
+    var path = "/project/" + projectHandle + "?administer";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .send(contributors)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .send(contributors)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};

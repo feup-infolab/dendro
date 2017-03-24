@@ -19,6 +19,7 @@ const demouser3 = require("../mockdata/users/demouser3.js");
 const folder = require("../mockdata/folders/folder.js");
 const doNotDeleteFolderMockup = require("../mockdata/folders/doNotDeleteFolder.js");
 const notFoundFolder = require("../mockdata/folders/notFoundFolder.js");
+const folderForDemouser2 = require("../mockdata/folders/folderDemoUser2");
 
 const metadataOnlyProject = require("../mockdata/projects/metadata_only_project.js");
 const publicProject = require("../mockdata/projects/public_project.js");
@@ -96,7 +97,6 @@ describe("/project/" + publicProject.handle + "/data/" + folder.pathInProject + 
 */
 
 //MKDIR FOLDER LEVEL TESTS
-/*
 describe("[POST] [FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?mkdir", function () {
     it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -117,8 +117,8 @@ describe("[POST] [FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.hand
         });
     });
 
-    it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+    it("Should give an error when the user is logged in as demouser3(not a collaborador nor creator in a project by demouser1)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             itemUtils.createFolder(true, agent, publicProject.handle, folder.name, folder.name, function (err, res) {
                 res.statusCode.should.equal(401);
                 done();
@@ -135,9 +135,9 @@ describe("[POST] [FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.hand
         });
     });
 
-    it("Should create the folder with success if the user is logged in as demouser3(a collaborator of the project)", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            itemUtils.createFolder(true, agent, publicProject.handle, folder.name, folder.name, function (err, res) {
+    it("Should create the folder with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, publicProject.handle, folderForDemouser2.name, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 done();
             });
@@ -172,7 +172,6 @@ describe("[POST] [FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.hand
         });
     });
 });
-*/
 
 describe("[POST] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/:foldername?mkdir", function () {
     it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done) {
@@ -194,8 +193,8 @@ describe("[POST] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataOnl
         });
     });
 
-    it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+    it("Should give an error when the user is logged in as demouser3(not a collaborador nor creator in a project by demouser1)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             itemUtils.createFolder(true, agent, metadataOnlyProject.handle, folder.name, folder.name, function (err, res) {
                 res.statusCode.should.equal(401);
                 done();
@@ -212,9 +211,9 @@ describe("[POST] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataOnl
         });
     });
 
-    it("Should create the folder with success if the user is logged in as demouser3(a collaborator of the project)", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            itemUtils.createFolder(true, agent, metadataOnlyProject.handle, folder.name, folder.name, function (err, res) {
+    it("Should create the folder with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, metadataOnlyProject.handle, folderForDemouser2.name, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 done();
             });
@@ -270,8 +269,8 @@ describe("[POST] [FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.ha
         });
     });
 
-    it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+    it("Should give an error when the user is logged in as demouser3(not a collaborador nor creator in a project by demouser1)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             itemUtils.createFolder(true, agent, privateProject.handle, folder.name, folder.name, function (err, res) {
                 res.statusCode.should.equal(401);
                 done();
@@ -288,9 +287,9 @@ describe("[POST] [FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.ha
         });
     });
 
-    it("Should create the folder with success if the user is logged in as demouser3(a collaborator of the project)", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            itemUtils.createFolder(true, agent, privateProject.handle, folder.name, folder.name, function (err, res) {
+    it("Should create the folder with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.createFolder(true, agent, privateProject.handle, folderForDemouser2.name, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 done();
             });
@@ -328,7 +327,6 @@ describe("[POST] [FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.ha
 
 
 //DELETE TESTS
-/*
 describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?delete", function () {
     //API only
     it("Should give an error when the request is of type HTML for this route", function (done) {
@@ -371,7 +369,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicPro
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a folder created by demouser1", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            itemUtils.deleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+            itemUtils.deleteItem(true, agent, publicProject.handle, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 done();
             });
@@ -441,7 +439,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + me
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a folder created by demouser1", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+            itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 done();
             });
@@ -509,7 +507,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateP
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a folder created by demouser1", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            itemUtils.deleteItem(true, agent, privateProject.handle, folder.name, function (err, res) {
+            itemUtils.deleteItem(true, agent, privateProject.handle, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 done();
             });
@@ -534,11 +532,9 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateP
         });
     })
 });
-*/
 
 
 //UNDELETE TESTS
-/*
 describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle+ "/data/:foldername?undelete", function() {
     //API only
     it("Should give an error when the request type for this route is HTML", function (done) {
@@ -593,7 +589,7 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle+ "/data/:fol
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a folder that is currently deleted", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            itemUtils.undeleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+            itemUtils.undeleteItem(true, agent, publicProject.handle, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 done();
             });
@@ -673,7 +669,7 @@ describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a folder that is currently deleted", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            itemUtils.undeleteItem(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+            itemUtils.undeleteItem(true, agent, metadataOnlyProject.handle, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 done();
             });
@@ -753,7 +749,7 @@ describe("[POST] [Private PROJECT] /project/" + privateProject.handle + "/data/:
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a folder that is currently deleted", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            itemUtils.undeleteItem(true, agent, privateProject.handle, folder.name, function (err, res) {
+            itemUtils.undeleteItem(true, agent, privateProject.handle, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 done();
             });
@@ -778,10 +774,8 @@ describe("[POST] [Private PROJECT] /project/" + privateProject.handle + "/data/:
         });
     })
 });
-*/
 
 //UPDATE_METADATA TESTS
-/*
 describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?update_metadata", function() {
     //API ONLY
 
@@ -848,14 +842,13 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:fo
     });
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to update a metadata of a folder with a valid descriptor", function (done) {
-        //TODO find a way to add demouser2 as collaborator
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            itemUtils.updateItemMetadata(true, agent, publicProject.handle, folder.name, folder.metadata, function (err, res) {
+            itemUtils.updateItemMetadata(true, agent, publicProject.handle, folderForDemouser2.name, folderForDemouser2.metadata, function (err, res) {
                 res.statusCode.should.equal(200);
                 //jsonOnly, agent, projectHandle, itemPath, cb
-                itemUtils.getItemMetadata(true, agent, publicProject.handle, folder.name, function (error, response) {
+                itemUtils.getItemMetadata(true, agent, publicProject.handle, folderForDemouser2.name, function (error, response) {
                     response.statusCode.should.equal(200);
-                    JSON.parse(response.text).descriptors.length.should.equal(folder.metadata.length);
+                    JSON.parse(response.text).descriptors.length.should.equal(folderForDemouser2.metadata.length);
                     done();
                 });
             });
@@ -890,11 +883,9 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:fo
         });
     })
 });
-*/
 
 describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/:foldername?update_metadata", function() {
     //API ONLY
-
     it("Should give an error if the request type for this route is HTML", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.updateItemMetadata(false, agent, metadataOnlyProject.handle, folder.name, folder.metadata, function (err, res) {
@@ -956,14 +947,13 @@ describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle
     });
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to update a metadata of a folder with a valid descriptor", function (done) {
-        //TODO find a way to add demouser2 as collaborator
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            itemUtils.updateItemMetadata(true, agent, metadataOnlyProject.handle, folder.name, folder.metadata, function (err, res) {
+            itemUtils.updateItemMetadata(true, agent, metadataOnlyProject.handle, folderForDemouser2.name, folderForDemouser2.metadata, function (err, res) {
                 res.statusCode.should.equal(200);
                 //jsonOnly, agent, projectHandle, itemPath, cb
-                itemUtils.getItemMetadata(true, agent, metadataOnlyProject.handle, folder.name, function (error, response) {
+                itemUtils.getItemMetadata(true, agent, metadataOnlyProject.handle, folderForDemouser2.name, function (error, response) {
                     response.statusCode.should.equal(200);
-                    JSON.parse(response.text).descriptors.length.should.equal(folder.metadata.length);
+                    JSON.parse(response.text).descriptors.length.should.equal(folderForDemouser2.metadata.length);
                     done();
                 });
             });
@@ -1061,14 +1051,13 @@ describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:
     });
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to update a metadata of a folder with a valid descriptor", function (done) {
-        //TODO find a way to add demouser2 as collaborator
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            itemUtils.updateItemMetadata(true, agent, privateProject.handle, folder.name, folder.metadata, function (err, res) {
+            itemUtils.updateItemMetadata(true, agent, privateProject.handle, folderForDemouser2.name, folderForDemouser2.metadata, function (err, res) {
                 res.statusCode.should.equal(200);
                 //jsonOnly, agent, projectHandle, itemPath, cb
-                itemUtils.getItemMetadata(true, agent, privateProject.handle, folder.name, function (error, response) {
+                itemUtils.getItemMetadata(true, agent, privateProject.handle, folderForDemouser2.name, function (error, response) {
                     response.statusCode.should.equal(200);
-                    JSON.parse(response.text).descriptors.length.should.equal(folder.metadata.length);
+                    JSON.parse(response.text).descriptors.length.should.equal(folderForDemouser2.metadata.length);
                     done();
                 });
             });
@@ -1105,7 +1094,6 @@ describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:
 
 
 //GET ITEM RECENT CHANGES TESTS
-/*
 describe("[GET] [PUBLIC PROJECT] /project/"+ publicProject.handle + "/data/foldername?recent_changes", function () {
     //API ONLY
     it("Should give an error if the request is of type HTML", function (done) {
@@ -1147,10 +1135,11 @@ describe("[GET] [PUBLIC PROJECT] /project/"+ publicProject.handle + "/data/folde
         });
     });
 
-    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+    it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             itemUtils.getItemRecentChanges(true, agent, publicProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(200);//because it is a public project
+                res.body[0].changes.length.should.equal(2);//The title and creator that were added to the folder
                 done();
             });
         });
@@ -1167,10 +1156,10 @@ describe("[GET] [PUBLIC PROJECT] /project/"+ publicProject.handle + "/data/folde
         });
     });
 
-    it("Should give the folder changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+    it("Should give the folder changes if the user is logged in as demouser2(a collaborator on the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             //jsonOnly, agent, projectHandle, itemPath, cb
-            itemUtils.getItemRecentChanges(true, agent, publicProject.handle, folder.name, function (err, res) {
+            itemUtils.getItemRecentChanges(true, agent, publicProject.handle, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.body[0].changes.length.should.equal(2);//The title and creator that were added to the folder
                 done();
@@ -1219,8 +1208,8 @@ describe("[GET] [METADATA ONLY PROJECT] /project/"+ metadataOnlyProject.handle +
         });
     });
 
-    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+    it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             itemUtils.getItemRecentChanges(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
                 res.statusCode.should.equal(401);
                 done();
@@ -1239,10 +1228,10 @@ describe("[GET] [METADATA ONLY PROJECT] /project/"+ metadataOnlyProject.handle +
         });
     });
 
-    it("Should give the folder changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+    it("Should give the folder changes if the user is logged in as demouser2(a collaborator on the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             //jsonOnly, agent, projectHandle, itemPath, cb
-            itemUtils.getItemRecentChanges(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+            itemUtils.getItemRecentChanges(true, agent, metadataOnlyProject.handle, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.body[0].changes.length.should.equal(2);//The title and creator that were added to the folder
                 done();
@@ -1291,8 +1280,8 @@ describe("[GET] [PRIVATE PROJECT] /project/"+ privateProject.handle + "/data/fol
         });
     });
 
-    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+    it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             itemUtils.getItemRecentChanges(true, agent, privateProject.handle, folder.name, function (err, res) {
                 res.statusCode.should.equal(401);
                 done();
@@ -1311,10 +1300,10 @@ describe("[GET] [PRIVATE PROJECT] /project/"+ privateProject.handle + "/data/fol
         });
     });
 
-    it("Should give the folder changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+    it("Should give the folder changes if the user is logged in as demouser2(a collaborator on the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             //jsonOnly, agent, projectHandle, itemPath, cb
-            itemUtils.getItemRecentChanges(true, agent, privateProject.handle, folder.name, function (err, res) {
+            itemUtils.getItemRecentChanges(true, agent, privateProject.handle, folderForDemouser2.name, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.body[0].changes.length.should.equal(2);//The title and creator that were added to the folder
                 done();
@@ -1322,10 +1311,8 @@ describe("[GET] [PRIVATE PROJECT] /project/"+ privateProject.handle + "/data/fol
         });
     });
 });
-*/
 
 //FOLDER VERSION TESTS
-/*
 describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/foldername?version", function () {
     //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
@@ -1366,10 +1353,10 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/fol
         });
     });
 
-    it("Should give the version info if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+    it("Should give the version info if the user is logged in as demouser2(collaborator of the project)", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            itemUtils.getItemVersion(true, agent, publicProject.handle, folder.name, folder.version, function (err, res) {
-                res.statusCode.should.equal(200);//because the project is public
+            itemUtils.getItemVersion(true, agent, publicProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
+                res.statusCode.should.equal(200);
                 res.body.descriptors.length.should.equal(5);
                 done();
             });
@@ -1386,10 +1373,10 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/fol
         });
     });
 
-    it("Should give the folder versions if the folder exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+    it("Should give the folder versions if the folder exists and if the user is logged in as demouser3(not a creator or  collaborator on the project)", function (done) {
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, publicProject.handle, folder.name, folder.version, function (err, res) {
-                res.statusCode.should.equal(200);
+                res.statusCode.should.equal(200);//because this is a public project
                 res.body.descriptors.length.should.equal(5);
                 done();
             });
@@ -1405,7 +1392,7 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/fol
         });
     })
 });
-*/
+
 describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle  + "/data/foldername?version", function () {
     //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
@@ -1445,8 +1432,8 @@ describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle 
         });
     });
 
-    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+    it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, metadataOnlyProject.handle, folder.name, folder.version, function (err, res) {
                 res.statusCode.should.equal(401);//because the project is of type metadata_only
                 done();
@@ -1464,9 +1451,9 @@ describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle 
         });
     });
 
-    it("Should give the folder versions if the folder exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            itemUtils.getItemVersion(true, agent, metadataOnlyProject.handle, folder.name, folder.version, function (err, res) {
+    it("Should give the folder versions if the folder exists and if the user is logged in as demouser2(a collaborator on the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.getItemVersion(true, agent, metadataOnlyProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.body.descriptors.length.should.equal(5);
                 done();
@@ -1523,8 +1510,8 @@ describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle  + "/data/f
         });
     });
 
-    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+    it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, privateProject.handle, folder.name, folder.version, function (err, res) {
                 res.statusCode.should.equal(401);//because it is a private project
                 done();
@@ -1542,9 +1529,9 @@ describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle  + "/data/f
         });
     });
 
-    it("Should give the folder versions if the folder exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            itemUtils.getItemVersion(true, agent, privateProject.handle, folder.name, folder.version, function (err, res) {
+    it("Should give the folder versions if the folder exists and if the user is logged in as demouser2(a collaborator on the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.getItemVersion(true, agent, privateProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.body.descriptors.length.should.equal(5);
                 done();
