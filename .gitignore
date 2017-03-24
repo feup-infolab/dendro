@@ -55,3 +55,4 @@ build/config.gypi
 .idea/dendro.iml
 
 *.pdf
+running.pid

@@ -1,0 +1,11 @@
+<a>
+    <div>
+        <b>
+            <span ng-bind-html="match.model.ddr.username | uibTypeaheadHighlight:query"></span>
+        </b>
+        <br/>
+        <small>
+            <span ng-bind-html="match.model.foaf.firstName + ' ' + match.model.foaf.surname | uibTypeaheadHighlight:query"></span>
+        </small>
+    </div>
+</a>
