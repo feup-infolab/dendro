@@ -162,6 +162,10 @@
       "diagnostics" :
       {
         "ram_usage_report" : true
+      },
+      "index" :
+      {
+        "elasticsearch_connection_log_type" : "trace"
       }
     },
     "startup" : {
@@ -464,6 +468,10 @@
       "diagnostics" :
       {
         "ram_usage_report" : true
+      },
+      "index" :
+      {
+        "elasticsearch_connection_log_type" : ""
       }
     },
     "startup" : {
@@ -772,6 +780,10 @@
       "diagnostics" :
       {
         "ram_usage_report" : true
+      },
+      "index" :
+      {
+        "elasticsearch_connection_log_type" : ""
       }
     },
     "startup" : {

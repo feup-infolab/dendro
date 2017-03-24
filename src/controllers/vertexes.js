@@ -242,7 +242,7 @@ exports.search = function(req, res)
             req.query.pageSize,
             function(err, results)
             {
-                var getSimilarResources = function(resource, callback)
+                let getSimilarResources = function(resource, callback)
                 {
                     resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function(err, similarResources)
                     {
@@ -253,7 +253,7 @@ exports.search = function(req, res)
 
                 async.map(results, getSimilarResources, function(err, resultsWithSimilarOnes)
                 {
-                    var renderParameters = {
+                    let renderParameters = {
                         title : 'Search Results'
                     };
 

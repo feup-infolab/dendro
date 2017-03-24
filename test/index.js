@@ -1,14 +1,12 @@
 GLOBAL.tests = {};
 
 //test users
-require("./controllers/auth.Test.js");
+//require("./controllers/auth.Test.js");
 
-return;
-
-require("./homepage.Test.js");
+//require("./homepage.Test.js");
 
 //test login
-require("./controllers/auth.Test.js");
+//require("./controllers/auth.Test.js");
 
 //test projects
 require("./controllers/projects.Test.js");
@@ -18,6 +16,9 @@ require("./controllers/files.Test.js");
 
 //test folders
 require("./controllers/folders.Test.js");
+
+//test free text search
+require("./controllers/search.Test.js");
 
 //test metadata-related operations
 require("./controllers/records.Test.js");
