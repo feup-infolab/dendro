@@ -13,48 +13,6 @@ exports.loginUser = function (username, password, cb) {
         });
 };
 
-exports.getRegisterUser = function (jsonOnly, agent, cb)
-{
-    if(jsonOnly)
-    {
-        agent
-            .get('/register')
-            .set('Accept', 'application/json')
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-    else
-    {
-        agent
-            .get('/register')
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-};
-
-exports.postRegisterUser = function (jsonOnly, agent, cb)
-{
-    if(jsonOnly)
-    {
-        agent
-            .post('/register')
-            .set('Accept', 'application/json')
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-    else
-    {
-        agent
-            .post('/register')
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
-};
-
 exports.getLoggedUserDetails = function (jsonOnly, agent, cb)
 {
     if(jsonOnly)

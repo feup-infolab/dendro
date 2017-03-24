@@ -1,7 +1,7 @@
 GLOBAL.tests = {};
 
 //test users
-require("./controllers/users.Test.js");
+require("./controllers/auth.Test.js");
 
 return;
 

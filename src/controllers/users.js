@@ -1,13 +1,13 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function() { return GLOBAL.Config; }();
 
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
+const db = function() { return GLOBAL.db.default; }();
+const gfs = function() { return GLOBAL.gfs.default; }();
 
-var async = require('async');
-var _ = require('underscore');
+const async = require('async');
+const _ = require('underscore');
 
 /*
  * GET users listing.

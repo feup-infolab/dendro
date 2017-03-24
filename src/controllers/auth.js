@@ -7,8 +7,8 @@ var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_ma
 
 module.exports.login = function(req, res){
 
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(req.originalMethod == "GET")
     {
@@ -175,95 +175,161 @@ module.exports.logout = function(req, res){
 };
 
 module.exports.register = function(req, res){
+    const acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
-    if(req.originalMethod == "GET")
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        res.render('auth/register',
+        res.status(405).json(
             {
-                title : "Register on Dendro"
+                result : "error",
+                message : "This function is not yet available via the JSON API. You need to register at " + Config.host + " ."
             }
         );
     }
-    else if (req.originalMethod == "POST")
+    else
     {
-        if(req.body.username != null && !req.body.username.match(/^[0-9a-z]+$/))
+        if(req.originalMethod == "GET")
         {
             res.render('auth/register',
                 {
-                    title: "Register on Dendro",
-                    error_messages: ["Username can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : johndoe91. Invalid: johndoe 01, johndoe*01, john@doe, john%doe9$ "]
+                    title : "Register on Dendro"
                 }
             );
         }
-        else
+        else if (req.originalMethod == "POST")
         {
-            User.findByUsername(req.body.username, function(err, user){
-                if(!err)
-                {
-                    if(user != null)
+            if(req.body.username == null)
+            {
+                res.render('auth/register',
                     {
-                        res.render('auth/register',
-                            {
-                                title : "Register on Dendro",
-                                error_messages: ["Username already exists"]
-                            }
-                        );
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your username"]
                     }
-                    else
+                );
+            }
+            else if(req.body.email == null)
+            {
+                res.render('auth/register',
                     {
-                        if(req.body.password == req.body.repeat_password)
-                        {
-                            var userData = {
-                                ddr : {
-                                    username : req.body.username,
-                                    password : req.body.password
-                                },
-                                foaf: {
-                                    mbox : req.body.email,
-                                    firstName : req.body.firstname,
-                                    surname : req.body.surname
-                                }
-                            };
-
-                            User.createAndInsertFromObject(userData, function(err, newUser){
-                                if(!err)
-                                {
-                                    req.session.user = newUser;
-                                    req.flash('success', "New user " + req.body.username +" created successfully");
-                                    var messages = req.flash('info');
-                                    res.redirect('/projects/my');
-                                }
-                                else
-                                {
-                                    res.render('index',
-                                        {
-                                            error_messages: [newUser]
-                                        }
-                                    );
-                                }
-
-                            });
-                        }
-                        else
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your email"]
+                    }
+                );
+            }
+            else if(req.body.password == null)
+            {
+                res.render('auth/register',
+                    {
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your password"]
+                    }
+                );
+            }
+            else if(req.body.repeat_password == null)
+            {
+                res.render('auth/register',
+                    {
+                        title: "Register on Dendro",
+                        error_messages: ["Please repeat your password"]
+                    }
+                );
+            }
+            else if(req.body.firstname == null)
+            {
+                res.render('auth/register',
+                    {
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your first name"]
+                    }
+                );
+            }
+            else if(req.body.surname == null)
+            {
+                res.render('auth/register',
+                    {
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your surname"]
+                    }
+                );
+            }
+            else if(req.body.username != null && !req.body.username.match(/^[0-9a-z]+$/))
+            {
+                res.render('auth/register',
+                    {
+                        title: "Register on Dendro",
+                        error_messages: ["Username can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : johndoe91. Invalid: johndoe 01, johndoe*01, john@doe, john%doe9$ "]
+                    }
+                );
+            }
+            else
+            {
+                User.findByUsername(req.body.username, function(err, user){
+                    if(!err)
+                    {
+                        if(user != null)
                         {
                             res.render('auth/register',
                                 {
                                     title : "Register on Dendro",
-                                    error_messages: ["Passwords do not match"]
+                                    error_messages: ["Username already exists"]
                                 }
                             );
                         }
-                    }
-                }
-                else
-                {
-                    res.render('auth/register',
+                        else
                         {
-                            error_messages: [user]
+                            if(req.body.password == req.body.repeat_password)
+                            {
+                                const userData = {
+                                    ddr : {
+                                        username : req.body.username,
+                                        password : req.body.password
+                                    },
+                                    foaf: {
+                                        mbox : req.body.email,
+                                        firstName : req.body.firstname,
+                                        surname : req.body.surname
+                                    }
+                                };
+
+                                User.createAndInsertFromObject(userData, function(err, newUser){
+                                    if(!err)
+                                    {
+                                        req.flash('success', "New user " + req.body.username +" created successfully. You can now login with the username and password you specified.");
+                                        res.redirect('/login');
+                                    }
+                                    else
+                                    {
+                                        res.render('index',
+                                            {
+                                                error_messages: [newUser]
+                                            }
+                                        );
+                                    }
+
+                                });
+                            }
+                            else
+                            {
+                                res.render('auth/register',
+                                    {
+                                        title : "Register on Dendro",
+                                        error_messages: ["Passwords do not match"]
+                                    }
+                                );
+                            }
                         }
-                    );
-                }
-            });
+                    }
+                    else
+                    {
+                        res.render('auth/register',
+                            {
+                                error_messages: [user]
+                            }
+                        );
+                    }
+                });
+            }
         }
     }
 };
