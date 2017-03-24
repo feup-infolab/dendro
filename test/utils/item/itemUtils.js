@@ -203,8 +203,9 @@ var itemRestoreMetadataVersion = function (jsonOnly, agent, projectHandle, itemP
     {
         agent
             .post(path)
-            .send({version : version})
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
+            .send({version : version})
             .end(function (err, res) {
                 cb(err, res);
             });

@@ -97,6 +97,7 @@ describe("/project/" + publicProject.handle + "/data/" + folder.pathInProject + 
 */
 
 //MKDIR FOLDER LEVEL TESTS
+/*
 describe("[POST] [FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?mkdir", function () {
     it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -172,7 +173,7 @@ describe("[POST] [FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.hand
         });
     });
 });
-
+*/
 describe("[POST] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/:foldername?mkdir", function () {
     it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -327,6 +328,7 @@ describe("[POST] [FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.ha
 
 
 //DELETE TESTS
+/*
 describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?delete", function () {
     //API only
     it("Should give an error when the request is of type HTML for this route", function (done) {
@@ -532,9 +534,10 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateP
         });
     })
 });
-
+*/
 
 //UNDELETE TESTS
+/*
 describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle+ "/data/:foldername?undelete", function() {
     //API only
     it("Should give an error when the request type for this route is HTML", function (done) {
@@ -774,8 +777,10 @@ describe("[POST] [Private PROJECT] /project/" + privateProject.handle + "/data/:
         });
     })
 });
+*/
 
 //UPDATE_METADATA TESTS
+/*
 describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?update_metadata", function() {
     //API ONLY
 
@@ -883,7 +888,8 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:fo
         });
     })
 });
-
+*/
+/*
 describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/:foldername?update_metadata", function() {
     //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
@@ -1091,9 +1097,11 @@ describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:
         });
     })
 });
+*/
 
 
 //GET ITEM RECENT CHANGES TESTS
+/*
 describe("[GET] [PUBLIC PROJECT] /project/"+ publicProject.handle + "/data/foldername?recent_changes", function () {
     //API ONLY
     it("Should give an error if the request is of type HTML", function (done) {
@@ -1167,7 +1175,9 @@ describe("[GET] [PUBLIC PROJECT] /project/"+ publicProject.handle + "/data/folde
         });
     });
 });
+*/
 
+/*
 describe("[GET] [METADATA ONLY PROJECT] /project/"+ metadataOnlyProject.handle + "/data/foldername?recent_changes", function () {
     //API ONLY
     it("Should give an error if the request is of type HTML", function (done) {
@@ -1311,8 +1321,10 @@ describe("[GET] [PRIVATE PROJECT] /project/"+ privateProject.handle + "/data/fol
         });
     });
 });
+*/
 
 //FOLDER VERSION TESTS
+/*
 describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/foldername?version", function () {
     //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
@@ -1392,7 +1404,9 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/fol
         });
     })
 });
+*/
 
+/*
 describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle  + "/data/foldername?version", function () {
     //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
@@ -1548,24 +1562,50 @@ describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle  + "/data/f
         });
     })
 });
+*/
 
+//FOLDER CHANGE LOG TESTS
 /*
-describe("[GET] /project/:handle/data/foldername?change_log", function () {
-    //TODO API AND HTML
-    it("Should give an error if the user is unauthenticated", function (done) {
-        done(1);
+describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/foldername?change_log", function () {
+    it("Should give the change log if the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        itemUtils.getItemChangeLog(true, agent, publicProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(200);//because it is a public project
+            res.body[0].changes.length.should.equal(2);
+            done();
+        });
     });
 
     it("Should give an error if the project does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, invalidProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
+                done();
+            });
+        });
     });
 
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, publicProject.handle, notFoundFolder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
+                done();
+            });
+        });
     });
 
-    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
-        done(1);
+    it("Should give the change log if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);//because the project is public
+                res.body[0].changes.length.should.equal(2);
+                done();
+            });
+        });
     });
 
     it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
@@ -1579,38 +1619,203 @@ describe("[GET] /project/:handle/data/foldername?change_log", function () {
         });
     });
 
-    it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
-        done(1);
-    });
-
-    it("Should show in the change log the edited descriptors made by demouser1 to the folder if demouser1 is authenticated", function (done) {
-        done(1);
+    it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser2(a collaborator on the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body[0].changes.length.should.equal(2);
+                done();
+            });
+        });
     });
 });
+*/
 
-describe("[POST] /project/:handle/data/foldername?restore_metadata_version", function () {
-    //TODO API ONLY
-    //TODO make a request to HTML, should return invalid request
-    //TODO test all three types of project accesses (public, private, metadata only)
-
+/*
+describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/foldername?change_log", function () {
     it("Should give an error if the user is unauthenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        itemUtils.getItemChangeLog(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
     });
 
     it("Should give an error if the project does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, invalidProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
+                done();
+            });
+        });
     });
 
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, metadataOnlyProject.handle, notFoundFolder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
+        //jsonOnly, agent, projectHandle, itemPath, cb
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body[0].changes.length.should.equal(2);
+                done();
+            });
+        });
+    });
+
+    it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser2(a collaborator on the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body[0].changes.length.should.equal(2);
+                done();
+            });
+        });
+    });
+});
+
+describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/foldername?change_log", function () {
+    it("Should give an error if the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        itemUtils.getItemChangeLog(true, agent, privateProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, invalidProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the folder identified by foldername does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, privateProject.handle, notFoundFolder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
+                done();
+            });
+        });
+    });
+
+    it("Should an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
+        //jsonOnly, agent, projectHandle, itemPath, cb
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body[0].changes.length.should.equal(2);
+                done();
+            });
+        });
+    });
+
+    it("Should give the change log related to the folder if the folder exists and if the user is logged in as demouser2(a collaborator on the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.getItemChangeLog(true, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body[0].changes.length.should.equal(2);
+                done();
+            });
+        });
+    });
+});
+*/
+
+//RESTORE FOLDER METADATA TESTS
+/*
+describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/foldername?restore_metadata_version", function () {
+    //API ONLY
+    it("Should give an error of the request type for this route is html", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(false, agent, publicProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        itemUtils.itemRestoreMetadataVersion(true, agent, publicProject.handle, folder.name, 0, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, invalidProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the folder identified by foldername does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, publicProject.handle, notFoundFolder.name, 0, function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.contain("Unable to retrieve version");
+                done();
+            });
+        });
     });
 
     it("Should give an error if the metadata_version sent in the body is in an invalid format", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, publicProject.handle, folder.name, "thisisaninvalidversion", function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.contain("Unable to retrieve version");
+                done();
+            });
+        });
     });
 
-    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
-        done(1);
+    it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, publicProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
     });
 
     it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser1(the creator of the project) and if the version sent in the body is a valid one", function (done) {
@@ -1623,32 +1828,247 @@ describe("[POST] /project/:handle/data/foldername?restore_metadata_version", fun
         });
     });
 
-    it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser3(a collaborator on the project) and if the version sent in the body is a valid one", function (done) {
-        done(1);
+    it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser2(a collaborator on the project) and if the version sent in the body is a valid one", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, publicProject.handle, folderForDemouser2.name, 0, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("succesfully restored to version " + 0);
+                done();
+            });
+        });
+    });
+});
+*/
+
+/*
+describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/foldername?restore_metadata_version", function () {
+    //API ONLY
+    it("Should give an error of the request type for this route is html", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(false, agent, metadataOnlyProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        itemUtils.itemRestoreMetadataVersion(true, agent, metadataOnlyProject.handle, folder.name, 0, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, invalidProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the folder identified by foldername does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, metadataOnlyProject.handle, notFoundFolder.name, 0, function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.contain("Unable to retrieve version");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the metadata_version sent in the body is in an invalid format", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, metadataOnlyProject.handle, folder.name, "thisisaninvalidversion", function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.contain("Unable to retrieve version");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, metadataOnlyProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser1(the creator of the project) and if the version sent in the body is a valid one", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, metadataOnlyProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("succesfully restored to version " + 0);
+                done();
+            });
+        });
+    });
+
+    it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser2(a collaborator on the project) and if the version sent in the body is a valid one", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, metadataOnlyProject.handle, folderForDemouser2.name, 0, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("succesfully restored to version " + 0);
+                done();
+            });
+        });
     });
 });
 
-describe("[DELETE] HARD DELETE /project/:handle/data/:foldername", function () {
-    //TODO HTML AND API
+describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/foldername?restore_metadata_version", function () {
+    //API ONLY
+    it("Should give an error of the request type for this route is html", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(false, agent, privateProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        itemUtils.itemRestoreMetadataVersion(true, agent, privateProject.handle, folder.name, 0, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, invalidProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the folder identified by foldername does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, privateProject.handle, notFoundFolder.name, 0, function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.contain("Unable to retrieve version");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the metadata_version sent in the body is in an invalid format", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, privateProject.handle, folder.name, "thisisaninvalidversion", function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.contain("Unable to retrieve version");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, privateProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser1(the creator of the project) and if the version sent in the body is a valid one", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, privateProject.handle, folder.name, 0, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("succesfully restored to version " + 0);
+                done();
+            });
+        });
+    });
+
+    it("Should restore the metadata version related to the folder if the folder exists and if the user is logged in as demouser2(a collaborator on the project) and if the version sent in the body is a valid one", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            itemUtils.itemRestoreMetadataVersion(true, agent, privateProject.handle, folderForDemouser2.name, 0, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("succesfully restored to version " + 0);
+                done();
+            });
+        });
+    });
+});
+*/
+
+//HARD DELETE FOLDER TESTS
+/*
+describe("[DELETE] [PUBLIC PROJECT] HARD DELETE /project/" + publicProject.handle + "/data/:foldername", function () {
+    //API ONLY
+    it("Should give an error if the request type for this route is HTML", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(false, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            }, true);
+        });
+    });
 
     it("Should give an error message when the project does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            }, true);
+        });
     });
 
     it("Should give an error message when the folder does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, publicProject.handle, notFoundFolder.name, function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.contain("Unable to retrieve resource");
+                done();
+            }, true);
+        });
     });
 
     it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        //jsonOnly, agent, projectHandle, itemPath, cb
+        itemUtils.deleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        }, true);
     });
 
     it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to hard delete a folder created by demouser1", function (done) {
-        done(1);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, publicProject.handle, folderForDemouser2.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("Successfully deleted");
+                projectUtils.getProjectRootContent(true, agent, publicProject.handle, function (err, response) {
+                    response.statusCode.should.equal(200);
+                    response.text.should.not.contain("\"title\":" + "\"" + folderForDemouser2.name + "\"");
+                    done();
+                });
+            }, true);
+        });
     });
 
     it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to hard delete the folder", function (done) {
-        done(1);
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, publicProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            }, true);
+        });
     });
 
     it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to hard delete the folder", function (done) {
@@ -1667,3 +2087,169 @@ describe("[DELETE] HARD DELETE /project/:handle/data/:foldername", function () {
     })
 });
 */
+
+describe("[DELETE] [METADATA ONLY PROJECT] HARD DELETE /project/" + metadataOnlyProject.handle + "/data/:foldername", function () {
+    //API ONLY
+    it("Should give an error if the request type for this route is HTML", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(false, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            }, true);
+        });
+    });
+
+    it("Should give an error message when the project does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            }, true);
+        });
+    });
+
+    it("Should give an error message when the folder does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, notFoundFolder.name, function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.contain("Unable to retrieve resource");
+                done();
+            }, true);
+        });
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        //jsonOnly, agent, projectHandle, itemPath, cb
+        itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        }, true);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to hard delete a folder created by demouser1", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, folderForDemouser2.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("Successfully deleted");
+                projectUtils.getProjectRootContent(true, agent, metadataOnlyProject.handle, function (err, response) {
+                    response.statusCode.should.equal(200);
+                    response.text.should.not.contain("\"title\":" + "\"" + folderForDemouser2.name + "\"");
+                    done();
+                });
+            }, true);
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to hard delete the folder", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            }, true);
+        });
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to hard delete the folder", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("Successfully deleted");
+                projectUtils.getProjectRootContent(true, agent, metadataOnlyProject.handle, function (err, response) {
+                    response.statusCode.should.equal(200);
+                    response.text.should.not.contain("\"title\":" + "\"" + folder.name + "\"");
+                    done();
+                });
+            }, true);
+        });
+    })
+});
+
+describe("[DELETE] [PRIVATE PROJECT] HARD DELETE /project/" + privateProject.handle + "/data/:foldername", function () {
+    //API ONLY
+    it("Should give an error if the request type for this route is HTML", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            itemUtils.deleteItem(false, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            }, true);
+        });
+    });
+
+    it("Should give an error message when the project does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            }, true);
+        });
+    });
+
+    it("Should give an error message when the folder does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, privateProject.handle, notFoundFolder.name, function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.contain("Unable to retrieve resource");
+                done();
+            }, true);
+        });
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        //jsonOnly, agent, projectHandle, itemPath, cb
+        itemUtils.deleteItem(true, agent, privateProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        }, true);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to hard delete a folder created by demouser1", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, privateProject.handle, folderForDemouser2.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("Successfully deleted");
+                projectUtils.getProjectRootContent(true, agent, privateProject.handle, function (err, response) {
+                    response.statusCode.should.equal(200);
+                    response.text.should.not.contain("\"title\":" + "\"" + folderForDemouser2.name + "\"");
+                    done();
+                });
+            }, true);
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to hard delete the folder", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            }, true);
+        });
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to hard delete the folder", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, itemPath, cb
+            itemUtils.deleteItem(true, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message.should.contain("Successfully deleted");
+                projectUtils.getProjectRootContent(true, agent, privateProject.handle, function (err, response) {
+                    response.statusCode.should.equal(200);
+                    response.text.should.not.contain("\"title\":" + "\"" + folder.name + "\"");
+                    done();
+                });
+            }, true);
+        });
+    })
+});

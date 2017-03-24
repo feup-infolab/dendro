@@ -406,85 +406,106 @@ exports.show_version = function(req, res) {
 };
 
 exports.restore_metadata_version = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    var requestedResourceURI = req.params.requestedResource;
-
-    Resource.findByUri(requestedResourceURI, function(err, resource)
+    if(!acceptsJSON && acceptsHTML)
     {
-        if(!err)
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        })
+    }
+    else
+    {
+        var requestedResourceURI = req.params.requestedResource;
+        var requestedVersion = req.body.version;
+
+        Resource.findByUri(requestedResourceURI, function(err, resource)
         {
-            //if resource exists
-            if(resource != null)
+            if(!err)
             {
-                var requestedVersion = req.body.version;
+                //if resource exists
+                if(resource != null)
+                {
 
-                ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
-                    if(!err)
-                    {
-                        if(version != null)
+                    ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
+                        if(!err)
                         {
-                            var user = req.session.user;
-
-                            if(user)
+                            if(version != null)
                             {
-                                var userUri = user.uri;
-                            }
-                            else
-                            {
-                                var userUri = null;
-                            }
+                                var user = req.session.user;
 
-                            resource.restoreFromArchivedVersion(version, function(err, result){
-                                if(!err)
+                                if(user)
                                 {
-                                    res.status(200).json({
-                                        result : "OK",
-                                        message : "Resource " + requestedResourceURI + " succesfully restored to version " + requestedVersion
-                                    });
+                                    var userUri = user.uri;
                                 }
                                 else
                                 {
-                                    var error = "Error restoring version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(result);
-                                    console.error(error);
-                                    res.status(500).json({
-                                        result : "Error",
-                                        message : error
-                                    });
+                                    var userUri = null;
                                 }
-                            }, userUri);
+
+                                resource.restoreFromArchivedVersion(version, function(err, result){
+                                    if(!err)
+                                    {
+                                        res.status(200).json({
+                                            result : "OK",
+                                            message : "Resource " + requestedResourceURI + " succesfully restored to version " + requestedVersion
+                                        });
+                                    }
+                                    else
+                                    {
+                                        var error = "Error restoring version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(result);
+                                        console.error(error);
+                                        res.status(500).json({
+                                            result : "Error",
+                                            message : error
+                                        });
+                                    }
+                                }, userUri);
+                            }
+                            else
+                            {
+                                var error = "Version  " + requestedVersion +"  of resource : " + requestedResourceURI + " does not exist.";
+                                console.error(error);
+                                res.status(404).json({
+                                    result : "Not Found",
+                                    message : error
+                                });
+                            }
                         }
                         else
                         {
-                            var error = "Version  " + requestedVersion +"  of resource : " + requestedResourceURI + " does not exist.";
+                            var error = "Unable to retrieve version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(resource);
                             console.error(error);
-                            res.status(404).json({
-                                result : "Not Found",
+                            res.status(500).json({
+                                result : "Error",
                                 message : error
                             });
                         }
-                    }
-                    else
-                    {
-                        var error = "Unable to retrieve version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(resource);
-                        console.error(error);
-                        res.status(500).json({
-                            result : "Error",
-                            message : error
-                        });
-                    }
+                    });
+                }
+                else
+                {
+                    var error = "Unable to retrieve version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(resource);
+                    console.error(error);
+                    res.status(500).json({
+                        result : "Error",
+                        message : error
+                    });
+                }
+            }
+            else
+            {
+                var error = "Unable to retrieve resource with uri : " + req.params.requestedResource + ". Error retrieved : " + resource;
+                console.error(error);
+                res.status(500).json({
+                    result : "Error",
+                    message : error
                 });
             }
-        }
-        else
-        {
-            var error = "Unable to retrieve resource with uri : " + req.params.requestedResource + ". Error retrieved : " + resource;
-            console.error(error);
-            res.status(500).json({
-                result : "Error",
-                message : error
-            });
-        }
-    });
+        });
+    }
 };
 
 
