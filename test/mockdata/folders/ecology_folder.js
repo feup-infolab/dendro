@@ -3,7 +3,7 @@ let folderData = {
     pathInProject : '',
     download_md5 : '',
     backup_md5 : '',
-    search_terms : 'ecology',
+    search_terms : 'ecological',
     files : [
         require("../files/pdfMockfile"),
         require("../files/pngMockfile"),

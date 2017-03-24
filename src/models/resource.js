@@ -1639,7 +1639,7 @@ Resource.prototype.loadFromIndexHit = function(hit)
     this.indexData.score = hit._score;
     this.uri = hit._source.uri;
     this.indexData.graph = hit._source.graph;
-    this.indexData.last_indexing_data = hit._source.last_indexing_date;
+    this.indexData.last_indexing_date = hit._source.last_indexing_date;
     this.indexData.descriptors = hit._source.descriptors;
 
     return this;

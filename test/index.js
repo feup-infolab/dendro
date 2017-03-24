@@ -20,6 +20,8 @@ require("./controllers/folders.Test.js");
 //test free text search
 require("./controllers/search.Test.js");
 
+return;
+
 //test metadata-related operations
 require("./controllers/records.Test.js");
 

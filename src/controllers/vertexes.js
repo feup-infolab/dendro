@@ -219,7 +219,9 @@ exports.random = function(req, res) {
 
 exports.search = function(req, res)
 {
-	var query = req.query.q;
+    const acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
+	const query = req.query.q;
 
     if(query)
     {
@@ -253,23 +255,32 @@ exports.search = function(req, res)
 
                 async.map(results, getSimilarResources, function(err, resultsWithSimilarOnes)
                 {
-                    let renderParameters = {
-                        title : 'Search Results'
-                    };
-
-                    if(results != null && results.length > 0)
+                    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                     {
-                        renderParameters.vertexes = resultsWithSimilarOnes;
-                        renderParameters.currentPage = req.query.currentPage;
-                        renderParameters.pageSize = req.query.pageSize;
+                        res.json({
+                            "result" : "ok",
+                            "hits" : results
+                        });
                     }
                     else
                     {
-                        renderParameters.vertexes = [];
-                        renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
-                    }
+                        let renderParameters = {
+                            title : 'Search Results'
+                        };
 
-                    res.render('vertexes/search', renderParameters);
+                        if(results != null && results.length > 0)
+                        {
+                            renderParameters.vertexes = resultsWithSimilarOnes;
+                            renderParameters.currentPage = req.query.currentPage;
+                            renderParameters.pageSize = req.query.pageSize;
+                        }
+                        else
+                        {
+                            renderParameters.vertexes = [];
+                            renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
+                        }
+                        res.render('vertexes/search', renderParameters);
+                    }
                 });
             });
     }

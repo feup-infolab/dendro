@@ -183,10 +183,10 @@ IndexConnection.prototype.deleteDocument = function(documentID, type, callback)
 
 IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfReplicas, deleteIfExists, callback)
 {
-    var self = this;
-    var endCallback = callback;
-    var async = require('async');
-    var indexName = self.index.short_name;
+    let self = this;
+    let endCallback = callback;
+    let async = require('async');
+    let indexName = self.index.short_name;
     
     async.waterfall([
         function(callback) {
@@ -234,20 +234,20 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
 			}
 
             settings.mappings = self.index.elasticsearch_mappings;
+			settings.index = indexName;
 
-            self.client.createIndex(indexName, settings, function(err, data){
+            self.client.indices.create(settings, function(err, data){
                 if(!err)
                 {
-                    var data = JSON.parse(data);
-                    if(data.error == null && data.ok == true && data.acknowledged == true)
+                    if(data.error == null && data.acknowledged == true)
                     {
-                        endCallback(0, "Index with name " + indexName + " successfully created.");
+                        endCallback(null, "Index with name " + indexName + " successfully created.");
                     }
                     else
                     {
-                        var error = "Error creating index : " + JSON.stringify(data);
+                        const error = "Error creating index : " + JSON.stringify(data);
                         console.error(error);
-                        endCallback(1, error);
+                        endCallback(err, error);
                     }
                 }
                 else
