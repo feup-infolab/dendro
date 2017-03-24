@@ -26,7 +26,7 @@ module.exports.login = function(req, res){
                     {
                         if( user != null )
                         {
-                            var bcrypt = require('bcrypt');
+                            var bcrypt = require('bcryptjs');
                             console.log(user.ddr.salt);
                             bcrypt.hash(req.body.password, user.ddr.salt, function(err, hashedPassword) {
                                 if(!err)

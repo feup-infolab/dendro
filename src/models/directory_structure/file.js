@@ -310,7 +310,7 @@ File.prototype.getThumbnail = function(size, callback)
                     })
                 }
                 else if(!err)
-                {                           
+                {
                     console.log("Thumbnail temp file location: " + tempFilePath);
                     callback(0, tempFilePath);
                 }

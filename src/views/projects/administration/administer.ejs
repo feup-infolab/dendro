@@ -1,28 +1,33 @@
 <%- include ../../layout/header.ejs %>
 
-<div ng-controller="projectAdminCtrl">
+
+
+<div ng-controller="projectAdminCtrl" ng-init="init('<%=locals.project.dcterms.contributor%>')">
 
     <h1 class="page-header">Editing project "<%=locals.project.dcterms.title%>"</h1>
 
     <!-- Nav tabs -->
-    <ul class="nav nav-tabs" role="tablist">
-        <li class="active">
-            <a href="#information" role="tab" data-toggle="tab">Information</a>
+    <ul class="nav nav-tabs" role="tablist" >
+
+        <li ng-class="{active : active_tab == 'information'}">
+
+            <a href="#information" role="tab" data-toggle="tab" ng-click="clicked_information_tab()">Information</a>
         </li>
-        <li>
-            <a href="#people" role="tab" data-toggle="tab">People</a>
+
+        <li ng-class="{active : active_tab == 'people'}">
+            <a href="#people" role="tab" data-toggle="tab" ng-click="clicked_people_tab()">People</a>
         </li>
         <!--<li>
             <a href="#actions" role="tab" data-toggle="tab">Actions</a>
         </li>-->
-        <li >
-            <a href="#metadata_quality" role="tab" data-toggle="tab">Metadata Quality</a>
+        <li ng-class="{active : active_tab == 'metadataquality'}">
+            <a href="#metadata_quality" role="tab" data-toggle="tab" ng-click="clicked_metadataquality_tab()">Metadata Quality</a>
         </li>
     </ul>
 
     <!-- Tab panes -->
     <div class="tab-content">
-        <div class="tab-pane active" id="information">
+        <div class="tab-pane" id="information" ng-class="{active : active_tab == 'information'}">
             <div class="row">
                 <div class="col-lg-12">
                     <h4>
@@ -86,7 +91,7 @@
                 </div>
             </div>
         </div>
-        <div class="tab-pane" id="people">
+        <div class="tab-pane" id="people" ng-class="{active : active_tab == 'people'}">
             <div class="row">
                 <div class="col-lg-12">
                     <h4>
@@ -100,66 +105,45 @@
 
             <div class="row">
                 <div class="col-lg-12">
+                    <h4>
+                        Contributors
+                    </h4>
                     <form action="" method="POST">
-                        <h4>
-                            Contributors
-                        </h4>
                         <table class="table table-striped table-hover">
                             <thead>
-                            <tr>
-                                <th>#</th>
-                            </tr>
                             </thead>
                             <tbody>
-                            <%
-                            var i = 0;
-                            if(locals.project.dcterms.contributor != null)
-                            {
-                                if(typeof locals.project.dcterms.contributor == "string")
-                                {
-                                    locals.project.dcterms.contributor = [locals.project.dcterms.contributor]
-                                }
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <button class="btn btn-default" type="button" ng-click="add_new_contributor()"><i class="fa fa-plus" aria-hidden="true"></i>
+                                        Add new Contributor</button>
+                                </div>
+                            </div>
 
-                                    for(i = 0; i < locals.project.dcterms.contributor.length; i++)
-                            {
-                                var contributor = locals.project.dcterms.contributor[i];
-                            %>
-                            <tr>
+                            <tr ng-repeat="contributor in contributors track by $index">
                                 <td>
-                                    <div class="row">
-                                        <div class="col-xs-10">
-                                            <input type="text" class="form-control input-large" placeholder="Contributor URI" name="contributor[<%=i%>]" value="<%=contributor%>" readonly="true">
-                                        </div>
-                                        <div class="col-xs-2">
-                                            <input type="button" class="btn btn-sm btn-danger fa fa-user" value="Remove" onclick="$(this).parent().parent().parent().remove(); submit();">
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <%
-                            }
-                            }
-                            %>
-                            <tr>
-                                <td>
-                                    <div class="row">
-                                        <div class="col-xs-10">
-                                            <input type="text" class="form-control input-large" placeholder="New Contributor URI" name="newContributor">
-                                        </div>
-                                        <div class="col-xs-2">
-                                            <input type="submit" class="btn btn-sm btn-primary fa fa-user" value="Add contributor" onclick="submit()"><i class="icon-file icon-white"></i>
-                                        </div>
+                                    <div class="input-group">
+                                        <span class="input-group-addon" ng-bind="hostUrl"></span>
+                                        <%- include users_autocomplete.ejs%>
+                                        <span class="input-group-addon">
+                                            <input type="checkbox" ng-model="contributor.remove"> Remove
+                                        </span>
                                     </div>
                                 </td>
                             </tr>
                             </tbody>
                         </table>
+                        <div class="form-group">
+                            <div class="col-sm-7">
+                                <button class="btn btn-primary" type="button" ng-click="update_contributors()"><i class="fa fa-floppy-o" aria-hidden="true"></i> Save changes
+                                </button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
         </div>
-
-        <div class="tab-pane" id="metadata_quality">
+        <div class="tab-pane" id="metadata_quality" ng-class="{active : active_tab == 'metadataquality'}">
             <div class="row">
                 <div class="col-lg-12">
                     <h4>
@@ -202,10 +186,10 @@
 
                             <ol ui-tree-nodes="" ng-if="node.hasLogicalParts" ng-model="node.hasLogicalParts" ng-init="parent_uri = node.uri"  ng-class="{hidden: collapsed}">
                                 <li
-                                    ng-repeat="node in node.hasLogicalParts"
-                                    ui-tree-node
-                                    ng-include="'nodes_renderer.html'"
-                                    ng-init="node.uri = parent_uri +'/'+ node.title">
+                                        ng-repeat="node in node.hasLogicalParts"
+                                        ui-tree-node
+                                        ng-include="'nodes_renderer.html'"
+                                        ng-init="node.uri = parent_uri +'/'+ node.title">
                                 </li>
                             </ol>
                         </script>

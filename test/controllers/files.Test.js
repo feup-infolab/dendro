@@ -46,8 +46,246 @@ describe('/project/' + publicProject.handle + "/data/" + folder.pathInProject + 
     });
 });
 
-describe('project/' + publicProject.handle + '?download', function(){
 
-    it('')
+describe("[POST] /project/:handle/data/:filename?delete", function () {
+    //TODO HTML AND API
 
+    it("Should give an error message when the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the file does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a file created by demouser1", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the file", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the file", function (done) {
+        done(1);
+    });
+});
+
+
+describe("[POST] /project/:handle/data/:filename?undelete", function() {
+    //TODO HTML AND API
+    it("Should give an error message when a project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the file does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the file is not deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a file that is currently deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete a file that is currently deleted", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete a file that is currently deleted", function (done) {
+        done(1);
+    })
+});
+
+describe("[POST] /project/:handle/data/:filename?update_metadata", function() {
+    //TODO API ONLY
+    it("Should give an error message when a project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error message when the filename does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when an invalid descriptor is used to update the metadata of a filename", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to update a metadata of a filename with a valid descriptor", function (done) {
+        done(1);
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to update a metadata of a filename with a valid descriptor", function (done) {
+        done(1);
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to update a metadata of a filename with a valid descriptor", function (done) {
+        done(1);
+    })
+});
+
+
+describe("[GET] /project/:handle/data/filename?recent_changes", function () {
+    //TODO API ONLY
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the file does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the file changes if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the file changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(1);
+    });
+});
+
+describe("[GET] /project/:handle/data/filename?version", function () {
+    //TODO API ONLY
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the file identified by filename does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the file versions if the file exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the file versions if the file exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the descriptors of the file version are locked for alterations", function (done) {
+        done(1);
+    })
+});
+
+describe("[GET] /project/:handle/data/filename?change_log", function () {
+    //TODO API ONLY
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the file identified by filename does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the file versions if the file exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the file versions if the file exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the descriptors of the file version are locked for alterations", function (done) {
+        done(1);
+    })
+});
+
+describe("[GET] /project/:handle/data/filename?change_log", function () {
+    //TODO API AND HTML ONLY
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the file identified by filename does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the change log related to the file if the file exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should give the change log related to the file if the file exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(1);
+    });
+    
+    it("Should show in the change log the edited descriptors made by demouser1 to the file if demouser1 is authenticated", function (done) {
+        done(1);
+    });
+});
+
+describe("[POST] /project/:handle/data/filename?restore_metadata_version", function () {
+    //TODO API ONLY
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the file identified by filename does not exist", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the metadata_version sent in the body is in an invalid format", function (done) {
+        done(1);
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(1);
+    });
+
+    it("Should restore the metadata version related to the file if the file exists and if the user is logged in as demouser1(the creator of the project) and if the version sent in the body is a valid one", function (done) {
+        done(1);
+    });
+
+    it("Should restore the metadata version related to the file if the file exists and if the user is logged in as demouser3(a collaborator on the project) and if the version sent in the body is a valid one", function (done) {
+        done(1);
+    });
 });
