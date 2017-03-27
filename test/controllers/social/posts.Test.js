@@ -7,10 +7,12 @@ var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
 var db_notifications = function () { return GLOBAL.db.notifications;}();
 var async = require('async');
-var projectUtils = require('./../../utils/project/projectUtils.js');
-var userUtils = require('./../../utils/user/userUtils.js');
-var folderUtils = require('./../../utils/folder/folderUtils.js');
-var httpUtils = require('./../../utils/http/httpUtils.js');
+var projectUtils = require("./../../utils/project/projectUtils.js");
+var userUtils = require("./../../utils/user/userUtils.js");
+var folderUtils = require("./../../utils/folder/folderUtils.js");
+var httpUtils = require("./../../utils/http/httpUtils.js");
+var postUtils = require("./../../utils/SocialDendro/post.js");
+var itemUtils = require("./../../utils/item/itemUtils.js");
 
 var should = chai.should();
 
@@ -18,51 +20,133 @@ var demouser1 = require("../../mockdata/users/demouser1");
 var demouser2 = require("../../mockdata/users/demouser2");
 var demouser3 = require("../../mockdata/users/demouser3");
 
-describe("[GET] /posts/all", function () {
+var publicProject = require("../../mockdata/projects/public_project.js");
+var folder = require("../../mockdata/folders/folder.js");
+
+describe("[GET] [GET ALL USER POSTS] /posts/all", function () {
     //TODO API ONLY
-    //TODO make a request to HTML, should return invalid request
+
     it("Should return an error if the user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should return an error if the request is of type HTML", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            });
+        });
     });
 
     it("Should not return any post URIs if the user has no projects", function (done) {
-        done(1);
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.length.should.equal(0);
+                done();
+            });
+        });
     });
 
     it("Should not return any post URIs if the user did not add any metadata to files & or folders in his projects", function (done) {
-        done(1);
+        //TODO create a project for demouser3
+        //TODO Add a folder
+        //TODO do not add any metadata
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(true, agent, publicProject, function (err, res) {
+                projectUtils.createFolderInProjectRoot(true, agent, publicProject.handle, folder.name, function (err, res) {
+                    postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        res.body.length.should.equal(0);
+                        done();
+                    });
+                });
+            });
+        });
     });
 
-    it("Should return all the post URIs generated from the info from projects where the demouser1(the authenticated user) is a creator or a collaborator", function (done) {
-        done(1);
+    it("Should return all the post URIs generated from the info from projects where the demouser3(the authenticated user) is a creator or a collaborator", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            itemUtils.updateItemMetadata(true, agent, publicProject.handle, folder.name, folder.metadata, function (err, res) {
+                postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    res.body.length.should.equal(folder.metadata.length);
+                    done();
+                });
+            });
+        });
     });
 
-    it("Should not return any post URIs generated from info from projects where demouser1 is not a collaborator or a creator", function (done) {
-        done(1);
+    it("Should not return any post URIs generated from info from projects where demouser3 is not a collaborator or a creator", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.length.should.equal(folder.metadata.length);//TODO THINK OF A BETTER WAY TO TEST THIS
+                done();
+            });
+        });
     });
 });
 
 describe("[POST] /posts/post", function () {
     //TODO API ONLY
     //TODO this route makes no sense & needs to be changed in the future
-    //TODO make a request to HTML, should return invalid request
+    it("Should give an error if the request type for this route is of type HTML", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            postUtils.getAPostInfo(false, agent, "a valid post ID", function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            });
+        });
+    });
+
     it("Should return an error if the user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        postUtils.getAPostInfo(true, agent, "a valid postID", function (err, res) {
+            res.statusCode.should.equal(401);
+            done(1);
+        });
     });
 
-    it("Should not return any post info if the user has no projects", function (done) {
-        done(1);
+    it("Should return an error if the post uri is pointing to a post that does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            postUtils.getAPostInfo(true, agent, "an ivalid post ID", function (err, res) {
+                res.statusCode.should.equal(404);
+                res.body.message.should.equal("Invalid post uri");
+                done();
+            });
+        });
     });
-
-    it("Should not return any post info if the user did not add any metadata to files & or folders in his projects", function (done) {
-        done(1);
+    
+    it("Should give an error if the logged in user is demouser3 and the post uri is from an project where demouser3 is not a creator or collaborator", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            postUtils.getAPostInfo(true, agent, "a valid post ID from demouser1 project", function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
     });
 
     it("Should return info about a post if the user is logged in as demouser1 and the post is originated from metadata work from projects created by demouser1 or where he collaborates", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            postUtils.getAPostInfo(true, agent, "a valid post ID from demouser1 project", function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.uri.should.equal("a valid post ID from demouser1 project");
+                done();
+            });
+        });
     });
 });
 
+/*
 describe("[POST] /posts/new", function () {
     //TODO This is not implemented yet
     //TODO Users cannot yet create posts manually
@@ -84,19 +168,36 @@ describe("[POST] /posts/new", function () {
         done(1);
     });
 });
+*/
 
 describe("[POST] /posts/like", function () {
     //TODO API ONLY
     //TODO make a request to HTML, should return invalid request
+
+    it("Should give an error if the request type for this route is of type HTML", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            postUtils.likeOrUnlikeAPost(false, agent, "a valid post uri from demouser1", function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            });
+        });
+    });
+
     it("Should return an error if the user is not logged in", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        postUtils.likeOrUnlikeAPost(true, agent, "a valid post uri for dendrouser1", function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
     });
 
     it("Should return an error if the post that the demouser1 wants to like/unlike does not exist", function (done) {
         done(1);
     });
 
-    it("Should return an error if the post that the demouser1 wants to like/unlike belongs to a project were the demouser1 is not a collaborator or creator", function (done) {
+    it("Should return an error if the post that the demouser3 wants to like/unlike belongs to a project were the demouser3 is not a collaborator or creator", function (done) {
         done(1);
     });
 

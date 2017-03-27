@@ -97,7 +97,6 @@ describe("/project/" + publicProject.handle + "/data/" + folder.pathInProject + 
 */
 
 //MKDIR FOLDER LEVEL TESTS
-/*
 describe("[POST] [FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?mkdir", function () {
     it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -173,7 +172,7 @@ describe("[POST] [FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.hand
         });
     });
 });
-*/
+
 describe("[POST] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/:foldername?mkdir", function () {
     it("Should give an error if the request is of type HTML even if the user is logged in as demouser1(the creator of the project)", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -328,7 +327,6 @@ describe("[POST] [FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.ha
 
 
 //DELETE TESTS
-/*
 describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?delete", function () {
     //API only
     it("Should give an error when the request is of type HTML for this route", function (done) {
@@ -534,10 +532,8 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateP
         });
     })
 });
-*/
 
 //UNDELETE TESTS
-/*
 describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle+ "/data/:foldername?undelete", function() {
     //API only
     it("Should give an error when the request type for this route is HTML", function (done) {
@@ -777,10 +773,8 @@ describe("[POST] [Private PROJECT] /project/" + privateProject.handle + "/data/:
         });
     })
 });
-*/
 
 //UPDATE_METADATA TESTS
-/*
 describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:foldername?update_metadata", function() {
     //API ONLY
 
@@ -888,8 +882,7 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:fo
         });
     })
 });
-*/
-/*
+
 describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/:foldername?update_metadata", function() {
     //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
@@ -1097,11 +1090,9 @@ describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:
         });
     })
 });
-*/
 
 
 //GET ITEM RECENT CHANGES TESTS
-/*
 describe("[GET] [PUBLIC PROJECT] /project/"+ publicProject.handle + "/data/foldername?recent_changes", function () {
     //API ONLY
     it("Should give an error if the request is of type HTML", function (done) {
@@ -1175,9 +1166,7 @@ describe("[GET] [PUBLIC PROJECT] /project/"+ publicProject.handle + "/data/folde
         });
     });
 });
-*/
 
-/*
 describe("[GET] [METADATA ONLY PROJECT] /project/"+ metadataOnlyProject.handle + "/data/foldername?recent_changes", function () {
     //API ONLY
     it("Should give an error if the request is of type HTML", function (done) {
@@ -1321,10 +1310,8 @@ describe("[GET] [PRIVATE PROJECT] /project/"+ privateProject.handle + "/data/fol
         });
     });
 });
-*/
 
 //FOLDER VERSION TESTS
-/*
 describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/foldername?version", function () {
     //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
@@ -1404,9 +1391,7 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/fol
         });
     })
 });
-*/
 
-/*
 describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle  + "/data/foldername?version", function () {
     //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
@@ -1562,10 +1547,8 @@ describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle  + "/data/f
         });
     })
 });
-*/
 
 //FOLDER CHANGE LOG TESTS
-/*
 describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/foldername?change_log", function () {
     it("Should give the change log if the user is unauthenticated", function (done) {
         var app = GLOBAL.tests.app;
@@ -1629,9 +1612,7 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/fold
         });
     });
 });
-*/
 
-/*
 describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/foldername?change_log", function () {
     it("Should give an error if the user is unauthenticated", function (done) {
         var app = GLOBAL.tests.app;
@@ -1755,10 +1736,8 @@ describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/fo
         });
     });
 });
-*/
 
 //RESTORE FOLDER METADATA TESTS
-/*
 describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/foldername?restore_metadata_version", function () {
     //API ONLY
     it("Should give an error of the request type for this route is html", function (done) {
@@ -1838,9 +1817,7 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/fol
         });
     });
 });
-*/
 
-/*
 describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle + "/data/foldername?restore_metadata_version", function () {
     //API ONLY
     it("Should give an error of the request type for this route is html", function (done) {
@@ -2000,10 +1977,8 @@ describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/f
         });
     });
 });
-*/
 
 //HARD DELETE FOLDER TESTS
-/*
 describe("[DELETE] [PUBLIC PROJECT] HARD DELETE /project/" + publicProject.handle + "/data/:foldername", function () {
     //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
@@ -2086,7 +2061,6 @@ describe("[DELETE] [PUBLIC PROJECT] HARD DELETE /project/" + publicProject.handl
         });
     })
 });
-*/
 
 describe("[DELETE] [METADATA ONLY PROJECT] HARD DELETE /project/" + metadataOnlyProject.handle + "/data/:foldername", function () {
     //API ONLY

@@ -27,6 +27,60 @@ var getAllPostsFromUserProjects = function (jsonOnly, agent, cb) {
     }
 };
 
+var getAPostInfo = function (jsonOnly, agent, postID, cb) {
+    // /posts/post
+    var path = '/posts/post';
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .send({postID : postID})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .send({postID : postID})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var likeOrUnlikeAPost = function (jsonOnly, agent, postID, cb) {
+    // /posts/like
+    var path = '/posts/like';
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .send({postID : postID})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .send({postID : postID})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
-    getAllPostsFromUserProjects: getAllPostsFromUserProjects
+    getAllPostsFromUserProjects: getAllPostsFromUserProjects,
+    getAPostInfo: getAPostInfo,
+    likeOrUnlikeAPost: likeOrUnlikeAPost
 };
