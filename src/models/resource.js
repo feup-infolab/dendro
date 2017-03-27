@@ -1262,7 +1262,7 @@ Resource.prototype.reindex = function(indexConnection, callback)
 
 Resource.prototype.getIndexDocumentId = function(indexConnection, callback)
 {
-    var self = this;
+    let self = this;
 
     self.restoreFromIndexDocument(indexConnection, function(err, restoredResource)
     {
@@ -1275,7 +1275,7 @@ Resource.prototype.getIndexDocumentId = function(indexConnection, callback)
             callback(err, null);
         }
     });
-}
+};
 
 Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxResultSize, callback)
 {
@@ -1336,7 +1336,7 @@ Resource.findResourcesByTextQuery = function (
         "query": {
             "match": {
                 "descriptors.object": {
-                    "query": "mariazinha"
+                    "query": queryString
                 }
             }
         },
