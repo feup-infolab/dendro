@@ -15,6 +15,23 @@ describe('/interactions/:project/data/:filepath?register_interaction', function 
 {
     it('[HTML] should not register an interaction if "application/json" Accept header is absent', function (done)
     {
+        const agent = GLOBAL.tests.agent;
+
+        agent
+            .post('/interactions/' + + "/data/" + folder + "?register_interaction" )
+            .send({
+                
+            })
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.text.should.not.include('Successfully logged out');
+                res.text.should.include.include('Cannot log you out because you are not logged in');
+                done();
+            });
+    });
+
+    it('[JSON] should not register an interaction if information is missing', function (done)
+    {
         //TODO
         done();
     });

@@ -122,11 +122,14 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
 
     if(document._id == null)
     {
-        self.client.index(self.index.short_name, type, document, function(err, data)
+        self.client.index({
+            index : self.index.short_name,
+            type : type,
+            body : document
+        }, function(err, data)
         {
             if(!err)
             {
-                var data = JSON.parse(data);
                 callback(0, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             else
@@ -140,11 +143,14 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
         var id = document._id;
         delete document._id;
 
-        self.client.update(self.index.short_name, type, id, {doc : document}, function(err, data)
+        self.client.update({
+            index : self.index.short_name,
+            type : type,
+            body : document
+        }, function(err, data)
         {
             if(!err)
             {
-                var data = JSON.parse(data);
                 callback(0, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             else
