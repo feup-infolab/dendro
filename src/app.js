@@ -1481,13 +1481,13 @@ async.waterfall([
             {
                 console.log("Entered Project branch Route. URL : " + req.originalUrl);
 
-                var defaultPermissionsInProjectBranch = [
+                const defaultPermissionsInProjectBranch = [
                     Permissions.project_privacy_status.public,
                     Permissions.role.project.contributor,
                     Permissions.role.project.creator
                 ];
 
-                var modificationPermissionsBranch = [
+                const modificationPermissionsBranch = [
                     Permissions.role.project.contributor,
                     Permissions.role.project.creator
                 ];

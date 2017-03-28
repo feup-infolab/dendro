@@ -13,6 +13,16 @@ exports.loginUser = function (username, password, cb) {
         });
 };
 
+exports.logoutUser = function (cb) {
+    const app = GLOBAL.tests.app;
+    agent = chai.request.agent(app);
+    agent
+        .get('/logout')
+        .end(function (err, res) {
+            cb(err, agent);
+        });
+};
+
 exports.getLoggedUserDetails = function (jsonOnly, agent, cb)
 {
     if(jsonOnly)
