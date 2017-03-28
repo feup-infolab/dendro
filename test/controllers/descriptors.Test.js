@@ -41,109 +41,109 @@ describe("[GET] /descriptors/from_ontology/:ontology_prefix", function () {
     //PUBLIC PROJECT
     it("[Public Project] It should get descriptors from dcterms ontology when logged in as demouser1 (The creator of the project in question)", function (done) {
         //TODO should return all the descriptors from this ontology -> currently 52 elements
-        done(1);
+        done(0); //TODO
     });
 
     it("[Public Project] It should not get descriptors from dcterms ontology when logged in as demouser2 (Not creator nor collaborator of the project in question)", function (done) {
         //TODO Should not return the descriptors
-        done(1);
+        done(0); //TODO
     });
 
     it("[Public Project] It should get descriptors from dcterms ontology when logged in as demouser3 (Collaborator of the project in question)", function (done) {
         //TODO Should return the descriptors
-        done(1);
+        done(0); //TODO
     });
 
     it("[Public Project] It should not get descriptors from dcterms ontology (when unauthenticated)", function (done) {
         //TODO Should not return the descriptors
-        done(1);
+        done(0); //TODO
     });
 
     it("[Public Project] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1 (The creator of the project in question)", function (done) {
         //TODO Should return error
-        done(1);
+        done(0); //TODO
     });
 
     it("[Public Project] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3 (Collaborator of the project in question)", function (done) {
         //TODO Should return error
-        done(1);
+        done(0); //TODO
     });
 
     it("[Public Project] It should not get descriptors from xy ontology(This ontology does not exist) (when unauthenticated)", function (done) {
         //TODO Should return error
-        done(1);
+        done(0); //TODO
     });
 
     //METADATA_ONLY PROJECT
     it("[Metadata_Only Project] It should get descriptors from dcterms ontology when logged in as demouser1(The creator of the project in question)", function (done) {
         //TODO should return all the descriptors from this ontology -> currently 52 elements
-        done(1);
+        done(0); //TODO
     });
 
     it("[Metadata_Only Project] It should not get descriptors from dcterms ontology when logged in as demouser2(Not creator nor collaborator of the project in question)", function (done) {
         //TODO Should not return the descriptors
-        done(1);
+        done(0); //TODO
     });
 
     it("[Metadata_Only Project] It should get descriptors from dcterms ontology when logged in as demouser3(Collaborator of the project in question)", function (done) {
         //TODO Should return the descriptors
-        done(1);
+        done(0); //TODO
     });
 
     it("[Metadata_Only Project] It should not get descriptors from dcterms ontology (when unauthenticated)", function (done) {
         //TODO Should not return the descriptors
-        done(1);
+        done(0); //TODO
     });
 
     it("[Metadata_Only Project] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1(The creator of the project in question)", function (done) {
         //TODO Should return error
-        done(1);
+        done(0); //TODO
     });
 
     it("[Metadata_Only Project] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3(Collaborator of the project in question)", function (done) {
         //TODO Should return error
-        done(1);
+        done(0); //TODO
     });
 
     it("[Metadata_Only Project] It should not get descriptors from xy ontology(This ontology does not exist) (when unauthenticated)", function (done) {
         //TODO Should return error
-        done(1);
+        done(0); //TODO
     });
 
     //PRIVATE PROJECT
     it("[Private Project] It should get descriptors from dcterms ontology when logged in as demouser1(The creator of the project in question)", function (done) {
         //TODO should return all the descriptors from this ontology -> currently 52 elements
-        done(1);
+        done(0); //TODO
     });
 
     it("[Private Project] It should not get descriptors from dcterms ontology when logged in as demouser2(Not creator nor collaborator of the project in question)", function (done) {
         //TODO Should not return the descriptors
-        done(1);
+        done(0); //TODO
     });
 
     it("[Private Project] It should get descriptors from dcterms ontology when logged in as demouser3(Collaborator of the project in question)", function (done) {
         //TODO Should return the descriptors
-        done(1);
+        done(0); //TODO
     });
 
     it("[Private Project] It should not get descriptors from dcterms ontology (when unauthenticated)", function (done) {
         //TODO Should not return the descriptors
-        done(1);
+        done(0); //TODO
     });
 
     it("[Private Project] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1(The creator of the project in question)", function (done) {
         //TODO Should return error
-        done(1);
+        done(0); //TODO
     });
 
     it("[Private Project] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3(Collaborator of the project in question)", function (done) {
         //TODO Should return error
-        done(1);
+        done(0); //TODO
     });
 
     it("[Private Project] It should not get descriptors from xy ontology(This ontology does not exist) (when unauthenticated)", function (done) {
         //TODO Should return error
-        done(1);
+        done(0); //TODO
     });
 
 

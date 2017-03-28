@@ -1329,9 +1329,6 @@ Resource.findResourcesByTextQuery = function (
     maxResultSize,
     callback)
 {
-    /**
-     * see http://okfnlabs.org/blog/2013/07/01/elasticsearch-query-tutorial.html
-     */
     const queryObject = {
         "query": {
             "match": {

@@ -154,7 +154,7 @@ describe('/login', function () {
             .end((err, res) => {
                 res.should.have.status(200);
                 res.text.should.not.include('Successfully logged out');
-                res.text.should.include.include('Cannot log you out because you are not logged in');
+                res.text.should.include('Please log into the system');
                 done();
             });
     });
@@ -170,28 +170,28 @@ describe('/login', function () {
             .send({'username': demouser2.username, 'password':  demouser2.password })
             .end((err, res) => {
                 res.should.have.status(200);
-                res.text.should.contain('Your projects');
+                res.text.should.contain("Your projects");
 
                 agent
                     .get('/users/loggedUser')
                     .end((err, res) =>
                     {
                         res.should.have.status(200);
-                        res.text.should.equal(demouser2.username);
-                        
+                        res.text.should.contain(demouser2.username);
+
                         agent
                             .post('/login')
-                            .send({'username': demouser2.username, 'password':  demouser2.password })
+                            .send({'username': demouser1.username, 'password':  demouser1.password })
                             .end((err, res) => {
                                 res.should.have.status(200);
-                                res.text.should.contain('Your projects');
+                                res.text.should.contain("Your projects");
 
                                 agent
                                     .get('/users/loggedUser')
                                     .end((err, res) =>
                                     {
                                         res.should.have.status(200);
-                                        res.text.should.equal(demouser1.username);
+                                        res.text.should.contain(demouser1.username);
                                         done()
                                     });
                             });
@@ -210,8 +210,9 @@ describe('/login', function () {
             .set('Accept', 'application/json')
             .send({'username': demouser1.username, 'password': 'WRONG_PASSWORD'})
             .end((err, res) => {
-                res.should.have.status(200);
-                res.text.should.contain('Please sign in');
+                res.should.have.status(401);
+                JSON.parse(res.text).result.should.equal('error');
+                JSON.parse(res.text).message.should.equal('Invalid username/password combination.');
                 done();
             });
     });
@@ -228,7 +229,8 @@ describe('/login', function () {
             .send({'username': demouser1.username, 'password':  demouser1.password })
             .end((err, res) => {
                 res.should.have.status(200);
-                res.text.should.include('Your projects');
+                JSON.parse(res.text).result.should.equal('ok');
+                JSON.parse(res.text).message.should.equal("User "+demouser1.username+" signed in.");
                 done();
             });
     });
@@ -253,9 +255,9 @@ describe('/login', function () {
             .get('/logout')
             .set('Accept', 'application/json')
             .end((err, res) => {
-                res.should.have.status(200);
-                res.text.should.not.include('Successfully logged out');
-                res.text.should.include.include('Cannot log you out because you are not logged in');
+                res.should.have.status(401);
+                JSON.parse(res.text).result.should.equal('error');
+                JSON.parse(res.text).message.should.equal('Action not permitted. You are not logged into the system.');
                 done();
             });
     });
@@ -272,29 +274,34 @@ describe('/login', function () {
             .send({'username': demouser2.username, 'password':  demouser2.password })
             .end((err, res) => {
                 res.should.have.status(200);
-                res.text.should.contain('Your projects');
+                JSON.parse(res.text).result.should.equal("ok");
+                JSON.parse(res.text).message.should.equal('User '+demouser2.username+' signed in.');
 
                 agent
                     .get('/users/loggedUser')
+                    .set('Accept', 'application/json')
                     .end((err, res) =>
                     {
                         res.should.have.status(200);
-                        res.text.should.equal(demouser2.username);
+                        JSON.parse(res.text).ddr.username.should.equal(demouser2.username);
 
                         agent
                             .post('/login')
-                            .send({'username': demouser2.username, 'password':  demouser2.password })
+                            .set('Accept', 'application/json')
+                            .send({'username': demouser1.username, 'password':  demouser1.password })
                             .end((err, res) => {
                                 res.should.have.status(200);
-                                res.text.should.contain('Your projects');
+                                JSON.parse(res.text).result.should.equal("ok");
+                                JSON.parse(res.text).message.should.equal('User '+demouser1.username+' signed in.');
 
                                 agent
                                     .get('/users/loggedUser')
+                                    .set('Accept', 'application/json')
                                     .end((err, res) =>
                                     {
                                         res.should.have.status(200);
-                                        res.text.should.equal(demouser1.username);
-                                        done()
+                                        JSON.parse(res.text).ddr.username.should.equal(demouser1.username);
+                                        done();
                                     });
                             });
                     });

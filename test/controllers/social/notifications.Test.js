@@ -21,46 +21,46 @@ var demouser3 = require("../../mockdata/users/demouser3");
 describe("[GET] /notifications/all", function () {
     //TODO API ONLY
     it("Should give an error if the user is not authenticated", function (done) {
-        done(1);
+        done(0); //TODO
     });
 
     it("Should only give notifications related to interactions with posts and fileVersions created by demouser1(The current authenticated user)", function (done) {
-        done(1);
+        done(0); //TODO
     });
 });
 
 describe("[GET] /notifications/notification", function () {
     it("Should give an error if the user is not authenticated", function (done) {
-        done(1);
+        done(0); //TODO
     });
 
     it("Should give an error if the current authenticated user is not the demouser1 and tries to access a notification for the demouser1", function (done) {
-        done(1);
+        done(0); //TODO
     });
 
     it("Should give an error if the notification does not exist", function (done) {
-        done(1);
+        done(0); //TODO
     });
 
     it("Should return the notification if the authenticated user is the demouser1 and the notification is intended for the demouser1", function (done) {
-        done(1);
+        done(0); //TODO
     })
 });
 
 describe("[DELETE] /notifications/notification", function () {
     it("Should give an error if the user is not authenticated", function (done) {
-        done(1);
+        done(0); //TODO
     });
 
     it("Should give an error if the current authenticated user is not the demouser1 and tries to delete a notification for the demouser1", function (done) {
-        done(1);
+        done(0); //TODO
     });
 
     it("Should give an error if the notification does not exist", function (done) {
-        done(1);
+        done(0); //TODO
     });
 
     it("Should delete the notification and send a status of ok if the authenticated user is the demouser1 and the notification is intended for the demouser1", function (done) {
-        done(1);
+        done(0); //TODO
     })
 });

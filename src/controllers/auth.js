@@ -46,14 +46,14 @@ module.exports.login = function(req, res){
                                                     res.json(
                                                         {
                                                             result : "ok",
-                                                            message : "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + "."
+                                                            message : "User " + user.ddr.username+ " signed in."
                                                         }
                                                     );
                                                 }
                                                 else
                                                 {
                                                     req.flash('success', "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
-                                                    console.log("User " + req.body.username + " signed in.");
+                                                    console.log("User " + user.ddr.username + " signed in.");
                                                     res.redirect('/projects/my');
                                                 }
                                             }

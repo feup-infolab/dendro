@@ -4,7 +4,7 @@ const _ = require('underscore');
 chai.use(chaiHttp);
 
 
-const listAllMyProjects = function (jsonOnly, agent, cb)
+module.exports.listAllMyProjects = function (jsonOnly, agent, cb)
 {
     if (jsonOnly)
     {
@@ -27,17 +27,30 @@ const listAllMyProjects = function (jsonOnly, agent, cb)
     }
 };
 
-const listAllProjects = function (agent, cb)
+module.exports.listAllProjects = function (jsonOnly, agent, cb)
 {
-    agent
-        .get('/projects')
-        .end(function (err, res)
-        {
-            cb(err, res);
-        });
+    if (jsonOnly)
+    {
+        agent
+            .get('/projects')
+            .set('Accept', 'application/json')
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get('/projects')
+            .end(function (err, res)
+            {
+                cb(err, res);
+            });
+    }
 };
 
-const getNewProjectPage = function (agent, cb)
+module.exports.getNewProjectPage = function (agent, cb)
 {
     agent
         .get('/projects/new')
@@ -47,7 +60,7 @@ const getNewProjectPage = function (agent, cb)
         });
 };
 
-const createNewProject = function (jsonOnly, agent, projectData, cb)
+module.exports.createNewProject = function (jsonOnly, agent, projectData, cb)
 {
     if (jsonOnly)
     {
@@ -72,7 +85,7 @@ const createNewProject = function (jsonOnly, agent, projectData, cb)
     }
 };
 
-const viewProject = function (jsonOnly, agent, projectHandle, cb)
+module.exports.viewProject = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -95,7 +108,7 @@ const viewProject = function (jsonOnly, agent, projectHandle, cb)
     }
 };
 
-const updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb)
+module.exports.updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb)
 {
     if (jsonOnly)
     {
@@ -121,7 +134,7 @@ const updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metad
 };
 
 
-const updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb)
+module.exports.updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb)
 {
     ///project/:handle/data/folderpath?update_metadata
     const path = '/project/' + projectHandle + '/data/' + folderPath + '?update_metadata';
@@ -150,7 +163,7 @@ const updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, fol
     }
 };
 
-const getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb)
+module.exports.getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -174,7 +187,7 @@ const getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHa
 };
 
 
-const getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
+module.exports.getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
 {
     if (jsonOnly)
     {
@@ -198,7 +211,7 @@ const getProjectRootContent = function (jsonOnly, agent, projectHandle, cb)
 };
 
 
-const getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb)
+module.exports.getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb)
 {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
     const path = '/project/' + projectHandle + '/data/' + folderPath + '?metadata';
@@ -225,7 +238,7 @@ const getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath
     }
 };
 
-const removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb)
+module.exports.removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb)
 {
     getResourceMetadata(jsonOnly, agent, projectHandle, folderPath, function (err, res)
     {
@@ -241,16 +254,3 @@ const removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, fol
     });
 };
 
-module.exports = {
-    updateMetadataCorrectRoute : updateMetadataCorrectRoute,
-    listAllMyProjects : listAllMyProjects,
-    listAllProjects : listAllProjects,
-    getNewProjectPage : getNewProjectPage,
-    createNewProject : createNewProject,
-    viewProject : viewProject,
-    updateMetadataWrongRoute : updateMetadataWrongRoute,
-    getMetadataRecomendationsForProject : getMetadataRecomendationsForProject,
-    getProjectRootContent : getProjectRootContent,
-    getResourceMetadata : getResourceMetadata,
-    removeDescriptorFromFolder : removeDescriptorFromFolder
-};

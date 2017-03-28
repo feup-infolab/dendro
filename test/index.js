@@ -1,7 +1,7 @@
 GLOBAL.tests = {};
 
 //test users
-//require("./controllers/auth.Test.js");
+require("./controllers/auth.Test.js");
 
 //require("./homepage.Test.js");
 

@@ -20,9 +20,8 @@ let interactions = [];
 
 for(let i = 0; i <  Interaction.types.length;i++)
 {
-    //TODO CLLONE THIS
     interactionTemplate.interactionType = Interaction.types[i].key;
-    interactions.push()
+    interactions.push(JSON.parse(JSON.stringify(interactionTemplate)));
 }
 
 module.exports = interactions;
