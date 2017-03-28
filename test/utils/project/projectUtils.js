@@ -234,6 +234,14 @@ var download = function (agent, projectHandle, cb) {
         });
 }
 
+var thumbnail = function(agent, filepath, projectHandle, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?thumbnail')
+        .end(function (err, res) {
+            cb(err, res);
+        })
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -247,5 +255,6 @@ module.exports = {
     getResourceMetadata : getResourceMetadata,
     removeDescriptorFromFolder : removeDescriptorFromFolder,
     administer : administer,
-    download : download
+    download : download,
+    thumbnail : thumbnail
 };

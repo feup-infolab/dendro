@@ -225,6 +225,7 @@ describe('/project/' + privateProject.handle + '?administer', function () {
 
     it("[HTML] should change project's privacy status, title and description", function (done) {
         var metadata = 'metadata_only';
+        var private = 'private';
         var title = 'mockTitle';
         var description = 'this is a testing description with no other purposes';
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -239,6 +240,14 @@ describe('/project/' + privateProject.handle + '?administer', function () {
                     project.dcterms.title.should.equal(title);
                     project.dcterms.description.should.equal(description);
                     done();
+                    projectUtils.administer(agent, true, {
+                        privacy: private
+                    }, privateProject.handle, function (err, res) {
+                        res.should.have.status(200);
+                        Project.findByHandle(privateProject.handle, function (err, project) {
+                            project.ddr.privacyStatus.should.equal(private);
+                        });
+                    });
                 });
 
             });
@@ -389,7 +398,7 @@ describe('/project/' + metadataOnlyProject.handle + '?administer', function () {
         });
     });
 
-    it("[HTML] add non-existent contributors", function (done) {
+    it("[HTML] should not add non-existent contributors", function (done) {
         var invalidUsername = 'nonexistinguser';
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             projectUtils.administer(agent, true, {contributors: [invalidUsername]}, metadataOnlyProject.handle, function (err, res) {
@@ -403,7 +412,7 @@ describe('/project/' + metadataOnlyProject.handle + '?administer', function () {
 
     });
 
-    it("[HTML] add contributors", function (done) {
+    it("[HTML] should add contributors", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             var user3data;
             User.findByUsername(demouser3.username, function (err, user) {
@@ -423,7 +432,7 @@ describe('/project/' + metadataOnlyProject.handle + '?administer', function () {
     });
 
 
-    it("[HTML] remove contributors", function (done) {
+    it("[HTML] should remove contributors", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             var user3data;
             User.findByUsername(demouser3.username, function (err, user) {
