@@ -1490,7 +1490,10 @@ exports.requestAccess = function(req, res){
         }
         else
         {
-
+            res.render('projects/request_access',
+            {
+                handle: req.params.handle
+            });
         }
     }
     else if(req.originalMethod == "POST")
