@@ -11,7 +11,7 @@ var projectUtils = require("./../../utils/project/projectUtils.js");
 var userUtils = require("./../../utils/user/userUtils.js");
 var folderUtils = require("./../../utils/folder/folderUtils.js");
 var httpUtils = require("./../../utils/http/httpUtils.js");
-var postUtils = require("./../../utils/SocialDendro/post.js");
+var postUtils = require("./../../utils/social/post.js");
 var itemUtils = require("./../../utils/item/itemUtils.js");
 
 var should = chai.should();
@@ -22,8 +22,8 @@ var demouser3 = require("../../mockdata/users/demouser3");
 
 var publicProject = require("../../mockdata/projects/public_project.js");
 var folder = require("../../mockdata/folders/folder.js");
-var commentMockup = require("../../mockdata/Social/comment.js");
-var shareMockup = require("../../mockdata/Social/share.js");
+var commentMockup = require("../../mockdata/social/comment.js");
+var shareMockup = require("../../mockdata/social/share.js");
 
 var validPostUriForDemouser1;//TODO set it in the get all posts to a valid post uri
 
@@ -277,9 +277,7 @@ describe("[POST] /posts/like/liked" , function () {
 });
 
 describe("[POST] /posts/post/likesInfo", function () {
-    //TODO API ONLY
-    //TODO make a request to HTML, should return invalid request
-
+    //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             postUtils.getLikesInfoForAPost(false, agent, "valid post uri", function (err, res) {
@@ -472,7 +470,7 @@ describe("[POST] /posts/share", function () {
 });
 
 describe("[POST] /posts/shares", function () {
-    //TODO API ONLY
+    //API ONLY
     it("Should give an error if the request type for this route is HTML", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             postUtils.getSharesForAPost(false, agent, "a valid postID for demouser1", function (err, res) {
@@ -520,8 +518,7 @@ describe("[POST] /posts/shares", function () {
 });
 
 describe("[GET] /posts/countNum", function () {
-    //TODO API ONLY
-    //TODO make a request to HTML, should return invalid request
+    //API ONLY
     //TODO maybe this route needs to be changed
 
     it("Should give an error if the request type for this route is of type HTML", function (done) {
@@ -553,8 +550,7 @@ describe("[GET] /posts/countNum", function () {
 });
 
 describe("[GET] /posts/:uri", function () {
-    //TODO HTML ONLY
-    //TODO make a request to JSON API, should return invalid request
+    //HTML ONLY
     it("Should give an error if the request type for this route is JSON", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             postUtils.getPostHTMLPageWithInfo(true, agent, "aValidPostURL", function (err, res) {
@@ -602,7 +598,7 @@ describe("[GET] /posts/:uri", function () {
 });
 
 describe("[GET] /shares/:uri", function () {
-    //TODO HTML ONLY
+    //HTML ONLY
     it("Should give an error if the request type for this route is of type JSON", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             postUtils.getAShareInfo(true, agent, "aValidShareURL", function (err, res) {
@@ -621,16 +617,31 @@ describe("[GET] /shares/:uri", function () {
         });
     });
 
-    it("Should not return any info page about a share if the user has no projects", function (done) {
-        done(1);
+    it("Should an error if the share uri does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            postUtils.getAShareInfo(false, agent, "anInvalidShareURL", function (err, res) {
+                res.statusCode.should.equal(404);
+                done();
+            });
+        });
     });
 
-    it("Should not return any info page about a share if the share does not exist in the projects where the demouser1 is a creator or collaborator", function (done) {
-        done(1);
+    it("Should return an error if the share uri does not belong to projects where the demouser3 is a creator or collaborator", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            postUtils.getAShareInfo(false, agent, "aValidShareURL but for demouser1", function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
     });
 
     it("Should return a page with info about a share if the user is logged in as demouser1 and the share originates from projects created by demouser1 or where he collaborates", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            postUtils.getAShareInfo(false, agent, "aValidShareURL", function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            });
+        });
     });
 });
 

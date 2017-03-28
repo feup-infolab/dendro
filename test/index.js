@@ -21,14 +21,14 @@ require("./controllers/folders.Test.js");
 //require("./controllers/descriptors.Test.js");
 
 //SOCIAL DENDRO
-//test Social Dendro Posts
+//test social Dendro Posts
 /*
 require("./controllers/social/posts.Test.js");
 
-//test Social Dendro File Versions
+//test social Dendro File Versions
 require("./controllers/social/fileVersions.Test.js");
 
-//test Social Dendro Notifications
+//test social Dendro Notifications
 require("./controllers/social/notifications.Test.js");
 */
 

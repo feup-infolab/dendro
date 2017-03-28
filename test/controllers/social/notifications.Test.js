@@ -11,6 +11,7 @@ var projectUtils = require('./../../utils/project/projectUtils.js');
 var userUtils = require('./../../utils/user/userUtils.js');
 var folderUtils = require('./../../utils/folder/folderUtils.js');
 var httpUtils = require('./../../utils/http/httpUtils.js');
+var notificationUtils = require("./../../utils/social/notification.js");
 
 var should = chai.should();
 
@@ -19,14 +20,32 @@ var demouser2 = require("../../mockdata/users/demouser2");
 var demouser3 = require("../../mockdata/users/demouser3");
 
 describe("[GET] /notifications/all", function () {
-    //TODO API ONLY
-    //TODO make a request to HTML, should return invalid request
+    //API ONLY
+    it("Should give an error if the request type for this route is of type HTML", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            notificationUtils.getUserNotifications(false, agent, function (err, res) {
+                res.statusCode.should.equal(400);
+                done();
+            });
+        });
+    });
+
     it("Should give an error if the user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        notificationUtils.getUserNotifications(true, agent, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
     });
 
     it("Should only give notifications related to interactions with posts and fileVersions created by demouser1(The current authenticated user)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            notificationUtils.getUserNotifications(true, agent, function (err, res) {
+                res.statusCode.should.equal(200);//TODO Check if the notifications are for this user(check the target)
+                done();
+            });
+        });
     });
 });
 
