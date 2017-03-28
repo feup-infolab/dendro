@@ -226,9 +226,9 @@ var administer = function (agent, modify, projectData, projectHandle, cb) {
     }
 };
 
-var download = function (agent, projectHandle, cb) {
+var download = function (agent, projectHandle, filepath, cb) {
     agent
-        .get('/project/' + projectHandle + '?download')
+        .get('/project/' + projectHandle + filepath + '?download')
         .end(function (err, res) {
             cb(err, res);
         });
