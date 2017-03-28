@@ -76,7 +76,7 @@ exports.all = function(req, res) {
 
     }
 
-    async.parallel(
+    async.series(
         [
             validateRequestType, getProjectCount, getAllProjects
         ], function (err, results)
