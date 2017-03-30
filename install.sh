@@ -14,6 +14,6 @@ nvm install 6.10
 npm install -g avn avn-nvm avn-n
 avn setup
 
-#install dependencies. Will also run bower install whenever needed
+#install dependencies. Will also run bower install whenever needed 
 npm install #this is needed when running npm install with sudo to install global modules
 grunt #use grunt to put everything in place
