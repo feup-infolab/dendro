@@ -226,13 +226,39 @@ var administer = function (agent, modify, projectData, projectHandle, cb) {
     }
 };
 
+var backup = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?backup')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+var bagit = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?bagit')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
 var download = function (agent, projectHandle, filepath, cb) {
     agent
         .get('/project/' + projectHandle + filepath + '?download')
         .end(function (err, res) {
             cb(err, res);
         });
-}
+};
+
+var serve = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?serve')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+
 
 var thumbnail = function(agent, filepath, projectHandle, cb){
     agent
@@ -255,6 +281,9 @@ module.exports = {
     getResourceMetadata : getResourceMetadata,
     removeDescriptorFromFolder : removeDescriptorFromFolder,
     administer : administer,
+    backup : backup,
+    bagit : bagit,
     download : download,
+    serve : serve,
     thumbnail : thumbnail
 };

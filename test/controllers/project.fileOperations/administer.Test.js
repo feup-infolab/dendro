@@ -63,6 +63,29 @@ describe('/project/' + publicProject.handle + '?administer', function () {
         });
     });
 
+    it("[HTML] should not access admin in folder GET", function (done) {
+
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.administer(agent, false, {}, privateProject.handle + '/data/pastinhaLinda', function (err, res) {
+                res.should.have.status(404);
+                should.exist(err);
+                err.message.should.equal('Not Found');
+                done();
+            });
+        });
+    });
+
+    it("[HTML] should not access admin in folder POST", function (done) {
+
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.administer(agent, true, {}, privateProject.handle + '/data/pastinhaLinda', function (err, res) {
+                res.should.have.status(404);
+                should.exist(err);
+                err.message.should.equal('Not Found');
+                done();
+            });
+        });
+    });
 
     it("[HTML] should not modify project without logging in POST", function (done) {
         var app = GLOBAL.tests.app;
@@ -202,6 +225,29 @@ describe('/project/' + privateProject.handle + '?administer', function () {
         });
     });
 
+    it("[HTML] should not access admin in folder GET", function (done) {
+
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.administer(agent, false, {}, privateProject.handle + '/data/pastinhaLinda', function (err, res) {
+                res.should.have.status(404);
+                should.exist(err);
+                err.message.should.equal('Not Found');
+                done();
+            });
+        });
+    });
+
+    it("[HTML] should not access admin in folder POST", function (done) {
+
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.administer(agent, true, {}, privateProject.handle + '/data/pastinhaLinda', function (err, res) {
+                res.should.have.status(404);
+                should.exist(err);
+                err.message.should.equal('Not Found');
+                done();
+            });
+        });
+    });
 
     it("[HTML] should not modify project without logging in POST", function (done) {
         var app = GLOBAL.tests.app;
@@ -355,6 +401,29 @@ describe('/project/' + metadataOnlyProject.handle + '?administer', function () {
         });
     });
 
+    it("[HTML] should not access admin in folder GET", function (done) {
+
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.administer(agent, false, {}, metadataOnlyProject.handle + '/data/pastinhaLinda', function (err, res) {
+                res.should.have.status(404);
+                should.exist(err);
+                err.message.should.equal('Not Found');
+                done();
+            });
+        });
+    });
+
+    it("[HTML] should not access admin in folder POST", function (done) {
+
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.administer(agent, true, {}, metadataOnlyProject.handle + '/data/pastinhaLinda', function (err, res) {
+                res.should.have.status(404);
+                should.exist(err);
+                err.message.should.equal('Not Found');
+                done();
+            });
+        });
+    });
 
     it("[HTML] should not modify project without logging in POST", function (done) {
         var app = GLOBAL.tests.app;
