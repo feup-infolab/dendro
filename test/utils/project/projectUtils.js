@@ -459,6 +459,65 @@ var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
+var administer = function (agent, modify, projectData, projectHandle, cb) {
+    if(modify) {
+        agent
+            .post('/project/' + projectHandle + '?administer')
+            .send(projectData)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    } else{
+        agent
+            .get('/project/' + projectHandle + '?administer')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var backup = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?backup')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+var bagit = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?bagit')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+var download = function (agent, projectHandle, filepath, cb) {
+    agent
+        .get('/project/' + projectHandle + filepath + '?download')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+var serve = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?serve')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+
+
+var thumbnail = function(agent, filepath, projectHandle, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?thumbnail')
+        .end(function (err, res) {
+            cb(err, res);
+        })
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -479,5 +538,11 @@ module.exports = {
     requestAccessToProject: requestAccessToProject,
     deleteProject: deleteProject,
     undeleteProject: undeleteProject,
-    createFolderInProjectRoot: createFolderInProjectRoot
+    createFolderInProjectRoot: createFolderInProjectRoot,
+    administer : administer,
+    backup : backup,
+    bagit : bagit,
+    download : download,
+    serve : serve,
+    thumbnail : thumbnail
 };
