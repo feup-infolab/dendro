@@ -1,5 +1,5 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
 const binaryParser = require('../file/fileUtils.js').binaryParser;
@@ -26,7 +26,7 @@ exports.createFolderInProject = function(jsonOnly, agent, targetFolderInProject,
 };
 
 exports.viewFolder= function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
-    var path = '/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName;
+    const path = '/project/' + projectHandle + '/data/' + targetFolderInProject + folderName;
     if(jsonOnly)
     {
         agent
@@ -47,7 +47,7 @@ exports.viewFolder= function (jsonOnly, agent, targetFolderInProject, folderName
 };
 
 exports.downloadFolder= function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
-    var path = '/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName + "?download";
+    const path = '/project/' + projectHandle + '/data/' + targetFolderInProject + folderName + "?download";
     
     if(jsonOnly)
     {
@@ -73,7 +73,7 @@ exports.downloadFolder= function (jsonOnly, agent, targetFolderInProject, folder
 };
 
 exports.backupFolder= function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
-    var path = '/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName + "?backup";
+    const path = '/project/' + projectHandle + '/data/' + targetFolderInProject + folderName + "?backup";
 
     if(jsonOnly)
     {
@@ -99,7 +99,7 @@ exports.backupFolder= function (jsonOnly, agent, targetFolderInProject, folderNa
 };
 
 exports.removeFolder= function (jsonOnly, agent, targetFolderInProject, folderName, projectHandle, cb) {
-    var path = '/project/' + projectHandle + '/data/'  + targetFolderInProject + folderName + "?rm";
+    const path = '/project/' + projectHandle + '/data/' + targetFolderInProject + folderName + "?rm";
 
     if(jsonOnly)
     {

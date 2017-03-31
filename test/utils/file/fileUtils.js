@@ -13,7 +13,7 @@ module.exports.binaryParser = function (res, cb) {
 module.exports.uploadFile = function(acceptsJSON, agent, file, targetUrl, fileType, cb)
 {
     const Config = GLOBAL.Config;
-    supertest = require('supertest');
+    let supertest = require('supertest');
 
     let request = supertest(Config.host);
     request.set("Cookie", agent.cookies); //TODO FIX
