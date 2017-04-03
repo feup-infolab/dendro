@@ -506,7 +506,7 @@ if(Config.thumbnailableExtensions == null)
 
 if(Config.iconableFileExtensions == null)
 {
-    Config.iconableFileExtensions = [];
+    Config.iconableFileExtensions = {};
     let extensions = fs.readdirSync(Config.absPathInPublicFolder("/images/icons/extensions"));
 
     for(let i = 0; i < extensions.length; i++)
@@ -515,7 +515,7 @@ if(Config.iconableFileExtensions == null)
         {
             let extensionOnly = extensions[i].match(/file_extension_(.+)\.png/)[1];
             if(extensionOnly != null)
-                Config.iconableFileExtensions.push(extensionOnly);
+                Config.iconableFileExtensions[extensionOnly] = true;
         }
     }
 }
