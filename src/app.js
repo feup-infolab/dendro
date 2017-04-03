@@ -24,6 +24,9 @@ var express = require('express'),
     expressSession = require('express-session');
     errorHandler = require('express-session');
     Q = require('q');
+    swaggerUi = require('swagger-ui-express');
+    YAML = require('yamljs');
+    swaggerDocument = YAML.load('swagger.yaml');
 
 var bootupPromise = Q.defer();
 
@@ -1149,6 +1152,8 @@ async.waterfall([
                 saveUninitialized: true
             }));
         }
+
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
         app.get('/', index.index);
 
