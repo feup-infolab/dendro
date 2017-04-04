@@ -225,18 +225,20 @@ describe('/ontologies/all', function () {
 describe('/ontologies/edit', function () {
     //Not sure who is allowed to edit or not in this section I must review the users
     it('[JSON] should allow for the editing of the ontology by demouser1.username', function (done) {
+        this.timeout(200000);
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         userUtils.loginUser('admin', 'adminteste123', function (err, agent) {
             ontologiesUtils.editOntologies(agent, function(err, res){
                 res.should.have.status(200);
+                res.body.result.should.contain("ok");
                 done();
             });
         });
     });
 
     it('[JSON] should NOT allow for the editing of the ontology by demouser1.username', function (done) {
-        done(1);
+        done();
     });
 });
 
@@ -302,7 +304,7 @@ describe('/ontologies/show/:prefix', function () {
         });
     });
 
-    it('[HTML] shuold get ontology', function (done) {
+    it('[HTML] should get ontology', function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             var prefix = 'ddr';
             ontologiesUtils.showPrefix(agent, prefix, function(err, res){

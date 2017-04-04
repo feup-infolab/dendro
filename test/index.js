@@ -4,7 +4,7 @@ require("./homepage.Test.js");
 
 //test login
 require("./controllers/auth.Test.js");
-
+/*
 //test projects
 
 require("./controllers/projects.Test.js");
@@ -12,7 +12,7 @@ require("./controllers/projects.Test.js");
 
 //test project file operations
 require("./controllers/project.fileOperations/administer.Test.js");
-
+*/
 
 //test file uploads
 /*
@@ -37,6 +37,7 @@ require("./controllers/descriptors.Test.js");
 //test ontologies
 require("./controllers/ontologies.Test");
 
+/*
 //SOCIAL DENDRO
 //test Social Dendro Posts
 require("./controllers/social/posts.Test.js");
@@ -49,3 +50,4 @@ require("./controllers/social/notifications.Test.js");
 
 //destroy graphs
 require('./models/kb/db.Test.js');
+*/
