@@ -427,7 +427,7 @@ File.estimateUnzippedSize = function(pathOfZipFile, callback)
  * @param pathOfFile absolute path of file to be unzipped
  * @param callback
  */
-File.unzip = function(pathOfFolder, callback) {
+File.unzip = function(pathOfFile, callback) {
     var fs = require('fs');
     var exec = require('child_process').exec;
     var tmp = require('tmp');
@@ -441,7 +441,7 @@ File.unzip = function(pathOfFolder, callback) {
         {
             if(!err)
             {
-                var command = 'unzip -qq -o ' + pathOfFolder;
+                var command = 'unzip -qq -o ' + pathOfFile;
 
                 var unzip = exec(command, {cwd : tmpFolderPath},  function (error, stdout, stderr) {
                     if(!error)

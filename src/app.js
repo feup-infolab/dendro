@@ -1315,12 +1315,12 @@ async.waterfall([
                                 authentication_error : "Permission denied : cannot download this project."
                             },
                             //backups
-                            {
+                            /*{
                                 queryKeys : ['backup'],
                                 handler : files.serve,
                                 permissions : defaultPermissionsInProjectRoot,
                                 authentication_error : "Permission denied : cannot backup this project."
-                            },
+                            },*/
                             //bagits
                             {
                                 queryKeys : ['bagit'],
