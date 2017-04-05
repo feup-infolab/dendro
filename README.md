@@ -7,6 +7,8 @@
 
 #	Welcome to Dendro
 
+![dendro UI](https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png "Dendro UI")
+
 ## Demo instance
 
 [DEMO](http://dendro.fe.up.pt/demo)
