@@ -2,269 +2,247 @@
 # as a demonstration of an API spec in YAML
 swagger: '2.0'
 info:
-  title: Uber API
-  description: Move your app forward with the Uber API
-  version: "1.0.0"
+  title: Dendro Research Data Management Platform API
+  description: Integrate your research data management workflows with Dendro
+  version: "0.2.0"
 # the domain of the service
-host: api.uber.com
+#host: api.uber.com
 # array of all schemes that your API supports
 schemes:
-  - https
+  - http
 # will be prefixed to all paths
-basePath: /v1
+#basePath: /v1
 produces:
   - application/json
 paths:
-  /products:
+  /analytics_tracking_code:
     get:
-      summary: Product Types
+      summary: Google Analytics Tracking Code
       description: |
-        The Products endpoint returns information about the *Uber* products
-        offered at a given location. The response includes the display name
-        and other details about each product, and lists the products in the
-        proper display order.
-      parameters:
-        - name: latitude
-          in: query
-          description: Latitude component of location.
-          required: true
-          type: number
-          format: double
-        - name: longitude
-          in: query
-          description: Longitude component of location.
-          required: true
-          type: number
-          format: double
+        Retrieves the Google Analytics Tracking code. Necessary for the AngularJS app to record events using the angular-google-analytics library, which connects the Dendro instance to Google Analytics for usage statistics production.
       tags:
-        - Products
+        - Analytics Tracking Code
+      produces:
+        ["application/json"]
+      consumes:
+        ["text/html", "application/json"]
       responses:
         200:
-          description: An array of products
+          description: A single string with the Google Analytics Tracking Code
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Product'
-        default:
-          description: Unexpected error
-          schema:
-            $ref: '#/definitions/Error'
-  /estimates/price:
+            type: string
+  /vertexes:
     get:
-      summary: Price Estimates
+      summary: All resources in the graph database
       description: |
-        The Price Estimates endpoint returns an estimated price range
-        for each product offered at a given location. The price estimate is
-        provided as a formatted string with the full price range and the localized
-        currency symbol.<br><br>The response also includes low and high estimates,
-        and the [ISO 4217](http://en.wikipedia.org/wiki/ISO_4217) currency code for
-        situations requiring currency conversion. When surge is active for a particular
-        product, its surge_multiplier will be greater than 1, but the price estimate
-        already factors in this multiplier.
-      parameters:
-        - name: start_latitude
-          in: query
-          description: Latitude component of start location.
-          required: true
-          type: number
-          format: double
-        - name: start_longitude
-          in: query
-          description: Longitude component of start location.
-          required: true
-          type: number
-          format: double
-        - name: end_latitude
-          in: query
-          description: Latitude component of end location.
-          required: true
-          type: number
-          format: double
-        - name: end_longitude
-          in: query
-          description: Longitude component of end location.
-          required: true
-          type: number
-          format: double
+        The operation lists all resources present in the database in a web page. Mainly for testing purposes.
       tags:
-        - Estimates
+        - Vertexes
+      produces:
+              ["text/html"]
+      consumes:
+              ["text/html"]
       responses:
         200:
-          description: An array of price estimates by product
+          description: A web page listing all the vertexes in the database
+  /vertexes/random:
+    get:
+      summary: A random resource in the graph database
+      description: |
+        The operation shows a random resource present in the database in a web page. Mainly for testing purposes.
+      tags:
+        - Vertexes
+      produces:
+              ["text/html"]
+      consumes:
+              ["text/html"]
+      responses:
+        200:
+          description: A web page showing a random resource in the database
+  /vertexes/show/:vertex:
+    get:
+      summary: Show a specific resource present in the graph database, as well as its neighbouring resources (1-level connections).
+      description: |
+        The operation shows a specific resource present in the database in a web page, provided the uri is supplied. Mainly for testing purposes. Also shows its neighbouring resources (1-level connections).
+      parameters:
+        - name: vertex
+          in: query
+          description: Full URI of the resource to be fetched.
+          required: true
+          type: string
+          format: uri
+      tags:
+        - Vertexes
+      produces:
+        ["text/html"]
+      consumes:
+        ["text/html"]
+      responses:
+        200:
+          description: An array of resources (Files and Folders)
           schema:
             type: array
             items:
-              $ref: '#/definitions/PriceEstimate'
+              $ref: '#/definitions/InformationElement'
         default:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
-  /estimates/time:
+  /search:
     get:
-      summary: Time Estimates
-      description: The Time Estimates endpoint returns ETAs for all products offered at a given location, with the responses expressed as integers in seconds. We recommend that this endpoint be called every minute to provide the most accurate, up-to-date ETAs.
+      summary: Free-text search
+      description: Search for publicly-available files and projects. Will perform a text search and return a list of matching resources.
       parameters:
-        - name: start_latitude
+        - name: q
           in: query
-          description: Latitude component of start location.
+          description: The query string
           required: true
-          type: number
-          format: double
-        - name: start_longitude
+          type: string
+        - name: currentPage
           in: query
-          description: Longitude component of start location.
+          description: The page number to fetch (for pagination)
           required: true
-          type: number
-          format: double
-        - name: customer_uuid
-          in: query
-          type: string
-          format: uuid
-          description: Unique customer identifier to be used for experience customization.
-        - name: product_id
-          in: query
-          type: string
-          description: Unique identifier representing a specific product for a given latitude & longitude.
-      tags:
-        - Estimates
-      responses:
-        200:
-          description: An array of products
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Product'
-        default:
-          description: Unexpected error
-          schema:
-            $ref: '#/definitions/Error'
-  /me:
-    get:
-      summary: User Profile
-      description: The User Profile endpoint returns information about the Uber user that has authorized with the application.
-      tags:
-        - User
-      responses:
-        200:
-          description: Profile information for a user
-          schema:
-            $ref: '#/definitions/Profile'
-        default:
-          description: Unexpected error
-          schema:
-            $ref: '#/definitions/Error'
-  /history:
-    get:
-      summary: User Activity
-      description: The User Activity endpoint returns data about a user's lifetime activity with Uber. The response will include pickup locations and times, dropoff locations and times, the distance of past requests, and information about which products were requested.<br><br>The history array in the response will have a maximum length based on the limit parameter. The response value count may exceed limit, therefore subsequent API requests may be necessary.
-      parameters:
-        - name: offset
-          in: query
           type: integer
           format: int32
-          description: Offset the list of returned results by this amount. Default is zero.
-        - name: limit
+        - name: pageSize
           in: query
+          description: The size of the page to fetch (for pagination)
+          required: true
           type: integer
           format: int32
-          description: Number of items to retrieve. Default is 5, maximum is 100.
       tags:
-        - User
+        - Search
       responses:
         200:
-          description: History information for the given user
+          description: An array of resources (Files and Folders)
           schema:
-            $ref: '#/definitions/Activities'
+            type: array
+            items:
+              $ref: '#/definitions/InformationElement'
         default:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+  /login:
+    post:
+      summary: Authenticates a user
+      description: |
+        Authenticates a user if the correct username and password are supplied
+      parameters:
+        - name: username
+          in: body
+          description: Username of the user to authenticate
+          required: true
+          type: string
+          format: alphanum
+        - name: password
+          in: body
+          description: Username of the user to authenticate
+          required: true
+          type: string
+          format: alphanum
+      tags:
+        - Authentication
+      produces:
+        ["text/json"]
+      consumes:
+        ["text/json"]
+      responses:
+        200:
+          description: The authentication success message
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Success'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /logout:
+    post:
+      summary: De-authenticates a user currently logged in
+      description: |
+        De-authenticates the currently authenticated user
+      tags:
+        - Authentication
+      produces:
+        ["text/json"]
+      consumes:
+        ["text/json"]
+      responses:
+        200:
+          description: The de-authentication success message
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/Success'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /ontologies/public:
+    get:
+      summary: Provides a list of public ontologies in this Dendro
+      description: |
+        Lists the public ontologies loaded in this Dendro. A public ontology is one that can be used by users to describe datasets. A private ontology is used to represent private information (e.g the user password).
+      tags:
+        - Ontologies
+      produces:
+        ["text/json"]
+      consumes:
+        ["text/json"]
+      responses:
+        200:
+          description: A list of ontologies
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Ontology'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /ontologies/all:
+    get:
+      summary: Provides a list of ALL ontologies in this Dendro
+      description: |
+        Lists ALL the ontologies loaded in this Dendro, regardless of their visibility.
+      tags:
+        - Ontologies
+      produces:
+        ["text/json"]
+      consumes:
+        ["text/json"]
+      responses:
+        200:
+          description: A list of ontologies
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Ontology'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+
+
+
+
+###DEFINITIONS
+
 definitions:
-  Product:
+  Success:
     type: object
     properties:
-      product_id:
-        type: string
-        description: Unique identifier representing a specific product for a given latitude & longitude. For example, uberX in San Francisco will have a different product_id than uberX in Los Angeles.
-      description:
-        type: string
-        description: Description of product.
-      display_name:
-        type: string
-        description: Display name of product.
-      capacity:
-        type: string
-        description: Capacity of product. For example, 4 people.
-      image:
-        type: string
-        description: Image URL representing the product.
-  PriceEstimate:
-    type: object
-    properties:
-      product_id:
-        type: string
-        description: Unique identifier representing a specific product for a given latitude & longitude. For example, uberX in San Francisco will have a different product_id than uberX in Los Angeles
-      currency_code:
-        type: string
-        description: "[ISO 4217](http://en.wikipedia.org/wiki/ISO_4217) currency code."
-      display_name:
-        type: string
-        description: Display name of product.
-      estimate:
-        type: string
-        description: Formatted string of estimate in local currency of the start location. Estimate could be a range, a single number (flat rate) or "Metered" for TAXI.
-      low_estimate:
-        type: number
-        description: Lower bound of the estimated price.
-      high_estimate:
-        type: number
-        description: Upper bound of the estimated price.
-      surge_multiplier:
-        type: number
-        description: Expected surge multiplier. Surge is active if surge_multiplier is greater than 1. Price estimate already factors in the surge multiplier.
-  Profile:
-    type: object
-    properties:
-      first_name:
-        type: string
-        description: First name of the Uber user.
-      last_name:
-        type: string
-        description: Last name of the Uber user.
-      email:
-        type: string
-        description: Email address of the Uber user
-      picture:
-        type: string
-        description: Image URL of the Uber user.
-      promo_code:
-        type: string
-        description: Promo code of the Uber user.
-  Activity:
-    type: object
-    properties:
-      uuid:
-        type: string
-        description: Unique identifier for the activity
-  Activities:
-    type: object
-    properties:
-      offset:
+      code:
         type: integer
         format: int32
-        description: Position in pagination.
-      limit:
+      result:
         type: integer
         format: int32
-        description: Number of items to retrieve (100 max).
-      count:
-        type: integer
-        format: int32
-        description: Total number of items available.
-      history:
-        type: array
-        items:
-          $ref: '#/definitions/Activity'
+      message:
+        type: string
   Error:
     type: object
     properties:
@@ -275,3 +253,99 @@ definitions:
         type: string
       fields:
         type: string
+  Descriptor:
+    type: object
+    properties:
+      title:
+        type: string
+        description: The title (file or folder name) of the information resource
+  Ontology:
+    type: object
+    properties:
+      prefix:
+        type: string
+        description: The prefix of an ontology. For example, for Dublin Core Terms you have 'dcterms'
+      uri:
+        type: string
+        description: The URI (in most cases also URL) that identifies the ontology uniquely.
+      elements:
+        type: array
+        description: List of descriptors included in this ontology
+        items:
+          schema:
+            type: array
+            $ref: '#/definitions/Descriptor'
+  InformationElement:
+    type: object
+    properties:
+      title:
+        type: string
+        description: The title (file or folder name) of the information resource
+      descriptors:
+        type: array
+        description: List of descriptors of this Information Element
+        items :
+          schema:
+            $ref: '#/definitions/Descriptor'
+      file_extension:
+        type: string
+        description: Display name of product.
+      hasLogicalParts:
+        type: array
+        description: Capacity of product. For example, 4 people.
+        items:
+          schema:
+            type: object
+                properties:
+                  title:
+                    type: string
+                    description: The title (file or folder name) of the information resource
+      metadata_quality:
+        type: integer
+        format: int32
+        description: An estimate of the quality of the metadata in this resource. Ranges from 0 to 100.
+  Descriptor:
+    type: object
+    properties:
+      uri:
+        type: string
+        format: uri
+        description: The URI that identifies the descriptor
+      prefix:
+        type: string
+        description: The prefix of the ontology to which the descriptor belongs
+      ontology:
+        type: string
+        format: uri
+        description: The URI of the ontology to which the descriptor belongs
+      shortName:
+        type: string
+        format: uri
+        description: The element name of the descriptor, i.e. what is to the right of the ':' in the prefixed form. E.g. for the 'dcterms:title' descriptor, it is 'title'
+      prefixedForm:
+        type: string
+        format: uri
+        description: The prefixed form of the identifier of this descriptor <prefix>:<shortName>
+        $ref: '#/definitions/TitleOnly'
+      type:
+        type: integer
+        description: Determines the type of the descriptor, for serialization in the database. (for this value, just send back what Dendro sends you)
+      control:
+        type: string
+        description: The type of control to present in the web interface, for this descriptor
+      label:
+        type: string
+        description: Human-readable label for this descriptor. It is the value of its rdf:label property
+      comment:
+        type: string
+        description: Human-readable comment for this descriptor. It is the value of its rdf:comment property
+      recommendation_types :
+        type: object
+        description: When requesting descriptor recommendations, it provides an explanation of why the descriptor was recommended
+      recommendationCallId:
+        type: string
+        format: uuid
+        description: The ID of a recommendation call where the descriptor was recommended, if getting it from the descriptor recommendations endpoint. Send it back when recording an interaction so that Dendro knows from which recommendation session it was accepted or rejectec, for example. Important for feedback gathering on the effectiveness of the descriptor recommender.
+      recommendationCallId:
+        type: datetime
+        description: The timestamp of the recommendation call (i.e. when the list of descriptors was generated by the server)
