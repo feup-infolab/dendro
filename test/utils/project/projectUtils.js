@@ -287,6 +287,22 @@ var thumbnail = function(agent, filepath, projectHandle, cb){
         })
 };
 
+var upload = function(agent, modify, filepath, projectHandle, query,  cb){
+    if(modify){
+        agent
+            .post('/project/' + projectHandle + filepath + '?upload' + query)
+            .end(function(err, res){
+                cb(err, res);
+            });
+    }else {
+        agent
+            .get('/project/' + projectHandle + filepath + '?upload')
+            .end(function(err, res){
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -305,5 +321,6 @@ module.exports = {
     download : download,
     serve : serve,
     serve_base64 : serve_base64,
-    thumbnail : thumbnail
+    thumbnail : thumbnail,
+    upload : upload
 };
