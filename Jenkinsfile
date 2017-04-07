@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh "./install.sh"
+                sh "./conf/scripts/install.sh"
             }
         }
         stage('Test') {
