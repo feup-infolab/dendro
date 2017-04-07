@@ -29,10 +29,10 @@ var configs = JSON.parse(fs.readFileSync(configs_file_path, 'utf8'));
 var active_config_key;
 if(process.env.NODE_ENV == 'test')
 {
-    if(process.env.RUNNING_IN_JENKINS != null)
+    if(process.env.RUNNING_IN_JENKINS === "1")
     {
         active_config_key = "jenkins_buildserver_test";
-        console.log("[INFO] Running in JENKINS server detected");
+        console.log("[INFO] Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
     }
     else
     {
