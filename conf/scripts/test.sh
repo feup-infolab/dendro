@@ -6,5 +6,5 @@ export NVM_DIR="$HOME/.nvm" &&
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
 npm run test
-npm run coverage
+npm run coverage > /dev/null
 npm run report-coverage

@@ -1,7 +1,6 @@
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+[![Build Status](http://buildserver-rdm.up.pt:8111/job/dendro/job/master/badge/icon)](http://buildserver-rdm.up.pt:8111/job/dendro/job/master/)
 [![codecov](https://codecov.io/gh/feup-infolab/dendro/branch/master/graph/badge.svg)](https://codecov.io/gh/feup-infolab/dendro)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
-[![Built with Grunt](https://cdn.gruntjs.com/builtwith.svg)](https://gruntjs.com/)
 [![Code Climate](https://codeclimate.com/github/feup-infolab/dendro/badges/gpa.svg)](https://codeclimate.com/github/feup-infolab/dendro)
 [![Issue Count](https://codeclimate.com/github/feup-infolab/dendro/badges/issue_count.svg)](https://codeclimate.com/github/feup-infolab/dendro)
 
@@ -39,6 +38,7 @@ Dendro relies on
 * MongoDB and its GridFS system for scalable file storage
 * NodeJS and ExpressJS for the server side
 * Twitter Boostrap
+* [![Built with Grunt](https://cdn.gruntjs.com/builtwith.svg)](https://gruntjs.com/)
 
 ##Acknowledgements
 
@@ -49,6 +49,8 @@ This work is financed by the ERDF – European Regional Development Fund through
 <img src="https://github.com/feup-infolab-rdm/dendro-install/raw/master/logos.jpg">
 
 ## License
+
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
 All source code is freely available under a standard [BSD 3-Clause license](https://opensource.org/licenses/BSD-3-Clause).
 
