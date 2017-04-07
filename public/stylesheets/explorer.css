@@ -32,12 +32,10 @@
   padding-right: 3px;
 }
 .spacer {
-  margin-top: 10px;
-/* define margin as you see fit */
+  margin-top: 10px; /* define margin as you see fit */
 }
 .navbar-spacer {
-  margin-top: 20px;
-/* define margin as you see fit */
+  margin-top: 20px; /* define margin as you see fit */
 }
 .changelog-table {
   table-layout: fixed;
@@ -178,4 +176,7 @@ Animations (uncomment to have animations)
   bottom: 0px;
   height: 120px;
   width: 100%;
+}
+.file_explorer_icon {
+  text-shadow: 1px 1px 1px #ccc;
 }

@@ -186,7 +186,7 @@ Elements.dcterms =
     relation :
     {
         type : DbConnection.string,
-        control : Config.controls.url_box
+        control : Config.controls.markdown_box
     },
     replaces :
     {
@@ -236,7 +236,7 @@ Elements.dcterms =
     type :
     {
         type : DbConnection.string,
-        control : Config.controls.input_box
+        control : Config.controls.markdown_box
     },
     title :
     {
@@ -1017,6 +1017,27 @@ Elements.ddr = {
         locked : true,
         private :true,
         control : Config.controls.input_box
+    },
+    hasFontAwesomeClass :
+    {
+        type : DbConnection.string,
+        locked : true,
+        control : Config.controls.input_box
+    },
+    pageNumber :
+    {
+        type : DbConnection.int,
+        control : Config.controls.input_box
+    },
+    recommendationCallId :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    recommendationCallTimeStamp :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
     }
 };
 
@@ -1066,6 +1087,11 @@ Elements.rdf = {
     {
         type : DbConnection.boolean,
         control : Config.controls.input_box
+    },
+    type : {
+        type : DbConnection.prefixedResource,
+        control : Config.controls.input_box,
+        locked: true
     }
 }
 

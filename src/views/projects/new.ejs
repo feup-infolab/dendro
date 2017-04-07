@@ -70,6 +70,7 @@
         <input type="text"
                class="form-control"
                id="publisher"
+               ng-model="new_project.publisher"
                placeholder="Publisher"
                 <%if(locals.Config.debug.views.prefill_text_boxes){%>
                value="University of Porto"
@@ -83,6 +84,7 @@
         <input type="text"
                class="form-control"
                id="language"
+               ng-model="new_project.language"
                placeholder="Language"
                 <%if(locals.Config.debug.views.prefill_text_boxes){%>
                value="pt"
@@ -96,6 +98,7 @@
         <input type="text"
                class="form-control"
                id="coverage"
+               ng-model="new_project.coverage"
                placeholder="Coverage"
                 <%if(locals.Config.debug.views.prefill_text_boxes){%>
                value="porto"

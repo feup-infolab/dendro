@@ -196,6 +196,10 @@ Descriptor.recommendation_types = {
     dc_element_forced : {
         key : "dc_element_forced",
         weight : 0.0
+    },
+    project_descriptors : {
+        key : "dc_element_forced",
+        weight : 0.0
     }
 };
 
@@ -334,7 +338,7 @@ Descriptor.prototype.setValue = function(value)
 Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesize) {
 
     var query =
-        " SELECT ?uri ?type ?label ?comment \n"+
+        " SELECT DISTINCT ?uri ?type ?label ?comment \n"+
             " FROM [0] \n"+
             " WHERE \n" +
             " { \n"+
@@ -420,34 +424,37 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number, page_size) {
     var async = require('async');
     async.map(ontologyURIsArray, function(uri, cb){
-        Descriptor.all_in_ontology(uri, cb);
+        Descriptor.all_in_ontology(uri, function(err, descriptors){
+            cb(err, descriptors);
+        });
     },function(err, results){
         if(!err)
         {
             var flat = _.flatten(results);
+
+            flat = _.sortBy(flat, function(descriptor){
+                return descriptor.shortName;
+            });
+
             if(page_number != null && page_size != null)
             {
                 try{
                     page_number = parseInt(page_number);
                     page_size = parseInt(page_size);
-
-                    if(typeof page_number == "number" && typeof page_size == "number")
-                    {
-                        var offset = page_number * page_size;
-                        flat = flat.slice(offset, offset + page_size);
-                    }
-
-                    callback(err, flat);
                 }
                 catch(e)
                 {
-                    callback(1, "Unable to parse page size of page number");
+                    return callback(1, "Unable to parse page size of page number");
                 }
             }
-            else
-            {
 
+            if(typeof page_number == "number" && typeof page_size == "number")
+            {
+                var offset = page_number * page_size;
+                flat = flat.slice(offset, offset + page_size);
             }
+
+            callback(err, flat);
         }
         else
         {
@@ -513,31 +520,28 @@ Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptione
             return true;
         }
     }
-}
+};
 
-
-//TODO calculate this at boot time and save it into a matrix for checking descriptor types
 Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     var authorizedDescriptors = {};
-
     for (var prefix in Elements)
     {
         authorizedDescriptors[prefix] = {};
 
         for(var shortName in Elements[prefix])
         {
-            authorizedDescriptors[prefix][shortName] = true;
+            authorizedDescriptors[prefix][shortName] = false;
 
-            var excluded = null;
-            var exceptioned = null;
+            var excluded = false;
+            var exceptioned = false;
 
             var descriptor = new Descriptor({
                 prefix : prefix,
                 shortName : shortName
             });
 
-            if(exceptionedDescriptorTypes != null && exceptionedDescriptorTypes.length > 0)
+            if(exceptionedDescriptorTypes != null)
             {
                 for(var i = 0; i < exceptionedDescriptorTypes.length; i++)
                 {
@@ -550,7 +554,7 @@ Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptio
                 }
             }
 
-            if(excludedDescriptorTypes != null  && excludedDescriptorTypes.length > 0)
+            if(excludedDescriptorTypes != null)
             {
                 if(!exceptioned)
                 {
@@ -566,12 +570,9 @@ Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptio
                 }
             }
 
-            if(exceptioned == null || exceptioned == false)
+            if(!excluded || exceptioned)
             {
-                if(excluded == true)
-                {
-                        authorizedDescriptors[prefix][shortName] = false;
-                }
+                authorizedDescriptors[prefix][shortName] = true;
             }
         }
     }
@@ -974,7 +975,6 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
         "   ?uri rdfs:label ?label . \n" +
         "   FILTER NOT EXISTS { ?uri rdf:type owl:Class } \n"+ //eliminate classes, as all descriptors are properties
         "   FILTER (regex(?label, \""+filterValue+"\", \"i\") || regex(?comment, \""+filterValue+"\", \"i\" )). \n" +
-        "   FILTER (regex(?label, \""+filterValue+"\", \"i\") || regex(?comment, \""+filterValue+"\", \"i\" )). \n" +
         "   FILTER( (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
         "   "+filterString +
         " } \n"+
@@ -1049,7 +1049,7 @@ Descriptor.validateDescriptorParametrization = function(callback)
                         }
                         catch(e)
                         {
-                            callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
+                            return callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
                         }
                     }
 

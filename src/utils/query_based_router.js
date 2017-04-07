@@ -52,7 +52,7 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
                 routeThatMatchesTheMostQueries = _.max(routesThatHaveAtLeastOneQuery, function(route){
                     var queryKeysThatNeedToBePresent = route.queryKeys;
                     var queryKeysPresent = _.intersection(queryKeysThatNeedToBePresent, queryKeysSent);
-                    return queryKeysPresent.length == 0;
+                    return queryKeysPresent.length;
                 });
 
                 return extractFirstElementFromArray(routeThatMatchesTheMostQueries);
@@ -82,7 +82,7 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
             }
             else
             {
-                Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying);
+                Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying, matchingRoute.authentication_error);
             }
         });
     }

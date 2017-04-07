@@ -1,0 +1,8 @@
+{
+  "thumbnailable_file_extensions" : {
+    "jpeg": 1,
+    "jpg" : 1,
+    "gif" : 1,
+    "png" : 1
+  }
+}

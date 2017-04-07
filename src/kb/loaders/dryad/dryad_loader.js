@@ -39,7 +39,7 @@ DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
         }
     });
 
-    var md5 = require('MD5');
+    var md5 = require('md5');
 
     dryadRepository.save(function(err, result)
     {

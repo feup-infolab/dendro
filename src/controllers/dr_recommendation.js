@@ -344,6 +344,17 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
         if(!err)
         {
             results = removeLockedAndPrivate(results);
+
+            var uuid = require('uuid');
+            var recommendation_call_id = uuid.v4();
+            var recommendation_call_timestamp = new Date().toISOString();
+            
+            for(var i = 0; i < results.length; i++)
+            {
+                results[i].recommendationCallId = recommendation_call_id;
+                results[i].recommendationCallTimeStamp = recommendation_call_timestamp;
+            }
+
             callback(null, results);
         }
         else

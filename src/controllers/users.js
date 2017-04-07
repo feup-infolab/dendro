@@ -12,6 +12,34 @@ var _ = require('underscore');
 /*
  * GET users listing.
  */
+exports.users_autocomplete = function(req, res){
+
+    if(req.params.requestedResource != null)
+    {
+
+        User.autocomplete_search(
+            req.query.user_autocomplete,
+            Config.recommendation.max_autocomplete_results,
+            function(err, users)
+            {
+                if(!err)
+                {
+                    res.json(
+                        users
+                    );
+                }
+                else
+                {
+                    res.status(500).json(
+                        {
+                            error_messages : [users]
+                        }
+                    );
+                }
+            }
+        );
+    }
+}
 
 exports.all = function(req, res){
 

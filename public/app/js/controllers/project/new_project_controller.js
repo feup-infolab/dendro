@@ -14,7 +14,7 @@ angular.module('dendroApp.controllers')
             projectsService
         ) {
             $scope.new_project = {
-                "privacy" : "public"
+                "privacy" : "private"
             };
 
             $scope.create_project = function (new_project) {

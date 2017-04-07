@@ -204,23 +204,23 @@ exports.change_log = function(req, res){
 exports.show = function(req, res) {
     var userIsLoggedIn = req.session.user ? true : false;
 
-	if(req.params.requestedResource != null)
-	{
-		var resourceURI	= req.params.requestedResource;
-	}
-	else if(req.params.handle)
-	{
-		var project = new Project(
-				{
-					ddr:
-					{
-						handle: req.params
-					}
-				}
-		);
-		
-		var resourceURI = project.uri;
-	}
+    if(req.params.requestedResource != null)
+    {
+        var resourceURI	= req.params.requestedResource;
+    }
+    else if(req.params.handle)
+    {
+        var project = new Project(
+            {
+                ddr:
+                    {
+                        handle: req.params
+                    }
+            }
+        );
+
+        var resourceURI = project.uri;
+    }
 
     function sendResponse(viewVars, requestedResource)
     {
@@ -283,7 +283,7 @@ exports.show = function(req, res) {
         var _ = require('underscore');
         var isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
             var reason = authorization.role;
-            return _.isEqual(reason, Permissions.roles.project.creator) || _.isEqual(reason, Permissions.roles.project.contributor) || _.isEqual(reason, Permissions.roles.system.admin);
+            return _.isEqual(reason, Permissions.role.project.creator) || _.isEqual(reason, Permissions.role.project.contributor) || _.isEqual(reason, Permissions.role.system.admin);
         });
 
         if(isEditor.length > 0)
@@ -299,17 +299,17 @@ exports.show = function(req, res) {
         {
             var isPublicOrMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
                 var reason = authorization.role;
-                return _.isEqual(reason, Permissions.access_levels.metadata_only) || _.isEqual(reason, Permissions.access_levels.public) || _.isEqual(reason, Permissions.roles.system.admin);
+                return _.isEqual(reason, Permissions.project_privacy_status.metadata_only) || _.isEqual(reason, Permissions.project_privacy_status.public) || _.isEqual(reason, Permissions.role.system.admin);
             });
 
             var isPublicProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
                 var reason = authorization.role;
-                return _.isEqual(reason, Permissions.access_levels.public) || _.isEqual(reason, Permissions.roles.system.admin);
+                return _.isEqual(reason, Permissions.project_privacy_status.public) || _.isEqual(reason, Permissions.role.system.admin);
             });
 
             var isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
                 var reason = authorization.role;
-                return _.isEqual(reason, Permissions.access_levels.metadata_only) || _.isEqual(reason, Permissions.roles.system.admin);
+                return _.isEqual(reason, Permissions.project_privacy_status.metadata_only) || _.isEqual(reason, Permissions.role.system.admin);
             });
 
             if(isPublicOrMetadataOnlyProject.length > 0)
@@ -714,7 +714,7 @@ exports.new = function(req, res) {
                     }
                     else
                     {
-                        //creator will be the curently logged in user
+                        //creator will be the currently logged in user
 
                         var projectData = {
                             dcterms : {
@@ -732,7 +732,6 @@ exports.new = function(req, res) {
                         };
 
                         Project.createAndInsertFromObject(projectData, function(err, result){
-
                             if(!err)
                             {
                                 req.flash('success', "New project " + projectData.dcterms.title +" with handle "+ projectData.ddr.handle +" created successfully");
@@ -788,104 +787,135 @@ exports.administer = function(req, res) {
 
                 if (req.originalMethod == "POST")
                 {
-                    if (req.body.description != null)
+                    let updateProjectMetadata = function(callback)
                     {
-                        project.dcterms.description = req.body.description;
-                    }
-                    if (req.body.title != null)
-                    {
-                        project.dcterms.title = req.body.title;
-                    }
-
-
-                    if (req.body.privacy != null)
-                    {
-                        viewVars.privacy = req.body.privacy;
-                        switch (req.body.privacy)
+                        if (req.body.description != null)
                         {
-                            case "public":
-                                project.ddr.privacyStatus = 'public';
-                                break;
-                            case "private":
-                                project.ddr.privacyStatus = 'private';
-                                break;
-                            case "metadata_only":
-                                project.ddr.privacyStatus = 'metadata_only';
-                                break;
+                            project.dcterms.description = req.body.description;
                         }
-                    }
-
-                    var contributors = [];
-
-                    //from http://www.dzone.com/snippets/validate-url-regexp
-                    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-
-                    if (req.body.contributor != null && req.body.contributor instanceof Array)
-                    {
-
-                        for (var i = 0; i < req.body.contributor.length; i++)
+                        if (req.body.title != null)
                         {
-                            var contributor = req.body.contributor[i];
+                            project.dcterms.title = req.body.title;
+                        }
 
 
-                            if (regexp.test(contributor))
+                        if (req.body.privacy != null)
+                        {
+                            viewVars.privacy = req.body.privacy;
+                            switch (req.body.privacy)
                             {
-                                contributors.push(contributor);
+                                case "public":
+                                    project.ddr.privacyStatus = 'public';
+                                    break;
+                                case "private":
+                                    project.ddr.privacyStatus = 'private';
+                                    break;
+                                case "metadata_only":
+                                    project.ddr.privacyStatus = 'metadata_only';
+                                    break;
                             }
                         }
-                    }
 
-                    if (req.body.newContributor)
+                        callback(null, project);
+                    };
+
+                    let notifyContributor = function(user){
+
+                        const client = nodemailer.createTransport("SMTPS:", {
+                            service: 'SendGrid',
+                            auth: {
+                                user: Config.sendGridUser,
+                                pass: Config.sendGridPassword
+                            }
+                        });
+
+                        const email = {
+                            from: 'support@dendro.fe.up.pt',
+                            to: user.foaf.mbox,
+                            subject: 'Added as contributor for project "' + req.params.handle + '"',
+                            text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
+                        };
+
+                        client.sendMail(email, function (err, info) {
+                            if (err) {
+                                console.log("[NODEMAILER] " + err);
+                                flash('error', "Error sending request to user. Please try again later");
+                            }
+                            else {
+                                console.log("[NODEMAILER] email sent: " + info);
+                                flash('success', "Sent request to project's owner");
+                            }
+                        });
+                    };
+
+                    let updateProjectContributors = function(project, callback)
                     {
-                        if (regexp.test(req.body.newContributor))
+                        //from http://www.dzone.com/snippets/validate-url-regexp
+                        const regexpUri = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+                        const regexpUsername = /(\w+)?/;
+
+                        if (req.body.contributors != null && req.body.contributors instanceof Array)
                         {
-                            contributors.push(req.body.newContributor);
+                            async.map(req.body.contributors, function (contributor, callback) {
 
-                            var client = nodemailer.createTransport("SMTP", {
-                                service: 'SendGrid',
-                                auth: {
-                                    user: Config.sendGridUser,
-                                    pass: Config.sendGridPassword
-                                }
-                            });
-
-                            User.findByUri(req.body.newContributor, function (err, user)
-                            {
-
-                                if (!err && user && user.foaf.mbox)
+                                if (regexpUri.test(contributor))
                                 {
-                                    var email = {
-                                        from: 'support@dendro.fe.up.pt',
-                                        to: user.foaf.mbox,
-                                        subject: 'Added as contributor for project "' + req.params.handle + '"',
-                                        text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
-                                    };
 
-                                    client.sendMail(email, function (err, info)
-                                    {
-                                        if (err)
-                                        {
-                                            console.log("[NODEMAILER] " + err);
-                                            flash('error', "Error sending request to user. Please try again later");
-                                        }
-                                        else
-                                        {
-                                            console.log("[NODEMAILER] email sent: " + info);
-                                            flash('success', "Sent request to project's owner");
+                                    User.findByUri(contributor, function (err, user) {
+
+                                        if (!err && user && user.foaf.mbox) {
+                                            notifyContributor(user);
+                                            callback(false, user.uri);
+                                        } else {
+                                            callback(true, contributor);
                                         }
                                     });
+                                } else if(regexpUsername.test(contributor)){
+                                    User.findByUsername(contributor, function (err, user) {
+
+                                        if (!err && user && user.foaf.mbox) {
+                                            notifyContributor(user);
+                                            callback(false, user.uri);
+                                        } else {
+                                            callback(true, contributor);
+                                        }
+                                    });
+                                } else{
+                                    callback(true, contributor)
+                                }
+
+                            }, function(err, contributors){
+                               if(!err){
+                                    project.dcterms.contributor = contributors;
+                                    callback(null, project);
+                                }
+                                else
+                                {
+                                    callback(err, contributors);
                                 }
                             });
+                        }else{
+                            callback(null, project);
                         }
+                    };
 
-                        project.dcterms.contributor = contributors;
-                    }
-
-
-                    project.save(function (err, result)
+                    let saveProject = function(project, callback)
                     {
+                        project.save(function (err, result)
+                        {
+                            callback(err, project);
+                        });
+                    };
+
+
+                    async.waterfall([
+                        updateProjectMetadata,
+                        updateProjectContributors,
+                        saveProject
+                    ], function(err, project){
                         if (!err)
                         {
+                            viewVars.project = project;
                             viewVars.success_messages = ["Project " + req.params.handle + " successfully updated."];
                             res.render('projects/administration/administer',
                                 viewVars
@@ -893,12 +923,12 @@ exports.administer = function(req, res) {
                         }
                         else
                         {
-                            viewVars.error_messages = [result];
+                            viewVars.error_messages = [project];
                             res.render('projects/administration/administer',
                                 viewVars
                             );
                         }
-                    });
+                    })
                 }
                 else if (req.originalMethod == "GET")
                 {
@@ -922,6 +952,57 @@ exports.administer = function(req, res) {
             res.render('projects/administration/administer',
                 viewVars
             );
+        }
+    });
+};
+
+exports.get_contributors = function(req, res){
+    var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+
+    Project.findByUri(requestedProjectURI, function(err, project) {
+        if (!err) {
+            if (project != null) {
+                //from http://www.dzone.com/snippets/validate-url-regexp
+                var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+                var contributorsUri = [];
+                if (project.dcterms.contributor != null){
+
+                    if(project.dcterms.contributor instanceof Array){
+                        contributorsUri = project.dcterms.contributor;
+                    }else{
+                        contributorsUri.push(project.dcterms.contributor);
+                    }
+
+                    var contributors = [];
+                    async.each(contributorsUri, function (contributor, callback) {
+
+                        if (regexp.test(contributor)) {
+                            User.findByUri(contributor, function (err, user) {
+                                if (!err && user) {
+                                    contributors.push(user);
+                                    callback(null);
+                                } else {
+                                    callback(true, contributor);
+                                }
+                            }, true);
+                        } else {
+                            callback(true, contributor)
+                        }
+
+                    }, function (err, contributor) {
+                        if (!err) {
+                            res.json({
+                                contributors: contributors
+                            });
+
+                        } else {
+                            res.status(500).json({
+                                message: "Error finding user " + contributor
+                            });
+                        }
+                    });
+                }
+            }
         }
     });
 };
@@ -1176,118 +1257,118 @@ exports.stats = function(req, res) {
             var limit = parseInt(req.query.limit);
 
             async.waterfall([
-                function(callback)
-                {
-                    project.getRevisionsCount(function(err, revisionsCount)
+                    function(callback)
                     {
-                        if(!err)
+                        project.getRevisionsCount(function(err, revisionsCount)
                         {
-                            callback(err, revisionsCount)
-                        }
-                        else
-                        {
-                            callback(1,
-                                {
-                                    result : "error",
-                                    message : "Error calculating calculating number of revisions in project . Error reported : " + JSON.stringify(err) + "."
-                                });
-                        }
-                    });
-                },
-                function(revisionsCount, callback)
-                {
-                    project.getFoldersCount(function(err, foldersCount)
+                            if(!err)
+                            {
+                                callback(err, revisionsCount)
+                            }
+                            else
+                            {
+                                callback(1,
+                                    {
+                                        result : "error",
+                                        message : "Error calculating calculating number of revisions in project . Error reported : " + JSON.stringify(err) + "."
+                                    });
+                            }
+                        });
+                    },
+                    function(revisionsCount, callback)
                     {
-                        if(!err)
+                        project.getFoldersCount(function(err, foldersCount)
                         {
-                            callback(err, revisionsCount, foldersCount)
-                        }
-                        else
-                        {
-                            callback(1,
-                                {
-                                    result : "error",
-                                    message : "Error calculating calculating number of folders in project . Error reported : " + JSON.stringify(err) + "."
-                                });
-                        }
-                    });
-                },
-                function(revisionsCount, foldersCount, callback)
-                {
-                    project.getFilesCount(function(err, filesCount)
+                            if(!err)
+                            {
+                                callback(err, revisionsCount, foldersCount)
+                            }
+                            else
+                            {
+                                callback(1,
+                                    {
+                                        result : "error",
+                                        message : "Error calculating calculating number of folders in project . Error reported : " + JSON.stringify(err) + "."
+                                    });
+                            }
+                        });
+                    },
+                    function(revisionsCount, foldersCount, callback)
                     {
-                        if(!err)
+                        project.getFilesCount(function(err, filesCount)
                         {
-                            callback(err, revisionsCount, foldersCount, filesCount);
-                        }
-                        else
-                        {
-                            callback(1,
-                                {
-                                    result : "error",
-                                    message : "Error calculating calculating number of files in project . Error reported : " + JSON.stringify(err) + "."
-                                });
-                        }
-                    });
-                },
-                function(revisionsCount, foldersCount, filesCount, callback)
-                {
-                    project.getMembersCount(function(err, membersCount)
+                            if(!err)
+                            {
+                                callback(err, revisionsCount, foldersCount, filesCount);
+                            }
+                            else
+                            {
+                                callback(1,
+                                    {
+                                        result : "error",
+                                        message : "Error calculating calculating number of files in project . Error reported : " + JSON.stringify(err) + "."
+                                    });
+                            }
+                        });
+                    },
+                    function(revisionsCount, foldersCount, filesCount, callback)
                     {
-                        if(!err)
+                        project.getMembersCount(function(err, membersCount)
                         {
-                            callback(err, revisionsCount, foldersCount, filesCount, membersCount);
-                        }
-                        else
-                        {
-                            callback(1,
-                                {
-                                    result : "error",
-                                    message : "Error calculating calculating number of members of the project . Error reported : " + JSON.stringify(err) + "."
-                                });
-                        }
-                    });
-                },
-                function(revisionsCount, foldersCount, filesCount, membersCount, callback)
-                {
-                    project.getStorageSize(function(err, storageSize){
-                        if(!err)
-                        {
-                            callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize)
-                        }
-                        else
-                        {
-                            callback(1,
-                                {
-                                    result : "error",
-                                    message : "Error calculating size of project : " + requestedProjectURI + " . Error reported : " + JSON.stringify(err) + ".",
-                                    solution :  "Did you install mongodb via apt-get? YOU NEED MONGODB 10GEN to run this, or it will give errors. Install the latest mongodb by .deb package instead of apt-get."
-                                });
-                        }
-                    },offset , limit);
-                },
-                function(revisionsCount, foldersCount, filesCount, membersCount, storageSize)
-                {
-                    var humanize = require('humanize');
+                            if(!err)
+                            {
+                                callback(err, revisionsCount, foldersCount, filesCount, membersCount);
+                            }
+                            else
+                            {
+                                callback(1,
+                                    {
+                                        result : "error",
+                                        message : "Error calculating calculating number of members of the project . Error reported : " + JSON.stringify(err) + "."
+                                    });
+                            }
+                        });
+                    },
+                    function(revisionsCount, foldersCount, filesCount, membersCount, callback)
+                    {
+                        project.getStorageSize(function(err, storageSize){
+                            if(!err)
+                            {
+                                callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize)
+                            }
+                            else
+                            {
+                                callback(1,
+                                    {
+                                        result : "error",
+                                        message : "Error calculating size of project : " + requestedProjectURI + " . Error reported : " + JSON.stringify(err) + ".",
+                                        solution :  "Did you install mongodb via apt-get? YOU NEED MONGODB 10GEN to run this, or it will give errors. Install the latest mongodb by .deb package instead of apt-get."
+                                    });
+                            }
+                        },offset , limit);
+                    },
+                    function(revisionsCount, foldersCount, filesCount, membersCount, storageSize)
+                    {
+                        var humanize = require('humanize');
 
-                    res.json({
-                        size : humanize.filesize(storageSize),
-                        max_size: humanize.filesize(Config.maxProjectSize),
-                        percent_full : Math.round((storageSize / Config.maxProjectSize) * 100),
-                        members_count : membersCount,
-                        folders_count : foldersCount,
-                        files_count : filesCount,
-                        revisions_count : revisionsCount
-                    });
-                }
-            ],
-            function(err, result)
-            {
-                if(err)
+                        res.json({
+                            size : humanize.filesize(storageSize),
+                            max_size: humanize.filesize(Config.maxProjectSize),
+                            percent_full : Math.round((storageSize / Config.maxProjectSize) * 100),
+                            members_count : membersCount,
+                            folders_count : foldersCount,
+                            files_count : filesCount,
+                            revisions_count : revisionsCount
+                        });
+                    }
+                ],
+                function(err, result)
                 {
-                    res.status(500).json(result);
-                }
-            });
+                    if(err)
+                    {
+                        res.status(500).json(result);
+                    }
+                });
         }
         else
         {

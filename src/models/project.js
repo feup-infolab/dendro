@@ -1369,6 +1369,24 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
 Project.prototype.findMetadata = function(callback)
 {
     var self = this;
+
+    self.getPropertiesFromOntologies(
+        Ontology.getPublicOntologiesUris(),
+        function(err, descriptors)
+        {
+            callback(err,
+                {
+                    descriptors : descriptors,
+                    title : self.dcterms.title
+                }
+            );
+        }
+    );
+}
+
+Project.prototype.findMetadataOfRootFolder = function(callback)
+{
+    var self = this;
     var rootFolder = self.ddr.rootFolder;
 
     var rootFolder = new Folder({
