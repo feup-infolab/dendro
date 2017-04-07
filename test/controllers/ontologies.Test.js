@@ -223,13 +223,17 @@ describe('/ontologies/all', function () {
 });
 
 describe('/ontologies/edit', function () {
-    //Not sure who is allowed to edit or not in this section I must review the users
-    it('[JSON] should allow for the editing of the ontology by demouser1.username', function (done) {
+    var description = "Social and Behavioural Studies... Methodology, Sample procedure, Kind of data...";
+    var domain = "Social and Behavioural Science";
+    var prefix = "social";
+
+
+    it('[POST] should allow for the editing of the ontology by admin', function (done) {
         this.timeout(200000);
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         userUtils.loginUser('admin', 'adminteste123', function (err, agent) {
-            ontologiesUtils.editOntologies(agent, function(err, res){
+            ontologiesUtils.editOntologies(agent, description, domain, prefix, function(err, res){
                 res.should.have.status(200);
                 res.body.result.should.contain("ok");
                 done();
@@ -237,9 +241,44 @@ describe('/ontologies/edit', function () {
         });
     });
 
-    it('[JSON] should NOT allow for the editing of the ontology by demouser1.username', function (done) {
-        done();
+    it('[POST] should NOT allow for the editing of ontologies by a NOT logged in user', function (done) {
+        this.timeout(200000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        ontologiesUtils.editOntologies(agent, description, domain, prefix, function(err, res){
+            //TODO Status code is incorrect, responds with html
+            res.should.have.status(401);
+            res.redirects[0].should.contain("login");
+            done();
+        });
     });
+
+    it('[POST] should NOT allow for the editing of ontologies by user who is NOT admin', function (done) {
+        this.timeout(200000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            ontologiesUtils.editOntologies(agent, description, domain, prefix, function(err, res){
+                //TODO Status code is incorrect, responds with html
+                res.should.have.status(401);
+                done();
+            });
+        });
+    });
+    //NOT functional yet
+/*
+    it('[POST] should fail at editing ontologies because of wrong parameters', function (done) {
+        this.timeout(200000);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        userUtils.loginUser('admin', 'adminteste123', function (err, agent) {
+            ontologiesUtils.editOntologies(agent, description, domain, prefix, function(err, res){
+                //TODO Status code is incorrect, responds with html
+                res.should.have.status(400);
+                done();
+            });
+        });
+    });*/
 });
 
 

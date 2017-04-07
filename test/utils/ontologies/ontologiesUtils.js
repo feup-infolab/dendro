@@ -71,10 +71,10 @@ exports.showPrefix = function (agent, prefix, cb) {
 };
 
 
-exports.editOntologies = function (agent, cb) {
+exports.editOntologies = function (agent, description, domain, prefix, cb) {
             agent
                 .post('/ontologies/edit')
-                .send( {description: "Social and Behavioural Studies... Methodology, Sample procedure, Kind of data...", domain: "Social and Behavioural Science", prefix:"social"})
+                .send( {description: description, domain: domain , prefix: prefix})
                 .end(function (err, res) {
                     cb(err, res);
                 });
