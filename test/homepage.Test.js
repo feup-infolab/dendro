@@ -18,7 +18,7 @@ describe('/', function () {
                     res.text.should.contain('<h2>Welcome to Dendro Beta</h2>');
 
                     GLOBAL.tests.app = app;
-
+                                 
                     done();
                 });
         });

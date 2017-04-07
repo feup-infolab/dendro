@@ -6,9 +6,9 @@
     "start": "node src/app.js",
     "preinstall": "npm i -g gladstone && npm install -g istanbul && npm install -g nyc && npm install coveralls && npm install -g bower && npm install -g grunt && npm install -g grunt-cli && npm install -g grunt",
     "post-install": "grunt",
-    "test": "node node_modules/.bin/_mocha -t 10000",
-    "watch": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha -t 10000 -w",
-    "coverage": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha -t 10000",
+    "test": "node node_modules/.bin/_mocha test -t 10000",
+    "watch": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha test -t 10000 -w",
+    "coverage": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha test -t 10000",
     "report-coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "everything": "rm -rf node_modules && npm cache clean && npm install && npm run test && npm run coverage && npm run report-coverage",
     "remote_debug": "node app.js --debug=5858"
