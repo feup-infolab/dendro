@@ -12,15 +12,22 @@ const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtil
 const should = chai.should();
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
+require(Config.absPathInTestsFolder("units/bootup.Unit.js")).setup();
 
 module.exports.setup = function(finish)
 {
 
+    /*
+    before(function(){
+        require(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+    });*/
+
     describe("[UNIT] create all projects", function () {
 
+        /*
         before(function(done){
             require(Config.absPathInTestsFolder("units/bootup.Unit.js")).setup(done);
-        });
+        });*/
 
         it('demouser1 should create the public project', function (done) {
             userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {

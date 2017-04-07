@@ -13,13 +13,14 @@ const publicproject = require(Config.absPathInTestsFolder("mockdata/projects/pub
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
-
+require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
 
 describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
 
+    /*
     before(function(done){
         require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup(done);
-    });
+    });*/
 
     it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
