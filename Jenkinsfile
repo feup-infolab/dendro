@@ -11,7 +11,7 @@ pipeline {
         stage('Test') {
             steps {
                 sh "chmod +x $WORKSPACE/conf/scripts/test.sh"
-                sh "$WORKSPACE/conf/scripts/test.sh"
+                sh "$WORKSPACE/conf/scripts/test.sh JENKINSTESTSdendroVagrantDemo root r00t_p4ssw0rd"
             }
         }
         stage('Deploy') {
