@@ -4,12 +4,12 @@
   "private": true,
   "scripts": {
     "start": "node src/app.js",
-    "preinstall": "npm i -g gladstone && npm install -g istanbul && npm install -g nyc && npm install -g codecov && npm install -g bower && npm install -g grunt && npm install -g grunt-cli && npm install -g grunt",
+    "preinstall": "npm i -g gladstone && npm install -g istanbul && npm install -g nyc && npm install coveralls && npm install -g bower && npm install -g grunt && npm install -g grunt-cli && npm install -g grunt",
     "post-install": "grunt",
     "test": "node node_modules/.bin/_mocha -t 10000",
     "watch": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha -t 10000 -w",
     "coverage": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha -t 10000",
-    "report-coverage": "nyc report --reporter=lcov > coverage/coverage_codecov.lcov && codecov --token=1e5633aa-6c37-44dd-a515-eab1470c4745 && rm coverage/coverage_codecov.lcov",
+    "report-coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "everything": "rm -rf node_modules && npm cache clean && npm install && npm run test && npm run coverage && npm run report-coverage",
     "remote_debug": "node app.js --debug=5858"
   },
@@ -103,6 +103,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-http": "^3.0.0",
+    "coveralls": "^2.13.0",
     "grunt": "^1.0.1",
     "grunt-auto-install": "^0.3.1",
     "grunt-contrib-uglify": "^2.2.0",
