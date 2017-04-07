@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh "./conf/scripts/install.sh"
+                sh "$WORKSPACE/conf/scripts/install.sh"
             }
         }
         stage('Test') {
