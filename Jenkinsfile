@@ -9,13 +9,12 @@ pipeline {
         }
         stage('Test') {
             steps {
-                sh 'npm run test'
-                sh 'npm run coverage'
+                sh "$WORKSPACE/conf/scripts/test.sh"
             }
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying....'
+                echo 'No deployments yet. Skipping.'
             }
         }
     }
