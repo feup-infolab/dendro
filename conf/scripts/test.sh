@@ -5,8 +5,9 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | b
 export NVM_DIR="$HOME/.nvm" &&
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-export COVERALLS_SERVICE_NAME="Jenkins"
-export COVERALLS_REPO_TOKEN="kVeT2pSFVWDEoZCC5xN6wCS1j8YRaiG5e"
+env COVERALLS_SERVICE_NAME="Jenkins"
+env COVERALLS_REPO_TOKEN="kVeT2pSFVWDEoZCC5xN6wCS1j8YRaiG5e"
+env RUNNING_IN_JENKINS="1"
 
 npm run test &&
 npm run coverage > /dev/null &&

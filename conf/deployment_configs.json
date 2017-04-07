@@ -904,5 +904,315 @@
       "bdv",
       "research"
     ]
+  },
+  "jenkins_buildserver_test" : {
+    "port" : 3001,
+    "host" : "127.0.0.1:3001",
+    "crypto" :
+    {
+      "secret" : "adasdasTHF4A9JfsMbTaHYefVtquzFbrdNUMSbTHF4A9JfsMbTaHYefVtquzFbrdNUMSbpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzHpHeRjKE24Tyk2LqxVa3ERyGAAaP8j7gXArZsJk4bjKj8F4YZnCqAyaw9auPn6ahDwc4scLCrayLX9BsYwqXaMKrfW82WdqD5pYApFaQ9JNCqQ25qb75GKfAZSgvNuzFXKT6mGGw6qk63HqjgGwty4qx4QkYXxNCsbez4jwzeRc58AfSvzXZfEf8asSNWhhfEBWCvCeAJs3BGZFFFuwZ7EAVhmyu7NqqzH"
+    },
+    "baseUri" : "http://127.0.0.1:3001",
+    "eudatBaseUrl" : "https://trng-b2share.eudat.eu",
+    "eudatCommunityId" : "e9b9792e-79fb-4b07-b6b4-b9c2bd06d095",
+    "eudatToken" : "__FIXME",
+    "sendGridUser" : "__FIXME",
+    "sendGridPassword" : "__FIXME",
+    "elasticSearchHost" : "127.0.0.1",
+    "elasticSearchPort" : "9200",
+
+    "cache": {
+      "active": true,
+      "redis" :
+      {
+        "instances": [
+          {
+            "id" : "default",
+            "options":
+            {
+              "host" : "127.0.0.1",
+              "port" : "6780"
+            },
+            "database_number" : 1
+          },
+          {
+            "id" : "social",
+            "options":
+            {
+              "host" : "127.0.0.1",
+              "port" : "6781"
+            },
+            "database_number" : 1
+          },
+          {
+            "id" : "notifications",
+            "options":
+            {
+              "host" : "127.0.0.1",
+              "port" : "6782"
+            },
+            "database_number" : 1
+          }
+        ]
+      },
+      "static" :
+      {
+        "last_modified_caching" : true,
+        "cache_period_in_seconds" : 3600
+      }
+    },
+    "virtuosoHost" : "127.0.0.1",
+    "virtuosoPort" : "8890",
+    "virtuosoAuth" : {
+      "user" : "dba",
+      "password" : "root"
+    },
+    "mongoDBHost" : "127.0.0.1",
+    "mongoDbPort" : "27017",
+    "mongoDbCollectionName" : "dendro_data_dev_jenkins_test",
+    "mongoDBSessionStoreCollection" : "dendro_data_dev_sessions_jenkins_test",
+    "mongoDbVersion" : "",
+    "mongoDBAuth" : {
+      "user" : "",
+      "password" : ""
+    },
+    "mySQLHost" : "127.0.0.1",
+    "mySQLPort" : "3306",
+    "mySQLAuth" : {
+      "user" : "root",
+      "password" : "r00t_p4ssw0rd"
+    },
+    "mySQLDBName" : "JENKINSTESTSdendroVagrantDemo",
+    "maxUploadSize" : 2147483648,
+    "maxProjectSize" : 5368709120,
+    "maxSimultanousConnectionsToDb" : 3,
+    "dbOperationTimeout" : 5000,
+    "tempFilesDir" : "temp",
+    "tempFilesCreationMode" : "0777",
+    "administrators" : [
+      {
+        "username": "admin",
+        "password": "adminteste123",
+        "firstname" : "Dendro",
+        "surname" : "Administrator",
+        "mbox" : "admin@dendro.fe.up.pt"
+      }
+    ],
+    "demo_mode" :
+    {
+      "active": true,
+      "users":
+      [
+        {
+          "username": "demouser1",
+          "password": "demouserpassword2015",
+          "firstname" : "Dendro 1",
+          "surname" : "Demo User 1",
+          "mbox" : "demouser1@dendro.fe.up.pt"
+        },
+        {
+          "username": "demouser2",
+          "password": "demouserpassword2015",
+          "firstname" : "Dendro 2",
+          "surname" : "Demo User 2",
+          "mbox" : "demouser2@dendro.fe.up.pt"
+        },
+        {
+          "username": "demouser3",
+          "password": "demouserpassword2015",
+          "firstname" : "Dendro 3",
+          "surname" : "Demo User 3",
+          "mbox" : "demouser3@dendro.fe.up.pt"
+        }
+      ]
+    },
+    "useElasticSearchAuth" : false,
+    "elasticSearchAuthCredentials" : {
+      "username" : "user",
+      "password" : "pass"
+    },
+    "systemOrHiddenFilesRegexes" : ["__MACOSX", "^[.]"],
+    "theme" : "lumen",
+    "debug" : {
+      "active": true,
+      "database" :{
+        "log_all_queries": true,
+        "destroy_all_graphs_on_startup": true
+      },
+      "session": {
+        "auto_login": false,
+        "login_user": "demouser"
+      },
+      "files": {
+        "log_all_restore_operations": true,
+        "log_delete_operations" : true,
+        "log_file_fetches" : true,
+        "delete_temp_folder_on_startup" : true,
+        "log_file_version_fetches" : false
+      },
+      "resources": {
+        "log_all_type_checks": false,
+        "log_missing_resources": false
+      },
+      "permissions" : {
+        "enable_permissions_system" : true,
+        "log_authorizations" : false,
+        "log_denials" : false,
+        "log_requests_and_permissions" : false
+      },
+      "users" : {
+        "log_fetch_by_username" : false
+      },
+      "descriptors": {
+        "log_missing_unknown_descriptors": false,
+        "log_unknown_types": false
+      },
+      "ontologies" : {
+        "log_autocomplete_requests" : false
+      },
+      "views" : {
+        "show_all_buttons_in_recommendations" : false,
+        "prefill_text_boxes" : false
+      },
+      "cache" : {
+        "log_cache_hits" : false,
+        "log_cache_writes" : false,
+        "log_cache_deletes" : false
+      },
+      "diagnostics" :
+      {
+        "ram_usage_report" : true
+      }
+    },
+    "startup" : {
+      "reload_administrators_on_startup" : true,
+      "reload_demo_users_on_startup" : true,
+      "reload_ontologies_on_startup": false
+    },
+    "baselines" : {
+
+    },
+    "logging" :
+    {
+      "pipe_console_to_logfile" : false,
+      "format" : "combined",
+      "app_logs_folder" : "logs/app",
+      "log_request_times" : true,
+      "request_times_log_folder" : "logs/request_times",
+      "log_requests_in_apache_format" : false,
+      "requests_in_apache_format_log_folder" : "logs/requests_apache_format"
+    },
+    "version" :
+    {
+      "number" : 0.2,
+      "name" : "Test Config"
+    },
+    "recommendation":
+    {
+      "modes" : {
+        "dendro_recommender" :
+        {
+          "active" : false,
+          "host" : "127.0.0.1",
+          "port" : "9000",
+          "log_modes" : {
+            "phase_1" :
+            {
+              "table_to_write_interactions" : "interactions",
+              "active" : false
+            },
+            "phase_2" :
+            {
+              "table_to_write_interactions" : "interactions",
+              "active" : true
+            }
+          }
+        },
+        "standalone" : {
+          "active" : false
+        },
+        "project_descriptors" : {
+          "active" : true
+        },
+        "none" : {
+          "active" : false
+        }
+      },
+      "max_autocomplete_results" : 4,
+      "max_suggestions_of_each_type" : 80,
+      "recommendation_page_size" : 30,
+      "random_interactions_generation_page_size": 5,
+      "max_interaction_pushing_threads" : 1
+    },
+    "email" :
+    {
+      "gmail":
+      {
+        "username" : "__FIXME",
+        "password" : "__FIXME"
+      }
+    },
+    "maps" :
+    {
+      "gmaps_api_key" : "__FIXME",
+      "map_height" : 500
+    },
+    "change_log" :
+    {
+      "default_page_length" : 20
+    },
+    "exporting" :
+    {
+      "generated_files_metadata" :
+      {
+        "bagit" :
+        {
+          "dcterms" : {
+            "title" : "Full contents of the dataset in ZIP format (Bagit Specification)",
+            "description" : "This file contains all the files and corresponding metadata in a ZIP arghive that follows the BagIt (https://tools.ietf.org/html/draft-kunze-bagit-08) specification. Exported by the Dendro platform."
+          }
+        },
+        "zip" :
+        {
+          "dcterms" : {
+            "title" : "Full contents of the dataset in ZIP format",
+            "description" : "This file contains all the files and corresponding metadata in a ZIP archive. Exported by the Dendro platform."
+          }
+        },
+        "json" :
+        {
+          "dcterms" : {
+            "title" : "Dataset metadata in JSON format",
+            "description" : "This file contains all the metadata in JSON format. Exported by the Dendro platform."
+          }
+        },
+        "rdf" :
+        {
+          "dcterms" : {
+            "title" : "Dataset metadata in RDF format",
+            "description" : "This file contains all the metadata in RDF (Resource Description Framework) format. Exported by the Dendro platform."
+          }
+        },
+        "txt" :
+        {
+          "dcterms" : {
+            "title" : "Dataset metadata in human-readable TXT format",
+            "description" : "This file contains all the metadata in Plain text for human reading. Exported by the Dendro platform."
+          }
+        }
+      },
+      "ckan" :
+      {
+
+      }
+    },
+    "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
+
+    "public_ontologies" : [
+      "foaf",
+      "dcterms",
+      "bdv",
+      "research"
+    ]
   }
 }
