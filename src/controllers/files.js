@@ -1839,10 +1839,10 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
 };
 
 exports.data = function(req, res){
-
+    let path = require('path');
     var requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
-    if(files.dataParsers[requestedExtension] != null)
+    if(exports.dataParsers[requestedExtension] != null)
     {
         var resourceURI = req.params.requestedResource;
 
