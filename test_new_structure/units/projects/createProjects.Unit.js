@@ -36,14 +36,17 @@ module.exports.setup = function(finish)
                 projectUtils.createNewProject(true, agent, projectData, function (err, res) {
 
                     //ignore redirection, make new request
-                    if (err) return done(err);
+                    if (err)
+                        return done(err);
+
                     res.should.have.status(200);
                     done();
 
-                    userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
+                    /*userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
                         res.statusCode.should.equal(200);
                         done();
                     });
+                    */
                 });
             });
         });
