@@ -24,6 +24,9 @@ var express = require('express'),
     expressSession = require('express-session');
     errorHandler = require('express-session');
     Q = require('q');
+    swaggerUi = require('swagger-ui-express');
+    YAML = require('yamljs');
+    swaggerDocument = YAML.load('swagger.yaml');
 
 var bootupPromise = Q.defer();
 
@@ -1150,6 +1153,10 @@ async.waterfall([
             }));
         }
 
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, true, {
+            docExpansion : "list"
+        }));
+
         app.get('/', index.index);
 
         app.get('/analytics_tracking_code', index.analytics_tracking_code);
@@ -1158,7 +1165,6 @@ async.waterfall([
         app.get('/vertexes', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.all);
         app.get('/vertexes/random', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.random);
         app.get('/vertexes/show', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.show);
-        app.get('/vertexes/:source/with/:property', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.with_property);
 
         //search
         app.get('/search', vertexes.search);
@@ -1169,7 +1175,8 @@ async.waterfall([
         app.get('/admin/reload', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.reload);
 
         //low-level sparql endpoint
-        app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
+        //TODO
+        //app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
 
         //authentication
         app.get('/login', auth.login);

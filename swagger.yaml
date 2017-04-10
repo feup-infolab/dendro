@@ -1,0 +1,349 @@
+swagger: '2.0'
+info:
+  title: Dendro Research Data Management Platform API
+  description: Integrate your research data management workflows with Dendro **(Documentation IN CONSTRUCTION)**
+  version: "0.2.0"
+# the domain of the service
+#host: api.uber.com
+# array of all schemes that your API supports
+schemes:
+  - http
+# will be prefixed to all paths
+#basePath: /v1
+produces:
+  - application/json
+paths:
+  /analytics_tracking_code:
+    get:
+      summary: Google Analytics Tracking Code
+      description: |
+        Retrieves the Google Analytics Tracking code. Necessary for the AngularJS app to record events using the angular-google-analytics library, which connects the Dendro instance to Google Analytics for usage statistics production.
+      tags:
+        - Analytics Tracking Code
+      produces:
+        ["application/json"]
+      consumes:
+        ["text/html", "application/json"]
+      responses:
+        200:
+          description: A single string with the Google Analytics Tracking Code
+          schema:
+            type: string
+  /vertexes:
+    get:
+      summary: All resources in the graph database
+      description: |
+        The operation lists all resources present in the database in a web page. Mainly for testing purposes.
+      tags:
+        - Vertexes
+      produces:
+              ["text/html"]
+      consumes:
+              ["text/html"]
+      responses:
+        200:
+          description: A web page listing all the vertexes in the database
+  /vertexes/random:
+    get:
+      summary: A random resource in the graph database
+      description: |
+        The operation shows a random resource present in the database in a web page. Mainly for testing purposes.
+      tags:
+        - Vertexes
+      produces:
+              ["text/html"]
+      consumes:
+              ["text/html"]
+      responses:
+        200:
+          description: A web page showing a random resource in the database
+  /vertexes/show/:vertex:
+    get:
+      summary: Show a specific resource present in the graph database, as well as its neighbouring resources (1-level connections).
+      description: |
+        The operation shows a specific resource present in the database in a web page, provided the uri is supplied. Mainly for testing purposes. Also shows its neighbouring resources (1-level connections).
+      parameters:
+        - name: vertex
+          in: query
+          description: Full URI of the resource to be fetched.
+          required: true
+          type: string
+          format: uri
+      tags:
+        - Vertexes
+      produces:
+        ["text/html"]
+      consumes:
+        ["text/html"]
+      responses:
+        200:
+          description: An array of resources (Files and Folders)
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/InformationElement'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /search:
+    get:
+      summary: Free-text search
+      description: Search for publicly-available files and projects. Will perform a text search and return a list of matching resources.
+      parameters:
+        - name: q
+          in: query
+          description: The query string
+          required: true
+          type: string
+        - name: currentPage
+          in: query
+          description: The page number to fetch (for pagination)
+          required: true
+          type: integer
+          format: int32
+        - name: pageSize
+          in: query
+          description: The size of the page to fetch (for pagination)
+          required: true
+          type: integer
+          format: int32
+      tags:
+        - Search
+      responses:
+        200:
+          description: An array of resources (Files and Folders)
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/InformationElement'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /login:
+    post:
+      summary: Authenticates a user
+      description: |
+        Authenticates a user if the correct username and password are supplied
+      parameters:
+        - name: username
+          in: body
+          description: Username of the user to authenticate
+          required: true
+          type: string
+          format: alphanum
+        - name: password
+          in: body
+          description: Username of the user to authenticate
+          required: true
+          type: string
+          format: alphanum
+      tags:
+        - Authentication
+      produces:
+        ["text/json"]
+      consumes:
+        ["text/json"]
+      responses:
+        200:
+          description: The authentication success message
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Success'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /logout:
+    post:
+      summary: De-authenticates a user currently logged in
+      description: |
+        De-authenticates the currently authenticated user
+      tags:
+        - Authentication
+      produces:
+        ["text/json"]
+      consumes:
+        ["text/json"]
+      responses:
+        200:
+          description: The de-authentication success message
+          schema:
+            type: object
+            items:
+              $ref: '#/definitions/Success'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /ontologies/public:
+    get:
+      summary: Provides a list of public ontologies in this Dendro
+      description: |
+        Lists the public ontologies loaded in this Dendro. A public ontology is one that can be used by users to describe datasets. A private ontology is used to represent private information (e.g the user password).
+      tags:
+        - Ontologies
+      produces:
+        ["text/json"]
+      consumes:
+        ["text/json"]
+      responses:
+        200:
+          description: A list of ontologies
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Ontology'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /ontologies/all:
+    get:
+      summary: Provides a list of ALL ontologies in this Dendro
+      description: |
+        Lists ALL the ontologies loaded in this Dendro, regardless of their visibility.
+      tags:
+        - Ontologies
+      produces:
+        ["text/json"]
+      consumes:
+        ["text/json"]
+      responses:
+        200:
+          description: A list of ontologies
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Ontology'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+
+
+
+
+
+###DEFINITIONS
+
+definitions:
+  Success:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      result:
+        type: integer
+        format: int32
+      message:
+        type: string
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
+      fields:
+        type: string
+  Descriptor:
+    type: object
+    properties:
+      title:
+        type: string
+        description: The title (file or folder name) of the information resource
+  Ontology:
+    type: object
+    properties:
+      prefix:
+        type: string
+        description: The prefix of an ontology. For example, for Dublin Core Terms you have 'dcterms'
+      uri:
+        type: string
+        description: The URI (in most cases also URL) that identifies the ontology uniquely.
+      elements:
+        type: array
+        description: List of descriptors included in this ontology
+        items:
+          schema:
+            type: array
+            $ref: '#/definitions/Descriptor'
+  InformationElement:
+    type: object
+    properties:
+      title:
+        type: string
+        description: The title (file or folder name) of the information resource
+      descriptors:
+        type: array
+        description: List of descriptors of this Information Element
+        items :
+          schema:
+            $ref: '#/definitions/Descriptor'
+      file_extension:
+        type: string
+        description: Display name of product.
+      hasLogicalParts:
+        type: array
+        description: Capacity of product. For example, 4 people.
+        items:
+          schema:
+            type: object
+                properties:
+                  title:
+                    type: string
+                    description: The title (file or folder name) of the information resource
+      metadata_quality:
+        type: integer
+        format: int32
+        description: An estimate of the quality of the metadata in this resource. Ranges from 0 to 100.
+  Descriptor:
+    type: object
+    properties:
+      uri:
+        type: string
+        format: uri
+        description: The URI that identifies the descriptor
+      prefix:
+        type: string
+        description: The prefix of the ontology to which the descriptor belongs
+      ontology:
+        type: string
+        format: uri
+        description: The URI of the ontology to which the descriptor belongs
+      shortName:
+        type: string
+        format: uri
+        description: The element name of the descriptor, i.e. what is to the right of the ':' in the prefixed form. E.g. for the 'dcterms:title' descriptor, it is 'title'
+      prefixedForm:
+        type: string
+        format: uri
+        description: The prefixed form of the identifier of this descriptor <prefix>:<shortName>
+        $ref: '#/definitions/TitleOnly'
+      type:
+        type: integer
+        description: Determines the type of the descriptor, for serialization in the database. (for this value, just send back what Dendro sends you)
+      control:
+        type: string
+        description: The type of control to present in the web interface, for this descriptor
+      label:
+        type: string
+        description: Human-readable label for this descriptor. It is the value of its rdf:label property
+      comment:
+        type: string
+        description: Human-readable comment for this descriptor. It is the value of its rdf:comment property
+      recommendation_types :
+        type: object
+        description: When requesting descriptor recommendations, it provides an explanation of why the descriptor was recommended
+      recommendationCallId:
+        type: string
+        format: uuid
+        description: The ID of a recommendation call where the descriptor was recommended, if getting it from the descriptor recommendations endpoint. Send it back when recording an interaction so that Dendro knows from which recommendation session it was accepted or rejectec, for example. Important for feedback gathering on the effectiveness of the descriptor recommender.
+      recommendationCallId:
+        type: datetime
+        description: The timestamp of the recommendation call (i.e. when the list of descriptors was generated by the server)
