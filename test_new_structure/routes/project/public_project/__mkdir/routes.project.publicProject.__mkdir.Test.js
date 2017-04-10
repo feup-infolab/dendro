@@ -22,11 +22,6 @@ require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Un
 
 describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
 
-    /*
-    before(function(done){
-        require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup(done);
-    });*/
-
     it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             projectUtils.createFolderInProjectRoot(true, agent, "invalidProjectHandle", folder.name, function (err, res) {
@@ -93,5 +88,11 @@ describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
                 done();
             });
         });
+    });
+
+    after(function (done) {
+        //destroy graphs
+        require(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+        done();
     });
 });
