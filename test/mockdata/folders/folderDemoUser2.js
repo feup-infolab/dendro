@@ -1,16 +1,21 @@
-let Config = global.Config;
-var fileName = "ipres2014.pdf";
+var demouser2 = require("../users/demouser2");
+var folderName = "pastinhaLinda" + demouser2.username;
 var publicProject = require("../projects/public_project");
 var privateProject = require("../projects/private_project");
 var metadataOnlyProject = require("../projects/metadata_only_project");
 var projectsArray = [publicProject, privateProject, metadataOnlyProject];
 var activeProjectIndex = 0;
-var mockFolder = require("../folders/folder.js");
-
-module.exports = {
-    md5 : "7709f77e25380bd048d2594c083360fb",
-    name : fileName,
-    location : Config.absPathInApp("/test/mockdata/files/test_uploads/" + fileName),
+let folderData = {
+    name : folderName,
+    version: 0,
+    pathInProject : '',
+    download_md5 : '',
+    backup_md5 : '',
+    files : [
+        require("../files/pdfMockfile"),
+        require("../files/pngMockfile"),
+        require("../files/xlsxMockfile")
+    ],
     metadata : [
         {uri:"http://purl.org/dc/terms/creator",
             prefix:"dcterms",
@@ -30,7 +35,7 @@ module.exports = {
             rankingPosition:12,
             pageNumber:0,
             interactionType:"accept_descriptor_from_manual_list",
-            recommendedFor:"http://" + Config.host + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + mockFolder.name + "/" + fileName,
+            recommendedFor:"http://" + Config.host + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + folderName,
             value:"demouser1"
         },
         {uri:"http://purl.org/dc/terms/title",
@@ -51,9 +56,11 @@ module.exports = {
             rankingPosition:50,
             pageNumber:0,
             interactionType:"accept_descriptor_from_manual_list",
-            recommendedFor:"http://" + Config.host + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + mockFolder.name + "/" + fileName,
-            value: fileName + " title"
+            recommendedFor:"http://" + Config.host + "/project/" + projectsArray[activeProjectIndex].handle + "/data/" + folderName,
+            value: folderName + " title"
         }
     ],
     invalidMetadata : ["Garbage"]
 };
+
+module.exports = folderData;

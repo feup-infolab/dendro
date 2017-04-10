@@ -1454,11 +1454,21 @@ export_to_repository_b2share = function(req, res){
             }
             else
             {
-
+                res.status(404).json(
+                    {
+                        "result" : "error",
+                        "message" : "Folder identified by " + requestedResourceUri + " does not exist"
+                    }
+                )
             }
         }
         else {
-
+            res.status(500).json(
+                {
+                    "result" : "error",
+                    "message" : "Error finding" + requestedResourceUri
+                }
+            )
         }
     });
 };

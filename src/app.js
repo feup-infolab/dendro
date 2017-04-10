@@ -1185,7 +1185,7 @@ async.waterfall([
         app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.role.system.admin]), ontologies.edit);
 
         //descriptors
-        app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [Permissions.role.system.user]), descriptors.from_ontology);
+        app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [ Permissions.role.project.contributor, Permissions.role.project.creator]), descriptors.from_ontology);
 
         //research domains
 
@@ -1220,8 +1220,8 @@ async.waterfall([
 
         app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.role.system.user]), projects.requestAccess);
         app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.role.system.user]), projects.requestAccess);
-        app.post('/project/:handle/delete', async.apply(Permissions.require, [Permissions.role.system.admin]), projects.delete);
-        app.post('/project/:handle/undelete', async.apply(Permissions.require, [Permissions.role.system.admin]), projects.undelete);
+        app.post('/project/:handle/delete', async.apply(Permissions.require, [Permissions.role.project.creator]), projects.delete);
+        app.post('/project/:handle/undelete', async.apply(Permissions.require, [Permissions.role.project.creator]), projects.undelete);
 
         //interactions
         app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list);
@@ -1692,7 +1692,7 @@ async.waterfall([
                         },
                         {
                             queryKeys : ['undelete'],
-                            handler : projects.undelete,
+                            handler : files.undelete,
                             permissions : modificationPermissionsBranch,
                             authentication_error : "Permission denied : cannot undelete resource because you do not have permissions to edit this project."
                         },
@@ -1704,6 +1704,12 @@ async.waterfall([
                         }
                     ],
                     delete : [
+                        {
+                            queryKeys : ['really_delete'],
+                            handler : files.rm,
+                            permissions : modificationPermissionsBranch,
+                            authentication_error : "Permission denied : cannot delete resource because you do not have permissions to edit this project."
+                        },
                         {
                             queryKeys : [],
                             handler : files.rm,
