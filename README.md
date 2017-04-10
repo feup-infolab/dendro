@@ -54,7 +54,7 @@ This work is financed by the ERDF – European Regional Development Fund through
 
 All source code is freely available under a standard [BSD 3-Clause license](https://opensource.org/licenses/BSD-3-Clause).
 
-Copyright (c) 2016, João Rocha da Silva, FEUP InfoLab (http://dendro.fe.up.pt)
+Copyright (c) 2016, FEUP InfoLab (http://dendro.fe.up.pt)
 
 All rights reserved.
 
