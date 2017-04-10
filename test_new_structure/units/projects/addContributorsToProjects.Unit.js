@@ -12,15 +12,22 @@ const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtil
 const should = chai.should();
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
 
+require(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js")).setup();
 module.exports.setup = function(finish)
 {
+    /*
+    before(function(){
+        require(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+    });*/
     describe("[UNIT] add demouser2 as contributor to all projects", function () {
 
+        /*
         before(function(done){
             require(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js")).setup(done);
             done();
-        });
+        });*/
 
         it('should add demouser2 as contributor of the public project', function (done) {
             const projectData = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));

@@ -12,15 +12,23 @@ const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtil
 const should = chai.should();
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
+require(Config.absPathInTestsFolder("units/bootup.Unit.js")).setup();
 
 module.exports.setup = function(finish)
 {
 
+    /*
+    before(function(){
+        require(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+    });*/
+
     describe("[UNIT] create all projects", function () {
 
+        /*
         before(function(done){
             require(Config.absPathInTestsFolder("units/bootup.Unit.js")).setup(done);
-        });
+        });*/
 
         it('demouser1 should create the public project', function (done) {
             userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
@@ -28,14 +36,17 @@ module.exports.setup = function(finish)
                 projectUtils.createNewProject(true, agent, projectData, function (err, res) {
 
                     //ignore redirection, make new request
-                    if (err) return done(err);
+                    if (err)
+                        return done(err);
+
                     res.should.have.status(200);
                     done();
 
-                    userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
+                    /*userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
                         res.statusCode.should.equal(200);
                         done();
                     });
+                    */
                 });
             });
         });

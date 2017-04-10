@@ -186,7 +186,7 @@ Elements.dcterms =
     relation :
     {
         type : DbConnection.string,
-        control : Config.controls.url_box
+        control : Config.controls.markdown_box
     },
     replaces :
     {
@@ -236,7 +236,7 @@ Elements.dcterms =
     type :
     {
         type : DbConnection.string,
-        control : Config.controls.input_box
+        control : Config.controls.markdown_box
     },
     title :
     {

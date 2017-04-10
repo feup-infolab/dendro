@@ -192,8 +192,8 @@ if(Config.logging != null)
                         }
                         catch (e)
                         {
-                            console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(e));
-                            process.exit(1);
+                            console.error("[ERROR] Error creating folder for logs at " + absPath + "\n" + JSON.stringify(e));
+                            //process.exit(1);
                         }
                     }
                     else
@@ -1281,9 +1281,7 @@ async.waterfall([
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?\/?$/, function(req,res, next)
             {
-                console.log("Entered Project Root Route. URL : " + req.originalUrl);
-
-
+                //console.log("Entered Project Root Route. URL : " + req.originalUrl);
                 var defaultPermissionsInProjectRoot = [
                     Permissions.project_privacy_status.public,
                     Permissions.project_privacy_status.metadata_only,
@@ -1479,8 +1477,6 @@ async.waterfall([
         app.all(/\/project\/([^\/]+)(\/data\/.+\/?)$/,
             function(req,res, next)
             {
-                console.log("Entered Project branch Route. URL : " + req.originalUrl);
-
                 var defaultPermissionsInProjectBranch = [
                     Permissions.project_privacy_status.public,
                     Permissions.role.project.contributor,
