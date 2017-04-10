@@ -26,7 +26,7 @@ var express = require('express'),
     Q = require('q');
     swaggerUi = require('swagger-ui-express');
     YAML = require('yamljs');
-    swaggerDocument = YAML.load('swagger.yaml');
+    swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
 
 var bootupPromise = Q.defer();
 
