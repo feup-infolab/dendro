@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node src/app.js",
-    "preinstall": "npm i -g gladstone && npm install -g istanbul && npm install -g nyc && npm install coveralls && npm install -g bower && npm install -g grunt && npm install -g grunt-cli && npm install -g grunt",
+    "preinstall": "npm i -g gladstone && npm install -g istanbul && npm install -g nyc && npm install coveralls && npm install -g bower && npm install -g grunt && npm install -g grunt-cli",
     "post-install": "grunt",
     "test": "node node_modules/.bin/_mocha test_new_structure -t 10000",
     "watch": "nyc --reporter=lcov --reporter=text --reporter=text-lcov node node_modules/.bin/_mocha test_new_structure -t 10000 -w",
