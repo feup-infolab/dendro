@@ -3,7 +3,6 @@ var Config = function() { return GLOBAL.Config; }();
 var needle = require('needle');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var uuid = require('uuid');
-var redis = function() { return GLOBAL.redis.default; }();
 
 function DbConnection (host, port, username, password, maxSimultaneousConnections)
 {
@@ -628,6 +627,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 
             //console.log("Running insert query : " + query);
 
+            let redis = GLOBAL.redis.default;
             //Invalidate cache record for the updated resources
             redis.connection.delete([triple.subject, triple.object], function(err, result){});
 
@@ -727,6 +727,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
          */
         if(Config.cache.active)
         {
+            let redis = GLOBAL.redis.default;
             redis.connection.delete(urisToDelete, function(err, result)
             {
                 if (err != null)
@@ -809,6 +810,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
                 "} \n";
 
         //Invalidate cache record for the updated resource
+        let redis = GLOBAL.redis.default;
         redis.connection.delete(subject, function(err, result){});
 
         self.execute(query, arguments, function(err, results)

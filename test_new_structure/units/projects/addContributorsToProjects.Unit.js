@@ -12,6 +12,8 @@ const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtil
 const should = chai.should();
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
+
 require(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js")).setup();
 module.exports.setup = function(finish)
 {

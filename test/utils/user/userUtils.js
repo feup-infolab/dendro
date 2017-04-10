@@ -178,3 +178,5 @@ exports.sendingNewPassword = function (email, token, pass, passConfirm, cb) {
             });
 };
 
+module.exports = exports;
+
