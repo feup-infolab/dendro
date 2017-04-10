@@ -5,10 +5,11 @@ chai.use(chaiHttp);
 
 
 var listAllMyProjects = function (jsonOnly, agent, cb) {
+    var path = "/projects/my";
     if(jsonOnly)
     {
         agent
-            .get('/projects/my')
+            .get(path)
             .set('Accept', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -17,27 +18,53 @@ var listAllMyProjects = function (jsonOnly, agent, cb) {
     else
     {
         agent
-            .get('/projects/my')
+            .get(path)
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var listAllProjects = function (agent, cb) {
-    agent
-        .get('/projects')
-        .end(function (err, res) {
-            cb(err, res);
-        });
+var listAllProjects = function (jsonOnly, agent, cb) {
+    var path = "/projects";
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
 };
 
-var getNewProjectPage = function (agent, cb) {
-    agent
-    .get('/projects/new')
-    .end(function (err, res) {
-        cb(err, res);
-    });
+var getNewProjectPage = function (jsonOnly, agent, cb) {
+    var path = "/projects/new";
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
 };
 
 var createNewProject = function (jsonOnly, agent, projectData, cb) {
@@ -209,6 +236,288 @@ var removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folde
     });
 };
 
+var getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb) {
+    //project/:handle?version
+    var path = '/project/' + projectHandle;
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .query({version : version})
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .query({version : version})
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var importProjectHTMLPage = function (jsonOnly, agent, cb) {
+    // /projects/import
+    var path = "/projects/import";
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
+    // /projects/import
+    var path = "/projects/import";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .attach('file', projectBackupPath)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .attach('file', projectBackupPath)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb) {
+    // /project/:handle/request_access
+    var path = "/project/"+ projectHandle + "/request_access";
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var requestAccessToProject = function (jsonOnly, agent, projectHandle, cb) {
+    // /project/:handle/request_access
+    var path = "/project/"+ projectHandle + "/request_access";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var deleteProject = function (jsonOnly, agent, projectHandle, cb) {
+    // /project/:handle/delete
+    var path = "/project/"+ projectHandle + "/delete";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var undeleteProject = function (jsonOnly, agent, projectHandle, cb) {
+    // /project/:handle/undelete
+    var path = "/project/"+ projectHandle + "/undelete";
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folderName, cb) {
+    // /project/:handle?mkdir
+    var path = "/project/"+ projectHandle;
+    if(jsonOnly)
+    {
+        agent
+            .post(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .query({mkdir : folderName})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .query({mkdir : folderName})
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
+    ///project/:handle?recent_changes
+    var path = '/project/' + projectHandle +'?recent_changes';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var administer = function (agent, modify, projectData, projectHandle, cb) {
+    if(modify) {
+        agent
+            .post('/project/' + projectHandle + '?administer')
+            .send(projectData)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    } else{
+        agent
+            .get('/project/' + projectHandle + '?administer')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var backup = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?backup')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+var bagit = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?bagit')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+var download = function (agent, projectHandle, filepath, cb) {
+    agent
+        .get('/project/' + projectHandle + filepath + '?download')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+var serve = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?serve')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+
+
+var thumbnail = function(agent, filepath, projectHandle, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?thumbnail')
+        .end(function (err, res) {
+            cb(err, res);
+        })
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -220,5 +529,20 @@ module.exports = {
     getMetadataRecomendationsForProject : getMetadataRecomendationsForProject,
     getProjectRootContent : getProjectRootContent,
     getResourceMetadata : getResourceMetadata,
-    removeDescriptorFromFolder : removeDescriptorFromFolder
+    removeDescriptorFromFolder : removeDescriptorFromFolder,
+    getProjectRecentChanges : getProjectRecentChanges,
+    getProjectVersion : getProjectVersion,
+    importProjectHTMLPage: importProjectHTMLPage,
+    importProject: importProject,
+    getRequestProjectAccessPage: getRequestProjectAccessPage,
+    requestAccessToProject: requestAccessToProject,
+    deleteProject: deleteProject,
+    undeleteProject: undeleteProject,
+    createFolderInProjectRoot: createFolderInProjectRoot,
+    administer : administer,
+    backup : backup,
+    bagit : bagit,
+    download : download,
+    serve : serve,
+    thumbnail : thumbnail
 };

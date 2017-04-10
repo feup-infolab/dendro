@@ -1527,93 +1527,104 @@ exports.undelete = function(req, res){
 
 exports.mkdir = function(req, res){
 
-    if(req.params.is_project_root)
-    {
-        var parentFolderURI = req.params.requestedResource + "/data";
-    }
-    else
-    {
-        var parentFolderURI = req.params.requestedResource;
-    }
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    var newFolderTitle = req.query.mkdir;
-
-    if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
+    if(acceptsJSON && !acceptsHTML)
     {
-        res.status(500).json(
-            {
-                "result" : "error",
-                "message" : "invalid file name specified"
-            }
-        );
-    }
-
-    Folder.findByUri(parentFolderURI, function(err, parentFolder)
-    {
-        if(!err)
+        if(req.params.is_project_root)
         {
-            var newChildFolder = new Folder({
-                nie :
-                {
-                    title : newFolderTitle,
-                    isLogicalPartOf : parentFolderURI
-                }
-            });
+            var parentFolderURI = req.params.requestedResource + "/data";
+        }
+        else
+        {
+            var parentFolderURI = req.params.requestedResource;
+        }
 
-            //save parent folder
-            parentFolder.insertDescriptors([new Descriptor ({
-                    prefixedForm : "nie:hasLogicalPart",
-                    value : newChildFolder.uri
-                })
-            ],
-            function(err, result)
-            {
-                if(!err)
+        var newFolderTitle = req.query.mkdir;
+
+        if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
+        {
+            res.status(500).json(
                 {
-                    newChildFolder.save(function(err, result)
+                    "result" : "error",
+                    "message" : "invalid file name specified"
+                }
+            );
+        }
+
+        Folder.findByUri(parentFolderURI, function(err, parentFolder)
+        {
+            if(!err)
+            {
+                var newChildFolder = new Folder({
+                    nie :
+                        {
+                            title : newFolderTitle,
+                            isLogicalPartOf : parentFolderURI
+                        }
+                });
+
+                //save parent folder
+                parentFolder.insertDescriptors([new Descriptor ({
+                        prefixedForm : "nie:hasLogicalPart",
+                        value : newChildFolder.uri
+                    })
+                    ],
+                    function(err, result)
                     {
                         if(!err)
                         {
-                            res.json(
+                            newChildFolder.save(function(err, result)
+                            {
+                                if(!err)
                                 {
-                                    "status" : "1",
-                                    "id" : newChildFolder.uri,
-                                    "result" : "ok"
+                                    res.json(
+                                        {
+                                            "status" : "1",
+                                            "id" : newChildFolder.uri,
+                                            "result" : "ok"
+                                        }
+                                    );
                                 }
-                            );
+                                else
+                                {
+                                    res.status(500).json(
+                                        {
+                                            "result" : "error",
+                                            "message" : "error 1 saving new folder :" + result
+                                        }
+                                    );
+                                }
+                            });
                         }
                         else
                         {
                             res.status(500).json(
                                 {
                                     "result" : "error",
-                                    "message" : "error 1 saving new folder :" + result
+                                    "message" : "error 2 saving new folder :" + result
                                 }
                             );
                         }
                     });
-                }
-                else
-                {
-                    res.status(500).json(
-                        {
-                            "result" : "error",
-                            "message" : "error 2 saving new folder :" + result
-                        }
-                    );
-                }
-            });
-        }
-        else
-        {
-            res.status(500).json(
-                {
-                    "result" : "error",
-                    "message" : "error 3 saving new folder :" + parentFolder
-                }
-            );
-        }
-    });
+            }
+            else
+            {
+                res.status(500).json(
+                    {
+                        "result" : "error",
+                        "message" : "error 3 saving new folder :" + parentFolder
+                    }
+                );
+            }
+        });
+    }
+    else
+    {
+        var msg = "HTML Request not valid for this route.";
+        res.status(400).send(msg);
+    }
 };
 
 exports.ls = function(req, res){
@@ -1828,10 +1839,10 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
 };
 
 exports.data = function(req, res){
-
+    let path = require('path');
     var requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
-    if(files.dataParsers[requestedExtension] != null)
+    if(exports.dataParsers[requestedExtension] != null)
     {
         var resourceURI = req.params.requestedResource;
 
