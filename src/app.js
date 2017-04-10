@@ -192,8 +192,8 @@ if(Config.logging != null)
                         }
                         catch (e)
                         {
-                            console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(e));
-                            process.exit(1);
+                            console.error("[ERROR] Error creating folder for logs at " + absPath + "\n" + JSON.stringify(e));
+                            //process.exit(1);
                         }
                     }
                     else
