@@ -1,9 +1,11 @@
+process.env.NODE_ENV = 'test';
+
 let Config = GLOBAL.Config = Object.create(require("../src/models/meta/config.js").Config);
 Config.initGlobals();
 
 GLOBAL.tests = {};
 
-//require("./test/test_new_structure/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js");
+require("./test/test_new_structure/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js");
 
 /*
 //test login

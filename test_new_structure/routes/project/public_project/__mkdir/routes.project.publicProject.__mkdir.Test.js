@@ -1,3 +1,8 @@
+var chai = require('chai');
+var chaiHttp = require('chai-http');
+var _ = require('underscore');
+chai.use(chaiHttp);
+
 const Config = GLOBAL.Config;
 
 const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
@@ -35,7 +40,7 @@ describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             projectUtils.createFolderInProjectRoot(false, agent, publicproject.handle, folder.name, function (err, res) {
                 res.statusCode.should.equal(400);
-                res.body.message.should.equal("HTML Request not valid for this route.");
+                res.text.should.equal("HTML Request not valid for this route.");
                 done();
             });
         });
