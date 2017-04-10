@@ -4,18 +4,19 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                sh "./install.sh"
+                sh "chmod +x $WORKSPACE/conf/scripts/install.sh"
+                sh "$WORKSPACE/conf/scripts/install.sh"
             }
         }
         stage('Test') {
             steps {
-                sh 'npm run test'
-                sh 'npm run coverage'
+                sh "chmod +x $WORKSPACE/conf/scripts/test.sh"
+                sh "$WORKSPACE/conf/scripts/test.sh JENKINSTESTSdendroVagrantDemo root r00t_p4ssw0rd"
             }
         }
         stage('Deploy') {
             steps {
-                echo 'Deploying....'
+                echo 'No deployments yet. Skipping.'
             }
         }
     }
