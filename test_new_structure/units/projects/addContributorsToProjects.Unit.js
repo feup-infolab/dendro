@@ -58,4 +58,3 @@ module.exports.setup = function(finish)
         });
     });
 };
-

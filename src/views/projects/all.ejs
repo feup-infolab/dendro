@@ -20,49 +20,53 @@
             </tr>
             <%  var total = locals.projects.length;
                 var count = locals.count;
-                for(var i = 0; i < total; i++) {
-                    var project = locals.projects[i];
+
+                if(total > 0)
+                {
+                    for(var i = 0; i < total; i++)
+                    {
+                        var project = locals.projects[i];
             %>
-                    <tr>
-                        <td>
+                        <tr>
+                    <td>
                         <% if( project.ddr.privacyStatus == "public") {  %>
-                            <span class="fa-stack fa-1x">
+                        <span class="fa-stack fa-1x">
                                 <i class="fa fa-globe fa-stack-2x text-default"></i>
                             </span>
-                            Public
+                        Public
                         <% } else if( project.ddr.privacyStatus == "metadata_only") {%>
-                            <span class="fa-stack fa-1x">
+                        <span class="fa-stack fa-1x">
                                 <i class="fa fa-unlock fa-stack-2x text-default"></i>
                             </span>
-                            Metadata Only
+                        Metadata Only
                         <% } else if( project.ddr.privacyStatus == "private") {%>
-                            <span class="fa-stack fa-1x">
+                        <span class="fa-stack fa-1x">
                                 <i class="fa fa-lock fa-stack-2x text-default"></i>
                             </span>
-                            <span class="label label-success">Visible only for you</span>
-                            Private
-                            <% } %>
-                        </td>
+                        <span class="label label-success">Visible only for you</span>
+                        Private
+                        <% } %>
+                    </td>
 
-                        <td>
-                            <b>
-                                <a href="/project/<%=locals.projects[i].ddr.handle%>"><%=locals.projects[i].ddr.handle%></a>
-                            </b>
-                        </td>
-                        <td>
-                            <b>
-                                <a href="./project/<%=locals.projects[i].ddr.handle%>">
-                                    <%= locals.projects[i].dcterms.title %>
-                                </a>
-                            </b>
-                        </td>
-                        <td>
-                            <%= locals.projects[i].dcterms.description %>
-                        </td>
-                        <td>
-                            <a href="<%= locals.projects[i].dcterms.creator %>"><%=locals.projects[i].dcterms.creator%></a>
-                        </td>
-                        <!--
+                    <td>
+                        <b>
+                            <a href="/project/<%=locals.projects[i].ddr.handle%>"><%=locals.projects[i].ddr.handle%></a>
+                        </b>
+                    </td>
+                    <td>
+                        <b>
+                            <a href="./project/<%=locals.projects[i].ddr.handle%>">
+                                <%= locals.projects[i].dcterms.title %>
+                            </a>
+                        </b>
+                    </td>
+                    <td>
+                        <%= locals.projects[i].dcterms.description %>
+                    </td>
+                    <td>
+                        <a href="<%= locals.projects[i].dcterms.creator %>"><%=locals.projects[i].dcterms.creator%></a>
+                    </td>
+                    <!--
                         <td>
                             <b>
                                 <a href="<%=locals.projects[i].dcterms.creator%>">
@@ -71,8 +75,19 @@
                             </b>
                         </td>
                         -->
-                    </tr>
-
+                </tr>
+            <%
+                    }
+                } else {
+            %>
+                <div class="row">
+                    <br/>
+                    <div class="col-xs-12">
+                        <div class="alert alert-info">
+                            There are currently no projects.
+                        </div>
+                    </div>
+                </div>
         <% } %>
 
         </table>
