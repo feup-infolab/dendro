@@ -70,11 +70,7 @@ module.exports.setup = function(finish)
                     //ignore redirection, make new request
                     if (err) return done(err);
                     res.should.have.status(200);
-
-                    userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
-                        res.statusCode.should.equal(200);
-                        done();
-                    });
+                    done();
                 });
             });
         });

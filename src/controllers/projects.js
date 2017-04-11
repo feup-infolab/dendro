@@ -24,6 +24,23 @@ exports.all = function(req, res) {
         viewVars
     );
 
+    var validateRequestType = function (cb) {
+        var acceptsHTML = req.accepts('html');
+        var acceptsJSON = req.accepts('json');
+
+        if(acceptsJSON && !acceptsHTML){
+            res.status(400).json({
+                result: "error",
+                message : "API Request not valid for this route."
+            })
+        }
+        else
+        {
+            cb(null, null);
+        }
+
+    };
+
     var getProjectCount = function (cb)
     {
         Project.getCount(function (err, count)
@@ -59,15 +76,15 @@ exports.all = function(req, res) {
 
     }
 
-    async.parallel(
+    async.series(
         [
-            getProjectCount, getAllProjects
+            validateRequestType, getProjectCount, getAllProjects
         ], function (err, results)
         {
             if (!err)
             {
-                viewVars.count = results[0];
-                viewVars.projects = results[1];
+                viewVars.count = results[1];
+                viewVars.projects = results[2];
 
                 res.render('projects/all',
                     viewVars
@@ -604,18 +621,30 @@ exports.show = function(req, res) {
 };
 
 exports.new = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
     if(req.originalMethod == "GET")
     {
-        res.render('projects/new',
-            {
-                title: "Create a new project"
-            }
-        );
+        if(acceptsJSON && !acceptsHTML){
+            res.status(400).json({
+                result: "error",
+                message : "API Request not valid for this route."
+            })
+        }
+        else
+        {
+            res.render('projects/new',
+                {
+                    title: "Create a new project"
+                }
+            );
+        }
     }
     else if (req.originalMethod == "POST")
     {
-        var acceptsHTML = req.accepts('html');
-        var acceptsJSON = req.accepts('json');
+        acceptsHTML = req.accepts('html');
+        acceptsJSON = req.accepts('json');
 
         if(req.body.handle == null || req.body.handle == "")
         {
@@ -941,7 +970,7 @@ exports.administer = function(req, res) {
             else
             {
                 viewVars.error_messages = ["Project " + req.params.handle + " does not exist."];
-                res.render('',
+                res.status(401).render('index',
                     viewVars
                 );
             }
@@ -1202,48 +1231,60 @@ exports.undelete = function(req,res)
 };
 
 exports.recent_changes = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    if(!acceptsJSON && acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
 
-    Project.findByUri(req.params.requestedResource, function(err, project){
-        if(!err)
-        {
-            if(project != null)
+        Project.findByUri(req.params.requestedResource, function(err, project){
+            if(!err)
             {
-                var offset = parseInt(req.query.offset);
-                var limit = parseInt(req.query.limit);
+                if(project != null)
+                {
+                    var offset = parseInt(req.query.offset);
+                    var limit = parseInt(req.query.limit);
 
-                project.getRecentProjectWideChanges(function(err, changes){
-                    if(!err)
-                    {
-                        res.json(changes);
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result : "error",
-                            message : "Invalid project : " + requestedProjectURI + " : " + project
-                        });
-                    }
-                },offset , limit);
+                    project.getRecentProjectWideChanges(function(err, changes){
+                        if(!err)
+                        {
+                            res.json(changes);
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result : "error",
+                                message : "Invalid project : " + requestedProjectURI + " : " + project
+                            });
+                        }
+                    },offset , limit);
+                }
+                else
+                {
+                    res.status(404).json({
+                        result : "error",
+                        message : "Unable to find project with handle : " + req.params.handle
+                    });
+                }
             }
             else
             {
-                res.status(404).json({
+                res.status(500).json({
                     result : "error",
-                    message : "Unable to find project with handle : " + req.params.handle
+                    message : "Invalid project : " + requestedProjectURI + " : " + project
                 });
             }
-        }
-        else
-        {
-            res.status(500).json({
-                result : "error",
-                message : "Invalid project : " + requestedProjectURI + " : " + project
-            });
-        }
-    });
+        });
+    }
 };
 
 exports.stats = function(req, res) {
@@ -1436,12 +1477,24 @@ exports.interactions = function(req, res) {
 };
 
 exports.requestAccess = function(req, res){
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
     if(req.originalMethod == "GET")
     {
-        res.render('projects/request_access',
+        if(acceptsJSON && !acceptsHTML){
+            res.status(400).json({
+                result: "error",
+                message : "API Request not valid for this route."
+            })
+        }
+        else
+        {
+            res.render('projects/request_access',
             {
                 handle: req.params.handle
             });
+        }
     }
     else if(req.originalMethod == "POST")
     {
@@ -1505,17 +1558,29 @@ exports.requestAccess = function(req, res){
 };
 
 exports.import = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
     if(req.originalMethod == "GET")
     {
-        var filesize = require('file-size');
+        if(acceptsJSON && !acceptsHTML){
+            res.status(400).json({
+                result: "error",
+                message : "API Request not valid for this route."
+            })
+        }
+        else
+        {
+            var filesize = require('file-size');
 
-        res.render('projects/import/import',
-            {
-                title: "Import a project",
-                maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
-                maxProjectSize : filesize(Config.maxProjectSize).human('jedec')
-            }
-        );
+            res.render('projects/import/import',
+                {
+                    title: "Import a project",
+                    maxUploadSize : filesize(Config.maxUploadSize).human('jedec'),
+                    maxProjectSize : filesize(Config.maxProjectSize).human('jedec')
+                }
+            );
+        }
     }
     else if (req.originalMethod == "POST")
     {

@@ -72,11 +72,13 @@ Zenodo.prototype.createDeposition = function(data, callback){
             json:true
         },
         function (e, r, depostition) {
-            if(e){
-                console.error(e);
-                callback(true);
+            if(r.statusCode !="201")
+            {
+                console.error(depostition.message);
+                callback(true, depostition);
             }
-            else{
+            else
+            {
                 callback(false,depostition);
             }
         })

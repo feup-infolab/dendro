@@ -1,97 +1,91 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var _ = require('underscore');
+"use strict";
+
+process.env.NODE_ENV = "test";
+
+let chai = require("chai");
+let chaiHttp = require("chai-http");
+const md5 = require("md5");
 chai.use(chaiHttp);
 
-const Config = GLOBAL.Config;
+const should = chai.should();
 
-const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const httpUtils = require(Config.absPathInTestsFolder("utils/http/httpUtils.js"));
+let agent = null;
 
-const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = require("../../mockdata/users/demouser1.js");
+const demouser2 = require("../../mockdata/users/demouser1.js");
+const demouser3 = require("../../mockdata/users/demouser1.js");
 
-const publicproject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const folder = require("../../mockdata/folders/folder.js");
+const ecologyFolder = require("../../mockdata/folders/ecology_folder.js");
+const mechanicsFolder = require("../../mockdata/folders/mechanics_folder.js");
 
-const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
-require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
+const metadataOnlyProject = require("../../mockdata/projects/metadata_only_project.js");
+const publicProject = require("../../mockdata/projects/public_project.js");
+const privateProject= require("../../mockdata/projects/private_project.js");
 
-describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
+const fileUtils= require("../../utils/file/fileUtils.js");
+const folderUtils= require("../../utils/folder/folderUtils.js");
+const userUtils = require("../../utils/user/userUtils.js");
 
-    /*
-     before(function(done){
-     require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup(done);
-     });*/
-
-    it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createFolderInProjectRoot(true, agent, "invalidProjectHandle", folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
-                done();
-            });
-        });
+describe("/search", function ()
+{
+    /**
+     * Search effectiveness (does it find the things it should, without considering permisions for now?)
+     */
+    //TODO
+    it("[HTML] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done) {
+        done();
     });
 
-    it("Should give an error if the request for this route is of type HTML", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createFolderInProjectRoot(false, agent, publicproject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(400);
-                res.text.should.equal("HTML Request not valid for this route.");
-                done();
-            });
-        });
+    //TODO
+    it("[HTML] should search and not find anything if there is nothing when searching for gibberish (asjksdhfkjshdfkad)", function (done) {
+        done();
+    });
+
+    //TODO
+    it("[JSON] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done) {
+        done();
+    });
+
+    //TODO
+    it("[JSON] should search and not find anything if there is nothing when searching for gibberish (asjksdhfkjshdfkad)", function (done) {
+        done();
     });
 
 
-    it("Should give an error when the user is unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, folder.name, function (err, res) {
-            res.statusCode.should.equal(401);
-            done();
-        });
+    /**
+     * Permissions and project access levels (Does it filter the private and metadataonly projects and folders adequately?)
+     */
+
+    //Folders inside different types of projects
+    //TODO
+    it("[HTML] should find a folder present in "+publicProject.handle+" project by searching for a term present in its description. Query : \"public project type\"", function (done) {
+        done();
     });
 
-    it("Should give an error when the user is logged in as demouser3(not a collaborator nor creator in a project by demouser1)", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
-                done();
-            });
-        });
+    //TODO
+    it("[HTML] should NOT find a folder present in the "+metadataOnlyProject.handle+" project by searching for a term present in its description", function (done) {
+        done();
     });
 
-    it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.body.result.should.equal("ok");
-                done();
-            });
-        });
+    //TODO
+    it("[HTML] should NOT find a folder present in the "+privateProject.handle+" project by searching for a term present in its description", function (done) {
+        done();
     });
 
-    it("Should create the folder with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, folderForDemouser2.name, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.body.result.should.equal("ok");
-                done();
-            });
-        });
+    //Different types of projects
+    //TODO
+    it("[HTML] should find the " + publicProject.handle + " project by searching for a term present in its description", function (done) {
+        done();
     });
 
-    it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, "thisIsAn*InvalidFolderName", function (err, res) {
-                res.statusCode.should.equal(500);
-                res.body.message.should.equal("invalid file name specified");
-                done();
-            });
-        });
+    //TODO
+    it("[HTML] should find the " + metadataOnlyProject.handle + " project by searching for a term present in its description", function (done) {
+        done();
+    });
+
+    //TODO
+    it("[HTML] should not the " + privateProject.handle + " project by searching for a term present in its description", function (done) {
+        done();
     });
 });

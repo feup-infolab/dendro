@@ -1262,7 +1262,7 @@ Resource.prototype.reindex = function(indexConnection, callback)
 
 Resource.prototype.getIndexDocumentId = function(indexConnection, callback)
 {
-    var self = this;
+    let self = this;
 
     self.restoreFromIndexDocument(indexConnection, function(err, restoredResource)
     {
@@ -1275,11 +1275,11 @@ Resource.prototype.getIndexDocumentId = function(indexConnection, callback)
             callback(err, null);
         }
     });
-}
+};
 
 Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxResultSize, callback)
 {
-    var self = this;
+    let self = this;
 
     self.getIndexDocumentId(indexConnection, function(err, id)
     {
@@ -1290,16 +1290,16 @@ Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxR
                 indexConnection.moreLikeThis(
                     IndexConnection.indexTypes.resource, //search in all graphs for resources (generic type)
                     id,
-                    /*{
-                        mlt_fields : "resource.descriptors.object" //fields that are to be included in the mlt calculations
-                    },*/
-                    {},
                     function(err, results)
                     {
                         if(!err)
                         {
-                            var retrievedResources;
-                            retrievedResources = Resource.restoreFromIndexResults(results);
+                            let retrievedResources = Resource.restoreFromIndexResults(results);
+
+                            retrievedResources = _.filter(retrievedResources, function(resource){
+                                return resource.uri !== self.uri;
+                            });
+
                             callback(0, retrievedResources);
                         }
                         else
@@ -1329,15 +1329,12 @@ Resource.findResourcesByTextQuery = function (
     maxResultSize,
     callback)
 {
-    /**
-     * see http://okfnlabs.org/blog/2013/07/01/elasticsearch-query-tutorial.html
-     */
-    var queryObject = {
-        "query" : {
-            "query_string" :
-            {
-                "query" : queryString,
-                "default_field" : "descriptors.object"
+    const queryObject = {
+        "query": {
+            "match": {
+                "descriptors.object": {
+                    "query": queryString
+                }
             }
         },
         "from": resultSkip,
@@ -1351,14 +1348,14 @@ Resource.findResourcesByTextQuery = function (
     //var util = require('util');
     //util.debug("Query in JSON : " + util.inspect(queryObject));
 
-    indexConnection.search(IndexConnection.indexTypes.resource, //search in all graphs for resources (generic type)
+    indexConnection.search(
+        IndexConnection.indexTypes.resource, //search in all graphs for resources (generic type)
         queryObject,
         function(err, results)
         {
             if(!err)
             {
-                var retrievedResources;
-                retrievedResources = Resource.restoreFromIndexResults(results);
+                let retrievedResources = Resource.restoreFromIndexResults(results);
                 callback(0, retrievedResources);
             }
             else
@@ -1369,10 +1366,9 @@ Resource.findResourcesByTextQuery = function (
     );
 }
 
-Resource.restoreFromIndexResults = function(resultsFromIndex)
+Resource.restoreFromIndexResults = function(hits)
 {
     var results = [];
-    var hits = resultsFromIndex.hits.hits;
 
     if(hits != null && hits.length > 0)
     {
@@ -1392,19 +1388,22 @@ Resource.restoreFromIndexResults = function(resultsFromIndex)
 
 Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback)
 {
-    var self = this;
+    let self = this;
 
     //fetch document from the index that matches the current resource
-    var queryObject = {
+    const queryObject = {
         "query" : {
-            "term" :
-            {
-                "resource.uri" : self.uri
+            "filtered" : {
+                "query" : {
+                    "match_all" : {}
+                },
+                "filter" : {
+                    "term" : {
+                        "resource.uri" : self.uri
+                    }
+                }
             }
         },
-        "sort": [
-            "_score"
-        ],
         "from": 0,
         "size": 2,
         "sort": [
@@ -1416,12 +1415,11 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
     indexConnection.search(
         IndexConnection.indexTypes.resource, //search in all graphs for resources (generic type)
         queryObject,
-        function(err, results)
+        function(err, hits)
         {
             if(!err)
             {
-                var id = null;
-                var hits = results.hits.hits;
+                let id = null;
 
                 if(hits != null && hits instanceof Array && hits.length > 0)
                 {
@@ -1430,7 +1428,7 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
                         console.error("Duplicate document in index detected for resource !!! Fix it " + self.uri);
                     }
 
-                    var hit = hits[0];
+                    let hit = hits[0];
                     self.loadFromIndexHit(hit);
                 }
 
@@ -1638,7 +1636,7 @@ Resource.prototype.loadFromIndexHit = function(hit)
     this.indexData.score = hit._score;
     this.uri = hit._source.uri;
     this.indexData.graph = hit._source.graph;
-    this.indexData.last_indexing_data = hit._source.last_indexing_date;
+    this.indexData.last_indexing_date = hit._source.last_indexing_date;
     this.indexData.descriptors = hit._source.descriptors;
 
     return this;
