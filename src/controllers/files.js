@@ -1666,10 +1666,7 @@ exports.mkdir = function(req, res){
     }
     else
     {
-        res.status(400).json({
-            result: "error",
-            message : "HTML Request not valid for this route."
-        });
+        res.status(400).send("HTML Request not valid for this route.");
     }
 };
 
