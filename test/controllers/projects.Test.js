@@ -16,86 +16,406 @@ var should = chai.should();
 
 var demouser1 = require("../mockdata/users/demouser1");
 var demouser2 = require("../mockdata/users/demouser2");
+var demouser3 = require("../mockdata/users/demouser3");
 
-var publicproject = require("../mockdata/users/demouser2");
+var publicproject = require("../mockdata/projects/public_project");
+var publicprojectHTMLTests = require("../mockdata/projects/public_project_for_html");
+
+var metadaOnlyProject = require("../mockdata/projects/metadata_only_project");
+var metadataOnlyHTMLTests = require("../mockdata/projects/metadata_only_project_for_html");
+
+var privateProject = require("../mockdata/projects/private_project");
+var privateProjectHTMLTests = require("../mockdata/projects/private_project_for_html");
+
+var projectBackupData = require("../mockdata/projects/projectBackups/publicProject");
+
+var folder = require("../mockdata/folders/folder");
+var folderForDemouser2 = require("../mockdata/folders/folderDemoUser2");
+
+//CREATE A PROJECT
+/*
+describe("[GET] /projects/new", function () {
+    it("[HTML] Should show the new project Html page when logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getNewProjectPage(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<h1 class=\"page-header\">\n    Create a new project\n</h1>");
+                res.text.should.not.contain("<p>Please log into the system.</p>");
+                done();
+            });
+        });
+    });
+
+    it("[HTML] Should not show the new project Html page when unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        projectUtils.getNewProjectPage(false, agent, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[JSON] Should give an error if the request for this route is of type JSON", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getNewProjectPage(true, agent, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
+    });
+});
+*/
+
+//CREATE PROJECTS TESTS
+describe("[POST] with project handle: "+ publicproject.handle + " [/projects/new]", function () {
+    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(true, agent, publicproject, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
+
+    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(true, agent, publicproject, function (err, res) {
+                res.statusCode.should.equal(200);
+                //res.body.projects.length.should.equal(1);//TODO UNCOMMENT THIS AFTER ALL TESTS ARE DONE
+                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, publicproject.handle, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    done();
+                });
+            });
+        });
+    });
+
+    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(false, agent, publicprojectHTMLTests, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(false, agent, publicprojectHTMLTests, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>New project This is a public test project with handle publicprojecthtmlcreatedbydemouser1 and created by demouser1 with handle publicprojecthtmlcreatedbydemouser1 created successfully</p>");
+                done();
+            });
+        });
+    });
+});
+
+describe("[POST] with project handle: "+ metadaOnlyProject.handle + " [/projects/new]", function () {
+    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(true, agent, metadaOnlyProject, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
+
+    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(true, agent, metadaOnlyProject, function (err, res) {
+                res.statusCode.should.equal(200);
+                //res.body.projects.length.should.equal(3);//TODO UNCOMMENT THIS AFTER ALL TESTS ARE DONE
+                //ADDING DEMOUSER2 AS A CONTRIBUTOR OF THE PROJECT
+                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, metadaOnlyProject.handle, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    done();
+                });
+            });
+        });
+    });
+
+    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>New project This is a metadata only test project with handle metadataonlyhtmlprojectcreatedbydemouser1 and created by demouser1 with handle metadataonlyhtmlprojectcreatedbydemouser1 created successfully</p>");
+                done();
+            });
+        });
+    });
+});
+
+describe("[POST] with project handle: "+ privateProject.handle + " [/projects/new]", function () {
+    //TODO HTML AND API
+    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(true, agent, privateProject, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
+
+    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(true, agent, privateProject, function (err, res) {
+                res.statusCode.should.equal(200);
+                //res.body.projects.length.should.equal(5);//TODO UNCOMMENT THIS AFTER ALL TESTS ARE DONE
+                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, privateProject.handle, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    done();
+                });
+            });
+        });
+    });
+
+    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("New project This is a private test project with handle privateprojecthtmlcreatedbydemouser1 and created by demouser1 with handle privateprojecthtmlcreatedbydemouser1 created successfully");
+                done();
+            });
+        });
+    });
+});
 
 
+
+//LIST ALL PROJECTS
+/*
 describe("[GET] /projects", function () {
-    //TODO this route has HTML ONLY
-    it("Should only get public and metadata_only projects when unauthenticated", function (done) {
+    it("[HTML] Should only get public and metadata_only projects when unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        projectUtils.listAllProjects(false, agent, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">metadataonlyprojectcreatedbydemouser1</a>");
+            res.text.should.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">metadataonlyhtmlprojectcreatedbydemouser1</a>");
+
+            res.text.should.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">publicprojectcreatedbydemouser1</a>");
+            res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">publicprojecthtmlcreatedbydemouser1</a>");
+
+            res.text.should.not.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">privateprojectcreatedbydemouser1</a>");
+            res.text.should.not.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">privateprojecthtmlcreatedbydemouser1</a>");
+            done();
+        });
+    });
+
+    it("[HTML] Should get all public and metadata_only projects as well as private_projects created by demouser1 when logged in as demouser1(CREATOR)", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.listAllProjects(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">metadataonlyprojectcreatedbydemouser1</a>");
+                res.text.should.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">metadataonlyhtmlprojectcreatedbydemouser1</a>");
+
+                res.text.should.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">publicprojectcreatedbydemouser1</a>");
+                res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">publicprojecthtmlcreatedbydemouser1</a>");
+
+                res.text.should.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">privateprojectcreatedbydemouser1</a>");
+                res.text.should.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">privateprojecthtmlcreatedbydemouser1</a>");
+                done();
+            });
+        });
+    });
+
+    it("[HTML] Should get all public and metadata_only projects as well as private_projects created by demouser1 where demouser3 collaborates when logged in as demouser3(COLLABORATOR WITH DEMOUSER1 ON PRIVATEPROJECTA)", function (done) {
+        //TODO must merge with william code first so that collaborators can be added
         done(1);
     });
 
-    it("Should get all public and metadata_only projects as well as private_projects created by demouser1 when logged in as demouser1(CREATOR)", function (done) {
+    it("[HTML] Should only get public and metadata_only projects and not private projects created by demouser1 when logged in as demouser2(NOR CREATOR NOR COLLABORATOR)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, res) {
+            projectUtils.listAllProjects(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">metadataonlyprojectcreatedbydemouser1</a>");
+                res.text.should.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">metadataonlyhtmlprojectcreatedbydemouser1</a>");
+
+                res.text.should.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">publicprojectcreatedbydemouser1</a>");
+                res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">publicprojecthtmlcreatedbydemouser1</a>");
+
+                res.text.should.not.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">privateprojectcreatedbydemouser1</a>");
+                res.text.should.not.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">privateprojecthtmlcreatedbydemouser1</a>");
+                done();
+            });
+        });
+    });
+
+    it("[HTML] Should not show any projects if none exist", function (done) {
+        //TODO must think of a way to test this
         done(1);
     });
 
-    it("Should get all public and metadata_only projects as well as private_projects created by demouser1 where demouser3 collaborates when logged in as demouser3(COLLABORATOR WITH DEMOUSER1 ON PRIVATEPROJECTA)", function (done) {
-        done(1);
-    });
-
-    it("Should only get public and metadata_only projects and not private projects created by demouser1 when logged in as demouser2(NOR CREATOR NOR COLLABORATOR)", function (done) {
-        done(1);
-    });
-
-    it("Should not show any projects if none exist", function (done) {
-        done(1);
+    it("[JSON] Should give an error if the request for this route is of type JSON", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.listAllProjects(true, agent, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
     });
 });
 
 describe("[GET] /projects/my", function () {
-    //TODO API as well as HTML
-    it("Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
-        done(1);
+    it("[HTML] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.listAllMyProjects(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">");
+                res.text.should.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">");
+
+                res.text.should.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">");
+                res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">");
+
+                res.text.should.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">");
+                res.text.should.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">");
+                done();
+            });
+        });
     });
 
-    it("Should not show projects created by demouser1 and where demouser2 does not collaborate when logged in as demouser2", function (done) {
-        done(1);
+    it("[HTML] Should not show projects created by demouser1 and where demouser2 does not collaborate when logged in as demouser2", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.listAllMyProjects(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.not.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">");
+                res.text.should.not.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">");
+
+                res.text.should.not.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">");
+                res.text.should.not.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">");
+
+                res.text.should.not.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">");
+                res.text.should.not.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">");
+                done();
+            });
+        });
     });
 
-    it("Should give error when the user is not authenticated", function (done) {
-        done(1);
+    it("[HTML] Should give error when the user is not authenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.listAllMyProjects(false, agent, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[JSON] Should show all the projects created and where demouser1 collaborates when demouser1 is logged in", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.listAllMyProjects(true, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("metadataonlyprojectcreatedbydemouser1");
+                res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1");
+
+                res.text.should.contain("publicprojectcreatedbydemouser1");
+                res.text.should.contain("publicprojecthtmlcreatedbydemouser1");
+
+                res.text.should.contain("privateprojectcreatedbydemouser1");
+                res.text.should.contain("privateprojecthtmlcreatedbydemouser1");
+                done();
+            });
+        });
+    });
+
+    it("[JSON] Should not show projects created by demouser1 and where demouser2 does not collaborate when logged in as demouser2", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.listAllMyProjects(true, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.not.contain("metadataonlyprojectcreatedbydemouser1");
+                res.text.should.not.contain("metadataonlyhtmlprojectcreatedbydemouser1");
+
+                res.text.should.not.contain("publicprojectcreatedbydemouser1");
+                res.text.should.not.contain("publicprojecthtmlcreatedbydemouser1");
+
+                res.text.should.not.contain("privateprojectcreatedbydemouser1");
+                res.text.should.not.contain("privateprojecthtmlcreatedbydemouser1");
+                done();
+            });
+        });
+    });
+
+    it("[JSON] Should give error when the user is not authenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.listAllMyProjects(true, agent, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
     });
 });
-
-describe("[GET] /projects/new", function () {
-    //TODO HTML ONLY
-    it("Should show the new project Html page when logged in as demouser1", function (done) {
-        done(1);
-    });
-
-    it("Should not show the new project Html page when unauthenticated", function (done) {
-        done(1);
-    });
-});
-
-describe("[POST] /projects/new", function () {
-    //TODO HTML AND API
-    it("Should show an error when trying to create a project unauthenticated", function (done) {
-        done(1);
-    });
-
-    it("Should get a status code of 201 when creating any type of project logged in as demouser1", function (done) {
-        done(1);
-    });
-});
-
 
 describe("[GET] /projects/import", function () {
-    //TODO HTML only
     it("Should get an error when trying to access the html page to import a project when unauthenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.importProjectHTMLPage(false, agent, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
     });
 
     it("Should get the html import a project page when logged in as any user", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.importProjectHTMLPage(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<h1 class=\"page-header\">\n    Import a project\n</h1>");
+                done();
+            });
+        });
+    });
+
+    it("[JSON] Should give an error if the request for this route is of type JSON", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.importProjectHTMLPage(true, agent, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
     });
 });
 
 describe("[POST] /projects/import", function () {
     //TODO API ONLY
     it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.importProject(true, agent, projectBackupData.path, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
     });
 
     it("Should give a status code of 200 when the user is logged in and the zip file used to import the project is not corrupted", function (done) {
@@ -105,32 +425,157 @@ describe("[POST] /projects/import", function () {
     it("Should give an error with a status code of 500 when the zip file used to import the project is corrupted even thought the user is logged in", function (done) {
         done(1);
     });
+
+    it("[HTML] Should give an error if the request type for this route is the HTML type", function (done) {
+        done(1);
+    });
 });
 
-describe("[GET] /project/:handle/request_access", function () {
-    //TODO HTML ONLY
+describe("[GET] /project/:handle/request_access " + "[" + publicproject.handle + "]", function () {
     it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.getRequestProjectAccessPage(false, agent, publicproject.handle, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<h1 class=\"page-header\">\n        Please sign in\n    </h1>");
+            done();
+        });
     });
 
     it("Should get an error when trying to access the request access to a project that does not exist event when authenticated", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getRequestProjectAccessPage(false, agent, "ARandomProjectHandle", function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("error");
+                done();
+            });
+        });
     });
 
     it("Should get the request access to a project HTML page when authenticated as any user", function (done) {
-        done(1);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.getRequestProjectAccessPage(false, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<button type=\"submit\" class=\"btn btn-sm btn-success\">Request access for project " + "\'" + publicproject.handle + "\'</button>");
+                done();
+            });
+        });
     });
+
+    it("Should give an error when the request type for this route is of type JSON", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.getRequestProjectAccessPage(true, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
+    })
+});
+
+describe("[GET] /project/:handle/request_access " + "[" + metadaOnlyProject.handle + "]", function () {
+    it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.getRequestProjectAccessPage(false, agent, metadaOnlyProject.handle, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<h1 class=\"page-header\">\n        Please sign in\n    </h1>");
+            done();
+        });
+    });
+
+    it("Should get an error when trying to access the request access to a project that does not exist event when authenticated", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getRequestProjectAccessPage(false, agent, "ARandomProjectHandle", function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("error");
+                done();
+            });
+        });
+    });
+
+    it("Should get the request access to a project HTML page when authenticated as any user", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.getRequestProjectAccessPage(false, agent, metadaOnlyProject.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<button type=\"submit\" class=\"btn btn-sm btn-success\">Request access for project " + "\'" + metadaOnlyProject.handle + "\'</button>");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error when the request type for this route is of type JSON", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.getRequestProjectAccessPage(true, agent, metadaOnlyProject.handle, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
+    })
+});
+
+describe("[GET] /project/:handle/request_access " + "[" + privateProject.handle + "]", function () {
+    it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.getRequestProjectAccessPage(false, agent, privateProject.handle, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<h1 class=\"page-header\">\n        Please sign in\n    </h1>");
+            done();
+        });
+    });
+
+    it("Should get an error when trying to access the request access to a project that does not exist event when authenticated", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getRequestProjectAccessPage(false, agent, "ARandomProjectHandle", function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("error");
+                done();
+            });
+        });
+    });
+
+    it("Should get the request access to a project HTML page when authenticated as any user", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.getRequestProjectAccessPage(false, agent, privateProject.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<button type=\"submit\" class=\"btn btn-sm btn-success\">Request access for project " + "\'" + privateProject.handle + "\'</button>");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error when the request type for this route is of type JSON", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.getRequestProjectAccessPage(true, agent, privateProject.handle, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
+    })
 });
 
 describe("[POST] /project/:handle/request_access", function () {
     //TODO HTML ONLY -> also sends flash messages with success or error responses
-
+    //TODO make a request to JSON API, should return invalid request
+    //TODO TEST for all project types
+    
     it("Should get an error when user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        projectUtils.requestAccessToProject(false, agent, publicproject, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
     });
 
     it("Should successfully request access to an existing project authenticated as demouser2 to a project created by demouser1", function (done) {
         done(1);
+        //TODO mailer is not working
     });
 
     it("Should give an error trying to request access to a project that does not exist", function (done) {
@@ -146,88 +591,458 @@ describe("[POST] /project/:handle/request_access", function () {
     });
 });
 
-describe("[POST] /project/:handle/delete", function () {
+describe("[JSON] [POST] /project/:handle/delete", function () {
     //TODO HTML AND API
-
     it("Should give an error message when a project does not exist", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.deleteProject(true, agent, "aRandomProjectHandle", function (err, res) {
+                res.statusCode.should.equal(404);
+                res.body.message.should.equal("Unable to find project with handle : aRandomProjectHandle");
+                done();
+            });
+        });
     });
     
     it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.deleteProject(true, agent, publicproject.handle, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
     });
 
     it("Should give an error when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a project created by demouser1", function (done) {
-        done(1);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.deleteProject(true, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
     });
 
     it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the project", function (done) {
-        done(1);
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            projectUtils.deleteProject(true, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
     });
     
     it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the project", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.deleteProject(true, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message[0].should.equal("Project "+ publicproject.handle + " successfully marked as deleted");
+                done();
+            });
+        });
     })
 });
 
-describe("[POST] /project/:handle/undelete", function () {
-    //TODO HTML AND API
-
+describe("[HTML] [POST] /project/:handle/delete", function () {
     it("Should give an error message when a project does not exist", function (done) {
-        done(1);
-    });
-
-    it("Should give an error message when a project is not deleted", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.deleteProject(false, agent, "aRandomProjectHandle", function (err, res) {
+                res.statusCode.should.equal(404);
+                res.body.message.should.equal("Unable to find project with handle : aRandomProjectHandle");
+                done();
+            });
+        });
     });
 
     it("Should give an error when the user is not authenticated", function (done) {
-        done(1);
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.deleteProject(false, agent, publicprojectHTMLTests.handle, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
     });
 
-    it("Should give an error when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a project created by demouser1 that is currently deleted", function (done) {
-        done(1);
+    it("Should give an error when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a project created by demouser1", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.deleteProject(false, agent, publicprojectHTMLTests.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>Please log into the system.</p>");
+                done();
+            });
+        });
     });
 
-    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete the project that is currently deleted", function (done) {
-        done(1);
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the project", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            projectUtils.deleteProject(false, agent, publicprojectHTMLTests.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>Please log into the system.</p>");
+                done();
+            });
+        });
     });
 
-    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete the project that is currently deleted", function (done) {
-        done(1);
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.deleteProject(false, agent, publicprojectHTMLTests.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.not.contain("<p>Please log into the system.</p>");
+                done();
+            });
+        });
     })
 });
 
-
-describe("[POST] /project/:handle?mkdir", function () {
-    //TODO API ONLY
-    it("Should give an error when the user is unauthenticated", function (done) {
-        done(1);
+describe("[JSON] [POST] /project/:handle/undelete", function () {
+    it("Should give an error message when a project does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.undeleteProject(true, agent, "ARandomProject", function (err, res) {
+                res.statusCode.should.equal(404);
+                res.body.message.should.equal("Unable to find project with handle : " + "ARandomProject");
+                done();
+            });
+        })
     });
 
-    it("Should give an error when the user is logged in as demouser2(not a collaborador nor creator in a project by demouser1)", function (done) {
-        done(1);
+    it("Should give an error message when a project is not deleted", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.undeleteProject(true, agent, privateProject.handle, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message[0].should.not.contain("Project " + privateProject.handle + " successfully recovered");
+                done();
+            });
+        })
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.undeleteProject(true, agent, publicproject.handle, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a project created by demouser1 that is currently deleted", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.undeleteProject(true, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(401);
+                res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                done();
+            });
+        })
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete the project that is currently deleted", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            projectUtils.undeleteProject(true, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(401);
+                res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                done();
+            });
+        })
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete the project that is currently deleted", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.undeleteProject(true, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.message[0].should.equal("Project " + publicproject.handle + " successfully recovered");
+                done();
+            });
+        })
+    })
+});
+
+describe("[HTML] [POST] /project/:handle/undelete", function () {
+
+    it("Should give an error message when a project does not exist", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.undeleteProject(false, agent, "ARandomProject", function (err, res) {
+                res.statusCode.should.equal(404);
+                res.body.message.should.equal("Unable to find project with handle : " + "ARandomProject");
+                done();
+            });
+        })
+    });
+
+    it("Should give an error message when a project is not deleted", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.undeleteProject(false, agent, privateProject.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">");
+                done();
+            });
+        })
+    });
+
+    it("Should give an error when the user is not authenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.undeleteProject(false, agent, publicproject.handle, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a project created by demouser1 that is currently deleted", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.undeleteProject(false, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>Please log into the system.</p>");
+                done();
+            });
+        })
+    });
+
+    it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete the project that is currently deleted", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            projectUtils.undeleteProject(false, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>Please log into the system.</p>");
+                done();
+            });
+        })
+    });
+
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete the project that is currently deleted", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.undeleteProject(false, agent, publicproject.handle, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">");
+                res.text.should.not.contain("<p>Please log into the system.</p>");
+                done();
+            });
+        })
+    })
+});
+*/
+
+//PROJECT LEVEL MKDIR TESTS
+describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
+
+    it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, "invalidProjectHandle", folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the request for this route is of type HTML", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(false, agent, publicproject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("HTML Request not valid for this route.");
+                done();
+            });
+        });
+    });
+
+
+    it("Should give an error when the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser3(not a collaborator nor creator in a project by demouser1)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
     });
 
     it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.result.should.equal("ok");
+                done();
+            });
+        });
     });
 
-    it("Should create the folder with success if the user is logged in as demouser3(a collaborator of the project)", function (done) {
-        done(1);
+    it("Should create the folder with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, folderForDemouser2.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.result.should.equal("ok");
+                done();
+            });
+        });
     });
 
     it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
-        done(1);
-    });
-
-    it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, publicproject.handle, "thisIsAn*InvalidFolderName", function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.equal("invalid file name specified");
+                done();
+            });
+        });
     });
 });
 
+describe("[POST] /project/:handle?mkdir " + metadaOnlyProject.handle, function () {
+
+    it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, "invalidProjectHandle", folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the request for this route is of type HTML", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(false, agent, metadaOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("HTML Request not valid for this route.");
+                done();
+            });
+        });
+    });
+
+
+    it("Should give an error when the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createFolderInProjectRoot(true, agent, metadaOnlyProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser3(not a collaborator nor creator in a project by demouser1)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, metadaOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, metadaOnlyProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.result.should.equal("ok");
+                done();
+            });
+        });
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, metadaOnlyProject.handle, folderForDemouser2.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.result.should.equal("ok");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, metadaOnlyProject.handle, "this*IsAnInvalidFolderName", function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.equal("invalid file name specified");
+                done();
+            });
+        });
+    });
+});
+
+describe("[POST] /project/:handle?mkdir " + privateProject.handle, function () {
+
+    it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, "invalidProjectHandle", folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if the request for this route is of type HTML", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(false, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("HTML Request not valid for this route.");
+                done();
+            });
+        });
+    });
+
+
+    it("Should give an error when the user is unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createFolderInProjectRoot(true, agent, privateProject.handle, folder.name, function (err, res) {
+            res.statusCode.should.equal(401);
+            done();
+        });
+    });
+
+    it("Should give an error when the user is logged in as demouser3(not a collaborator nor creator in a project by demouser1)", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                done();
+            });
+        });
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser1(the creator of the project)", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, privateProject.handle, folder.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.result.should.equal("ok");
+                done();
+            });
+        });
+    });
+
+    it("Should create the folder with success if the user is logged in as demouser2(a collaborator of the project)", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, privateProject.handle, folderForDemouser2.name, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.body.result.should.equal("ok");
+                done();
+            });
+        });
+    });
+
+    it("Should give an error if an invalid name is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createFolderInProjectRoot(true, agent, privateProject.handle, "this*IsAnInvalidFolderName", function (err, res) {
+                res.statusCode.should.equal(500);
+                res.body.message.should.equal("invalid file name specified");
+                done();
+            });
+        });
+    });
+});
+
+
+/*
 describe("[GET] /project/:handle?recent_changes", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
+    //TODO WITH LIMIT AND OFFSET
+
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -241,7 +1056,13 @@ describe("[GET] /project/:handle?recent_changes", function () {
     });
 
     it("Should give the project changes if the user is logged in as demouser1(the creator of the project)", function (done) {
-        done(1);
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            //jsonOnly, agent, projectHandle, cb
+            projectUtils.getProjectRecentChanges(true, agent, publicproject.handle, function (err, res) {
+                res.should.have.status(200);
+                done();
+            });
+        });
     });
 
     it("Should give the project changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
@@ -251,6 +1072,9 @@ describe("[GET] /project/:handle?recent_changes", function () {
 
 describe("[GET] /project/:handle?version", function () {
     //TODO API ONLY
+    //TODO make a request to HTML, should return invalid request
+    //TODO test all three types of project accesses (public, private, metadata only)
+    
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -264,7 +1088,13 @@ describe("[GET] /project/:handle?version", function () {
     });
 
     it("Should give the resource versions if the resource exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
-        done(1);
+        //jsonOnly, agent, projectHandle, cb
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getProjectVersion(true, agent, publicproject.handle, 0, function (err, res) {
+                res.statusCode.should.equal(200);
+                done();
+            });
+        });
     });
 
     it("Should give the resource versions if the resource exists and if the user is logged in as demouser3(a collaborator on the project)", function (done) {
@@ -275,10 +1105,10 @@ describe("[GET] /project/:handle?version", function () {
         done(1);
     })
 });
-
-
+*/
 
 //OLD ITERATION OF TESTS GOES HERE
+/*
 describe('/projects', function () {
     it('lists all projects when not logged in', function (done) {
         var app = GLOBAL.tests.app;
@@ -376,8 +1206,9 @@ describe('/projects/new GET', function () {
     });
 
 });
+*/
 
-describe('/project/'+require("../mockdata/projects/public_project.js").handle, function () {
+/*describe('/project/'+require("../mockdata/projects/public_project.js").handle, function () {
     var folderData = require("../mockdata/folders/folder.js");
     var folderName = folderData.name;
     var targetFolderInProject = folderData.pathInProject;
@@ -708,9 +1539,9 @@ describe('/project/'+require("../mockdata/projects/public_project.js").handle, f
     });
 
 
-});
+});*/
 
-
+/*
 describe('/project/'+require("../mockdata/projects/metadata_only_project.js").handle, function () {
     var folderData = require("../mockdata/folders/folder.js");
     var folderName = folderData.name;
@@ -1469,7 +2300,9 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('API, try to change locked descriptors', function (done) {
         //TODO what is the route for this???
+        //TODO @silvae86 says: try to edit the ddr:password on a user, try to edit dcterms:modified on a folder or file (see more "locked" descriptors on elements.js)
         done();
     });
 
 });
+*/
