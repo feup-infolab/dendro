@@ -970,7 +970,7 @@ exports.administer = function(req, res) {
             else
             {
                 viewVars.error_messages = ["Project " + req.params.handle + " does not exist."];
-                res.render('',
+                res.status(401).render('',
                     viewVars
                 );
             }
