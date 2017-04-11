@@ -27,7 +27,15 @@ function User (object)
     if(self.ddr.salt == null)
     {
         var bcrypt = require('bcryptjs');
-        self.ddr.salt = bcrypt.genSaltSync(10);
+
+        if(process.env.NODE_ENV != "test")
+        {
+            self.ddr.salt = bcrypt.genSaltSync(10);
+        }
+        else
+        {
+            self.ddr.salt = bcrypt.genSaltSync(1);
+        }
     }
 
     self.rdf.type = "ddr:User";

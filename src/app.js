@@ -24,6 +24,9 @@ var express = require('express'),
     expressSession = require('express-session');
     errorHandler = require('express-session');
     Q = require('q');
+    swaggerUi = require('swagger-ui-express');
+    YAML = require('yamljs');
+    swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
 
 var bootupPromise = Q.defer();
 
@@ -192,8 +195,8 @@ if(Config.logging != null)
                         }
                         catch (e)
                         {
-                            console.error("[ERROR] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(e));
-                            process.exit(1);
+                            console.error("[ERROR] Error creating folder for logs at " + absPath + "\n" + JSON.stringify(e));
+                            //process.exit(1);
                         }
                     }
                     else
@@ -1150,6 +1153,10 @@ async.waterfall([
             }));
         }
 
+        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, true, {
+            docExpansion : "list"
+        }));
+
         app.get('/', index.index);
 
         app.get('/analytics_tracking_code', index.analytics_tracking_code);
@@ -1158,7 +1165,6 @@ async.waterfall([
         app.get('/vertexes', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.all);
         app.get('/vertexes/random', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.random);
         app.get('/vertexes/show', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.show);
-        app.get('/vertexes/:source/with/:property', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.with_property);
 
         //search
         app.get('/search', vertexes.search);
@@ -1169,7 +1175,8 @@ async.waterfall([
         app.get('/admin/reload', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.reload);
 
         //low-level sparql endpoint
-        app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
+        //TODO
+        //app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
 
         //authentication
         app.get('/login', auth.login);
@@ -1281,9 +1288,7 @@ async.waterfall([
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?\/?$/, function(req,res, next)
             {
-                console.log("Entered Project Root Route. URL : " + req.originalUrl);
-
-
+                //console.log("Entered Project Root Route. URL : " + req.originalUrl);
                 var defaultPermissionsInProjectRoot = [
                     Permissions.project_privacy_status.public,
                     Permissions.project_privacy_status.metadata_only,
@@ -1479,8 +1484,6 @@ async.waterfall([
         app.all(/\/project\/([^\/]+)(\/data\/.+\/?)$/,
             function(req,res, next)
             {
-                console.log("Entered Project branch Route. URL : " + req.originalUrl);
-
                 var defaultPermissionsInProjectBranch = [
                     Permissions.project_privacy_status.public,
                     Permissions.role.project.contributor,

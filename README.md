@@ -1,11 +1,12 @@
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
-[![codecov](https://codecov.io/gh/feup-infolab/dendro/branch/master/graph/badge.svg)](https://codecov.io/gh/feup-infolab/dendro)
+[![Build Status](http://buildserver-rdm.up.pt:8111/job/dendro/job/master/badge/icon)](http://buildserver-rdm.up.pt:8111/job/dendro/job/master/)
+[![Coverage Status](https://coveralls.io/repos/github/feup-infolab/dendro/badge.svg?branch=master)](https://coveralls.io/github/feup-infolab/dendro?branch=master)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
-[![Built with Grunt](https://cdn.gruntjs.com/builtwith.svg)](https://gruntjs.com/)
 [![Code Climate](https://codeclimate.com/github/feup-infolab/dendro/badges/gpa.svg)](https://codeclimate.com/github/feup-infolab/dendro)
 [![Issue Count](https://codeclimate.com/github/feup-infolab/dendro/badges/issue_count.svg)](https://codeclimate.com/github/feup-infolab/dendro)
 
 #	Welcome to Dendro
+
+![dendro UI](https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png "Dendro UI")
 
 ## Demo instance
 
@@ -37,8 +38,9 @@ Dendro relies on
 * MongoDB and its GridFS system for scalable file storage
 * NodeJS and ExpressJS for the server side
 * Twitter Boostrap
+* [![Built with Grunt](https://cdn.gruntjs.com/builtwith.svg)](https://gruntjs.com/)
 
-##Acknowledgements
+## Acknowledgements
 
 This work was supported by project NORTE-07-0124-FEDER-000059, financed by the North Portugal Regional Operational Programme (ON.2-O Novo Norte), under the National Strategic Reference Framework (NSRF), through the European Regional Development Fund (ERDF), and by national funds, through the Portuguese funding agency, Fundação para a Ciência e a Tecnologia (FCT). João Rocha da Silva was also supported by research grant SFRH/BD/77092/2011, provided by the Portuguese funding agency, Fundação para a Ciência e a Tecnologia (FCT).
 
@@ -48,9 +50,11 @@ This work is financed by the ERDF – European Regional Development Fund through
 
 ## License
 
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
 All source code is freely available under a standard [BSD 3-Clause license](https://opensource.org/licenses/BSD-3-Clause).
 
-Copyright (c) 2016, João Rocha da Silva, FEUP InfoLab (http://dendro.fe.up.pt)
+Copyright (c) 2016, FEUP InfoLab (http://dendro.fe.up.pt)
 
 All rights reserved.
 

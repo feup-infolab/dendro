@@ -1572,13 +1572,7 @@ exports.mkdir = function(req, res){
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(!acceptsJSON && acceptsHTML){
-        res.status(400).json({
-            result: "error",
-            message : "HTML Request not valid for this route."
-        })
-    }
-    else
+    if(acceptsJSON && !acceptsHTML)
     {
         if(req.params.is_project_root)
         {
@@ -1669,6 +1663,13 @@ exports.mkdir = function(req, res){
                 }
             });
         }
+    }
+    else
+    {
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
     }
 };
 
@@ -1884,10 +1885,10 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
 };
 
 exports.data = function(req, res){
-
+    let path = require('path');
     var requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
-    if(files.dataParsers[requestedExtension] != null)
+    if(exports.dataParsers[requestedExtension] != null)
     {
         var resourceURI = req.params.requestedResource;
 
