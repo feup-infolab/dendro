@@ -222,6 +222,28 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+  /descriptors/from_ontology/:ontology_prefix:
+      get:
+        summary: Provides a list of descriptors from a specific ontology
+        description: |
+          Lists ALL the descriptors loaded in this Dendro and from a specific ontology.
+        tags:
+          - Descriptors
+        produces:
+          ["text/json"]
+        consumes:
+          ["text/json"]
+        responses:
+          200:
+            description: A list of descriptors
+            schema:
+              type: array
+              items:
+                $ref: '#/definitions/Descriptor'
+          default:
+            description: Unexpected error
+            schema:
+              $ref: '#/definitions/Error'
 
 
 
@@ -251,12 +273,6 @@ definitions:
         type: string
       fields:
         type: string
-  Descriptor:
-    type: object
-    properties:
-      title:
-        type: string
-        description: The title (file or folder name) of the information resource
   Ontology:
     type: object
     properties:

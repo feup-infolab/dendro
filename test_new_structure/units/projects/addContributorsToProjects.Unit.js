@@ -15,7 +15,6 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
 
 require(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js")).setup();
-var agent;
 module.exports.setup = function(finish)
 {
     describe("[UNIT] add demouser2 as contributor to all projects", function () {
