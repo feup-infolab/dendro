@@ -1312,221 +1312,263 @@ exports.restore = function(req, res){
 };
 
 exports.rm = function(req, res){
-    var resourceToDelete = req.params.requestedResource;
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    try{
-        var reallyDelete = JSON.parse(req.query.really_delete);
+    if(!acceptsJSON && acceptsHTML){
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        })
     }
-    catch(e)
+    else
     {
-        var reallyDelete = false;
-    }
+        var resourceToDelete = req.params.requestedResource;
 
-    if(resourceToDelete != null)
-    {
-        InformationElement.getType(resourceToDelete, function(err, type)
+        try{
+            var reallyDelete = JSON.parse(req.query.really_delete);
+        }
+        catch(e)
         {
-            if(!err)
+            var reallyDelete = false;
+        }
+
+        if(resourceToDelete != null)
+        {
+            InformationElement.getType(resourceToDelete, function(err, type)
             {
-                if(type == File)
+                if(!err)
                 {
-                    File.findByUri(resourceToDelete, function(err, file){
-                        if(!err)
-                        {
-                            if(req.session.user != null)
+                    if(type == File)
+                    {
+                        File.findByUri(resourceToDelete, function(err, file){
+                            if(!err)
                             {
-                                var userUri = req.session.user.uri;
-                            }
-                            else
-                            {
-                                var userUri = null;
-                            }
-
-                            file.delete(function(err, result){
-                                if(!err)
+                                if(req.session.user != null)
                                 {
-                                    res.status(200).json({
-                                        "result" : "success",
-                                        "message" : "Successfully deleted " + resourceToDelete
-                                    });
+                                    var userUri = req.session.user.uri;
                                 }
                                 else
                                 {
-                                    if(err == 404)
+                                    var userUri = null;
+                                }
+
+                                file.delete(function(err, result){
+                                    if(!err)
                                     {
-                                        var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceToDelete;
-                                        console.error(error);
-                                        res.writeHead(404, error);
-                                        res.end();
+                                        res.status(200).json({
+                                            "result" : "success",
+                                            "message" : "Successfully deleted " + resourceToDelete
+                                        });
                                     }
                                     else
                                     {
-                                        res.status(500).json(
-                                            {
-                                                "result" : "error",
-                                                "message" : "Error deleting " + resourceToDelete + ". Error reported : " + result
-                                            }
-                                        );
+                                        if(err == 404)
+                                        {
+                                            var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceToDelete;
+                                            console.error(error);
+                                            res.writeHead(404, error);
+                                            res.end();
+                                        }
+                                        else
+                                        {
+                                            res.status(500).json(
+                                                {
+                                                    "result" : "error",
+                                                    "message" : "Error deleting " + resourceToDelete + ". Error reported : " + result
+                                                }
+                                            );
+                                        }
                                     }
-                                }
-                            }, userUri, reallyDelete);
-                        }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    "result" : "error",
-                                    "message" : "Unable to retrieve resource with uri " + resourceToDelete
-                                }
-                            );
-                        }
-                    });
-                }
-                else if(type == Folder)
-                {
-                    Folder.findByUri(resourceToDelete, function(err, folder){
-                        if(!err && folder != null)
-                        {
-                            if(req.session.user != null)
-                            {
-                                var userUri = req.session.user.uri;
+                                }, userUri, reallyDelete);
                             }
                             else
                             {
-                                var userUri = null;
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : "Unable to retrieve resource with uri " + resourceToDelete
+                                    }
+                                );
                             }
-
-                            folder.delete(function(err, result){
-                                if(!err)
+                        });
+                    }
+                    else if(type == Folder)
+                    {
+                        Folder.findByUri(resourceToDelete, function(err, folder){
+                            if(!err)
+                            {
+                                if(req.session.user != null)
                                 {
-                                    res.status(200).json({
-                                        "result" : "success",
-                                        "message" : "Successfully deleted " + resourceToDelete
-                                    });
+                                    var userUri = req.session.user.uri;
                                 }
                                 else
                                 {
-                                    if(err == 404)
+                                    var userUri = null;
+                                }
+
+                                folder.delete(function(err, result){
+                                    if(!err)
                                     {
-                                        var error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. Error reported : " + result;
-                                        console.error(error);
-                                        res.writeHead(404, error);
-                                        res.end();
+                                        res.status(200).json({
+                                            "result" : "success",
+                                            "message" : "Successfully deleted " + resourceToDelete
+                                        });
                                     }
                                     else
                                     {
-                                        res.status(500).json(
-                                            {
-                                                "result" : "error",
-                                                "message" : "Error deleting " + resourceToDelete + ". Error reported : " + result
-                                            }
-                                        );
+                                        if(err == 404)
+                                        {
+                                            var error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. Error reported : " + result;
+                                            console.error(error);
+                                            res.writeHead(404, error);
+                                            res.end();
+                                        }
+                                        else
+                                        {
+                                            res.status(500).json(
+                                                {
+                                                    "result" : "error",
+                                                    "message" : "Error deleting " + resourceToDelete + ". Error reported : " + result
+                                                }
+                                            );
+                                        }
                                     }
-                                }
-                            }, userUri, true, req.query.really_delete);
-                        }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    "result" : "error",
-                                    "message" : "Unable to retrieve resource with uri " + resourceToDelete + ". Error reported : " + folder
-                                }
-                            );
-                        }
-                    });
+                                }, userUri, true, req.query.really_delete);
+                            }
+                            else
+                            {
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : "Unable to retrieve resource with uri " + resourceToDelete + ". Error reported : " + folder
+                                    }
+                                );
+                            }
+                        });
+                    }
                 }
-            }
-        });
+                else
+                {
+                    res.status(500).json(
+                        {
+                            "result" : "error",
+                            "message" : "Unable to retrieve resource with uri " + resourceToDelete
+                        }
+                    );
+                }
+            });
+        }
     }
 };
 
 exports.undelete = function(req, res){
-    var resourceToUnDelete = req.params.requestedResource;
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    if(resourceToUnDelete != null)
+    if(acceptsJSON && !acceptsHTML)
     {
-        InformationElement.getType(resourceToUnDelete, function(err, type)
+        var resourceToUnDelete = req.params.requestedResource;
+
+        if(resourceToUnDelete != null)
         {
-            if(!err)
+            InformationElement.getType(resourceToUnDelete, function(err, type)
             {
-                if(type == File)
+                if(!err)
                 {
-                    File.findByUri(resourceToUnDelete, function(err, file){
-                        if(!err)
-                        {
-                            file.undelete(function(err, result){
-                                if(!err)
-                                {
-                                    res.status(200).json({
-                                        "result" : "success",
-                                        "message" : "Successfully undeleted " + resourceToUnDelete
-                                    });
-                                }
-                                else
-                                {
-                                    res.status(500).json(
-                                        {
-                                            "result" : "error",
-                                            "message" : "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
-                                        }
-                                    );
-                                }
-                            });
-                        }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    "result" : "error",
-                                    "message" : "Unable to retrieve resource with uri " + resourceToUnDelete
-                                }
-                            );
-                        }
-                    });
+                    if(type == File)
+                    {
+                        File.findByUri(resourceToUnDelete, function(err, file){
+                            if(!err)
+                            {
+                                file.undelete(function(err, result){
+                                    if(!err)
+                                    {
+                                        res.status(200).json({
+                                            "result" : "success",
+                                            "message" : "Successfully undeleted " + resourceToUnDelete
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json(
+                                            {
+                                                "result" : "error",
+                                                "message" : "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
+                                            }
+                                        );
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : "Unable to retrieve resource with uri " + resourceToUnDelete
+                                    }
+                                );
+                            }
+                        });
+                    }
+                    else if(type == Folder)
+                    {
+                        Folder.findByUri(resourceToUnDelete, function(err, folder){
+                            if(!err)
+                            {
+                                folder.undelete(function(err, result){
+                                    if(!err)
+                                    {
+                                        res.status(200).json({
+                                            "result" : "success",
+                                            "message" : "Successfully undeleted " + resourceToUnDelete
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json(
+                                            {
+                                                "result" : "error",
+                                                "message" : "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
+                                            }
+                                        );
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : "Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + folder
+                                    }
+                                );
+                            }
+                        });
+                    }
                 }
-                else if(type == Folder)
+                else
                 {
-                    Folder.findByUri(resourceToUnDelete, function(err, folder){
-                        if(!err)
+                    res.status(500).json(
                         {
-                            folder.undelete(function(err, result){
-                                if(!err)
-                                {
-                                    res.status(200).json({
-                                        "result" : "success",
-                                        "message" : "Successfully undeleted " + resourceToUnDelete
-                                    });
-                                }
-                                else
-                                {
-                                    res.status(500).json(
-                                        {
-                                            "result" : "error",
-                                            "message" : "Error undeleting " + resourceToUnDelete + ". Error reported : " + result
-                                        }
-                                    );
-                                }
-                            });
+                            "result" : "error",
+                            "message" : "Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + type
                         }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    "result" : "error",
-                                    "message" : "Unable to retrieve resource with uri " + resourceToUnDelete + ". Error reported : " + folder
-                                }
-                            );
-                        }
-                    });
+                    );
                 }
-            }
+            });
+        }
+    }
+    else
+    {
+        res.status(400).json({
+            result : "error",
+            msg : "HTML Request not valid for this route."
         });
     }
 };
 
 exports.mkdir = function(req, res){
-
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
@@ -1552,78 +1594,79 @@ exports.mkdir = function(req, res){
                 }
             );
         }
-
-        Folder.findByUri(parentFolderURI, function(err, parentFolder)
+        else
         {
-            if(!err)
+            Folder.findByUri(parentFolderURI, function(err, parentFolder)
             {
-                var newChildFolder = new Folder({
-                    nie :
-                        {
-                            title : newFolderTitle,
-                            isLogicalPartOf : parentFolderURI
-                        }
-                });
-
-                //save parent folder
-                parentFolder.insertDescriptors([new Descriptor ({
-                        prefixedForm : "nie:hasLogicalPart",
-                        value : newChildFolder.uri
-                    })
-                    ],
-                    function(err, result)
-                    {
-                        if(!err)
-                        {
-                            newChildFolder.save(function(err, result)
+                if(!err && parentFolder!=null)
+                {
+                    var newChildFolder = new Folder({
+                        nie :
                             {
-                                if(!err)
-                                {
-                                    res.json(
-                                        {
-                                            "status" : "1",
-                                            "id" : newChildFolder.uri,
-                                            "result" : "ok"
-                                        }
-                                    );
-                                }
-                                else
-                                {
-                                    res.status(500).json(
-                                        {
-                                            "result" : "error",
-                                            "message" : "error 1 saving new folder :" + result
-                                        }
-                                    );
-                                }
-                            });
-                        }
-                        else
-                        {
-                            res.status(500).json(
-                                {
-                                    "result" : "error",
-                                    "message" : "error 2 saving new folder :" + result
-                                }
-                            );
-                        }
+                                title : newFolderTitle,
+                                isLogicalPartOf : parentFolderURI
+                            }
                     });
-            }
-            else
-            {
-                res.status(500).json(
-                    {
-                        "result" : "error",
-                        "message" : "error 3 saving new folder :" + parentFolder
-                    }
-                );
-            }
-        });
+
+                    //save parent folder
+                    parentFolder.insertDescriptors([new Descriptor ({
+                            prefixedForm : "nie:hasLogicalPart",
+                            value : newChildFolder.uri
+                        })
+                        ],
+                        function(err, result)
+                        {
+                            if(!err)
+                            {
+                                newChildFolder.save(function(err, result)
+                                {
+                                    if(!err)
+                                    {
+                                        res.json(
+                                            {
+                                                "status" : "1",
+                                                "id" : newChildFolder.uri,
+                                                "result" : "ok"
+                                            }
+                                        );
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json(
+                                            {
+                                                "result" : "error",
+                                                "message" : "error 1 saving new folder :" + result
+                                            }
+                                        );
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : "error 2 saving new folder :" + result
+                                    }
+                                );
+                            }
+                        });
+                }
+                else
+                {
+                    res.status(500).json(
+                        {
+                            "result" : "error",
+                            "message" : "error 3 saving new folder :" + parentFolder
+                        }
+                    );
+                }
+            });
+        }
     }
     else
     {
-        var msg = "HTML Request not valid for this route.";
-        res.status(400).send(msg);
+        res.status(400).send("HTML Request not valid for this route.");
     }
 };
 
