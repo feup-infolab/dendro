@@ -12,6 +12,8 @@ GLOBAL.tests = {};
 
 require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
 
+require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));
+
 
 /*
 //test login
