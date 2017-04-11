@@ -7,9 +7,9 @@ Config.initGlobals();
 
 GLOBAL.tests = {};
 
-//require(Config.absPathInTestsFolder("/units/bootup.Unit.js")).setup();
+//require(Config.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
 
-require(Config.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
+require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
 
 /*
 //test login
