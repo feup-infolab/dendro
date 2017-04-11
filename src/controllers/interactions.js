@@ -58,7 +58,7 @@ var recordInteractionOverAResource = function(user, resource, req, res)
                                 {
                                     if(contributors[i].uri == user.uri)
                                     {
-                                        var interaction = new Interaction({
+                                        const interaction = new Interaction({
                                             ddr : {
                                                 performedBy : user.uri,
                                                 interactionType : req.body.interactionType,

@@ -166,7 +166,7 @@ describe("[GET] /external_repositories/my", function () {
 describe("[POST] [B2SHARE] /project/:handle?export_to_repository", function () {
     //TODO API ONLY
     //TODO make a request to HTML, should return invalid request
-    
+
     it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
         done(1);
         //TODO this is not implemented i think
@@ -209,8 +209,6 @@ describe("[POST] [B2SHARE] /project/:handle?export_to_repository", function () {
         done(1);
         //TODO this is not implemented i think
     });
-
-    
 });
 
 

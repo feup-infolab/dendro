@@ -1,22 +1,22 @@
 process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
+const chai = require('chai');
 chai.use(require('chai-http'));
 
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
-var db_notifications = function () { return GLOBAL.db.notifications;}();
 var async = require('async');
 var projectUtils = require('./../utils/project/projectUtils.js');
 var userUtils = require('./../utils/user/userUtils.js');
 var folderUtils = require('./../utils/folder/folderUtils.js');
 var httpUtils = require('./../utils/http/httpUtils.js');
 
-var should = chai.should();
+let should = chai.should();
 
 var demouser1 = require("../mockdata/users/demouser1");
 var demouser2 = require("../mockdata/users/demouser2");
 var demouser3 = require("../mockdata/users/demouser3");
+
+let publicProject = require("../mockdata/projects/public_project");
+let metadataOnlyProject = require("../mockdata/projects/metadata_only_project");
 
 var publicproject = require("../mockdata/projects/public_project");
 var publicprojectHTMLTests = require("../mockdata/projects/public_project_for_html");
@@ -24,7 +24,7 @@ var publicprojectHTMLTests = require("../mockdata/projects/public_project_for_ht
 var metadaOnlyProject = require("../mockdata/projects/metadata_only_project");
 var metadataOnlyHTMLTests = require("../mockdata/projects/metadata_only_project_for_html");
 
-var privateProject = require("../mockdata/projects/private_project");
+let privateProject = require("../mockdata/projects/private_project");
 var privateProjectHTMLTests = require("../mockdata/projects/private_project_for_html");
 
 var projectBackupData = require("../mockdata/projects/projectBackups/publicProject");
@@ -32,185 +32,21 @@ var projectBackupData = require("../mockdata/projects/projectBackups/publicProje
 var folder = require("../mockdata/folders/folder");
 var folderForDemouser2 = require("../mockdata/folders/folderDemoUser2");
 
-//CREATE A PROJECT
-/*
-describe("[GET] /projects/new", function () {
-    it("[HTML] Should show the new project Html page when logged in as demouser1", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.getNewProjectPage(false, agent, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.text.should.contain("<h1 class=\"page-header\">\n    Create a new project\n</h1>");
-                res.text.should.not.contain("<p>Please log into the system.</p>");
-                done();
-            });
-        });
-    });
-
-    it("[HTML] Should not show the new project Html page when unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-
-        projectUtils.getNewProjectPage(false, agent, function (err, res) {
-            res.statusCode.should.equal(200);
-            res.text.should.contain("<p>Please log into the system.</p>");
+describe("[GET] /projects (no projects created)", function () {
+    it("[HTML] Should not show any projects if none exist", function (done) {
+        const agent = GLOBAL.tests.agent;
+        projectUtils.listAllProjects(true, agent, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain("There are currently no projects.");
+            res.text.should.not.contain(publicProject.handle);
+            res.text.should.not.contain(privateProject.handle);
+            res.text.should.not.contain(metadataOnlyProject.handle);
             done();
-        });
-    });
-
-    it("[JSON] Should give an error if the request for this route is of type JSON", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.getNewProjectPage(true, agent, function (err, res) {
-                res.statusCode.should.equal(400);
-                res.body.message.should.equal("API Request not valid for this route.");
-                done();
-            });
         });
     });
 });
-*/
-
-//CREATE PROJECTS TESTS
-describe("[POST] with project handle: "+ publicproject.handle + " [/projects/new]", function () {
-    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.createNewProject(true, agent, publicproject, function (err, res) {
-            res.statusCode.should.equal(401);
-            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
-            done();
-        });
-    });
-
-    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createNewProject(true, agent, publicproject, function (err, res) {
-                res.statusCode.should.equal(200);
-                //res.body.projects.length.should.equal(1);//TODO UNCOMMENT THIS AFTER ALL TESTS ARE DONE
-                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, publicproject.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    done();
-                });
-            });
-        });
-    });
-
-    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.createNewProject(false, agent, publicprojectHTMLTests, function (err, res) {
-            res.statusCode.should.equal(200);
-            res.text.should.contain("<p>Please log into the system.</p>");
-            done();
-        });
-    });
-
-    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createNewProject(false, agent, publicprojectHTMLTests, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.text.should.contain("<p>New project This is a public test project with handle publicprojecthtmlcreatedbydemouser1 and created by demouser1 with handle publicprojecthtmlcreatedbydemouser1 created successfully</p>");
-                done();
-            });
-        });
-    });
-});
-
-describe("[POST] with project handle: "+ metadaOnlyProject.handle + " [/projects/new]", function () {
-    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.createNewProject(true, agent, metadaOnlyProject, function (err, res) {
-            res.statusCode.should.equal(401);
-            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
-            done();
-        });
-    });
-
-    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createNewProject(true, agent, metadaOnlyProject, function (err, res) {
-                res.statusCode.should.equal(200);
-                //res.body.projects.length.should.equal(3);//TODO UNCOMMENT THIS AFTER ALL TESTS ARE DONE
-                //ADDING DEMOUSER2 AS A CONTRIBUTOR OF THE PROJECT
-                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, metadaOnlyProject.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    done();
-                });
-            });
-        });
-    });
-
-    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res) {
-            res.statusCode.should.equal(200);
-            res.text.should.contain("<p>Please log into the system.</p>");
-            done();
-        });
-    });
-
-    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.text.should.contain("<p>New project This is a metadata only test project with handle metadataonlyhtmlprojectcreatedbydemouser1 and created by demouser1 with handle metadataonlyhtmlprojectcreatedbydemouser1 created successfully</p>");
-                done();
-            });
-        });
-    });
-});
-
-describe("[POST] with project handle: "+ privateProject.handle + " [/projects/new]", function () {
-    //TODO HTML AND API
-    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.createNewProject(true, agent, privateProject, function (err, res) {
-            res.statusCode.should.equal(401);
-            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
-            done();
-        });
-    });
-
-    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createNewProject(true, agent, privateProject, function (err, res) {
-                res.statusCode.should.equal(200);
-                //res.body.projects.length.should.equal(5);//TODO UNCOMMENT THIS AFTER ALL TESTS ARE DONE
-                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, privateProject.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    done();
-                });
-            });
-        });
-    });
-
-    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
-            res.statusCode.should.equal(200);
-            res.text.should.contain("<p>Please log into the system.</p>");
-            done();
-        });
-    });
-
-    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.text.should.contain("New project This is a private test project with handle privateprojecthtmlcreatedbydemouser1 and created by demouser1 with handle privateprojecthtmlcreatedbydemouser1 created successfully");
-                done();
-            });
-        });
-    });
-});
-
-
 
 //LIST ALL PROJECTS
-/*
 describe("[GET] /projects", function () {
     it("[HTML] Should only get public and metadata_only projects when unauthenticated", function (done) {
         var app = GLOBAL.tests.app;
@@ -374,6 +210,179 @@ describe("[GET] /projects/my", function () {
         });
     });
 });
+
+describe("[GET] /projects/new", function () {
+    it("[HTML] Should show the new project Html page when logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getNewProjectPage(false, agent, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<h1 class=\"page-header\">\n    Create a new project\n</h1>");
+                res.text.should.not.contain("<p>Please log into the system.</p>");
+                done();
+            });
+        });
+    });
+
+    it("[HTML] Should not show the new project Html page when unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+
+        projectUtils.getNewProjectPage(false, agent, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.text.should.contain("You must sign in to Dendro.");
+            done();
+        });
+    });
+
+    it("[JSON] Should give an error if the request for this route is of type JSON", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.getNewProjectPage(true, agent, function (err, res) {
+                res.statusCode.should.equal(400);
+                res.body.message.should.equal("API Request not valid for this route.");
+                done();
+            });
+        });
+    });
+});
+
+//CREATE PROJECTS TESTS
+describe("[POST] with project handle: "+ publicproject.handle + " [/projects/new]", function () {
+    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(true, agent, publicproject, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
+
+    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(true, agent, publicproject, function (err, res) {
+                res.statusCode.should.equal(200);
+                //res.body.projects.length.should.equal(1);//TODO UNCOMMENT THIS AFTER ALL TESTS ARE DONE
+                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, publicproject.handle, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    done();
+                });
+            });
+        });
+    });
+
+    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(false, agent, publicprojectHTMLTests, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(false, agent, publicprojectHTMLTests, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>New project This is a public test project with handle publicprojecthtmlcreatedbydemouser1 and created by demouser1 with handle publicprojecthtmlcreatedbydemouser1 created successfully</p>");
+                done();
+            });
+        });
+    });
+});
+
+describe("[POST] with project handle: "+ metadaOnlyProject.handle + " [/projects/new]", function () {
+    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(true, agent, metadaOnlyProject, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
+
+    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(true, agent, metadaOnlyProject, function (err, res) {
+                res.statusCode.should.equal(200);
+                //res.body.projects.length.should.equal(3);//TODO UNCOMMENT THIS AFTER ALL TESTS ARE DONE
+                //ADDING DEMOUSER2 AS A CONTRIBUTOR OF THE PROJECT
+                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, metadaOnlyProject.handle, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    done();
+                });
+            });
+        });
+    });
+
+    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("<p>New project This is a metadata only test project with handle metadataonlyhtmlprojectcreatedbydemouser1 and created by demouser1 with handle metadataonlyhtmlprojectcreatedbydemouser1 created successfully</p>");
+                done();
+            });
+        });
+    });
+});
+
+describe("[POST] with project handle: "+ privateProject.handle + " [/projects/new]", function () {
+    //TODO HTML AND API
+    it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(true, agent, privateProject, function (err, res) {
+            res.statusCode.should.equal(401);
+            res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+            done();
+        });
+    });
+
+    it("[JSON] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(true, agent, privateProject, function (err, res) {
+                res.statusCode.should.equal(200);
+                //res.body.projects.length.should.equal(5);//TODO UNCOMMENT THIS AFTER ALL TESTS ARE DONE
+                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, privateProject.handle, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    done();
+                });
+            });
+        });
+    });
+
+    it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
+        var app = GLOBAL.tests.app;
+        var agent = chai.request.agent(app);
+        projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
+            res.statusCode.should.equal(200);
+            res.text.should.contain("<p>Please log into the system.</p>");
+            done();
+        });
+    });
+
+    it("[HTML] Should get a status code of 200 when creating any type of project logged in as demouser1", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
+                res.statusCode.should.equal(200);
+                res.text.should.contain("New project This is a private test project with handle privateprojecthtmlcreatedbydemouser1 and created by demouser1 with handle privateprojecthtmlcreatedbydemouser1 created successfully");
+                done();
+            });
+        });
+    });
+});
+
 
 describe("[GET] /projects/import", function () {
     it("Should get an error when trying to access the html page to import a project when unauthenticated", function (done) {
@@ -561,7 +570,7 @@ describe("[POST] /project/:handle/request_access", function () {
     //TODO HTML ONLY -> also sends flash messages with success or error responses
     //TODO make a request to JSON API, should return invalid request
     //TODO TEST for all project types
-    
+
     it("Should get an error when user is not authenticated", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
@@ -819,7 +828,6 @@ describe("[HTML] [POST] /project/:handle/undelete", function () {
         })
     })
 });
-*/
 
 //PROJECT LEVEL MKDIR TESTS
 describe("[POST] /project/:handle?mkdir " + publicproject.handle, function () {
@@ -1074,7 +1082,7 @@ describe("[GET] /project/:handle?version", function () {
     //TODO API ONLY
     //TODO make a request to HTML, should return invalid request
     //TODO test all three types of project accesses (public, private, metadata only)
-    
+
     it("Should give an error if the user is unauthenticated", function (done) {
         done(1);
     });
@@ -1107,13 +1115,40 @@ describe("[GET] /project/:handle?version", function () {
 });
 */
 
+describe("[GET] /project/:handle?stats", function () {
+    //TODO API ONLY
+    it("[HTML] Should give an error if the Accept: \"application/json\" is not specified (API only access)", function (done) {
+        done(0); //TODO
+    });
+
+    it("Should give an error if the user is unauthenticated", function (done) {
+        done(0); //TODO
+    });
+
+    it("Should give an error if the project does not exist", function (done) {
+        done(0); //TODO
+    });
+
+    it("Should give an error if the user is logged in as demouser2(not a collaborator nor creator of the project)", function (done) {
+        done(0); //TODO
+    });
+
+    it("Should give the project changes if the user is logged in as demouser1(the creator of the project)", function (done) {
+        done(0); //TODO
+    });
+
+    it("Should give the project changes if the user is logged in as demouser3(a collaborator on the project)", function (done) {
+        done(0); //TODO
+    });
+});
+
 //OLD ITERATION OF TESTS GOES HERE
 /*
 describe('/projects', function () {
     it('lists all projects when not logged in', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.listAllProjects(agent, function (err, res) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.listAllProjects(false,agent, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('All projects');
             done();
@@ -1122,7 +1157,7 @@ describe('/projects', function () {
 
     it('lists all projects when logged in', function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.listAllProjects(agent, function (err, res) {
+            projectUtils.listAllProjects(false, agent, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain('All projects');
                 done();
@@ -1130,13 +1165,30 @@ describe('/projects', function () {
         })
     });
 
+     //TODO this route has HTML ONLY
+     it("[HTML] Should only get public and metadata_only projects when unauthenticated", function (done) {
+
+     });
+
+     it("[HTML] Should get all public and metadata_only projects as well as private_projects created by demouser1 when logged in as demouser1(CREATOR)", function (done) {
+     done(0); //TODO
+     });
+
+     it("[HTML] Should get all public and metadata_only projects as well as private_projects created by demouser1 where demouser3 collaborates when logged in as demouser3(COLLABORATOR WITH DEMOUSER1 ON PRIVATEPROJECTA)", function (done) {
+     done(0); //TODO
+     });
+
+     it("[HTML] Should only get public and metadata_only projects and not private projects created by demouser1 when logged in as demouser2(NOR CREATOR NOR COLLABORATOR)", function (done) {
+     done(0); //TODO
+     });
+
 });
 
 describe('/projects/my', function () {
 
     it('HTML does not list my projects when not logged in', function (done) {
-         var app = GLOBAL.tests.app;
-         var agent = chai.request.agent(app);
+         const app = GLOBAL.tests.app;
+         const agent = chai.request.agent(app);
 
         projectUtils.listAllMyProjects(false, agent, function (err, res) {
             res.should.have.status(200);
@@ -1146,8 +1198,8 @@ describe('/projects/my', function () {
     });
 
     it('API does not list my projects when not logged in', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.listAllMyProjects(true, agent, function (err, res) {
             res.should.have.status(401);
             JSON.parse(res.text).message.should.equal("Action not permitted. You are not logged into the system.");
@@ -1163,7 +1215,7 @@ describe('/projects/my', function () {
     });
 
     it('API lists all my projects logged in', function (done) {
-        var agent = GLOBAL.tests.agent;
+        const agent = GLOBAL.tests.agent;
         projectUtils.listAllMyProjects(true, agent, function (err, res) {
             res.should.have.status(200);
             JSON.parse(res.text).projects.should.be.instanceOf(Array);
@@ -1172,7 +1224,7 @@ describe('/projects/my', function () {
     });
 
     it('HTML-only lists all my projects logged in', function (done) {
-        var agent = GLOBAL.tests.agent;
+        const agent = GLOBAL.tests.agent;
         projectUtils.listAllMyProjects(false, agent, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('Your projects');
@@ -1184,8 +1236,8 @@ describe('/projects/my', function () {
 describe('/projects/new GET', function () {
 
     it('not logged in', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.getNewProjectPage(agent, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('Please log into the system.');
@@ -1195,7 +1247,7 @@ describe('/projects/new GET', function () {
 
 
     it('logged in', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             projectUtils.getNewProjectPage(agent, function (err, res) {
                 res.should.have.status(200);
@@ -1209,16 +1261,16 @@ describe('/projects/new GET', function () {
 */
 
 /*describe('/project/'+require("../mockdata/projects/public_project.js").handle, function () {
-    var folderData = require("../mockdata/folders/folder.js");
-    var folderName = folderData.name;
-    var targetFolderInProject = folderData.pathInProject;
+    const folderData = require("../mockdata/folders/folder.js");
+    const folderName = folderData.name;
+    const targetFolderInProject = folderData.pathInProject;
 
-    var projectData = require("../mockdata/projects/public_project.js");
-    var publicProjectHandle = projectData.handle;
+    const projectData = require("../mockdata/projects/public_project.js");
+    const publicProjectHandle = projectData.handle;
 
     it('API create public project not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.createNewProject(true, agent, projectData, function (err, res) {
             res.should.have.status(401);
             res.body.message.should.equal('Action not permitted. You are not logged into the system.');
@@ -1227,8 +1279,8 @@ describe('/projects/new GET', function () {
     });
 
     it('HTML create public project not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.createNewProject(false, agent, projectData, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('Please log into the system.');
@@ -1238,7 +1290,7 @@ describe('/projects/new GET', function () {
 
 
     it('API create public project '+projectData.handle+' while authenticated as demouser1', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
             projectUtils.createNewProject(true, agent, projectData, function (err, res) {
 
@@ -1256,8 +1308,8 @@ describe('/projects/new GET', function () {
     });
 
     it('HTML create public project authenticated as demouser1', function (done) {
-        var app = GLOBAL.tests.app;
-        var projectData2 = JSON.parse(JSON.stringify(projectData));
+        const app = GLOBAL.tests.app;
+        const projectData2 = JSON.parse(JSON.stringify(projectData));
         projectData2.handle = projectData2.handle + "viahtml"
 
         userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
@@ -1269,82 +1321,9 @@ describe('/projects/new GET', function () {
         });
     });
 
-
-    it('API view public project of demouser1 not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
-            res.should.have.status(200);
-            JSON.parse(res.text).title.should.equal(projectData.title);
-            done();
-        });
-    });
-
-    it('HTML view public project of demouser1 not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
-            res.should.have.status(200);
-            res.text.should.contain(publicProjectHandle);
-            res.text.should.not.contain('Edit mode');
-            done();
-        });
-    });
-
-
-    it('API view public project authenticated as demouser1', function (done) {
-        var app = GLOBAL.tests.app;
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                JSON.parse(res.text).title.should.equal(projectData.title);
-                done();
-            });
-        });
-    });
-
-    it('HTML view public project authenticated as demouser1', function (done) {
-        var app = GLOBAL.tests.app;
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.contain(publicProjectHandle);
-                res.text.should.contain('Edit mode');
-                done();
-            });
-        });
-    });
-
-     it('API view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
-         var app = GLOBAL.tests.app;
-         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
-             projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
-                 //ignore redirection, make new request
-                 if (err) return done(err);
-                 res.should.have.status(200);
-
-                 JSON.parse(res.text).title.should.equal(projectData.title);
-                 done();
-             });
-         });
-     });
-
-    it('HTML-only view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
-        var app = GLOBAL.tests.app;
-        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
-            projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.contain(publicProjectHandle);
-                res.text.should.not.contain('Edit mode');
-                done();
-            });
-        });
-    });
-
-
     it('API, create folder not logged in', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
             res.should.have.status(401);
             done();
@@ -1354,8 +1333,8 @@ describe('/projects/new GET', function () {
 
     it('HTML, create folder not logged in', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('Please sign in');
@@ -1366,7 +1345,7 @@ describe('/projects/new GET', function () {
 
     it('API, create folder logged in not a collab', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(401);
@@ -1377,7 +1356,7 @@ describe('/projects/new GET', function () {
 
     it('HTML, create folder logged in not a collab', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1389,7 +1368,7 @@ describe('/projects/new GET', function () {
 
 
     it('API, create folder logged in', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1400,7 +1379,7 @@ describe('/projects/new GET', function () {
     });
 
     it('HTML, create folder logged in', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '1', publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1412,7 +1391,7 @@ describe('/projects/new GET', function () {
 
     it('API, create folder logged in again', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.createFolderInProject(true, agent, targetFolderInProject, folderName+'2', publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1424,7 +1403,7 @@ describe('/projects/new GET', function () {
 
     it('API, logged in creator see project root content', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             projectUtils.getProjectRootContent(true, agent, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1437,8 +1416,8 @@ describe('/projects/new GET', function () {
 
     it('API, not logged see project root content', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.getProjectRootContent(true, agent, publicProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.body.length.should.equal(3);
@@ -1448,7 +1427,7 @@ describe('/projects/new GET', function () {
 
     it('API, logged in demouser2 see project root content', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             projectUtils.getProjectRootContent(true, agent, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1459,7 +1438,7 @@ describe('/projects/new GET', function () {
     });
 
     it('API, creator should see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.viewFolder(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1470,16 +1449,16 @@ describe('/projects/new GET', function () {
     });
 
     it('HTML, creator should see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.viewFolder(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
 
-                var jsdom = require('jsdom').jsdom;
-                var document = jsdom(res.text, {});
+                const jsdom = require('jsdom').jsdom;
+                const document = jsdom(res.text, {});
                 if(document.querySelector('ol.breadcrumb li:last-of-type') == null)
                 {
-                    done(1);
+                    done(0); //TODO
                 }
                 else
                 {
@@ -1491,8 +1470,8 @@ describe('/projects/new GET', function () {
     });
 
     it('API, not logged in see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.viewFolder(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
             res.should.have.status(200);
             JSON.parse(res.text).title.should.equal(folderName);
@@ -1501,20 +1480,20 @@ describe('/projects/new GET', function () {
     });
 
     it('HTML, not logged in see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.viewFolder(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
             res.should.have.status(200);
 
-            var jsdom = require('jsdom').jsdom;
-            var document = jsdom(res.text, {});
+            const jsdom = require('jsdom').jsdom;
+            const document = jsdom(res.text, {});
             document.querySelector('ol.breadcrumb li:last-of-type').textContent.should.equal(folderName);
             done();
         });
     });
 
     it('API, logged in other user see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.viewFolder(true, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1525,35 +1504,111 @@ describe('/projects/new GET', function () {
     });
 
     it('HTML, logged in other user see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.viewFolder(false, agent, targetFolderInProject, folderName, publicProjectHandle, function (err, res) {
                 res.should.have.status(200);
 
-                var jsdom = require('jsdom').jsdom;
-                var document = jsdom(res.text, {});
+                const jsdom = require('jsdom').jsdom;
+                const document = jsdom(res.text, {});
                 document.querySelector('ol.breadcrumb li:last-of-type').textContent.should.equal(folderName);
                 done();
             });
         });
     });
+});
+describe('/project/'+require("../mockdata/projects/public_project.js").handle + " (default case where the root of the project is shown, without any query)", function () {
+    const folderData = require("../mockdata/folders/folder.js");
+    const folderName = folderData.name;
+    const targetFolderInProject = folderData.pathInProject;
+
+    const projectData = require("../mockdata/projects/public_project.js");
+    const publicProjectHandle = projectData.handle;
+
+    it('API view public project of demouser1 not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            JSON.parse(res.text).title.should.equal(projectData.title);
+            done();
+        });
+    });
+
+    it('HTML view public project of demouser1 not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.contain(publicProjectHandle);
+            res.text.should.not.contain('Edit mode');
+            done();
+        });
+    });
 
 
-});*/
+    it('API view public project authenticated as demouser1', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).title.should.equal(projectData.title);
+                done();
+            });
+        });
+    });
 
-/*
+    it('HTML view public project authenticated as demouser1', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(publicProjectHandle);
+                res.text.should.contain('Edit mode');
+                done();
+            });
+        });
+    });
+
+    it('API view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
+            projectUtils.viewProject(true, agent, publicProjectHandle, function (err, res) {
+                //ignore redirection, make new request
+                if (err) return done(err);
+                res.should.have.status(200);
+
+                JSON.parse(res.text).title.should.equal(projectData.title);
+                done();
+            });
+        });
+    });
+
+    it('HTML-only view public project created by demouser1 authenticated as demouser2 (NOT THE CREATOR)', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
+            projectUtils.viewProject(false, agent, publicProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(publicProjectHandle);
+                res.text.should.not.contain('Edit mode');
+                done();
+            });
+        });
+    });
+});
+
 describe('/project/'+require("../mockdata/projects/metadata_only_project.js").handle, function () {
-    var folderData = require("../mockdata/folders/folder.js");
-    var folderName = folderData.name;
-    var targetFolderInProject = folderData.pathInProject;
+    const folderData = require("../mockdata/folders/folder.js");
+    const folderName = folderData.name;
+    const targetFolderInProject = folderData.pathInProject;
 
-    var projectData = require("../mockdata/projects/metadata_only_project.js");
-    var metadataProjectHandle = projectData.handle;
+    const projectData = require("../mockdata/projects/metadata_only_project.js");
+    const metadataProjectHandle = projectData.handle;
 
 
     it('API create project not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.createNewProject(true, agent, projectData, function (err, res) {
             res.should.have.status(401);
             res.body.message.should.equal('Action not permitted. You are not logged into the system.');
@@ -1562,8 +1617,8 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
     });
 
     it('HTML create project not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.createNewProject(false, agent, projectData, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('Please log into the system.');
@@ -1573,7 +1628,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
 
     it('API create project authenticated', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
             projectUtils.createNewProject(true, agent, projectData, function (err, res) {
                 res.should.have.status(200);
@@ -1584,7 +1639,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
     });
 
     it('HTML create project authenticated', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         projectData.handle = metadataProjectHandle + '2';
         userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
             projectUtils.createNewProject(false, agent, projectData, function (err, res) {
@@ -1667,8 +1722,8 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
     it('API, create folder not logged in', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
             res.should.have.status(401);
             done();
@@ -1678,8 +1733,8 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
     it('HTML, create folder not logged in', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('Please sign in');
@@ -1690,7 +1745,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
     it('API, create folder logged in not a collab', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(401);
@@ -1701,7 +1756,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
     it('HTML, create folder logged in not a collab', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1713,7 +1768,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
 
     it('API, create folder logged in', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1724,7 +1779,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
     });
 
     it('HTML, create folder logged in', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '1', metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1736,7 +1791,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
     it('HTML, create folder logged in again', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '2', metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1748,7 +1803,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
     it('API, logged in creator see project root content', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             projectUtils.getProjectRootContent(true, agent, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1761,8 +1816,8 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
     it('API, not logged see project root content', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.getProjectRootContent(true, agent, metadataProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.body.length.should.equal(3);
@@ -1772,7 +1827,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
     it('API, logged in demouser2 see project root content', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             projectUtils.getProjectRootContent(true, agent, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1783,7 +1838,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
     });
 
     it('API, creator see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.viewFolder(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1794,13 +1849,13 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
     });
 
     it('HTML, creator see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
 
-                var jsdom = require('jsdom').jsdom;
-                var document = jsdom(res.text, {});
+                const jsdom = require('jsdom').jsdom;
+                const document = jsdom(res.text, {});
                 document.querySelector('ol.breadcrumb li:last-of-type').textContent.should.equal(folderName);
                 done();
             });
@@ -1808,8 +1863,8 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
     });
 
     it('API, not logged in see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.viewFolder(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
             res.should.have.status(401);
             JSON.parse(res.text).message.should.equal("Permission denied : cannot show the resource because you do not have permissions to access this project.");
@@ -1818,8 +1873,8 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
     });
 
     it('HTML, not logged in see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('Please sign in');
@@ -1828,7 +1883,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
     });
 
     it('API, logged in other user see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.viewFolder(true, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(401);
@@ -1839,7 +1894,7 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
     });
 
     it('HTML, logged in other user see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.viewFolder(false, agent, targetFolderInProject, folderName, metadataProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -1853,17 +1908,17 @@ describe('/project/'+require("../mockdata/projects/metadata_only_project.js").ha
 
 describe('/project/'+require("../mockdata/projects/private_project.js").handle, function () {
 
-    var folderData = require("../mockdata/folders/folder.js");
-    var folderName = folderData.name;
-    var targetFolderInProject = folderData.pathInProject;
+    const folderData = require("../mockdata/folders/folder.js");
+    const folderName = folderData.name;
+    const targetFolderInProject = folderData.pathInProject;
 
-    var projectData = require("../mockdata/projects/private_project.js");
-    var privateProjectHandle = projectData.handle;
+    const projectData = require("../mockdata/projects/private_project.js");
+    const privateProjectHandle = projectData.handle;
 
 
     it('API create project not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.createNewProject(true, agent, projectData, function (err, res) {
             res.should.have.status(401);
             res.body.message.should.equal('Action not permitted. You are not logged into the system.');
@@ -1872,8 +1927,8 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
     it('HTML create project not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.createNewProject(false, agent, projectData, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('Please log into the system.');
@@ -1883,7 +1938,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
 
     it('API create project authenticated', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
             projectUtils.createNewProject(true, agent, projectData, function (err, res) {
                 res.should.have.status(200);
@@ -1894,7 +1949,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
     it('HTML create project authenticated', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         projectData.handle = privateProjectHandle + '2';
         userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
             projectUtils.createNewProject(false, agent, projectData, function (err, res) {
@@ -1905,76 +1960,10 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
         });
     });
 
-
-    it('API view project not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
-            res.should.have.status(401);
-            JSON.parse(res.text).result.should.equal('error');
-            done();
-        });
-    });
-
-    it('HTML view project not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
-            res.should.have.status(200);
-            res.text.should.not.contain(privateProjectHandle);
-            done();
-        });
-    });
-
-
-    it('API view project authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                JSON.parse(res.text).title.should.equal(projectData.title);
-                done();
-            });
-        });
-    });
-
-    it('HTML view project authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.contain(privateProjectHandle);
-                done();
-            });
-        });
-    });
-
-    it('API view project authenticated other user', function (done) {
-        var app = GLOBAL.tests.app;
-        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
-            projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
-                res.should.have.status(401);
-                JSON.parse(res.text).result.should.equal('error');
-                done();
-            });
-        });
-    });
-
-    it('HTML view project authenticated other user', function (done) {
-        var app = GLOBAL.tests.app;
-        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
-            projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
-                res.should.have.status(200);
-                res.text.should.not.contain(privateProjectHandle);
-                done();
-            });
-        });
-    });
-
     it('API, create folder not logged in', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
             res.should.have.status(401);
             done();
@@ -1984,8 +1973,8 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('HTML, create folder not logged in', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('Please sign in');
@@ -1996,7 +1985,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('API, create folder logged in not a collab', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(401);
@@ -2007,7 +1996,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('HTML, create folder logged in not a collab', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -2019,7 +2008,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
 
     it('API, create folder logged in', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.createFolderInProject(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -2030,7 +2019,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
     it('HTML, create folder logged in', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '1', privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -2042,7 +2031,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('HTML, create folder logged in again', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.createFolderInProject(false, agent, targetFolderInProject, folderName + '2', privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -2054,7 +2043,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('API, logged in creator see project root content', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             projectUtils.getProjectRootContent(true, agent, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -2067,8 +2056,8 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('API, not logged see project root content', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.getProjectRootContent(true, agent, privateProjectHandle, function (err, res) {
             res.should.have.status(401);
             done();
@@ -2077,7 +2066,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('API, logged in demouser2 see project root content', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             projectUtils.getProjectRootContent(true, agent, privateProjectHandle, function (err, res) {
                 res.should.have.status(401);
@@ -2087,7 +2076,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
     it('API, creator see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -2098,13 +2087,13 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
     it('HTML, creator see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             folderUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
 
-                var jsdom = require('jsdom').jsdom;
-                var document = jsdom(res.text, {});
+                const jsdom = require('jsdom').jsdom;
+                const document = jsdom(res.text, {});
                 document.querySelector('ol.breadcrumb li:last-of-type').textContent.should.equal(folderName);
                 done();
             });
@@ -2112,8 +2101,8 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
     it('API, not logged in see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
             res.should.have.status(401);
             res.text.should.not.contain(folderName);
@@ -2122,8 +2111,8 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
     it('HTML, not logged in see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         folderUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.text.should.not.contain(folderName);
@@ -2132,7 +2121,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
     it('API, logged in other user see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.viewFolder(true, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(401);
@@ -2143,7 +2132,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
     });
 
     it('HTML, logged in other user see the created folder', function (done) {
-        var app = GLOBAL.tests.app;
+        const app = GLOBAL.tests.app;
         userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
             folderUtils.viewFolder(false, agent, targetFolderInProject, folderName, privateProjectHandle, function (err, res) {
                 res.should.have.status(200);
@@ -2157,8 +2146,8 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('API not authenticated get metatada recommendations for project', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.getMetadataRecomendationsForProject(true, agent, privateProjectHandle, function (err, res) {
             res.should.have.status(401);
             done();
@@ -2167,8 +2156,8 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('HTML not authenticated get metatada recommendations for project', function (done) {
         this.timeout(5000);
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         projectUtils.getMetadataRecomendationsForProject(false, agent, privateProjectHandle, function (err, res) {
             res.should.have.status(200);
             res.text.should.contain('Please sign in');
@@ -2196,18 +2185,18 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
             });
         });
     });
-    
+
     it('API, wrong route for update metadata', function (done) {
         this.timeout(5000);
-        var metadata = {
-                creator : "http://" + Config.host + "/user/demouser1",
-                title : 'This is a test project privado e alterado',
-                description : 'This is a test privado e alterado project description',
-                publisher: 'UP',
-                language: 'En',
-                coverage: 'Porto',
-                handle : privateProjectHandle,
-                privacy: 'private'
+        const metadata = {
+            creator: "http://" + Config.host + "/user/demouser1",
+            title: 'This is a test project privado e alterado',
+            description: 'This is a test privado e alterado project description',
+            publisher: 'UP',
+            language: 'En',
+            coverage: 'Porto',
+            handle: privateProjectHandle,
+            privacy: 'private'
         };
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, newAgent) {
             projectUtils.updateMetadataWrongRoute(true, newAgent, privateProjectHandle, metadata, function (err, res) {
@@ -2220,13 +2209,57 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
 
     it('API, correct route for update metadata', function (done) {
-        var folderData = require("../mockdata/folders/folder.js");
-        var folderName = folderData.name;
-        var targetFolderInProject = folderData.pathInProject;
+        const folderData = require("../mockdata/folders/folder.js");
+        const folderName = folderData.name;
+        const targetFolderInProject = folderData.pathInProject;
 
-        var folderPath = targetFolderInProject + folderName;
-        var path = '/project/' + privateProjectHandle + '/data/'  + folderPath;
-        var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}, {"uri":"http://xmlns.com/foaf/0.1/surname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"surname","prefixedForm":"foaf:surname","type":3,"control":"input_box","label":"Surname","comment":"The surname of some person.","recommendation_types":{},"$$hashKey":"object:145","just_added":true,"added_from_manual_list":true,"rankingPosition":7,"interactionType":"accept_descriptor_from_manual_list","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}, {"uri":"http://xmlns.com/foaf/0.1/givenname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"givenname","prefixedForm":"foaf:givenname","type":3,"control":"input_box","label":"Given name","comment":"The given name of some person.","value":"lindo nome","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}];
+        const folderPath = targetFolderInProject + folderName;
+        const path = '/project/' + privateProjectHandle + '/data/' + folderPath;
+        const metadata = [{
+            "uri": "http://purl.org/dc/terms/creator",
+            "prefix": "dcterms",
+            "ontology": "http://purl.org/dc/terms/",
+            "shortName": "creator",
+            "prefixedForm": "dcterms:creator",
+            "type": 1,
+            "control": "url_box",
+            "label": "Creator",
+            "comment": "An entity primarily responsible for making the resource.",
+            "just_added": true,
+            "value": "This is the creator",
+            "recommendedFor": "http://" + Config.host + path
+        }, {
+            "uri": "http://xmlns.com/foaf/0.1/surname",
+            "prefix": "foaf",
+            "ontology": "http://xmlns.com/foaf/0.1/",
+            "shortName": "surname",
+            "prefixedForm": "foaf:surname",
+            "type": 3,
+            "control": "input_box",
+            "label": "Surname",
+            "comment": "The surname of some person.",
+            "recommendation_types": {},
+            "$$hashKey": "object:145",
+            "just_added": true,
+            "added_from_manual_list": true,
+            "rankingPosition": 7,
+            "interactionType": "accept_descriptor_from_manual_list",
+            "recommendedFor": "http://" + Config.host + path,
+            "value": "surname lindo"
+        }, {
+            "uri": "http://xmlns.com/foaf/0.1/givenname",
+            "prefix": "foaf",
+            "ontology": "http://xmlns.com/foaf/0.1/",
+            "shortName": "givenname",
+            "prefixedForm": "foaf:givenname",
+            "type": 3,
+            "control": "input_box",
+            "label": "Given name",
+            "comment": "The given name of some person.",
+            "value": "lindo nome",
+            "recommendedFor": "http://" + Config.host + path,
+            "value": "surname lindo"
+        }];
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, newAgent) {
             //jsonOnly, agent, projectHandle, metadata, cb
@@ -2241,7 +2274,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('API, get metadata for a folder', function (done) {
         this.timeout(5000);
-        var folderPath = targetFolderInProject + folderName;
+        const folderPath = targetFolderInProject + folderName;
 
         userUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
             //jsonOnly, agent, projectHandle, folderPath
@@ -2256,7 +2289,7 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('API, remove title descriptor', function (done) {
         this.timeout(5000);
-        var folderPath = targetFolderInProject + folderName;
+        const folderPath = targetFolderInProject + folderName;
         userUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
             //jsonOnly, agent, projectHandle, folderPath
             projectUtils.removeDescriptorFromFolder(true, newAgent, privateProjectHandle, folderPath, 'dcterms:creator', function (error, res) {
@@ -2274,10 +2307,54 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
 
     it('API, add descriptor to a children folder, after that "ls" the parent folder and check that the children is still shown.', function (done) {
         this.timeout(5000);
-        var folder2Name = 'outraPastinhaLinda';
-        var folderPath = folder2Name;
-        var path = '/project/' + privateProjectHandle + '/data/'  + folderPath;
-        var metadata = [{"uri":"http://purl.org/dc/terms/creator","prefix":"dcterms","ontology":"http://purl.org/dc/terms/","shortName":"creator","prefixedForm":"dcterms:creator","type":1,"control":"url_box","label":"Creator","comment":"An entity primarily responsible for making the resource.","just_added":true,"value":"This is the creator","recommendedFor":"http://" + Config.host + path}, {"uri":"http://xmlns.com/foaf/0.1/surname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"surname","prefixedForm":"foaf:surname","type":3,"control":"input_box","label":"Surname","comment":"The surname of some person.","recommendation_types":{},"$$hashKey":"object:145","just_added":true,"added_from_manual_list":true,"rankingPosition":7,"interactionType":"accept_descriptor_from_manual_list","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}, {"uri":"http://xmlns.com/foaf/0.1/givenname","prefix":"foaf","ontology":"http://xmlns.com/foaf/0.1/","shortName":"givenname","prefixedForm":"foaf:givenname","type":3,"control":"input_box","label":"Given name","comment":"The given name of some person.","value":"lindo nome","recommendedFor":"http://" + Config.host + path,"value":"surname lindo"}];
+        const folder2Name = 'outraPastinhaLinda';
+        const folderPath = folder2Name;
+        const path = '/project/' + privateProjectHandle + '/data/' + folderPath;
+        const metadata = [{
+            "uri": "http://purl.org/dc/terms/creator",
+            "prefix": "dcterms",
+            "ontology": "http://purl.org/dc/terms/",
+            "shortName": "creator",
+            "prefixedForm": "dcterms:creator",
+            "type": 1,
+            "control": "url_box",
+            "label": "Creator",
+            "comment": "An entity primarily responsible for making the resource.",
+            "just_added": true,
+            "value": "This is the creator",
+            "recommendedFor": "http://" + Config.host + path
+        }, {
+            "uri": "http://xmlns.com/foaf/0.1/surname",
+            "prefix": "foaf",
+            "ontology": "http://xmlns.com/foaf/0.1/",
+            "shortName": "surname",
+            "prefixedForm": "foaf:surname",
+            "type": 3,
+            "control": "input_box",
+            "label": "Surname",
+            "comment": "The surname of some person.",
+            "recommendation_types": {},
+            "$$hashKey": "object:145",
+            "just_added": true,
+            "added_from_manual_list": true,
+            "rankingPosition": 7,
+            "interactionType": "accept_descriptor_from_manual_list",
+            "recommendedFor": "http://" + Config.host + path,
+            "value": "surname lindo"
+        }, {
+            "uri": "http://xmlns.com/foaf/0.1/givenname",
+            "prefix": "foaf",
+            "ontology": "http://xmlns.com/foaf/0.1/",
+            "shortName": "givenname",
+            "prefixedForm": "foaf:givenname",
+            "type": 3,
+            "control": "input_box",
+            "label": "Given name",
+            "comment": "The given name of some person.",
+            "value": "lindo nome",
+            "recommendedFor": "http://" + Config.host + path,
+            "value": "surname lindo"
+        }];
 
         userUtils.loginUser('demouser1', 'demouserpassword2015', function (err, newAgent) {
             //http://127.0.0.1:3001/project/testproject/data/folder1?mkdir=folder3
@@ -2304,5 +2381,71 @@ describe('/project/'+require("../mockdata/projects/private_project.js").handle, 
         done();
     });
 
+});
+describe('/project/'+require("../mockdata/projects/private_project.js").handle + " (default case where the root of the project is shown, without any query)", function () {
+    it('API view project not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(401);
+            JSON.parse(res.text).result.should.equal('error');
+            done();
+        });
+    });
+
+    it('HTML view project not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
+        projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
+            res.should.have.status(200);
+            res.text.should.not.contain(privateProjectHandle);
+            done();
+        });
+    });
+
+
+    it('API view project authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                JSON.parse(res.text).title.should.equal(projectData.title);
+                done();
+            });
+        });
+    });
+
+    it('HTML view project authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
+
+    it('API view project authenticated other user', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
+            projectUtils.viewProject(true, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(401);
+                JSON.parse(res.text).result.should.equal('error');
+                done();
+            });
+        });
+    });
+
+    it('HTML view project authenticated other user', function (done) {
+        const app = GLOBAL.tests.app;
+        userUtils.loginUser('demouser2', demouser2.password, function (err, agent) {
+            projectUtils.viewProject(false, agent, privateProjectHandle, function (err, res) {
+                res.should.have.status(200);
+                res.text.should.not.contain(privateProjectHandle);
+                done();
+            });
+        });
+    });
 });
 */

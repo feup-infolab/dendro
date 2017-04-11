@@ -1,4 +1,4 @@
-var userData = {
+const userData = {
     username : 'demouser1',
     password : 'demouserpassword2015'
 };
