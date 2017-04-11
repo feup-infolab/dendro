@@ -73,10 +73,10 @@
                 </div>
                 <div class="col-lg-4">
                     <div class="progress progress-striped">
-                        <div class="progress-bar"  role="progressbar" aria-valuenow="{{project_stats.size/project_stats.max_size}}" aria-valuemin="0" aria-valuemax="100" style="width: {{project_stats.percent_full}}%">
+                        <div class="progress-bar"  role="progressbar" aria-valuenow="{{shared.project_stats.size}} / {{shared.project_stats.max_size}}" aria-valuemin="0" aria-valuemax="100">
                             <span class="sr-only">{{shared.project_stats.percent_full}}%</span>
                         </div>
-                        {{shared.project_stats.percent_full}}%
+                        {{shared.project_stats.percent_full}}
                     </div>
                     {{shared.project_stats.size}} / {{shared.project_stats.max_size}}
                 </div>

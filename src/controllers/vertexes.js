@@ -43,59 +43,6 @@ exports.all = function(req, res)
     });
 };
 
-exports.with_property = function(req, res) {
-
-    var viewVars = {
-        title : 'All vertexes from DBpedia that have an abstract'
-    };
-
-    viewVars = DbConnection.paginate(req,
-        viewVars
-    );
-
-    var query = DbConnection.paginateQuery(
-        req,
-        "SELECT DISTINCT ?s WHERE {?s [0] ?o .}"
-    );
-	
-	switch(req.params["source"])
-	{
-		case ("dbpedia"):
-		{
-			db.connection.execute(query,
-                    [
-                        {
-                            type: DbConnection.resource,
-                            value : "http://dbpedia.org/ontology/"+req.params["property"]
-                        }
-                    ],
-					function(err, results) {
-                        if(!err)
-                        {
-                            viewVars.vertexes = results;
-                            res.render('vertexes/all', viewVars);
-                        }
-                        else
-                        {
-                            viewVars.error_messages = ["Unable to fetch dbpedia nodes"];
-                            viewVars.vertexes = results;
-                            res.render('vertexes/all', viewVars);
-                        }
-					});
-			break;
-		}
-		default:
-		{
-			res.render('vertexes/all', {
-				title : 'There was an error...',
-				vertexes : []
-			});
-			
-			break;
-		}
-	}
-};
-
 exports.show = function(req, res) {
 	
 	db.connection.execute("SELECT ?p ?o WHERE {[0] ?p ?o .}",

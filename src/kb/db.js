@@ -1,9 +1,7 @@
 var util = require('util');
 var Config = function() { return GLOBAL.Config; }();
-var needle = require('needle');
 var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var uuid = require('uuid');
-var redis = function() { return GLOBAL.redis.default; }();
 
 function DbConnection (host, port, username, password, maxSimultaneousConnections)
 {
@@ -54,7 +52,7 @@ DbConnection.prototype.create = function(callback) {
         {
             if(xmlHttp.status == 200)
             {
-                self.queueSemaphore = require('semaphore')(self.maxSimultaneousConnections);
+                //self.queueSemaphore = require('semaphore')(self.maxSimultaneousConnections);
                 callback(self);
             }
             else
@@ -248,182 +246,165 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                     {
                         console.error("database operation timeout for query " + queryStringWithArguments + " with transaction ID " + transactionID);
                         delete self.pendingTransactionIDs[transactionID];
-                        self.queueSemaphore.leave();
+                        //self.queueSemaphore.leave();
                     }
                     else
                     {
                         //console.log("database operation timeout for transaction ID " + transactionID + " but operation has been completed.");
-                        self.queueSemaphore.leave();
+                        //self.queueSemaphore.leave();
                     }
 
                 }, Config.dbOperationTimeout);
 
-                self.queueSemaphore.take(function ()
-                {
-                    try
+                //self.queueSemaphore.take(function ()
+                //{
+                    if (Config.debug.active && Config.debug.database.log_all_queries)
                     {
-                        if (Config.debug.active && Config.debug.database.log_all_queries)
-                        {
-                            console.log("POSTING QUERY: \n" + query);
-                        }
+                        console.log("POSTING QUERY: \n" + query);
+                    }
 
-                        needle.post(fullUrl, {
+                    const options = {
+                        method: 'POST',
+                        uri: fullUrl,
+                        form: {
                             query: query,
-                            maxRows: maxRows,
+                            maxrows: maxRows,
                             format: resultsFormat,
                             open_timeout: Config.dbOperationTimeout
-                        }, function (err, response, body)
-                        {
-                            if (!err && response.statusCode == 200)
+                        },
+                        headers: {
+                            'content-type': 'application/x-www-form-urlencoded'
+                        },
+                        json: true
+                    };
+
+                    let rp = require('request-promise');
+                    rp(options)
+                        .then(function (parsedBody) {
+                            var transformedResults = [];
+                            // iterate through all the rows in the result list
+
+                            if (parsedBody.boolean != null)
                             {
-                                var parsedRes = body;
-                                if (!parsedRes instanceof Object)
+                                callback(null, parsedBody.boolean);
+                            }
+                            else
+                            {
+                                var numberOfRows = parsedBody.results.bindings.length;
+
+                                if (numberOfRows == 0)
                                 {
-                                    callback(1, "Invalid response from Virtuoso Server. Invalid JSON received.");
-                                } else
+                                    callback(null, []);
+                                }
+                                else
                                 {
-                                    var transformedResults = [];
-                                    // iterate through all the rows in the result list
+                                    // initialize list of headers and matching datatypes
+                                    var datatypes = [];
+                                    var columnHeaders = [];
 
-                                    if (parsedRes.boolean != null)
+                                    for (var i = 0; i < parsedBody.head.vars.length; i++)
                                     {
-                                        callback(null, parsedRes.boolean);
-                                    }
-                                    else
-                                    {
-                                        var numberOfRows = parsedRes.results.bindings.length;
+                                        var columnHeader = parsedBody.head.vars[i];
 
-                                        if (numberOfRows == 0)
+                                        //handling OPTIONAL clauses, where a header will not have any value
+                                        if (parsedBody.results.bindings[0][columnHeader] != null)
                                         {
-                                            callback(null, []);
-                                        }
-                                        else
-                                        {
-                                            // initialize list of headers and matching datatypes
-                                            var datatypes = [];
-                                            var columnHeaders = [];
+                                            columnHeaders.push(columnHeader);
 
-                                            for (var i = 0; i < parsedRes.head.vars.length; i++)
+                                            if (parsedBody.results.bindings[0][columnHeader] == null)
                                             {
-                                                var columnHeader = parsedRes.head.vars[i];
-
-                                                //handling OPTIONAL clauses, where a header will not have any value
-                                                if (parsedRes.results.bindings[0][columnHeader] != null)
-                                                {
-                                                    columnHeaders.push(columnHeader);
-
-                                                    if (parsedRes.results.bindings[0][columnHeader] == null)
-                                                    {
-                                                        console.log("invalid binding");
-                                                    }
-
-                                                    var type = parsedRes.results.bindings[0][columnHeader].type;
-                                                    datatypes.push(type);
-                                                }
+                                                console.log("invalid binding");
                                             }
 
-                                            var numberOfHeaders = columnHeaders.length;
+                                            var type = parsedBody.results.bindings[0][columnHeader].type;
+                                            datatypes.push(type);
+                                        }
+                                    }
 
-                                            // util.debug("Headers:\n" + util.inspect(columnHeaders, true,
-                                            // null));
-                                            // util.debug("Datatypes:\n" + util.inspect(datatypes, true,
-                                            // null));
+                                    var numberOfHeaders = columnHeaders.length;
 
-                                            // build results table
-                                            for (i = 0; i < numberOfRows; i++)
+                                    // util.debug("Headers:\n" + util.inspect(columnHeaders, true,
+                                    // null));
+                                    // util.debug("Datatypes:\n" + util.inspect(datatypes, true,
+                                    // null));
+
+                                    // build results table
+                                    for (i = 0; i < numberOfRows; i++)
+                                    {
+                                        // for each result header, create an empty object to push
+                                        // the results
+                                        transformedResults[i] = {};
+
+                                        // util.debug("Transformed Results A:\n" +
+                                        // util.inspect(transformedResults, true, null));
+
+                                        for (var j = 0; j < numberOfHeaders; j++)
+                                        {
+                                            var header = columnHeaders[j];
+
+                                            var binding = parsedBody.results.bindings[i];
+
+                                            if (binding != null)
                                             {
-                                                // for each result header, create an empty object to push
-                                                // the results
-                                                transformedResults[i] = {};
-
-                                                // util.debug("Transformed Results A:\n" +
-                                                // util.inspect(transformedResults, true, null));
-
-                                                for (var j = 0; j < numberOfHeaders; j++)
+                                                if (binding[header] != null)
                                                 {
-                                                    var header = columnHeaders[j];
-
-                                                    var binding = parsedRes.results.bindings[i];
-
-                                                    if (binding != null)
+                                                    var datatype;
+                                                    if (binding[header] != null)
                                                     {
-                                                        if (binding[header] != null)
+                                                        datatype = binding[header].type;
+                                                    }
+                                                    else
+                                                    {
+                                                        datatype = datatypes[j];
+                                                    }
+
+                                                    var value = binding[header].value;
+
+                                                    switch (datatype)
+                                                    {
+                                                        case ("http://www.w3.org/2001/XMLSchema#integer"):
                                                         {
-                                                            var datatype;
-                                                            if (binding[header] != null)
-                                                            {
-                                                                datatype = binding[header].type;
-                                                            }
-                                                            else
-                                                            {
-                                                                datatype = datatypes[j];
-                                                            }
-
-                                                            var value = binding[header].value;
-
-                                                            switch (datatype)
-                                                            {
-                                                                case ("http://www.w3.org/2001/XMLSchema#integer"):
-                                                                {
-                                                                    var newInt = parseInt(value);
-                                                                    transformedResults[" + i + "].header = newInt;
-                                                                    break;
-                                                                }
-                                                                case ("uri"):
-                                                                {
-                                                                    transformedResults[i][header] = decodeURI(value);
-                                                                    break;
-                                                                }
-                                                                // default is a string value
-                                                                default:
-                                                                {
-                                                                    var valueWithQuotes = decodeURIComponent(value).replace(/\"/g, "\\\"");
-                                                                    transformedResults[i][header] = valueWithQuotes;
-                                                                    break;
-                                                                }
-                                                            }
+                                                            var newInt = parseInt(value);
+                                                            transformedResults[" + i + "].header = newInt;
+                                                            break;
+                                                        }
+                                                        case ("uri"):
+                                                        {
+                                                            transformedResults[i][header] = decodeURI(value);
+                                                            break;
+                                                        }
+                                                        // default is a string value
+                                                        default:
+                                                        {
+                                                            var valueWithQuotes = decodeURIComponent(value).replace(/\"/g, "\\\"");
+                                                            transformedResults[i][header] = valueWithQuotes;
+                                                            break;
                                                         }
                                                     }
                                                 }
                                             }
-
-                                            // util.debug("Transformed Results :\n" +
-                                            // util.inspect(transformedResults, true, null));
-
-                                            delete self.pendingTransactionIDs[transactionID];
-                                            //self.queueSemaphore.leave();
-                                            callback(null, transformedResults);
                                         }
                                     }
+
+                                    // util.debug("Transformed Results :\n" +
+                                    // util.inspect(transformedResults, true, null));
+
+                                    //delete self.pendingTransactionIDs[transactionID];
+                                    //self.queueSemaphore.leave();
+                                    callback(null, transformedResults);
                                 }
                             }
-                            else
-                            {
-                                var error = "Unknown error occurred when executing query " + query;
+                        })
+                        .catch(function(err){
+                            const error = "Virtuoso server returned error: \n " + util.inspect(err);
+                            //console.trace(err);
+                            console.error(error);
 
-                                if (response != null)
-                                {
-                                    error = "Virtuoso server returned: \n \n STATUS CODE " + response.statusCode + "\n \nMESSAGE " + util.inspect(err) + "\n \n ERROR DESCRIPTION : \n \n " + response.body + " RUNNING QUERY \n \n" + query;
-                                    //console.trace(err);
-                                    console.error(error);
-                                }
-
-                                delete self.pendingTransactionIDs[transactionID];
-                                //self.queueSemaphore.leave();
-                                callback(1, err);
-                            }
+                            //delete self.pendingTransactionIDs[transactionID];
+                            //self.queueSemaphore.leave();
+                            callback(1, err);
                         });
-                    }
-                    catch (e)
-                    {
-                        var error = "Exception occurred when querying the database " + e;
-                        console.error(error);
-                        delete self.pendingTransactionIDs[transactionID];
-                        //self.queueSemaphore.leave();
-                        callback(1, error);
-
-                    }
-                });
+                //});
             }
             else
             {
@@ -628,6 +609,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 
             //console.log("Running insert query : " + query);
 
+            let redis = GLOBAL.redis.default;
             //Invalidate cache record for the updated resources
             redis.connection.delete([triple.subject, triple.object], function(err, result){});
 
@@ -727,6 +709,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
          */
         if(Config.cache.active)
         {
+            let redis = GLOBAL.redis.default;
             redis.connection.delete(urisToDelete, function(err, result)
             {
                 if (err != null)
@@ -809,6 +792,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
                 "} \n";
 
         //Invalidate cache record for the updated resource
+        let redis = GLOBAL.redis.default;
         redis.connection.delete(subject, function(err, result){});
 
         self.execute(query, arguments, function(err, results)

@@ -1,36 +1,26 @@
+process.env.NODE_ENV = 'test';
+
+let Config = GLOBAL.Config = Object.create(require("../src/models/meta/config.js").Config);
+Config.initGlobals();
+
 GLOBAL.tests = {};
 
-//test users
-require("./controllers/auth.Test.js");
+require("./homepage.Test.js");
 
-//require("./homepage.Test.js");
+require("./test/test_new_structure/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js");
 
+/*
 //test login
 //require("./controllers/auth.Test.js");
 
 //test projects
-//require("./controllers/projects.Test.js");
+require("./controllers/projects.Test.js");
 
 //test file uploads
 //require("./controllers/files.Test.js");
 
 //test folders
-//require("./controllers/folders.Test.js");
-
-//test free text search
-//require("./controllers/search.Test.js");
-
-//test metadata-related operations
-//require("./controllers/records.Test.js");
-
-//test interactions recording operations
-require("./controllers/interactions.Test.js");  
-
-//test recommendation operations
-//require("./controllers/recommendation.Test.js");
-
-//test repository bookmarks management operations
-//require("./controllers/repo_bookmarks.Test.js");
+require("./controllers/folders.Test.js");
 
 //test users
 //require("./controllers/users.Test.js");
@@ -39,14 +29,16 @@ require("./controllers/interactions.Test.js");
 //require("./controllers/descriptors.Test.js");
 
 //SOCIAL DENDRO
-//test Social Dendro Posts
-//require("./controllers/social/posts.Test.js");
+//test social Dendro Posts
+/*
+require("./controllers/social/posts.Test.js");
 
-//test Social Dendro File Versions
-//require("./controllers/social/fileVersions.Test.js");
+//test social Dendro File Versions
+require("./controllers/social/fileVersions.Test.js");
 
-//test Social Dendro Notifications
-//require("./controllers/social/notifications.Test.js");
+//test social Dendro Notifications
+require("./controllers/social/notifications.Test.js");
+*/
 
 //destroy graphs
-//require('./models/kb/db.Test.js');
+require('./models/kb/db.Test.js');

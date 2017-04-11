@@ -21,6 +21,11 @@ Config.absPathInApp = function(relativePath)
     return path.join(Config.appDir, relativePath);
 };
 
+Config.absPathInTestsFolder = function(relativePath)
+{
+    return path.join(Config.appDir, "test_new_structure", relativePath);
+};
+
 var configs_file_path = Config.absPathInApp("conf/deployment_configs.json");
 var active_config_file_path = Config.absPathInApp("conf/active_deployment_config.json");
 
@@ -29,7 +34,16 @@ var configs = JSON.parse(fs.readFileSync(configs_file_path, 'utf8'));
 var active_config_key;
 if(process.env.NODE_ENV == 'test')
 {
-    active_config_key = "test";
+    if(process.env.RUNNING_IN_JENKINS === "1")
+    {
+        active_config_key = "jenkins_buildserver_test";
+        console.log("[INFO] Running in JENKINS server detected. RUNNING_IN_JENKINS var is " + process.env.RUNNING_IN_JENKINS);
+    }
+    else
+    {
+        active_config_key = "test";
+        console.log("[INFO] Running in test environment detected");
+    }
 }
 else
 {
@@ -506,7 +520,7 @@ if(Config.thumbnailableExtensions == null)
 
 if(Config.iconableFileExtensions == null)
 {
-    Config.iconableFileExtensions = [];
+    Config.iconableFileExtensions = {};
     let extensions = fs.readdirSync(Config.absPathInPublicFolder("/images/icons/extensions"));
 
     for(let i = 0; i < extensions.length; i++)
@@ -515,7 +529,7 @@ if(Config.iconableFileExtensions == null)
         {
             let extensionOnly = extensions[i].match(/file_extension_(.+)\.png/)[1];
             if(extensionOnly != null)
-                Config.iconableFileExtensions.push(extensionOnly);
+                Config.iconableFileExtensions[extensionOnly] = true;
         }
     }
 }
