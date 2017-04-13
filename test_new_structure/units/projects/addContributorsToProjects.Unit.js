@@ -25,7 +25,12 @@ module.exports.setup = function(finish)
                 should.not.exist(err);
                 userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
                     res.statusCode.should.equal(200);
-                    done();
+                    projectUtils.getProjectContributors(agent, projectData.handle, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        res.body.contributors[0].ddr.username.should.equal(demouser2.username);
+                        res.body.contributors.length.should.equal(1);
+                        done();
+                    });
                 });
             });
         });
@@ -36,7 +41,12 @@ module.exports.setup = function(finish)
                 should.not.exist(err);
                 userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
                     res.statusCode.should.equal(200);
-                    done();
+                    projectUtils.getProjectContributors(agent, projectData.handle, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        res.body.contributors[0].ddr.username.should.equal(demouser2.username);
+                        res.body.contributors.length.should.equal(1);
+                        done();
+                    });
                 });
             });
         });
@@ -47,7 +57,12 @@ module.exports.setup = function(finish)
                 should.not.exist(err);
                 userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
                     res.statusCode.should.equal(200);
-                    done();
+                    projectUtils.getProjectContributors(agent, projectData.handle, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        res.body.contributors[0].ddr.username.should.equal(demouser2.username);
+                        res.body.contributors.length.should.equal(1);
+                        done();
+                    });
                 });
             });
         });

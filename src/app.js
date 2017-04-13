@@ -27,6 +27,7 @@ var express = require('express'),
     swaggerUi = require('swagger-ui-express');
     YAML = require('yamljs');
     swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
+    middleware = require('swagger-express-middleware');
 
 var bootupPromise = Q.defer();
 
@@ -1034,259 +1035,269 @@ async.waterfall([
     },
     function(callback)
     {
-        //app's own requires
-        var index = require(Config.absPathInSrcFolder("/controllers/index"));
-        var users = require(Config.absPathInSrcFolder("/controllers/users"));
-        var vertexes = require(Config.absPathInSrcFolder("/controllers/vertexes"));
-        var admin = require(Config.absPathInSrcFolder("/controllers/admin"));
-        var projects = require(Config.absPathInSrcFolder("/controllers/projects"));
-        var files = require(Config.absPathInSrcFolder("/controllers/files"));
-        var records = require(Config.absPathInSrcFolder("/controllers/records"));
-        var interactions = require(Config.absPathInSrcFolder("/controllers/interactions"));
-        var descriptors = require(Config.absPathInSrcFolder("/controllers/descriptors"));
-        var evaluation = require(Config.absPathInSrcFolder("/controllers/evaluation"));
-        var ontologies = require(Config.absPathInSrcFolder("/controllers/ontologies"));
-        var research_domains = require(Config.absPathInSrcFolder("/controllers/research_domains"));
-        var repo_bookmarks = require(Config.absPathInSrcFolder("/controllers/repo_bookmarks"));
-        var datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
-        var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
-        var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
-        var fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
-        var notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
+        middleware('../swagger.yaml', app, function (err, middleware) {
+            app.use(
+                middleware.metadata(),
+                middleware.CORS(),
+                middleware.files(),
+                middleware.parseRequest(),
+                middleware.validateRequest(),
+                middleware.mock()
+            );
 
-        var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
+            //app's own requires
+            var index = require(Config.absPathInSrcFolder("/controllers/index"));
+            var users = require(Config.absPathInSrcFolder("/controllers/users"));
+            var vertexes = require(Config.absPathInSrcFolder("/controllers/vertexes"));
+            var admin = require(Config.absPathInSrcFolder("/controllers/admin"));
+            var projects = require(Config.absPathInSrcFolder("/controllers/projects"));
+            var files = require(Config.absPathInSrcFolder("/controllers/files"));
+            var records = require(Config.absPathInSrcFolder("/controllers/records"));
+            var interactions = require(Config.absPathInSrcFolder("/controllers/interactions"));
+            var descriptors = require(Config.absPathInSrcFolder("/controllers/descriptors"));
+            var evaluation = require(Config.absPathInSrcFolder("/controllers/evaluation"));
+            var ontologies = require(Config.absPathInSrcFolder("/controllers/ontologies"));
+            var research_domains = require(Config.absPathInSrcFolder("/controllers/research_domains"));
+            var repo_bookmarks = require(Config.absPathInSrcFolder("/controllers/repo_bookmarks"));
+            var datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
+            var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
+            var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
+            var fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
+            var notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
 
-        var recommendation;
+            var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
 
-        var recommendation_mode = RecommendationUtils.getActiveRecommender();
+            var recommendation;
 
-        if(recommendation_mode == "dendro_recommender")
-        {
-            recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation"));
-        }
-        else if(recommendation_mode == "standalone")
-        {
-            recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
-        }
-        else if(recommendation_mode == "project_descriptors")
-        {
-            recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
-        }
-        else if(recommendation_mode == "none")
-        {
-            recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation"));
-        }
+            var recommendation_mode = RecommendationUtils.getActiveRecommender();
 
-        app.use(appendIndexToRequest);
-
-        // all environments
-        app.set('port', process.env.PORT || Config.port);
-        app.set('views', Config.absPathInSrcFolder('/views'));
-
-        app.set('view engine', 'ejs');
-        app.set('etag', 'strong');
-
-        app.use(favicon(Config.absPathInPublicFolder("images/logo_micro.png")));
-
-        //app.use(express.logger('dev'));
-
-        app.use(bodyParser.urlencoded({ extended: true }));
-        app.use(bodyParser.json());
-
-
-        app.use(methodOverride());
-
-        app.use(cookieParser(appSecret));
-
-        const MongoStore = require('connect-mongo')(expressSession);
-
-        var sessionMongoStore = new MongoStore(
-        {
-            "host": Config.mongoDBHost,
-            "port": Config.mongoDbPort,
-            "db": Config.mongoDBSessionStoreCollection,
-            "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDBSessionStoreCollection
-        });
-
-        var slug = require('slug');
-        var key = "dendro_" + slug(Config.host)+ "_sessionKey";
-        app.use(expressSession(
+            if(recommendation_mode == "dendro_recommender")
             {
-                secret: appSecret,
-                genid: function(){ const uuid = require('uuid'); return uuid.v4() },
-                key: key,
-                cookie: { maxAge: 1000 * 60 * 60 * 24 * 5 },
-                store: sessionMongoStore,
-                resave: false,
-                saveUninitialized: false
-            })
-        );
+                recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation"));
+            }
+            else if(recommendation_mode == "standalone")
+            {
+                recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
+            }
+            else if(recommendation_mode == "project_descriptors")
+            {
+                recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
+            }
+            else if(recommendation_mode == "none")
+            {
+                recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation"));
+            }
 
-        app.use(flash());
+            app.use(appendIndexToRequest);
 
-        if(Config.debug.active && Config.debug.session.auto_login)
-        {
-            app.use(signInDebugUser);
-        }
+            // all environments
+            app.set('port', process.env.PORT || Config.port);
+            app.set('views', Config.absPathInSrcFolder('/views'));
 
-        app.use(appendLocalsToUseInViews);
+            app.set('view engine', 'ejs');
+            app.set('etag', 'strong');
 
-        app.use(require('stylus').middleware(Config.getPathToPublicFolder()));
+            app.use(favicon(Config.absPathInPublicFolder("images/logo_micro.png")));
 
-        app.use(express.static(Config.getPathToPublicFolder()));
+            //app.use(express.logger('dev'));
 
-        // all environments
+            app.use(bodyParser.urlencoded({ extended: true }));
+            app.use(bodyParser.json());
 
-        var env = process.env.NODE_ENV || 'development';
-        if ('development' == env)
-        {
-            app.set('title', 'Dendro');
-            app.set('theme', Config.theme);
-        }
 
-        //		development only
-        if ('development' == app.get('env')) {
-            app.use(errorHandler({
-                secret: appSecret,
-                resave: true,
-                saveUninitialized: true
+            app.use(methodOverride());
+
+            app.use(cookieParser(appSecret));
+
+            const MongoStore = require('connect-mongo')(expressSession);
+
+            var sessionMongoStore = new MongoStore(
+                {
+                    "host": Config.mongoDBHost,
+                    "port": Config.mongoDbPort,
+                    "db": Config.mongoDBSessionStoreCollection,
+                    "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDBSessionStoreCollection
+                });
+
+            var slug = require('slug');
+            var key = "dendro_" + slug(Config.host)+ "_sessionKey";
+            app.use(expressSession(
+                {
+                    secret: appSecret,
+                    genid: function(){ const uuid = require('uuid'); return uuid.v4() },
+                    key: key,
+                    cookie: { maxAge: 1000 * 60 * 60 * 24 * 5 },
+                    store: sessionMongoStore,
+                    resave: false,
+                    saveUninitialized: false
+                })
+            );
+
+            app.use(flash());
+
+            if(Config.debug.active && Config.debug.session.auto_login)
+            {
+                app.use(signInDebugUser);
+            }
+
+            app.use(appendLocalsToUseInViews);
+
+            app.use(require('stylus').middleware(Config.getPathToPublicFolder()));
+
+            app.use(express.static(Config.getPathToPublicFolder()));
+
+            // all environments
+
+            var env = process.env.NODE_ENV || 'development';
+            if ('development' == env)
+            {
+                app.set('title', 'Dendro');
+                app.set('theme', Config.theme);
+            }
+
+            //		development only
+            if ('development' == app.get('env')) {
+                app.use(errorHandler({
+                    secret: appSecret,
+                    resave: true,
+                    saveUninitialized: true
+                }));
+            }
+
+            app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, true, {
+                docExpansion : "list"
             }));
-        }
 
-        app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, true, {
-            docExpansion : "list"
-        }));
+            app.get('/', index.index);
 
-        app.get('/', index.index);
+            app.get('/analytics_tracking_code', index.analytics_tracking_code);
 
-        app.get('/analytics_tracking_code', index.analytics_tracking_code);
+            //nodes
+            app.get('/vertexes', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.all);
+            app.get('/vertexes/random', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.random);
+            app.get('/vertexes/show', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.show);
 
-        //nodes
-        app.get('/vertexes', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.all);
-        app.get('/vertexes/random', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.random);
-        app.get('/vertexes/show', async.apply(Permissions.require, [Permissions.role.system.admin]), vertexes.show);
+            //search
+            app.get('/search', vertexes.search);
 
-        //search
-        app.get('/search', vertexes.search);
+            //admin area
+            app.get('/admin', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.home);
+            app.get('/admin/reindex', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.reindex);
+            app.get('/admin/reload', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.reload);
 
-        //admin area
-        app.get('/admin', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.home);
-        app.get('/admin/reindex', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.reindex);
-        app.get('/admin/reload', async.apply(Permissions.require, [Permissions.role.system.admin]), admin.reload);
+            //low-level sparql endpoint
+            //TODO
+            //app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
 
-        //low-level sparql endpoint
-        //TODO
-        //app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
+            //authentication
+            app.get('/login', auth.login);
+            app.post('/login', auth.login);
 
-        //authentication
-        app.get('/login', auth.login);
-        app.post('/login', auth.login);
+            //ontologies
 
-        //ontologies
+            app.get('/ontologies/public', ontologies.public);
+            //app.get('/ontologies/all', async.apply(Permissions.require, [Permissions.role.system.user]), ontologies.all);
+            app.get('/ontologies/all', ontologies.all);
+            app.get('/ontologies/autocomplete', async.apply(Permissions.require, [Permissions.role.system.user]), ontologies.ontologies_autocomplete);
+            app.get('/ontologies/show/:prefix', async.apply(Permissions.require, [Permissions.role.system.user]), ontologies.show);
+            app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.role.system.admin]), ontologies.edit);
 
-        app.get('/ontologies/public', ontologies.public);
-        //app.get('/ontologies/all', async.apply(Permissions.require, [Permissions.role.system.user]), ontologies.all);
-        app.get('/ontologies/all', ontologies.all);
-        app.get('/ontologies/autocomplete', async.apply(Permissions.require, [Permissions.role.system.user]), ontologies.ontologies_autocomplete);
-        app.get('/ontologies/show/:prefix', async.apply(Permissions.require, [Permissions.role.system.user]), ontologies.show);
-        app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.role.system.admin]), ontologies.edit);
+            //descriptors
+            app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [ Permissions.role.project.contributor, Permissions.role.project.creator]), descriptors.from_ontology);
 
-        //descriptors
-        app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [ Permissions.role.project.contributor, Permissions.role.project.creator]), descriptors.from_ontology);
+            //research domains
 
-        //research domains
+            app.get('/research_domains/autocomplete', async.apply(Permissions.require, [Permissions.role.system.user]), research_domains.autocomplete);
+            app.get('/research_domains', async.apply(Permissions.require, [Permissions.role.system.user]), research_domains.all);
+            app.post('/research_domains', async.apply(Permissions.require, [Permissions.role.system.admin]), research_domains.edit);
+            app.delete('/research_domains/:uri', async.apply(Permissions.require, [Permissions.role.system.admin]), research_domains.delete);
 
-        app.get('/research_domains/autocomplete', async.apply(Permissions.require, [Permissions.role.system.user]), research_domains.autocomplete);
-        app.get('/research_domains', async.apply(Permissions.require, [Permissions.role.system.user]), research_domains.all);
-        app.post('/research_domains', async.apply(Permissions.require, [Permissions.role.system.admin]), research_domains.edit);
-        app.delete('/research_domains/:uri', async.apply(Permissions.require, [Permissions.role.system.admin]), research_domains.delete);
+            //  registration and login
+            app.get('/register', auth.register);
+            app.post('/register', auth.register);
+            app.get('/logout', async.apply(Permissions.require, [Permissions.role.system.user]), auth.logout);
 
-        //  registration and login
-        app.get('/register', auth.register);
-        app.post('/register', auth.register);
-        app.get('/logout', async.apply(Permissions.require, [Permissions.role.system.user]), auth.logout);
+            //people listing
+            app.get('/users', users.all);
+            app.get('/user/:username', async.apply(Permissions.require, [Permissions.role.system.user]), users.show);
+            app.get('/users/loggedUser', users.getLoggedUser);
 
-        //people listing
-        app.get('/users', users.all);
-        app.get('/user/:username', async.apply(Permissions.require, [Permissions.role.system.user]), users.show);
-        app.get('/users/loggedUser', users.getLoggedUser);
+            app.all('/reset_password', users.reset_password);
+            app.all('/set_new_password', users.set_new_password);
 
-        app.all('/reset_password', users.reset_password);
-        app.all('/set_new_password', users.set_new_password);
+            app.get('/me', async.apply(Permissions.require, [Permissions.role.system.user]), users.me);
 
-        app.get('/me', async.apply(Permissions.require, [Permissions.role.system.user]), users.me);
+            //projects
+            app.get('/projects', projects.all);
+            app.get('/projects/my', async.apply(Permissions.require, [Permissions.role.system.user]), projects.my);
+            app.get('/projects/new', async.apply(Permissions.require, [Permissions.role.system.user]), projects.new);
+            app.post('/projects/new', async.apply(Permissions.require, [Permissions.role.system.user]), projects.new);
 
-        //projects
-        app.get('/projects', projects.all);
-        app.get('/projects/my', async.apply(Permissions.require, [Permissions.role.system.user]), projects.my);
-        app.get('/projects/new', async.apply(Permissions.require, [Permissions.role.system.user]), projects.new);
-        app.post('/projects/new', async.apply(Permissions.require, [Permissions.role.system.user]), projects.new);
+            app.get('/projects/import', async.apply(Permissions.require, [Permissions.role.system.user]), projects.import);
+            app.post('/projects/import', async.apply(Permissions.require, [Permissions.role.system.user]), projects.import);
 
-        app.get('/projects/import', async.apply(Permissions.require, [Permissions.role.system.user]), projects.import);
-        app.post('/projects/import', async.apply(Permissions.require, [Permissions.role.system.user]), projects.import);
+            app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.role.system.user]), projects.requestAccess);
+            app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.role.system.user]), projects.requestAccess);
+            app.post('/project/:handle/delete', async.apply(Permissions.require, [Permissions.role.project.creator]), projects.delete);
+            app.post('/project/:handle/undelete', async.apply(Permissions.require, [Permissions.role.project.creator]), projects.undelete);
 
-        app.get('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.role.system.user]), projects.requestAccess);
-        app.post('/project/:handle/request_access', async.apply(Permissions.require, [Permissions.role.system.user]), projects.requestAccess);
-        app.post('/project/:handle/delete', async.apply(Permissions.require, [Permissions.role.project.creator]), projects.delete);
-        app.post('/project/:handle/undelete', async.apply(Permissions.require, [Permissions.role.project.creator]), projects.undelete);
+            //interactions
+            app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list);
+            app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_project_favorite);
+            app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_favorite);
+            app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
 
-        //interactions
-        app.post("/interactions/accept_descriptor_from_quick_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list);
-        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_project_favorite);
-        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_favorite);
-        app.post("/interactions/accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
+            app.post("/interactions/accept_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list);
+            app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_project_favorite);
+            app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_favorite);
+            app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
 
-        app.post("/interactions/accept_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list);
-        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_project_favorite);
-        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_favorite);
-        app.post("/interactions/accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
+            app.post("/interactions/hide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.hide_descriptor_from_quick_list_for_project);
+            app.post("/interactions/unhide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unhide_descriptor_from_quick_list_for_project);
+            app.post("/interactions/hide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.hide_descriptor_from_quick_list_for_user);
+            app.post("/interactions/unhide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unhide_descriptor_from_quick_list_for_user);
+            app.post("/interactions/favorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.favorite_descriptor_from_quick_list_for_project);
+            app.post("/interactions/favorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.favorite_descriptor_from_quick_list_for_user);
 
-        app.post("/interactions/hide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.hide_descriptor_from_quick_list_for_project);
-        app.post("/interactions/unhide_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unhide_descriptor_from_quick_list_for_project);
-        app.post("/interactions/hide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.hide_descriptor_from_quick_list_for_user);
-        app.post("/interactions/unhide_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unhide_descriptor_from_quick_list_for_user);
-        app.post("/interactions/favorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.favorite_descriptor_from_quick_list_for_project);
-        app.post("/interactions/favorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.favorite_descriptor_from_quick_list_for_user);
+            app.post("/interactions/unfavorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unfavorite_descriptor_from_quick_list_for_user);
+            app.post("/interactions/unfavorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unfavorite_descriptor_from_quick_list_for_project);
 
-        app.post("/interactions/unfavorite_descriptor_from_quick_list_for_user", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unfavorite_descriptor_from_quick_list_for_user);
-        app.post("/interactions/unfavorite_descriptor_from_quick_list_for_project", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.unfavorite_descriptor_from_quick_list_for_project);
+            app.post("/interactions/accept_descriptor_from_autocomplete", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_autocomplete);
+            app.post("/interactions/reject_ontology_from_quick_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.reject_ontology_from_quick_list);
+            app.post("/interactions/select_ontology_manually", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.select_ontology_manually);
+            app.post("/interactions/select_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.select_descriptor_manually);
 
-        app.post("/interactions/accept_descriptor_from_autocomplete", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_descriptor_from_autocomplete);
-        app.post("/interactions/reject_ontology_from_quick_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.reject_ontology_from_quick_list);
-        app.post("/interactions/select_ontology_manually", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.select_ontology_manually);
-        app.post("/interactions/select_descriptor_from_manual_list", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.select_descriptor_manually);
+            app.post("/interactions/accept_smart_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_smart_descriptor_in_metadata_editor);
+            app.post("/interactions/accept_favorite_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_favorite_descriptor_in_metadata_editor);
 
-        app.post("/interactions/accept_smart_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_smart_descriptor_in_metadata_editor);
-        app.post("/interactions/accept_favorite_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.accept_favorite_descriptor_in_metadata_editor);
+            app.post("/interactions/delete_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.delete_descriptor_in_metadata_editor);
 
-        app.post("/interactions/delete_descriptor_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.delete_descriptor_in_metadata_editor);
-
-        app.post("/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_in_metadata_editor);
-        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite);
-        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite);
-        app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
+            app.post("/interactions/fill_in_descriptor_from_manual_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_in_metadata_editor);
+            app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite);
+            app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite);
+            app.post("/interactions/fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite);
 
 
-        app.post("/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_in_metadata_editor);
-        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite);
-        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite);
-        app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
+            app.post("/interactions/fill_in_descriptor_from_quick_list_in_metadata_editor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_in_metadata_editor);
+            app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite);
+            app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite);
+            app.post("/interactions/fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite);
 
-        app.post("/interactions/fill_in_inherited_descriptor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_inherited_descriptor);
+            app.post("/interactions/fill_in_inherited_descriptor", async.apply(Permissions.require, [Permissions.role.system.user]), interactions.fill_in_inherited_descriptor);
 
 
-        app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.role.system.admin]), interactions.delete_all_interactions);
+            app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.role.system.admin]), interactions.delete_all_interactions);
 
-        //external repository bookmarks
-        app.get('/external_repositories/types', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.repository_types);
-        app.get('/external_repositories/my', async.apply(Permissions.require, [Permissions.role.system.user ]), repo_bookmarks.my);
-        app.get('/external_repositories', async.apply(Permissions.require, [Permissions.role.system.admin]), repo_bookmarks.all);
-        app.post('/external_repositories/sword_collections', async.apply(Permissions.require, [Permissions.role.system.user]), datasets.sword_collections);
-        app.post('/external_repositories/new', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.new);
-        app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.delete);
+            //external repository bookmarks
+            app.get('/external_repositories/types', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.repository_types);
+            app.get('/external_repositories/my', async.apply(Permissions.require, [Permissions.role.system.user ]), repo_bookmarks.my);
+            app.get('/external_repositories', async.apply(Permissions.require, [Permissions.role.system.admin]), repo_bookmarks.all);
+            app.post('/external_repositories/sword_collections', async.apply(Permissions.require, [Permissions.role.system.user]), datasets.sword_collections);
+            app.post('/external_repositories/new', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.new);
+            app.delete('/external_repository/:username/:title', async.apply(Permissions.require, [Permissions.role.system.user]), repo_bookmarks.delete);
 
-        //view a project's root
-        app.all(/\/project\/([^\/]+)(\/data)?\/?$/, function(req,res, next)
+            //view a project's root
+            app.all(/\/project\/([^\/]+)(\/data)?\/?$/, function(req,res, next)
             {
                 var defaultPermissionsInProjectRoot = [
                     Permissions.project_privacy_status.public,
@@ -1310,657 +1321,658 @@ async.waterfall([
                 req.params.is_project_root = true;
 
                 var queryBasedRoutes = {
-                        get: [
-                            //downloads
-                            {
-                                queryKeys : ['download'],
-                                handler : files.download,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot download this project."
-                            },
-                            //backups
-                            {
-                                queryKeys : ['backup'],
-                                handler : files.serve,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot backup this project."
-                            },
-                            //bagits
-                            {
-                                queryKeys : ['bagit'],
-                                handler : projects.bagit,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot produce a bagit of this project."
-                            },
-                            //list contents
-                            {
-                                queryKeys : ['ls'],
-                                handler : files.ls,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot list the contents of this project."
-                            },
-                            //descriptor recommendations
-                            {
-                                queryKeys : ['metadata_recommendations'],
-                                handler : recommendation.recommend_descriptors,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot fetch descriptor recommendations for this project."
-                            },
-                            //recent changes
-                            {
-                                queryKeys : ['recent_changes'],
-                                handler : projects.recent_changes,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot fetch recent changes for this project."
-                            },
-                            //project stats
-                            {
-                                queryKeys : ['stats'],
-                                handler : projects.stats,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot fetch recent changes for this project."
-                            },
-                            //recommendation ontologies
-                            {
-                                queryKeys : ['recommendation_ontologies'],
-                                handler : ontologies.get_recommendation_ontologies,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
-                            },
-                            //show versions of resources
-                            {
-                                queryKeys : ['version'],
-                                handler : records.show_version,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get versions of this project because you do not have permissions to access this project."
-
-                            },
-                            //auto completing descriptors
-                            {
-                                queryKeys : ['descriptors_autocomplete'],
-                                handler : descriptors.descriptors_autocomplete,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
-
-                            },
-                            //auto completing ontologies
-                            {
-                                queryKeys : ['ontology_autocomplete'],
-                                handler : ontologies.ontologies_autocomplete,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
-                            },
-                            //auto completing users
-                            {
-                                queryKeys : ['user_autocomplete'],
-                                handler : users.users_autocomplete,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
-                            },
-                            //thumb nails
-                            {
-                                queryKeys : ['thumbnail'],
-                                handler : files.thumbnail,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get thumbnail for this project because you do not have permissions to access this project."
-                            },
-                            {
-                                queryKeys : ['get_contributors'],
-                                handler : projects.get_contributors,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get contributors for this project because you do not have permissions to access this project."
-                            },
-                            //administration page
-                            {
-                                queryKeys : ['administer'],
-                                handler : projects.administer,
-                                permissions : administrationPermissions,
-                                authentication_error : "Permission denied : cannot access the administration area of the project because you are not its creator."
-                            },
-                            //metadata
-                            {
-                                queryKeys: ['metadata'],
-                                handler : projects.show,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get metadata for this project because you do not have permissions to access this project."
-                            },
-                            //metadata deep
-                            {
-                                queryKeys: ['metadata', 'deep'],
-                                handler : records.show_deep,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access this project."
-                            },
-                            //default case
-                            {
-                                queryKeys : [],
-                                handler : projects.show,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot show the project because you do not have permissions to access this project."
-                            }
-                        ],
-                        post: [
-                            {
-                                queryKeys : ['mkdir'],
-                                handler : files.mkdir,
-                                permissions : modificationPermissions,
-                                authentication_error : "Permission denied : cannot create new folder because you do not have permissions to edit this project."
-                            },
-                            {
-                                queryKeys : ['restore'],
-                                handler : files.restore,
-                                permissions : modificationPermissions,
-                                authentication_error : "Permission denied : cannot restore project from backup because you do not have permissions to edit this project."
-                            },
-                            {
-                                queryKeys : ['administer'],
-                                handler : projects.administer,
-                                permissions : administrationPermissions,
-                                authentication_error : "Permission denied : cannot access the administration area of the project because you are not its creator."
-                            },
-                            {
-                                queryKeys : ['export_to_repository'],
-                                handler : datasets.export_to_repository,
-                                permissions : modificationPermissions,
-                                authentication_error : "Permission denied : cannot export project because you do not have permissions to edit this project."
-                            }
-                        ]
-                        /*all: [
-                            //uploads
-                            {
-                                queryKeys: ['upload'],
-                                handler: files.upload,
-                                permissions: modificationPermissions
-                            }
-                        ]*/
-                };
-
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
-            });
-
-        //      files and folders (data)
-        //      downloads
-        app.all(/\/project\/([^\/]+)(\/data\/.+\/?)$/,
-            function(req,res, next)
-            {
-                var defaultPermissionsInProjectBranch = [
-                    Permissions.project_privacy_status.public,
-                    Permissions.role.project.contributor,
-                    Permissions.role.project.creator
-                ];
-
-                const modificationPermissionsBranch = [
-                    Permissions.role.project.contributor,
-                    Permissions.role.project.creator
-                ];
-
-                req.params.handle = req.params[0];                      //project handle
-                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
-
-                req.params.filepath = req.params[1];   //relative path encodeuri needed because of spaces in filenames
-                req.params.requestedResource = req.params.requestedResource + req.params.filepath;
-
-                req.params.is_project_root = false;
-
-                var queryBasedRoutes = {
                     get: [
                         //downloads
                         {
                             queryKeys : ['download'],
                             handler : files.download,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot download this resource because you do not have permissions to access its project."
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot download this project."
                         },
                         //backups
                         {
                             queryKeys : ['backup'],
                             handler : files.serve,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot backup this resource because you do not have permissions to access its project."
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot backup this project."
                         },
                         //bagits
-                        //{
-                        //    queryKeys : ['bagit'],
-                        //    handler : projects.download,
-                        //    permissions : defaultPermissionsInProjectBranch,
-                        //    authentication_error : "Permission denied : cannot bagit this resource because you do not have permissions to access its project."
-                        //},
+                        {
+                            queryKeys : ['bagit'],
+                            handler : projects.bagit,
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot produce a bagit of this project."
+                        },
                         //list contents
                         {
                             queryKeys : ['ls'],
-                            handler :files.ls,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
+                            handler : files.ls,
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot list the contents of this project."
                         },
                         //descriptor recommendations
                         {
                             queryKeys : ['metadata_recommendations'],
                             handler : recommendation.recommend_descriptors,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get descriptor recommendations for this resource because you do not have permissions to access its project."
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot fetch descriptor recommendations for this project."
                         },
                         //recent changes
                         {
                             queryKeys : ['recent_changes'],
                             handler : projects.recent_changes,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get recent changes for this resource because you do not have permissions to access its project."
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot fetch recent changes for this project."
                         },
                         //project stats
                         {
                             queryKeys : ['stats'],
                             handler : projects.stats,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get project stats because you do not have permissions to access this project."
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot fetch recent changes for this project."
                         },
                         //recommendation ontologies
                         {
                             queryKeys : ['recommendation_ontologies'],
                             handler : ontologies.get_recommendation_ontologies,
-                            permissions : defaultPermissionsInProjectBranch,
+                            permissions : defaultPermissionsInProjectRoot,
                             authentication_error : "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
                         },
                         //show versions of resources
                         {
                             queryKeys : ['version'],
                             handler : records.show_version,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get versions of this resource because you do not have permissions to access this project."
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot get versions of this project because you do not have permissions to access this project."
+
                         },
                         //auto completing descriptors
                         {
-                            queryKeys : ['descriptor_autocomplete'],
+                            queryKeys : ['descriptors_autocomplete'],
                             handler : descriptors.descriptors_autocomplete,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get descriptor autocompletions in this resource because you do not have permissions to access this project."
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
+
                         },
                         //auto completing ontologies
                         {
                             queryKeys : ['ontology_autocomplete'],
                             handler : ontologies.ontologies_autocomplete,
-                            permissions : defaultPermissionsInProjectBranch,
+                            permissions : defaultPermissionsInProjectRoot,
                             authentication_error : "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
+                        },
+                        //auto completing users
+                        {
+                            queryKeys : ['user_autocomplete'],
+                            handler : users.users_autocomplete,
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
                         },
                         //thumb nails
                         {
                             queryKeys : ['thumbnail'],
                             handler : files.thumbnail,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get thumbnail for this resource because you do not have permissions to access this project."
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot get thumbnail for this project because you do not have permissions to access this project."
+                        },
+                        {
+                            queryKeys : ['get_contributors'],
+                            handler : projects.get_contributors,
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot get contributors for this project because you do not have permissions to access this project."
+                        },
+                        //administration page
+                        {
+                            queryKeys : ['administer'],
+                            handler : projects.administer,
+                            permissions : administrationPermissions,
+                            authentication_error : "Permission denied : cannot access the administration area of the project because you are not its creator."
                         },
                         //metadata
                         {
                             queryKeys: ['metadata'],
-                            handler : records.show,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get metadata for this resource because you do not have permissions to access this project."
+                            handler : projects.show,
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot get metadata for this project because you do not have permissions to access this project."
                         },
                         //metadata deep
                         {
                             queryKeys: ['metadata', 'deep'],
                             handler : records.show_deep,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get metadata (recursive) for this resource because you do not have permissions to access this project."
-                        },
-                        //parent metadata
-                        {
-                            queryKeys: ['parent_metadata'],
-                            handler : records.show_parent,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get parent metadata for this resource because you do not have permissions to access this project."
-                        },
-                        //change_log
-                        {
-                            queryKeys: ['change_log'],
-                            handler : projects.change_log,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get the change log of this resource because you do not have permissions to access this project."
-                        },
-                        //recommendation_ontologies
-                        {
-                            queryKeys: ['recommendation_ontologies'],
-                            handler : ontologies.get_recommendation_ontologies,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get the recommended ontologies for this resource because you do not have permissions to access this project."
-                        },
-                        //serve files
-                        {
-                            queryKeys: ['serve'],
-                            handler : files.serve,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot serve this file because you do not have permissions to access this project."
-                        },
-                        //serve files in base64
-                        {
-                            queryKeys: ['serve_base64'],
-                            handler : files.serve_base64,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot serve this file (base64) because you do not have permissions to access this project."
-                        },
-                        //serve files serialized
-                        {
-                            queryKeys: ['data'],
-                            handler : files.data,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot serve serialized data for this resource because you do not have permissions to access this project."
-                        },
-                        //metadata_evaluation
-                        {
-                            queryKeys: ['metadata_evaluation'],
-                            handler : evaluation.metadata_evaluation,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot calculate metadata evaluation for this resource because you do not have permissions to access this project."
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access this project."
                         },
                         //default case
                         {
                             queryKeys : [],
                             handler : projects.show,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot show the resource because you do not have permissions to access this project."
+                            permissions : defaultPermissionsInProjectRoot,
+                            authentication_error : "Permission denied : cannot show the project because you do not have permissions to access this project."
                         }
                     ],
                     post: [
                         {
-                            queryKeys : ['update_metadata'],
-                            handler : records.update,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot update the resource metadata because you do not have permissions to edit this project."
-                        },
-                        {
-                            queryKeys : ['restore_metadata_version'],
-                            handler : records.restore_metadata_version,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot restore the resource metadata because you do not have permissions to edit this project."
-                        },
-                        {
-                            queryKeys : ['register_interaction'],
-                            handler : interactions.register,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot register the interaction because you do not have permissions to edit this project."
-                        },
-                        {
-                            queryKeys : ['remove_recommendation_ontology'],
-                            handler : interactions.reject_ontology_from_quick_list,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot remove the recommendation ontology interaction because you do not have permissions to edit this project."
-                        },
-                        {
                             queryKeys : ['mkdir'],
                             handler : files.mkdir,
-                            permissions : modificationPermissionsBranch,
+                            permissions : modificationPermissions,
                             authentication_error : "Permission denied : cannot create new folder because you do not have permissions to edit this project."
                         },
                         {
                             queryKeys : ['restore'],
                             handler : files.restore,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot restore previous version of resource because you do not have permissions to edit this project."
+                            permissions : modificationPermissions,
+                            authentication_error : "Permission denied : cannot restore project from backup because you do not have permissions to edit this project."
                         },
                         {
-                            queryKeys : ['undelete'],
-                            handler : files.undelete,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot undelete resource because you do not have permissions to edit this project."
+                            queryKeys : ['administer'],
+                            handler : projects.administer,
+                            permissions : administrationPermissions,
+                            authentication_error : "Permission denied : cannot access the administration area of the project because you are not its creator."
                         },
                         {
                             queryKeys : ['export_to_repository'],
                             handler : datasets.export_to_repository,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot export resource because you do not have permissions to edit this project."
-                        }
-                    ],
-                    delete : [
-                        {
-                            queryKeys : ['really_delete'],
-                            handler : files.rm,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot delete resource because you do not have permissions to edit this project."
-                        },
-                        {
-                            queryKeys : [],
-                            handler : files.rm,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot delete resource because you do not have permissions to edit this project."
-                        }
-                    ],
-                    all: [
-                        //uploads
-                        {
-                            queryKeys: ['upload'],
-                            handler: files.upload,
-                            permissions: modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot upload resource because you do not have permissions to edit this project."
+                            permissions : modificationPermissions,
+                            authentication_error : "Permission denied : cannot export project because you do not have permissions to edit this project."
                         }
                     ]
+                    /*all: [
+                     //uploads
+                     {
+                     queryKeys: ['upload'],
+                     handler: files.upload,
+                     permissions: modificationPermissions
+                     }
+                     ]*/
                 };
 
                 QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
-            }
-        );
+            });
 
-        //      social
-        app.get('/posts/all', async.apply(Permissions.require, [Permissions.role.system.user]), posts.all);
-        app.post('/posts/post', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPost_controller);
-        app.post('/posts/new', async.apply(Permissions.require, [Permissions.role.system.user]), posts.new);
-        app.post('/posts/like', async.apply(Permissions.require, [Permissions.role.system.user]), posts.like);
-        app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.role.system.user]), posts.checkIfPostIsLikedByUser);
-        app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.role.system.user]), posts.postLikesInfo);
-        app.post('/posts/comment', async.apply(Permissions.require, [Permissions.role.system.user]), posts.comment);
-        app.post('/posts/comments', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPostComments);
-        app.post('/posts/share', async.apply(Permissions.require, [Permissions.role.system.user]), posts.share);
-        app.post('/posts/shares', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPostShares);
-        app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.role.system.user]), posts.numPostsDatabase);
-        app.get('/posts/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), posts.post);
+            //      files and folders (data)
+            //      downloads
+            app.all(/\/project\/([^\/]+)(\/data\/.+\/?)$/,
+                function(req,res, next)
+                {
+                    var defaultPermissionsInProjectBranch = [
+                        Permissions.project_privacy_status.public,
+                        Permissions.role.project.contributor,
+                        Permissions.role.project.creator
+                    ];
 
-        //file versions
-        app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.all);
-        app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.numFileVersionsInDatabase);
-        app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersion);
-        app.get('/fileVersions/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.fileVersion);
-        app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.like);
-        app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.comment);
-        app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.share);
-        app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.fileVersionLikesInfo);
-        app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersionShares);
+                    const modificationPermissionsBranch = [
+                        Permissions.role.project.contributor,
+                        Permissions.role.project.creator
+                    ];
 
-        //shares
-        app.get('/shares/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getShare);
+                    req.params.handle = req.params[0];                      //project handle
+                    req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
 
+                    req.params.filepath = req.params[1];   //relative path encodeuri needed because of spaces in filenames
+                    req.params.requestedResource = req.params.requestedResource + req.params.filepath;
 
-        //notifications
-        app.get('/notifications/all', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.get_unread_user_notifications);
-        app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.get_notification_info);
-        app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.delete);
+                    req.params.is_project_root = false;
 
-        //serve angular JS ejs-generated html partials
-        app.get(/(\/app\/views\/.+)\.html$/,
-            function(req, res, next){
-
-                var requestedEJSPath = path.join(Config.getPathToPublicFolder(), req.params[0]) + ".ejs";
-
-                fs.exists(requestedEJSPath, function(exists) {
-                    if (exists) {
-                        fs.readFile(requestedEJSPath, 'utf-8', function(err, data) {
-                            if(!err) {
-                                var ejs = require('ejs');
-                                res.send(ejs.render(data, { locals : res.locals} ));
-                            }
-                            else
+                    var queryBasedRoutes = {
+                        get: [
+                            //downloads
                             {
-                                res.status(500).render("/errors/500");
+                                queryKeys : ['download'],
+                                handler : files.download,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot download this resource because you do not have permissions to access its project."
+                            },
+                            //backups
+                            {
+                                queryKeys : ['backup'],
+                                handler : files.serve,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot backup this resource because you do not have permissions to access its project."
+                            },
+                            //bagits
+                            //{
+                            //    queryKeys : ['bagit'],
+                            //    handler : projects.download,
+                            //    permissions : defaultPermissionsInProjectBranch,
+                            //    authentication_error : "Permission denied : cannot bagit this resource because you do not have permissions to access its project."
+                            //},
+                            //list contents
+                            {
+                                queryKeys : ['ls'],
+                                handler :files.ls,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
+                            },
+                            //descriptor recommendations
+                            {
+                                queryKeys : ['metadata_recommendations'],
+                                handler : recommendation.recommend_descriptors,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get descriptor recommendations for this resource because you do not have permissions to access its project."
+                            },
+                            //recent changes
+                            {
+                                queryKeys : ['recent_changes'],
+                                handler : projects.recent_changes,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get recent changes for this resource because you do not have permissions to access its project."
+                            },
+                            //project stats
+                            {
+                                queryKeys : ['stats'],
+                                handler : projects.stats,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get project stats because you do not have permissions to access this project."
+                            },
+                            //recommendation ontologies
+                            {
+                                queryKeys : ['recommendation_ontologies'],
+                                handler : ontologies.get_recommendation_ontologies,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
+                            },
+                            //show versions of resources
+                            {
+                                queryKeys : ['version'],
+                                handler : records.show_version,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get versions of this resource because you do not have permissions to access this project."
+                            },
+                            //auto completing descriptors
+                            {
+                                queryKeys : ['descriptor_autocomplete'],
+                                handler : descriptors.descriptors_autocomplete,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get descriptor autocompletions in this resource because you do not have permissions to access this project."
+                            },
+                            //auto completing ontologies
+                            {
+                                queryKeys : ['ontology_autocomplete'],
+                                handler : ontologies.ontologies_autocomplete,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
+                            },
+                            //thumb nails
+                            {
+                                queryKeys : ['thumbnail'],
+                                handler : files.thumbnail,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get thumbnail for this resource because you do not have permissions to access this project."
+                            },
+                            //metadata
+                            {
+                                queryKeys: ['metadata'],
+                                handler : records.show,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get metadata for this resource because you do not have permissions to access this project."
+                            },
+                            //metadata deep
+                            {
+                                queryKeys: ['metadata', 'deep'],
+                                handler : records.show_deep,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get metadata (recursive) for this resource because you do not have permissions to access this project."
+                            },
+                            //parent metadata
+                            {
+                                queryKeys: ['parent_metadata'],
+                                handler : records.show_parent,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get parent metadata for this resource because you do not have permissions to access this project."
+                            },
+                            //change_log
+                            {
+                                queryKeys: ['change_log'],
+                                handler : projects.change_log,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get the change log of this resource because you do not have permissions to access this project."
+                            },
+                            //recommendation_ontologies
+                            {
+                                queryKeys: ['recommendation_ontologies'],
+                                handler : ontologies.get_recommendation_ontologies,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot get the recommended ontologies for this resource because you do not have permissions to access this project."
+                            },
+                            //serve files
+                            {
+                                queryKeys: ['serve'],
+                                handler : files.serve,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot serve this file because you do not have permissions to access this project."
+                            },
+                            //serve files in base64
+                            {
+                                queryKeys: ['serve_base64'],
+                                handler : files.serve_base64,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot serve this file (base64) because you do not have permissions to access this project."
+                            },
+                            //serve files serialized
+                            {
+                                queryKeys: ['data'],
+                                handler : files.data,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot serve serialized data for this resource because you do not have permissions to access this project."
+                            },
+                            //metadata_evaluation
+                            {
+                                queryKeys: ['metadata_evaluation'],
+                                handler : evaluation.metadata_evaluation,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot calculate metadata evaluation for this resource because you do not have permissions to access this project."
+                            },
+                            //default case
+                            {
+                                queryKeys : [],
+                                handler : projects.show,
+                                permissions : defaultPermissionsInProjectBranch,
+                                authentication_error : "Permission denied : cannot show the resource because you do not have permissions to access this project."
                             }
+                        ],
+                        post: [
+                            {
+                                queryKeys : ['update_metadata'],
+                                handler : records.update,
+                                permissions : modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot update the resource metadata because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys : ['restore_metadata_version'],
+                                handler : records.restore_metadata_version,
+                                permissions : modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot restore the resource metadata because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys : ['register_interaction'],
+                                handler : interactions.register,
+                                permissions : modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot register the interaction because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys : ['remove_recommendation_ontology'],
+                                handler : interactions.reject_ontology_from_quick_list,
+                                permissions : modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot remove the recommendation ontology interaction because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys : ['mkdir'],
+                                handler : files.mkdir,
+                                permissions : modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot create new folder because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys : ['restore'],
+                                handler : files.restore,
+                                permissions : modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot restore previous version of resource because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys : ['undelete'],
+                                handler : files.undelete,
+                                permissions : modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot undelete resource because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys : ['export_to_repository'],
+                                handler : datasets.export_to_repository,
+                                permissions : modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot export resource because you do not have permissions to edit this project."
+                            }
+                        ],
+                        delete : [
+                            {
+                                queryKeys : ['really_delete'],
+                                handler : files.rm,
+                                permissions : modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot delete resource because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys : [],
+                                handler : files.rm,
+                                permissions : modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot delete resource because you do not have permissions to edit this project."
+                            }
+                        ],
+                        all: [
+                            //uploads
+                            {
+                                queryKeys: ['upload'],
+                                handler: files.upload,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error : "Permission denied : cannot upload resource because you do not have permissions to edit this project."
+                            }
+                        ]
+                    };
+
+                    QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+                }
+            );
+
+            //      social
+            app.get('/posts/all', async.apply(Permissions.require, [Permissions.role.system.user]), posts.all);
+            app.post('/posts/post', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPost_controller);
+            app.post('/posts/new', async.apply(Permissions.require, [Permissions.role.system.user]), posts.new);
+            app.post('/posts/like', async.apply(Permissions.require, [Permissions.role.system.user]), posts.like);
+            app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.role.system.user]), posts.checkIfPostIsLikedByUser);
+            app.post('/posts/post/likesInfo', async.apply(Permissions.require, [Permissions.role.system.user]), posts.postLikesInfo);
+            app.post('/posts/comment', async.apply(Permissions.require, [Permissions.role.system.user]), posts.comment);
+            app.post('/posts/comments', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPostComments);
+            app.post('/posts/share', async.apply(Permissions.require, [Permissions.role.system.user]), posts.share);
+            app.post('/posts/shares', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPostShares);
+            app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.role.system.user]), posts.numPostsDatabase);
+            app.get('/posts/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), posts.post);
+
+            //file versions
+            app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.all);
+            app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.numFileVersionsInDatabase);
+            app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersion);
+            app.get('/fileVersions/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.fileVersion);
+            app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.like);
+            app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.comment);
+            app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.share);
+            app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.fileVersionLikesInfo);
+            app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersionShares);
+
+            //shares
+            app.get('/shares/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getShare);
+
+
+            //notifications
+            app.get('/notifications/all', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.get_unread_user_notifications);
+            app.get('/notifications/notification', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.get_notification_info);
+            app.delete('/notifications/notification', async.apply(Permissions.require, [Permissions.role.system.user]), notifications.delete);
+
+            //serve angular JS ejs-generated html partials
+            app.get(/(\/app\/views\/.+)\.html$/,
+                function(req, res, next){
+
+                    var requestedEJSPath = path.join(Config.getPathToPublicFolder(), req.params[0]) + ".ejs";
+
+                    fs.exists(requestedEJSPath, function(exists) {
+                        if (exists) {
+                            fs.readFile(requestedEJSPath, 'utf-8', function(err, data) {
+                                if(!err) {
+                                    var ejs = require('ejs');
+                                    res.send(ejs.render(data, { locals : res.locals} ));
+                                }
+                                else
+                                {
+                                    res.status(500).render("/errors/500");
+                                }
+                            });
+                        }
+                        else
+                        {
+                            //fallback to other routes
+                            next();
+                        }
+                    });
+                });
+
+            /**
+             * Register plugins
+             */
+
+            PluginManager.registerPlugins(app, function(err, app){
+                //The 404 Route (ALWAYS Keep this as the last route)
+                // ERRO! Isto entra em conflito com as rotas dos plugins, porque esta é registada antes do registo das rotas dos
+                //plugins ter sido concluído
+
+                /*app.get('*', function(req, res){
+                 res.render('errors/404', 404);
+                 });*/
+
+
+                var server = http.createServer(function (req, res) {
+
+                    var reqd = domain.create();
+                    reqd.add(req);
+                    reqd.add(res);
+
+                    // On error dispose of the domain
+                    reqd.on('error', function (error) {
+                        console.error('Error!\n' +  "Code: \n" + error.code + " \nMessage: \n" +error.message + "Request URL: \n" + req.originalRequestUrl);
+
+                        if(error.stack != null)
+                        {
+                            var util = require('util');
+                            console.error('Stack Trace : ' + util.format(error.stack));
+                        }
+
+                        reqd.dispose();
+                    });
+
+                    // Pass the request to express
+                    app(req, res)
+
+                });
+
+                //dont start server twice (for testing)
+                //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
+
+                if(process.env.NODE_ENV != 'test')
+                {
+                    server.listen(app.get('port'), function() {
+                        const npid = require('npid');
+                        const path = require('path');
+                        pid = npid.create(Config.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
+
+                        pid.removeOnExit();
+
+                        process.on('SIGTERM', function (err)
+                        {
+                            pid.remove();
+                            process.exit(err);
                         });
+
+                        process.on('SIGINT', function (err)
+                        {
+                            pid.remove();
+                            process.exit(err);
+                        });
+
+                        if (!(Config.logging.app_logs_folder != null && Config.logging.pipe_console_to_logfile))
+                        {
+                            process.on('uncaughtException', function (err)
+                            {
+                                pid.remove();
+                                throw err;
+                            });
+                        }
+
+                        console.log('Express server listening on port ' + app.get('port'));
+                        bootupPromise.resolve(app);
+                    });
+                }
+                else
+                {
+                    console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
+                    bootupPromise.resolve(app);
+                }
+
+                if(Config.debug.diagnostics.ram_usage_reports)
+                {
+                    setInterval(function ()
+                    {
+                        var pretty = require('prettysize');
+                        console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
+                        if (typeof gc === 'function')
+                        {
+                            gc();
+                        }
+                    }, 2000);
+                }
+
+                // Handle 404
+                app.use(function(req, res) {
+                    var acceptsHTML = req.accepts('html');
+                    var acceptsJSON = req.accepts('json');
+                    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                    {
+                        res.status(404).json(
+                            {
+                                result : "error",
+                                message : "Page not found"
+                            }
+                        );
                     }
                     else
                     {
-                        //fallback to other routes
-                        next();
+                        res.status(404).render('errors/404',
+                            {
+                                title : "Page not Found"
+                            }
+                        )
                     }
                 });
-            });
 
-        /**
-         * Register plugins
-         */
-
-        PluginManager.registerPlugins(app, function(err, app){
-            //The 404 Route (ALWAYS Keep this as the last route)
-            // ERRO! Isto entra em conflito com as rotas dos plugins, porque esta é registada antes do registo das rotas dos
-            //plugins ter sido concluído
-
-            /*app.get('*', function(req, res){
-             res.render('errors/404', 404);
-             });*/
-
-
-            var server = http.createServer(function (req, res) {
-
-                var reqd = domain.create();
-                reqd.add(req);
-                reqd.add(res);
-
-                // On error dispose of the domain
-                reqd.on('error', function (error) {
-                    console.error('Error!\n' +  "Code: \n" + error.code + " \nMessage: \n" +error.message + "Request URL: \n" + req.originalRequestUrl);
-
-                    if(error.stack != null)
+                // Handle 405
+                app.use(function(req, res) {
+                    var acceptsHTML = req.accepts('html');
+                    var acceptsJSON = req.accepts('json');
+                    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                     {
-                        var util = require('util');
-                        console.error('Stack Trace : ' + util.format(error.stack));
+                        res.status(405).json(
+                            {
+                                result : "error",
+                                message : "Method Not Supported"
+                            }
+                        );
                     }
-
-                    reqd.dispose();
+                    else
+                    {
+                        res.status(405).render('errors/404',
+                            {
+                                title : "Method Not Supported"
+                            }
+                        )
+                    }
                 });
 
-                // Pass the request to express
-                app(req, res)
-
-            });
-
-            //dont start server twice (for testing)
-            //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
-
-            if(process.env.NODE_ENV != 'test')
-            {
-                server.listen(app.get('port'), function() {
-                    const npid = require('npid');
-                    const path = require('path');
-                    pid = npid.create(Config.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
-
-                    pid.removeOnExit();
-
-                    process.on('SIGTERM', function (err)
+                // Handle 500
+                app.use(function(error, req, res, next) {
+                    var acceptsHTML = req.accepts('html');
+                    var acceptsJSON = req.accepts('json');
+                    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                     {
-                        pid.remove();
-                        process.exit(err);
-                    });
-
-                    process.on('SIGINT', function (err)
-                    {
-                        pid.remove();
-                        process.exit(err);
-                    });
-
-                    if (!(Config.logging.app_logs_folder != null && Config.logging.pipe_console_to_logfile))
-                    {
-                        process.on('uncaughtException', function (err)
-                        {
-                            pid.remove();
-                            throw err;
-                        });
+                        res.status(500).json(
+                            {
+                                result : "error",
+                                error : error
+                            }
+                        );
                     }
-
-                    console.log('Express server listening on port ' + app.get('port'));
-                    bootupPromise.resolve(app);
+                    else
+                    {
+                        res.render('errors/500',
+                            {
+                                title : "Something went wrong",
+                                error : error
+                            }
+                        )
+                    }
                 });
-            }
-            else
-            {
-                console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
-                bootupPromise.resolve(app);
-            }
-
-            if(Config.debug.diagnostics.ram_usage_reports)
-            {
-                setInterval(function ()
-                {
-                    var pretty = require('prettysize');
-                    console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
-                    if (typeof gc === 'function')
-                    {
-                        gc();
-                    }
-                }, 2000);
-            }
-
-            // Handle 404
-            app.use(function(req, res) {
-                var acceptsHTML = req.accepts('html');
-                var acceptsJSON = req.accepts('json');
-                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-                {
-                    res.status(404).json(
-                        {
-                            result : "error",
-                            message : "Page not found"
-                        }
-                    );
-                }
-                else
-                {
-                    res.status(404).render('errors/404',
-                        {
-                            title : "Page not Found"
-                        }
-                    )
-                }
-            });
-
-            // Handle 405
-            app.use(function(req, res) {
-                var acceptsHTML = req.accepts('html');
-                var acceptsJSON = req.accepts('json');
-                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-                {
-                    res.status(405).json(
-                        {
-                            result : "error",
-                            message : "Method Not Supported"
-                        }
-                    );
-                }
-                else
-                {
-                    res.status(405).render('errors/404',
-                        {
-                            title : "Method Not Supported"
-                        }
-                    )
-                }
-            });
-
-            // Handle 500
-            app.use(function(error, req, res, next) {
-                var acceptsHTML = req.accepts('html');
-                var acceptsJSON = req.accepts('json');
-                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-                {
-                    res.status(500).json(
-                        {
-                            result : "error",
-                            error : error
-                        }
-                    );
-                }
-                else
-                {
-                    res.render('errors/500',
-                        {
-                            title : "Something went wrong",
-                            error : error
-                        }
-                    )
-                }
             });
         });
     }
