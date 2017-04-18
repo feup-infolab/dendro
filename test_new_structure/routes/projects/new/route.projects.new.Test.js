@@ -24,9 +24,17 @@ const metadataOnlyHTMLTests = require(Config.absPathInTestsFolder("mockdata/proj
 const privateProjectHTMLTests = require(Config.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-require(Config.absPathInTestsFolder("units/bootup.Unit.js")).setup();
+//require(Config.absPathInTestsFolder("units/bootup.Unit.js")).setup();
+var bootup = require(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+
+before(function (done) {
+    bootup.setup(function (err, res) {
+        done();
+    });
+});
 
 describe("[GET] /projects/new", function () {
+
     it("[HTML] Should show the new project Html page when logged in as demouser1", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             projectUtils.getNewProjectPage(false, agent, function (err, res) {

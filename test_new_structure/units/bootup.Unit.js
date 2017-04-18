@@ -9,6 +9,7 @@ let bootup = require(Config.absPathInSrcFolder("app.js")).bootup;
 
 module.exports.setup = function(finish)
 {
+    /*
     describe('app bootup', function () {
 
         it('should boot up the app', function (done) {
@@ -26,6 +27,18 @@ module.exports.setup = function(finish)
                         finish();
                     });
             });
+        });
+    });
+    */
+
+    bootup.then(function(app) {
+        chai.request(app)
+        .get('/')
+        .end((err, res) => {
+            res.should.have.status(200);
+            res.text.should.contain('<h2>Wecome to Dendro Beta</h2>');
+            GLOBAL.tests.app = app;
+            finish(err, res);
         });
     });
 
