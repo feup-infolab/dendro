@@ -43,59 +43,6 @@ exports.all = function(req, res)
     });
 };
 
-exports.with_property = function(req, res) {
-
-    var viewVars = {
-        title : 'All vertexes from DBpedia that have an abstract'
-    };
-
-    viewVars = DbConnection.paginate(req,
-        viewVars
-    );
-
-    var query = DbConnection.paginateQuery(
-        req,
-        "SELECT DISTINCT ?s WHERE {?s [0] ?o .}"
-    );
-	
-	switch(req.params["source"])
-	{
-		case ("dbpedia"):
-		{
-			db.connection.execute(query,
-                    [
-                        {
-                            type: DbConnection.resource,
-                            value : "http://dbpedia.org/ontology/"+req.params["property"]
-                        }
-                    ],
-					function(err, results) {
-                        if(!err)
-                        {
-                            viewVars.vertexes = results;
-                            res.render('vertexes/all', viewVars);
-                        }
-                        else
-                        {
-                            viewVars.error_messages = ["Unable to fetch dbpedia nodes"];
-                            viewVars.vertexes = results;
-                            res.render('vertexes/all', viewVars);
-                        }
-					});
-			break;
-		}
-		default:
-		{
-			res.render('vertexes/all', {
-				title : 'There was an error...',
-				vertexes : []
-			});
-			
-			break;
-		}
-	}
-};
-
 exports.show = function(req, res) {
 	
 	db.connection.execute("SELECT ?p ?o WHERE {[0] ?p ?o .}",
@@ -219,7 +166,9 @@ exports.random = function(req, res) {
 
 exports.search = function(req, res)
 {
-	var query = req.query.q;
+    const acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
+	const query = req.query.q;
 
     if(query)
     {
@@ -242,7 +191,7 @@ exports.search = function(req, res)
             req.query.pageSize,
             function(err, results)
             {
-                var getSimilarResources = function(resource, callback)
+                let getSimilarResources = function(resource, callback)
                 {
                     resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function(err, similarResources)
                     {
@@ -253,23 +202,32 @@ exports.search = function(req, res)
 
                 async.map(results, getSimilarResources, function(err, resultsWithSimilarOnes)
                 {
-                    var renderParameters = {
-                        title : 'Search Results'
-                    };
-
-                    if(results != null && results.length > 0)
+                    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                     {
-                        renderParameters.vertexes = resultsWithSimilarOnes;
-                        renderParameters.currentPage = req.query.currentPage;
-                        renderParameters.pageSize = req.query.pageSize;
+                        res.json({
+                            "result" : "ok",
+                            "hits" : results
+                        });
                     }
                     else
                     {
-                        renderParameters.vertexes = [];
-                        renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
-                    }
+                        let renderParameters = {
+                            title : 'Search Results'
+                        };
 
-                    res.render('vertexes/search', renderParameters);
+                        if(results != null && results.length > 0)
+                        {
+                            renderParameters.vertexes = resultsWithSimilarOnes;
+                            renderParameters.currentPage = req.query.currentPage;
+                            renderParameters.pageSize = req.query.pageSize;
+                        }
+                        else
+                        {
+                            renderParameters.vertexes = [];
+                            renderParameters.info_messages = ["No results found for query: \"" + query + "\"."];
+                        }
+                        res.render('vertexes/search', renderParameters);
+                    }
                 });
             });
     }

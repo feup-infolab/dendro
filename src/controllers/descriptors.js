@@ -35,51 +35,37 @@ exports.descriptors_autocomplete = function(req, res) {
     }
 };
 
-exports.from_ontology = function(req, res)
-{
-    if (req.query.project_handle != null)
+exports.from_ontology = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var project_handle = req.query.project_handle;
-    }
+        if (req.query.project_handle != null) {
+            var project_handle = req.query.project_handle;
 
-    if(req.params.ontology_prefix != null)
-    {
-        var prefix = req.params.ontology_prefix;
+            if (req.params.ontology_prefix != null) {
+                var prefix = req.params.ontology_prefix;
 
-        if(prefix != null)
-        {
-            var prefix = req.params.ontology_prefix;
-            if (prefix != null)
-            {
-                Ontology.findByPrefix(prefix, function (err, ontology)
-                {
-                    if (!err)
-                    {
-
-                        if (!ontology.private)
-                        {
-                            Descriptor.all_in_ontology(ontology.uri, function (err, descriptors)
-                            {
-                                if (!err)
-                                {
+                if (prefix != null) {
+                    var prefix = req.params.ontology_prefix;
+                    if (prefix != null) {
+                        if (!ontology.private) {
+                            Descriptor.all_in_ontology(ontology.uri, function (err, descriptors) {
+                                if (!err) {
                                     /**
                                      * Get User's favorite descriptors
                                      * @param callback
                                      */
 
-                                    var getUsersFavoriteDescriptors = function (userUri, callback)
-                                    {
-                                        User.findByUri(userUri, function (err, user)
-                                        {
-                                            if (!err)
-                                            {
-                                                user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
-                                                {
+                                    var getUsersFavoriteDescriptors = function (userUri, callback) {
+                                        User.findByUri(userUri, function (err, user) {
+                                            if (!err) {
+                                                user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
                                                     callback(error, favorites);
                                                 }, [ontology]);
                                             }
-                                            else
-                                            {
+                                            else {
                                                 var error = "Error fetching user : " + user + " : " + err;
                                                 console.error(error);
                                                 callback(1, error);
@@ -92,19 +78,14 @@ exports.from_ontology = function(req, res)
                                      * @param callback
                                      */
 
-                                    var getProjectsFavoriteDescriptors = function (projectHandle, callback)
-                                    {
-                                        Project.findByHandle(projectHandle, function (err, project)
-                                        {
-                                            if (!err)
-                                            {
-                                                project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
-                                                {
+                                    var getProjectsFavoriteDescriptors = function (projectHandle, callback) {
+                                        Project.findByHandle(projectHandle, function (err, project) {
+                                            if (!err) {
+                                                project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
                                                     callback(error, favorites);
                                                 }, [ontology]);
                                             }
-                                            else
-                                            {
+                                            else {
                                                 var error = "Error fetching project : " + project + " : " + err;
                                                 console.error(error);
                                                 callback(1, error);
@@ -117,19 +98,14 @@ exports.from_ontology = function(req, res)
                                      * @param callback
                                      */
 
-                                    var getUsersHiddenDescriptors = function (userUri, callback)
-                                    {
-                                        User.findByUri(userUri, function (err, user)
-                                        {
-                                            if (!err)
-                                            {
-                                                user.hiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
-                                                {
+                                    var getUsersHiddenDescriptors = function (userUri, callback) {
+                                        User.findByUri(userUri, function (err, user) {
+                                            if (!err) {
+                                                user.hiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
                                                     callback(error, favorites);
                                                 }, [ontology]);
                                             }
-                                            else
-                                            {
+                                            else {
                                                 var error = "Error fetching user : " + user + " : " + err;
                                                 console.error(error);
                                                 callback(1, error);
@@ -137,19 +113,14 @@ exports.from_ontology = function(req, res)
                                         });
                                     };
 
-                                    var getProjectsHiddenDescriptors = function (projectHandle, callback)
-                                    {
-                                        Project.findByHandle(projectHandle, function (err, project)
-                                        {
-                                            if (!err)
-                                            {
-                                                project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
-                                                {
+                                    var getProjectsHiddenDescriptors = function (projectHandle, callback) {
+                                        Project.findByHandle(projectHandle, function (err, project) {
+                                            if (!err) {
+                                                project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
                                                     callback(error, hidden);
                                                 }, [ontology]);
                                             }
-                                            else
-                                            {
+                                            else {
                                                 var error = "Error fetching project : " + project + " : " + err;
                                                 console.error(error);
                                                 callback(1, error);
@@ -157,16 +128,13 @@ exports.from_ontology = function(req, res)
                                         });
                                     };
 
-                                    var getDCTermsDescriptors = function(callback)
-                                    {
-                                        Descriptor.DCElements(function(error, dcElementsDescriptors){
-                                            if (!err)
-                                            {
+                                    var getDCTermsDescriptors = function (callback) {
+                                        Descriptor.DCElements(function (error, dcElementsDescriptors) {
+                                            if (!err) {
                                                 callback(error, dcElementsDescriptors);
                                             }
-                                            else
-                                            {
-                                                var error = "Error fetching DC Elements Descriptors : " +  err;
+                                            else {
+                                                var error = "Error fetching DC Elements Descriptors : " + err;
                                                 console.error(error);
                                                 callback(1, error);
                                             }
@@ -175,52 +143,39 @@ exports.from_ontology = function(req, res)
 
                                     async.series(
                                         [
-                                            function (callback)
-                                            {
-                                                if (req.session.user == null)
-                                                {
+                                            function (callback) {
+                                                if (req.session.user == null) {
                                                     callback(null, []);
                                                 }
-                                                else
-                                                {
+                                                else {
                                                     getUsersFavoriteDescriptors(req.session.user.uri, callback);
                                                 }
                                             },
-                                            function (callback)
-                                            {
-                                                if (project_handle == null)
-                                                {
+                                            function (callback) {
+                                                if (project_handle == null) {
                                                     callback(null, []);
                                                 }
-                                                else
-                                                {
+                                                else {
                                                     getProjectsFavoriteDescriptors(project_handle, callback);
                                                 }
                                             },
-                                            function (callback)
-                                            {
-                                                if (req.session.user == null)
-                                                {
+                                            function (callback) {
+                                                if (req.session.user == null) {
                                                     callback(null, []);
                                                 }
-                                                else
-                                                {
+                                                else {
                                                     getUsersHiddenDescriptors(req.session.user.uri, callback);
                                                 }
                                             },
-                                            function (callback)
-                                            {
-                                                if (project_handle == null)
-                                                {
+                                            function (callback) {
+                                                if (project_handle == null) {
                                                     callback(null, []);
                                                 }
-                                                else
-                                                {
+                                                else {
                                                     getProjectsHiddenDescriptors(project_handle, callback);
                                                 }
                                             },
-                                            function(callback)
-                                            {
+                                            function (callback) {
                                                 getDCTermsDescriptors(callback);
                                             }
                                         ],
@@ -228,51 +183,38 @@ exports.from_ontology = function(req, res)
                                          * Perform final ranking
                                          * @param callback
                                          */
-                                        function (err, results)
-                                        {
-                                            if (!err)
-                                            {
-                                                for (var i = 0; i < descriptors.length; i++)
-                                                {
+                                        function (err, results) {
+                                            if (!err) {
+                                                for (var i = 0; i < descriptors.length; i++) {
                                                     descriptors[i]["recommendation_types"] = {};
 
-                                                    if (_.find(results[0], function (userFavoriteDescriptor)
-                                                        {
+                                                    if (_.find(results[0], function (userFavoriteDescriptor) {
                                                             return userFavoriteDescriptor.uri == descriptors[i].uri
-                                                        }))
-                                                    {
+                                                        })) {
                                                         descriptors[i]["recommendation_types"][Descriptor.recommendation_types.user_favorite.key] = true;
                                                     }
 
-                                                    if (_.find(results[1], function (projectFavoriteDescriptor)
-                                                        {
+                                                    if (_.find(results[1], function (projectFavoriteDescriptor) {
                                                             return projectFavoriteDescriptor.uri == descriptors[i].uri
-                                                        }))
-                                                    {
+                                                        })) {
                                                         descriptors[i]["recommendation_types"][Descriptor.recommendation_types.project_favorite.key] = true;
                                                     }
 
-                                                    if (_.find(results[2], function (usersHiddenDescriptor)
-                                                        {
+                                                    if (_.find(results[2], function (usersHiddenDescriptor) {
                                                             return usersHiddenDescriptor.uri == descriptors[i].uri
-                                                        }))
-                                                    {
+                                                        })) {
                                                         descriptors[i]["recommendation_types"][Descriptor.recommendation_types.user_hidden.key] = true;
                                                     }
 
-                                                    if (_.find(results[3], function (projectHiddenDescriptor)
-                                                        {
+                                                    if (_.find(results[3], function (projectHiddenDescriptor) {
                                                             return projectHiddenDescriptor.uri == descriptors[i].uri
-                                                        }))
-                                                    {
+                                                        })) {
                                                         descriptors[i]["recommendation_types"][Descriptor.recommendation_types.project_hidden.key] = true;
                                                     }
 
-                                                    if (_.find(results[4], function (dcElementDescriptor)
-                                                        {
+                                                    if (_.find(results[4], function (dcElementDescriptor) {
                                                             return dcElementDescriptor.uri == descriptors[i].uri
-                                                        }))
-                                                    {
+                                                        })) {
                                                         descriptors[i]["recommendation_types"][Descriptor.recommendation_types.dc_element_forced.key] = true;
                                                     }
                                                 }
@@ -280,24 +222,21 @@ exports.from_ontology = function(req, res)
                                                 /*
                                                  Sort descriptors alphabetically
                                                  */
-                                                descriptors = _.sortBy(descriptors, function (descriptor)
-                                                {
+                                                descriptors = _.sortBy(descriptors, function (descriptor) {
                                                     return descriptor.label;
                                                 });
 
-                                                var removeDuplicates = function(results)
-                                                {
-                                                    var uniques = _.uniq(results, false, function(result){
+                                                var removeDuplicates = function (results) {
+                                                    var uniques = _.uniq(results, false, function (result) {
                                                         return result.uri;
                                                     });
 
                                                     return uniques;
                                                 };
 
-                                                var removeLockedAndPrivate = function(results)
-                                                {
-                                                    var filtered = _.filter(results, function(result){
-                                                        var isLockedOrPrivate =  (result.locked || result.private);
+                                                var removeLockedAndPrivate = function (results) {
+                                                    var filtered = _.filter(results, function (result) {
+                                                        var isLockedOrPrivate = (result.locked || result.private);
                                                         return !isLockedOrPrivate;
                                                     });
 
@@ -312,8 +251,7 @@ exports.from_ontology = function(req, res)
                                                 var recommendation_call_id = uuid.v4();
                                                 var recommendation_call_timestamp = new Date().toISOString();
 
-                                                for(let i = 0; i < descriptors.length; i++)
-                                                {
+                                                for (let i = 0; i < descriptors.length; i++) {
                                                     descriptors[i].recommendationCallId = recommendation_call_id;
                                                     descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
                                                 }
@@ -325,8 +263,7 @@ exports.from_ontology = function(req, res)
                                                     }
                                                 );
                                             }
-                                            else
-                                            {
+                                            else {
                                                 res.status(500).json(
                                                     {
                                                         result: "error",
@@ -336,8 +273,7 @@ exports.from_ontology = function(req, res)
                                             }
                                         });
                                 }
-                                else
-                                {
+                                else {
                                     res.status(500).json(
                                         {
                                             result: "error",
@@ -347,8 +283,7 @@ exports.from_ontology = function(req, res)
                                 }
                             });
                         }
-                        else
-                        {
+                        else {
                             res.status(401).json(
                                 {
                                     result: "error",
@@ -358,10 +293,8 @@ exports.from_ontology = function(req, res)
                         }
 
                     }
-                    else
-                    {
-                        if (ontology != null)
-                        {
+                    else {
+                        if (ontology != null) {
                             res.status(500).json(
                                 {
                                     result: "error",
@@ -369,8 +302,7 @@ exports.from_ontology = function(req, res)
                                 }
                             );
                         }
-                        else
-                        {
+                        else {
                             res.status(404).json(
                                 {
                                     result: "error",
@@ -381,17 +313,22 @@ exports.from_ontology = function(req, res)
 
 
                     }
-                });
+                }
+            }
+            else {
+                res.status(400).json({
+                    result: "error",
+                    message: "Project handle was not specified!"
+                })
             }
         }
-        else
-        {
-            res.status(500).json(
-                {
-                    result: "error",
-                    error_messages: "URL is incorrect. Should be /descriptors/from_ontology/<<existing ontology prefix>>"
-                }
+        else {
+            var msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
+            req.flash('error', "Invalid Request");
+            console.log(msg);
+            res.status(405).render('',
+                {}
             );
         }
     }
-};
+}

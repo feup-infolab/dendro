@@ -1,38 +1,39 @@
 process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
-var db_notifications = function () { return GLOBAL.db.notifications;}();
-var userUtils = require('./../utils/user/userUtils.js');
-var async = require('async');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const db = function() { return GLOBAL.db.default; }();
+const db_social = function() { return GLOBAL.db.social; }();
+const db_notifications = function () { return GLOBAL.db.notifications;}();
+const async = require('async');
+const projectUtils = require('./../utils/project/projectUtils.js');
+const userUtils = require('./../utils/user/userUtils.js');
+
 chai.use(chaiHttp);
+const should = chai.should();
 
-var demouser1 = require("../mockdata/users/demouser1");
-var demouser2 = require("../mockdata/users/demouser2");
-var falseUser = 'demouser404';
-
-var should = chai.should();
-
+const demouser1 = require("../mockdata/users/demouser1");
+const demouser2 = require("../mockdata/users/demouser2");
+const demouser3 = require("../mockdata/users/demouser3");
+const falseUser = 'demouser404';
 
 describe('/users', function () {
-    /*I didn't write this, they are related to the /me if I'm not mistaken, should we change from the 'users' descriptor to the 'me' one???----------------------------------*/
-    //TODO
-    it('[JSON] /me  with authenticated used', function (done) {
-        var app = GLOBAL.tests.app;
+
+    it('API /me  with authenticated used', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         userUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             userUtils.getLoggedUserDetails(true, agent, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.contain('Editing user');
                 done();
             });
-        })
+        });
     });
 
-
-    it('[HTML] /me  with authenticated used', function (done) {
-        var app = GLOBAL.tests.app;
+    it('HTML /me  with authenticated used', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         userUtils.loginUser('demouser1', 'demouserpassword2015', function (err, agent) {
             userUtils.getLoggedUserDetails(false, agent, function (err, res) {
                 res.should.have.status(200);
@@ -43,9 +44,9 @@ describe('/users', function () {
     });
 
 
-    it('[JSON] /me  not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+    it('API /me  not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         userUtils.getLoggedUserDetails(true, agent, function (err, res) {
             res.should.have.status(401);
             res.text.should.not.contain('Editing user');
@@ -53,9 +54,9 @@ describe('/users', function () {
         });
     });
 
-    it('[HTML] /me  not authenticated', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+    it('HTML /me  not authenticated', function (done) {
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
         userUtils.getLoggedUserDetails(false, agent, function (err, res) {
             res.should.have.status(200);
             res.text.should.not.contain('Editing user');
