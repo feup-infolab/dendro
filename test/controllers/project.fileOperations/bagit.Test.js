@@ -56,44 +56,46 @@ describe('project/' + publicProject.handle + '?bagit', function () {
     it("[HTML] should perform bagit in project root not logged in", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
+        var folder = Config.absPathInApp('test/temp');
 
-        var file = path.join(Config.absPathInApp('test/temp'), 'testingBagitPublicProject.zip');
-        fs.stat(file, function(err, stats){
-            if(!err){
-                fs.unlink(file, function(err){
-                });
-            }
-            projectUtils.bagit(agent, publicProject.handle, '', function(err, res){
-                should.not.exist(err);
-                fs.writeFile(file, res.body, 'binary', function(err){
-                    File['File'].unzip(file, function(err, file){
-                        should.not.exist(err);
-                        var filelist = walkSync(file);
-                        filelist.should.include('data/publicprojectcreatedbydemouser1/metadata.json');
-                        filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda');
-                        filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda1');
-                        filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda2');
-                        filelist.should.include('manifest-sha256.txt');
-                        filelist.should.include('bagit.txt');
-                        filelist.should.include('tagmanifest-sha256.txt');
-                        filelist.should.include('bag-info.txt');
-                        done();
-                    });
-                });
-            });
-        });
-    });
-
-
-    it("[HTML] should do bag it without being contributor", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+        fs.mkdir(folder, function(err){
             var file = path.join(Config.absPathInApp('test/temp'), 'testingBagitPublicProject.zip');
             fs.stat(file, function(err, stats){
                 if(!err){
                     fs.unlink(file, function(err){
                     });
                 }
-                projectUtils.bagit(agent, publicProject.handle, '', function(err, res){
+                projectUtils.bagit(agent, publicProject.handle, '', true, function(err, res){
+                    should.not.exist(err);
+                    fs.writeFile(file, res.body, 'binary', function(err){
+                        File['File'].unzip(file, function(err, file){
+                            should.not.exist(err);
+                            var filelist = walkSync(file);
+                            //These are the must have components
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/metadata.json');
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda');
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLindademouser2');
+                            filelist.should.include('manifest-sha256.txt');
+                            filelist.should.include('bagit.txt');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+
+    });
+
+
+    it("[HTML] should do bag it without being contributor", function (done) {
+        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+            var file = path.join(Config.absPathInApp('test/temp'), 'testingBagitPublicProject.zip');
+            fs.stat(file, function(err, stats){
+                if(!err){
+                    fs.unlink(file, function(err){
+                    });
+                }
+                projectUtils.bagit(agent, publicProject.handle, '', true, function(err, res){
                     should.not.exist(err);
                     fs.writeFile(file, res.body, 'binary', function(err){
                         File['File'].unzip(file, function(err, file){
@@ -101,12 +103,9 @@ describe('project/' + publicProject.handle + '?bagit', function () {
                             var filelist = walkSync(file);
                             filelist.should.include('data/publicprojectcreatedbydemouser1/metadata.json');
                             filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda');
-                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda1');
-                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda2');
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLindademouser2');
                             filelist.should.include('manifest-sha256.txt');
                             filelist.should.include('bagit.txt');
-                            filelist.should.include('tagmanifest-sha256.txt');
-                            filelist.should.include('bag-info.txt');
                             done();
                         });
                     });
@@ -116,7 +115,30 @@ describe('project/' + publicProject.handle + '?bagit', function () {
     });
 
     it("[HTML] should do bag it while being contributor", function (done) {
-        done(1);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            var file = path.join(Config.absPathInApp('test/temp'), 'testingBagitPublicProject.zip');
+            fs.stat(file, function(err, stats){
+                if(!err){
+                    fs.unlink(file, function(err){
+                    });
+                }
+                projectUtils.bagit(agent, publicProject.handle, '', true, function(err, res){
+                    should.not.exist(err);
+                    fs.writeFile(file, res.body, 'binary', function(err){
+                        File['File'].unzip(file, function(err, file){
+                            should.not.exist(err);
+                            var filelist = walkSync(file);
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/metadata.json');
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda');
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLindademouser2');
+                            filelist.should.include('manifest-sha256.txt');
+                            filelist.should.include('bagit.txt');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
     });
 
     it("[HTML] should do bag it while creator", function (done) {
@@ -127,7 +149,7 @@ describe('project/' + publicProject.handle + '?bagit', function () {
                     fs.unlink(file, function(err){
                     });
                 }
-                projectUtils.bagit(agent, publicProject.handle, '', function(err, res){
+                projectUtils.bagit(agent, publicProject.handle, '', true, function(err, res){
                     should.not.exist(err);
                     fs.writeFile(file, res.body, 'binary', function(err){
                         File['File'].unzip(file, function(err, file){
@@ -135,12 +157,9 @@ describe('project/' + publicProject.handle + '?bagit', function () {
                             var filelist = walkSync(file);
                             filelist.should.include('data/publicprojectcreatedbydemouser1/metadata.json');
                             filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda');
-                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda1');
-                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda2');
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLindademouser2');
                             filelist.should.include('manifest-sha256.txt');
                             filelist.should.include('bagit.txt');
-                            filelist.should.include('tagmanifest-sha256.txt');
-                            filelist.should.include('bag-info.txt');
                             done();
                         });
                     });
@@ -151,7 +170,7 @@ describe('project/' + publicProject.handle + '?bagit', function () {
 
     it("[JSON] should not do bagit of non-existing project", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.bagit(agent, 'nonexistinghandle', '', function(err, res){
+            projectUtils.bagit(agent, 'nonexistinghandle', '', false, function(err, res){
                 res.should.have.status(404);
                 should.exist(err);
                 err.message.should.equal('Not Found');
@@ -165,9 +184,10 @@ describe('project/' + publicProject.handle + '?bagit', function () {
     it("[JSON] should do bagit of folder while not logged in", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
-        projectUtils.bagit(agent, publicProject.handle, '/data/pastinhaLinda', function(err, res){
+        projectUtils.bagit(agent, publicProject.handle, '/data/pastinhaLinda', true, function(err, res){
             should.not.exist(err);
             fs.writeFile(file, res.body, 'binary', function(err) {
+
                 File['File'].unzip(file, function (err, file) {
                     should.not.exist(err);
                     var filelist = walkSync(file);
@@ -179,7 +199,7 @@ describe('project/' + publicProject.handle + '?bagit', function () {
 
     it("[JSON] should do bagit of folder while logged in", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.bagit(agent, publicProject.handle, '/data/pastinhaLinda', function(err, res){
+            projectUtils.bagit(agent, publicProject.handle, '/data/pastinhaLinda', true,  function(err, res){
                 should.not.exist(err);
                 fs.writeFile(file, res.body, 'binary', function(err) {
                     File['File'].unzip(file, function (err, file) {
@@ -194,7 +214,7 @@ describe('project/' + publicProject.handle + '?bagit', function () {
 
     it("[JSON] should not do bagit of nonexisting folder", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.bagit(agent, publicProject.handle, '/data/nonexistentfolder/', function(err, res){
+            projectUtils.bagit(agent, publicProject.handle, '/data/nonexistentfolder/', false, function(err, res){
                 should.not.exist(err);
                 fs.writeFile(file, res.body, 'binary', function(err) {
                     File['File'].unzip(file, function (err, file) {
@@ -209,8 +229,6 @@ describe('project/' + publicProject.handle + '?bagit', function () {
 });
 
 
-
-
 describe('project/' + privateProject.handle + '?bagit', function () {
 
     it("[HTML] should not perform bagit in project root not logged in", function (done) {
@@ -218,13 +236,11 @@ describe('project/' + privateProject.handle + '?bagit', function () {
         var agent = chai.request.agent(app);
         var file = path.join(Config.absPathInApp('test/temp'), 'testingBagitPrivateProject.zip');
 
-        projectUtils.bagit(agent, privateProject.handle, '', function(err, res){
+        projectUtils.bagit(agent, privateProject.handle, '', false, function(err, res){
             should.not.exist(err);
             fs.writeFile(file, res.body, function(err) {
                 File['File'].unzip(file, function (err, file) {
                     should.exist(err);
-                    var filelist = walkSync(file);
-                    filelist.should.be.empty();
                     done();
                 });
             });
@@ -240,20 +256,17 @@ describe('project/' + privateProject.handle + '?bagit', function () {
                     fs.unlink(file, function(err){
                     });
                 }
-                projectUtils.bagit(agent, privateProject.handle, '', function(err, res){
+                projectUtils.bagit(agent, privateProject.handle, '', false, function(err, res){
                     should.not.exist(err);
-                    done(1);
+                    res.text.should.contain("Permission denied : cannot produce a bagit of this project.");
+                    done(0);
                 });
             });
         });
     });
 
     it("[HTML] should do bag it while being contributor", function (done) {
-        done(1);
-    });
-
-    it("[HTML] should do bag it while creator", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+        userUtils.loginUser(demouser2.username, demouser2.password, true, function (err, agent) {
             var file = path.join(Config.absPathInApp('test/temp'), 'testingBagitPrivateProject.zip');
             fs.stat(file, function(err, stats){
                 if(!err){
@@ -268,12 +281,36 @@ describe('project/' + privateProject.handle + '?bagit', function () {
                             var filelist = walkSync(file);
                             filelist.should.include('data/privateprojectcreatedbydemouser1/metadata.json');
                             filelist.should.include('data/privateprojectcreatedbydemouser1/pastinhaLinda');
-                            filelist.should.include('data/privateprojectcreatedbydemouser1/pastinhaLinda1');
-                            filelist.should.include('data/privateprojectcreatedbydemouser1/pastinhaLinda2');
+                            filelist.should.include('data/privateprojectcreatedbydemouser1/pastinhaLindademouser2');
                             filelist.should.include('manifest-sha256.txt');
                             filelist.should.include('bagit.txt');
-                            filelist.should.include('tagmanifest-sha256.txt');
-                            filelist.should.include('bag-info.txt');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
+    });
+
+    it("[HTML] should do bag it while creator", function (done) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+            var file = path.join(Config.absPathInApp('test/temp'), 'testingBagitPrivateProject.zip');
+            fs.stat(file, function(err, stats){
+                if(!err){
+                    fs.unlink(file, function(err){
+                    });
+                }
+                projectUtils.bagit(agent, privateProject.handle, '', true, function(err, res){
+                    should.not.exist(err);
+                    fs.writeFile(file, res.body, 'binary', function(err){
+                        File['File'].unzip(file, function(err, file){
+                            should.not.exist(err);
+                            var filelist = walkSync(file);
+                            filelist.should.include('data/privateprojectcreatedbydemouser1/metadata.json');
+                            filelist.should.include('data/privateprojectcreatedbydemouser1/pastinhaLinda');
+                            filelist.should.include('data/privateprojectcreatedbydemouser1/pastinhaLindademouser2');
+                            filelist.should.include('manifest-sha256.txt');
+                            filelist.should.include('bagit.txt');
                             done();
                         });
                     });
@@ -284,7 +321,7 @@ describe('project/' + privateProject.handle + '?bagit', function () {
 
     it("[JSON] should not do bagit of non-existing project", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.bagit(agent, 'nonexistinghandle', '', function(err, res){
+            projectUtils.bagit(agent, 'nonexistinghandle', '', false, function(err, res){
                 res.should.have.status(404);
                 should.exist(err);
                 err.message.should.equal('Not Found');
@@ -298,7 +335,7 @@ describe('project/' + privateProject.handle + '?bagit', function () {
     it("[JSON] should not do bagit of folder while not logged in", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
-        projectUtils.bagit(agent, privateProject.handle, '/data/pastinhaLinda', function(err, res){
+        projectUtils.bagit(agent, privateProject.handle, '/data/pastinhaLinda', false, function(err, res){
             should.not.exist(err);
             fs.writeFile(file, res.body, 'binary', function(err) {
                 File['File'].unzip(file, function (err, file) {
@@ -312,7 +349,7 @@ describe('project/' + privateProject.handle + '?bagit', function () {
 
     it("[JSON] should not do bagit of folder while not contributor nor creator", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.bagit(agent, privateProject.handle, '/data/pastinhaLinda', function(err, res){
+            projectUtils.bagit(agent, privateProject.handle, '/data/pastinhaLinda', false, function(err, res){
                 done(1);
             });
         });
@@ -320,7 +357,7 @@ describe('project/' + privateProject.handle + '?bagit', function () {
 
     it("[JSON] should not do bagit of nonexisting folder", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.bagit(agent, privateProject.handle, '/data/nonexistentfolder/', function(err, res){
+            projectUtils.bagit(agent, privateProject.handle, '/data/nonexistentfolder/', false, function(err, res){
                 should.not.exist(err);
                 fs.writeFile(file, res.body, 'binary', function(err) {
                     File['File'].unzip(file, function (err, file) {
@@ -347,20 +384,17 @@ describe('project/' + metadataOnlyProject.handle + '?bagit', function () {
                 fs.unlink(file, function(err){
                 });
             }
-            projectUtils.bagit(agent, metadataOnlyProject.handle, '', function(err, res){
+            projectUtils.bagit(agent, metadataOnlyProject.handle, '', true, function(err, res){
                 should.not.exist(err);
                 fs.writeFile(file, res.body, 'binary', function(err){
                     File['File'].unzip(file, function(err, file){
                         should.not.exist(err);
                         var filelist = walkSync(file);
-                        filelist.should.include('data/publicprojectcreatedbydemouser1/metadata.json');
-                        filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda');
-                        filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda1');
-                        filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda2');
+                        filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/metadata.json');
+                        filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/pastinhaLinda');
+                        filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/pastinhaLindademouser2');
                         filelist.should.include('manifest-sha256.txt');
                         filelist.should.include('bagit.txt');
-                        filelist.should.include('tagmanifest-sha256.txt');
-                        filelist.should.include('bag-info.txt');
                         done();
                     });
                 });
@@ -370,7 +404,7 @@ describe('project/' + metadataOnlyProject.handle + '?bagit', function () {
 
 
     it("[HTML] should do bag it without being contributor", function (done) {
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+        userUtils.loginUser(demouser2.username, demouser2.password, true, function (err, agent) {
             var file = path.join(Config.absPathInApp('test/temp'), 'testingBagitMetadataOnlyProject.zip');
             fs.stat(file, function(err, stats){
                 if(!err){
@@ -379,18 +413,15 @@ describe('project/' + metadataOnlyProject.handle + '?bagit', function () {
                 }
                 projectUtils.bagit(agent, metadataOnlyProject.handle, '', function(err, res){
                     should.not.exist(err);
-                    fs.writeFile(file, res.body, 'binary', function(err){
+                    fs.writeFile(file, res.body, 'binary', true, function(err){
                         File['File'].unzip(file, function(err, file){
                             should.not.exist(err);
                             var filelist = walkSync(file);
                             filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/metadata.json');
                             filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/pastinhaLinda');
-                            filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/pastinhaLinda1');
-                            filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/pastinhaLinda2');
+                            filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/pastinhaLindademouser2');
                             filelist.should.include('manifest-sha256.txt');
                             filelist.should.include('bagit.txt');
-                            filelist.should.include('tagmanifest-sha256.txt');
-                            filelist.should.include('bag-info.txt');
                             done();
                         });
                     });
@@ -400,7 +431,30 @@ describe('project/' + metadataOnlyProject.handle + '?bagit', function () {
     });
 
     it("[HTML] should do bag it while being contributor", function (done) {
-        done(1);
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            var file = path.join(Config.absPathInApp('test/temp'), 'testingBagitMetadataOnlyProject.zip');
+            fs.stat(file, function(err, stats){
+                if(!err){
+                    fs.unlink(file, function(err){
+                    });
+                }
+                projectUtils.bagit(agent, metadataOnlyProject.handle, '', true, function(err, res){
+                    should.not.exist(err);
+                    fs.writeFile(file, res.body, 'binary', function(err){
+                        File['File'].unzip(file, function(err, file){
+                            should.not.exist(err);
+                            var filelist = walkSync(file);
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/metadata.json');
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLinda');
+                            filelist.should.include('data/publicprojectcreatedbydemouser1/pastinhaLindademouser2');
+                            filelist.should.include('manifest-sha256.txt');
+                            filelist.should.include('bagit.txt');
+                            done();
+                        });
+                    });
+                });
+            });
+        });
     });
 
     it("[HTML] should do bag it while creator", function (done) {
@@ -411,7 +465,7 @@ describe('project/' + metadataOnlyProject.handle + '?bagit', function () {
                     fs.unlink(file, function(err){
                     });
                 }
-                projectUtils.bagit(agent, metadataOnlyProject.handle, '', function(err, res){
+                projectUtils.bagit(agent, metadataOnlyProject.handle, '', true, function(err, res){
                     should.not.exist(err);
                     fs.writeFile(file, res.body, 'binary', function(err){
                         File['File'].unzip(file, function(err, file){
@@ -419,12 +473,9 @@ describe('project/' + metadataOnlyProject.handle + '?bagit', function () {
                             var filelist = walkSync(file);
                             filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/metadata.json');
                             filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/pastinhaLinda');
-                            filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/pastinhaLinda1');
-                            filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/pastinhaLinda2');
+                            filelist.should.include('data/metadataonlyprojectcreatedbydemouser1/pastinhaLindademouser2');
                             filelist.should.include('manifest-sha256.txt');
                             filelist.should.include('bagit.txt');
-                            filelist.should.include('tagmanifest-sha256.txt');
-                            filelist.should.include('bag-info.txt');
                             done();
                         });
                     });
@@ -435,7 +486,7 @@ describe('project/' + metadataOnlyProject.handle + '?bagit', function () {
 
     it("[JSON] should not do bagit of non-existing project", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.bagit(agent, 'nonexistinghandle', '', function(err, res){
+            projectUtils.bagit(agent, 'nonexistinghandle', '', false, function(err, res){
                 res.should.have.status(404);
                 should.exist(err);
                 err.message.should.equal('Not Found');
@@ -449,7 +500,7 @@ describe('project/' + metadataOnlyProject.handle + '?bagit', function () {
     it("[JSON] should do bagit of folder while not logged in", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
-        projectUtils.bagit(agent, metadataOnlyProject.handle, '/data/pastinhaLinda', function(err, res){
+        projectUtils.bagit(agent, metadataOnlyProject.handle, '/data/pastinhaLinda', true, function(err, res){
             should.not.exist(err);
             fs.writeFile(file, res.body, 'binary', function(err) {
                 File['File'].unzip(file, function (err, file) {
@@ -463,7 +514,7 @@ describe('project/' + metadataOnlyProject.handle + '?bagit', function () {
 
     it("[JSON] should do bagit of folder while logged in", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.bagit(agent, metadataOnlyProject.handle, '/data/pastinhaLinda', function(err, res){
+            projectUtils.bagit(agent, metadataOnlyProject.handle, '/data/pastinhaLinda', true, function(err, res){
                 should.not.exist(err);
                 fs.writeFile(file, res.body, 'binary', function(err) {
                     File['File'].unzip(file, function (err, file) {
@@ -478,7 +529,7 @@ describe('project/' + metadataOnlyProject.handle + '?bagit', function () {
 
     it("[JSON] should not do bagit of nonexisting folder", function (done) {
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            projectUtils.bagit(agent, metadataOnlyProject.handle, '/data/nonexistentfolder/', function(err, res){
+            projectUtils.bagit(agent, metadataOnlyProject.handle, '/data/nonexistentfolder/', false, function(err, res){
                 should.not.exist(err);
                 fs.writeFile(file, res.body, 'binary', function(err) {
                     File['File'].unzip(file, function (err, file) {

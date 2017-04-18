@@ -514,21 +514,22 @@ function binaryParser(res, callback) {
     });
 }
 
-var bagit = function(agent, projectHandle, filepath, cb){
-    agent
-        .get('/project/' + projectHandle + filepath + '?bagit')
-        .buffer()
-        .parse(binaryParser)
-        .end(function (err, res) {
+var bagit = function(agent, projectHandle, filepath, binary, cb) {
+    if(binary) {
+        agent
+            .get('/project/' + projectHandle + filepath + '?bagit')
+            .buffer()
+            .parse(binaryParser)
+            .end(function (err, res) {
                 cb(err, res);
-=======
-var bagit = function(agent, projectHandle, filepath, cb){
-    agent
-        .get('/project/' + projectHandle + filepath + '?bagit')
-        .end(function (err, res) {
-            cb(err, res);
->>>>>>> master
-        });
+            });
+    } else{
+        agent
+            .get('/project/' + projectHandle + filepath + '?bagit')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
 };
 
 var download = function (agent, projectHandle, filepath, cb) {
@@ -547,7 +548,6 @@ var serve = function(agent, projectHandle, filepath, cb){
         });
 };
 
-<<<<<<< HEAD
 var serve_base64 = function(agent, projectHandle, filepath, cb){
     agent
         .get('/project/' + projectHandle + filepath + '?serve_base64')
@@ -555,9 +555,7 @@ var serve_base64 = function(agent, projectHandle, filepath, cb){
             cb(err, res);
         });
 };
-=======
 
->>>>>>> master
 
 var thumbnail = function(agent, filepath, projectHandle, cb){
     agent
@@ -567,7 +565,6 @@ var thumbnail = function(agent, filepath, projectHandle, cb){
         })
 };
 
-<<<<<<< HEAD
 var upload = function(agent, modify, filepath, projectHandle, query,  cb){
     if(modify){
         agent
@@ -584,8 +581,7 @@ var upload = function(agent, modify, filepath, projectHandle, query,  cb){
     }
 };
 
-=======
->>>>>>> master
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -598,8 +594,7 @@ module.exports = {
     getProjectRootContent : getProjectRootContent,
     getResourceMetadata : getResourceMetadata,
     removeDescriptorFromFolder : removeDescriptorFromFolder,
-<<<<<<< HEAD
-=======
+
     getProjectRecentChanges : getProjectRecentChanges,
     getProjectVersion : getProjectVersion,
     importProjectHTMLPage: importProjectHTMLPage,
@@ -609,17 +604,13 @@ module.exports = {
     deleteProject: deleteProject,
     undeleteProject: undeleteProject,
     createFolderInProjectRoot: createFolderInProjectRoot,
->>>>>>> master
     administer : administer,
     backup : backup,
     bagit : bagit,
     download : download,
     serve : serve,
-<<<<<<< HEAD
     serve_base64 : serve_base64,
     thumbnail : thumbnail,
     upload : upload
-=======
-    thumbnail : thumbnail
->>>>>>> master
+
 };

@@ -62,12 +62,12 @@ describe('project/' + publicProject.handle + '?download', function () {
     });
 
     it("[HTML] should not download single file within project", function (done) {
-        done();
+        done(1);
 
     });
 
     it("[HTML] should download file inside folder in project", function (done) {
-        done();
+        done(1);
 
     });
 

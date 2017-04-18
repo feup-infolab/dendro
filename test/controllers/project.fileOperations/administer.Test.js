@@ -21,6 +21,10 @@ var userUtils = require('./../../utils/user/userUtils.js');
 var demouser1 = require("../../mockdata/users/demouser1");
 var demouser2 = require("../../mockdata/users/demouser2");
 var demouser3 = require("../../mockdata/users/demouser3");
+var demouser4 = require("../../mockdata/users/demouser4");
+var demouser5 = require("../../mockdata/users/demouser5");
+
+
 
 describe('/project/' + publicProject.handle + '?administer', function () {
 
@@ -140,17 +144,21 @@ describe('/project/' + publicProject.handle + '?administer', function () {
 
     it("[HTML] add contributors", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            var user3data;
-            User.findByUsername(demouser3.username, function(err, user){
-                user3data = user;
-                projectUtils.administer(agent, true, {contributors: [demouser2.username, user3data.uri ]}, publicProject.handle, function(err, res){
-                    Project.findByHandle(publicProject.handle, function(err, project){
-                        project.dcterms.contributor[0].should.contain(demouser2.username);
-                        project.dcterms.contributor[1].should.equal(user3data.uri);
-                        done();
-
+            User.findByUsername(demouser4.username, function(err, user){
+                var user4data = user;
+                Project.findByHandle(publicProject.handle, function(err, project){
+                    var contributor = project.dcterms.contributor;
+                    projectUtils.administer(agent, true, {contributors: [contributor, demouser5.username, user4data.uri ]}, publicProject.handle, function(err, res){
+                        Project.findByHandle(publicProject.handle, function(err, project){
+                            var contributors = project.dcterms.contributor;
+                            contributors.length.should.equal(3);
+                            if(contributors[2].includes(demouser5.username))
+                                contributors[2].should.contain(demouser5.username);
+                            else contributors[1].should.contain(demouser5.username);
+                            contributors.should.include(user4data.uri);
+                            done();
+                        });
                     });
-
                 });
             });
 
@@ -160,25 +168,15 @@ describe('/project/' + publicProject.handle + '?administer', function () {
 
     it("[HTML] remove contributors", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            var user3data;
-            User.findByUsername(demouser3.username, function(err, user){
-                user3data = user;
-                projectUtils.administer(agent, true, {contributors: [demouser2.username, user3data.uri ]}, publicProject.handle, function(err, res){
-                    Project.findByHandle(publicProject.handle, function(err, project){
-                        project.dcterms.contributor[0].should.contain(demouser2.username);
-                        project.dcterms.contributor[1].should.equal(user3data.uri);
+            Project.findByHandle(publicProject.handle, function(err, project){
+                project.dcterms.contributor.length.should.equal(3);
+                projectUtils.administer(agent, true, {contributors: [demouser2.username]}, publicProject.handle, function(err, res) {
+                    Project.findByHandle(publicProject.handle, function(err, project) {
+                        project.dcterms.contributor.should.contain(demouser2.username);
                         done();
-                        projectUtils.administer(agent, true, {contributors: []}, publicProject.handle, function(err, res) {
-                            Project.findByHandle(publicProject.handle, function(err, project) {
-                                should.not.exist(project.dcterms.contributor);
-                                done();
-                            });
-                        });
                     });
-
                 });
             });
-
         });
     });
 });
@@ -315,17 +313,21 @@ describe('/project/' + privateProject.handle + '?administer', function () {
 
     it("[HTML] add contributors", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            var user3data;
-            User.findByUsername(demouser3.username, function (err, user) {
-                user3data = user;
-                projectUtils.administer(agent, true, {contributors: [demouser2.username, user3data.uri]}, privateProject.handle, function (err, res) {
-                    Project.findByHandle(privateProject.handle, function (err, project) {
-                        project.dcterms.contributor[0].should.contain(demouser2.username);
-                        project.dcterms.contributor[1].should.equal(user3data.uri);
-                        done();
-
+            User.findByUsername(demouser4.username, function(err, user){
+                var user4data = user;
+                Project.findByHandle(privateProject.handle, function(err, project){
+                    var contributor = project.dcterms.contributor;
+                    projectUtils.administer(agent, true, {contributors: [contributor, demouser5.username, user4data.uri ]}, privateProject.handle, function(err, res){
+                        Project.findByHandle(privateProject.handle, function(err, project){
+                            var contributors = project.dcterms.contributor;
+                            contributors.length.should.equal(3);
+                            if(contributors[2].includes(demouser5.username))
+                                contributors[2].should.contain(demouser5.username);
+                            else contributors[1].should.contain(demouser5.username);
+                            contributors.should.include(user4data.uri);
+                            done();
+                        });
                     });
-
                 });
             });
 
@@ -335,25 +337,15 @@ describe('/project/' + privateProject.handle + '?administer', function () {
 
     it("[HTML] remove contributors", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            var user3data;
-            User.findByUsername(demouser3.username, function (err, user) {
-                user3data = user;
-                projectUtils.administer(agent, true, {contributors: [demouser2.username, user3data.uri]}, privateProject.handle, function (err, res) {
-                    Project.findByHandle(privateProject.handle, function (err, project) {
-                        project.dcterms.contributor[0].should.contain(demouser2.username);
-                        project.dcterms.contributor[1].should.equal(user3data.uri);
+            Project.findByHandle(privateProject.handle, function(err, project){
+                project.dcterms.contributor.length.should.equal(3);
+                projectUtils.administer(agent, true, {contributors: [demouser2.username]}, privateProject.handle, function(err, res) {
+                    Project.findByHandle(privateProject.handle, function(err, project) {
+                        project.dcterms.contributor.should.contain(demouser2.username);
                         done();
-                        projectUtils.administer(agent, true, {contributors: []}, privateProject.handle, function (err, res) {
-                            Project.findByHandle(privateProject.handle, function (err, project) {
-                                should.not.exist(project.dcterms.contributor);
-                                done();
-                            });
-                        });
                     });
-
                 });
             });
-
         });
     });
 });
@@ -481,47 +473,40 @@ describe('/project/' + metadataOnlyProject.handle + '?administer', function () {
 
     });
 
-    it("[HTML] should add contributors", function (done) {
+    it("[HTML] add contributors", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            var user3data;
-            User.findByUsername(demouser3.username, function (err, user) {
-                user3data = user;
-                projectUtils.administer(agent, true, {contributors: [demouser2.username, user3data.uri]}, metadataOnlyProject.handle, function (err, res) {
-                    Project.findByHandle(metadataOnlyProject.handle, function (err, project) {
-                        project.dcterms.contributor[0].should.contain(demouser2.username);
-                        project.dcterms.contributor[1].should.equal(user3data.uri);
-                        done();
-
+            User.findByUsername(demouser4.username, function(err, user){
+                var user4data = user;
+                Project.findByHandle(metadataOnlyProject.handle, function(err, project){
+                    var contributor = project.dcterms.contributor;
+                    projectUtils.administer(agent, true, {contributors: [contributor, demouser5.username, user4data.uri ]}, metadataOnlyProject.handle, function(err, res){
+                        Project.findByHandle(metadataOnlyProject.handle, function(err, project){
+                            var contributors = project.dcterms.contributor;
+                            contributors.length.should.equal(3);
+                            if(contributors[2].includes(demouser5.username))
+                                contributors[2].should.contain(demouser5.username);
+                            else contributors[1].should.contain(demouser5.username);
+                            contributors.should.include(user4data.uri);
+                            done();
+                        });
                     });
-
                 });
             });
 
         });
     });
 
-
-    it("[HTML] should remove contributors", function (done) {
+    it("[HTML] remove contributors", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            var user3data;
-            User.findByUsername(demouser3.username, function (err, user) {
-                user3data = user;
-                projectUtils.administer(agent, true, {contributors: [demouser2.username, user3data.uri]}, metadataOnlyProject.handle, function (err, res) {
-                    Project.findByHandle(metadataOnlyProject.handle, function (err, project) {
-                        project.dcterms.contributor[0].should.contain(demouser2.username);
-                        project.dcterms.contributor[1].should.equal(user3data.uri);
+            Project.findByHandle(metadataOnlyProject.handle, function(err, project){
+                project.dcterms.contributor.length.should.equal(3);
+                projectUtils.administer(agent, true, {contributors: [demouser2.username]}, metadataOnlyProject.handle, function(err, res) {
+                    Project.findByHandle(metadataOnlyProject.handle, function(err, project) {
+                        project.dcterms.contributor.should.contain(demouser2.username);
                         done();
-                        projectUtils.administer(agent, true, {contributors: []}, metadataOnlyProject.handle, function (err, res) {
-                            Project.findByHandle(metadataOnlyProject.handle, function (err, project) {
-                                should.not.exist(project.dcterms.contributor);
-                                done();
-                            });
-                        });
                     });
-
                 });
             });
-
         });
     });
 });

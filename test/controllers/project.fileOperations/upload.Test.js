@@ -16,10 +16,9 @@ const publicProject = require("../../mockdata/projects/public_project.js");
 const metadataOnlyProject = require("../../mockdata/projects/metadata_only_project.js");
 const privateProject= require("../../mockdata/projects/private_project.js");
 
-var projectUtils = require('./../../utils/project/projectUtils.js');
-var userUtils = require('./../../utils/user/userUtils.js');
-const pdfMockFile= require("../mockdata/folders/folder.js");
-const pngMockFile= require("../mockdata/files/test_uploads/infolab.png");
+var projectUtils = require('../../utils/project/projectUtils.js');
+var userUtils = require('../../utils/user/userUtils.js');
+const pdfMockFile= require("../../mockdata/folders/folder.js");
 
 
 var demouser1 = require("../../mockdata/users/demouser1");
@@ -31,7 +30,7 @@ describe('project/' + publicProject.handle + '?upload', function () {
     it("[HTML] should not upload file in root without logging in POST", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
-        projectUtils.upload(agent, true, '', publicProject.handle, function (err, res) {
+        projectUtils.upload(agent, true, '', publicProject.handle, "", function (err, res) {
             res.should.have.status(404);
             should.exist(err);
             err.message.should.equal('Not Found');
@@ -41,7 +40,7 @@ describe('project/' + publicProject.handle + '?upload', function () {
 
     it("[HTML] should not upload file in root without being creator nor contributor POST", function (done) {
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            projectUtils.upload(agent, true, '', publicProject.handle, function (err, res) {
+            projectUtils.upload(agent, true, '', publicProject.handle, "", function (err, res) {
                 res.should.have.status(404);
                 should.exist(err);
                 err.message.should.equal('Not Found');
@@ -52,7 +51,7 @@ describe('project/' + publicProject.handle + '?upload', function () {
 
     it("[HTML] should not upload file in root as creator POST", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            projectUtils.upload(agent, true, '', publicProject.handle, function (err, res) {
+            projectUtils.upload(agent, true, '', publicProject.handle, "", function (err, res) {
                 res.should.have.status(404);
                 should.exist(err);
                 err.message.should.equal('Not Found');
@@ -64,7 +63,7 @@ describe('project/' + publicProject.handle + '?upload', function () {
     it("[HTML] should not upload file in folder without logging in POST", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
-        projectUtils.upload(agent, true, '/data/pastinhaLinda', publicProject.handle, function (err, res) {
+        projectUtils.upload(agent, true, '/data/pastinhaLinda', publicProject.handle, "", function (err, res) {
             res.should.have.status(200);
             should.not.exist(err);
             res.text.should.contain('Permission denied : cannot upload resource because you do not have permissions to edit this project.');
