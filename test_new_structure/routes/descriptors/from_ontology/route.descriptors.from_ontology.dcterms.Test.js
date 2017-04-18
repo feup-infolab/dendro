@@ -203,7 +203,6 @@ describe("[GET] /descriptors/from_ontology/dcterms", function () {
 
     it("[JSON] It should not get descriptors from dcterms ontology when logged in as demouser3 (not collaborator or creator of the Private project "+privateProject.handle +")", function (done) {
         let ontologyPrefix = "dcterms";
-        console.log(demouser3);
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
                 res.should.have.status(401);

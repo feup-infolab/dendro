@@ -67,6 +67,55 @@ module.exports.setup = function(finish)
             });
         });
 
+        //PROJECTS FOR HTML TESTS
+        it('should add demouser2 as contributor of the public project for HTML tests', function (done) {
+            const projectData = require(Config.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                should.not.exist(err);
+                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    projectUtils.getProjectContributors(agent, projectData.handle, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        res.body.contributors[0].ddr.username.should.equal(demouser2.username);
+                        res.body.contributors.length.should.equal(1);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('should add demouser2 as contributor of the private project for HTML tests', function (done) {
+            const projectData = require(Config.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                should.not.exist(err);
+                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    projectUtils.getProjectContributors(agent, projectData.handle, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        res.body.contributors[0].ddr.username.should.equal(demouser2.username);
+                        res.body.contributors.length.should.equal(1);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it('should add demouser2 as contributor of the metadata-only project for HTML tests', function (done) {
+            const projectData = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                should.not.exist(err);
+                userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    projectUtils.getProjectContributors(agent, projectData.handle, function (err, res) {
+                        res.statusCode.should.equal(200);
+                        res.body.contributors[0].ddr.username.should.equal(demouser2.username);
+                        res.body.contributors.length.should.equal(1);
+                        done();
+                    });
+                });
+            });
+        });
+
         after(function(done){
             done();
             finish();

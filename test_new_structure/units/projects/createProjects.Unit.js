@@ -17,18 +17,7 @@ require(Config.absPathInTestsFolder("units/bootup.Unit.js")).setup();
 
 module.exports.setup = function(finish)
 {
-
-    /*
-    before(function(){
-        require(Config.absPathInTestsFolder("units/bootup.Unit.js"));
-    });*/
-
     describe("[UNIT] create all projects", function () {
-
-        /*
-        before(function(done){
-            require(Config.absPathInTestsFolder("units/bootup.Unit.js")).setup(done);
-        });*/
 
         it('demouser1 should create the public project', function (done) {
             userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
@@ -41,12 +30,6 @@ module.exports.setup = function(finish)
 
                     res.should.have.status(200);
                     done();
-
-                    /*userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
-                        res.statusCode.should.equal(200);
-                        done();
-                    });
-                    */
                 });
             });
         });
@@ -74,6 +57,48 @@ module.exports.setup = function(finish)
                 });
             });
         });
+
+        //PROJECTS FOR HTML TESTS
+
+        it('demouser1 should create the public project for HTML tests', function (done) {
+            userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
+                const projectData = require(Config.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
+                projectUtils.createNewProject(true, agent, projectData, function (err, res) {
+
+                    //ignore redirection, make new request
+                    if (err)
+                        return done(err);
+
+                    res.should.have.status(200);
+                    done();
+                });
+            });
+        });
+
+        it('demouser1 should create the private project for HTML tests', function (done) {
+            userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
+                const projectData = require(Config.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
+                projectUtils.createNewProject(true, agent, projectData, function (err, res) {
+                    //ignore redirection, make new request
+                    if (err) return done(err);
+                    res.should.have.status(200);
+                    done();
+                });
+            });
+        });
+
+        it('demouser1 should create the metadata-only project for HTML tests', function (done) {
+            userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
+                const projectData = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
+                projectUtils.createNewProject(true, agent, projectData, function (err, res) {
+                    //ignore redirection, make new request
+                    if (err) return done(err);
+                    res.should.have.status(200);
+                    done();
+                });
+            });
+        });
+
         
         after(function(done){
             done();
