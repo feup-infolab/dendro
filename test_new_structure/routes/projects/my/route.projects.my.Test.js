@@ -161,12 +161,12 @@ describe("My Projects", function (done) {
                 });
             });
         });
+    });
 
-        after(function (done) {
-            //destroy graphs
-            db.deleteGraphs(function (err, data) {
-                done();
-            });
+    after(function (done) {
+        //destroy graphs
+        db.deleteGraphs(function (err, data) {
+            done();
         });
     });
 });

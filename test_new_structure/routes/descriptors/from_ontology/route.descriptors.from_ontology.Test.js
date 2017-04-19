@@ -138,12 +138,11 @@ describe("Descriptors from invalid ontology", function (done) {
                 done();
             });
         });
-
-        after(function (done) {
-            //destroy graphs
-            db.deleteGraphs(function (err, data) {
-                done();
-            });
+    });
+    after(function (done) {
+        //destroy graphs
+        db.deleteGraphs(function (err, data) {
+            done();
         });
     });
 });

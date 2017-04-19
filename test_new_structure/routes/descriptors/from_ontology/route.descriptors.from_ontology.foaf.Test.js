@@ -218,12 +218,11 @@ describe("Descriptors from foaf ontology", function (done) {
                 done();
             });
         });
-
-        after(function (done) {
-            //destroy graphs
-            db.deleteGraphs(function (err, data) {
-                done();
-            });
+    });
+    after(function (done) {
+        //destroy graphs
+        db.deleteGraphs(function (err, data) {
+            done();
         });
     });
 });
