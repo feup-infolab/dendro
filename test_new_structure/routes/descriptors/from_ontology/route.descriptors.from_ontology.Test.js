@@ -1,5 +1,6 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
+const should = chai.should();
 var _ = require('underscore');
 chai.use(chaiHttp);
 
@@ -36,6 +37,7 @@ describe("Descriptors from invalid ontology", function (done) {
     this.timeout(20000);
     before(function (done) {
         addContributorsToProjectsUnit.setup(function (err, results) {
+            should.equal(err, null);
             done();
         });
     });
@@ -142,6 +144,7 @@ describe("Descriptors from invalid ontology", function (done) {
     after(function (done) {
         //destroy graphs
         db.deleteGraphs(function (err, data) {
+            should.equal(err, null);
             done();
         });
     });

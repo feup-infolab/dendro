@@ -1,5 +1,6 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
+const should = chai.should();
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -14,6 +15,8 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
+var projectBackupData = require(Config.absPathInTestsFolder("mockdata/projects/projectBackups/publicProject"));
+
 var bootup = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
@@ -23,12 +26,14 @@ function requireUncached(module) {
 }
 
 describe("Import projects tests", function (done) {
+    this.timeout(20000);
     before(function (done) {
         bootup.setup(function (err, results) {
+            should.equal(err, null);
             done();
         });
     });
-
+    
     describe("[GET] /projects/import", function () {
         it("Should get an error when trying to access the html page to import a project when unauthenticated", function (done) {
             var app = GLOBAL.tests.app;
@@ -88,6 +93,7 @@ describe("Import projects tests", function (done) {
     after(function (done) {
         //destroy graphs
         db.deleteGraphs(function (err, data) {
+            should.equal(err, null);
             done();
         });
     });

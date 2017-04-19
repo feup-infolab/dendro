@@ -1,5 +1,6 @@
 var chai = require('chai');
 var chaiHttp = require('chai-http');
+const should = chai.should();
 var _ = require('underscore');
 chai.use(chaiHttp);
 
@@ -36,6 +37,7 @@ describe("New project tests", function (done) {
     this.timeout(20000);
     before(function (done) {
         bootup.setup(function (err, res) {
+            should.equal(err, null);
             done();
         });
     });
@@ -204,6 +206,7 @@ describe("New project tests", function (done) {
     after(function (done) {
         //destroy graphs
         db.deleteGraphs(function (err, data) {
+            should.equal(err, null);
             done();
         });
     });
