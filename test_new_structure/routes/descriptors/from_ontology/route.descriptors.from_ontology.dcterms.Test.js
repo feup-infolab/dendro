@@ -21,209 +21,226 @@ const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/pr
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
-require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
+//require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
 
+var addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("[GET] /descriptors/from_ontology/dcterms", function () {
-    //TODO A use case -> http://127.0.0.1:3001/descriptors/from_ontology/dcterms?project_handle=proj1
-    /**
-     * PUBLIC PROJECT
-     */
-    it("[HTML] It should give a 405 error (method not supported) if the Accept: application/json Header was not sent. User logged in as demouser1(The creator of the Public project "+publicProject.handle +")", function (done) {
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(false, agent, ontologyPrefix, publicProject.handle, function (err, res) {
-                res.should.have.status(405);
-                err.message.should.equal("Method Not Allowed");
-                done();
-            });
-        });
-    });
+function requireUncached(module) {
+    delete require.cache[require.resolve(module)]
+    return require(module)
+}
 
-    it("[JSON] It should give an error when trying to get descriptors from dcterms ontology when logged in as demouser1 and passing an unknown project handle in the query", function (done) {
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, "unknownProjectHandle", function (err, res) {
-                res.should.have.status(500);
-                done();
-            });
-        });
-    });
-
-    it("[JSON] It should give an error when trying to get descriptors from dcterms ontology when logged in as demouser1 and passing null project handle in the query", function (done) {
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, null, function (err, res) {
-                res.should.have.status(500);
-                done();
-            });
-        });
-    });
-
-    it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser1(The creator of the Public project "+publicProject.handle +")", function (done) {
-        //should return all the descriptors from this ontology -> currently 52 elements
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
-                res.should.have.status(200);
-                res.body.descriptors.length.should.equal(52);
-                done();
-            });
-        });
-    });
-
-    it("[JSON] It should get the descriptors from dcterms ontology when logged in as demouser2(a collaborator of the Public project "+publicProject.handle +")", function (done) {
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
-                res.should.have.status(200);
-                res.body.descriptors.length.should.equal(52);
-                done();
-            });
-        });
-    });
-
-    it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser3 (not Collaborator or creator of the Public project "+publicProject.handle +")", function (done) {
-        //because it is a public project
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
-                res.should.have.status(200);
-                res.body.descriptors.length.should.equal(52);
-                done();
-            });
-        });
-    });
-
-    it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and accessing Public project "+publicProject.handle +")", function (done) {
-        let ontologyPrefix = "dcterms";
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
-            res.should.have.status(401);
+describe("Descriptors from dcterms ontology", function (done) {
+    this.timeout(20000);
+    before(function (done) {
+        addContributorsToProjectsUnit.setup(function (err, results) {
             done();
         });
     });
 
-    /**
-     * METADATA_ONLY PROJECT
-     */
-    it("[HTML] It should give a 405 error (method not supported) if the Accept: application/json Header was not sent. User logged in as demouser1 (The creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(false, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
-                res.should.have.status(405);
-                err.message.should.equal("Method Not Allowed");
+    describe("[GET] /descriptors/from_ontology/dcterms", function () {
+        //TODO A use case -> http://127.0.0.1:3001/descriptors/from_ontology/dcterms?project_handle=proj1
+        /**
+         * PUBLIC PROJECT
+         */
+        it("[HTML] It should give a 405 error (method not supported) if the Accept: application/json Header was not sent. User logged in as demouser1(The creator of the Public project "+publicProject.handle +")", function (done) {
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(false, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                    res.should.have.status(405);
+                    err.message.should.equal("Method Not Allowed");
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should give an error when trying to get descriptors from dcterms ontology when logged in as demouser1 and passing an unknown project handle in the query", function (done) {
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, "unknownProjectHandle", function (err, res) {
+                    res.should.have.status(500);
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should give an error when trying to get descriptors from dcterms ontology when logged in as demouser1 and passing null project handle in the query", function (done) {
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, null, function (err, res) {
+                    res.should.have.status(500);
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser1(The creator of the Public project "+publicProject.handle +")", function (done) {
+            //should return all the descriptors from this ontology -> currently 52 elements
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                    res.should.have.status(200);
+                    res.body.descriptors.length.should.equal(52);
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should get the descriptors from dcterms ontology when logged in as demouser2(a collaborator of the Public project "+publicProject.handle +")", function (done) {
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                    res.should.have.status(200);
+                    res.body.descriptors.length.should.equal(52);
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser3 (not Collaborator or creator of the Public project "+publicProject.handle +")", function (done) {
+            //because it is a public project
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                    res.should.have.status(200);
+                    res.body.descriptors.length.should.equal(52);
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and accessing Public project "+publicProject.handle +")", function (done) {
+            let ontologyPrefix = "dcterms";
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
+            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                res.should.have.status(401);
                 done();
             });
         });
-    });
 
-    it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser1 (The creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        //should return all the descriptors from this ontology -> currently 52 elements
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+        /**
+         * METADATA_ONLY PROJECT
+         */
+        it("[HTML] It should give a 405 error (method not supported) if the Accept: application/json Header was not sent. User logged in as demouser1 (The creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(false, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                    res.should.have.status(405);
+                    err.message.should.equal("Method Not Allowed");
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser1 (The creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
+            //should return all the descriptors from this ontology -> currently 52 elements
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                    res.should.have.status(200);
+                    res.body.descriptors.length.should.equal(52);
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser2 (collaborator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                    res.should.have.status(200);
+                    res.body.descriptors.length.should.equal(52);
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser3 (not collaborator or creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
+            //because it is a metadata-only project
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                    res.should.have.status(200);
+                    res.body.descriptors.length.should.equal(52);
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and inside of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
+            let ontologyPrefix = "dcterms";
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
-                res.should.have.status(200);
-                res.body.descriptors.length.should.equal(52);
+                res.should.have.status(401);
                 done();
             });
         });
-    });
 
-    it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser2 (collaborator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
-                res.should.have.status(200);
-                res.body.descriptors.length.should.equal(52);
-                done();
+        /**
+         * PRIVATE PROJECT
+         */
+        it("[HTML] It should give a 405 error (method not supported) if the Accept: application/json Header was not sent. User logged in as demouser1 (The creator of the Private project "+privateProject.handle +")", function (done) {
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(false, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                    res.should.have.status(405);
+                    err.message.should.equal("Method Not Allowed");
+                    done();
+                });
             });
         });
-    });
 
-    it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser3 (not collaborator or creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        //because it is a metadata-only project
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
-                res.should.have.status(200);
-                res.body.descriptors.length.should.equal(52);
-                done();
+        it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser1 (The creator of the Private project "+privateProject.handle +")", function (done) {
+            //should return all the descriptors from this ontology -> currently 52 elements
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                    res.should.have.status(200);
+                    res.body.descriptors.length.should.equal(52);
+                    done();
+                });
             });
         });
-    });
 
-    it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and inside of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        let ontologyPrefix = "dcterms";
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
-            res.should.have.status(401);
-            done();
-        });
-    });
-
-    /**
-     * PRIVATE PROJECT
-     */
-    it("[HTML] It should give a 405 error (method not supported) if the Accept: application/json Header was not sent. User logged in as demouser1 (The creator of the Private project "+privateProject.handle +")", function (done) {
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(false, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-                res.should.have.status(405);
-                err.message.should.equal("Method Not Allowed");
-                done();
+        it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser2 (a collaborator of the Private project "+privateProject.handle +")", function (done) {
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                    res.should.have.status(200);
+                    res.body.descriptors.length.should.equal(52);
+                    done();
+                });
             });
         });
-    });
 
-    it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser1 (The creator of the Private project "+privateProject.handle +")", function (done) {
-        //should return all the descriptors from this ontology -> currently 52 elements
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-                res.should.have.status(200);
-                res.body.descriptors.length.should.equal(52);
-                done();
+        it("[JSON] It should not get descriptors from dcterms ontology when logged in as demouser3 (not collaborator or creator of the Private project "+privateProject.handle +")", function (done) {
+            let ontologyPrefix = "dcterms";
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                    res.should.have.status(401);
+                    done();
+                });
             });
         });
-    });
 
-    it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser2 (a collaborator of the Private project "+privateProject.handle +")", function (done) {
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-                res.should.have.status(200);
-                res.body.descriptors.length.should.equal(52);
-                done();
-            });
-        });
-    });
-
-    it("[JSON] It should not get descriptors from dcterms ontology when logged in as demouser3 (not collaborator or creator of the Private project "+privateProject.handle +")", function (done) {
-        let ontologyPrefix = "dcterms";
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+        it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and inside of the Private project "+privateProject.handle +")", function (done) {
+            let ontologyPrefix = "dcterms";
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
                 res.should.have.status(401);
                 done();
             });
         });
-    });
 
-    it("[JSON] It should not get descriptors from dcterms ontology (when unauthenticated and inside of the Private project "+privateProject.handle +")", function (done) {
-        let ontologyPrefix = "dcterms";
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-            res.should.have.status(401);
-            done();
+        after(function (done) {
+            //destroy graphs
+            db.deleteGraphs(function (err, data) {
+                done();
+            });
         });
-    });
-
-    after(function (done) {
-        //destroy graphs
-        require(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-        done();
     });
 });

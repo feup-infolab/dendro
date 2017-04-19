@@ -33,7 +33,7 @@ function requireUncached(module) {
 }
 
 describe("New project tests", function (done) {
-    this.timeout(10000);
+    this.timeout(20000);
     before(function (done) {
         bootup.setup(function (err, res) {
             done();

@@ -22,110 +22,128 @@ const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/pr
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
 const ontologyPrefix = "xy";
-require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
 
-describe("[GET] /descriptors/from_ontology/xy", function () {
-    /**
-     * PUBLIC PROJECT
-     */
-    it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1(The creator of the Public project "+publicProject.handle +")", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+//require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
+var addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+
+function requireUncached(module) {
+    delete require.cache[require.resolve(module)]
+    return require(module)
+}
+
+describe("Descriptors from invalid ontology", function (done) {
+    this.timeout(20000);
+    before(function (done) {
+        addContributorsToProjectsUnit.setup(function (err, results) {
+            done();
+        });
+    });
+
+    describe("[GET] /descriptors/from_ontology/xy", function () {
+        /**
+         * PUBLIC PROJECT
+         */
+        it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1(The creator of the Public project "+publicProject.handle +")", function (done) {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                    res.should.have.status(404);
+                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3(Collaborator of Public project "+publicProject.handle +")", function (done) {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
+                    res.should.have.status(404);
+                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    done();
+                });
+            });
+        });
+
+        it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) (when unauthenticated and accessing Public project "+publicProject.handle +")", function (done) {
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
-                res.should.have.status(404);
-                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                res.should.have.status(401);
                 done();
             });
         });
-    });
 
-    it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3(Collaborator of Public project "+publicProject.handle +")", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
-                res.should.have.status(404);
-                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
-                done();
+        /**
+         * METADATA_ONLY PROJECT
+         */
+
+        it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) when logged in as demouser1(The creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                    res.should.have.status(404);
+                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    done();
+                });
             });
         });
-    });
 
-    it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) (when unauthenticated and accessing Public project "+publicProject.handle +")", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
-            res.should.have.status(401);
-            done();
+        it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) when logged in as demouser3(Collaborator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
+                    res.should.have.status(404);
+                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    done();
+                });
+            });
         });
-    });
 
-    /**
-     * METADATA_ONLY PROJECT
-     */
-
-    it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) when logged in as demouser1(The creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+        it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) (when unauthenticated trying to access the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
-                res.should.have.status(404);
-                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                res.should.have.status(401);
                 done();
             });
         });
-    });
 
-    it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) when logged in as demouser3(Collaborator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
-                res.should.have.status(404);
-                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
-                done();
+        /**
+         * PRIVATE PROJECT
+         */
+
+        it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1 (The creator of the Private project "+privateProject.handle +")", function (done) {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                    res.should.have.status(404);
+                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    done();
+                });
             });
         });
-    });
 
-    it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) (when unauthenticated trying to access the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
-            res.should.have.status(401);
-            done();
+        it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3 (Collaborator of the Private project "+privateProject.handle +")", function (done) {
+            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+                descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
+                    res.should.have.status(404);
+                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    done();
+                });
+            });
         });
-    });
 
-    /**
-     * PRIVATE PROJECT
-     */
-
-    it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1 (The creator of the Private project "+privateProject.handle +")", function (done) {
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+        it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) (when unauthenticated trying to access the Private project "+privateProject.handle +")", function (done) {
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-                res.should.have.status(404);
-                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                res.should.have.status(401);
                 done();
             });
         });
-    });
 
-    it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3 (Collaborator of the Private project "+privateProject.handle +")", function (done) {
-        userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-                res.should.have.status(404);
-                res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+        after(function (done) {
+            //destroy graphs
+            db.deleteGraphs(function (err, data) {
                 done();
             });
         });
-    });
-
-    it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) (when unauthenticated trying to access the Private project "+privateProject.handle +")", function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-            res.should.have.status(401);
-            done();
-        });
-    });
-
-    after(function (done) {
-        //destroy graphs
-        require(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-        done();
     });
 });
