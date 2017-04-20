@@ -170,6 +170,7 @@ describe("My Projects", function (done) {
         this.timeout(60000);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
+            GLOBAL.tests.server.close();
             done();
         });
     });

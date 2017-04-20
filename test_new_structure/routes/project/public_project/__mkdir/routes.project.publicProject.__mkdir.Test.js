@@ -113,6 +113,8 @@ describe("Public Project mkdir", function (done) {
         this.timeout(60000);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
+            //console.log(GLOBAL.tests.app);
+            GLOBAL.tests.server.close();
             done();
         });
     });

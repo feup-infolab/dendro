@@ -33,18 +33,32 @@ module.exports.setup = function(finish)
     let bootupUnit = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 
     bootupUnit.setup(function (err, results) {
-        should.equal(err, null);
-        async.map(projectsData, function (projectData, cb) {
-            userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
-                projectUtils.createNewProject(true, agent, projectData, function (err, res) {
-                    res.should.have.status(200);
-                    cb(err, res);
-                });
-            });
-        }, function (err, results) {
-            should.equal(err, null);
+        //should.equal(err, null);
+        if(err)
+        {
             finish(err, results);
-        });
+        }
+        else
+        {
+            async.map(projectsData, function (projectData, cb) {
+                userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
+                    if(err)
+                    {
+                        cb(err, agent);
+                    }
+                    else
+                    {
+                        projectUtils.createNewProject(true, agent, projectData, function (err, res) {
+                            //res.should.have.status(200);
+                            cb(err, res);
+                        });
+                    }
+                });
+            }, function (err, results) {
+                //should.equal(err, null);
+                finish(err, results);
+            });
+        }
     });
 };
 

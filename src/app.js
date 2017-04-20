@@ -1871,13 +1871,15 @@ async.waterfall([
                     }
 
                     console.log('Express server listening on port ' + app.get('port'));
-                    bootupPromise.resolve(app);
+                    var appInfo = {server: server, app: app};
+                    bootupPromise.resolve(appInfo);
                 });
             }
             else
             {
                 console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
-                bootupPromise.resolve(app);
+                var appInfo = {server: server, app: app};
+                bootupPromise.resolve(appInfo);
             }
 
             if(Config.debug.diagnostics.ram_usage_reports)
