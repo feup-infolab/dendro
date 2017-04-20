@@ -15,18 +15,18 @@ var express = require('express'),
     flash = require('connect-flash'),
     http = require('http'),
     path = require('path');
-    fs = require('fs');
-    morgan = require('morgan');
-    favicon = require('serve-favicon');
-    bodyParser = require('body-parser');
-    methodOverride = require('method-override');
-    cookieParser = require('cookie-parser');
-    expressSession = require('express-session');
-    errorHandler = require('express-session');
-    Q = require('q');
-    swaggerUi = require('swagger-ui-express');
-    YAML = require('yamljs');
-    swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
+fs = require('fs');
+morgan = require('morgan');
+favicon = require('serve-favicon');
+bodyParser = require('body-parser');
+methodOverride = require('method-override');
+cookieParser = require('cookie-parser');
+expressSession = require('express-session');
+errorHandler = require('express-session');
+Q = require('q');
+swaggerUi = require('swagger-ui-express');
+YAML = require('yamljs');
+swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
 
 var bootupPromise = Q.defer();
 
@@ -356,11 +356,11 @@ var appendLocalsToUseInViews = function(req, res, next)
         res.locals.session = req.session;
 
         /*if(req.session != null && req.session.user != null)
-        {
-            //append request and session to use directly in views and avoid passing around needless stuff
-            res.locals.user = req.session.user;
-            res.locals.isAdmin = req.session.isAdmin;
-        }*/
+         {
+         //append request and session to use directly in views and avoid passing around needless stuff
+         res.locals.user = req.session.user;
+         res.locals.isAdmin = req.session.isAdmin;
+         }*/
 
         next(null, req, res);
     }
@@ -895,10 +895,10 @@ async.waterfall([
                                         surname : user.surname
                                     },
                                     ddr:
-                                    {
-                                        username : user.username,
-                                        password : user.password
-                                    }
+                                        {
+                                            username : user.username,
+                                            password : user.password
+                                        }
                                 },
                                 function(err, newUser){
                                     if(!err && newUser != null)
@@ -947,85 +947,85 @@ async.waterfall([
             console.log("[INFO] Loading default administrators. Admins (in config.js file) -->" + JSON.stringify(Config.administrators));
 
             async.series([
-                function(callback)
-                {
-                    User.removeAllAdmins(callback);
-                },
-                function(callback)
-                {
-                    var makeAdmin = function(newAdministrator, callback){
+                    function(callback)
+                    {
+                        User.removeAllAdmins(callback);
+                    },
+                    function(callback)
+                    {
+                        var makeAdmin = function(newAdministrator, callback){
 
-                        var username = newAdministrator.username;
-                        var password = newAdministrator.password;
-                        var mbox = newAdministrator.mbox;
-                        var firstname = newAdministrator.firstname;
-                        var surname = newAdministrator.surname;
+                            var username = newAdministrator.username;
+                            var password = newAdministrator.password;
+                            var mbox = newAdministrator.mbox;
+                            var firstname = newAdministrator.firstname;
+                            var surname = newAdministrator.surname;
 
-                        User.findByUsername(username, function(err, user){
+                            User.findByUsername(username, function(err, user){
 
-                            if(!err && user != null)
+                                if(!err && user != null)
+                                {
+                                    user.makeGlobalAdmin(function(err, result){
+                                        callback(err, result);
+                                    });
+                                }
+                                else
+                                {
+                                    console.log("Non-existent user " + username + ". Creating new for promoting to admin.");
+
+                                    User.createAndInsertFromObject({
+                                            foaf: {
+                                                mbox: mbox,
+                                                firstName : firstname,
+                                                surname : surname
+                                            },
+                                            ddr:
+                                                {
+                                                    username : username,
+                                                    password : password
+                                                }
+                                        },
+                                        function(err, newUser){
+                                            if(!err && newUser != null && newUser instanceof User)
+                                            {
+                                                newUser.makeGlobalAdmin(function(err, newUser){
+                                                    callback(err, newUser);
+                                                });
+                                            }
+                                            else
+                                            {
+                                                var msg = "Error creating new User" + JSON.stringify(newUser);
+                                                console.error(msg);
+                                                callback(err, msg);
+                                            }
+                                        });
+                                }
+                            })
+                        };
+
+                        async.map(Config.administrators, makeAdmin, function(err){
+                            if(!err)
                             {
-                                user.makeGlobalAdmin(function(err, result){
-                                    callback(err, result);
-                                });
+                                console.log("[OK] Admins successfully loaded.");
                             }
-                            else
-                            {
-                                console.log("Non-existent user " + username + ". Creating new for promoting to admin.");
-
-                                User.createAndInsertFromObject({
-                                    foaf: {
-                                        mbox: mbox,
-                                        firstName : firstname,
-                                        surname : surname
-                                    },
-                                    ddr:
-                                    {
-                                        username : username,
-                                        password : password
-                                    }
-                                },
-                                    function(err, newUser){
-                                        if(!err && newUser != null && newUser instanceof User)
-                                        {
-                                            newUser.makeGlobalAdmin(function(err, newUser){
-                                                callback(err, newUser);
-                                            });
-                                        }
-                                        else
-                                        {
-                                            var msg = "Error creating new User" + JSON.stringify(newUser);
-                                            console.error(msg);
-                                            callback(err, msg);
-                                        }
-                                });
+                            else {
+                                console.log("[ERROR] Unable to load admins. Error : " + err);
                             }
-                        })
-                    };
 
-                    async.map(Config.administrators, makeAdmin, function(err){
-                        if(!err)
-                        {
-                            console.log("[OK] Admins successfully loaded.");
-                        }
-                        else {
-                            console.log("[ERROR] Unable to load admins. Error : " + err);
-                        }
-
-                        callback(err);
-                    });
-                }
-            ],
-            function(err, results){
-                if(!err)
-                {
-                    callback(null);
-                }
-                else
-                {
-                    process.exit(1);
-                }
-            });
+                            callback(err);
+                        });
+                    }
+                ],
+                function(err, results){
+                    if(!err)
+                    {
+                        callback(null);
+                    }
+                    else
+                    {
+                        process.exit(1);
+                    }
+                });
         }
         else
         {
@@ -1101,12 +1101,12 @@ async.waterfall([
         const MongoStore = require('connect-mongo')(expressSession);
 
         var sessionMongoStore = new MongoStore(
-        {
-            "host": Config.mongoDBHost,
-            "port": Config.mongoDbPort,
-            "db": Config.mongoDBSessionStoreCollection,
-            "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDBSessionStoreCollection
-        });
+            {
+                "host": Config.mongoDBHost,
+                "port": Config.mongoDbPort,
+                "db": Config.mongoDBSessionStoreCollection,
+                "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDBSessionStoreCollection
+            });
 
         var slug = require('slug');
         var key = "dendro_" + slug(Config.host)+ "_sessionKey";
@@ -1287,196 +1287,196 @@ async.waterfall([
 
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?\/?$/, function(req,res, next)
-            {
-                var defaultPermissionsInProjectRoot = [
-                    Permissions.project_privacy_status.public,
-                    Permissions.project_privacy_status.metadata_only,
-                    Permissions.role.project.contributor,
-                    Permissions.role.project.creator
-                ];
+        {
+            var defaultPermissionsInProjectRoot = [
+                Permissions.project_privacy_status.public,
+                Permissions.project_privacy_status.metadata_only,
+                Permissions.role.project.contributor,
+                Permissions.role.project.creator
+            ];
 
-                var modificationPermissions = [
-                    Permissions.role.project.contributor,
-                    Permissions.role.project.creator
-                ];
+            var modificationPermissions = [
+                Permissions.role.project.contributor,
+                Permissions.role.project.creator
+            ];
 
-                var administrationPermissions = [
-                    Permissions.role.project.creator
-                ];
+            var administrationPermissions = [
+                Permissions.role.project.creator
+            ];
 
 
-                req.params.handle = req.params[0];                      //project handle
-                req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
-                req.params.is_project_root = true;
+            req.params.handle = req.params[0];                      //project handle
+            req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
+            req.params.is_project_root = true;
 
-                var queryBasedRoutes = {
-                        get: [
-                            //downloads
-                            {
-                                queryKeys : ['download'],
-                                handler : files.download,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot download this project."
-                            },
-                            //backups
-                            {
-                                queryKeys : ['backup'],
-                                handler : files.serve,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot backup this project."
-                            },
-                            //bagits
-                            {
-                                queryKeys : ['bagit'],
-                                handler : projects.bagit,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot produce a bagit of this project."
-                            },
-                            //list contents
-                            {
-                                queryKeys : ['ls'],
-                                handler : files.ls,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot list the contents of this project."
-                            },
-                            //descriptor recommendations
-                            {
-                                queryKeys : ['metadata_recommendations'],
-                                handler : recommendation.recommend_descriptors,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot fetch descriptor recommendations for this project."
-                            },
-                            //recent changes
-                            {
-                                queryKeys : ['recent_changes'],
-                                handler : projects.recent_changes,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot fetch recent changes for this project."
-                            },
-                            //project stats
-                            {
-                                queryKeys : ['stats'],
-                                handler : projects.stats,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot fetch recent changes for this project."
-                            },
-                            //recommendation ontologies
-                            {
-                                queryKeys : ['recommendation_ontologies'],
-                                handler : ontologies.get_recommendation_ontologies,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
-                            },
-                            //show versions of resources
-                            {
-                                queryKeys : ['version'],
-                                handler : records.show_version,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get versions of this project because you do not have permissions to access this project."
+            var queryBasedRoutes = {
+                get: [
+                    //downloads
+                    {
+                        queryKeys : ['download'],
+                        handler : files.download,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot download this project."
+                    },
+                    //backups
+                    {
+                        queryKeys : ['backup'],
+                        handler : files.serve,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot backup this project."
+                    },
+                    //bagits
+                    {
+                        queryKeys : ['bagit'],
+                        handler : projects.bagit,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot produce a bagit of this project."
+                    },
+                    //list contents
+                    {
+                        queryKeys : ['ls'],
+                        handler : files.ls,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot list the contents of this project."
+                    },
+                    //descriptor recommendations
+                    {
+                        queryKeys : ['metadata_recommendations'],
+                        handler : recommendation.recommend_descriptors,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot fetch descriptor recommendations for this project."
+                    },
+                    //recent changes
+                    {
+                        queryKeys : ['recent_changes'],
+                        handler : projects.recent_changes,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot fetch recent changes for this project."
+                    },
+                    //project stats
+                    {
+                        queryKeys : ['stats'],
+                        handler : projects.stats,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot fetch recent changes for this project."
+                    },
+                    //recommendation ontologies
+                    {
+                        queryKeys : ['recommendation_ontologies'],
+                        handler : ontologies.get_recommendation_ontologies,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
+                    },
+                    //show versions of resources
+                    {
+                        queryKeys : ['version'],
+                        handler : records.show_version,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot get versions of this project because you do not have permissions to access this project."
 
-                            },
-                            //auto completing descriptors
-                            {
-                                queryKeys : ['descriptors_autocomplete'],
-                                handler : descriptors.descriptors_autocomplete,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
+                    },
+                    //auto completing descriptors
+                    {
+                        queryKeys : ['descriptors_autocomplete'],
+                        handler : descriptors.descriptors_autocomplete,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
 
-                            },
-                            //auto completing ontologies
-                            {
-                                queryKeys : ['ontology_autocomplete'],
-                                handler : ontologies.ontologies_autocomplete,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
-                            },
-                            //auto completing users
-                            {
-                                queryKeys : ['user_autocomplete'],
-                                handler : users.users_autocomplete,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
-                            },
-                            //thumb nails
-                            {
-                                queryKeys : ['thumbnail'],
-                                handler : files.thumbnail,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get thumbnail for this project because you do not have permissions to access this project."
-                            },
-                            {
-                                queryKeys : ['get_contributors'],
-                                handler : projects.get_contributors,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get contributors for this project because you do not have permissions to access this project."
-                            },
-                            //administration page
-                            {
-                                queryKeys : ['administer'],
-                                handler : projects.administer,
-                                permissions : administrationPermissions,
-                                authentication_error : "Permission denied : cannot access the administration area of the project because you are not its creator."
-                            },
-                            //metadata
-                            {
-                                queryKeys: ['metadata'],
-                                handler : projects.show,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get metadata for this project because you do not have permissions to access this project."
-                            },
-                            //metadata deep
-                            {
-                                queryKeys: ['metadata', 'deep'],
-                                handler : records.show_deep,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access this project."
-                            },
-                            //default case
-                            {
-                                queryKeys : [],
-                                handler : projects.show,
-                                permissions : defaultPermissionsInProjectRoot,
-                                authentication_error : "Permission denied : cannot show the project because you do not have permissions to access this project."
-                            }
-                        ],
-                        post: [
-                            {
-                                queryKeys : ['mkdir'],
-                                handler : files.mkdir,
-                                permissions : modificationPermissions,
-                                authentication_error : "Permission denied : cannot create new folder because you do not have permissions to edit this project."
-                            },
-                            {
-                                queryKeys : ['restore'],
-                                handler : files.restore,
-                                permissions : modificationPermissions,
-                                authentication_error : "Permission denied : cannot restore project from backup because you do not have permissions to edit this project."
-                            },
-                            {
-                                queryKeys : ['administer'],
-                                handler : projects.administer,
-                                permissions : administrationPermissions,
-                                authentication_error : "Permission denied : cannot access the administration area of the project because you are not its creator."
-                            },
-                            {
-                                queryKeys : ['export_to_repository'],
-                                handler : datasets.export_to_repository,
-                                permissions : modificationPermissions,
-                                authentication_error : "Permission denied : cannot export project because you do not have permissions to edit this project."
-                            }
-                        ]
-                        /*all: [
-                            //uploads
-                            {
-                                queryKeys: ['upload'],
-                                handler: files.upload,
-                                permissions: modificationPermissions
-                            }
-                        ]*/
-                };
+                    },
+                    //auto completing ontologies
+                    {
+                        queryKeys : ['ontology_autocomplete'],
+                        handler : ontologies.ontologies_autocomplete,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
+                    },
+                    //auto completing users
+                    {
+                        queryKeys : ['user_autocomplete'],
+                        handler : users.users_autocomplete,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
+                    },
+                    //thumb nails
+                    {
+                        queryKeys : ['thumbnail'],
+                        handler : files.thumbnail,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot get thumbnail for this project because you do not have permissions to access this project."
+                    },
+                    {
+                        queryKeys : ['get_contributors'],
+                        handler : projects.get_contributors,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot get contributors for this project because you do not have permissions to access this project."
+                    },
+                    //administration page
+                    {
+                        queryKeys : ['administer'],
+                        handler : projects.administer,
+                        permissions : administrationPermissions,
+                        authentication_error : "Permission denied : cannot access the administration area of the project because you are not its creator."
+                    },
+                    //metadata
+                    {
+                        queryKeys: ['metadata'],
+                        handler : projects.show,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot get metadata for this project because you do not have permissions to access this project."
+                    },
+                    //metadata deep
+                    {
+                        queryKeys: ['metadata', 'deep'],
+                        handler : records.show_deep,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access this project."
+                    },
+                    //default case
+                    {
+                        queryKeys : [],
+                        handler : projects.show,
+                        permissions : defaultPermissionsInProjectRoot,
+                        authentication_error : "Permission denied : cannot show the project because you do not have permissions to access this project."
+                    }
+                ],
+                post: [
+                    {
+                        queryKeys : ['mkdir'],
+                        handler : files.mkdir,
+                        permissions : modificationPermissions,
+                        authentication_error : "Permission denied : cannot create new folder because you do not have permissions to edit this project."
+                    },
+                    {
+                        queryKeys : ['restore'],
+                        handler : files.restore,
+                        permissions : modificationPermissions,
+                        authentication_error : "Permission denied : cannot restore project from backup because you do not have permissions to edit this project."
+                    },
+                    {
+                        queryKeys : ['administer'],
+                        handler : projects.administer,
+                        permissions : administrationPermissions,
+                        authentication_error : "Permission denied : cannot access the administration area of the project because you are not its creator."
+                    },
+                    {
+                        queryKeys : ['export_to_repository'],
+                        handler : datasets.export_to_repository,
+                        permissions : modificationPermissions,
+                        authentication_error : "Permission denied : cannot export project because you do not have permissions to edit this project."
+                    }
+                ]
+                /*all: [
+                 //uploads
+                 {
+                 queryKeys: ['upload'],
+                 handler: files.upload,
+                 permissions: modificationPermissions
+                 }
+                 ]*/
+            };
 
-                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
-            });
+            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+        });
 
         //      files and folders (data)
         //      downloads
@@ -1871,13 +1871,15 @@ async.waterfall([
                     }
 
                     console.log('Express server listening on port ' + app.get('port'));
-                    bootupPromise.resolve(app);
+                    var appInfo = {server: server, app: app};
+                    bootupPromise.resolve(appInfo);
                 });
             }
             else
             {
                 console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
-                bootupPromise.resolve(app);
+                var appInfo = {server: server, app: app};
+                bootupPromise.resolve(appInfo);
             }
 
             if(Config.debug.diagnostics.ram_usage_reports)
