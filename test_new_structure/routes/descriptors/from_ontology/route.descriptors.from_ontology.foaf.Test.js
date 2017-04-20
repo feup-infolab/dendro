@@ -33,8 +33,8 @@ function requireUncached(module) {
 }
 
 describe("Descriptors from foaf ontology", function (done) {
-    this.timeout(20000);
     before(function (done) {
+        this.timeout(60000);
         addContributorsToProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -223,6 +223,7 @@ describe("Descriptors from foaf ontology", function (done) {
     });
     after(function (done) {
         //destroy graphs
+        this.timeout(60000);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
             done();

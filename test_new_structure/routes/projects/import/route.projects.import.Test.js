@@ -33,7 +33,7 @@ describe("Import projects tests", function (done) {
             done();
         });
     });
-    
+
     describe("[GET] /projects/import", function () {
         it("Should get an error when trying to access the html page to import a project when unauthenticated", function (done) {
             var app = GLOBAL.tests.app;

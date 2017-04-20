@@ -33,8 +33,8 @@ function requireUncached(module) {
 }
 
 describe("Descriptors from dcterms ontology", function (done) {
-    this.timeout(20000);
     before(function (done) {
+        this.timeout(60000);
         addContributorsToProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -42,7 +42,7 @@ describe("Descriptors from dcterms ontology", function (done) {
     });
 
     describe("[GET] /descriptors/from_ontology/dcterms", function () {
-        //TODO A use case -> http://127.0.0.1:3001/descriptors/from_ontology/dcterms?project_handle=proj1
+        //A use case -> http://127.0.0.1:3001/descriptors/from_ontology/dcterms?project_handle=proj1
         /**
          * PUBLIC PROJECT
          */
@@ -241,6 +241,7 @@ describe("Descriptors from dcterms ontology", function (done) {
 
     after(function (done) {
         //destroy graphs
+        this.timeout(60000);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
             done();

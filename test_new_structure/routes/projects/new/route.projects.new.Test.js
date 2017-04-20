@@ -34,8 +34,8 @@ function requireUncached(module) {
 }
 
 describe("New project tests", function (done) {
-    this.timeout(20000);
     before(function (done) {
+        this.timeout(60000);
         bootup.setup(function (err, res) {
             should.equal(err, null);
             done();
@@ -205,6 +205,7 @@ describe("New project tests", function (done) {
     });
     after(function (done) {
         //destroy graphs
+        this.timeout(60000);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
             done();
