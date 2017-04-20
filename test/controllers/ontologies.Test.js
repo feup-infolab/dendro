@@ -37,7 +37,7 @@ describe('/ontologies/public', function () {
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             ontologiesUtils.publicDisplay(false, agent, function(err, res){
-                res.text.should.contain('Descriptor Sets PUBLIC'); //Temporary test since page is not functional yet
+                res.text.should.contain('Public Descriptor Sets'); //Temporary test since page is not functional yet
                 res.should.have.status(200);
                 done();
             });
@@ -62,7 +62,7 @@ describe('/ontologies/public', function () {
 
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             ontologiesUtils.publicDisplay(false, agent, function(err, res){
-                res.text.should.contain('Descriptor Sets PUBLIC'); //Temporary test since page is not functional yet
+                res.text.should.contain('Public Descriptor Sets'); //Temporary test since page is not functional yet
                 res.should.have.status(200);
                 done();
             });
@@ -88,7 +88,7 @@ describe('/ontologies/public', function () {
 
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             ontologiesUtils.publicDisplay(false, agent, function(err, res){
-                res.text.should.contain('Descriptor Sets PUBLIC'); //Temporary test since page is not functional yet
+                res.text.should.contain('Public Descriptor Sets'); //Temporary test since page is not functional yet
                 res.should.have.status(200);
                 done();
             });
@@ -113,7 +113,7 @@ describe('/ontologies/public', function () {
         var agent = chai.request.agent(app);
 
         ontologiesUtils.publicDisplay(false, agent, function(err, res){
-            res.text.should.contain('Descriptor Sets PUBLIC'); //Temporary test since page is not functional yet
+            res.text.should.contain('Public Descriptor Sets'); //Temporary test since page is not functional yet
             res.should.have.status(200);
             done();
         });
@@ -142,7 +142,7 @@ describe('/ontologies/all', function () {
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             ontologiesUtils.allDisplay(false, agent, function(err, res){
-                res.text.should.contain('Descriptor Sets ALL'); //Temporary test since page is not functional yet
+                res.text.should.contain('All Descriptor Sets'); //Temporary test since page is not functional yet
                 res.should.have.status(200);
                 done();
             });
@@ -167,7 +167,7 @@ describe('/ontologies/all', function () {
 
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             ontologiesUtils.allDisplay(false, agent, function(err, res){
-                res.text.should.contain('Descriptor Sets ALL'); //Temporary test since page is not functional yet
+                res.text.should.contain('All Descriptor Sets'); //Temporary test since page is not functional yet
                 res.should.have.status(200);
                 done();
             });
@@ -192,7 +192,7 @@ describe('/ontologies/all', function () {
 
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             ontologiesUtils.allDisplay(false, agent, function(err, res){
-                res.text.should.contain('Descriptor Sets ALL'); //Temporary test since page is not functional yet
+                res.text.should.contain('All Descriptor Sets'); //Temporary test since page is not functional yet
                 res.should.have.status(200);
                 done();
             });
@@ -215,7 +215,7 @@ describe('/ontologies/all', function () {
         var agent = chai.request.agent(app);
 
         ontologiesUtils.allDisplay(false, agent, function(err, res){
-            res.text.should.contain('Descriptor Sets ALL'); //Temporary test since page is not functional yet
+            res.text.should.contain('All Descriptor Sets'); //Temporary test since page is not functional yet
             res.should.have.status(200);
             done();
         });
