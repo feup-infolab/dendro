@@ -5,28 +5,20 @@ Config.initGlobals();
 
 GLOBAL.tests = {};
 
-
-require("./../test_new_structure/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js");
+require(Config.absPathInTestsFolder("routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
 
 /*
 //test login
 require("./controllers/auth.Test.js");
-/*
-//require("./controllers/auth.Test.js");
-
 //test projects
 
 require("./controllers/projects.Test.js");
 
-
 //test project file operations
 require("./controllers/project.fileOperations/administer.Test.js");
-*/
 
 //test file uploads
-/*
 require("./controllers/files.Test.js");
-*/
 
 //test folders
 /*
@@ -34,15 +26,10 @@ require("./controllers/folders.Test.js");
 */
 
 //test users
-/*
 require("./controllers/users.Test.js");
-*/
 
 //test descriptors
-/*
 require("./controllers/descriptors.Test.js");
-*/
-
 
 //test ontologies
 /*
