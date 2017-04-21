@@ -893,6 +893,7 @@ exports.administer = function(req, res) {
                                     User.findByUri(contributor, function (err, user) {
 
                                         if (!err && user && user.foaf.mbox) {
+                                            //TODO Check if user already is a contributor so as to not send a notification
                                             notifyContributor(user);
                                             callback(false, user.uri);
                                         } else {
