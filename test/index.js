@@ -11,6 +11,7 @@ require(Config.absPathInTestsFolder("routes/project/public_project/__mkdir/route
 //test login
 require("./controllers/auth.Test.js");
 //test projects
+
 require("./controllers/projects.Test.js");
 
 //test project file operations
@@ -20,7 +21,9 @@ require("./controllers/project.fileOperations/administer.Test.js");
 require("./controllers/files.Test.js");
 
 //test folders
+/*
 require("./controllers/folders.Test.js");
+*/
 
 //test users
 require("./controllers/users.Test.js");
@@ -28,6 +31,12 @@ require("./controllers/users.Test.js");
 //test descriptors
 require("./controllers/descriptors.Test.js");
 
+//test ontologies
+/*
+require("./controllers/ontologies.Test");
+*/
+
+/*
 //SOCIAL DENDRO
 //test social Dendro Posts
 /*

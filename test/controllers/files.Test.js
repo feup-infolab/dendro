@@ -199,6 +199,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateP
             });
         });
     });
+>>>>>>> master
 
     it("Should give an error message when the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -246,6 +247,11 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateP
         });
     });
 
+<<<<<<< HEAD
+    it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the file", function (done) {
+        done(1);
+    });
+=======
     it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to delete the folder", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.deleteItem(true, agent, privateProject.handle, folder.name, function (err, res) {
@@ -254,6 +260,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateP
             });
         });
     })
+>>>>>>> master
 });
 
 //UNDELETE TESTS

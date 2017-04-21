@@ -1,7 +1,7 @@
 <%- include ../layout/header.ejs %>
 
 <h1 class="page-header">
-    Viewing ontology <%= ontology.ddr.prefix %> (<%= ontology.uri %>)
+    Viewing ontology <%= ontology.prefix %> (<%= ontology.uri %>)
 </h1>
 
 <br/>
@@ -20,7 +20,7 @@
             <b>Prefix</b>
         </td>
         <td>
-            <%= ontology.ddr.hasPrefix %>
+            <%= ontology.prefix %>
         </td>
     </tr>
     <tr>
@@ -28,7 +28,7 @@
             <b>Domain (s)</b>
         </td>
         <td>
-            <%= ontology.ddr.hasResearchDomain %>
+            <%= ontology.uri %>
         </td>
     </tr>
 </table>

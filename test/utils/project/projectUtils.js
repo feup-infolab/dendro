@@ -252,6 +252,7 @@ var removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folde
     });
 };
 
+
 var getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb) {
     //project/:handle?version
     var path = '/project/' + projectHandle;
@@ -475,6 +476,7 @@ var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
+
 var administer = function (agent, modify, projectData, projectHandle, cb) {
     if(modify) {
         agent
@@ -500,12 +502,34 @@ var backup = function(agent, projectHandle, filepath, cb){
         });
 };
 
-var bagit = function(agent, projectHandle, filepath, cb){
-    agent
-        .get('/project/' + projectHandle + filepath + '?bagit')
-        .end(function (err, res) {
-            cb(err, res);
-        });
+
+function binaryParser(res, callback) {
+    res.setEncoding('binary');
+    res.data = '';
+    res.on('data', function (chunk) {
+        res.data += chunk;
+    });
+    res.on('end', function () {
+        callback(null, new Buffer(res.data, 'binary'));
+    });
+}
+
+var bagit = function(agent, projectHandle, filepath, binary, cb) {
+    if(binary) {
+        agent
+            .get('/project/' + projectHandle + filepath + '?bagit')
+            .buffer()
+            .parse(binaryParser)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    } else{
+        agent
+            .get('/project/' + projectHandle + filepath + '?bagit')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
 };
 
 var download = function (agent, projectHandle, filepath, cb) {
@@ -524,6 +548,13 @@ var serve = function(agent, projectHandle, filepath, cb){
         });
 };
 
+var serve_base64 = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?serve_base64')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
 
 
 var thumbnail = function(agent, filepath, projectHandle, cb){
@@ -533,6 +564,23 @@ var thumbnail = function(agent, filepath, projectHandle, cb){
             cb(err, res);
         })
 };
+
+var upload = function(agent, modify, filepath, projectHandle, query,  cb){
+    if(modify){
+        agent
+            .post('/project/' + projectHandle + filepath + '?upload' + query)
+            .end(function(err, res){
+                cb(err, res);
+            });
+    }else {
+        agent
+            .get('/project/' + projectHandle + filepath + '?upload')
+            .end(function(err, res){
+                cb(err, res);
+            });
+    }
+};
+
 
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
@@ -546,6 +594,7 @@ module.exports = {
     getProjectRootContent : getProjectRootContent,
     getResourceMetadata : getResourceMetadata,
     removeDescriptorFromFolder : removeDescriptorFromFolder,
+
     getProjectRecentChanges : getProjectRecentChanges,
     getProjectVersion : getProjectVersion,
     importProjectHTMLPage: importProjectHTMLPage,
@@ -560,5 +609,8 @@ module.exports = {
     bagit : bagit,
     download : download,
     serve : serve,
-    thumbnail : thumbnail
+    serve_base64 : serve_base64,
+    thumbnail : thumbnail,
+    upload : upload
+
 };

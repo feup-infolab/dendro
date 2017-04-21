@@ -1325,13 +1325,6 @@ async.waterfall([
                         permissions : defaultPermissionsInProjectRoot,
                         authentication_error : "Permission denied : cannot backup this project."
                     },
-                    //bagits
-                    {
-                        queryKeys : ['bagit'],
-                        handler : projects.bagit,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot produce a bagit of this project."
-                    },
                     //list contents
                     {
                         queryKeys : ['ls'],
@@ -1373,7 +1366,6 @@ async.waterfall([
                         handler : records.show_version,
                         permissions : defaultPermissionsInProjectRoot,
                         authentication_error : "Permission denied : cannot get versions of this project because you do not have permissions to access this project."
-
                     },
                     //auto completing descriptors
                     {
