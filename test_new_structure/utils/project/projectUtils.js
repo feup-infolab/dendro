@@ -293,9 +293,9 @@ var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
     {
         agent
             .post(path)
-            .attach('file', projectBackupPath)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
+            .attach('file', projectBackupPath)
             .end(function (err, res) {
                 cb(err, res);
             });
