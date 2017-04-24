@@ -293,9 +293,9 @@ var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
     {
         agent
             .post(path)
-            .attach('file', projectBackupPath)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
+            .attach('file', projectBackupPath)
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -518,6 +518,16 @@ var thumbnail = function(agent, filepath, projectHandle, cb){
         })
 };
 
+var getProjectContributors = function (agent, projectHandle, cb) {
+    //project/proj1?get_contributors
+    var path = "/project/" + projectHandle + "?get_contributors";
+    agent
+        .get(path)
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -544,5 +554,6 @@ module.exports = {
     bagit : bagit,
     download : download,
     serve : serve,
-    thumbnail : thumbnail
+    thumbnail : thumbnail,
+    getProjectContributors: getProjectContributors
 };

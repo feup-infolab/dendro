@@ -39,20 +39,20 @@ describe("Request access to public project", function (done) {
 
     describe("[GET] /project/:handle/request_access " + "[" + publicProject.handle + "]", function () {
         /*
-        it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
-            projectUtils.getRequestProjectAccessPage(false, agent, publicProject.handle, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.text.should.contain("<h1 class=\"page-header\">\n        Please sign in\n    </h1>");
-                done();
-            });
-        });*/
+         it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
+         var app = GLOBAL.tests.app;
+         var agent = chai.request.agent(app);
+         projectUtils.getRequestProjectAccessPage(false, agent, publicProject.handle, function (err, res) {
+         res.statusCode.should.equal(200);
+         res.text.should.contain("<h1 class=\"page-header\">\n        Please sign in\n    </h1>");
+         done();
+         });
+         });*/
 
         it("Should get an error when trying to access the request access to a project that does not exist event when authenticated", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.getRequestProjectAccessPage(false, agent, "ARandomProjectHandle", function (err, res) {
-                    console.log("TOU AQUI CARALHOOOOOcenas");
+                    console.log("TOU AQUI CARALHOOOOOcenas22222");
                     res.statusCode.should.equal(200);
                     res.text.should.contain("error");
                     done();
