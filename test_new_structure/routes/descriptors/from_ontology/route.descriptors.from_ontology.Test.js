@@ -50,8 +50,8 @@ describe("Descriptors from invalid ontology", function (done) {
         it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1(The creator of the Public project "+publicProject.handle +")", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
-                    res.should.have.status(404);
-                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    res.should.have.status(500);
+                    res.body.error_messages.should.contain("Error retrieving ontology with prefix "  + ontologyPrefix +  " Error reported");
                     done();
                 });
             });
@@ -60,8 +60,8 @@ describe("Descriptors from invalid ontology", function (done) {
         it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3(Collaborator of Public project "+publicProject.handle +")", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
-                    res.should.have.status(404);
-                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    res.should.have.status(500);
+                    res.body.error_messages.should.contain("Error retrieving ontology with prefix "  + ontologyPrefix +  " Error reported");
                     done();
                 });
             });
@@ -83,8 +83,8 @@ describe("Descriptors from invalid ontology", function (done) {
         it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) when logged in as demouser1(The creator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
-                    res.should.have.status(404);
-                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    res.should.have.status(500);
+                    res.body.error_messages.should.contain("Error retrieving ontology with prefix "  + ontologyPrefix +  " Error reported");
                     done();
                 });
             });
@@ -93,8 +93,8 @@ describe("Descriptors from invalid ontology", function (done) {
         it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) when logged in as demouser3(Collaborator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
-                    res.should.have.status(404);
-                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    res.should.have.status(500);
+                    res.body.error_messages.should.contain("Error retrieving ontology with prefix "  + ontologyPrefix +  " Error reported");
                     done();
                 });
             });
@@ -116,8 +116,8 @@ describe("Descriptors from invalid ontology", function (done) {
         it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser1 (The creator of the Private project "+privateProject.handle +")", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-                    res.should.have.status(404);
-                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    res.should.have.status(500);
+                    res.body.error_messages.should.contain("Error retrieving ontology with prefix "  + ontologyPrefix +  " Error reported");
                     done();
                 });
             });
@@ -126,8 +126,8 @@ describe("Descriptors from invalid ontology", function (done) {
         it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3 (Collaborator of the Private project "+privateProject.handle +")", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-                    res.should.have.status(404);
-                    res.body.error_messages.should.equal("Ontology with prefix " + ontologyPrefix + " does not exist in this Dendro instance.");
+                    res.should.have.status(500);
+                    res.body.error_messages.should.contain("Error retrieving ontology with prefix "  + ontologyPrefix +  " Error reported");
                     done();
                 });
             });
