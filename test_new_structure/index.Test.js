@@ -40,6 +40,13 @@ require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Tes
 //require(Config.absPathInTestsFolder("/routes/projects/private_project/undelete/route.projects.privateProject.undelete.Test.js"));
 
 
+//PROJECT CHANGES PUBLIC PROJECT
+require(Config.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
+
+//PROJECT CHANGES PRIVATE PROJECT
+
+//PROJECT CHANGES METADADATA ONlY PROJECT
+
 /*
 //test login
 require("./controllers/auth.Test.js");
