@@ -9,13 +9,13 @@ let folderData = {
         require("../files/pngMockfile"),
         require("../files/xlsxMockfile")
     ],
-    metadata :
+    metadata :[
         {
-            dcterms:
-                {
-                    abstract : "This is a test folder and its search tag is pastinha linda. It is a fantastic test of search for specific metadata."
-                }
+            prefix:"dcterms",
+            shortName:"abstract",
+            value:"This is a test folder and its search tag is pastinha linda. It is a fantastic test of search for specific metadata."
         }
+    ]
 };
 
 module.exports = folderData;

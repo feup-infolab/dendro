@@ -452,6 +452,7 @@ var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);

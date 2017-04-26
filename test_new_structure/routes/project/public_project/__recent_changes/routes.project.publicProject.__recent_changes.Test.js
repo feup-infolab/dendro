@@ -19,7 +19,8 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+//var addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+var addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 function requireUncached(module) {
@@ -30,17 +31,25 @@ function requireUncached(module) {
 describe("Public project recent changes", function () {
     before(function (done) {
         this.timeout(60000);
-        addContributorsToProjectsUnit.setup(function (err, results) {
+        addMetadataToFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
         });
     });
 
     describe("[GET] /project/:handle?recent_changes", function () {
-        //TODO API ONLY
+        //API ONLY
         //TODO make a request to HTML, should return invalid request
-        //TODO test all three types of project accesses (public, private, metadata only)
-        //TODO WITH LIMIT AND OFFSET
+
+        it("Should give an error if the request type for the route is HTML", function (done) {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                //jsonOnly, agent, projectHandle, cb
+                projectUtils.getProjectRecentChanges(false, agent, publicProject.handle, function (err, res) {
+                    res.should.have.status(400);
+                    done();
+                });
+            });
+        });
 
         it("Should give the recent project changes if the user is unauthenticated", function (done) {
             var app = GLOBAL.tests.app;
@@ -48,6 +57,7 @@ describe("Public project recent changes", function () {
 
             projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                 res.should.have.status(200);//because the project is public
+                res.body.length.should.equal(1);
                 done();
             });
         });
@@ -67,6 +77,7 @@ describe("Public project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                     res.should.have.status(200);//because the project is public
+                    res.body.length.should.equal(1);
                     done();
                 });
             });
@@ -77,6 +88,7 @@ describe("Public project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                     res.should.have.status(200);
+                    res.body.length.should.equal(1);
                     done();
                 });
             });
@@ -87,6 +99,7 @@ describe("Public project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                     res.should.have.status(200);
+                    res.body.length.should.equal(1);
                     done();
                 });
             });
