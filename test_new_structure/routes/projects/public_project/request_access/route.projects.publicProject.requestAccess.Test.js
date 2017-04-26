@@ -38,7 +38,6 @@ describe("Request access to public project", function (done) {
     });
 
     describe("[GET] /project/:handle/request_access " + "[" + publicProject.handle + "]", function () {
-        /*
         it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
@@ -47,14 +46,13 @@ describe("Request access to public project", function (done) {
                 res.text.should.contain("<h1 class=\"page-header\">\n        Please sign in\n    </h1>");
                 done();
             });
-        });*/
+        });
 
         it("Should get an error when trying to access the request access to a project that does not exist event when authenticated", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.getRequestProjectAccessPage(false, agent, "ARandomProjectHandle", function (err, res) {
-                    console.log("TOU AQUI CARALHOOOOOcenas");
                     res.statusCode.should.equal(200);
-                    res.text.should.contain("error");
+                    res.text.should.contain("error");//TODO the app is not giving an error when the project does not exist
                     done();
                 });
             });
@@ -90,7 +88,7 @@ describe("Request access to public project", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
 
-            projectUtils.requestAccessToProject(false, agent, publicProject, function (err, res) {
+            projectUtils.requestAccessToProject(false, agent, publicProject.handle, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.text.should.contain("<p>Please log into the system.</p>");
                 done();

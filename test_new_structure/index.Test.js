@@ -18,17 +18,26 @@ require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.
 require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
 */
 
-//require(Config.absPathInTestsFolder("/routes/projects/route.projects.publicProject.requestAccess.Test.js"));
-
 //require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
 //require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));
 //require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
 
 //require(Config.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
-require(Config.absPathInTestsFolder("/routes/projects/public_project/request_access/route.projects.PublicProject.requestAccess.Test.js"));
 
+//PUBLIC PROJECT
+//require(Config.absPathInTestsFolder("/routes/projects/public_project/request_access/route.projects.PublicProject.requestAccess.Test.js"));
 //require(Config.absPathInTestsFolder("/routes/projects/public_project/delete/route.projects.PublicProject.delete.Test.js"));
 //require(Config.absPathInTestsFolder("/routes/projects/public_project/undelete/route.projects.PublicProject.undelete.Test.js"));
+
+//METADATA PROJECT
+//require(Config.absPathInTestsFolder("/routes/projects/metadataonly_project/request_access/route.projects.metadataonlyProject.requestAccess.Test.js"));
+//require(Config.absPathInTestsFolder("/routes/projects/metadataonly_project/delete/route.projects.metadataonlyProject.delete.Test.js"));
+//require(Config.absPathInTestsFolder("/routes/projects/metadataonly_project/undelete/route.projects.metadataonlyProject.undelete.Test.js"));
+
+//PRIVATE PROJECT
+//require(Config.absPathInTestsFolder("/routes/projects/private_project/request_access/route.projects.privateProject.requestAccess.Test.js"));
+//require(Config.absPathInTestsFolder("/routes/projects/private_project/delete/route.projects.privateProject.delete.Test.js"));
+//require(Config.absPathInTestsFolder("/routes/projects/private_project/undelete/route.projects.privateProject.undelete.Test.js"));
 
 
 /*

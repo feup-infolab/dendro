@@ -49,16 +49,6 @@ describe("Undelete Public Project Tests", function () {
             })
         });
 
-        it("Should give an error message when a project is not deleted", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.undeleteProject(true, agent, publicProject.handle, function (err, res) {
-                    res.statusCode.should.equal(400);
-                    res.body.message[0].should.not.contain("Project " + publicProject.handle + " successfully recovered");
-                    done();
-                });
-            })
-        });
-
         it("Should give an error when the user is not authenticated", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
@@ -112,20 +102,10 @@ describe("Undelete Public Project Tests", function () {
             })
         });
 
-        it("Should give an error message when a project is not deleted", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.undeleteProject(false, agent, publicProject.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.text.should.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">");
-                    done();
-                });
-            })
-        });
-
         it("Should give an error when the user is not authenticated", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
-            projectUtils.undeleteProject(false, agent, publicProject.handle, function (err, res) {
+            projectUtils.undeleteProject(false, agent, publicProjectHTMLTests.handle, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.text.should.contain("<p>Please log into the system.</p>");
                 done();
@@ -134,7 +114,7 @@ describe("Undelete Public Project Tests", function () {
 
         it("Should give an error when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a project created by demouser1 that is currently deleted", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                projectUtils.undeleteProject(false, agent, publicProject.handle, function (err, res) {
+                projectUtils.undeleteProject(false, agent, publicProjectHTMLTests.handle, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.text.should.contain("<p>Please log into the system.</p>");
                     done();
@@ -144,7 +124,7 @@ describe("Undelete Public Project Tests", function () {
 
         it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete the project that is currently deleted", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                projectUtils.undeleteProject(false, agent, publicProject.handle, function (err, res) {
+                projectUtils.undeleteProject(false, agent, publicProjectHTMLTests.handle, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.text.should.contain("<p>Please log into the system.</p>");
                     done();
@@ -154,10 +134,11 @@ describe("Undelete Public Project Tests", function () {
 
         it("Should give a success response when the user is logged in as demouser1(the creator of the project) and tries to undelete the project that is currently deleted", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.undeleteProject(false, agent, publicProject.handle, function (err, res) {
+                projectUtils.undeleteProject(false, agent, publicProjectHTMLTests.handle, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.text.should.contain("<a href=\"/project/publicProjecthtmlcreatedbydemouser1\">");
+                    res.text.should.contain("This is a public test project with handle publicprojecthtmlcreatedbydemouser1 and created by demouser1");
                     res.text.should.not.contain("<p>Please log into the system.</p>");
+                    res.text.should.not.contain("This is a public test project with handle publicprojecthtmlcreatedbydemouser1 and created by demouser1 Creator Deleted");
                     done();
                 });
             })
