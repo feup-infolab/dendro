@@ -16,7 +16,7 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 var addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
@@ -27,7 +27,7 @@ function requireUncached(module) {
     return require(module)
 }
 
-describe("Public project recent changes", function () {
+describe("private project recent changes", function () {
     before(function (done) {
         this.timeout(60000);
         addMetadataToFoldersUnit.setup(function (err, results) {
@@ -42,20 +42,20 @@ describe("Public project recent changes", function () {
         it("Should give an error if the request type for the route is HTML", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, agent, projectHandle, cb
-                projectUtils.getProjectRecentChanges(false, agent, publicProject.handle, function (err, res) {
+                projectUtils.getProjectRecentChanges(false, agent, privateProject.handle, function (err, res) {
                     res.should.have.status(400);
                     done();
                 });
             });
         });
 
-        it("Should give the recent project changes if the user is unauthenticated", function (done) {
+        it("Should give an error if the user is unauthenticated", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
 
-            projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
-                res.should.have.status(200);//because the project is public
-                res.body.length.should.equal(1);
+            projectUtils.getProjectRecentChanges(true, agent, privateProject.handle, function (err, res) {
+                res.should.have.status(401);//because the project is private
+                should.equal(res.body.length, undefined);
                 done();
             });
         });
@@ -70,12 +70,12 @@ describe("Public project recent changes", function () {
             });
         });
 
-        it("Should give the recent project changes if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
+        it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 //jsonOnly, agent, projectHandle, cb
-                projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
-                    res.should.have.status(200);//because the project is public
-                    res.body.length.should.equal(1);
+                projectUtils.getProjectRecentChanges(true, agent, privateProject.handle, function (err, res) {
+                    res.should.have.status(401);//because the project is private
+                    should.equal(res.body.length, undefined);
                     done();
                 });
             });
@@ -84,7 +84,7 @@ describe("Public project recent changes", function () {
         it("Should give the recent project changes if the user is logged in as demouser1(the creator of the project)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, agent, projectHandle, cb
-                projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
+                projectUtils.getProjectRecentChanges(true, agent, privateProject.handle, function (err, res) {
                     res.should.have.status(200);
                     res.body.length.should.equal(1);
                     done();
@@ -95,7 +95,7 @@ describe("Public project recent changes", function () {
         it("Should give the recent project changes if the user is logged in as demouser2(a collaborator on the project)", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 //jsonOnly, agent, projectHandle, cb
-                projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
+                projectUtils.getProjectRecentChanges(true, agent, privateProject.handle, function (err, res) {
                     res.should.have.status(200);
                     res.body.length.should.equal(1);
                     done();
