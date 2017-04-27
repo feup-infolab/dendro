@@ -8,18 +8,19 @@ GLOBAL.tests = {};
 
 require("./../test_new_structure/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js");
 
-/*
+
 //test login
 require("./controllers/auth.Test.js");
-/*
+
 //require("./controllers/auth.Test.js");
 
 //test projects
-
+/*
 require("./controllers/projects.Test.js");
-
+*/
 
 //test project file operations
+/*
 require("./controllers/project.fileOperations/administer.Test.js");
 */
 
@@ -34,9 +35,9 @@ require("./controllers/folders.Test.js");
 */
 
 //test users
-/*
+
 require("./controllers/users.Test.js");
-*/
+
 
 //test descriptors
 /*
