@@ -233,7 +233,7 @@ exports.set_new_password = function(req, res) {
                     {
                         res.render('index',
                             {
-                                error_messages : ["Non-existent user with email " + email + " : " + JSON.stringify(user)]
+                                error_messages : ["Non-existent user with email " + email ]
                             }
                         );
                     }
@@ -463,10 +463,11 @@ exports.getLoggedUser = function (req, res) {
         }
         else
         {
-            viewVars.projects = [];
-            viewVars.info_messages = ["There is no user authenticated in the system."];
-            res.render('index',
-                viewVars
+            res.sendStatus(405).json(
+                {
+                    result : "error",
+                    message : "This method is only accessible via API. Missing Accept: 'application/json' header in the request."
+                }
             );
         }
     }
