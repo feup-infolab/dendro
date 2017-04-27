@@ -12,7 +12,6 @@ require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
 */
 
 /*
-require(Config.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
 require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
 require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
 require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
@@ -40,12 +39,24 @@ require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Tes
 //require(Config.absPathInTestsFolder("/routes/projects/private_project/undelete/route.projects.privateProject.undelete.Test.js"));
 
 
+/*
 //PROJECT CHANGES PUBLIC PROJECT
 require(Config.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
 //PROJECT CHANGES PRIVATE PROJECT
 require(Config.absPathInTestsFolder("/routes/project/private_project/__recent_changes/routes.project.privateProject.__recent_changes.Test.js"));
 //PROJECT CHANGES METADADATA ONlY PROJECT
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recent_changes/routes.project.metadataonlyProject.__recent_changes.Test.js"));
+*/
+
+//PROJECT VERSION PUBLIC PROJECT THIS TEST SHOULD BE DELETED BECAUSE THE FEATURE DOES NOT EXIST
+//require(Config.absPathInTestsFolder("/routes/project/public_project/__version/routes.project.publicProject.__version.Test.js"));
+
+//PUBLIC PROJECT ROOT MKDIR TESTS
+require(Config.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
+//PRIVATE PROJECT ROOT MKDIR TESTS
+require(Config.absPathInTestsFolder("/routes/project/private_project/__mkdir/routes.project.privateProject.__mkdir.Test.js"));
+//METADATA ONLY PROJECT ROOT MKDIR TESTS
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__mkdir/routes.project.metadataonlyProject.__mkdir.Test.js"));
 
 /*
 //test login
