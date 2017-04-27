@@ -19,7 +19,7 @@ require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Tes
 
 //require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
 //require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));
-require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
+//require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
 
 //require(Config.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
@@ -52,11 +52,16 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__rec
 //require(Config.absPathInTestsFolder("/routes/project/public_project/__version/routes.project.publicProject.__version.Test.js"));
 
 //PUBLIC PROJECT ROOT MKDIR TESTS
+/*
 require(Config.absPathInTestsFolder("/routes/project/public_project/__mkdir/routes.project.publicProject.__mkdir.Test.js"));
 //PRIVATE PROJECT ROOT MKDIR TESTS
 require(Config.absPathInTestsFolder("/routes/project/private_project/__mkdir/routes.project.privateProject.__mkdir.Test.js"));
 //METADATA ONLY PROJECT ROOT MKDIR TESTS
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__mkdir/routes.project.metadataonlyProject.__mkdir.Test.js"));
+*/
+
+//EXPORT PUBLIC PROJECT TO REPOSITORIES TESTS
+require(Config.absPathInTestsFolder("/routes/project/public_project/__export_to_repository/routes.project.publicProject.__export_to_repository.Test"));
 
 /*
 //test login
