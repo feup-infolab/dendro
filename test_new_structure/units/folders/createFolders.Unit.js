@@ -24,6 +24,8 @@ const metadataOnlyProjectForHTMLTestsData = require(Config.absPathInTestsFolder(
 const privateProjectForHTMLTestsData = require(Config.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
+const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
@@ -33,6 +35,7 @@ function requireUncached(module) {
 module.exports.setup = function(finish)
 {
     const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
+    const foldersData = [folder, testFolder1, testFolder2];
     let addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
     addContributorsToProjectsUnit.setup(function (err, results) {
@@ -42,21 +45,25 @@ module.exports.setup = function(finish)
         }
         else
         {
-            async.map(projectsData, function (projectData, cb) {
-                userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                    if(err)
-                    {
-                        cb(err, agent);
-                    }
-                    else
-                    {
-                        itemUtils.createFolder(true, agent, projectData.handle, folder.pathInProject, folder.name, function (err, res) {
-                            cb(err, res);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                if(err)
+                {
+                    finish(err, agent);
+                }
+                else
+                {
+                    async.map(projectsData, function (projectData, cb) {
+                        async.map(foldersData, function (folderData, cb) {
+                            itemUtils.createFolder(true, agent, projectData.handle, folderData.pathInProject, folderData.name, function (err, res) {
+                                cb(err, res);
+                            });
+                        }, function (err, results) {
+                            cb(err, results);
                         });
-                    }
-                });
-            }, function (err, results) {
-                finish(err, results);
+                    }, function (err, results) {
+                        finish(err, results);
+                    });
+                }
             });
         }
     });

@@ -55,7 +55,7 @@ describe("Public project recent changes", function () {
 
             projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                 res.should.have.status(200);//because the project is public
-                res.body.length.should.equal(1);
+                res.body.length.should.equal(3);
                 done();
             });
         });
@@ -75,7 +75,7 @@ describe("Public project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                     res.should.have.status(200);//because the project is public
-                    res.body.length.should.equal(1);
+                    res.body.length.should.equal(3);
                     done();
                 });
             });
@@ -86,7 +86,7 @@ describe("Public project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.length.should.equal(1);
+                    res.body.length.should.equal(3);
                     done();
                 });
             });
@@ -97,7 +97,7 @@ describe("Public project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.length.should.equal(1);
+                    res.body.length.should.equal(3);
                     done();
                 });
             });
