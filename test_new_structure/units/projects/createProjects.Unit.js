@@ -40,7 +40,6 @@ module.exports.setup = function(finish)
         }
         else
         {
-            /*
             async.map(projectsData, function (projectData, cb) {
                 userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
                     if(err)
@@ -58,12 +57,6 @@ module.exports.setup = function(finish)
             }, function (err, results) {
                 //should.equal(err, null);
                 finish(err, results);
-            });*/
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.createNewProject(true, agent, publicProjectData, function (err, res) {
-                    //res.should.have.status(200);
-                    finish(err, res);
-                });
             });
         }
     });

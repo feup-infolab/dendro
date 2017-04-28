@@ -16,7 +16,7 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
 var addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
@@ -27,7 +27,7 @@ function requireUncached(module) {
     return require(module)
 }
 
-describe("Public project testFolder1 level ?version", function () {
+describe("Public project testFolder2 level ?version", function () {
     before(function (done) {
         this.timeout(60000);
         addMetadataToFoldersUnit.setup(function (err, results) {
@@ -40,7 +40,7 @@ describe("Public project testFolder1 level ?version", function () {
         //API ONLY
         it("Should give an error if the request type for this route is HTML", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemVersion(false, agent, publicProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
+                itemUtils.getItemVersion(false, agent, publicProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                     res.statusCode.should.equal(400);
                     done();
                 });
@@ -51,7 +51,7 @@ describe("Public project testFolder1 level ?version", function () {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
 
-            itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
+            itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                 res.statusCode.should.equal(200);//because it is a public project
                 res.body.descriptors.length.should.equal(5);
                 done();
@@ -60,7 +60,7 @@ describe("Public project testFolder1 level ?version", function () {
 
         it("Should give an error if the project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemVersion(true, agent, invalidProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
+                itemUtils.getItemVersion(true, agent, invalidProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                     res.statusCode.should.equal(500);
                     done();
                 });
@@ -88,7 +88,7 @@ describe("Public project testFolder1 level ?version", function () {
 
         it("Should give the folder versions if the folder exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
+                itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.length.should.equal(5);
                     done();
@@ -98,7 +98,7 @@ describe("Public project testFolder1 level ?version", function () {
 
         it("Should give the folder versions if the folder exists and if the user is logged in as demouser3(not a creator or  collaborator on the project)", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
+                itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                     res.statusCode.should.equal(200);//because this is a public project
                     res.body.descriptors.length.should.equal(5);
                     done();
@@ -108,7 +108,7 @@ describe("Public project testFolder1 level ?version", function () {
 
         it("Should give an error if no version is specified", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, null, function (err, res) {
+                itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder2.name, null, function (err, res) {
                     res.statusCode.should.equal(500);
                     done();
                 });

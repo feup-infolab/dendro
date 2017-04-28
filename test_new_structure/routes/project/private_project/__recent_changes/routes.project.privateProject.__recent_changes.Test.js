@@ -86,7 +86,7 @@ describe("private project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, privateProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.length.should.equal(3);
+                    res.body.length.should.equal(4);
                     done();
                 });
             });
@@ -97,7 +97,7 @@ describe("private project recent changes", function () {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, privateProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.length.should.equal(3);
+                    res.body.length.should.equal(4);
                     done();
                 });
             });

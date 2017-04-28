@@ -13,10 +13,10 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
 var addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
@@ -27,7 +27,7 @@ function requireUncached(module) {
     return require(module)
 }
 
-describe("Public project testFolder1 level recent changes", function () {
+describe("Private project testFolder2 level ?version", function () {
     before(function (done) {
         this.timeout(60000);
         addMetadataToFoldersUnit.setup(function (err, results) {
@@ -36,43 +36,40 @@ describe("Public project testFolder1 level recent changes", function () {
         });
     });
 
-    //GET ITEM RECENT CHANGES TESTS
-    describe("[GET] [PUBLIC PROJECT] /project/"+ publicProject.handle + "/data/testFolder1?recent_changes", function () {
+    describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle  + "/data/foldername?version", function () {
         //API ONLY
-        it("Should give an error if the request is of type HTML", function (done) {
+        it("Should give an error if the request type for this route is HTML", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemRecentChanges(false, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemVersion(false, agent, privateProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                     res.statusCode.should.equal(400);
                     done();
                 });
             });
         });
 
-        it("Should give the item changes if the user is unauthenticated", function (done) {
+        it("Should give an error if the user is unauthenticated", function (done) {
             var app = GLOBAL.tests.app;
-            agent = chai.request.agent(app);
+            var agent = chai.request.agent(app);
 
-            itemUtils.getItemRecentChanges(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
-                //because it is a public project
-                res.statusCode.should.equal(200);
-                res.body[0].changes.length.should.equal(1);//The abstract descriptor
+            itemUtils.getItemVersion(true, agent, privateProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
+                res.statusCode.should.equal(401);//because it is a private project
                 done();
             });
         });
 
         it("Should give an error if the project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemRecentChanges(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
-                    res.statusCode.should.equal(404);
+                itemUtils.getItemVersion(true, agent, invalidProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
+                    res.statusCode.should.equal(500);
                     done();
                 });
             });
         });
 
-        it("Should give an error if the folder does not exist", function (done) {
+        it("Should give an error if the folder identified by foldername does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemRecentChanges(true, agent, publicProject.handle, notFoundFolder.name, function (err, res) {
-                    res.statusCode.should.equal(404);
+                itemUtils.getItemVersion(true, agent, privateProject.handle, notFoundFolder.name, notFoundFolder.version, function (err, res) {
+                    res.statusCode.should.equal(500);
                     done();
                 });
             });
@@ -80,35 +77,41 @@ describe("Public project testFolder1 level recent changes", function () {
 
         it("Should give an error if the user is logged in as demouser3(not a collaborator nor creator of the project)", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.getItemRecentChanges(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
-                    res.statusCode.should.equal(200);//because it is a public project
-                    res.body[0].changes.length.should.equal(1);//The abstract descriptor
+                itemUtils.getItemVersion(true, agent, privateProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
+                    res.statusCode.should.equal(401);//because it is a private project
                     done();
                 });
             });
         });
 
-        it("Should give the folder changes if the user is logged in as demouser1(the creator of the project)", function (done) {
+        it("Should give the folder versions if the folder exists and if the user is logged in as demouser1(the creator of the project)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //jsonOnly, agent, projectHandle, itemPath, cb
-                itemUtils.getItemRecentChanges(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemVersion(true, agent, privateProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body[0].changes.length.should.equal(1);//The abstract descriptor
+                    res.body.descriptors.length.should.equal(5);
                     done();
                 });
             });
         });
 
-        it("Should give the folder changes if the user is logged in as demouser2(a collaborator on the project)", function (done) {
+        it("Should give the folder versions if the folder exists and if the user is logged in as demouser2(a collaborator on the project)", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                //jsonOnly, agent, projectHandle, itemPath, cb
-                itemUtils.getItemRecentChanges(true, agent, publicProject.handle, folderForDemouser2.name, function (err, res) {
+                itemUtils.getItemVersion(true, agent, privateProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body[0].changes.length.should.equal(1);//The abstract descriptor
+                    res.body.descriptors.length.should.equal(5);
                     done();
                 });
             });
         });
+
+        it("Should give an error if no version is specified", function (done) {
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                itemUtils.getItemVersion(true, agent, privateProject.handle, testFolder2.name, null, function (err, res) {
+                    res.statusCode.should.equal(500);
+                    done();
+                });
+            });
+        })
     });
 
     after(function (done) {

@@ -1,5 +1,6 @@
 let folderData = {
     name : 'testFolder2',
+    version: 0,
     pathInProject : '',
     download_md5 : '',
     backup_md5 : '',

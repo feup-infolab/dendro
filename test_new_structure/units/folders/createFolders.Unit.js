@@ -26,6 +26,7 @@ const privateProjectForHTMLTestsData = require(Config.absPathInTestsFolder("mock
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
+const folderDemoUser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
@@ -35,7 +36,7 @@ function requireUncached(module) {
 module.exports.setup = function(finish)
 {
     const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
-    const foldersData = [folder, testFolder1, testFolder2];
+    const foldersData = [folder, testFolder1, testFolder2, folderDemoUser2];
     let addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
     addContributorsToProjectsUnit.setup(function (err, results) {
