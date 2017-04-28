@@ -1,6 +1,11 @@
-"use strict";
+process.env.NODE_ENV = 'test';
 
-process.env.NODE_ENV = "test";
+GLOBAL.tests = {};
+
+let Config = GLOBAL.Config = Object.create(require("../../../src/models/meta/config.js").Config);
+Config.initGlobals();
+
+GLOBAL.tests = {};
 
 let chai = require("chai");
 let chaiHttp = require("chai-http");
@@ -12,8 +17,8 @@ const should = chai.should();
 let agent = null;
 
 const demouser1 = require("../../mockdata/users/demouser1.js");
-const demouser2 = require("../../mockdata/users/demouser1.js");
-const demouser3 = require("../../mockdata/users/demouser1.js");
+const demouser2 = require("../../mockdata/users/demouser2.js");
+const demouser3 = require("../../mockdata/users/demouser3.js");
 
 const folder = require("../../mockdata/folders/folder.js");
 const ecologyFolder = require("../../mockdata/folders/ecology_folder.js");
@@ -27,6 +32,8 @@ const fileUtils= require("../../utils/file/fileUtils.js");
 const folderUtils= require("../../utils/folder/folderUtils.js");
 const userUtils = require("../../utils/user/userUtils.js");
 
+const searchUtils = require('../../utils/search/searchUtils.js');
+
 describe("/search", function ()
 {
     /**
@@ -34,7 +41,18 @@ describe("/search", function ()
      */
     //TODO
     it("[HTML] should search and find a folder by searching for a term present in its abstract (" + ecologyFolder.search_terms + ")", function (done) {
-        done();
+        let app = GLOBAL.tests.app;
+        agent = chai.request.agent(app);
+        searchUtils.search(false, agent, ecologyFolder.search_terms, function (err, res) {
+            if (err) {
+                done(err);
+            }
+            else {
+                res.should.have.status(200);
+                res.text.should.contain(ecologyFolder.metadata.dcterms.abstract);
+                done();
+            }
+        });
     });
 
     //TODO
