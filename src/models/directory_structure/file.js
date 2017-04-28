@@ -20,7 +20,7 @@ function File (object)
     {
         if(object.uri == null && object.nie != null)
         {
-            self.uri = object.nie.isLogicalPartOf +  path.sep + object.nie.title;
+            self.uri = object.nie.isLogicalPartOf +  "/" + object.nie.title;
         }
         else
         {

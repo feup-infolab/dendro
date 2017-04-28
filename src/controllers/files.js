@@ -549,77 +549,87 @@ exports.get_thumbnail = function(req, res) {
     File.findByUri(requestedResourceURI, function(err, file){
         if(!err)
         {
-            var mimeType = Config.mimeType(file.ddr.fileExtension);
-
-            if(Config.thumbnailableExtensions[file.ddr.fileExtension] != null)
+            if(file != null)
             {
-                file.getThumbnail(size, function(err, writtenFilePath)
-                {
-                    if(!err)
-                    {
-                        if(writtenFilePath != null)
-                        {
-                            const fs = require('fs');
-                            const path = require('path');
-                            let fileStream = fs.createReadStream(writtenFilePath);
-                            let filename = path.basename(writtenFilePath);
+                var mimeType = Config.mimeType(file.ddr.fileExtension);
 
-                            res.writeHead(200,
+                if(Config.thumbnailableExtensions[file.ddr.fileExtension] != null)
+                {
+                    file.getThumbnail(size, function(err, writtenFilePath)
+                    {
+                        if(!err)
+                        {
+                            if(writtenFilePath != null)
+                            {
+                                const fs = require('fs');
+                                const path = require('path');
+                                let fileStream = fs.createReadStream(writtenFilePath);
+                                let filename = path.basename(writtenFilePath);
+
+                                res.writeHead(200,
+                                    {
+                                        'Content-disposition': 'filename="' + filename+"\"",
+                                        'Content-type': mimeType
+                                    });
+
+                                fileStream.pipe(res);
+                            }
+                            else
+                            {
+                                const error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                                console.error(error);
+                                res.writeHead(500, error);
+                                res.end();
+                            }
+                        }
+                        else
+                        {
+                            if(err == 404)
+                            {
+                                var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                console.error(error);
+                                res.writeHead(404, error);
+                                res.end();
+                            }
+                            else
+                            {
+                                //try to regenerate thumbnails
+                                file.generateThumbnails(function(err, result)
                                 {
-                                    'Content-disposition': 'filename="' + filename+"\"",
-                                    'Content-type': mimeType
+                                    var error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
+                                    console.error(error);
                                 });
 
-                            fileStream.pipe(res);
+                                res.writeHead(404, error);
+                                res.end();
+                            }
                         }
-                        else
-                        {
-                            const error = "There was an error streaming the requested resource : " + requestedResourceURI;
-                            console.error(error);
-                            res.writeHead(500, error);
-                            res.end();
-                        }
-                    }
-                    else
-                    {
-                        if(err == 404)
-                        {
-                            var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                            console.error(error);
-                            res.writeHead(404, error);
-                            res.end();
-                        }
-                        else
-                        {
-                            //try to regenerate thumbnails
-                            file.generateThumbnails(function(err, result)
-                            {
-                                var error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
-                                console.error(error);
-                            });
-
-                            res.writeHead(404, error);
-                            res.end();
-                        }
-                    }
-                });
+                    });
+                }
+                else
+                {
+                    exports.serve_static(
+                        req,
+                        res,
+                        Config.absPathInPublicFolder("/images/icons/extensions/file_extension_" + file.ddr.fileExtension + ".png"),
+                        Config.absPathInPublicFolder("/images/icons/file.png"),
+                        Config.cache.static.etag_cache_active
+                    );
+                }
             }
             else
             {
-                exports.serve_static(
-                    req,
-                    res,
-                    Config.absPathInPublicFolder("/images/icons/extensions/file_extension_" + file.ddr.fileExtension + ".png"),
-                    Config.absPathInPublicFolder("/images/icons/file.png"),
-                    Config.cache.static.etag_cache_active
-                );
+                var error = "Non-existent file : " + requestedResourceURI;
+                console.error(error);
+                res.writeHead(404, error);
+                res.end();
             }
         }
         else
         {
-            var error = "Non-existent file : " + requestedResourceURI;
+            var error = "Error fetching thumbnail for file " + requestedResourceURI;
             console.error(error);
-            res.writeHead(404, error);
+            res.writeHead(500, error);
             res.end();
         }
     });
