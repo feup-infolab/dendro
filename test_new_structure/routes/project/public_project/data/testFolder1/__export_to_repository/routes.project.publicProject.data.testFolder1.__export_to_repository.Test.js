@@ -102,48 +102,36 @@ describe("Export public project folder level to repositories tests", function ()
 
         it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, testFolder1.pathInProject + testFolder1.name, testFolder1.metadata, function (error, response) {
-                    response.statusCode.should.equal(200);
-                    repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: createdB2shareConfigInvalidToken}, function (err, res) {
-                        res.statusCode.should.equal(500);
-                        done();
-                    });
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: createdB2shareConfigInvalidToken}, function (err, res) {
+                    res.statusCode.should.equal(500);
+                    done();
                 });
             });
         });
 
         it("Should give an error when there is an invalid external url for deposit although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, testFolder1.pathInProject + testFolder1.name, testFolder1.metadata, function (error, response) {
-                    response.statusCode.should.equal(200);
-                    repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: createdB2shareConfigInvalidUrl}, function (err, res) {
-                        res.statusCode.should.equal(500);
-                        done();
-                    });
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: createdB2shareConfigInvalidUrl}, function (err, res) {
+                    res.statusCode.should.equal(500);
+                    done();
                 });
             });
         });
 
         it("Should give an error when the project does not exist although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.updateMetadataCorrectRoute(true, agent, "unknownProjectHandle", testFolder1.pathInProject + testFolder1.name, testFolder1.metadata, function (error, response) {
-                    response.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
-                    repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", testFolder1.pathInProject + testFolder1.name, agent, {repository: b2shareData}, function (err, res) {
-                        res.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
-                        done();
-                    });
+                repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", testFolder1.pathInProject + testFolder1.name, agent, {repository: b2shareData}, function (err, res) {
+                    res.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
+                    done();
                 });
             });
         });
 
         it("Should give an error when the folder to export does not exist although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, "randomfoldername", testFolder1.metadata, function (error, response) {
-                    response.statusCode.should.equal(404);
-                    repositoryUtils.exportFolderToRepository(true, publicProject.handle, "randomfoldername", agent, {repository: b2shareData}, function (err, res) {
-                        res.statusCode.should.equal(404);
-                        done();
-                    });
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, "randomfoldername", agent, {repository: b2shareData}, function (err, res) {
+                    res.statusCode.should.equal(404);
+                    done();
                 });
             });
         });
@@ -202,36 +190,27 @@ describe("Export public project folder level to repositories tests", function ()
 
         it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, testFolder1.pathInProject + testFolder1.name, testFolder1.metadata, function (error, response) {
-                    response.statusCode.should.equal(200);
-                    repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: createdZenodoConfigInvalidToken}, function (err, res) {
-                        res.statusCode.should.equal(500);
-                        done();
-                    });
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: createdZenodoConfigInvalidToken}, function (err, res) {
+                    res.statusCode.should.equal(500);
+                    done();
                 });
             });
         });
 
         it("Should give an error when the project does not exist although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.updateMetadataCorrectRoute(true, agent, "unknownProjectHandle", testFolder1.pathInProject + testFolder1.name, testFolder1.metadata, function (error, response) {
-                    response.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
-                    repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", testFolder1.pathInProject + testFolder1.name, agent, {repository: zenodoData}, function (err, res) {
-                        res.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
-                        done();
-                    });
+                repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", testFolder1.pathInProject + testFolder1.name, agent, {repository: zenodoData}, function (err, res) {
+                    res.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
+                    done();
                 });
             });
         });
 
         it("Should give an error when the folder to export does not exist although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, "randomfoldername", testFolder1.metadata, function (error, response) {
-                    response.statusCode.should.equal(404);
-                    repositoryUtils.exportFolderToRepository(true, publicProject.handle, "randomfoldername", agent, {repository: zenodoData}, function (err, res) {
-                        res.statusCode.should.equal(400);
-                        done();
-                    });
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, "randomfoldername", agent, {repository: zenodoData}, function (err, res) {
+                    res.statusCode.should.equal(400);
+                    done();
                 });
             });
         });
