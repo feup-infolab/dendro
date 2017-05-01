@@ -199,8 +199,7 @@ describe("Export public project folder level to repositories tests", function ()
                 });
             });
         });
-
-
+        
         it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.updateMetadataCorrectRoute(true, agent, publicProject.handle, testFolder1.pathInProject + testFolder1.name, testFolder1.metadata, function (error, response) {
