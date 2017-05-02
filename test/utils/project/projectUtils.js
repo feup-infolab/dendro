@@ -569,12 +569,13 @@ var upload = function(agent, modify, filepath, projectHandle, query,  cb){
     if(modify){
         agent
             .post('/project/' + projectHandle + filepath + '?upload' + query)
+            .send()
             .end(function(err, res){
                 cb(err, res);
             });
     }else {
         agent
-            .get('/project/' + projectHandle + filepath + '?upload')
+            .get('/project/' + projectHandle + filepath + '?upload' + query)
             .end(function(err, res){
                 cb(err, res);
             });
