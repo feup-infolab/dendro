@@ -20,7 +20,7 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 
 var createExportToRepositoriesConfig = requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
 
@@ -38,7 +38,7 @@ function requireUncached(module) {
     return require(module)
 }
 
-describe("Export public project testFolder1 level to repositories tests", function () {
+describe("Export public project testFolder2 level to repositories tests", function () {
     before(function (done) {
         this.timeout(60000);
         createExportToRepositoriesConfig.setup(function (err, results) {
@@ -63,7 +63,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
         it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, projectHandle, folderPath, agent, exportData, cb
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, createdUnknownRepo, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, createdUnknownRepo, function (err, res) {
                     console.log(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid target repository");
@@ -75,7 +75,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
         it("Should give an error when the user is unauthenticated", function (done) {
             const app = GLOBAL.tests.app;
             const agent = chai.request.agent(app);
-            repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: b2shareData}, function (err, res) {
+            repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: b2shareData}, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Permission denied : cannot export resource because you do not have permissions to edit this project.");
                 done();
@@ -84,7 +84,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give an error message when the user is logged in as demouser3(not a creator or collaborator of the project)", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: b2shareData}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: b2shareData}, function (err, res) {
                     res.statusCode.should.equal(401);
                     done();
                 });
@@ -93,7 +93,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give a success message when the user is logged in as demouser2(a collaborator of the project)", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: b2shareData}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: b2shareData}, function (err, res) {
                     res.statusCode.should.equal(200);
                     done();
                 });
@@ -102,7 +102,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: createdB2shareConfigInvalidToken}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: createdB2shareConfigInvalidToken}, function (err, res) {
                     res.statusCode.should.equal(500);
                     done();
                 });
@@ -111,7 +111,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give an error when there is an invalid external url for deposit although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: createdB2shareConfigInvalidUrl}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: createdB2shareConfigInvalidUrl}, function (err, res) {
                     res.statusCode.should.equal(500);
                     done();
                 });
@@ -120,7 +120,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give an error when the project does not exist although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", testFolder1.pathInProject + testFolder1.name, agent, {repository: b2shareData}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", testFolder2.pathInProject + testFolder2.name, agent, {repository: b2shareData}, function (err, res) {
                     res.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
                     done();
                 });
@@ -138,7 +138,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give a success message when the folder to export exists and a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: b2shareData}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: b2shareData}, function (err, res) {
                     res.statusCode.should.equal(200);
                     done();
                 });
@@ -151,7 +151,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
         it("Should give an error when the target repository is invalid[not b2share zenodo etc]", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, projectHandle, folderPath, agent, exportData, cb
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, createdUnknownRepo, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, createdUnknownRepo, function (err, res) {
                     console.log(res);
                     res.statusCode.should.equal(500);
                     res.body.message.should.equal("Invalid target repository");
@@ -163,7 +163,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
         it("Should give an error when the user is unauthenticated", function (done) {
             const app = GLOBAL.tests.app;
             const agent = chai.request.agent(app);
-            repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: zenodoData}, function (err, res) {
+            repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: zenodoData}, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Permission denied : cannot export resource because you do not have permissions to edit this project.");
                 done();
@@ -172,7 +172,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give an error message when the user is logged in as demouser3(not a collaborator or creator of the project)", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: zenodoData}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: zenodoData}, function (err, res) {
                     res.statusCode.should.equal(401);
                     done();
                 });
@@ -181,7 +181,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give a success message when the user is logged in as demouser2(a collaborator of the project)", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: zenodoData}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: zenodoData}, function (err, res) {
                     res.statusCode.should.equal(200);
                     done();
                 });
@@ -190,7 +190,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give an error when there is an invalid access token for deposit although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: createdZenodoConfigInvalidToken}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: createdZenodoConfigInvalidToken}, function (err, res) {
                     res.statusCode.should.equal(500);
                     done();
                 });
@@ -199,7 +199,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give an error when the project does not exist although a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", testFolder1.pathInProject + testFolder1.name, agent, {repository: zenodoData}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, "unknownProjectHandle", testFolder2.pathInProject + testFolder2.name, agent, {repository: zenodoData}, function (err, res) {
                     res.statusCode.should.equal(401);//TODO aqui devia ser 404 certo ?
                     done();
                 });
@@ -217,7 +217,7 @@ describe("Export public project testFolder1 level to repositories tests", functi
 
         it("Should give a success message when the folder to export exists and a creator or collaborator is logged in", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder1.pathInProject + testFolder1.name, agent, {repository: zenodoData}, function (err, res) {
+                repositoryUtils.exportFolderToRepository(true, publicProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: zenodoData}, function (err, res) {
                     res.statusCode.should.equal(200);
                     done();
                 });

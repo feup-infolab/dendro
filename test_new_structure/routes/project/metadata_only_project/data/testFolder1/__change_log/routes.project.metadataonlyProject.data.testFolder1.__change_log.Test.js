@@ -81,7 +81,7 @@ describe("Metadata only project testFolder1 level ?change_log", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemChangeLog(true, agent, metadataProject.handle, testFolder1.name, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body[0].changes.length.should.equal(1);
+                    res.body[0].changes.length.should.equal(3);//The abstract, title and creator descriptors
                     done();
                 });
             });
@@ -91,7 +91,7 @@ describe("Metadata only project testFolder1 level ?change_log", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 itemUtils.getItemChangeLog(true, agent, metadataProject.handle, testFolder1.name, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body[0].changes.length.should.equal(1);
+                    res.body[0].changes.length.should.equal(3);//The abstract, title and creator descriptors
                     done();
                 });
             });

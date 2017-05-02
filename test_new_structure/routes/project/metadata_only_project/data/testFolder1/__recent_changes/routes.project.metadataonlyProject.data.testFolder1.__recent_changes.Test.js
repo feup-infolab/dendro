@@ -91,7 +91,7 @@ describe("Metadata only project testFolder1 level recent changes", function () {
                 //jsonOnly, agent, projectHandle, itemPath, cb
                 itemUtils.getItemRecentChanges(true, agent, metadataProject.handle, testFolder1.name, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body[0].changes.length.should.equal(1);//The abstract
+                    res.body[0].changes.length.should.equal(3);//The abstract, title and creator descriptors
                     done();
                 });
             });

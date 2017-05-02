@@ -17,11 +17,9 @@ require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.
 require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
 */
 
-/*
-require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
+/*require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
 require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));
-require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
-*/
+require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));*/
 
 //require(Config.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));
 
@@ -48,13 +46,11 @@ require(Config.absPathInTestsFolder("/routes/projects/private_project/undelete/r
 
 
 //PROJECT CHANGES PUBLIC PROJECT
-/*
-require(Config.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
+/*require(Config.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
 //PROJECT CHANGES PRIVATE PROJECT
 require(Config.absPathInTestsFolder("/routes/project/private_project/__recent_changes/routes.project.privateProject.__recent_changes.Test.js"));
 //PROJECT CHANGES METADADATA ONlY PROJECT
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recent_changes/routes.project.metadataonlyProject.__recent_changes.Test.js"));
-*/
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recent_changes/routes.project.metadataonlyProject.__recent_changes.Test.js"));*/
 
 //PROJECT VERSION PUBLIC PROJECT THIS TEST SHOULD BE DELETED BECAUSE THE FEATURE DOES NOT EXIST
 //require(Config.absPathInTestsFolder("/routes/project/public_project/__version/routes.project.publicProject.__version.Test.js"));
@@ -78,43 +74,39 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__exp
 */
 
 //PUBLIC PROJECT FOLDER LEVEL RECENT CHANGES
-/*
-require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__recent_changes/routes.project.publicProject.data.testFolder1.__recent_changes.Test.js"));
+/*require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__recent_changes/routes.project.publicProject.data.testFolder1.__recent_changes.Test.js"));
 require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__recent_changes/routes.project.publicProject.data.testFolder2.__recent_changes.Test.js"));
-*/
 
 //PRIVATE PROJECT FOLDER LEVEL RECENT CHANGES
-/*
 require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__recent_changes/routes.project.privateProject.data.testFolder1.__recent_changes.Test.js"));
 require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__recent_changes/routes.project.privateProject.data.testFolder2.__recent_changes.Test.js"));
-*/
 
 //METADATA ONLY PROJECT FOLDER LEVEL RECENT CHANGES
-/*require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__recent_changes/routes.project.metadataonlyProject.data.testFolder1.__recent_changes.Test.js"));
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__recent_changes/routes.project.metadataonlyProject.data.testFolder1.__recent_changes.Test.js"));
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__recent_changes/routes.project.metadataonlyProject.data.testFolder2.__recent_changes.Test.js"));*/
 
 //PUBLIC PROJECT FOLDER LEVEL ?VERSION
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__version/routes.project.publicProject.data.testFolder1.__version.Test.js"));
-require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__version/routes.project.publicProject.data.testFolder2.__version.Test.js"));*/
+require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__version/routes.project.publicProject.data.testFolder2.__version.Test.js"));
 
 //PRIVATE PROJECT FOLDER LEVEL ?VERSION
-/*require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__version/routes.project.privateProject.data.testFolder1.__version.Test.js"));
-require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__version/routes.project.privateProject.data.testFolder2.__version.Test.js"));*/
+require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__version/routes.project.privateProject.data.testFolder1.__version.Test.js"));
+require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__version/routes.project.privateProject.data.testFolder2.__version.Test.js"));
 
 //METADATA ONLY PROJECT FOLDER LEVEL ?VERSION
-/*require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__version/routes.project.metadataonlyProject.data.testFolder1.__version.Test.js"));
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__version/routes.project.metadataonlyProject.data.testFolder1.__version.Test.js"));
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__version/routes.project.metadataonlyProject.data.testFolder2.__version.Test.js"));*/
 
 //PUBLIC PROJECT FOLDER LEVEL ?CHANGE_LOG
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__change_log/routes.project.publicProject.data.testFolder1.__change_log.Test.js"));
-require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__change_log/routes.project.publicProject.data.testFolder2.__change_log.Test.js"));*/
+require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__change_log/routes.project.publicProject.data.testFolder2.__change_log.Test.js"));
 
 //PRIVATE PROJECT FOLDER LEVEL ?CHANGE_LOG
-/*require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__change_log/routes.project.privateProject.data.testFolder1.__change_log.Test.js"));
-require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__change_log/routes.project.privateProject.data.testFolder2.__change_log.Test.js"));*/
+require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__change_log/routes.project.privateProject.data.testFolder1.__change_log.Test.js"));
+require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__change_log/routes.project.privateProject.data.testFolder2.__change_log.Test.js"));
 
 //METADATA ONLY PROJECT FOLDER LEVEL ?CHANGE_LOG
-/*require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__change_log/routes.project.metadataonlyProject.data.testFolder1.__change_log.Test.js"));
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__change_log/routes.project.metadataonlyProject.data.testFolder1.__change_log.Test.js"));
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__change_log/routes.project.metadataonlyProject.data.testFolder2.__change_log.Test.js"));*/
 
 //PUBLIC PROJECT FOLDER LEVEL ?MKDIR
@@ -131,8 +123,15 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/
 
 //PUBLIC PROJECT FOLDER LEVEL ?export_to_repository
 require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__export_to_repository/routes.project.publicProject.data.testFolder1.__export_to_repository.Test.js"));
-//require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__export_to_repository/routes.project.publicProject.data.testFolder2.__export_to_repository.Test.js"));
+require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__export_to_repository/routes.project.publicProject.data.testFolder2.__export_to_repository.Test.js"));
 
+//PRIVATE PROJECT FOLDER LEVEL ?export_to_repository
+require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__export_to_repository/routes.project.privateProject.data.testFolder1.__export_to_repository.Test.js"));
+require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__export_to_repository/routes.project.privateProject.data.testFolder2.__export_to_repository.Test.js"));
+
+//METADATA ONLY PROJECT FOLDER LEVEL ?export_to_repository
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__export_to_repository/routes.project.metadataonlyProject.data.testFolder1.__export_to_repository.Test.js"));
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__export_to_repository/routes.project.metadataonlyProject.data.testFolder2.__export_to_repository.Test.js"));
 
 /*
 //test login
