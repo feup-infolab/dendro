@@ -10,6 +10,7 @@ GLOBAL.tests = {};
 /*
 require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
 */
+require("../test/controllers/project.fileOperations/upload.Test.js");
 
 /*
 require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));

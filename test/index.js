@@ -9,16 +9,20 @@ require(Config.absPathInTestsFolder("routes/project/public_project/__mkdir/route
 
 /*
 //test login
+
 require("./controllers/auth.Test.js");
 //test projects
 
 require("./controllers/projects.Test.js");
-
+*/
 //test project file operations
-require("./controllers/project.fileOperations/administer.Test.js");
+//require("./controllers/project.fileOperations/bagit.Test.js");
+require("./controllers/project.fileOperations/download.Test.js");
+
+require("./controllers/project.fileOperations/upload.Test.js");
 
 //test file uploads
-require("./controllers/files.Test.js");
+//require("./controllers/files.Test.js");
 
 //test folders
 /*

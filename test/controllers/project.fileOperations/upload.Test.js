@@ -17,6 +17,9 @@ const publicProject = require("../../mockdata/projects/public_project.js");
 const metadataOnlyProject = require("../../mockdata/projects/metadata_only_project.js");
 const privateProject= require("../../mockdata/projects/private_project.js");
 
+const md5File = require('md5-file');
+
+
 var projectUtils = require('../../utils/project/projectUtils.js');
 var userUtils = require('../../utils/user/userUtils.js');
 
@@ -25,8 +28,9 @@ var demouser2 = require("../../mockdata/users/demouser2");
 var demouser3 = require("../../mockdata/users/demouser3");
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var bootup = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+var createFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
@@ -36,7 +40,7 @@ function requireUncached(module) {
 describe("Upload data projects", function (done) {
     before(function (done) {
         this.timeout(60000);
-        bootup.setup(function (err, res) {
+        createFoldersUnit.setup(function (err, res) {
             should.equal(err, null);
             done();
         });
@@ -89,8 +93,8 @@ describe("Upload data projects", function (done) {
 
         it("[HTML] should upload file in folder as creator POST", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                //var query = '&filename=all.ejs&size=3549&username=' + demouser1.username;
-                projectUtils.upload(agent, false, '/data/pastinhaLinda', publicProject.handle, "", function (err, res) {
+                var query = '&filename=all.ejs&size=3549&username=' + demouser1.username;
+                projectUtils.upload(agent, false, '/data/pastinhaLinda', publicProject.handle, query, function (err, res) {
                     res.should.have.status(500);
                     should.exist(err);
                     res.text.should.equal('{"result":"error","message":"Upload ID not recognized. Please restart uploading undefinedfrom the beginning."}');
