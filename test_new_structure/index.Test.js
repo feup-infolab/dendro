@@ -193,6 +193,8 @@ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFo
 /*require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__hard_delete/routes.project.metadataonlyProject.data.testFolder1.__hard_delete.Test.js"));
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__hard_delete/routes.project.metadataonlyProject.data.testFolder2.__hard_delete.Test.js"));*/
 
+//external_repositories TESTS
+require(Config.absPathInTestsFolder("/routes/external_repositories/route.externalRepositories.Test.js"));
 
 
 
