@@ -1883,6 +1883,7 @@ async.waterfall([
                     if (typeof gc === 'function')
                     {
                         gc();
+                        gc();
                     }
                 }, 2000);
             }

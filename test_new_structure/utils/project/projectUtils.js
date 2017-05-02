@@ -293,9 +293,9 @@ var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
     {
         agent
             .post(path)
-            .attach('file', projectBackupPath)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
+            .attach('file', projectBackupPath)
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -452,6 +452,7 @@ var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);

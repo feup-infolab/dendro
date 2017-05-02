@@ -19,7 +19,6 @@ const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/pub
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
-//require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
 var addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
@@ -113,7 +112,6 @@ describe("Public Project mkdir", function (done) {
         this.timeout(60000);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
-            //console.log(GLOBAL.tests.app);
             GLOBAL.tests.server.close();
             done();
         });
