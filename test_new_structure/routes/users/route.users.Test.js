@@ -13,86 +13,114 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
+var addBootUpUnit = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+
+function requireUncached(module) {
+    delete require.cache[require.resolve(module)]
+    return require(module)
+}
+
+//to review naming before mergin to master
+describe("/users", function (done) {
+    before(function (done) {
+        this.timeout(60000);
+        addBootUpUnit.setup(function (err, results) {
+            should.equal(err, null);
+            done();
+        });
+    });
+
+    describe('/users', function () {
+
+        it('[HTML] should list all users when logged in as demouser1.username', function (done){
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                userUtils.listAllUsers(false, agent, function (err, res){
+                    res.should.have.status(200);
+                    res.text.should.contain('demouser1');
+                    done();
+                })
+            })
+        });
+
+        it('[JSON]  should list all users when logged in as demouser1.username', function (done) {
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+                userUtils.listAllUsers(true, agent, function (err, res){
+                    res.should.have.status(200);
+                    res.text.should.contain('demouser1');
+                    done();
+                })
+            })
+        });
 
 
-describe('/users', function () {
+        it('[HTML] should list all users when logged in as demouser2.username', function (done){
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                userUtils.listAllUsers(false, agent, function (err, res){
+                    res.should.have.status(200);
+                    res.text.should.contain('demouser1');
+                    res.text.should.contain('demouser2');
+                    res.text.should.not.contain('idontexist');
+                    done();
+                })
+            })
+        });
 
-    it('[HTML] should list all users when logged in as demouser1.username', function (done){
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
+        it('[JSON]  should list all users when logged in as demouser2.username', function (done) {
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                userUtils.listAllUsers(true, agent, function (err, res){
+                    res.should.have.status(200);
+                    res.text.should.contain('demouser1');
+                    res.text.should.contain('demouser2');
+                    res.text.should.not.contain('idontexist');
+                    done();
+                })
+            })
+        });
+
+
+        it('[HTML] should list all users when NOT logged in', function (done){
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
             userUtils.listAllUsers(false, agent, function (err, res){
                 res.should.have.status(200);
                 res.text.should.contain('demouser1');
-                done();
-            })
-        })
-    });
-
-    it('[JSON]  should list all users when logged in as demouser1.username', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            userUtils.listAllUsers(true, agent, function (err, res){
-                res.should.have.status(200);
-                res.text.should.contain('demouser1');
-                done();
-            })
-        })
-    });
-
-
-    it('[HTML] should list all users when logged in as demouser2.username', function (done){
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            userUtils.listAllUsers(false, agent, function (err, res){
-                res.should.have.status(200);
                 res.text.should.contain('demouser2');
+                res.text.should.not.contain('idontexist');
                 done();
             })
-        })
-    });
+        });
 
-    it('[JSON]  should list all users when logged in as demouser2.username', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+        it('[JSON] should list all users when NOT logged in', function (done) {
+            var app = GLOBAL.tests.app;
+            var agent = chai.request.agent(app);
             userUtils.listAllUsers(true, agent, function (err, res){
                 res.should.have.status(200);
                 res.text.should.contain('demouser1');
                 res.text.should.contain('demouser2');
-                res.text.should.contain('demouser3');
+                res.text.should.not.contain('idontexist');
                 done();
             })
-        })
+        });
+
+        after(function (done) {
+            //destroy graphs
+            this.timeout(60000);
+            db.deleteGraphs(function (err, data) {
+                should.equal(err, null);
+                GLOBAL.tests.server.close();
+                done();
+            });
+        });
+
+
     });
-
-
-    it('[HTML] should list all users when NOT logged in', function (done){
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.listAllUsers(false, agent, function (err, res){
-            res.should.have.status(200);
-            res.text.should.contain('demouser1');
-            res.text.should.contain('demouser2');
-            res.text.should.contain('demouser3');
-            done();
-        })
-    });
-
-    it('[JSON] should list all users when NOT logged in', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.listAllUsers(true, agent, function (err, res){
-            res.should.have.status(200);
-            res.text.should.contain('demouser1');
-            res.text.should.contain('demouser2');
-            res.text.should.not.contain('idontexist');
-            done();
-        })
-    });
-
-
 });
-
