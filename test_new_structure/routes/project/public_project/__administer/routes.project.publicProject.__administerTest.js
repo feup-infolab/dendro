@@ -11,8 +11,6 @@ const Config = GLOBAL.Config;
 const should = chai.should();
 
 //TODO not recognized
-var Project = requireUncached(Config.absPathInSrcFolder("models/project.js")).Project;
-var User = require(Config.absPathInSrcFolder("models/user.js")).User;
 
 
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
@@ -52,6 +50,8 @@ describe("Administer data projects", function (done) {
     describe('project/' + publicProject.handle + '?downloads', function () {
 
         it("[HTML] should not access project without logging in GET", function (done) {
+            var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.administer(agent, false, {}, publicProject.handle, function(err, res){
@@ -135,6 +135,8 @@ describe("Administer data projects", function (done) {
         });
 
         it("[HTML] should change project's privacy status, title and description", function (done) {
+            var Project = require(Config.absPathInSrcFolder("models/project.js")).Project;
+
             var metadata = 'metadata_only';
             var title = 'mockTitle';
             var description = 'this is a testing description with no other purposes';
