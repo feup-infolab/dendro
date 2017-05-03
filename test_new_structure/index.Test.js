@@ -10,13 +10,15 @@ GLOBAL.tests = {};
 /*
 require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
 */
-require("../test/controllers/project.fileOperations/upload.Test.js");
+//require("../test/controllers/project.fileOperations/upload.Test.js");
 
-/*
+
 require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
 require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
 require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
-*/
+
+
+require(Config.absPathInTestsFolder("/routes/project/public_project/__administer/routes.project.publicProject.__administerTest.js"));
 
 /*require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
 require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));
