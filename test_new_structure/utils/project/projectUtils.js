@@ -172,6 +172,30 @@ var getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHand
     {
         agent
             .get('/project/' + projectHandle + '?metadata_recommendations')
+            .set('Accept', 'text/html')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb) {
+    //recommendation_ontologies
+    var path = '/project/' + projectHandle + '?recommendation_ontologies';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -293,9 +317,9 @@ var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
     {
         agent
             .post(path)
-            .attach('file', projectBackupPath)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
+            .attach('file', projectBackupPath)
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -452,6 +476,7 @@ var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -518,6 +543,16 @@ var thumbnail = function(agent, filepath, projectHandle, cb){
         })
 };
 
+var getProjectContributors = function (agent, projectHandle, cb) {
+    //project/proj1?get_contributors
+    var path = "/project/" + projectHandle + "?get_contributors";
+    agent
+        .get(path)
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
     listAllMyProjects : listAllMyProjects,
@@ -544,5 +579,7 @@ module.exports = {
     bagit : bagit,
     download : download,
     serve : serve,
-    thumbnail : thumbnail
+    thumbnail : thumbnail,
+    getProjectContributors: getProjectContributors,
+    getRecommendationOntologiesForProject: getRecommendationOntologiesForProject
 };
