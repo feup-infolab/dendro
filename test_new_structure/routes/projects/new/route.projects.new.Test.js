@@ -11,6 +11,7 @@ const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js")
 const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const httpUtils = require(Config.absPathInTestsFolder("utils/http/httpUtils.js"));
 const descriptorUtils = require(Config.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -25,13 +26,15 @@ const metadataOnlyHTMLTests = require(Config.absPathInTestsFolder("mockdata/proj
 const privateProjectHTMLTests = require(Config.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var bootup = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+//var bootup = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+var bootup = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+//var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
+/*
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
     return require(module)
-}
+}*/
 
 describe("New project tests", function (done) {
     before(function (done) {
@@ -206,9 +209,13 @@ describe("New project tests", function (done) {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        /*db.deleteGraphs(function (err, data) {
             should.equal(err, null);
             GLOBAL.tests.server.close();
+            done();
+        });*/
+        appUtils.clearAppState(function (err, data) {
+            should.equal(err, null);
             done();
         });
     });

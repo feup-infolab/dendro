@@ -11,11 +11,9 @@ GLOBAL.tests = {};
 require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
 */
 
-/*
-require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
+/*require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));*/
 require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
 require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
-*/
 
 /*require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
 require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));
@@ -206,14 +204,22 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/
 /*require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata_recommendations/routes.project.metadataonlyProject.__metadata_recommendations.Test"));*/
 
 //PUBLIC PROJECT ?recommendation_ontologies TESTS
-require(Config.absPathInTestsFolder("/routes/project/public_project/__recommendation_ontologies/routes.project.publicProject.__recommendation_ontologies.Test"));
+/*require(Config.absPathInTestsFolder("/routes/project/public_project/__recommendation_ontologies/routes.project.publicProject.__recommendation_ontologies.Test"));*/
 
 //PRIVATE PROJECT ?recommendation_ontologies TESTS
-require(Config.absPathInTestsFolder("/routes/project/private_project/__recommendation_ontologies/routes.project.privateProject.__recommendation_ontologies.Test"));
+/*require(Config.absPathInTestsFolder("/routes/project/private_project/__recommendation_ontologies/routes.project.privateProject.__recommendation_ontologies.Test"));*/
 
 //METADATA PROJECT ?recommendation_ontologies TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recommendation_ontologies/routes.project.metadataonlyProject.__recommendation_ontologies.Test"));
+/*require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recommendation_ontologies/routes.project.metadataonlyProject.__recommendation_ontologies.Test"));*/
 
+//PUBLIC PROJECT ?metadata TESTS
+/*require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata/routes.project.publicProject.__metadata.Test"));*/
+
+//PRIVATE PROJECT ?metadata TESTS
+/*require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test"));*/
+
+//METADATA ONLY PROJECT ?metadata TESTS
+/*require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test"));*/
 
 
 /*

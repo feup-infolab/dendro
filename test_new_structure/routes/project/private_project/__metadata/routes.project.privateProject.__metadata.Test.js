@@ -10,24 +10,23 @@ const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js")
 const itemUtils = require(Config.absPathInTestsFolder("utils/item/itemUtils.js"));
 const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
 const repositoryUtils = require(Config.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-//var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+var addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
-/*function requireUncached(module) {
+function requireUncached(module) {
     delete require.cache[require.resolve(module)]
     return require(module)
-}*/
+}
 
-describe("Public project level metadata tests", function () {
+describe("Private project level metadata tests", function () {
     before(function (done) {
         this.timeout(60000);
         addMetadataToFoldersUnit.setup(function (err, results) {
@@ -36,7 +35,7 @@ describe("Public project level metadata tests", function () {
         });
     });
 
-    describe(publicProject.handle+"?metadata (public project)", function ()
+    describe(privateProject.handle+"?metadata (private project)", function ()
     {
         /**
          * Invalid request type
@@ -44,7 +43,7 @@ describe("Public project level metadata tests", function () {
         it('[HTML] should refuse request if Accept application/json was not specified', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.getProjectMetadata(false, agent, publicProject.handle, function (err, res) {
+                projectUtils.getProjectMetadata(false, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
                     done();
@@ -55,21 +54,21 @@ describe("Public project level metadata tests", function () {
         /**
          * Valid request type
          */
-        it('[JSON] should fetch metadata of the ' + publicProject.handle + ' project without authenticating', function (done)
+        it('[JSON] should NOT fetch metadata of the ' + privateProject.handle + ' project without authenticating', function (done)
         {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
-            projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.body.descriptors.should.be.instanceof(Array);
+            projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
+                res.statusCode.should.equal(401);
+                should.not.exist(res.body.descriptors);
                 done();
             });
         });
 
-        it('[JSON] should fetch metadata of the ' + publicProject.handle + ' project, authenticated as '+ demouser1.username  +' (creator)', function (done)
+        it('[JSON] should fetch metadata of the ' + privateProject.handle + ' project, authenticated as '+ demouser1.username  +' (creator)', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res) {
+                projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
                     done();
@@ -77,21 +76,21 @@ describe("Public project level metadata tests", function () {
             });
         });
 
-        it('[JSON] should fetch metadata of the ' + publicProject.handle + ' project, authenticated as '+ demouser3.username  +' (not creator nor contributor)', function (done)
+        it('[JSON] should NOT fetch metadata of the ' + privateProject.handle + ' project, authenticated as '+ demouser3.username  +' (not creator nor contributor)', function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.body.descriptors.should.be.instanceof(Array);
+                projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
+                    res.statusCode.should.equal(401);
+                    should.not.exist(res.body.descriptors);
                     done();
                 });
             });
         });
 
-        it('[JSON] should fetch metadata of the ' + publicProject.handle + ' project, authenticated as '+ demouser2.username  +' (contributor)', function (done)
+        it('[JSON] should fetch metadata of the ' + privateProject.handle + ' project, authenticated as '+ demouser2.username  +' (contributor)', function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                projectUtils.getProjectMetadata(true, agent, publicProject.handle, function (err, res) {
+                projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
                     done();
@@ -130,14 +129,9 @@ describe("Public project level metadata tests", function () {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        /*db.deleteGraphs(function (err, data) {
+        db.deleteGraphs(function (err, data) {
             should.equal(err, null);
             GLOBAL.tests.server.close();
-            done();
-        });*/
-
-        appUtils.clearAppState(function (err, data) {
-            should.equal(err, null);
             done();
         });
     });

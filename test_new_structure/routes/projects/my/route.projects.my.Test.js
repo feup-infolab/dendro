@@ -11,6 +11,7 @@ const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js")
 const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const httpUtils = require(Config.absPathInTestsFolder("utils/http/httpUtils.js"));
 const descriptorUtils = require(Config.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -22,8 +23,9 @@ const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/pr
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-var addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+//var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+//var addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+var addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
 //require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
 
@@ -168,9 +170,13 @@ describe("My Projects", function (done) {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        /*db.deleteGraphs(function (err, data) {
             should.equal(err, null);
             GLOBAL.tests.server.close();
+            done();
+        });*/
+        appUtils.clearAppState(function (err, data) {
+            should.equal(err, null);
             done();
         });
     });
