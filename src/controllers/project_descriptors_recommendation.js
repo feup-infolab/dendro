@@ -8,46 +8,59 @@ var async = require('async');
 
 exports.recommend_descriptors = function(req, res) {
 
-    var resourceUri = req.params.requestedResource;
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    if(req.session.user != null)
+    if(!acceptsJSON && acceptsHTML)
     {
-        var userUri = req.session.user.uri;
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
     }
     else
     {
-        var userUri = null;
-    }
+        var resourceUri = req.params.requestedResource;
 
-    var allowedOntologies = _.map(Config.public_ontologies, function(prefix){
-        return Ontology.allOntologies[prefix].uri;
-    });
-
-    var indexConnection = req.index;
-
-    exports.shared.recommend_descriptors(resourceUri, userUri, req.query.page, allowedOntologies, indexConnection, function(err, descriptors){
-        if(!err)
+        if(req.session.user != null)
         {
-            res.json(
-                {
-                    result : "ok",
-                    descriptors : descriptors
-                }
-            );
+            var userUri = req.session.user.uri;
         }
         else
         {
-            res.status(500).json({
-                result : "error",
-                message : "There was an error fetching the descriptors",
-                error : results
-            })
+            var userUri = null;
         }
-    }, {
-        page_number : req.query.page,
-        page_size : req.query.page_size
-    });
-}
+
+        var allowedOntologies = _.map(Config.public_ontologies, function(prefix){
+            return Ontology.allOntologies[prefix].uri;
+        });
+
+        var indexConnection = req.index;
+
+        exports.shared.recommend_descriptors(resourceUri, userUri, req.query.page, allowedOntologies, indexConnection, function(err, descriptors){
+            if(!err)
+            {
+                res.json(
+                    {
+                        result : "ok",
+                        descriptors : descriptors
+                    }
+                );
+            }
+            else
+            {
+                res.status(500).json({
+                    result : "error",
+                    message : "There was an error fetching the descriptors",
+                    error : results
+                })
+            }
+        }, {
+            page_number : req.query.page,
+            page_size : req.query.page_size
+        });
+    }
+};
 
 exports.shared = {};
 

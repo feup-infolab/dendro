@@ -172,6 +172,7 @@ var getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHand
     {
         agent
             .get('/project/' + projectHandle + '?metadata_recommendations')
+            .set('Accept', 'text/html')
             .end(function (err, res) {
                 cb(err, res);
             });

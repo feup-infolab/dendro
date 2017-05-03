@@ -194,7 +194,16 @@ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFo
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__hard_delete/routes.project.metadataonlyProject.data.testFolder2.__hard_delete.Test.js"));*/
 
 //external_repositories TESTS
-require(Config.absPathInTestsFolder("/routes/external_repositories/route.externalRepositories.Test.js"));
+/*require(Config.absPathInTestsFolder("/routes/external_repositories/route.externalRepositories.Test.js"));*/
+
+//PUBLIC PROJECT ?metadata_recommendations TESTS
+require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata_recommendations/routes.project.publicProject.__metadata_recommendations.Test"));
+
+//PRIVATE PROJECT ?metadata_recommendations TESTS
+require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata_recommendations/routes.project.privateProject.__metadata_recommendations.Test"));
+
+//METADATA ONLY PROJECT ?metadata_recommendations TESTS
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata_recommendations/routes.project.metadataonlyProject.__metadata_recommendations.Test"));
 
 
 
