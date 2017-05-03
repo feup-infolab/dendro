@@ -29,10 +29,10 @@ var addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTes
 
 //require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
 
-function requireUncached(module) {
+/*function requireUncached(module) {
     delete require.cache[require.resolve(module)]
     return require(module)
-}
+}*/
 
 describe("My Projects", function (done) {
     before(function (done) {
