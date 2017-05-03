@@ -15,7 +15,7 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const metadataProject = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
 var addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
@@ -26,7 +26,7 @@ function requireUncached(module) {
     return require(module)
 }
 
-describe("Public project level recommendation_ontologies", function () {
+describe("Metadata only project level recommendation_ontologies", function () {
     before(function (done) {
         this.timeout(60000);
         addMetadataToFoldersUnit.setup(function (err, results) {
@@ -38,12 +38,12 @@ describe("Public project level recommendation_ontologies", function () {
     /**
      * Project-level recommendation of descriptors
      */
-    describe(publicProject.handle + "?recommendation_ontologies", function ()
+    describe(metadataProject.handle + "?recommendation_ontologies", function ()
     {
         it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.getRecommendationOntologiesForProject(false, agent, publicProject.handle, function (err, res) {
+                projectUtils.getRecommendationOntologiesForProject(false, agent, metadataProject.handle, function (err, res) {
                     res.statusCode.should.equal(400);
                     res.body.should.not.be.instanceof(Array);
                     done();
@@ -51,21 +51,21 @@ describe("Public project level recommendation_ontologies", function () {
             });
         });
 
-        it('[JSON] should forbid ontology recommendation requests for ontologies in project '+ publicProject.handle +' if no user is authenticated.', function (done)
+        it('[JSON] should forbid ontology recommendation requests for ontologies in project '+ metadataProject.handle +' if no user is authenticated.', function (done)
         {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
-            projectUtils.getRecommendationOntologiesForProject(true, agent, publicProject.handle, function (err, res) {
+            projectUtils.getRecommendationOntologiesForProject(true, agent, metadataProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.body.should.not.be.instanceof(Array);
                 done();
             });
         });
 
-        it('[JSON] should allow ontology recommendation requests for ontologies in project '+ publicProject.handle +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
+        it('[JSON] should allow ontology recommendation requests for ontologies in project '+ metadataProject.handle +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.getRecommendationOntologiesForProject(true, agent, publicProject.handle, function (err, res) {
+                projectUtils.getRecommendationOntologiesForProject(true, agent, metadataProject.handle, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Array);
                     done();
@@ -73,23 +73,23 @@ describe("Public project level recommendation_ontologies", function () {
             });
         });
 
-        it('[JSON] should allow ontology recommendation requests in project '+ publicProject.handle +' if user ' +demouser2.username+ ' is authenticated (contributor).', function (done)
-        {
-            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                projectUtils.getRecommendationOntologiesForProject(true, agent, publicProject.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Array);
-                    done();
-                });
-            });
-        });
-
-        it('[JSON] should forbid ontology recommendation requests in project '+ publicProject.handle +' if user ' +demouser3.username+ ' is authenticated (not contributor nor creator).', function (done)
+        it('[JSON] should forbid ontology recommendation requests in project '+ metadataProject.handle +' if user ' +demouser3.username+ ' is authenticated (not contributor nor creator).', function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                projectUtils.getRecommendationOntologiesForProject(true, agent, publicProject.handle, function (err, res) {
+                projectUtils.getRecommendationOntologiesForProject(true, agent, metadataProject.handle, function (err, res) {
                     res.statusCode.should.equal(401);
                     res.body.should.not.be.instanceof(Array);
+                    done();
+                });
+            });
+        });
+
+        it('[JSON] should allow ontology recommendation requests in project '+ metadataProject.handle +' if user ' +demouser2.username+ ' is authenticated (contributor).', function (done)
+        {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+                projectUtils.getRecommendationOntologiesForProject(true, agent, metadataProject.handle, function (err, res) {
+                    res.statusCode.should.equal(200);
+                    res.body.should.be.instanceof(Array);
                     done();
                 });
             });

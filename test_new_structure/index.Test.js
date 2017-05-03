@@ -197,14 +197,22 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/
 /*require(Config.absPathInTestsFolder("/routes/external_repositories/route.externalRepositories.Test.js"));*/
 
 //PUBLIC PROJECT ?metadata_recommendations TESTS
-require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata_recommendations/routes.project.publicProject.__metadata_recommendations.Test"));
+/*require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata_recommendations/routes.project.publicProject.__metadata_recommendations.Test"));*/
 
 //PRIVATE PROJECT ?metadata_recommendations TESTS
-require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata_recommendations/routes.project.privateProject.__metadata_recommendations.Test"));
+/*require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata_recommendations/routes.project.privateProject.__metadata_recommendations.Test"));*/
 
 //METADATA ONLY PROJECT ?metadata_recommendations TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata_recommendations/routes.project.metadataonlyProject.__metadata_recommendations.Test"));
+/*require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata_recommendations/routes.project.metadataonlyProject.__metadata_recommendations.Test"));*/
 
+//PUBLIC PROJECT ?recommendation_ontologies TESTS
+require(Config.absPathInTestsFolder("/routes/project/public_project/__recommendation_ontologies/routes.project.publicProject.__recommendation_ontologies.Test"));
+
+//PRIVATE PROJECT ?recommendation_ontologies TESTS
+require(Config.absPathInTestsFolder("/routes/project/private_project/__recommendation_ontologies/routes.project.privateProject.__recommendation_ontologies.Test"));
+
+//METADATA PROJECT ?recommendation_ontologies TESTS
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recommendation_ontologies/routes.project.metadataonlyProject.__recommendation_ontologies.Test"));
 
 
 

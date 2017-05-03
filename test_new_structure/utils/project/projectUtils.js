@@ -179,6 +179,29 @@ var getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHand
     }
 };
 
+var getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb) {
+    //recommendation_ontologies
+    var path = '/project/' + projectHandle + '?recommendation_ontologies';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 
 var getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
     if(jsonOnly)
@@ -557,5 +580,6 @@ module.exports = {
     download : download,
     serve : serve,
     thumbnail : thumbnail,
-    getProjectContributors: getProjectContributors
+    getProjectContributors: getProjectContributors,
+    getRecommendationOntologiesForProject: getRecommendationOntologiesForProject
 };
