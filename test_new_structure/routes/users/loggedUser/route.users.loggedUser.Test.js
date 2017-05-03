@@ -13,13 +13,9 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-var addBootUpUnit = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 
 
 describe("/users", function (done) {
@@ -155,11 +151,9 @@ describe("/users", function (done) {
     });
 
     after(function (done) {
-        //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
             done();
         });
     });

@@ -248,6 +248,30 @@ var getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, 
     }
 };
 
+var getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
+    var path = '/project/' + projectHandle + '?metadata';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 var removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb) {
     getResourceMetadata(jsonOnly, agent, projectHandle, folderPath, function (err, res) {
         var descriptors = JSON.parse(res.text).descriptors;
@@ -581,5 +605,6 @@ module.exports = {
     serve : serve,
     thumbnail : thumbnail,
     getProjectContributors: getProjectContributors,
-    getRecommendationOntologiesForProject: getRecommendationOntologiesForProject
+    getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
+    getProjectMetadata: getProjectMetadata
 };
