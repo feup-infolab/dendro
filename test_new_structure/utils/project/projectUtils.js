@@ -172,6 +172,30 @@ var getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHand
     {
         agent
             .get('/project/' + projectHandle + '?metadata_recommendations')
+            .set('Accept', 'text/html')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb) {
+    //recommendation_ontologies
+    var path = '/project/' + projectHandle + '?recommendation_ontologies';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -217,6 +241,30 @@ var getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, 
     {
         agent
             .get(path)
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
+    var path = '/project/' + projectHandle + '?metadata';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -556,5 +604,7 @@ module.exports = {
     download : download,
     serve : serve,
     thumbnail : thumbnail,
-    getProjectContributors: getProjectContributors
+    getProjectContributors: getProjectContributors,
+    getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
+    getProjectMetadata: getProjectMetadata
 };

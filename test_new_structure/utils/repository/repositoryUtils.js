@@ -100,10 +100,36 @@ var getMyExternalRepositories = function (jsonOnly, agent, cb) {
     }
 };
 
+var getAllExternalRepositories = function (jsonOnly, agent, cb) {
+    //http://127.0.0.1:3001/external_repositories/
+    var path = '/external_repositories';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 
 module.exports = {
     exportFolderToRepository: exportFolderToRepository,
     exportToRepository: exportToRepository,
     createExportConfig: createExportConfig,
-    getMyExternalRepositories : getMyExternalRepositories
+    getMyExternalRepositories : getMyExternalRepositories,
+    getAllExternalRepositories : getAllExternalRepositories
 };

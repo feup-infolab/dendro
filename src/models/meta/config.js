@@ -602,7 +602,7 @@ Config.metadataContentTypes ={
     "application/txt" : "text/plain",
     "application/rdf" : "text/xml",
     "application/xml" : "text/xml",
-    "application/json" : "text/json"
+    "application/json" : "application/json"
 };
 
 Config.theme = getConfigParameter("theme");

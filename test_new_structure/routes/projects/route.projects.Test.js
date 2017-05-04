@@ -11,6 +11,7 @@ const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js")
 const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const httpUtils = require(Config.absPathInTestsFolder("utils/http/httpUtils.js"));
 const descriptorUtils = require(Config.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -21,14 +22,8 @@ const metadataOnlyProject = require(Config.absPathInTestsFolder("mockdata/projec
 const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-//require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
-var addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}
+var addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 //LIST ALL PROJECTS
 describe("List all projects tests", function (done) {
@@ -124,9 +119,8 @@ describe("List all projects tests", function (done) {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
             done();
         });
     });

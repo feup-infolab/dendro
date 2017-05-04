@@ -13,6 +13,7 @@ const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js")
 const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtils.js"));
 const httpUtils = require(Config.absPathInTestsFolder("utils/http/httpUtils.js"));
 const repositoryUtils = require(Config.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -21,15 +22,10 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const metadataProject = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 
-var createExportToRepositoriesConfig = requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+var createExportToRepositoriesConfig = appUtils.requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let b2shareData, ckanData, zenodoData, dspaceData, eprintsData,figshareData;
-
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}
 
 describe("Export metadata project to repositories tests", function () {
     before(function (done) {
@@ -101,9 +97,8 @@ describe("Export metadata project to repositories tests", function () {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
             done();
         });
     });

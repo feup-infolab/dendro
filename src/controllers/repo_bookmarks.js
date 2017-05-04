@@ -334,26 +334,39 @@ exports.my = function(req, res) {
 }
 
 exports.all = function(req, res) {
-    ExternalRepository.all(function(err, externalRepositories){
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-        if(!err)
-        {
-            for(var i = 0; i < externalRepositories.length; i++)
+    if(!acceptsJSON && acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        ExternalRepository.all(function(err, externalRepositories){
+
+            if(!err)
             {
-                Descriptor.removeUnauthorizedFromObject([Config.types.private, Config.types.audit], [Config.types.api_readable]);
-            }
+                for(var i = 0; i < externalRepositories.length; i++)
+                {
+                    Descriptor.removeUnauthorizedFromObject([Config.types.private, Config.types.audit], [Config.types.api_readable]);
+                }
 
-            res.json(externalRepositories);
-        }
-        else
-        {
-            var msg = "Unable to retrieve all instances of external repositories";
-            res.status(500).json({
-                result : "error",
-                message : msg
-            });
-        }
-    });
+                res.json(externalRepositories);
+            }
+            else
+            {
+                var msg = "Unable to retrieve all instances of external repositories";
+                res.status(500).json({
+                    result : "error",
+                    message : msg
+                });
+            }
+        });
+    }
 };
 
 exports.delete = function(req, res){
