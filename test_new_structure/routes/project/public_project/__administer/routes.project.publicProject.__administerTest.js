@@ -33,6 +33,8 @@ const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js")
 var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 var createFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 
+let Project;
+let User;
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
@@ -44,13 +46,14 @@ describe("Administer data projects", function (done) {
         this.timeout(60000);
         createFoldersUnit.setup(function (err, res) {
             should.equal(err, null);
+            Project = require(Config.absPathInSrcFolder("models/project.js")).Project;
+            User = require(Config.absPathInSrcFolder("/models/user.js")).User;
             done();
         });
     });
     describe('project/' + publicProject.handle + '?downloads', function () {
 
         it("[HTML] should not access project without logging in GET", function (done) {
-            var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
@@ -135,8 +138,6 @@ describe("Administer data projects", function (done) {
         });
 
         it("[HTML] should change project's privacy status, title and description", function (done) {
-            var Project = require(Config.absPathInSrcFolder("models/project.js")).Project;
-
             var metadata = 'metadata_only';
             var title = 'mockTitle';
             var description = 'this is a testing description with no other purposes';
