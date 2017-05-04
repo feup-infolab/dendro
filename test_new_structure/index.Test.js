@@ -203,13 +203,22 @@ require(Config.absPathInTestsFolder("/routes/project/private_project/__recommend
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recommendation_ontologies/routes.project.metadataonlyProject.__recommendation_ontologies.Test"));*/
 
 //PUBLIC PROJECT ?metadata TESTS
-require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata/routes.project.publicProject.__metadata.Test"));
+/*require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata/routes.project.publicProject.__metadata.Test"));
 
 //PRIVATE PROJECT ?metadata TESTS
 require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test"));
 
 //METADATA ONLY PROJECT ?metadata TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test"));
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test"));*/
+
+//PUBLIC PROJECT ?metadata&deep TESTS
+require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata&deep/routes.project.publicProject.__metadata&deep.Test"));
+
+//PRIVATE PROJECT ?metadata&deep TESTS
+require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata&deep/routes.project.privateProject.__metadata&deep.Test"));
+
+//METADATA ONLY PROJECT ?metadata&deep TESTS
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata&deep/routes.project.metadataonlyProject.__metadata&deep.Test"));
 
 
 /*

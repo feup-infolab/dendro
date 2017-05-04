@@ -1419,7 +1419,7 @@ async.waterfall([
                     //metadata deep
                     {
                         queryKeys: ['metadata', 'deep'],
-                        handler : records.show_deep,
+                        handler : projects.show,
                         permissions : defaultPermissionsInProjectRoot,
                         authentication_error : "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access this project."
                     },

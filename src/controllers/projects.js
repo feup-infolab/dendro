@@ -251,7 +251,7 @@ exports.show = function(req, res) {
                 serializer = Config.metadataSerializers[accept];
                 contentType = Config.metadataContentTypes[accept];
 
-                if (req.query.deep != null && req.query.deep == 'true')
+                if (req.query.deep != null)
                 {
                     requestedResource.findMetadataRecursive(function (err, result)
                     {

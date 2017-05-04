@@ -50,6 +50,13 @@ exports.show_deep = function(req, res) {
             }
         });
     }
+    else
+    {
+        res.status(400).json({
+            result: "error",
+            message : "filepath parameter was not specified."
+        });
+    }
 };
 
 exports.show = function(req, res) {

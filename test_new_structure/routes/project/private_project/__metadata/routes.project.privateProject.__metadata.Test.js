@@ -42,6 +42,7 @@ describe("Private project level metadata tests", function () {
                 projectUtils.getProjectMetadata(false, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -57,6 +58,7 @@ describe("Private project level metadata tests", function () {
             projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);
                 should.not.exist(res.body.descriptors);
+                should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                 done();
             });
         });
@@ -67,6 +69,7 @@ describe("Private project level metadata tests", function () {
                 projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -78,6 +81,7 @@ describe("Private project level metadata tests", function () {
                 projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(401);
                     should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -89,6 +93,7 @@ describe("Private project level metadata tests", function () {
                 projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -105,6 +110,7 @@ describe("Private project level metadata tests", function () {
                     //Project http://127.0.0.1:3001/project/unknownProjectHandle not found.
                     res.text.should.include("Project "  + "http://" + Config.host + "/project/" + invalidProject.handle + " not found.");
                     should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -116,6 +122,7 @@ describe("Private project level metadata tests", function () {
                 projectUtils.getProjectMetadata(true, agent, invalidProject.handle, function (err, res) {
                     res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
