@@ -9,6 +9,8 @@ const async = require('async');
 const Config = GLOBAL.Config;
 
 const should = chai.should();
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+
 
 //TODO not recognized
 
@@ -20,8 +22,8 @@ const privateProject= require(Config.absPathInTestsFolder("mockdata/projects/pri
 const md5File = require('md5-file');
 
 
-var projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
-var userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
+const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 
 var demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
 var demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
@@ -30,7 +32,7 @@ var demouser4 = require(Config.absPathInTestsFolder("mockdata/users/demouser4"))
 var demouser5 = require(Config.absPathInTestsFolder("mockdata/users/demouser5"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 var createFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 
 let Project;

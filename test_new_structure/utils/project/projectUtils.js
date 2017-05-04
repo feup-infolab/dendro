@@ -567,6 +567,23 @@ var thumbnail = function(agent, filepath, projectHandle, cb){
         })
 };
 
+var upload = function(agent, modify, filepath, projectHandle, query,  cb){
+    if(modify){
+        agent
+            .post('/project/' + projectHandle + filepath + '?upload' + query)
+            .send()
+            .end(function(err, res){
+                cb(err, res);
+            });
+    }else {
+        agent
+            .get('/project/' + projectHandle + filepath + '?upload' + query)
+            .end(function(err, res){
+                cb(err, res);
+            });
+    }
+};
+
 var getProjectContributors = function (agent, projectHandle, cb) {
     //project/proj1?get_contributors
     var path = "/project/" + projectHandle + "?get_contributors";
@@ -604,6 +621,7 @@ module.exports = {
     download : download,
     serve : serve,
     thumbnail : thumbnail,
+    upload : upload,
     getProjectContributors: getProjectContributors,
     getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
     getProjectMetadata: getProjectMetadata

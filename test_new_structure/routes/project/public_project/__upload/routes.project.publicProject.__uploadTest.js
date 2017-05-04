@@ -3,48 +3,81 @@ process.env.NODE_ENV = 'test';
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
-var fs = require('fs');
-var path = require('path');
-var async = require('async');
+const fs = require('fs');
+const path = require('path');
+const async = require('async');
+const Browser = require('zombie');
 const Config = GLOBAL.Config;
 
-//var File = require(Config.absPathInSrcFolder('models/directory_structure/file.js')).File;
+//let File = require(Config.absPathInSrcFolder('models/directory_structure/file.js')).File;
+
 
 const should = chai.should();
 
 
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProject = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProject= require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
 const md5File = require('md5-file');
 
 
-var projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
-var userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
+
+const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+
 
 var demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
 var demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
 var demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-var createFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-
-
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}
+var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+var createFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 
 describe("Upload data projects", function (done) {
     before(function (done) {
         this.timeout(60000);
         createFoldersUnit.setup(function (err, res) {
             should.equal(err, null);
-            done();
+
+            const phantom = require('phantom');
+            var sitepage = null;
+            var phInstance = null;
+            phantom.create()
+                .then(instance => {
+                    phInstance = instance;
+                    return instance.createPage();
+                })
+                .then(page => {
+
+                    page.on("onResourceRequested", function(requestData) {
+                        page.open('https://stackoverflow.com/', function(err){
+                            console.log(err);
+
+                            page.property('content', function(err, content){
+                                console.log(content);
+                                console.log(err);
+                                done();
+                            });
+                        });
+                    });
+
+
+
+
+
+                })
+                .catch(error => {
+                    console.log(error);
+                    phInstance.exit();
+                });
+
+
+
         });
     });
+
+
     describe('project/' + publicProject.handle + '?upload', function () {
 
         it("[HTML] should not upload file in root without logging in POST", function (done) {
@@ -93,13 +126,16 @@ describe("Upload data projects", function (done) {
 
         it("[HTML] should upload file in folder as creator POST", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                var query = '&filename=all.ejs&size=3549&username=' + demouser1.username;
-                projectUtils.upload(agent, false, '/data/pastinhaLinda', publicProject.handle, query, function (err, res) {
-                    res.should.have.status(500);
-                    should.exist(err);
-                    res.text.should.equal('{"result":"error","message":"Upload ID not recognized. Please restart uploading undefinedfrom the beginning."}');
-                    done();
-                });
+
+                //browser.visit("/projects/my", function(err){
+                    var query = '&filename=all.ejs&size=3549&username=' + demouser1.username;
+                    projectUtils.upload(agent, false, '/data/pastinhaLinda', publicProject.handle, query, function (err, res) {
+                        res.should.have.status(500);
+                        should.exist(err);
+                        res.text.should.equal('{"result":"error","message":"Upload ID not recognized. Please restart uploading undefinedfrom the beginning."}');
+                        done();
+                    });
+                //});
             });
         });
     });
@@ -107,7 +143,7 @@ describe("Upload data projects", function (done) {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             GLOBAL.tests.server.close();
             done();
