@@ -209,7 +209,7 @@ require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata/r
 require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test"));
 
 //METADATA ONLY PROJECT ?metadata TESTS
-/*require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test"));*/
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test"));
 
 
 /*
