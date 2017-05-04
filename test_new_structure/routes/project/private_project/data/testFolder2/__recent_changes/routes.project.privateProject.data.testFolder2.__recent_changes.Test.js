@@ -8,6 +8,7 @@ const Config = GLOBAL.Config;
 
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Config.absPathInTestsFolder("utils/item/itemUtils.js"));
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -19,13 +20,8 @@ const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/in
 const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
-var addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}
+var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Private project testFolder2 level recent changes", function () {
     before(function (done) {
@@ -112,9 +108,8 @@ describe("Private project testFolder2 level recent changes", function () {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
             done();
         });
     });

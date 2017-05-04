@@ -10,18 +10,14 @@ const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js")
 const itemUtils = require(Config.absPathInTestsFolder("utils/item/itemUtils.js"));
 const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
 const repositoryUtils = require(Config.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-var createExportToRepositoriesConfigsUnit = requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}
+var createExportToRepositoriesConfigsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("List all external repository tests", function () {
     before(function (done) {
@@ -98,9 +94,8 @@ describe("List all external repository tests", function () {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
             done();
         });
     });

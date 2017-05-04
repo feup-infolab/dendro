@@ -23,16 +23,7 @@ const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/pr
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 
-//var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-//var addContributorsToProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 var addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-
-//require(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js")).setup();
-
-/*function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}*/
 
 describe("My Projects", function (done) {
     before(function (done) {
@@ -170,11 +161,6 @@ describe("My Projects", function (done) {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        /*db.deleteGraphs(function (err, data) {
-            should.equal(err, null);
-            GLOBAL.tests.server.close();
-            done();
-        });*/
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

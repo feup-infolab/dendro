@@ -20,12 +20,7 @@ const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/pub
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
 var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-//var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-
-/*function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}*/
+var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Public project level metadata tests", function () {
     before(function (done) {
@@ -130,12 +125,6 @@ describe("Public project level metadata tests", function () {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        /*db.deleteGraphs(function (err, data) {
-            should.equal(err, null);
-            GLOBAL.tests.server.close();
-            done();
-        });*/
-
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();
