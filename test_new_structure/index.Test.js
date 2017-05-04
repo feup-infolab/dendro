@@ -212,14 +212,16 @@ require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata/
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test"));*/
 
 //PUBLIC PROJECT ?metadata&deep TESTS
-require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata&deep/routes.project.publicProject.__metadata&deep.Test"));
+/*require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata&deep/routes.project.publicProject.__metadata&deep.Test"));
 
 //PRIVATE PROJECT ?metadata&deep TESTS
 require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata&deep/routes.project.privateProject.__metadata&deep.Test"));
 
 //METADATA ONLY PROJECT ?metadata&deep TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata&deep/routes.project.metadataonlyProject.__metadata&deep.Test"));
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata&deep/routes.project.metadataonlyProject.__metadata&deep.Test"));*/
 
+//PUBLIC PROJECT ROOT TESTS
+require(Config.absPathInTestsFolder("/routes/project/public_project/routes.project.publicProject.Test"));
 
 /*
 //test login
