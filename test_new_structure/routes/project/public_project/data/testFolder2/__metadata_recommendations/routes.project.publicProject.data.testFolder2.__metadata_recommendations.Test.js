@@ -18,13 +18,13 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 
 var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Public project testFolder1 level metadata_recommendations tests", function () {
+describe("Public project testFolder2 level metadata_recommendations tests", function () {
     before(function (done) {
         this.timeout(60000);
         addMetadataToFoldersUnit.setup(function (err, results) {
@@ -33,12 +33,12 @@ describe("Public project testFolder1 level metadata_recommendations tests", func
         });
     });
 
-    describe(publicProject.handle + "/data/" + testFolder1.name +"?metadata_recommendations", function ()
+    describe(publicProject.handle + "/data/" + testFolder2.name +"?metadata_recommendations", function ()
     {
         it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemMetadataRecommendations(false, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataRecommendations(false, agent, publicProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
                     done();
@@ -51,7 +51,7 @@ describe("Public project testFolder1 level metadata_recommendations tests", func
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
 
-            itemUtils.getItemMetadataRecommendations(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+            itemUtils.getItemMetadataRecommendations(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
                 res.statusCode.should.equal(401);
                 should.not.exist(res.body.descriptors);
                 done();
@@ -61,7 +61,7 @@ describe("Public project testFolder1 level metadata_recommendations tests", func
         it('[JSON] should allow requests for recommendations in project '+ publicProject.handle +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemMetadataRecommendations(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataRecommendations(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
                     done();
@@ -72,7 +72,7 @@ describe("Public project testFolder1 level metadata_recommendations tests", func
         it('[JSON] should allow requests for recommendations in project '+ publicProject.handle +' if user ' +demouser2.username+ ' is authenticated (contributor).', function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                itemUtils.getItemMetadataRecommendations(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataRecommendations(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
                     done();
@@ -83,7 +83,7 @@ describe("Public project testFolder1 level metadata_recommendations tests", func
         it('[JSON] should allow requests for recommendations in project '+ publicProject.handle +' if user ' +demouser3.username+ ' is authenticated (not contributor nor creator).', function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.getItemMetadataRecommendations(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataRecommendations(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
                     done();
@@ -102,12 +102,12 @@ describe("Public project testFolder1 level metadata_recommendations tests", func
         });
     });
 
-    describe(invalidProject.handle + "/data/" + testFolder1.name +"?metadata_recommendations", function ()
+    describe(invalidProject.handle + "/data/" + testFolder2.name +"?metadata_recommendations", function ()
     {
         it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemMetadataRecommendations(false, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataRecommendations(false, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
                     done();
@@ -120,7 +120,7 @@ describe("Public project testFolder1 level metadata_recommendations tests", func
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
 
-            itemUtils.getItemMetadataRecommendations(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+            itemUtils.getItemMetadataRecommendations(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                 res.statusCode.should.equal(401);
                 should.not.exist(res.body.descriptors);
                 done();
@@ -130,7 +130,7 @@ describe("Public project testFolder1 level metadata_recommendations tests", func
         it('[JSON] should give not found for recommendations in project '+ invalidProject.handle +' if user ' +demouser1.username+ ' is authenticated.', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemMetadataRecommendations(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataRecommendations(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
                     done();
@@ -141,7 +141,7 @@ describe("Public project testFolder1 level metadata_recommendations tests", func
         it('[JSON] should give not found for recommendations in project '+ invalidProject.handle +' if user ' +demouser2.username+ ' is authenticated.', function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                itemUtils.getItemMetadataRecommendations(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataRecommendations(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
                     done();
@@ -152,7 +152,7 @@ describe("Public project testFolder1 level metadata_recommendations tests", func
         it('[JSON] should give not found for recommendations in project '+ invalidProject.handle +' if user ' +demouser3.username+ ' is authenticated.', function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.getItemMetadataRecommendations(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataRecommendations(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
                     done();

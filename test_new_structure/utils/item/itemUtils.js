@@ -236,6 +236,28 @@ var getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     }
 };
 
+var getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    var path = '/project/' + projectHandle + "/data/" + itemPath + '?metadata_recommendations';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateItemMetadata: updateItemMetadata,
     getItemMetadata: getItemMetadata,
@@ -245,5 +267,6 @@ module.exports = {
     undeleteItem: undeleteItem,
     itemRestoreMetadataVersion: itemRestoreMetadataVersion,
     getItemChangeLog: getItemChangeLog,
-    createFolder: createFolder
+    createFolder: createFolder,
+    getItemMetadataRecommendations: getItemMetadataRecommendations
 };

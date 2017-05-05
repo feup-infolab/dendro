@@ -221,13 +221,25 @@ require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata&
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata&deep/routes.project.metadataonlyProject.__metadata&deep.Test"));*/
 
 //PUBLIC PROJECT ROOT TESTS
-require(Config.absPathInTestsFolder("/routes/project/public_project/routes.project.publicProject.Test"));
+/*require(Config.absPathInTestsFolder("/routes/project/public_project/routes.project.publicProject.Test"));
 
 //PRIVATE PROJECT ROOT TESTS
 require(Config.absPathInTestsFolder("/routes/project/private_project/routes.project.privateProject.Test"));
 
 //METADATA ONLY PROJECT ROOT TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/routes.project.metadataonlyProject.Test"));
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/routes.project.metadataonlyProject.Test"));*/
+
+//PUBLIC PROJECT FOLDER LEVEL ?metadata_recommendations
+/*require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__metadata_recommendations/routes.project.publicProject.data.testFolder1.__metadata_recommendations.Test"));
+require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__metadata_recommendations/routes.project.publicProject.data.testFolder2.__metadata_recommendations.Test"));*/
+
+//PRIVATE PROJECT FOLDER LEVEL ?metadata_recommendations
+/*require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__metadata_recommendations/routes.project.privateProject.data.testFolder1.__metadata_recommendations.Test"));
+require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__metadata_recommendations/routes.project.privateProject.data.testFolder2.__metadata_recommendations.Test"));*/
+
+//METADATA ONLY PROJECT FOLDER LEVEL ?metadata_recommendations
+/*require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__metadata_recommendations/routes.project.metadataonlyProject.data.testFolder1.__metadata_recommendations.Test"));
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__metadata_recommendations/routes.project.metadataonlyProject.data.testFolder2.__metadata_recommendations.Test"));*/
 
 /*
 //test login
