@@ -22,7 +22,7 @@ const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/in
 var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Private project root tests", function () {
+describe("Metadata only project root tests", function () {
     before(function (done) {
         this.timeout(60000);
         addMetadataToFoldersUnit.setup(function (err, results) {
