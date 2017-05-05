@@ -18,13 +18,13 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 
 var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Public project testFolder1 level recommendation_ontologies tests", function () {
+describe("Public project testFolder2 level recommendation_ontologies tests", function () {
     before(function (done) {
         this.timeout(60000);
         addMetadataToFoldersUnit.setup(function (err, results) {
@@ -33,12 +33,12 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
         });
     });
 
-    describe(publicProject.handle + "/data/" + testFolder1.name + "?recommendation_ontologies", function ()
+    describe(publicProject.handle + "/data/" + testFolder2.name + "?recommendation_ontologies", function ()
     {
         it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemRecommendationOntologies(false, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemRecommendationOntologies(false, agent, publicProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     res.body.should.not.be.instanceof(Array);
                     done();
@@ -50,7 +50,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
         {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
-            itemUtils.getItemRecommendationOntologies(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+            itemUtils.getItemRecommendationOntologies(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.body.should.not.be.instanceof(Array);
                 done();
@@ -60,7 +60,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
         it('[JSON] should allow ontology recommendation requests for ontologies in project '+ publicProject.handle +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemRecommendationOntologies(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemRecommendationOntologies(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Array);
                     done();
@@ -71,7 +71,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
         it('[JSON] should allow ontology recommendation requests in project '+ publicProject.handle +' if user ' +demouser2.username+ ' is authenticated (contributor).', function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                itemUtils.getItemRecommendationOntologies(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemRecommendationOntologies(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Array);
                     done();
@@ -82,7 +82,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
         it('[JSON] should forbid ontology recommendation requests in project '+ publicProject.handle +' if user ' +demouser3.username+ ' is authenticated (not contributor nor creator).', function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.getItemRecommendationOntologies(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemRecommendationOntologies(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(401);
                     res.body.should.not.be.instanceof(Array);
                     done();
@@ -101,12 +101,12 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
         });
     });
 
-    describe(invalidProject.handle + "/data/" + testFolder1.name + "?recommendation_ontologies", function ()
+    describe(invalidProject.handle + "/data/" + testFolder2.name + "?recommendation_ontologies", function ()
     {
         it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemRecommendationOntologies(false, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemRecommendationOntologies(false, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     res.body.should.not.be.instanceof(Array);
                     done();
@@ -118,7 +118,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
         {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
-            itemUtils.getItemRecommendationOntologies(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+            itemUtils.getItemRecommendationOntologies(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.body.should.not.be.instanceof(Array);
                 done();
@@ -128,7 +128,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
         it('[JSON] should give a not found error for requests for recommendations in project '+ invalidProject.handle +' if user ' +demouser1.username+ ' is authenticated.', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemRecommendationOntologies(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemRecommendationOntologies(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(404);
                     res.body.should.not.be.instanceof(Array);
                     done();
@@ -139,7 +139,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
         it('[JSON] should give a not found error for requests for recommendations in project '+ invalidProject.handle +' if user ' +demouser3.username+ ' is authenticated.', function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.getItemRecommendationOntologies(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemRecommendationOntologies(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(404);
                     res.body.should.not.be.instanceof(Array);
                     done();
@@ -150,7 +150,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
         it('[JSON] should give a not found error for requests for recommendations in project '+ invalidProject.handle +' if user ' +demouser2.username+ ' is authenticated.', function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                itemUtils.getItemRecommendationOntologies(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemRecommendationOntologies(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(404);
                     res.body.should.not.be.instanceof(Array);
                     done();

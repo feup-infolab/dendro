@@ -258,6 +258,29 @@ var getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle, i
     }
 };
 
+var getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    //recommendation_ontologies
+    var path = '/project/' + projectHandle + "/data/" + itemPath + '?recommendation_ontologies';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateItemMetadata: updateItemMetadata,
     getItemMetadata: getItemMetadata,
@@ -268,5 +291,6 @@ module.exports = {
     itemRestoreMetadataVersion: itemRestoreMetadataVersion,
     getItemChangeLog: getItemChangeLog,
     createFolder: createFolder,
-    getItemMetadataRecommendations: getItemMetadataRecommendations
+    getItemMetadataRecommendations: getItemMetadataRecommendations,
+    getItemRecommendationOntologies: getItemRecommendationOntologies
 };
