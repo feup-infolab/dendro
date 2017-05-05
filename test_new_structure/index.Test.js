@@ -223,6 +223,12 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__met
 //PUBLIC PROJECT ROOT TESTS
 require(Config.absPathInTestsFolder("/routes/project/public_project/routes.project.publicProject.Test"));
 
+//PRIVATE PROJECT ROOT TESTS
+require(Config.absPathInTestsFolder("/routes/project/private_project/routes.project.privateProject.Test"));
+
+//METADATA ONLY PROJECT ROOT TESTS
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/routes.project.metadataonlyProject.Test"));
+
 /*
 //test login
 require("./controllers/auth.Test.js");

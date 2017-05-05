@@ -177,7 +177,7 @@ describe("Public project root tests", function () {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.viewProject(true, agent, invalidProject.handle, function (err, res) {
-                res.should.have.status(404);//-> manda o html a dizer que o projeto não existe
+                res.should.have.status(404);//-> At the moment it is responding with an html page saying that the project does not exist
                 done();
             });
         });
@@ -185,7 +185,7 @@ describe("Public project root tests", function () {
         it("[JSON] should give a 404 error if the user is logged in as demouser1(the project creator)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.viewProject(true, agent, invalidProject.handle, function (err, res) {
-                    res.should.have.status(404);
+                    res.should.have.status(404);//-> At the moment it is responding with an html page saying that the project does not exist
                     done();
                 });
             });
@@ -194,7 +194,7 @@ describe("Public project root tests", function () {
         it("[JSON] should give a 404 error if the user is logged in as demouser2(a project contributor)", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 projectUtils.viewProject(true, agent, invalidProject.handle, function (err, res) {
-                    res.should.have.status(404);
+                    res.should.have.status(404);//-> At the moment it is responding with an html page saying that the project does not exist
                     done();
                 });
             });
@@ -203,7 +203,7 @@ describe("Public project root tests", function () {
         it("[JSON] should give a 404 error if the user is logged in as demouser3(non-creator or non-contributor of the project)", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 projectUtils.viewProject(true, agent, invalidProject.handle, function (err, res) {
-                    res.should.have.status(404);
+                    res.should.have.status(404);//-> At the moment it is responding with an html page saying that the project does not exist
                     done();
                 });
             });
