@@ -75,6 +75,7 @@ var getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);

@@ -60,38 +60,51 @@ exports.show_deep = function(req, res) {
 };
 
 exports.show = function(req, res) {
-    var requestedResourceURI = req.params.requestedResource;
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    var requestedResource = new InformationElement({
-        uri : requestedResourceURI
-    });
+    if(!acceptsJSON && acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        var requestedResourceURI = req.params.requestedResource;
 
-    requestedResource.findMetadata(function(err, result){
-        if(!err){
+        var requestedResource = new InformationElement({
+            uri : requestedResourceURI
+        });
 
-            var accept = req.header('Accept');
-            var serializer = null;
-            var contentType = null;
-            if(accept == null || accept in Config.metadataSerializers == false)
-            {
-                serializer = Config.defaultMetadataSerializer;
-                contentType = Config.defaultMetadataContentType;
+        requestedResource.findMetadata(function(err, result){
+            if(!err){
+
+                var accept = req.header('Accept');
+                var serializer = null;
+                var contentType = null;
+                if(accept == null || accept in Config.metadataSerializers == false)
+                {
+                    serializer = Config.defaultMetadataSerializer;
+                    contentType = Config.defaultMetadataContentType;
+                }
+                else{
+                    serializer = Config.metadataSerializers[accept];
+                    contentType = Config.metadataContentTypes[accept];
+                }
+
+                res.set('Content-Type', contentType);
+                res.send(serializer(result));
+
             }
             else{
-                serializer = Config.metadataSerializers[accept];
-                contentType = Config.metadataContentTypes[accept];
+                res.status(500).json({
+                    error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
+                });
             }
-
-            res.set('Content-Type', contentType);
-            res.send(serializer(result));
-
-        }
-        else{
-            res.status(500).json({
-                error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
-            });
-        }
-    });
+        });
+    }
 };
 
 exports.show_parent = function(req, res) {
