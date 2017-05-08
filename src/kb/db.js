@@ -263,6 +263,8 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                         console.log("POSTING QUERY: \n" + query);
                     }
 
+                    query = "DEFINE sql:log-enable 2\n" + query;
+
                     const options = {
                         method: 'POST',
                         uri: fullUrl,
