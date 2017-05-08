@@ -15,16 +15,16 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const metadataProject = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
+const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 
 var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Public project testFolder1 level metadata&deep tests", function () {
+describe("Metadata only project project testFolder2 level metadata&deep tests", function () {
     before(function (done) {
         this.timeout(60000);
         addMetadataToFoldersUnit.setup(function (err, results) {
@@ -33,7 +33,7 @@ describe("Public project testFolder1 level metadata&deep tests", function () {
         });
     });
 
-    describe("/project/"+publicProject.handle + "/data/" + testFolder1.name +"?metadata&deep (public project)", function ()
+    describe("/project/"+metadataProject.handle + "/data/" + testFolder2.name +"?metadata&deep (metadata only project)", function ()
     {
         /**
          * Invalid request type
@@ -41,7 +41,7 @@ describe("Public project testFolder1 level metadata&deep tests", function () {
         it('[HTML] should refuse request if Accept application/json was not specified', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemMetadataDeep(false, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataDeep(false, agent, metadataProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
                     should.not.exist(res.body.hasLogicalParts);
@@ -53,22 +53,22 @@ describe("Public project testFolder1 level metadata&deep tests", function () {
         /**
          * Valid request type
          */
-        it("[JSON] should fetch metadata recursively of the " + publicProject.handle  + "/data/" + testFolder1.name+ " resource without authenticating", function (done)
+        it("[JSON] should refuse to fetch metadata recursively of the " + metadataProject.handle  + "/data/" + testFolder2.name+ " resource without authenticating", function (done)
         {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
-            itemUtils.getItemMetadataDeep(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.body.descriptors.should.be.instanceof(Array);
-                res.body.hasLogicalParts.should.be.instanceof(Array);//only because this is a metadata&deep request
+            itemUtils.getItemMetadataDeep(true, agent, metadataProject.handle, testFolder2.name, function (err, res) {
+                res.statusCode.should.equal(401);
+                should.not.exist(res.body.descriptors);
+                should.not.exist(res.body.hasLogicalParts);
                 done();
             });
         });
 
-        it("[JSON] should fetch metadata recursively of the " + publicProject.handle  + "/data/" + testFolder1.name+ " resource, authenticated as "+ demouser1.username +" (creator)", function (done)
+        it("[JSON] should fetch metadata recursively of the " + metadataProject.handle  + "/data/" + testFolder2.name+ " resource, authenticated as "+ demouser1.username +" (creator)", function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemMetadataDeep(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataDeep(true, agent, metadataProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
                     res.body.hasLogicalParts.should.be.instanceof(Array);//only because this is a metadata&deep request
@@ -77,22 +77,22 @@ describe("Public project testFolder1 level metadata&deep tests", function () {
             });
         });
 
-        it("[JSON] should fetch metadata recursively of the " + publicProject.handle  + "/data/" + testFolder1.name+ " resource, authenticated as "+ demouser3.username +" (not creator nor contributor)", function (done)
+        it("[JSON] should refuse to fetch metadata recursively of the " + metadataProject.handle  + "/data/" + testFolder2.name+ " resource, authenticated as "+ demouser3.username +" (not creator nor contributor)", function (done)
         {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.getItemMetadataDeep(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.body.descriptors.should.be.instanceof(Array);
-                    res.body.hasLogicalParts.should.be.instanceof(Array);//only because this is a metadata&deep request
+                itemUtils.getItemMetadataDeep(true, agent, metadataProject.handle, testFolder2.name, function (err, res) {
+                    res.statusCode.should.equal(401);
+                    should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.hasLogicalParts);
                     done();
                 });
             });
         });
 
-        it("[JSON] should fetch metadata recursively of the " + publicProject.handle  + "/data/" + testFolder1.name+ " resource, authenticated as "+ demouser2.username  +" (contributor)", function (done)
+        it("[JSON] should fetch metadata recursively of the " + metadataProject.handle  + "/data/" + testFolder2.name+ " resource, authenticated as "+ demouser2.username  +" (contributor)", function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                itemUtils.getItemMetadataDeep(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataDeep(true, agent, metadataProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
                     res.body.hasLogicalParts.should.be.instanceof(Array);//only because this is a metadata&deep request
@@ -102,12 +102,12 @@ describe("Public project testFolder1 level metadata&deep tests", function () {
         });
     });
 
-    describe(invalidProject.handle + "/data/" + testFolder1.name +"?metadata&deep (non-existant project)", function ()
+    describe(invalidProject.handle + "/data/" + testFolder2.name +"?metadata&deep (non-existant project)", function ()
     {
         it('[HTML] should refuse request if Accept application/json was not specified', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemMetadataDeep(false, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataDeep(false, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
                     should.not.exist(res.body.hasLogicalParts);
@@ -119,11 +119,11 @@ describe("Public project testFolder1 level metadata&deep tests", function () {
         it('[JSON] should give a 404 because the project NON_EXISTENT_PROJECT does not exist', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemMetadataDeep(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataDeep(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(500);
                     should.not.exist(res.body.descriptors);
                     should.not.exist(res.body.hasLogicalParts);
-                    res.body.error_messages.should.contain("/project/" + invalidProject.handle + "/data/" + testFolder1.name + " does not exist in Dendro.");
+                    res.body.error_messages.should.contain("/project/" + invalidProject.handle + "/data/" + testFolder2.name + " does not exist in Dendro.");
                     done();
                 });
             });

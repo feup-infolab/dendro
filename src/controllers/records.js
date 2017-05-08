@@ -16,46 +16,58 @@ var request = require('request');
 var self = this;
 
 exports.show_deep = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    if(req.params.filepath != null)
+    if(!acceptsJSON && acceptsHTML)
     {
-        var requestedResource = new Resource({
-            uri : req.params.requestedResource
-        });
-
-        requestedResource.findMetadataRecursive(function(err, result){
-            if(!err){
-
-                var accept = req.header('Accept');
-                var serializer = null;
-                var contentType = null;
-                if(accept == null || accept in Config.metadataSerializers == false)
-                {
-                    serializer = Config.defaultMetadataSerializer;
-                    contentType = Config.defaultMetadataContentType;
-                }
-                else{
-                    serializer = Config.metadataSerializers[accept];
-                    contentType = Config.metadataContentTypes[accept];
-                }
-
-                res.set('Content-Type', contentType);
-                res.send(serializer(result));
-
-            }
-            else{
-                res.status(500).json({
-                    error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
-                });
-            }
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
         });
     }
     else
     {
-        res.status(400).json({
-            result: "error",
-            message : "filepath parameter was not specified."
-        });
+        if(req.params.filepath != null)
+        {
+            var requestedResource = new Resource({
+                uri : req.params.requestedResource
+            });
+
+            requestedResource.findMetadataRecursive(function(err, result){
+                if(!err){
+
+                    var accept = req.header('Accept');
+                    var serializer = null;
+                    var contentType = null;
+                    if(accept == null || accept in Config.metadataSerializers == false)
+                    {
+                        serializer = Config.defaultMetadataSerializer;
+                        contentType = Config.defaultMetadataContentType;
+                    }
+                    else{
+                        serializer = Config.metadataSerializers[accept];
+                        contentType = Config.metadataContentTypes[accept];
+                    }
+
+                    res.set('Content-Type', contentType);
+                    res.send(serializer(result));
+
+                }
+                else{
+                    res.status(500).json({
+                        error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
+                    });
+                }
+            });
+        }
+        else
+        {
+            res.status(400).json({
+                result: "error",
+                message : "filepath parameter was not specified."
+            });
+        }
     }
 };
 
