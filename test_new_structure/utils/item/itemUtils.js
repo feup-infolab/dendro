@@ -108,6 +108,31 @@ var getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, cb
     }
 };
 
+var getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    //http://127.0.0.1:3001/project/testproject1/data/folder1?parent_metadata
+    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?parent_metadata';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 var getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     // /project/:handle/data/foldername?recent_changes
     var path = '/project/' + projectHandle +'/data/'+ itemPath + '?recent_changes';
@@ -319,5 +344,6 @@ module.exports = {
     createFolder: createFolder,
     getItemMetadataRecommendations: getItemMetadataRecommendations,
     getItemRecommendationOntologies: getItemRecommendationOntologies,
-    getItemMetadataDeep: getItemMetadataDeep
+    getItemMetadataDeep: getItemMetadataDeep,
+    getItemParentMetadata: getItemParentMetadata
 };
