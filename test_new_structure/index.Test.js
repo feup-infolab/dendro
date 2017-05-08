@@ -286,8 +286,20 @@ require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFol
 require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__parent_metadata/routes.project.privateProject.data.testFolder2.__parent_metadata.Test"));*/
 
 //METADATA ONLY PROJECT FOLDER LEVEL ?parent_metadata
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__parent_metadata/routes.project.metadataonlyProject.data.testFolder1.__parent_metadata.Test"));
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__parent_metadata/routes.project.metadataonlyProject.data.testFolder2.__parent_metadata.Test"));
+/*require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__parent_metadata/routes.project.metadataonlyProject.data.testFolder1.__parent_metadata.Test"));
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__parent_metadata/routes.project.metadataonlyProject.data.testFolder2.__parent_metadata.Test"));*/
+
+//PUBLIC PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
+/*require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/routes.project.publicProject.data.testFolder1.Test"));
+require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/routes.project.publicProject.data.testFolder2.Test"));*/
+
+//PRIVATE PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
+/*require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/routes.project.privateProject.data.testFolder1.Test"));
+require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/routes.project.privateProject.data.testFolder2.Test"));*/
+
+//METADATA ONLY PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/routes.project.metadataonlyProject.data.testFolder1.Test"));
+require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/routes.project.metadataonlyProject.data.testFolder2.Test"));
 
 /*
 //test login

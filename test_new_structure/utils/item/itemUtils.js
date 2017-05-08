@@ -332,6 +332,29 @@ var getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, 
     }
 };
 
+var viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    var path = '/project/' + projectHandle +"/data/" + itemPath;
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateItemMetadata: updateItemMetadata,
     getItemMetadata: getItemMetadata,
@@ -345,5 +368,6 @@ module.exports = {
     getItemMetadataRecommendations: getItemMetadataRecommendations,
     getItemRecommendationOntologies: getItemRecommendationOntologies,
     getItemMetadataDeep: getItemMetadataDeep,
-    getItemParentMetadata: getItemParentMetadata
+    getItemParentMetadata: getItemParentMetadata,
+    viewItem: viewItem
 };

@@ -15,7 +15,7 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
 const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
@@ -24,7 +24,7 @@ const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/not
 var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
-describe("Public project testFolder1 level (default case) tests", function () {
+describe("Private project testFolder1 level (default case) tests", function () {
     before(function (done) {
         this.timeout(60000);
         addMetadataToFoldersUnit.setup(function (err, results) {
@@ -33,25 +33,26 @@ describe("Public project testFolder1 level (default case) tests", function () {
         });
     });
 
-    describe('/project/'+publicProject.handle + "/data/" + testFolder1.name +  " (default case where the root of the folder is shown, without any query)", function () {
+    describe('/project/'+privateProject.handle + "/data/" + testFolder1.name +  " (default case where the root of the folder is shown, without any query)", function () {
 
-        it("[HTML] should give the project page html [WITHOUT EDIT MODE] if the user is unauthenticated", function (done) {
+        it("[HTML] should refuse to give the project page html [WITHOUT EDIT MODE] if the user is unauthenticated", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
-            itemUtils.viewItem(false, agent, publicProject.handle, testFolder1.name, function (err, res) {
+            itemUtils.viewItem(false, agent, privateProject.handle, testFolder1.name, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.contain(publicProject.handle);
-                res.text.should.contain(testFolder1.name);
+                res.text.should.not.contain(privateProject.handle);
+                res.text.should.not.contain(testFolder1.name);
                 res.text.should.not.contain('Edit mode');
+                res.text.should.contain("Permission denied");
                 done();
             });
         });
 
         it("[HTML] should give the project page html [WITH EDIT MODE] if the user is logged in as demouser1(the project creator)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.viewItem(false, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.viewItem(false, agent, privateProject.handle, testFolder1.name, function (err, res) {
                     res.should.have.status(200);
-                    res.text.should.contain(publicProject.handle);
+                    res.text.should.contain(privateProject.handle);
                     res.text.should.contain(testFolder1.name);
                     res.text.should.contain('Edit mode');
                     done();
@@ -61,9 +62,9 @@ describe("Public project testFolder1 level (default case) tests", function () {
 
         it("[HTML] should give the project page html [WITH EDIT MODE] if the user is logged in as demouser2(a project contributor)", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                itemUtils.viewItem(false, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.viewItem(false, agent, privateProject.handle, testFolder1.name, function (err, res) {
                     res.should.have.status(200);
-                    res.text.should.contain(publicProject.handle);
+                    res.text.should.contain(privateProject.handle);
                     res.text.should.contain(testFolder1.name);
                     res.text.should.contain('Edit mode');
                     done();
@@ -71,34 +72,35 @@ describe("Public project testFolder1 level (default case) tests", function () {
             });
         });
 
-        it("[HTML] should give the project page html [WITHOUT EDIT MODE] if the user is logged in as demouser3(non-creator or non-contributor of the project)", function (done) {
+        it("[HTML] should refuse to give the project page html [WITHOUT EDIT MODE] if the user is logged in as demouser3(non-creator or non-contributor of the project)", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.viewItem(false, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.viewItem(false, agent, privateProject.handle, testFolder1.name, function (err, res) {
                     res.should.have.status(200);
-                    res.text.should.contain(publicProject.handle);
-                    res.text.should.contain(testFolder1.name);
+                    res.text.should.not.contain(privateProject.handle);
+                    res.text.should.not.contain(testFolder1.name);
                     res.text.should.not.contain('Edit mode');
+                    res.text.should.contain("Permission denied");
                     done();
                 });
             });
         });
 
-        it("[JSON] should give the project root data if the user is unauthenticated", function (done) {
+        it("[JSON] should refuse to give the project root data if the user is unauthenticated", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
-            itemUtils.viewItem(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
-                res.should.have.status(200);
-                res.body.descriptors.should.be.instanceof(Array);
-                res.body.title.should.equal(testFolder1.name);
-                res.body.hasLogicalParts.should.be.instanceof(Array);
-                res.body.file_extension.should.equal("folder");
+            itemUtils.viewItem(true, agent, privateProject.handle, testFolder1.name, function (err, res) {
+                res.should.have.status(401);
+                should.not.exist(res.body.descriptors);
+                should.not.exist(res.body.title);
+                should.not.exist(res.body.hasLogicalParts);
+                should.not.exist(res.body.file_extension);
                 done();
             });
         });
 
         it("[JSON] should give the project root data if the user is logged in as demouser1(the project creator)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.viewItem(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.viewItem(true, agent, privateProject.handle, testFolder1.name, function (err, res) {
                     res.should.have.status(200);
                     res.body.descriptors.should.be.instanceof(Array);
                     res.body.title.should.equal(testFolder1.name);
@@ -111,7 +113,7 @@ describe("Public project testFolder1 level (default case) tests", function () {
 
         it("[JSON] should give the project root data if the user is logged in as demouser2(a project contributor)", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                itemUtils.viewItem(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.viewItem(true, agent, privateProject.handle, testFolder1.name, function (err, res) {
                     res.should.have.status(200);
                     res.body.descriptors.should.be.instanceof(Array);
                     res.body.title.should.equal(testFolder1.name);
@@ -122,14 +124,14 @@ describe("Public project testFolder1 level (default case) tests", function () {
             });
         });
 
-        it("[JSON] should give the project root data if the user is logged in as demouser3(non-creator or non-contributor of the project)", function (done) {
+        it("[JSON] should refuse to give the project root data if the user is logged in as demouser3(non-creator or non-contributor of the project)", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                itemUtils.viewItem(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
-                    res.should.have.status(200);
-                    res.body.descriptors.should.be.instanceof(Array);
-                    res.body.title.should.equal(testFolder1.name);
-                    res.body.hasLogicalParts.should.be.instanceof(Array);
-                    res.body.file_extension.should.equal("folder");
+                itemUtils.viewItem(true, agent, privateProject.handle, testFolder1.name, function (err, res) {
+                    res.should.have.status(401);
+                    should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.title);
+                    should.not.exist(res.body.hasLogicalParts);
+                    should.not.exist(res.body.file_extension);
                     done();
                 });
             });
@@ -137,7 +139,7 @@ describe("Public project testFolder1 level (default case) tests", function () {
 
         it("[JSON] should give a not found error if the folder does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.viewItem(true, agent, publicProject.handle, notFoundFolder.name, function (err, res) {
+                itemUtils.viewItem(true, agent, privateProject.handle, notFoundFolder.name, function (err, res) {
                     res.should.have.status(404);
                     should.not.exist(res.body.descriptors);
                     should.not.exist(res.body.title);
