@@ -13,9 +13,11 @@ GLOBAL.tests = {};
 require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
 */
 
-require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
-require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
-require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
+require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
+//
+// require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));
 
 /*require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
 require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));
@@ -25,8 +27,8 @@ require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.des
 
 //PUBLIC PROJECT
 /*require(Config.absPathInTestsFolder("/routes/projects/public_project/request_access/route.projects.PublicProject.requestAccess.Test.js"));*/
-require(Config.absPathInTestsFolder("/routes/projects/public_project/delete/route.projects.PublicProject.delete.Test.js"));
-require(Config.absPathInTestsFolder("/routes/projects/public_project/undelete/route.projects.PublicProject.undelete.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/projects/public_project/delete/route.projects.PublicProject.delete.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/projects/public_project/undelete/route.projects.PublicProject.undelete.Test.js"));
 
 //METADATA PROJECT
 /*require(Config.absPathInTestsFolder("/routes/projects/metadataonly_project/request_access/route.projects.metadataonlyProject.requestAccess.Test.js"));

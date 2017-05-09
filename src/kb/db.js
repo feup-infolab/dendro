@@ -1,18 +1,20 @@
-var util = require('util');
-var Config = function() { return GLOBAL.Config; }();
-var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-var uuid = require('uuid');
+const util = require('util');
+const Config = function() { return GLOBAL.Config; }();
+const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+const uuid = require('uuid');
+let queue = require('queue');
 
 function DbConnection (host, port, username, password, maxSimultaneousConnections)
 {
-    var self = this;
+    let self = this;
 
     if (!self.host || !self.port) {
         self.host = host;
         self.port = port;
         self.username = username;
         self.password = password;
-        if(self.maxSimultaneousConnections == null)
+
+        if(self.maxSimultaneousConnections === null)
         {
             self.maxSimultaneousConnections = 50;
         }
@@ -20,8 +22,6 @@ function DbConnection (host, port, username, password, maxSimultaneousConnection
         {
             self.maxSimultaneousConnections = maxSimultaneousConnections;
         }
-
-        self.pendingTransactionIDs = {};
     }
 
     self.databaseName = "graph";
@@ -48,11 +48,22 @@ DbConnection.prototype.create = function(callback) {
 
     // prepare callback
     xmlHttp.onreadystatechange = function() {
-        if(xmlHttp.readyState == 4)
+        if(xmlHttp.readyState === 4)
         {
-            if(xmlHttp.status == 200)
+            if(xmlHttp.status === 200)
             {
-                //self.queueSemaphore = require('semaphore')(self.maxSimultaneousConnections);
+                self.q = queue();
+                self.q.timeout = Config.dbOperationTimeout;
+
+                self.q.on('timeout', function(next, job) {
+                    console.log('query timed out:', job.toString().replace(/\n/g, ''));
+                    next();
+                });
+
+                self.q.on('success', function(result, job) {
+                    //console.log('query finished processing:', job.toString().replace(/\n/g, ''));
+                });
+
                 callback(self);
             }
             else
@@ -210,6 +221,7 @@ var queryObjectToString = function(query, argumentsArray, callback)
 DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows) {
 
     var self = this;
+
     queryObjectToString(queryStringWithArguments, argumentsArray, function(err, query){
         if (!err)
         {
@@ -235,50 +247,29 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
 
                 fullUrl = fullUrl + "/sparql";
 
-                //console.log("waiting for database querying queue");
+                query = "DEFINE sql:log-enable 3\n" + query;
 
-                var transactionID = uuid.v4();
+                const options = {
+                    method: 'POST',
+                    uri: fullUrl,
+                    form: {
+                        query: query,
+                        maxrows: maxRows,
+                        format: resultsFormat,
+                        open_timeout: Config.dbOperationTimeout
+                    },
+                    headers: {
+                        'content-type': 'application/x-www-form-urlencoded'
+                    },
+                    json: true
+                };
 
-                //set database operation timeout
-                setTimeout(function ()
-                {
-                    if (self.pendingTransactionIDs[transactionID] != null)
-                    {
-                        console.error("database operation timeout for query " + queryStringWithArguments + " with transaction ID " + transactionID);
-                        delete self.pendingTransactionIDs[transactionID];
-                        //self.queueSemaphore.leave();
-                    }
-                    else
-                    {
-                        //console.log("database operation timeout for transaction ID " + transactionID + " but operation has been completed.");
-                        //self.queueSemaphore.leave();
-                    }
+                self.q.push(function(cb){
 
-                }, Config.dbOperationTimeout);
-
-                //self.queueSemaphore.take(function ()
-                //{
                     if (Config.debug.active && Config.debug.database.log_all_queries)
                     {
                         console.log("POSTING QUERY: \n" + query);
                     }
-
-                    query = "DEFINE sql:log-enable 2\n" + query;
-
-                    const options = {
-                        method: 'POST',
-                        uri: fullUrl,
-                        form: {
-                            query: query,
-                            maxrows: maxRows,
-                            format: resultsFormat,
-                            open_timeout: Config.dbOperationTimeout
-                        },
-                        headers: {
-                            'content-type': 'application/x-www-form-urlencoded'
-                        },
-                        json: true
-                    };
 
                     let rp = require('request-promise');
                     rp(options)
@@ -288,6 +279,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
 
                             if (parsedBody.boolean != null)
                             {
+                                cb();
                                 callback(null, parsedBody.boolean);
                             }
                             else
@@ -296,6 +288,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
 
                                 if (numberOfRows == 0)
                                 {
+                                    cb();
                                     callback(null, []);
                                 }
                                 else
@@ -391,22 +384,22 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                     // util.debug("Transformed Results :\n" +
                                     // util.inspect(transformedResults, true, null));
 
-                                    //delete self.pendingTransactionIDs[transactionID];
-                                    //self.queueSemaphore.leave();
                                     callback(null, transformedResults);
+                                    cb();
                                 }
                             }
                         })
                         .catch(function(err){
                             const error = "Virtuoso server returned error: \n " + util.inspect(err);
-                            //console.trace(err);
+                            console.trace(err);
                             console.error(error);
 
-                            //delete self.pendingTransactionIDs[transactionID];
-                            //self.queueSemaphore.leave();
                             callback(1, err);
+                            cb();
                         });
-                //});
+                });
+
+                self.q.start();
             }
             else
             {
@@ -415,7 +408,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
         }
         else
         {
-            var msg = "Something went wrong with the query generation. Error reported: " + query;
+            const msg = "Something went wrong with the query generation. Error reported: " + query;
             console.error(msg);
             callback(1, msg);
         }

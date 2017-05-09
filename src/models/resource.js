@@ -4,23 +4,31 @@ var Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).El
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
+var async = require('async');
+var _ = require('underscore');
+
 var db = function() { return GLOBAL.db.default; }();
+
 var redis = function(graphUri)
 {
-    if(graphUri == null)
+    if(graphUri == null || typeof graphUri === "undefined" || !graphUri)
     {
-        return GLOBAL.redis.default;
+        if(GLOBAL.redis.default != null)
+        {
+            return GLOBAL.redis.default;
+        }
+        else
+        {
+            console.error("DEU ASNEIRA");
+            process.exit(1);
+        }
+
     }
     else
     {
         return Config.caches[graphUri];
     }
-
-
 };
-
-var async = require('async');
-var _ = require('underscore');
 
 function Resource (object)
 {
@@ -1210,7 +1218,14 @@ Resource.prototype.reindex = function(indexConnection, callback)
     {
         if(!err && results != null)
         {
-            var now = new Date();
+            const now = new Date();
+
+            for(let i = 0; i < results.length; i++)
+            {
+                results[i].predicate = results[i].property;
+                delete results[i].property;
+            }
+
             var document = {
                     uri : self.uri,
                     graph : indexConnection.index.uri,
@@ -1218,7 +1233,9 @@ Resource.prototype.reindex = function(indexConnection, callback)
                     last_indexing_date : now.toISOString()
             };
 
-            console.log("Reindexing resource " + self.uri + " with document " + JSON.stringify(document));
+            console.log("Reindexing resource " + self.uri);
+            console.log("Document: \n" + JSON.stringify(document, null, 4));
+
             self.getIndexDocumentId(indexConnection, function(err, id)
             {
                 if(!err)
@@ -1240,7 +1257,9 @@ Resource.prototype.reindex = function(indexConnection, callback)
                             }
                             else
                             {
-                                errorMessages.push("Error deleting old document for resource " + self.uri + " error returned " + result);
+                                const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
+                                errorMessages.push(msg);
+                                console.error(msg);
                                 callback(1, errorMessages);
                             }
                         });
@@ -1384,7 +1403,7 @@ Resource.restoreFromIndexResults = function(hits)
     }
 
     return results;
-}
+};
 
 Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback)
 {
@@ -1436,7 +1455,7 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
             }
             else
             {
-                callback(1, [results]);
+                callback(1, [hits]);
             }
         }
     );

@@ -48,20 +48,7 @@ module.exports.setup = function(finish)
                     else
                     {
                         userUtils.addUserAscontributorToProject(true, agent, demouser2.username, projectData.handle, function (err, res) {
-                            //res.statusCode.should.equal(200);
-                            if(err)
-                            {
-                                cb(err, res);
-                            }
-                            else
-                            {
-                                projectUtils.getProjectContributors(agent, projectData.handle, function (err, res) {
-                                    //res.statusCode.should.equal(200);
-                                    //res.body.contributors[0].ddr.username.should.equal(demouser2.username);
-                                    //res.body.contributors.length.should.equal(1);
-                                    cb(err, res);
-                                });
-                            }
+                            cb(err, res);
                         });
                     }
                 });
