@@ -35,13 +35,13 @@ exports.clearAllData = function (cb) {
                 should.equal(err, null);
                 cb(err, results);
             });
-        }/*,
+        },
         function (cb) {
-            exports.quitAllMysqlConnections(function (err, results) {
+            exports.endMysqlConnectionPool(function (err, results) {
                 should.equal(err, null);
                 cb(err, results);
             });
-        }*/
+        }
     ], function(err, results){
         cb(err, results);
     });
@@ -57,7 +57,7 @@ exports.quitAllRedisConnections = function (cb) {
     });
 };
 
-exports.quitAllMysqlConnections = function (cb) {
+exports.endMysqlConnectionPool = function (cb) {
     //GLOBAL.mysql
     /*async.mapSeries(GLOBAL.mysql.connection, function (mysqlConnection, cb) {
         mysqlConnection.connection.end(function(err) {
@@ -74,9 +74,11 @@ exports.quitAllMysqlConnections = function (cb) {
     /*GLOBAL.mysql.connection._realEnd(function(err) {
         cb(err,err);
     });*/
-    //GLOBAL.mysql.connection.release();
-    cb(undefined, null);
-    //cb(undefined,null);
+    GLOBAL.mysql.pool.end(function(err){
+        if(err === undefined )
+            err = null;
+        cb(err, null);
+    });
 };
 
 exports.clearAppState = function (cb) {
@@ -84,11 +86,9 @@ exports.clearAppState = function (cb) {
 
     exports.clearAllData(function(err, results){
         GLOBAL.tests.server.close();
-        exports.quitAllMysqlConnections(function (err, results) {
-            should.equal(err, undefined);
-            err = err === undefined ? null : err;
+        exports.endMysqlConnectionPool(function (err, results) {
+            should.equal(err, null);
             cb(err, results);
         });
-        //cb(err, results);
     });
 };

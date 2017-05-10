@@ -1234,8 +1234,8 @@ Resource.prototype.reindex = function(indexConnection, callback)
                     last_indexing_date : now.toISOString()
             };
 
-            console.log("Reindexing resource " + self.uri);
-            console.log("Document: \n" + JSON.stringify(document, null, 4));
+            //console.log("Reindexing resource " + self.uri);
+            //console.log("Document: \n" + JSON.stringify(document, null, 4));
 
             self.getIndexDocumentId(indexConnection, function(err, id)
             {
