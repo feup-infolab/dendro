@@ -30,9 +30,10 @@ function requireUncached(module) {
 module.exports.setup = function(finish)
 {
     const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
-    let bootupUnit = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+    //let bootupUnit = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+    let createUsersUnit = requireUncached(Config.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
-    bootupUnit.setup(function (err, results) {
+    createUsersUnit.setup(function (err, results) {
         //should.equal(err, null);
         if(err)
         {
