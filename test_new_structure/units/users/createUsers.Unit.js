@@ -102,7 +102,7 @@ module.exports.setup = function(finish)
                     });
             };
 
-            async.map(Config.demo_mode.users, createUser, function(err, results) {
+            async.mapSeries(Config.demo_mode.users, createUser, function(err, results) {
                 if(!err)
                 {
                     console.log("[INFO] Existing demo users recreated. ");
@@ -115,7 +115,7 @@ module.exports.setup = function(finish)
                             },
                             function(callback)
                             {
-                                async.map(Config.administrators, makeAdmin, function(err){
+                                async.mapSeries(Config.administrators, makeAdmin, function(err){
                                     if(!err)
                                     {
                                         console.log("[OK] Admins successfully loaded.");

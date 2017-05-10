@@ -32,7 +32,7 @@ module.exports.setup = function(finish)
         }
         else
         {
-            async.map(dataToCreateExportConfigs, function (dataConfig, cb) {
+            async.mapSeries(dataToCreateExportConfigs, function (dataConfig, cb) {
                 userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
                     if(err)
                     {

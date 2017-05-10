@@ -637,7 +637,8 @@ const init = function(callback)
             var setupMySQLConnection = function (callback)
             {
                 var mysql = require('mysql');
-                var connection = mysql.createConnection({
+                //var connection = mysql.createConnection({
+                var pool = mysql.createPool({
                     host: Config.mySQLHost,
                     user: Config.mySQLAuth.user,
                     password: Config.mySQLAuth.password,
@@ -649,17 +650,22 @@ const init = function(callback)
                 {
                     console.log("[OK] Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
                     GLOBAL.mysql.connection = connection;
+                    //GLOBAL.mysql.connection.release();
                     callback(null);
                 };
 
-                connection.connect(function (err)
+                //connection.connect(function (err)
+                pool.getConnection(function (err, connection)
                 {
+                    var freeConnectionsIndex = pool._freeConnections.indexOf(connection);
+                    console.log("FREE CONNECTIONS: ", freeConnectionsIndex);
                     if (!err)
                     {
                         var checkAndCreateTable = function(tablename, cb)
                         {
                             connection.query("SHOW TABLES LIKE '"+tablename+"';", function (err, result, fields)
                             {
+                                connection.release();
                                 if (!err)
                                 {
                                     if (result.length > 0)
@@ -693,6 +699,7 @@ const init = function(callback)
                                             createTableQuery,
                                             function (err, result, fields)
                                             {
+                                                connection.release();
                                                 if (!err)
                                                 {
                                                     console.log("[INFO] Interactions table " + tablename + " succesfully created in the MySQL database.");
@@ -708,6 +715,7 @@ const init = function(callback)
                                                         createIndexesQuery,
                                                         function (err, result, fields)
                                                         {
+                                                            connection.release();
                                                             if (!err)
                                                             {
                                                                 console.log("[INFO] Indexes on table  " + tablename + " succesfully created in the MySQL database.");

@@ -49,7 +49,7 @@ exports.clearAllData = function (cb) {
 
 exports.quitAllRedisConnections = function (cb) {
     //GLOBAL.redis[redisConn.id].connection = redisConn;
-    async.map(GLOBAL.redis, function (redisConnection, cb) {
+    async.mapSeries(GLOBAL.redis, function (redisConnection, cb) {
         redisConnection.connection.redis.quit();
         cb(null,null);
     }, function (err, results) {
@@ -59,7 +59,7 @@ exports.quitAllRedisConnections = function (cb) {
 
 exports.quitAllMysqlConnections = function (cb) {
     //GLOBAL.mysql
-    /*async.map(GLOBAL.mysql.connection, function (mysqlConnection, cb) {
+    /*async.mapSeries(GLOBAL.mysql.connection, function (mysqlConnection, cb) {
         mysqlConnection.connection.end(function(err) {
             cb(err,err);
         });
@@ -67,9 +67,16 @@ exports.quitAllMysqlConnections = function (cb) {
         cb(err, results);
     });*/
 
-    GLOBAL.mysql.connection.end(function (err) {
+    /*GLOBAL.mysql.connection.release(function (err) {
         cb(err,err);
-    });
+    });*/
+    //GLOBAL.mysql.connection.destroy();
+    /*GLOBAL.mysql.connection._realEnd(function(err) {
+        cb(err,err);
+    });*/
+    //GLOBAL.mysql.connection.release();
+    cb(undefined, null);
+    //cb(undefined,null);
 };
 
 exports.clearAppState = function (cb) {
