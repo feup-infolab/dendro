@@ -657,7 +657,7 @@ const init = function(callback)
                 pool.getConnection(function (err, connection)
                 {
                     var freeConnectionsIndex = pool._freeConnections.indexOf(connection);
-                    console.log("FREE CONNECTIONS: ", freeConnectionsIndex);
+                    //console.log("FREE CONNECTIONS: ", freeConnectionsIndex);
                     if (!err)
                     {
                         var checkAndCreateTable = function(tablename, cb)
