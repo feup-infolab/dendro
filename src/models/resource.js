@@ -15,6 +15,7 @@ var redis = function(graphUri)
     {
         if(GLOBAL.redis.default != null)
         {
+            //console.log('ENTRAR DEFAULT REDIS:');
             return GLOBAL.redis.default;
         }
         else

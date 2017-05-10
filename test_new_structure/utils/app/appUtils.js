@@ -29,9 +29,46 @@ exports.clearAllData = function (cb) {
                 should.equal(err, null);
                 cb(err, data);
             });
-        }
+        },
+        function (cb) {
+            exports.quitAllRedisConnections(function (err, results) {
+                should.equal(err, null);
+                cb(err, results);
+            });
+        }/*,
+        function (cb) {
+            exports.quitAllMysqlConnections(function (err, results) {
+                should.equal(err, null);
+                cb(err, results);
+            });
+        }*/
     ], function(err, results){
         cb(err, results);
+    });
+};
+
+exports.quitAllRedisConnections = function (cb) {
+    //GLOBAL.redis[redisConn.id].connection = redisConn;
+    async.map(GLOBAL.redis, function (redisConnection, cb) {
+        redisConnection.connection.redis.quit();
+        cb(null,null);
+    }, function (err, results) {
+        cb(err, results);
+    });
+};
+
+exports.quitAllMysqlConnections = function (cb) {
+    //GLOBAL.mysql
+    /*async.map(GLOBAL.mysql.connection, function (mysqlConnection, cb) {
+        mysqlConnection.connection.end(function(err) {
+            cb(err,err);
+        });
+    }, function (err, results) {
+        cb(err, results);
+    });*/
+
+    GLOBAL.mysql.connection.end(function (err) {
+        cb(err,err);
     });
 };
 
@@ -40,6 +77,11 @@ exports.clearAppState = function (cb) {
 
     exports.clearAllData(function(err, results){
         GLOBAL.tests.server.close();
-        cb(err, results);
+        exports.quitAllMysqlConnections(function (err, results) {
+            should.equal(err, undefined);
+            err = err === undefined ? null : err;
+            cb(err, results);
+        });
+        //cb(err, results);
     });
 };
