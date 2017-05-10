@@ -9,14 +9,8 @@ const Config = GLOBAL.Config;
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
 
-var addBootUpUnit = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}
-
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 
 describe("/user/demouser1", function (done) {
 

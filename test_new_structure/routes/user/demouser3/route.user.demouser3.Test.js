@@ -12,10 +12,6 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 var addBootUpUnit = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}
 
 
 describe("/user/demouser3", function (done) {
