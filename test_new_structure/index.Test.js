@@ -27,7 +27,7 @@ require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.des
 
 //PUBLIC PROJECT
 /*require(Config.absPathInTestsFolder("/routes/projects/public_project/request_access/route.projects.PublicProject.requestAccess.Test.js"));*/
-require(Config.absPathInTestsFolder("/routes/projects/public_project/delete/route.projects.PublicProject.delete.Test.js"));
+require(Config.absPathInTestsFolder("/routes/projects/public_project/delete/route.projects.publicProject.delete.Test.js"));
 require(Config.absPathInTestsFolder("/routes/projects/public_project/undelete/route.projects.PublicProject.undelete.Test.js"));
 
 //METADATA PROJECT
