@@ -7,13 +7,15 @@ function Config (){}
 var fs = require('fs');
 var path = require('path');
 
-if(process.env.NODE_ENV == 'test')
+if(process.env.NODE_ENV === "test")
 {
     Config.appDir = path.resolve(path.dirname(require.main.filename), "../../..");
+    console.log("Running in test mode and the app directory is : " + Config.appDir);
 }
 else
 {
     Config.appDir = path.resolve(path.dirname(require.main.filename), "..");
+    console.log("Running in production / dev mode and the app directory is : " + Config.appDir);
 }
 
 Config.absPathInApp = function(relativePath)
@@ -602,7 +604,7 @@ Config.metadataContentTypes ={
     "application/txt" : "text/plain",
     "application/rdf" : "text/xml",
     "application/xml" : "text/xml",
-    "application/json" : "text/json"
+    "application/json" : "application/json"
 };
 
 Config.theme = getConfigParameter("theme");

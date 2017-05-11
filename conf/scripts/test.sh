@@ -15,6 +15,21 @@ export RUNNING_IN_JENKINS="1"
 
 echo "create database ${mysql_database_to_create};" | mysql -u $mysql_username -p$mysql_root_password
 
-npm run test &&
-npm run coverage > /dev/null &&
+
 env COVERALLS_SERVICE_NAME="Jenkins" COVERALLS_REPO_TOKEN="kVeT2pSFVWDEoZCC5xN6wCS1j8YRaiG5e" RUNNING_IN_JENKINS="1" npm run report-coverage
+
+#report_coverage()
+#{
+#    env COVERALLS_SERVICE_NAME="Jenkins" COVERALLS_REPO_TOKEN="kVeT2pSFVWDEoZCC5xN6wCS1j8YRaiG5e" RUNNING_IN_JENKINS="1" npm run report-coverage
+#}
+#
+#npm run test
+#
+#if [ "$?" != "0" ]
+#then
+#    echo "Tests FAILED! Trying to report coverage anyway..."
+#    report_coverage
+#    exit 1;
+#else
+#    npm run coverage > /dev/null && report_coverage && echo "Tests PASSED and coverage succcessfully reported" || echo "Something went wrong with the test coverage reports." && exit 1;
+#fi
