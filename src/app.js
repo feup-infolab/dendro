@@ -14,21 +14,22 @@ var express = require('express'),
     domain = require('domain'),
     flash = require('connect-flash'),
     http = require('http'),
-    path = require('path');
-fs = require('fs');
-morgan = require('morgan');
-favicon = require('serve-favicon');
-bodyParser = require('body-parser');
-methodOverride = require('method-override');
-cookieParser = require('cookie-parser');
-expressSession = require('express-session');
-errorHandler = require('express-session');
-Q = require('q');
-swaggerUi = require('swagger-ui-express');
-YAML = require('yamljs');
-swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
+    path = require('path'),
+    fs = require('fs'),
+    morgan = require('morgan'),
+    favicon = require('serve-favicon'),
+    bodyParser = require('body-parser'),
+    methodOverride = require('method-override'),
+    cookieParser = require('cookie-parser'),
+    expressSession = require('express-session'),
+    errorHandler = require('express-session'),
+    Q = require('q'),
+    swaggerUi = require('swagger-ui-express'),
+    YAML = require('yamljs'),
+    swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
 
 var bootupPromise = Q.defer();
+var connectionsInitializedPromise = Q.defer();
 
 var app = express();
 
@@ -369,667 +370,715 @@ var appendLocalsToUseInViews = function(req, res, next)
 console.log("[INFO] Welcome! Booting up a Dendro Node on this machine");
 console.log("[INFO] Starting Dendro support services...");
 
-async.waterfall([
-    function(callback) {
-        var db = new DbConnection(
-            Config.virtuosoHost,
-            Config.virtuosoPort,
-            Config.virtuosoAuth.user,
-            Config.virtuosoAuth.password,
-            Config.maxSimultanousConnectionsToDb);
+const init = function(callback)
+{
+    async.waterfall([
+        function(callback) {
+            var db = new DbConnection(
+                Config.virtuosoHost,
+                Config.virtuosoPort,
+                Config.virtuosoAuth.user,
+                Config.virtuosoAuth.password,
+                Config.maxSimultanousConnectionsToDb);
 
-        db.create(function(db) {
-            if(!db)
-            {
-                console.log("[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
-                process.exit(1);
-            }
-            else
-            {
-                console.log("[OK] Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
-
-                //set default connection. If you want to add other connections, add them in succession.
-                GLOBAL.db.default.connection = db;
-
-                callback(null);
-            }
-        });
-    },
-    function(callback)
-    {
-        if(Config.debug.database.destroy_all_graphs_on_startup)
-        {
-            var graphs = Object.keys(GLOBAL.db);
-            var conn = GLOBAL.db.default.connection;
-
-            async.map(graphs, function(graph, cb){
-
-                var graphUri = GLOBAL.db[graph].graphUri;
-                conn.deleteGraph(graphUri, function(err){
-                    if(err)
-                    {
-                        callback(err);
-                    }
-                    else
-                    {
-                        conn.graphExists(graphUri, function(err, exists){
-                            if(exists)
-                            {
-                                console.error("Tried to delete graph " + graphUri + " but it still exists!");
-                                process.exit(1);
-                            }
-                            else
-                            {
-                                cb(null, exists);
-                            }
-                        });
-                    }
-                });
-            }, function(err, res)
-            {
-                callback(err);
-            });
-        }
-        else
-        {
-            callback(null);
-        }
-    },
-    function(callback) {
-
-        if(Config.cache.active)
-        {
-            async.map(Config.cache.redis.instances, function(instance, callback){
-
-                var redisConn = new RedisConnection(
-                    instance.options,
-                    instance.database_number,
-                    instance.id
-                );
-
-                GLOBAL.redis[redisConn.id].connection = redisConn;
-
-                redisConn.openConnection(function(err, redisConn) {
-                    if(err)
-                    {
-                        console.log("[ERROR] Unable to connect to Redis instance with ID: " + instance.id + " running on " + instance.options.host + ":" + instance.options.port + " : " + err.message);
-                        process.exit(1);
-                    }
-                    else
-                    {
-                        console.log("[OK] Connected to Redis cache service with ID : " + redisConn.id + " running on " +  redisConn.host + ":" + redisConn.port);
-
-
-                        redisConn.deleteAll(function(err, result){
-                            if(!err)
-                            {
-                                console.log("[INFO] Deleted all cache records on Redis instance \""+ redisConn.id +"\" during bootup");
-                                callback(null);
-                            }
-                            else
-                            {
-                                console.log("[ERROR] Unable to delete all cache records on Redis instance \""+ instance.id +"\" during bootup");
-                                process.exit(1);
-                            }
-                        });
-                    }
-                });
-            }, function(err, results){
-                if(!err)
+            db.create(function(db) {
+                if(!db)
                 {
-                    console.log("[INFO] All Redis instances are up and running!");
-                    callback(null);
+                    console.log("[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+                    process.exit(1);
                 }
                 else
                 {
-                    console.log("[ERROR] Unable to setup Redis instances.");
-                    process.exit(1);
-                }
-            });
-        }
-        else
-        {
-            console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to cache server.");
-            callback(null);
-        }
-    },
-    function(callback) {
-        console.log("[INFO] Loading ontology parametrization from database... ");
+                    console.log("[OK] Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
 
-        var Ontology = require(Config.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
+                    //set default connection. If you want to add other connections, add them in succession.
+                    GLOBAL.db.default.connection = db;
 
-        if(Config.startup.reload_ontologies_on_startup)
-        {
-            Ontology.initAllFromDatabase(function (err, ontologies)
-            {
-                if (!err)
-                {
-                    GLOBAL.allOntologies = ontologies;
-                    console.log("[OK] Ontology information successfully loaded from database.");
                     callback(null);
                 }
-                else
-                {
-                    console.error("[ERROR] Unable to retrieve parametrization information about the ontologies loaded in the system.");
-                    process.exit(1);
-                }
             });
-        }
-        else
-        {
-            Ontology.all(function(err, ontologies){
-                if(!err)
-                {
-                    GLOBAL.allOntologies = ontologies;
-                    callback(null);
-                }
-                else
-                {
-                    console.error("[ERROR] Unable to retrieve parametrization information about the ontologies loaded in the system from cache.");
-                    process.exit(1);
-                }
+        },
+        function(callback) {
+            if(Config.debug.database.destroy_all_graphs_on_startup)
+            {
+                var graphs = Object.keys(GLOBAL.db);
+                var conn = GLOBAL.db.default.connection;
 
-            });
-        }
-    },
-    function(callback) {
+                async.map(graphs, function(graph, cb){
 
-        console.log("[INFO] Checking ontology and descriptor parametrizations...");
-
-        Descriptor.validateDescriptorParametrization(function(err, result)
-        {
-            if(!err)
-            {
-                console.log("[OK] All ontologies and descriptors seem correctly set up.");
-                callback(null);
-            }
-            else
-            {
-                console.error("[ERROR] Errors were detected while checking the configuration of descriptors and/or ontologies in the system.");
-                process.exit(1);
-            }
-        });
-    },
-    function(callback)
-    {
-        console.log("[INFO] Connecting to ElasticSearch Cluster...");
-        self.index = new IndexConnection();
-
-        self.index.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.indexes.dendro, function(index) {
-            if(index.client)
-            {
-                console.log("[OK] Created connection to ElasticSearch Cluster on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort +" but did not try to connect yet");
-            }
-            else
-            {
-                console.log("[ERROR] Unable to create connection to index " + IndexConnection.indexes.dendro.short_name);
-                process.exit(1);
-            }
-            callback(null);
-        });
-    },
-    function(callback) {
-        console.log("[INFO] Now trying to connect to ElasticSearch Cluster to check if the required indexes exist or need to be created...");
-        self.index.create_new_index(1, 1, false, function(error,result)
-        {
-            if(error != null)
-            {
-                console.log("[ERROR] Unable to create or link to index " + IndexConnection.indexes.dendro.short_name);
-                process.exit(1);
-            }
-            else
-            {
-                console.log("[OK] Indexes are up and running on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort);
-                callback(null);
-            }
-        });
-    },
-    function(callback) {
-        var gfs = new GridFSConnection(
-            Config.mongoDBHost,
-            Config.mongoDbPort,
-            Config.mongoDbCollectionName,
-            Config.mongoDBAuth.user,
-            Config.mongoDBAuth.password
-        );
-
-        gfs.openConnection(function(err, gfsConn) {
-            if(err)
-            {
-                console.log("[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn);
-                process.exit(1);
-            }
-            else
-            {
-                console.log("[OK] Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
-                GLOBAL.gfs.default.connection = gfs;
-                callback(null);
-            }
-        });
-    },
-    function(callback)
-    {
-        var testDRConnection = function (callback)
-        {
-            console.log("[INFO] Testing connection to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " ...");
-            var needle = require("needle");
-
-            var checkUri = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/about";
-            // using callback
-            needle.get(checkUri, {
-                    accept : "application/json"
-                },
-                function (error, response)
-                {
-                    if (!error)
-                    {
-                        console.log("[OK] Successfully connected to Dendro Recommender instance, version " + response.body.version + " at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " :-)");
-                        callback(null);
-                    }
-                    else
-                    {
-                        console.log("[ERROR] Unable to connect to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "! Aborting startup.");
-                        process.exit(1);
-                    }
-                });
-        };
-
-        var setupMySQLConnection = function (callback)
-        {
-            var mysql = require('mysql');
-            var connection = mysql.createConnection({
-                host: Config.mySQLHost,
-                user: Config.mySQLAuth.user,
-                password: Config.mySQLAuth.password,
-                database: Config.mySQLDBName,
-                multipleStatements: true
-            });
-
-            var callbackOK = function (connection)
-            {
-                console.log("[OK] Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-                GLOBAL.mysql.connection = connection;
-                callback(null);
-            };
-
-            connection.connect(function (err)
-            {
-                if (!err)
-                {
-                    var checkAndCreateTable = function(tablename, cb)
-                    {
-                        connection.query("SHOW TABLES LIKE '"+tablename+"';", function (err, result, fields)
+                    var graphUri = GLOBAL.db[graph].graphUri;
+                    conn.deleteGraph(graphUri, function(err){
+                        if(err)
                         {
-                            if (!err)
-                            {
-                                if (result.length > 0)
+                            callback(err);
+                        }
+                        else
+                        {
+                            conn.graphExists(graphUri, function(err, exists){
+                                if(exists)
                                 {
-                                    console.log("[INFO] Interactions table "+tablename+" exists in the MySQL database.");
-                                    callbackOK(connection);
+                                    console.error("Tried to delete graph " + graphUri + " but it still exists!");
+                                    process.exit(1);
                                 }
                                 else
                                 {
-                                    console.log("[INFO] Interactions table does not exists in the MySQL database. Attempting creation...");
-
-                                    var createTableQuery = "CREATE TABLE `"+tablename+"` (\n" +
-                                        "   `id` int(11) NOT NULL AUTO_INCREMENT, \n" +
-                                        "   `uri` text, \n" +
-                                        "   `created` datetime DEFAULT NULL, \n" +
-                                        "   `modified` datetime DEFAULT NULL, \n" +
-                                        "   `performedBy` text, \n" +
-                                        "   `interactionType` text, \n" +
-                                        "   `executedOver` text, \n" +
-                                        "   `originallyRecommendedFor` text, \n" +
-                                        "   `rankingPosition` int(11) DEFAULT NULL, \n" +
-                                        "   `pageNumber` int(11) DEFAULT NULL, \n" +
-                                        "   `recommendationCallId` text DEFAULT NULL, \n" +
-                                        "   `recommendationCallTimeStamp` datetime DEFAULT NULL, \n" +
-                                        "   PRIMARY KEY (`id`) \n" +
-                                        ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n";
-
-                                    console.log("[INFO] Interactions table "+tablename+" does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
-
-                                    connection.query(
-                                        createTableQuery,
-                                        function (err, result, fields)
-                                        {
-                                            if (!err)
-                                            {
-                                                console.log("[INFO] Interactions table " + tablename + " succesfully created in the MySQL database.");
-
-                                                var createIndexesQuery =
-                                                    "CREATE INDEX " + tablename + "_uri_text ON " + tablename + "(uri(255)); \n" +
-                                                    "CREATE INDEX " + tablename + "_performedBy_text ON " + tablename + "(performedBy(255)); \n" +
-                                                    "CREATE INDEX " + tablename + "_interaction_type_text ON " + tablename + "(interactionType(255)); \n" +
-                                                    "CREATE INDEX " + tablename + "_executedOver_text ON " + tablename + "(executedOver(255)); \n" +
-                                                    "CREATE INDEX " + tablename + "_originallyRecommendedFor_text ON " + tablename + "(originallyRecommendedFor(255)); \n";
-
-                                                connection.query(
-                                                    createIndexesQuery,
-                                                    function (err, result, fields)
-                                                    {
-                                                        if (!err)
-                                                        {
-                                                            console.log("[INFO] Indexes on table  " + tablename + " succesfully created in the MySQL database.");
-                                                            cb(null, null);
-                                                        }
-                                                        else
-                                                        {
-                                                            console.log("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + result);
-                                                            process.exit(1);
-                                                        }
-                                                    });
-                                            }
-                                            else
-                                            {
-                                                console.log("[ERROR] Unable to create the interactions table "+tablename+" on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-                                                process.exit(1);
-                                            }
-                                        });
+                                    cb(null, exists);
                                 }
-                            }
-                            else
-                            {
-                                console.log("[ERROR] Unable to query for the interactions table "+tablename+" on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-                                process.exit(1);
-                            }
-                        });
-                    }
+                            });
+                        }
+                    });
+                }, function(err, res)
+                {
+                    callback(err);
+                });
+            }
+            else
+            {
+                callback(null);
+            }
+        },
+        function(callback) {
 
-                    var table_to_write_recommendations = Config.recommendation.getTargetTable();
+            if(Config.cache.active)
+            {
+                async.map(Config.cache.redis.instances, function(instance, callback){
 
-                    checkAndCreateTable(table_to_write_recommendations, function(err, results)
-                    {
+                    var redisConn = new RedisConnection(
+                        instance.options,
+                        instance.database_number,
+                        instance.id
+                    );
+
+                    GLOBAL.redis[redisConn.id].connection = redisConn;
+
+                    redisConn.openConnection(function(err, redisConn) {
                         if(err)
                         {
+                            console.log("[ERROR] Unable to connect to Redis instance with ID: " + instance.id + " running on " + instance.options.host + ":" + instance.options.port + " : " + err.message);
                             process.exit(1);
                         }
                         else
                         {
-                            callbackOK(connection);
+                            console.log("[OK] Connected to Redis cache service with ID : " + redisConn.id + " running on " +  redisConn.host + ":" + redisConn.port);
+
+
+                            redisConn.deleteAll(function(err, result){
+                                if(!err)
+                                {
+                                    console.log("[INFO] Deleted all cache records on Redis instance \""+ redisConn.id +"\" during bootup");
+                                    callback(null);
+                                }
+                                else
+                                {
+                                    console.log("[ERROR] Unable to delete all cache records on Redis instance \""+ instance.id +"\" during bootup");
+                                    process.exit(1);
+                                }
+                            });
                         }
                     });
-                }
-                else
-                {
-                    console.log("[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-                    process.exit(1);
-                }
-            });
-        };
+                }, function(err, results){
+                    if(!err)
+                    {
+                        console.log("[INFO] All Redis instances are up and running!");
+                        callback(null);
+                    }
+                    else
+                    {
+                        console.log("[ERROR] Unable to setup Redis instances.");
+                        process.exit(1);
+                    }
+                });
+            }
+            else
+            {
+                console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to cache server.");
+                callback(null);
+            }
+        },
+        function(callback) {
+            console.log("[INFO] Loading ontology parametrization from database... ");
 
-        var recommendation_mode = RecommendationUtils.getActiveRecommender();
+            var Ontology = require(Config.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
 
-        if (recommendation_mode != null)
-        {
-            async.series([
-                    setupMySQLConnection
-                ],
-                function (err, result)
+            if(Config.startup.reload_ontologies_on_startup)
+            {
+                Ontology.initAllFromDatabase(function (err, ontologies)
                 {
                     if (!err)
                     {
+                        GLOBAL.allOntologies = ontologies;
+                        console.log("[OK] Ontology information successfully loaded from database.");
                         callback(null);
                     }
+                    else
+                    {
+                        console.error("[ERROR] Unable to retrieve parametrization information about the ontologies loaded in the system.");
+                        process.exit(1);
+                    }
                 });
-        }
-        else
-        {
-            console.error("[ERROR] No descriptor recommendation mode set up in deployment config: " + JSON.stringify(Config.recommendation) + ". Set up only one as active. ABORTING Startup.");
-            process.exit(1);
-        }
-    },
-    function(callback) {
-        console.log("[INFO] Setting up temporary files directory at " + Config.tempFilesDir);
-
-        async.waterfall([
-            function(cb)
+            }
+            else
             {
-                if(Config.debug.files.delete_temp_folder_on_startup)
-                {
-                    console.log("[INFO] Deleting temp files dir at " + Config.tempFilesDir);
-                    var fsextra = require('fs-extra');
-                    fsextra.remove(Config.tempFilesDir, function (err) {
-                        if(!err)
-                        {
-                            console.log("[OK] Deleted temp files dir at " + Config.tempFilesDir);
-                        }
-                        else
-                        {
-                            console.log("[ERROR] Unable to delete temp files dir at " + Config.tempFilesDir);
-                        }
+                Ontology.all(function(err, ontologies){
+                    if(!err)
+                    {
+                        GLOBAL.allOntologies = ontologies;
+                        callback(null);
+                    }
+                    else
+                    {
+                        console.error("[ERROR] Unable to retrieve parametrization information about the ontologies loaded in the system from cache.");
+                        process.exit(1);
+                    }
 
-                        cb(err);
-                    })
+                });
+            }
+        },
+        function(callback) {
+
+            console.log("[INFO] Checking ontology and descriptor parametrizations...");
+
+            Descriptor.validateDescriptorParametrization(function(err, result)
+            {
+                if(!err)
+                {
+                    console.log("[OK] All ontologies and descriptors seem correctly set up.");
+                    callback(null);
                 }
                 else
                 {
-                    cb(null);
+                    console.error("[ERROR] Errors were detected while checking the configuration of descriptors and/or ontologies in the system.");
+                    process.exit(1);
                 }
-            },
-            function(cb)
+            });
+        },
+        function(callback) {
+            console.log("[INFO] Connecting to ElasticSearch Cluster...");
+            self.index = new IndexConnection();
+
+            self.index.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.indexes.dendro, function(index) {
+                if(index.client)
+                {
+                    console.log("[OK] Created connection to ElasticSearch Cluster on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort +" but did not try to connect yet");
+                }
+                else
+                {
+                    console.log("[ERROR] Unable to create connection to index " + IndexConnection.indexes.dendro.short_name);
+                    process.exit(1);
+                }
+                callback(null);
+            });
+        },
+        function(callback) {
+            console.log("[INFO] Now trying to connect to ElasticSearch Cluster to check if the required indexes exist or need to be created...");
+            self.index.create_new_index(1, 1, false, function(error,result)
             {
-                var fsextra = require('fs-extra');
-                fsextra.exists(Config.tempFilesDir, function(exists){
-                    if(!exists)
+                if(error != null)
+                {
+                    console.log("[ERROR] Unable to create or link to index " + IndexConnection.indexes.dendro.short_name);
+                    process.exit(1);
+                }
+                else
+                {
+                    console.log("[OK] Indexes are up and running on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort);
+                    callback(null);
+                }
+            });
+        },
+        function(callback) {
+            var gfs = new GridFSConnection(
+                Config.mongoDBHost,
+                Config.mongoDbPort,
+                Config.mongoDbCollectionName,
+                Config.mongoDBAuth.user,
+                Config.mongoDBAuth.password
+            );
+
+            gfs.openConnection(function(err, gfsConn) {
+                if(err)
+                {
+                    console.log("[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn);
+                    process.exit(1);
+                }
+                else
+                {
+                    console.log("[OK] Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
+                    GLOBAL.gfs.default.connection = gfs;
+                    callback(null);
+                }
+            });
+        },
+        function(callback) {
+            var testDRConnection = function (callback)
+            {
+                console.log("[INFO] Testing connection to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " ...");
+                var needle = require("needle");
+
+                var checkUri = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/about";
+                // using callback
+                needle.get(checkUri, {
+                        accept : "application/json"
+                    },
+                    function (error, response)
                     {
-                        try{
-                            mkdirp.sync(Config.tempFilesDir);
-                            console.log("[OK] Temporary files directory successfully created at " + Config.tempFilesDir);
-                            cb();
-                        }
-                        catch(e)
+                        if (!error)
                         {
-                            var msg = "[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir;
-                            console.error(msg, e);
+                            console.log("[OK] Successfully connected to Dendro Recommender instance, version " + response.body.version + " at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " :-)");
+                            callback(null);
+                        }
+                        else
+                        {
+                            console.log("[ERROR] Unable to connect to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "! Aborting startup.");
                             process.exit(1);
                         }
+                    });
+            };
+
+            var setupMySQLConnection = function (callback)
+            {
+                var mysql = require('mysql');
+                //var connection = mysql.createConnection({
+                var pool = mysql.createPool({
+                    host: Config.mySQLHost,
+                    user: Config.mySQLAuth.user,
+                    password: Config.mySQLAuth.password,
+                    database: Config.mySQLDBName,
+                    multipleStatements: true
+                });
+
+                var poolOK = function (pool)
+                {
+                    console.log("[OK] Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
+                    GLOBAL.mysql.pool = pool;
+                    callback(null);
+                };
+
+                //connection.connect(function (err)
+                pool.getConnection(function (err, connection)
+                {
+                    var freeConnectionsIndex = pool._freeConnections.indexOf(connection);
+                    //console.log("FREE CONNECTIONS: ", freeConnectionsIndex);
+                    if (!err)
+                    {
+                        var checkAndCreateTable = function(tablename, cb)
+                        {
+                            connection.query("SHOW TABLES LIKE '"+tablename+"';", function (err, result, fields)
+                            {
+                                connection.release();
+                                if (!err)
+                                {
+                                    if (result.length > 0)
+                                    {
+                                        console.log("[INFO] Interactions table "+tablename+" exists in the MySQL database.");
+                                        poolOK(pool);
+                                    }
+                                    else
+                                    {
+                                        console.log("[INFO] Interactions table does not exists in the MySQL database. Attempting creation...");
+
+                                        var createTableQuery = "CREATE TABLE `"+tablename+"` (\n" +
+                                            "   `id` int(11) NOT NULL AUTO_INCREMENT, \n" +
+                                            "   `uri` text, \n" +
+                                            "   `created` datetime DEFAULT NULL, \n" +
+                                            "   `modified` datetime DEFAULT NULL, \n" +
+                                            "   `performedBy` text, \n" +
+                                            "   `interactionType` text, \n" +
+                                            "   `executedOver` text, \n" +
+                                            "   `originallyRecommendedFor` text, \n" +
+                                            "   `rankingPosition` int(11) DEFAULT NULL, \n" +
+                                            "   `pageNumber` int(11) DEFAULT NULL, \n" +
+                                            "   `recommendationCallId` text DEFAULT NULL, \n" +
+                                            "   `recommendationCallTimeStamp` datetime DEFAULT NULL, \n" +
+                                            "   PRIMARY KEY (`id`) \n" +
+                                            ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n";
+
+                                        console.log("[INFO] Interactions table "+tablename+" does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
+
+                                        connection.query(
+                                            createTableQuery,
+                                            function (err, result, fields)
+                                            {
+                                                connection.release();
+                                                if (!err)
+                                                {
+                                                    console.log("[INFO] Interactions table " + tablename + " succesfully created in the MySQL database.");
+
+                                                    var createIndexesQuery =
+                                                        "CREATE INDEX " + tablename + "_uri_text ON " + tablename + "(uri(255)); \n" +
+                                                        "CREATE INDEX " + tablename + "_performedBy_text ON " + tablename + "(performedBy(255)); \n" +
+                                                        "CREATE INDEX " + tablename + "_interaction_type_text ON " + tablename + "(interactionType(255)); \n" +
+                                                        "CREATE INDEX " + tablename + "_executedOver_text ON " + tablename + "(executedOver(255)); \n" +
+                                                        "CREATE INDEX " + tablename + "_originallyRecommendedFor_text ON " + tablename + "(originallyRecommendedFor(255)); \n";
+
+                                                    connection.query(
+                                                        createIndexesQuery,
+                                                        function (err, result, fields)
+                                                        {
+                                                            connection.release();
+                                                            if (!err)
+                                                            {
+                                                                console.log("[INFO] Indexes on table  " + tablename + " succesfully created in the MySQL database.");
+                                                                cb(null, null);
+                                                            }
+                                                            else
+                                                            {
+                                                                console.log("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + result);
+                                                                process.exit(1);
+                                                            }
+                                                        });
+                                                }
+                                                else
+                                                {
+                                                    console.log("[ERROR] Unable to create the interactions table "+tablename+" on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+                                                    process.exit(1);
+                                                }
+                                            });
+                                    }
+                                }
+                                else
+                                {
+                                    console.log("[ERROR] Unable to query for the interactions table "+tablename+" on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+                                    process.exit(1);
+                                }
+                            });
+                        }
+
+                        var table_to_write_recommendations = Config.recommendation.getTargetTable();
+
+                        checkAndCreateTable(table_to_write_recommendations, function(err, results)
+                        {
+                            if(err)
+                            {
+                                process.exit(1);
+                            }
+                            else
+                            {
+                                poolOK(connection);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        console.log("[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+                        process.exit(1);
+                    }
+                });
+            };
+
+            var recommendation_mode = RecommendationUtils.getActiveRecommender();
+
+            if (recommendation_mode != null)
+            {
+                async.series([
+                        setupMySQLConnection
+                    ],
+                    function (err, result)
+                    {
+                        if (!err)
+                        {
+                            callback(null);
+                        }
+                    });
+            }
+            else
+            {
+                console.error("[ERROR] No descriptor recommendation mode set up in deployment config: " + JSON.stringify(Config.recommendation) + ". Set up only one as active. ABORTING Startup.");
+                process.exit(1);
+            }
+        },
+        function(callback) {
+            console.log("[INFO] Setting up temporary files directory at " + Config.tempFilesDir);
+
+            async.waterfall([
+                function(cb)
+                {
+                    if(Config.debug.files.delete_temp_folder_on_startup)
+                    {
+                        console.log("[INFO] Deleting temp files dir at " + Config.tempFilesDir);
+                        var fsextra = require('fs-extra');
+                        fsextra.remove(Config.tempFilesDir, function (err) {
+                            if(!err)
+                            {
+                                console.log("[OK] Deleted temp files dir at " + Config.tempFilesDir);
+                            }
+                            else
+                            {
+                                console.log("[ERROR] Unable to delete temp files dir at " + Config.tempFilesDir);
+                            }
+
+                            cb(err);
+                        })
                     }
                     else
                     {
                         cb(null);
                     }
-                });
-            }
-        ], function(err){
-            if(!err)
-            {
-                console.log("[OK] Temporary files directory successfully set up at " + Config.tempFilesDir);
-                callback(null);
-            }
-            else
-            {
-                console.error("[ERROR] Unable to set up files directory at " + Config.tempFilesDir);
-                process.exit(1);
-            }
-        });
-    },
-    function(callback) {
-
-        //try to delete all demo users
-
-        var deleteUser = function(demoUser, callback)
-        {
-            var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-            User.findByUsername(demoUser.username, function(err, user){
-
-                if(!err)
+                },
+                function(cb)
                 {
-                    if(user == null)
-                    {
-                        //everything ok, user simply does not exist
-                        callback(null, null);
-                    }
-                    else
-                    {
-                        console.log("[INFO] Demo user with username " + user.ddr.username + " found. Attempting to delete...");
-                        user.deleteAllMyTriples(function(err, result){
-                            callback(err, result);
-                        });
-                    }
-                }
-                else
-                {
-                    console.log("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
-                    callback(err, user);
-                }
-            });
-        };
-
-        async.map(Config.demo_mode.users, deleteUser, function(err, results) {
-            if (!err) {
-                console.log("[INFO] Existing demo users deleted. ");
-                if(Config.demo_mode.active)
-                {
-                    if(Config.startup.reload_demo_users_on_startup)
-                    {
-                        var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-                        console.log("[INFO] Loading demo users. Demo users (in config.js file) -->" + JSON.stringify(Config.demo_mode.users));
-
-                        var createUser = function(user, callback)
+                    var fsextra = require('fs-extra');
+                    fsextra.exists(Config.tempFilesDir, function(exists){
+                        if(!exists)
                         {
-                            User.createAndInsertFromObject({
-                                    foaf: {
-                                        mbox: user.mbox,
-                                        firstName : user.firstname,
-                                        surname : user.surname
-                                    },
-                                    ddr:
-                                        {
-                                            username : user.username,
-                                            password : user.password
-                                        }
-                                },
-                                function(err, newUser){
-                                    if(!err && newUser != null)
-                                    {
-                                        callback(null,  newUser);
-                                    }
-                                    else
-                                    {
-                                        console.log("[ERROR] Error creating new demo User " + JSON.stringify(user));
-                                        callback(err, user);
-                                    }
-                                });
-                        };
-
-                        async.map(Config.demo_mode.users, createUser, function(err, results) {
-                            if(!err)
-                            {
-                                console.log("[INFO] Existing demo users recreated. ");
-                                callback(err);
+                            try{
+                                mkdirp.sync(Config.tempFilesDir);
+                                console.log("[OK] Temporary files directory successfully created at " + Config.tempFilesDir);
+                                cb();
                             }
-                            else
+                            catch(e)
                             {
+                                var msg = "[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir;
+                                console.error(msg, e);
                                 process.exit(1);
                             }
-                        });
-                    }
-                    else
-                    {
-                        callback(null);
-                    }
+                        }
+                        else
+                        {
+                            cb(null);
+                        }
+                    });
+                }
+            ], function(err){
+                if(!err)
+                {
+                    console.log("[OK] Temporary files directory successfully set up at " + Config.tempFilesDir);
+                    callback(null);
                 }
                 else
                 {
-                    callback(null);
+                    console.error("[ERROR] Unable to set up files directory at " + Config.tempFilesDir);
+                    process.exit(1);
                 }
-            }
-            else {
-                callback(err);
-            }
-        });
-    },
-    function(callback) {
-        if(Config.startup.reload_administrators_on_startup)
+            });
+        }
+    ],function(err, results)
+    {
+        if(!err)
         {
-            var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-            console.log("[INFO] Loading default administrators. Admins (in config.js file) -->" + JSON.stringify(Config.administrators));
-
-            async.series([
-                    function(callback)
-                    {
-                        User.removeAllAdmins(callback);
-                    },
-                    function(callback)
-                    {
-                        var makeAdmin = function(newAdministrator, callback){
-
-                            var username = newAdministrator.username;
-                            var password = newAdministrator.password;
-                            var mbox = newAdministrator.mbox;
-                            var firstname = newAdministrator.firstname;
-                            var surname = newAdministrator.surname;
-
-                            User.findByUsername(username, function(err, user){
-
-                                if(!err && user != null)
-                                {
-                                    user.makeGlobalAdmin(function(err, result){
-                                        callback(err, result);
-                                    });
-                                }
-                                else
-                                {
-                                    console.log("Non-existent user " + username + ". Creating new for promoting to admin.");
-
-                                    User.createAndInsertFromObject({
-                                            foaf: {
-                                                mbox: mbox,
-                                                firstName : firstname,
-                                                surname : surname
-                                            },
-                                            ddr:
-                                                {
-                                                    username : username,
-                                                    password : password
-                                                }
-                                        },
-                                        function(err, newUser){
-                                            if(!err && newUser != null && newUser instanceof User)
-                                            {
-                                                newUser.makeGlobalAdmin(function(err, newUser){
-                                                    callback(err, newUser);
-                                                });
-                                            }
-                                            else
-                                            {
-                                                var msg = "Error creating new User" + JSON.stringify(newUser);
-                                                console.error(msg);
-                                                callback(err, msg);
-                                            }
-                                        });
-                                }
-                            })
-                        };
-
-                        async.map(Config.administrators, makeAdmin, function(err){
-                            if(!err)
-                            {
-                                console.log("[OK] Admins successfully loaded.");
-                            }
-                            else {
-                                console.log("[ERROR] Unable to load admins. Error : " + err);
-                            }
-
-                            callback(err);
-                        });
-                    }
-                ],
-                function(err, results){
-                    if(!err)
-                    {
-                        callback(null);
-                    }
-                    else
-                    {
-                        process.exit(1);
-                    }
-                });
+            connectionsInitializedPromise.resolve();
         }
         else
         {
-            callback(null);
+            connectionsInitializedPromise.reject(results);
+        }
+
+        callback(err, results);
+    });
+};
+
+const loadData = function(callback)
+{
+    async.waterfall([
+        function(callback) {
+
+            //try to delete all demo users
+
+            var deleteUser = function(demoUser, callback)
+            {
+                var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                User.findByUsername(demoUser.username, function(err, user){
+
+                    if(!err)
+                    {
+                        if(user == null)
+                        {
+                            //everything ok, user simply does not exist
+                            callback(null, null);
+                        }
+                        else
+                        {
+                            console.log("[INFO] Demo user with username " + user.ddr.username + " found. Attempting to delete...");
+                            user.deleteAllMyTriples(function(err, result){
+                                callback(err, result);
+                            });
+                        }
+                    }
+                    else
+                    {
+                        console.log("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
+                        callback(err, user);
+                    }
+                });
+            };
+
+            async.map(Config.demo_mode.users, deleteUser, function(err, results) {
+                if (!err) {
+                    console.log("[INFO] Existing demo users deleted. ");
+                    if(Config.demo_mode.active)
+                    {
+                        if(Config.startup.load_databases && Config.startup.reload_demo_users_on_startup)
+                        {
+                            var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                            console.log("[INFO] Loading demo users. Demo users (in config.js file) -->" + JSON.stringify(Config.demo_mode.users));
+
+                            var createUser = function(user, callback)
+                            {
+                                User.createAndInsertFromObject({
+                                        foaf: {
+                                            mbox: user.mbox,
+                                            firstName : user.firstname,
+                                            surname : user.surname
+                                        },
+                                        ddr:
+                                            {
+                                                username : user.username,
+                                                password : user.password
+                                            }
+                                    },
+                                    function(err, newUser){
+                                        if(!err && newUser != null)
+                                        {
+                                            callback(null,  newUser);
+                                        }
+                                        else
+                                        {
+                                            console.log("[ERROR] Error creating new demo User " + JSON.stringify(user));
+                                            callback(err, user);
+                                        }
+                                    });
+                            };
+
+                            async.map(Config.demo_mode.users, createUser, function(err, results) {
+                                if(!err)
+                                {
+                                    console.log("[INFO] Existing demo users recreated. ");
+                                    callback(err);
+                                }
+                                else
+                                {
+                                    process.exit(1);
+                                }
+                            });
+                        }
+                        else
+                        {
+                            callback(null);
+                        }
+                    }
+                    else
+                    {
+                        callback(null);
+                    }
+                }
+                else {
+                    callback(err);
+                }
+            });
+        },
+        function(callback) {
+            if(Config.startup.load_databases && Config.startup.reload_administrators_on_startup)
+            {
+                var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                console.log("[INFO] Loading default administrators. Admins (in config.js file) -->" + JSON.stringify(Config.administrators));
+
+                async.series([
+                        function(callback)
+                        {
+                            User.removeAllAdmins(callback);
+                        },
+                        function(callback)
+                        {
+                            var makeAdmin = function(newAdministrator, callback){
+
+                                var username = newAdministrator.username;
+                                var password = newAdministrator.password;
+                                var mbox = newAdministrator.mbox;
+                                var firstname = newAdministrator.firstname;
+                                var surname = newAdministrator.surname;
+
+                                User.findByUsername(username, function(err, user){
+
+                                    if(!err && user != null)
+                                    {
+                                        user.makeGlobalAdmin(function(err, result){
+                                            callback(err, result);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        console.log("Non-existent user " + username + ". Creating new for promoting to admin.");
+
+                                        User.createAndInsertFromObject({
+                                                foaf: {
+                                                    mbox: mbox,
+                                                    firstName : firstname,
+                                                    surname : surname
+                                                },
+                                                ddr:
+                                                    {
+                                                        username : username,
+                                                        password : password
+                                                    }
+                                            },
+                                            function(err, newUser){
+                                                if(!err && newUser != null && newUser instanceof User)
+                                                {
+                                                    newUser.makeGlobalAdmin(function(err, newUser){
+                                                        callback(err, newUser);
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    var msg = "Error creating new User" + JSON.stringify(newUser);
+                                                    console.error(msg);
+                                                    callback(err, msg);
+                                                }
+                                            });
+                                    }
+                                })
+                            };
+
+                            async.map(Config.administrators, makeAdmin, function(err){
+                                if(!err)
+                                {
+                                    console.log("[OK] Admins successfully loaded.");
+                                }
+                                else {
+                                    console.log("[ERROR] Unable to load admins. Error : " + err);
+                                }
+
+                                callback(err);
+                            });
+                        }
+                    ],
+                    function(err, results){
+                        if(!err)
+                        {
+                            callback(null);
+                        }
+                        else
+                        {
+                            process.exit(1);
+                        }
+                    });
+            }
+            else
+            {
+                callback(null);
+            }
+        }],
+        function(err, results)
+        {
+            callback(err, results);
+        }
+    );
+};
+
+
+async.series([
+    function(cb)
+    {
+        init(cb);
+    },
+    function(cb)
+    {
+        if(Config.startup.load_databases)
+        {
+            loadData(cb);
+        }
+        else
+        {
+            cb(null);
         }
     },
     function(callback)
@@ -1962,3 +2011,4 @@ async.waterfall([
 ]);
 
 exports.bootup = bootupPromise.promise;
+exports.connectionsInitialized = connectionsInitializedPromise.promise;

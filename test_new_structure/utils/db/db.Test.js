@@ -12,7 +12,7 @@ module.exports.deleteGraphs = function (finish) {
     var graphs = Object.keys(GLOBAL.db);
     var conn = GLOBAL.db.default.connection;
 
-    async.map(graphs, function(graph, cb){
+    async.mapSeries(graphs, function(graph, cb){
 
         var graphUri = GLOBAL.db[graph].graphUri;
         conn.deleteGraph(graphUri, function(err){
