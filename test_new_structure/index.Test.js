@@ -10,8 +10,8 @@ Config.initGlobals();
 GLOBAL.tests = {};
 
 /*
-require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
-*/
+ require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
+ */
 
 require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
 require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
@@ -20,7 +20,7 @@ require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.
 /*require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
 
 /*require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
-require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));*/
+ require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));*/
 require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
 
 /*require(Config.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));*/
@@ -60,10 +60,10 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__mkd
 
 //EXPORT PUBLIC PROJECT TO REPOSITORIES TESTS
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/__export_to_repository/routes.project.publicProject.__export_to_repository.Test"));
-//EXPORT PRIVATE PROJECT TO REPOSITORIES TESTS
-require(Config.absPathInTestsFolder("/routes/project/private_project/__export_to_repository/routes.project.privateProject.__export_to_repository.Test"));
-//EXPORT METADATA ONLY PROJECT TO REPOSITORIES TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__export_to_repository/routes.project.metadataonlyProject.__export_to_repository.Test"));*/
+ //EXPORT PRIVATE PROJECT TO REPOSITORIES TESTS
+ require(Config.absPathInTestsFolder("/routes/project/private_project/__export_to_repository/routes.project.privateProject.__export_to_repository.Test"));
+ //EXPORT METADATA ONLY PROJECT TO REPOSITORIES TESTS
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__export_to_repository/routes.project.metadataonlyProject.__export_to_repository.Test"));*/
 
 //PUBLIC PROJECT FOLDER LEVEL RECENT CHANGES
 require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__recent_changes/routes.project.publicProject.data.testFolder1.__recent_changes.Test.js"));
@@ -115,15 +115,15 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/
 
 //PUBLIC PROJECT FOLDER LEVEL ?export_to_repository
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__export_to_repository/routes.project.publicProject.data.testFolder1.__export_to_repository.Test.js"));
-require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__export_to_repository/routes.project.publicProject.data.testFolder2.__export_to_repository.Test.js"));
+ require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__export_to_repository/routes.project.publicProject.data.testFolder2.__export_to_repository.Test.js"));
 
-//PRIVATE PROJECT FOLDER LEVEL ?export_to_repository
-require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__export_to_repository/routes.project.privateProject.data.testFolder1.__export_to_repository.Test.js"));
-require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__export_to_repository/routes.project.privateProject.data.testFolder2.__export_to_repository.Test.js"));
+ //PRIVATE PROJECT FOLDER LEVEL ?export_to_repository
+ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__export_to_repository/routes.project.privateProject.data.testFolder1.__export_to_repository.Test.js"));
+ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__export_to_repository/routes.project.privateProject.data.testFolder2.__export_to_repository.Test.js"));
 
-//METADATA ONLY PROJECT FOLDER LEVEL ?export_to_repository
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__export_to_repository/routes.project.metadataonlyProject.data.testFolder1.__export_to_repository.Test.js"));
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__export_to_repository/routes.project.metadataonlyProject.data.testFolder2.__export_to_repository.Test.js"));*/
+ //METADATA ONLY PROJECT FOLDER LEVEL ?export_to_repository
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__export_to_repository/routes.project.metadataonlyProject.data.testFolder1.__export_to_repository.Test.js"));
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__export_to_repository/routes.project.metadataonlyProject.data.testFolder2.__export_to_repository.Test.js"));*/
 
 //PUBLIC PROJECT FOLDER LEVEL ?update_metadata
 require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__update_metadata/routes.project.publicProject.data.testFolder1.__update_metadata.Test.js"));
@@ -191,71 +191,71 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/
 //PUBLIC PROJECT ?metadata_recommendations TESTS
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata_recommendations/routes.project.publicProject.__metadata_recommendations.Test"));
 
-//PRIVATE PROJECT ?metadata_recommendations TESTS
-require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata_recommendations/routes.project.privateProject.__metadata_recommendations.Test"));
+ //PRIVATE PROJECT ?metadata_recommendations TESTS
+ require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata_recommendations/routes.project.privateProject.__metadata_recommendations.Test"));
 
-//METADATA ONLY PROJECT ?metadata_recommendations TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata_recommendations/routes.project.metadataonlyProject.__metadata_recommendations.Test"));*/
+ //METADATA ONLY PROJECT ?metadata_recommendations TESTS
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata_recommendations/routes.project.metadataonlyProject.__metadata_recommendations.Test"));*/
 
 //PUBLIC PROJECT ?recommendation_ontologies TESTS
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/__recommendation_ontologies/routes.project.publicProject.__recommendation_ontologies.Test"));
 
-//PRIVATE PROJECT ?recommendation_ontologies TESTS
-require(Config.absPathInTestsFolder("/routes/project/private_project/__recommendation_ontologies/routes.project.privateProject.__recommendation_ontologies.Test"));
+ //PRIVATE PROJECT ?recommendation_ontologies TESTS
+ require(Config.absPathInTestsFolder("/routes/project/private_project/__recommendation_ontologies/routes.project.privateProject.__recommendation_ontologies.Test"));
 
-//METADATA PROJECT ?recommendation_ontologies TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recommendation_ontologies/routes.project.metadataonlyProject.__recommendation_ontologies.Test"));*/
+ //METADATA PROJECT ?recommendation_ontologies TESTS
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recommendation_ontologies/routes.project.metadataonlyProject.__recommendation_ontologies.Test"));*/
 
 //PUBLIC PROJECT ?metadata TESTS
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata/routes.project.publicProject.__metadata.Test"));
 
-//PRIVATE PROJECT ?metadata TESTS
-require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test"));
+ //PRIVATE PROJECT ?metadata TESTS
+ require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata/routes.project.privateProject.__metadata.Test"));
 
-//METADATA ONLY PROJECT ?metadata TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test"));*/
+ //METADATA ONLY PROJECT ?metadata TESTS
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata/routes.project.metadataonlyProject.__metadata.Test"));*/
 
 //PUBLIC PROJECT ?metadata&deep TESTS
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/__metadata&deep/routes.project.publicProject.__metadata&deep.Test"));
 
-//PRIVATE PROJECT ?metadata&deep TESTS
-require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata&deep/routes.project.privateProject.__metadata&deep.Test"));
+ //PRIVATE PROJECT ?metadata&deep TESTS
+ require(Config.absPathInTestsFolder("/routes/project/private_project/__metadata&deep/routes.project.privateProject.__metadata&deep.Test"));
 
-//METADATA ONLY PROJECT ?metadata&deep TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata&deep/routes.project.metadataonlyProject.__metadata&deep.Test"));*/
+ //METADATA ONLY PROJECT ?metadata&deep TESTS
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__metadata&deep/routes.project.metadataonlyProject.__metadata&deep.Test"));*/
 
 //PUBLIC PROJECT ROOT TESTS
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/routes.project.publicProject.Test"));
 
-//PRIVATE PROJECT ROOT TESTS
-require(Config.absPathInTestsFolder("/routes/project/private_project/routes.project.privateProject.Test"));
+ //PRIVATE PROJECT ROOT TESTS
+ require(Config.absPathInTestsFolder("/routes/project/private_project/routes.project.privateProject.Test"));
 
-//METADATA ONLY PROJECT ROOT TESTS
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/routes.project.metadataonlyProject.Test"));*/
+ //METADATA ONLY PROJECT ROOT TESTS
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/routes.project.metadataonlyProject.Test"));*/
 
 //PUBLIC PROJECT FOLDER LEVEL ?metadata_recommendations
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__metadata_recommendations/routes.project.publicProject.data.testFolder1.__metadata_recommendations.Test"));
-require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__metadata_recommendations/routes.project.publicProject.data.testFolder2.__metadata_recommendations.Test"));
+ require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__metadata_recommendations/routes.project.publicProject.data.testFolder2.__metadata_recommendations.Test"));
 
-//PRIVATE PROJECT FOLDER LEVEL ?metadata_recommendations
-require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__metadata_recommendations/routes.project.privateProject.data.testFolder1.__metadata_recommendations.Test"));
-require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__metadata_recommendations/routes.project.privateProject.data.testFolder2.__metadata_recommendations.Test"));
+ //PRIVATE PROJECT FOLDER LEVEL ?metadata_recommendations
+ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__metadata_recommendations/routes.project.privateProject.data.testFolder1.__metadata_recommendations.Test"));
+ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__metadata_recommendations/routes.project.privateProject.data.testFolder2.__metadata_recommendations.Test"));
 
-//METADATA ONLY PROJECT FOLDER LEVEL ?metadata_recommendations
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__metadata_recommendations/routes.project.metadataonlyProject.data.testFolder1.__metadata_recommendations.Test"));
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__metadata_recommendations/routes.project.metadataonlyProject.data.testFolder2.__metadata_recommendations.Test"));*/
+ //METADATA ONLY PROJECT FOLDER LEVEL ?metadata_recommendations
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__metadata_recommendations/routes.project.metadataonlyProject.data.testFolder1.__metadata_recommendations.Test"));
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__metadata_recommendations/routes.project.metadataonlyProject.data.testFolder2.__metadata_recommendations.Test"));*/
 
 //PUBLIC PROJECT FOLDER LEVEL ?recommendation_ontologies
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__recommendation_ontologies/routes.project.publicProject.data.testFolder1.__recommendation_ontologies.Test"));
-require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__recommendation_ontologies/routes.project.publicProject.data.testFolder2.__recommendation_ontologies.Test"));
+ require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/__recommendation_ontologies/routes.project.publicProject.data.testFolder2.__recommendation_ontologies.Test"));
 
-//PRIVATE PROJECT FOLDER LEVEL ?recommendation_ontologies
-require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__recommendation_ontologies/routes.project.privateProject.data.testFolder1.__recommendation_ontologies.Test"));
-require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__recommendation_ontologies/routes.project.privateProject.data.testFolder2.__recommendation_ontologies.Test"));
+ //PRIVATE PROJECT FOLDER LEVEL ?recommendation_ontologies
+ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__recommendation_ontologies/routes.project.privateProject.data.testFolder1.__recommendation_ontologies.Test"));
+ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/__recommendation_ontologies/routes.project.privateProject.data.testFolder2.__recommendation_ontologies.Test"));
 
-//METADATA ONLY PROJECT FOLDER LEVEL ?recommendation_ontologies
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__recommendation_ontologies/routes.project.metadataonlyProject.data.testFolder1.__recommendation_ontologies.Test"));
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__recommendation_ontologies/routes.project.metadataonlyProject.data.testFolder2.__recommendation_ontologies.Test"));*/
+ //METADATA ONLY PROJECT FOLDER LEVEL ?recommendation_ontologies
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__recommendation_ontologies/routes.project.metadataonlyProject.data.testFolder1.__recommendation_ontologies.Test"));
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__recommendation_ontologies/routes.project.metadataonlyProject.data.testFolder2.__recommendation_ontologies.Test"));*/
 
 //PUBLIC PROJECT FOLDER LEVEL ?metadata
 require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/__metadata/routes.project.publicProject.data.testFolder1.__metadata.Test"));
@@ -295,45 +295,45 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/
 
 //PUBLIC PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/routes.project.publicProject.data.testFolder1.Test"));
-require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/routes.project.publicProject.data.testFolder2.Test"));
+ require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/routes.project.publicProject.data.testFolder2.Test"));
 
-//PRIVATE PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
-require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/routes.project.privateProject.data.testFolder1.Test"));
-require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/routes.project.privateProject.data.testFolder2.Test"));
+ //PRIVATE PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
+ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/routes.project.privateProject.data.testFolder1.Test"));
+ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFolder2/routes.project.privateProject.data.testFolder2.Test"));
 
-//METADATA ONLY PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/routes.project.metadataonlyProject.data.testFolder1.Test"));
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/routes.project.metadataonlyProject.data.testFolder2.Test"));*/
+ //METADATA ONLY PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/routes.project.metadataonlyProject.data.testFolder1.Test"));
+ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/routes.project.metadataonlyProject.data.testFolder2.Test"));*/
 
 /*
-//test login
-require("./controllers/auth.Test.js");
+ //test login
+ require("./controllers/auth.Test.js");
 
-//test projects
-require("./controllers/projects.Test.js");
+ //test projects
+ require("./controllers/projects.Test.js");
 
-//test file uploads
-require("./controllers/files.Test.js");
+ //test file uploads
+ require("./controllers/files.Test.js");
 
-//test folders
-require("./controllers/folders.Test.js");
-*/
+ //test folders
+ require("./controllers/folders.Test.js");
+ */
 //test users
 //require("./controllers/users.Test.js");
 /*
-//test descriptors
-require("./controllers/descriptors.Test.js");
+ //test descriptors
+ require("./controllers/descriptors.Test.js");
 
-//SOCIAL DENDRO
-//test Social Dendro Posts
-require("./controllers/social/posts.Test.js");
+ //SOCIAL DENDRO
+ //test Social Dendro Posts
+ require("./controllers/social/posts.Test.js");
 
-//test Social Dendro File Versions
-require("./controllers/social/fileVersions.Test.js");
+ //test Social Dendro File Versions
+ require("./controllers/social/fileVersions.Test.js");
 
-//test Social Dendro Notifications
-require("./controllers/social/notifications.Test.js");
+ //test Social Dendro Notifications
+ require("./controllers/social/notifications.Test.js");
 
-//destroy graphs
-require('./models/kb/db.Test.js');
-*/
+ //destroy graphs
+ require('./models/kb/db.Test.js');
+ */

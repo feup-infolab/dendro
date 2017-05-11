@@ -337,28 +337,55 @@ exports.new = function(req, res){
 
 
 exports.getPost_controller = function (req, res) {
-    var currentUser = req.session.user;
-    var postURI = req.body.postID;
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    var debugGraph = db_social.graphUri;
-    Post.findByUri(req.body.postID, function(err, post)
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        if(!err)
+        var currentUser = req.session.user;
+        var postURI = req.body.postID;
+
+        var debugGraph = db_social.graphUri;
+        Post.findByUri(req.body.postID, function(err, post)
         {
-            //app.io.emit('chat message', post);
-            var eventMsg = 'postURI:' + postURI.uri;
-            //var eventMsg = 'postURI:';
-            //app.io.emit(eventMsg, post);
-            res.json(post);
-        }
-        else
-        {
-            res.status(500).json({
-                result: "Error",
-                message: "Error getting a post. " + JSON.stringify(post)
-            });
-        }
-    }, null, db_social.graphUri, null);
+            if(!err)
+            {
+
+                if(!post)
+                {
+                    var errorMsg = "Invalid post uri";
+                    res.status(404).json({
+                        result: "Error",
+                        message: errorMsg
+                    });
+                }
+                else
+                {
+                    //app.io.emit('chat message', post);
+                    var eventMsg = 'postURI:' + postURI.uri;
+                    //var eventMsg = 'postURI:';
+                    //app.io.emit(eventMsg, post);
+                    res.json(post);
+                }
+            }
+            else
+            {
+                res.status(500).json({
+                    result: "Error",
+                    message: "Error getting a post. " + JSON.stringify(post)
+                });
+            }
+        }, null, db_social.graphUri, null);
+    }
+    else
+    {
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
+        });
+    }
 };
 
 exports.share = function (req, res) {
@@ -451,9 +478,96 @@ exports.getPostComments = function (req, res) {
 };
 
 exports.comment = function (req, res) {
-    var currentUser = req.session.user;
-    var commentMsg = req.body.commentMsg;
-    Post.findByUri(req.body.postID, function(err, post)
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    {
+        var currentUser = req.session.user;
+        var commentMsg = req.body.commentMsg;
+
+        Post.findByUri(req.body.postID, function(err, post)
+        {
+            if(!err && post != null)
+            {
+                var newComment = new Comment({
+                    ddr: {
+                        userWhoCommented : currentUser.uri,
+                        postURI: post.uri,
+                        commentMsg: commentMsg
+                    }
+                });
+
+                var newNotification = new Notification({
+                    ddr: {
+                        userWhoActed : currentUser.uri,
+                        resourceTargetUri: post.uri,
+                        actionType: "Comment",
+                        resourceAuthorUri: post.dcterms.creator
+                    },
+                    foaf :
+                        {
+                            status : "unread"
+                        }
+                });
+
+                newComment.save(function(err, resultComment)
+                {
+                    if(!err)
+                    {
+                        /*
+                         res.json({
+                         result : "OK",
+                         message : "Post commented successfully"
+                         });*/
+                        newNotification.save(function (error, resultNotification) {
+                            if(!error)
+                            {
+                                res.json({
+                                    result : "OK",
+                                    message : "Post commented successfully"
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result: "Error",
+                                    message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
+                                });
+                            }
+                        }, false, null, null, null, null, db_notifications.graphUri);
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "Error",
+                            message: "Error Commenting a post. " + JSON.stringify(resultComment)
+                        });
+                    }
+
+                }, false, null, null, null, null, db_social.graphUri);
+            }
+            else
+            {
+                var errorMsg = "Invalid post uri";
+                res.status(404).json({
+                    result: "Error",
+                    message: errorMsg
+                });
+            }
+        }, null, db_social.graphUri, null);
+    }
+    else
+    {
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
+        });
+    }
+
+    /*Post.findByUri(req.body.postID, function(err, post)
     {
         var newComment = new Comment({
             ddr: {
@@ -480,11 +594,11 @@ exports.comment = function (req, res) {
         {
             if(!err)
             {
-                /*
+                /!*
                 res.json({
                     result : "OK",
                     message : "Post commented successfully"
-                });*/
+                });*!/
                 newNotification.save(function (error, resultNotification) {
                     if(!error)
                     {
@@ -512,102 +626,157 @@ exports.comment = function (req, res) {
 
         }, false, null, null, null, null, db_social.graphUri);
 
-    }, null, db_social.graphUri, null);
+    }, null, db_social.graphUri, null);*/
 };
 
 exports.checkIfPostIsLikedByUser = function (req, res) {
-    var postID = req.body.postID;
-    var currentUser = req.session.user;
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    userLikedAPost(postID, currentUser.uri, function (err, isLiked) {
-        if(!err)
-            res.json(isLiked);
-        else
-            res.status(500).json({
-                result: "Error",
-                message: "Error getting numLikes in a post. " + JSON.stringify(isLiked)
-            });
-    });
-};
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    {
+        var postID = req.body.postID;
+        var currentUser = req.session.user;
 
-exports.like = function (req, res) {
-    var currentUser = req.session.user;
-    removeOrAdLike(req.body.postID, currentUser.uri, function (err, likeExists) {
-        if(!err)
+        Post.findByUri(postID, function(err, post)
         {
-            if(likeExists)
+            if(!err && post != null)
             {
-                //like was removed
-                res.json({
-                    result : "OK",
-                    message : "Post already liked"
+                userLikedAPost(post.uri, currentUser.uri, function (err, isLiked) {
+                    if(!err)
+                        res.json(isLiked);
+                    else
+                        res.status(500).json({
+                            result: "Error",
+                            message: "Error getting verifying if a user liked a post in a post. " + JSON.stringify(isLiked)
+                        });
                 });
             }
             else
             {
-                Post.findByUri(req.body.postID, function(err, post)
+                var errorMsg = "Invalid post uri";
+                res.status(404).json({
+                    result: "Error",
+                    message: errorMsg
+                });
+            }
+        }, null, db_social.graphUri, null);
+    }
+    else
+    {
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
+        });
+    }
+};
+
+exports.like = function (req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    {
+        var currentUser = req.session.user;
+        removeOrAdLike(req.body.postID, currentUser.uri, function (err, likeExists) {
+            if(!err)
+            {
+                if(likeExists)
                 {
-                    var updatedPost = post;
-                    var newLike = new Like({
-                        ddr: {
-                            userWhoLiked : currentUser.uri,
-                            postURI: post.uri
-                        }
+                    //like was removed
+                    res.json({
+                        result : "OK",
+                        message : "Like was removed"
                     });
-
-                    //resourceTargetUri -> a post, fileVersion etc
-                    //resourceAuthorUri -> the author of the post etc
-                    //userWhoActed -> user who commmented/etc
-                    //actionType -> comment/like/share
-                    //status-> read/unread
-
-                    var newNotification = new Notification({
-                       ddr: {
-                           userWhoActed : currentUser.uri,
-                           resourceTargetUri: post.uri,
-                           actionType: "Like",
-                           resourceAuthorUri: post.dcterms.creator
-                       },
-                        foaf :
-                        {
-                            status : "unread"
-                        }
-                    });
-
-                    newLike.save(function(err, resultLike)
+                }
+                else
+                {
+                    Post.findByUri(req.body.postID, function(err, post)
                     {
-                        if(!err)
+                        if(!err && post != null)
                         {
-                            newNotification.save(function (error, resultNotification) {
-                                if(!error)
+                            var updatedPost = post;
+                            var newLike = new Like({
+                                ddr: {
+                                    userWhoLiked : currentUser.uri,
+                                    postURI: post.uri
+                                }
+                            });
+
+                            //resourceTargetUri -> a post, fileVersion etc
+                            //resourceAuthorUri -> the author of the post etc
+                            //userWhoActed -> user who commmented/etc
+                            //actionType -> comment/like/share
+                            //status-> read/unread
+
+                            var newNotification = new Notification({
+                                ddr: {
+                                    userWhoActed : currentUser.uri,
+                                    resourceTargetUri: post.uri,
+                                    actionType: "Like",
+                                    resourceAuthorUri: post.dcterms.creator
+                                },
+                                foaf :
+                                    {
+                                        status : "unread"
+                                    }
+                            });
+
+                            newLike.save(function(err, resultLike)
+                            {
+                                if(!err)
                                 {
-                                    res.json({
-                                        result : "OK",
-                                        message : "Post liked successfully"
-                                    });
+                                    newNotification.save(function (error, resultNotification) {
+                                        if(!error)
+                                        {
+                                            res.json({
+                                                result : "OK",
+                                                message : "Post liked successfully"
+                                            });
+                                        }
+                                        else
+                                        {
+                                            res.status(500).json({
+                                                result: "Error",
+                                                message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
+                                            });
+                                        }
+                                    }, false, null, null, null, null, db_notifications.graphUri);
                                 }
                                 else
                                 {
                                     res.status(500).json({
                                         result: "Error",
-                                        message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
+                                        message: "Error Liking a post. " + JSON.stringify(resultLike)
                                     });
                                 }
-                            }, false, null, null, null, null, db_notifications.graphUri);
+
+                            }, false, null, null, null, null, db_social.graphUri);
                         }
                         else
                         {
-                            res.status(500).json({
+                            var errorMsg = "Invalid post uri";
+                            res.status(404).json({
                                 result: "Error",
-                                message: "Error Liking a post. " + JSON.stringify(resultLike)
+                                message: errorMsg
                             });
                         }
-
-                    }, false, null, null, null, null, db_social.graphUri);
-                }, null, db_social.graphUri, null);
+                    }, null, db_social.graphUri, null);
+                }
             }
-        }
-    });
+        });
+    }
+    else
+    {
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
+        });
+    }
 };
 
 /*var updateResource = function(currentResource, newResource, graphUri, cb)
@@ -897,36 +1066,65 @@ exports.getPostShares = function (req, res) {
 };
 
 exports.postLikesInfo = function (req, res) {
-    var currentUser = req.session.user;
-    var postURI = req.body.postURI;
-    var resultInfo;
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    getNumLikesForAPost(postURI, function (err, likesArray) {
-        if(!err)
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    {
+        var currentUser = req.session.user;
+        var postURI = req.body.postURI;
+        var resultInfo;
+
+        Post.findByUri(postURI, function(err, post)
         {
-            if(likesArray.length)
+            if(!err && post != null)
             {
-                resultInfo = {
-                    postURI: postURI, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
-                };
+                getNumLikesForAPost(post.uri, function (err, likesArray) {
+                    if(!err)
+                    {
+                        if(likesArray.length)
+                        {
+                            resultInfo = {
+                                postURI: postURI, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
+                            };
+                        }
+                        else
+                        {
+                            resultInfo = {
+                                postURI: postURI, numLikes : 0, usersWhoLiked : 'undefined'
+                            };
+                        }
+                        res.json(resultInfo);
+                    }
+                    else
+                    {
+                        res.status(500).json({
+                            result: "Error",
+                            message: "Error getting likesInfo from a post " + JSON.stringify(err)
+                        });
+                    }
+
+                });
             }
             else
             {
-                resultInfo = {
-                    postURI: postURI, numLikes : 0, usersWhoLiked : 'undefined'
-                };
+                var errorMsg = "Invalid post uri";
+                res.status(404).json({
+                    result: "Error",
+                    message: errorMsg
+                });
             }
-            res.json(resultInfo);
-        }
-        else
-        {
-            res.status(500).json({
-                result: "Error",
-                message: "Error getting likesInfo from a post " + JSON.stringify(err)
-            });
-        }
-
-    });
+        }, null, db_social.graphUri, null);
+    }
+    else
+    {
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
+        });
+    }
 };
 
 var userLikedAPost = function(postID, userUri, cb )
@@ -961,9 +1159,9 @@ var userLikedAPost = function(postID, userUri, cb )
             if(!err)
             {
                 if(results.length > 0)
-                    cb(false, true);
+                    cb(err, true);
                 else
-                    cb(false, true);
+                    cb(err, false);
             }
             else
             {
