@@ -1,6 +1,4 @@
 engines:
-  brakeman: 
-    enabled: true
   csslint: 
     enabled: true
   duplication: 
