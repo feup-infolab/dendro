@@ -8,8 +8,8 @@
     "post-install": "grunt",
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test_new_structure/index.Test.js -t 10000 --ui bdd",
     "watch": "npm test -w",
-    "coverage": "nyc npm test && nyc report --temp-directory=coverage --reporter=lcov --reporter=text --reporter=text-lcov",
-    "report-coverage": "nyc npm test && nyc report --temp-directory=coverage --reporter=text-lcov && node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info && codeclimate-test-reporter < ./coverage/lcov.info",
+    "coverage": "nyc --temp-directory=coverage --reporter=lcov --reporter=text --reporter=text-lcov npm test",
+    "report-coverage": "npm run coverage && node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info && codeclimate-test-reporter < ./coverage/lcov.info && rm -rf coverage",
     "everything": "rm -rf node_modules && npm cache clean && npm install && npm run test && npm run report-coverage",
     "remote_debug": "node app.js --debug=5858",
     "profile": "node --prof node_modules/.bin/_mocha ./test_new_structure/index.Test.js-t 10000"
