@@ -15,12 +15,12 @@ engines:
     enabled: true
 ratings: 
   exclude_paths: 
-    - test/**/*
-    - test_new_structure/**/*
+    - "test/"
+    - "test_new_structure/"
     - "**/bower_components"
     - "**/node_modules"
     - "**/vendor"
   paths: 
-    - src/**/*
-    - public/**/*
-    - conf/**/*
+    - src/**
+    - public/app/**
+    - conf/**
