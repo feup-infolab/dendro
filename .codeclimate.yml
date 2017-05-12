@@ -1,7 +1,11 @@
 engines:
-  csslint: 
+  csslint:
     enabled: true
-  duplication: 
+  duplication:
+    config:
+      languages:
+        -
+          javascript: ~
     enabled: true
   eslint: 
     enabled: true
