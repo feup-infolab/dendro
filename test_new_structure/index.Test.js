@@ -14,6 +14,7 @@ GLOBAL.tests = {};
  */
 
 require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
+
 require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
 
 require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
