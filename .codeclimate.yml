@@ -1,24 +1,24 @@
 engines:
-  brakeman:
-   	enabled: true
-  eslint:
+  brakeman: 
     enabled: true
-  csslint:
+  csslint: 
     enabled: true
-  shellcheck:
+  duplication: 
     enabled: true
-  duplication:
-  	enabled: true
-  markdownlint:
-  	enabled: true
-ratings:
-  paths:
+  eslint: 
+    enabled: true
+  markdownlint: 
+    enabled: true
+  shellcheck: 
+    enabled: true
+ratings: 
+  exclude_paths: 
+    - test/**/*
+    - test_new_structure/**/*
+    - "**/bower_components"
+    - "**/node_modules"
+    - "**/vendor"
+  paths: 
     - src/**/*
     - public/**/*
     - conf/**/*
-  exclude_paths:
-    - test/**/*
-    - test_new_structure/**/*
-    - **/bower_components
-    - **/node_modules
-    - **/vendor
