@@ -17,16 +17,16 @@ const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 
 //to review naming before mergin to master
-describe("/users", function (done) {
+
+
+describe('/users', function () {
+
     before(function (done) {
         this.timeout(60000);
         addBootUpUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
         });
-    });
-
-    describe('/users', function () {
 
         it('[HTML] should list all users when logged in as demouser1.username', function (done){
             var app = GLOBAL.tests.app;

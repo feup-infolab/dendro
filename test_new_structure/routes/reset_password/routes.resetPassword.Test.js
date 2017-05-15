@@ -11,10 +11,10 @@ var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/
 
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 
-const dummyToken = "123";
-const dummyMail = 'dendro@mail';
-
 describe('/reset_password', function () {
+
+    const dummyToken = "123";
+    const dummyMail = 'dendro@mail';
 
     before(function (done) {
         this.timeout(60000);
@@ -50,13 +50,11 @@ describe('/reset_password', function () {
 
 
     after(function (done) {
-        //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
             done();
         });
-    })
+    });
 
 });
