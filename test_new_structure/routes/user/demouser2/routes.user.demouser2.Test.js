@@ -8,6 +8,7 @@ const Config = GLOBAL.Config;
 
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const falseUser = 'demouser404';
 
 const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
@@ -114,11 +115,9 @@ describe("/user/demouser2", function (done) {
 
 
     after(function (done) {
-        //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
             done();
         });
     });

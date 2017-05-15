@@ -107,11 +107,9 @@ describe("/users", function (done) {
         });
 
         after(function (done) {
-            //destroy graphs
             this.timeout(60000);
-            db.deleteGraphs(function (err, data) {
+            appUtils.clearAppState(function (err, data) {
                 should.equal(err, null);
-                GLOBAL.tests.server.close();
                 done();
             });
         });
