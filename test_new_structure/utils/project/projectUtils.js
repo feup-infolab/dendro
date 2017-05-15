@@ -103,6 +103,8 @@ var viewProject = function (jsonOnly, agent, projectHandle, cb) {
     {
         agent
             .get('/project/' + projectHandle)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -250,6 +252,30 @@ var getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, 
 
 var getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
     var path = '/project/' + projectHandle + '?metadata';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb) {
+    var path = '/project/' + projectHandle + '?metadata&deep';
     if(jsonOnly)
     {
         agent
@@ -606,5 +632,6 @@ module.exports = {
     thumbnail : thumbnail,
     getProjectContributors: getProjectContributors,
     getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
-    getProjectMetadata: getProjectMetadata
+    getProjectMetadata: getProjectMetadata,
+    getProjectMetadataDeep: getProjectMetadataDeep
 };

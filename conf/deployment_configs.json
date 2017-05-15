@@ -169,6 +169,7 @@
       }
     },
     "startup" : {
+      "load_databases" : true,
       "reload_administrators_on_startup" : true,
       "reload_demo_users_on_startup" : true,
       "reload_ontologies_on_startup": false
@@ -475,6 +476,7 @@
       }
     },
     "startup" : {
+      "load_databases" : true,
       "reload_administrators_on_startup" : true,
       "reload_demo_users_on_startup" : true,
       "reload_ontologies_on_startup": false
@@ -683,7 +685,7 @@
     "mySQLDBName" : "dendroVagrantDemo",
     "maxUploadSize" : 2147483648,
     "maxProjectSize" : 5368709120,
-    "maxSimultanousConnectionsToDb" : 3,
+    "maxSimultanousConnectionsToDb" : 10,
     "dbOperationTimeout" : 5000,
     "tempFilesDir" : "temp",
     "tempFilesCreationMode" : "0777",
@@ -801,6 +803,7 @@
       }
     },
     "startup" : {
+      "load_databases" : false,
       "reload_administrators_on_startup" : true,
       "reload_demo_users_on_startup" : true,
       "reload_ontologies_on_startup": false
@@ -1063,7 +1066,8 @@
       "active": true,
       "database" :{
         "log_all_queries": false,
-        "destroy_all_graphs_on_startup": true
+        "destroy_all_graphs_on_startup": true,
+        "monitor_number_of_connections" : true
       },
       "session": {
         "auto_login": false,
@@ -1115,6 +1119,7 @@
       }
     },
     "startup" : {
+      "load_databases" : false,
       "reload_administrators_on_startup" : true,
       "reload_demo_users_on_startup" : true,
       "reload_ontologies_on_startup": false

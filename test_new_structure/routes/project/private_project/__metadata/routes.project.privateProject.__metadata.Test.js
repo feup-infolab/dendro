@@ -10,6 +10,7 @@ const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js")
 const itemUtils = require(Config.absPathInTestsFolder("utils/item/itemUtils.js"));
 const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
 const repositoryUtils = require(Config.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
+const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -18,13 +19,8 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-var addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-
-function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
-}
+var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Private project level metadata tests", function () {
     before(function (done) {
@@ -46,6 +42,7 @@ describe("Private project level metadata tests", function () {
                 projectUtils.getProjectMetadata(false, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -61,6 +58,7 @@ describe("Private project level metadata tests", function () {
             projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);
                 should.not.exist(res.body.descriptors);
+                should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                 done();
             });
         });
@@ -71,6 +69,7 @@ describe("Private project level metadata tests", function () {
                 projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -82,6 +81,7 @@ describe("Private project level metadata tests", function () {
                 projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(401);
                     should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -93,6 +93,7 @@ describe("Private project level metadata tests", function () {
                 projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.descriptors.should.be.instanceof(Array);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -109,6 +110,7 @@ describe("Private project level metadata tests", function () {
                     //Project http://127.0.0.1:3001/project/unknownProjectHandle not found.
                     res.text.should.include("Project "  + "http://" + Config.host + "/project/" + invalidProject.handle + " not found.");
                     should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -120,6 +122,7 @@ describe("Private project level metadata tests", function () {
                 projectUtils.getProjectMetadata(true, agent, invalidProject.handle, function (err, res) {
                     res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
                     done();
                 });
             });
@@ -129,9 +132,8 @@ describe("Private project level metadata tests", function () {
     after(function (done) {
         //destroy graphs
         this.timeout(60000);
-        db.deleteGraphs(function (err, data) {
+        appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
             done();
         });
     });

@@ -12,17 +12,26 @@ function requireUncached(module) {
 
 module.exports.setup = function(finish)
 {
-    let bootup = requireUncached(Config.absPathInSrcFolder("app.js")).bootup;
+    let connectionsInitalized = requireUncached(Config.absPathInSrcFolder("app.js")).connectionsInitialized;
 
-    bootup.then(function(appInfo) {
-        chai.request(appInfo.app)
-        .get('/')
-        .end((err, res) => {
-            //res.should.have.status(200);
-            //res.text.should.contain('<h2>Welcome to Dendro Beta</h2>');
-            GLOBAL.tests.app = appInfo.app;
-            GLOBAL.tests.server = appInfo.server;
-            finish(err, res);
+    connectionsInitalized.then(function(){
+        const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+
+        appUtils.clearAllData(function (err, data) {
+            should.equal(err, null);
+
+            let bootup = requireUncached(Config.absPathInSrcFolder("app.js")).bootup;
+            bootup.then(function(appInfo) {
+                chai.request(appInfo.app)
+                    .get('/')
+                    .end((err, res) => {
+                        //res.should.have.status(200);
+                        //res.text.should.contain('<h2>Welcome to Dendro Beta</h2>');
+                        GLOBAL.tests.app = appInfo.app;
+                        GLOBAL.tests.server = appInfo.server;
+                        finish(err, res);
+                    });
+            });
         });
     });
 };
