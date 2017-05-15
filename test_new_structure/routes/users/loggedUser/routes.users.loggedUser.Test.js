@@ -26,6 +26,7 @@ describe("/users/loggedUser ", function () {
             done();
         });
     });
+
     it('[JSON] should NOT display demouser1.username info when NOT logged in',function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);

@@ -106,13 +106,6 @@ describe('/users', function () {
             })
         });
 
-        after(function (done) {
-            this.timeout(60000);
-            appUtils.clearAppState(function (err, data) {
-                should.equal(err, null);
-                done();
-            });
-        });
 
 
     });

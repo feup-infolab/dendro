@@ -14,7 +14,6 @@ var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/
 describe("/user/demouser1", function (done) {
 
     const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
-    const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
     const falseUser = 'demouser404';
 
     before(function (done) {
@@ -74,7 +73,7 @@ describe("/user/demouser1", function (done) {
     it('[JSON] should NOT access demouser1.username profile when given non-existent username and logged in',function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             userUtils.getUserInfo(falseUser, true, agent, function(err, res){
                 res.should.have.status(200);
                 res.text.should.contain('demouser404 does not exist');
@@ -86,7 +85,7 @@ describe("/user/demouser1", function (done) {
     it('[HTML] should NOT access demouser1.username profile when given non-existent username and logged in',function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
-        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             userUtils.getUserInfo(falseUser, false, agent, function(err, res){
                 res.should.have.status(200);
                 res.text.should.contain('demouser404 does not exist');
@@ -114,13 +113,11 @@ describe("/user/demouser1", function (done) {
             done();
         })
     });
-
-    after(function (done) {
-        this.timeout(60000);
-        appUtils.clearAppState(function (err, data) {
-            should.equal(err, null);
-            done();
-        });
+});
+after(function (done) {
+    this.timeout(60000);
+    appUtils.clearAppState(function (err, data) {
+        should.equal(err, null);
+        done();
     });
-
 });

@@ -47,14 +47,12 @@ describe('/reset_password', function () {
             done();
         })
     });
+});
 
-
-    after(function (done) {
-        this.timeout(60000);
-        appUtils.clearAppState(function (err, data) {
-            should.equal(err, null);
-            done();
-        });
+after(function (done) {
+    this.timeout(60000);
+    appUtils.clearAppState(function (err, data) {
+        should.equal(err, null);
+        done();
     });
-
 });

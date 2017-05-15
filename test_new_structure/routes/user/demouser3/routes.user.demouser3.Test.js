@@ -6,13 +6,13 @@ chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
 
+const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 
 const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 
 describe("/user/demouser3", function (done) {
 
-    const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
     const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
     const falseUser = 'demouser404';
 
@@ -113,15 +113,11 @@ describe("/user/demouser3", function (done) {
             done();
         })
     });
-
-
-    after(function (done) {
-        this.timeout(60000);
-        appUtils.clearAppState(function (err, data) {
-            should.equal(err, null);
-            done();
-        });
+});
+after(function (done) {
+    this.timeout(60000);
+    appUtils.clearAppState(function (err, data) {
+        should.equal(err, null);
+        done();
     });
-
-
 });
