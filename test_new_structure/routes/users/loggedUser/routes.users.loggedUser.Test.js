@@ -9,7 +9,7 @@ const Config = GLOBAL.Config;
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 
 const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
-var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+var createUserUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
 
 
@@ -21,7 +21,7 @@ describe("/users/loggedUser ", function () {
 
     before(function (done) {
         this.timeout(60000);
-        addBootUpUnit.setup(function (err, results) {
+        createUserUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
         });
