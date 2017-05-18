@@ -103,6 +103,8 @@ var viewProject = function (jsonOnly, agent, projectHandle, cb) {
     {
         agent
             .get('/project/' + projectHandle)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -250,6 +252,30 @@ var getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, 
 
 var getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
     var path = '/project/' + projectHandle + '?metadata';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb) {
+    var path = '/project/' + projectHandle + '?metadata&deep';
     if(jsonOnly)
     {
         agent
@@ -557,7 +583,32 @@ var serve = function(agent, projectHandle, filepath, cb){
         });
 };
 
-
+var descriptors_autocomplete = function(jsonOnly, projectHandle, folderPath, descriptor, cb){
+    ///project/:handle?descriptors_autocomplete
+    var projectFolder = projectHandle;
+    if(folderPath){
+        projectFolder += "/data/" + folderPath;
+    }
+    var path = '/project/' + projectFolder +'?descriptors_autocomplete&' + descriptor;
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
 
 var thumbnail = function(agent, filepath, projectHandle, cb){
     agent
@@ -622,7 +673,9 @@ module.exports = {
     serve : serve,
     thumbnail : thumbnail,
     upload : upload,
+    descriptors_autocomplete : descriptors_autocomplete,
     getProjectContributors: getProjectContributors,
     getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
-    getProjectMetadata: getProjectMetadata
+    getProjectMetadata: getProjectMetadata,
+    getProjectMetadataDeep: getProjectMetadataDeep
 };

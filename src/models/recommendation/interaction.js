@@ -343,23 +343,35 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
 
         console.log(insertNewInteractionQuery);
 
-        mysql(insertNewInteractionQuery).query(
-            insertNewInteractionQuery,
-            inserts,
-            function(err, rows, fields)
+        mysql().getConnection(function(err, connection){
+            if(!err)
             {
-                if(!err)
-                {
-                    callback(null, rows, fields);
-                }
-                else
-                {
-                    var msg = "Error saving interaction to MySQL database : " + err;
-                    console.error(msg);
-                    callback(1, msg);
-                }
+                connection.query(
+                    insertNewInteractionQuery,
+                    inserts,
+                    function(err, rows, fields)
+                    {
+                        if(!err)
+                        {
+                            callback(null, rows, fields);
+                        }
+                        else
+                        {
+                            var msg = "Error saving interaction to MySQL database : " + err;
+                            console.error(msg);
+                            callback(1, msg);
+                        }
 
-            });
+                    });
+            }
+            else
+            {
+                var msg = "Unable to get MYSQL connection when registering new interaction";
+                console.error(msg);
+                console.error(err.stack);
+                callback(1, msg);
+            }
+        });
     };
 
     if(overwrite)
@@ -370,32 +382,43 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
     }
     else
     {
-        mysql().query('SELECT * from ?? WHERE uri = ?', [targetTable, self.uri], function(err, rows, fields) {
-            if(!err)
+        mysql().getConnection(function(err, connection) {
+            if (!err)
             {
-                if(rows != null && rows instanceof Array && rows.length > 0)
+                connection.query('SELECT * from ?? WHERE uri = ?', [targetTable, self.uri], function (err, rows, fields)
                 {
-                    //an interaction with the same URI is already recorded, there must be some error!
-                    callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
-                }
-                else
-                {
-                    //insert the new interaction
-                    insertNewInteraction(function(err, rows, fields){
-                        if(err)
+                    if (!err)
+                    {
+                        if (rows != null && rows instanceof Array && rows.length > 0)
                         {
-                            callback(1, "Error inserting new interaction to MYSQL with URI " + self.uri);
+                            //an interaction with the same URI is already recorded, there must be some error!
+                            callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
                         }
                         else
                         {
-                            callback(null, rows);
+                            //insert the new interaction
+                            insertNewInteraction(function (err, rows, fields) {
+                                if (err) {
+                                    callback(1, "Error inserting new interaction to MYSQL with URI " + self.uri);
+                                }
+                                else {
+                                    callback(null, rows);
+                                }
+                            });
                         }
-                    });
-                }
+                    }
+                    else
+                    {
+                        callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
+                    }
+                });
             }
             else
             {
-                callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
+                var msg = "Unable to get MYSQL connection when registering new interaction";
+                console.error(msg);
+                console.error(err.stack);
+                callback(1, msg);
             }
         });
     }

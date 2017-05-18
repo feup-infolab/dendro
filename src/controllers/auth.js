@@ -27,7 +27,6 @@ module.exports.login = function(req, res){
                         if( user != null )
                         {
                             var bcrypt = require('bcryptjs');
-                            console.log(user.ddr.salt);
                             bcrypt.hash(req.body.password, user.ddr.salt, function(err, hashedPassword) {
                                 if(!err)
                                 {
@@ -94,12 +93,15 @@ module.exports.login = function(req, res){
                                 }
                                 else
                                 {
+                                    console.error(err.stack);
+
                                     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                                     {
                                         res.status(401).json(
                                             {
                                                 result : "error",
-                                                message : "Unknown error during authentication"
+                                                message : "Unknown error during authentication",
+                                                error : err
                                             }
                                         );
                                     }
@@ -109,7 +111,7 @@ module.exports.login = function(req, res){
                                             {
                                                 title : 'Error Logging in',
                                                 error_messages: [
-                                                    "Unknown error during authentication"
+                                                    "Unknown error during authentication",
                                                 ]
                                             }
                                         );

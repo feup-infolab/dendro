@@ -53,8 +53,8 @@ module.exports.setup = function(finish)
                 }
                 else
                 {
-                    async.map(projectsData, function (projectData, cb) {
-                        async.map(foldersData, function (folderData, cb) {
+                    async.mapSeries(projectsData, function (projectData, cb) {
+                        async.mapSeries(foldersData, function (folderData, cb) {
                             itemUtils.updateItemMetadata(true, agent, projectData.handle, folderData.name, folderData.metadata, function (err, res) {
                                 cb(err, res);
                             });

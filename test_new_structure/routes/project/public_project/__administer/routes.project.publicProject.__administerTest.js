@@ -11,10 +11,6 @@ const Config = GLOBAL.Config;
 const should = chai.should();
 const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
-
-//TODO not recognized
-
-
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const metadataOnlyProject = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 const privateProject= require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
