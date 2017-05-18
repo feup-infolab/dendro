@@ -11,7 +11,7 @@ const ontologiesUtils = require(Config.absPathInTestsFolder("utils/ontologies/on
 
 
 const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
-var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+var userCreateUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
 describe('/ontologies/edit', function () {
 
@@ -23,7 +23,7 @@ describe('/ontologies/edit', function () {
 
     before(function (done) {
         this.timeout(60000);
-        addBootUpUnit.setup(function (err, results) {
+        userCreateUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
         });

@@ -207,34 +207,43 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
     async.waterfall([
         function(callback) {
 			self.check_if_index_exists(
-                function(indexAlreadyExists)
+                function(err, indexAlreadyExists)
 				{
-                    if(indexAlreadyExists)
-                    {
-                        if(deleteIfExists)
+				    if(!err)
+				    {
+                        if(indexAlreadyExists)
                         {
-                            self.delete_index(function(err)
+                            if(deleteIfExists)
                             {
-                                if(!err)
+                                self.delete_index(function(err)
                                 {
-                                    callback();
-                                }
-                                else
-                                {
-                                    console.error("Unable do delete index " + self.index.short_name + " Error returned  : " + err);
-                                    callback(1);
-                                }
-                            });
+                                    if(!err)
+                                    {
+                                        callback();
+                                    }
+                                    else
+                                    {
+                                        console.error("Unable do delete index " + self.index.short_name + " Error returned  : " + err);
+                                        callback(1);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                endCallback(null, true);
+                            }
                         }
                         else
                         {
-                            endCallback(null, true);
+                            callback(null);
                         }
                     }
                     else
                     {
-                        callback(null);
+                        console.error("Unable to check if index " + self.index.short_name + " exists" + " Error returned  : " + err);
+                        callback(1);
                     }
+
 				});
 		},
 		function(callback) {
@@ -284,23 +293,39 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
 IndexConnection.prototype.delete_index  = function (callback)
 {
     var self = this;
-    
-    this.client.indices.delete(
+
+    self.check_if_index_exists(function(err, indexExists){
+        if(!err)
         {
-            index: self.index.short_name
-        }, function(err, data)
-        {
-            if(!err && !data.error)
+            if(indexExists)
             {
-                callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
+                self.client.indices.delete(
+                    {
+                        index: self.index.short_name
+                    }, function(err, data)
+                    {
+                        if(!err && !data.error)
+                        {
+                            callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
+                        }
+                        else
+                        {
+                            var error = "Error deleting index : " + data.error;
+                            console.error(error);
+                            callback(error, result);
+                        }
+                    });
             }
             else
             {
-                var error = "Error deleting index : " + data.error;
-                console.error(error);
-                callback(error, result);
+                callback(null, "Index " + self.index.short_name + " does not exist, no need to delete it.");
             }
-        });
+        }
+        else
+        {
+            callback(err, indexExists);
+        }
+    });
 };
 
 // according to the elasticsearch docs (see below)
@@ -323,30 +348,33 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 		if (xmlHttp.readyState == 4) {
 
             if (xmlHttp.status != 200)  {
-                console.log("[FATAL ERROR] Unable to contact ElasticSearch indexing service " +
-                    "on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
-                process.exit(1);
+                const msg = "[FATAL ERROR] Unable to contact ElasticSearch indexing service " +
+                "on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status;
+                console.log(msg);
+
+                callback(1, msg);
             }
             else
             {
                 var response = JSON.parse(xmlHttp.responseText);
 
-                if(response.indices.hasOwnProperty(self.index.short_name))
+                if(response.indices[self.index.short_name] != null)
                 {
-                    callback(true);
+                    callback(null, true);
                 }
                 else
                 {
-                    callback(false);
+                    callback(null, false);
                 }
             }
 		}
 
         if (xmlHttp.status &&
             xmlHttp.status != 200)  {
-            console.log("[FATAL ERROR] Unable to contact ElasticSearch indexing service " +
-                "on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
-            process.exit(1);
+		    const msg = "[FATAL ERROR] Unable to contact ElasticSearch indexing service " +
+                "on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status;
+            console.error(msg);
+            callback(1, msg);
         }
 	};
 
