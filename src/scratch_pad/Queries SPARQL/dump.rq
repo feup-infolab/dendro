@@ -1,7 +1,0 @@
-.
-					FILTER NOT EXISTS 
-					{
-						?current_version ddr:hasVersion ?archived_version.
-						?archived_version dcterms:created ?date_of_archival.
-						FILTER(?date_of_archival > ?date_of_interaction)
-					}

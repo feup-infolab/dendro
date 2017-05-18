@@ -623,7 +623,8 @@ Ontology.findByResearchDomainPrefixOrComment = function(query, maxNumberOfResult
             {
                 var aDomain = ontology.domain[i];
 
-                return containsString(query, aDomain.dcterms.description);
+                //TODO should be aDomain.dcterms.description but not implemented yet
+                return containsString(query, aDomain);
             }
 
         }
@@ -826,7 +827,7 @@ Ontology.findByPrefix = function(prefix, callback)
                 }
                 else
                 {
-                    callback(null, null);
+                    callback(1, null);
                 }
             }
         });

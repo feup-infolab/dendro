@@ -16,14 +16,81 @@ var request = require('request');
 var self = this;
 
 exports.show_deep = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    if(req.params.filepath != null)
+    if(!acceptsJSON && acceptsHTML)
     {
-        var requestedResource = new Resource({
-            uri : req.params.requestedResource
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        if(req.params.filepath != null)
+        {
+            var requestedResource = new Resource({
+                uri : req.params.requestedResource
+            });
+
+            requestedResource.findMetadataRecursive(function(err, result){
+                if(!err){
+
+                    var accept = req.header('Accept');
+                    var serializer = null;
+                    var contentType = null;
+                    if(accept == null || accept in Config.metadataSerializers == false)
+                    {
+                        serializer = Config.defaultMetadataSerializer;
+                        contentType = Config.defaultMetadataContentType;
+                    }
+                    else{
+                        serializer = Config.metadataSerializers[accept];
+                        contentType = Config.metadataContentTypes[accept];
+                    }
+
+                    res.set('Content-Type', contentType);
+                    res.send(serializer(result));
+
+                }
+                else{
+                    res.status(500).json({
+                        error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
+                    });
+                }
+            });
+        }
+        else
+        {
+            res.status(400).json({
+                result: "error",
+                message : "filepath parameter was not specified."
+            });
+        }
+    }
+};
+
+exports.show = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if(!acceptsJSON && acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        var requestedResourceURI = req.params.requestedResource;
+
+        var requestedResource = new InformationElement({
+            uri : requestedResourceURI
         });
 
-        requestedResource.findMetadataRecursive(function(err, result){
+        requestedResource.findMetadata(function(err, result){
             if(!err){
 
                 var accept = req.header('Accept');
@@ -52,118 +119,95 @@ exports.show_deep = function(req, res) {
     }
 };
 
-exports.show = function(req, res) {
-    var requestedResourceURI = req.params.requestedResource;
-
-    var requestedResource = new InformationElement({
-        uri : requestedResourceURI
-    });
-
-    requestedResource.findMetadata(function(err, result){
-        if(!err){
-
-            var accept = req.header('Accept');
-            var serializer = null;
-            var contentType = null;
-            if(accept == null || accept in Config.metadataSerializers == false)
-            {
-                serializer = Config.defaultMetadataSerializer;
-                contentType = Config.defaultMetadataContentType;
-            }
-            else{
-                serializer = Config.metadataSerializers[accept];
-                contentType = Config.metadataContentTypes[accept];
-            }
-
-            res.set('Content-Type', contentType);
-            res.send(serializer(result));
-
-        }
-        else{
-            res.status(500).json({
-                error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
-            });
-        }
-    });
-};
-
 exports.show_parent = function(req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    if(req.params.filepath != null)
+    if(!acceptsJSON && acceptsHTML)
     {
-        var requestedResourceURI = req.params.requestedResource;
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        if(req.params.filepath != null)
+        {
+            var requestedResourceURI = req.params.requestedResource;
 
-        InformationElement.findByUri(requestedResourceURI, function(err, ie){
-            if(!err)
-            {
-                if(ie != null)
+            InformationElement.findByUri(requestedResourceURI, function(err, ie){
+                if(!err)
                 {
-                    ie.getParent(function(err, parent){
-                        if(!err)
-                        {
-                            if(parent != null)
+                    if(ie != null)
+                    {
+                        ie.getParent(function(err, parent){
+                            if(!err)
                             {
-                                parent.getPropertiesFromOntologies(
-                                    Ontology.getPublicOntologiesUris(),
-                                    function(err, descriptors)
-                                    {
-                                        if(!err)
+                                if(parent != null)
+                                {
+                                    parent.getPropertiesFromOntologies(
+                                        Ontology.getPublicOntologiesUris(),
+                                        function(err, descriptors)
                                         {
-                                            //remove locked descriptors
-                                            for(var i = 0 ; i < descriptors.length ; i++)
+                                            if(!err)
                                             {
-                                                if(descriptors[i].locked)
+                                                //remove locked descriptors
+                                                for(var i = 0 ; i < descriptors.length ; i++)
                                                 {
-                                                    descriptors.splice(i, 1);
+                                                    if(descriptors[i].locked)
+                                                    {
+                                                        descriptors.splice(i, 1);
+                                                    }
                                                 }
-                                            }
 
-                                            res.json({
-                                                result : "ok",
-                                                descriptors : descriptors
-                                            });
-                                        }
-                                        else
-                                        {
-                                            res.status(500).json({
-                                                error_messages : [descriptors]
-                                            });
-                                        }
+                                                res.json({
+                                                    result : "ok",
+                                                    descriptors : descriptors
+                                                });
+                                            }
+                                            else
+                                            {
+                                                res.status(500).json({
+                                                    error_messages : [descriptors]
+                                                });
+                                            }
+                                        });
+                                }
+                                else
+                                {
+                                    res.status(404).json({
+                                        result : "error",
+                                        message : "Unable to retrieve parent of " + requestedResourceURI + " ."
                                     });
+                                }
                             }
                             else
                             {
-                                res.status(404).json({
+                                res.status(500).json({
                                     result : "error",
-                                    message : "Unable to retrieve parent of " + requestedResourceURI + " ."
+                                    message : "Error retrieving resource " + requestedResourceURI + " . Error reported " + parent
                                 });
                             }
-                        }
-                        else
-                        {
-                            res.status(500).json({
-                                result : "error",
-                                message : "Error retrieving resource " + requestedResourceURI + " . Error reported " + parent
-                            });
-                        }
-                    });
+                        });
+                    }
+                    else
+                    {
+                        res.status(404).json({
+                            result : "error",
+                            message : "Unable to retrieve resource " + requestedResourceURI + " ."
+                        });
+                    }
                 }
                 else
                 {
-                    res.status(404).json({
+                    res.status(500).json({
                         result : "error",
-                        message : "Unable to retrieve resource " + requestedResourceURI + " ."
+                        message : "Unable to get metadata for " + requestedResourceURI
                     });
                 }
-            }
-            else
-            {
-                res.status(500).json({
-                    result : "error",
-                    message : "Unable to get metadata for " + requestedResourceURI
-                });
-            }
-        });
+            });
+        }
     }
 };
 

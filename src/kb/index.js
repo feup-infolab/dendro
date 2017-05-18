@@ -39,7 +39,7 @@ IndexConnection.indexes = {
                     {
                         "properties" :
                         {
-                            "property" :
+                            "predicate" :
                             {
                                 "type" : "string",
                                 "index" : "not_analyzed" //we only want exact matches, disable term analysis
@@ -106,8 +106,12 @@ IndexConnection.prototype.open = function(host, port, index, callback)
         }
         
 		self.client = new es.Client(serverOptions).cluster.client;
-		
-		callback(self);
+
+        self.client.indices.getMapping()
+            .then(function(mapping){
+                console.log(mapping);
+                callback(self);
+            });
     }
     else
     {
@@ -120,8 +124,34 @@ IndexConnection.prototype.open = function(host, port, index, callback)
 IndexConnection.prototype.indexDocument = function(type, document, callback) {
     var self = this;
 
-    if(document._id == null)
+    if(document._id != null)
     {
+        delete document._id;
+
+        self.client.update({
+            index : self.index.short_name,
+            type : type,
+            body : document
+        }, function(err, data)
+        {
+            if(!err)
+            {
+                callback(0, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
+            }
+            else
+            {
+                console.error(err.stack);
+                callback(1, "Unable to RE index document " + JSON.stringify(document));
+            }
+        });
+    }
+    else
+    {
+        /*self.client.indices.getMapping()
+            .then(function(mapping){
+                console.log(mapping);
+            });*/
+
         self.client.index({
             index : self.index.short_name,
             type : type,
@@ -134,27 +164,7 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
             }
             else
             {
-                callback(1, "Unable to index document " + JSON.stringify(document));
-            }
-        });
-    }
-    else
-    {
-        var id = document._id;
-        delete document._id;
-
-        self.client.update({
-            index : self.index.short_name,
-            type : type,
-            body : document
-        }, function(err, data)
-        {
-            if(!err)
-            {
-                callback(0, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
-            }
-            else
-            {
+                console.error(err.stack);
                 callback(1, "Unable to index document " + JSON.stringify(document));
             }
         });
@@ -229,7 +239,11 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
 		},
 		function(callback) {
 
-			var settings = {};
+			var settings = {
+			    body : {
+
+                }
+            };
 
 			if (numberOfShards) {
                 settings.number_of_shards = numberOfShards;
@@ -239,7 +253,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
                 settings.number_of_replicas = numberOfReplicas;
 			}
 
-            settings.mappings = self.index.elasticsearch_mappings;
+            settings.body.mappings = self.index.elasticsearch_mappings;
 			settings.index = indexName;
 
             self.client.indices.create(settings, function(err, data){
@@ -271,19 +285,22 @@ IndexConnection.prototype.delete_index  = function (callback)
 {
     var self = this;
     
-    this.client.deleteIndex(self.index.short_name, function(err, data){
-        var data = JSON.parse(data);
-        if(data.error == null && data.ok == true && data.acknowledged == true)
+    this.client.indices.delete(
         {
-            callback(0, "Index with name " + self.index.short_name + " successfully deleted.");
-        }
-        else
+            index: self.index.short_name
+        }, function(err, data)
         {
-            var error = "Error deleting index : " + data.error;
-            console.error(error);
-            callback(error, result);
-        }
-    });
+            if(!err && !data.error)
+            {
+                callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
+            }
+            else
+            {
+                var error = "Error deleting index : " + data.error;
+                console.error(error);
+                callback(error, result);
+            }
+        });
 };
 
 // according to the elasticsearch docs (see below)
