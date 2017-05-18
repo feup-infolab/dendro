@@ -23,6 +23,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'No deployments yet. Skipping.'
+                //sh "chmod +x $WORKSPACE/conf/scripts/deploy.sh"
             }
         }
     }
