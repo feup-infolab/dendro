@@ -16,35 +16,50 @@ var db_notifications = function () { return GLOBAL.db.notifications;}();
 var app = require('../app');
 
 exports.numPostsDatabase = function (req, res) {
-    var currentUserUri = req.session.user.uri;
-    Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
-        if(!err)
-        {
-            async.map(projects, function (project, cb1) {
-                cb1(null, project.uri);
-            }, function (err, projectsUris) {
-                numPostsDatabaseAux(projectsUris,function (err, count) {
-                    if(!err)
-                    {
-                        res.json(count);
-                    }
-                    else{
-                        res.status(500).json({
-                            result : "Error",
-                            message : "Error counting posts. " + JSON.stringify(err)
-                        });
-                    }
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    {
+        var currentUserUri = req.session.user.uri;
+        Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
+            if(!err)
+            {
+                async.map(projects, function (project, cb1) {
+                    cb1(null, project.uri);
+                }, function (err, projectsUris) {
+                    numPostsDatabaseAux(projectsUris,function (err, count) {
+                        if(!err)
+                        {
+                            res.json(count);
+                        }
+                        else{
+                            res.status(500).json({
+                                result : "Error",
+                                message : "Error counting posts. " + JSON.stringify(err)
+                            });
+                        }
+                    });
+                })
+            }
+            else
+            {
+                res.status(500).json({
+                    result : "Error",
+                    message : "Error finding user projects"
                 });
-            })
-        }
-        else
-        {
-            res.status(500).json({
-                result : "Error",
-                message : "Error finding user projects"
-            });
-        }
-    });
+            }
+        });
+    }
+    else
+    {
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
+        });
+    }
 };
 
 exports.all = function(req, res){
@@ -389,92 +404,156 @@ exports.getPost_controller = function (req, res) {
 };
 
 exports.share = function (req, res) {
-    var currentUser = req.session.user;
-    var shareMsg = req.body.shareMsg;
-    Post.findByUri(req.body.postID, function(err, post)
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var newShare = new Share({
-            ddr: {
-                userWhoShared : currentUser.uri,
-                postURI: post.uri,
-                shareMsg: shareMsg,
-                projectUri: post.ddr.projectUri
-            },
-            dcterms: {
-                creator: currentUser.uri
-            }
-        });
-
-        var newNotification = new Notification({
-            ddr: {
-                userWhoActed : currentUser.uri,
-                resourceTargetUri: post.uri,
-                actionType: "Share",
-                resourceAuthorUri: post.dcterms.creator,
-                shareURI : newShare.uri
-            },
-            foaf :
-            {
-                status : "unread"
-            }
-        });
-
-        newShare.save(function(err, resultShare)
+        var currentUser = req.session.user;
+        var shareMsg = req.body.shareMsg;
+        Post.findByUri(req.body.postID, function(err, post)
         {
             if(!err)
             {
-                /*
-                res.json({
-                    result : "OK",
-                    message : "Post shared successfully"
-                });*/
-                newNotification.save(function (error, resultNotification) {
-                    if(!error)
+                if(!post)
+                {
+                    var errorMsg = "Invalid post uri";
+                    res.status(404).json({
+                        result: "Error",
+                        message: errorMsg
+                    });
+                }
+                else
+                {
+                    var newShare = new Share({
+                        ddr: {
+                            userWhoShared : currentUser.uri,
+                            postURI: post.uri,
+                            shareMsg: shareMsg,
+                            projectUri: post.ddr.projectUri
+                        },
+                        dcterms: {
+                            creator: currentUser.uri
+                        }
+                    });
+
+                    var newNotification = new Notification({
+                        ddr: {
+                            userWhoActed : currentUser.uri,
+                            resourceTargetUri: post.uri,
+                            actionType: "Share",
+                            resourceAuthorUri: post.dcterms.creator,
+                            shareURI : newShare.uri
+                        },
+                        foaf :
+                            {
+                                status : "unread"
+                            }
+                    });
+
+                    newShare.save(function(err, resultShare)
                     {
-                        res.json({
-                            result : "OK",
-                            message : "Post shared successfully"
-                        });
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result: "Error",
-                            message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
-                        });
-                    }
-                }, false, null, null, null, null, db_notifications.graphUri);
+                        if(!err)
+                        {
+                            /*
+                             res.json({
+                             result : "OK",
+                             message : "Post shared successfully"
+                             });*/
+                            newNotification.save(function (error, resultNotification) {
+                                if(!error)
+                                {
+                                    res.json({
+                                        result : "OK",
+                                        message : "Post shared successfully"
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json({
+                                        result: "Error",
+                                        message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
+                                    });
+                                }
+                            }, false, null, null, null, null, db_notifications.graphUri);
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result: "Error",
+                                message: "Error sharing a post. " + JSON.stringify(resultShare)
+                            });
+                        }
+
+                    }, false, null, null, null, null, db_social.graphUri);
+                }
             }
             else
             {
                 res.status(500).json({
                     result: "Error",
-                    message: "Error sharing a post. " + JSON.stringify(resultShare)
+                    message: "Error sharing a post. " + JSON.stringify(post)
                 });
             }
-
-        }, false, null, null, null, null, db_social.graphUri);
-
-    }, null, db_social.graphUri, null);
+        }, null, db_social.graphUri, null);
+    }
+    else
+    {
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
+        });
+    }
 };
 
 exports.getPostComments = function (req, res) {
-    var currentUser = req.session.user;
-    var postUri = req.body.postID;
-    getCommentsForAPost(postUri, function (err, comments) {
-        if(err)
-        {
-            res.status(500).json({
-                result: "Error",
-                message: "Error getting comments from a post " + JSON.stringify(comments)
-            });
-        }
-        else
-        {
-            res.json(comments);
-        }
-    });
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    {
+        var currentUser = req.session.user;
+        var postUri = req.body.postID;
+
+        Post.findByUri(req.body.postID, function(err, post)
+        {
+            if(!err && post != null)
+            {
+                getCommentsForAPost(postUri, function (err, comments) {
+                    if(err)
+                    {
+                        res.status(500).json({
+                            result: "Error",
+                            message: "Error getting comments from a post " + JSON.stringify(comments)
+                        });
+                    }
+                    else
+                    {
+                        res.json(comments);
+                    }
+                });
+            }
+            else
+            {
+                var errorMsg = "Invalid post uri";
+                res.status(404).json({
+                    result: "Error",
+                    message: errorMsg
+                });
+            }
+        }, null, db_social.graphUri, null);
+    }
+    else
+    {
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
+        });
+    }
 };
 
 exports.comment = function (req, res) {
@@ -1044,25 +1123,51 @@ function saveCurrentUserInRedis(req, res) {
 }
 
 exports.getPostShares = function (req, res) {
-    var currentUser = req.session.user;
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    var postUri = req.body.postID;
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    {
+        var currentUser = req.session.user;
+        var postUri = req.body.postID;
 
-
-    getSharesForAPost(postUri, function (err, shares) {
-        if(err)
+        Post.findByUri(postUri, function(err, post)
         {
-            res.status(500).json({
-                result: "Error",
-                message: "Error getting shares from a post " + JSON.stringify(shares)
-            });
-        }
-        else
-        {
-            res.json(shares);
-        }
-    });
-
+            if(!err && post != null)
+            {
+                getSharesForAPost(postUri, function (err, shares) {
+                    if(err)
+                    {
+                        res.status(500).json({
+                            result: "Error",
+                            message: "Error getting shares from a post " + JSON.stringify(shares)
+                        });
+                    }
+                    else
+                    {
+                        res.json(shares);
+                    }
+                });
+            }
+            else
+            {
+                var errorMsg = "Invalid post uri";
+                res.status(404).json({
+                    result: "Error",
+                    message: errorMsg
+                });
+            }
+        }, null, db_social.graphUri, null);
+    }
+    else
+    {
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
+        });
+    }
 };
 
 exports.postLikesInfo = function (req, res) {
@@ -1265,13 +1370,44 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
 };
 
 exports.post = function (req, res) {
-    var currentUser = req.session.user;
-    var postUri = "http://"+req.headers.host + req.url;
-    res.render('social/showPost',
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if(acceptsHTML && !acceptsJSON)  //will be null if the client does not accept html
+    {
+        var currentUser = req.session.user;
+        //var postUri = "http://"+req.headers.host + req.url;
+        var postUri = "http://"+Config.host + req.url;
+        //HERE
+        Post.findByUri(postUri, function(err, post)
         {
-            postUri : postUri
-        }
-    );
+            if(!err && post != null)
+            {
+                res.render('social/showPost',
+                    {
+                        postUri : postUri
+                    }
+                );
+            }
+            else
+            {
+                var errorMsg = "Invalid post uri";
+                res.status(404).json({
+                    result: "Error",
+                    message: errorMsg
+                });
+            }
+        }, null, db_social.graphUri, null);
+    }
+    else
+    {
+        var msg = "This method is only accessible via HTML. Accept:\"text/html\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
+        });
+    }
 };
 
 exports.getShare = function (req, res) {

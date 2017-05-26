@@ -198,6 +198,7 @@ var shareAPost = function (jsonOnly, agent, postID, shareMsg, cb) {
     {
         agent
             .post(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .send({postID : postID, shareMsg: shareMsg})
             .end(function (err, res) {
@@ -247,6 +248,7 @@ var countNumPostInDB = function (jsonOnly, agent, cb) {
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -256,7 +258,8 @@ var countNumPostInDB = function (jsonOnly, agent, cb) {
 
 //TODO the postURL is only the characters after the last "/"
 var getPostHTMLPageWithInfo = function (jsonOnly, agent, postURL, cb) {
-    var path = "/posts/" + postURL;
+    //var path = "/posts/" + postURL.;
+    var path = postURL;
     if(jsonOnly)
     {
         agent
@@ -271,6 +274,7 @@ var getPostHTMLPageWithInfo = function (jsonOnly, agent, postURL, cb) {
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
