@@ -1371,22 +1371,42 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
 };
 
 exports.post = function (req, res) {
-    var acceptsHTML = req.accepts('html');
+    /*var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
     if(acceptsHTML && !acceptsJSON)  //will be null if the client does not accept html
-    {
+    {*/
         var currentUser = req.session.user;
         //var postUri = "http://"+req.headers.host + req.url;
         var postUri = "http://"+Config.host + req.url;
-        //HERE
+        //TODO async.parallel (getCommentsForAPost, getLikesForAPost, getSharesForAPost) -> e depois manda dos respectivos objetos no render
         Post.findByUri(postUri, function(err, post)
         {
             if(!err && post != null)
             {
+                /*async.parallel([
+                        function(callback) {
+                            setTimeout(function() {
+                                callback(null, 'one');
+                            }, 200);
+                        },
+                        function(callback) {
+                            setTimeout(function() {
+                                callback(null, 'two');
+                            }, 100);
+                        }
+                    ],
+                    // optional callback
+                    function(err, results) {
+                        // the results array will equal ['one','two'] even though
+                        // the second function had a shorter timeout.
+                        //TODO AQUI FAZER O RENDER E MANDAR OS OBJETOS
+                    });*/
+
                 res.render('social/showPost',
                     {
-                        postUri : postUri
+                        postUri : postUri,
+                        postContent: post
                     }
                 );
             }
@@ -1399,8 +1419,8 @@ exports.post = function (req, res) {
                 });
             }
         }, null, db_social.graphUri, null);
-    }
-    else
+    //}
+    /*else
     {
         var msg = "This method is only accessible via HTML. Accept:\"text/html\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
@@ -1408,15 +1428,15 @@ exports.post = function (req, res) {
             result : "Error",
             message : msg
         });
-    }
+    }*/
 };
 
 exports.getShare = function (req, res) {
-    var acceptsHTML = req.accepts('html');
+/*    var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
     if(acceptsHTML && !acceptsJSON)  //will be null if the client does not accept html
-    {
+    {*/
         var currentUser = req.session.user;
         var shareUri = "http://"+req.headers.host + req.url;
         var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersion";
@@ -1489,7 +1509,7 @@ exports.getShare = function (req, res) {
                     res.send(500, errorMsg);
                 }
             });
-    }
+   /* }
     else
     {
         var msg = "This method is only accessible via HTML. Accept:\"text/html\" header is missing or is not the only Accept type";
@@ -1498,5 +1518,50 @@ exports.getShare = function (req, res) {
             result : "Error",
             message : msg
         });
-    }
+    }*/
+};
+
+
+//AUX FUNCTIONS
+
+//Já existe o getCommentsForAPost e o getSharesForAPost
+var getLikesForAPost = function (postUri, callback) {
+    let resultInfo;
+    Post.findByUri(postUri, function(err, post)
+    {
+        if(!err && post != null)
+        {
+            getNumLikesForAPost(post.uri, function (err, likesArray) {
+                if(!err)
+                {
+                    if(likesArray.length)
+                    {
+                        resultInfo = {
+                            postURI: postUri, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
+                        };
+                    }
+                    else
+                    {
+                        resultInfo = {
+                            postURI: postURI, numLikes : 0, usersWhoLiked : 'undefined'
+                        };
+                    }
+                    callback(null, resultInfo);
+                }
+                else
+                {
+                    console.error("Error getting likesInfo from a post");
+                    console.error(err);
+                    callback(true, "Error getting likesInfo from a post");
+                }
+
+            });
+        }
+        else
+        {
+            var errorMsg = "Invalid post uri";
+            console.error(err);
+            console.error(errorMsg);
+        }
+    }, null, db_social.graphUri, null);
 };

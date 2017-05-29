@@ -1,6 +1,8 @@
 <%- include ../layout/header.ejs %>
 
 <div ng-controller="timelineCtrl" ng-init="initSinglePost();get_logged_user();">
+    <p> "<%= postContent.uri %>"</p>
+    <p> Modified "<%= postContent.dcterms.modified %>"</p>
     <div ng-init='getPost("<%= postUri %>", null);postLikesInfo("<%= postUri %>");getCommentsFromPost("<%= postUri %>");getSharesFromPost("<%= postUri %>")'>
         <div class="panel panel-info" ng-if='postList["<%= postUri %>"].rdf.isShare'>
             <div class="panel-heading">
