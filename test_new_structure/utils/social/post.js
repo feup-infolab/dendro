@@ -284,7 +284,8 @@ var getPostHTMLPageWithInfo = function (jsonOnly, agent, postURL, cb) {
 
 //TODO the shareURL is only the characters after the last "/"
 var getAShareInfo = function (jsonOnly, agent, shareURL, cb) {
-    var path = "/shares/" + shareURL;
+    //var path = "/shares/" + shareURL;
+    var path = shareURL;
     if(jsonOnly)
     {
         agent
@@ -299,6 +300,7 @@ var getAShareInfo = function (jsonOnly, agent, shareURL, cb) {
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);

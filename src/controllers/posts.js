@@ -221,7 +221,8 @@ function pingNewPosts(sessionUser, cb) {
                                                         projectUri: project.uri
                                                     },
                                                     dcterms: {
-                                                        creator : currentUserUri,
+                                                        //creator : currentUserUri,
+                                                        creator : change.ddr.versionCreator.uri,
                                                         title: project.dcterms.title
                                                     }
                                                 });
@@ -1411,76 +1412,91 @@ exports.post = function (req, res) {
 };
 
 exports.getShare = function (req, res) {
-    var currentUser = req.session.user;
-    var shareUri = "http://"+req.headers.host + req.url;
-    var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersion";
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-    //TODO find the share in database
-    //TODO see if it has ddr:postURI or ddr:fileVersionUri
-    //TODO redirect to social/showPost or social/showFileVersion
+    if(acceptsHTML && !acceptsJSON)  //will be null if the client does not accept html
+    {
+        var currentUser = req.session.user;
+        var shareUri = "http://"+req.headers.host + req.url;
+        var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersion";
 
-    var query =
-        "WITH [0] \n" +
-        "SELECT ?type \n" +
-        "WHERE { \n" +
-        "[1] ddr:fileVersionUri ?fileVersionUri \n" +
-        "}";
+        //TODO find the share in database
+        //TODO see if it has ddr:postURI or ddr:fileVersionUri
+        //TODO redirect to social/showPost or social/showFileVersion
 
-    query = DbConnection.addLimitsClauses(query, null, null);
+        var query =
+            "WITH [0] \n" +
+            "SELECT ?type \n" +
+            "WHERE { \n" +
+            "[1] ddr:fileVersionUri ?fileVersionUri \n" +
+            "}";
 
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type : DbConnection.resourceNoEscape,
-                value: shareUri
-            }
-        ]),
-        function(err, results) {
-            if(!err)
-            {
-                //var types =_.pluck(results, 'type');
+        query = DbConnection.addLimitsClauses(query, null, null);
 
-                /*if(types.indexOf(fileVersionType) > -1)
+        db.connection.execute(query,
+            DbConnection.pushLimitsArguments([
                 {
-                    res.render('social/showFileVersion',
-                        {
-                            fileVersionUri : shareUri
-                        }
-                    );
+                    type : DbConnection.resourceNoEscape,
+                    value: db_social.graphUri
+                },
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value: shareUri
+                }
+            ]),
+            function(err, results) {
+                if(!err)
+                {
+                    //var types =_.pluck(results, 'type');
+
+                    /*if(types.indexOf(fileVersionType) > -1)
+                     {
+                     res.render('social/showFileVersion',
+                     {
+                     fileVersionUri : shareUri
+                     }
+                     );
+                     }
+                     else
+                     {
+                     res.render('social/showPost',
+                     {
+                     postUri : shareUri
+                     }
+                     );
+                     }*/
+                    if(results.length > 0)
+                    {
+                        res.render('social/showFileVersion',
+                            {
+                                fileVersionUri : shareUri
+                            }
+                        );
+                    }
+                    else
+                    {
+                        res.render('social/showPost',
+                            {
+                                postUri : shareUri
+                            }
+                        );
+                    }
                 }
                 else
                 {
-                    res.render('social/showPost',
-                        {
-                            postUri : shareUri
-                        }
-                    );
-                }*/
-                if(results.length > 0)
-                {
-                    res.render('social/showFileVersion',
-                        {
-                            fileVersionUri : shareUri
-                        }
-                    );
+                    var errorMsg = "Error fetching share";
+                    res.send(500, errorMsg);
                 }
-                else
-                {
-                    res.render('social/showPost',
-                        {
-                            postUri : shareUri
-                        }
-                    );
-                }
-            }
-            else
-            {
-                var errorMsg = "Error fetching share";
-                res.send(500, errorMsg);
-            }
+            });
+    }
+    else
+    {
+        var msg = "This method is only accessible via HTML. Accept:\"text/html\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result : "Error",
+            message : msg
         });
+    }
 };

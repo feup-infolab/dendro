@@ -32,7 +32,7 @@ describe("Social Dendro, render a post page tests", function () {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
-                    demouser1PostURI = res.body[0].uri.split("http://" + Config.host).pop();
+                    demouser1PostURI = res.body[0].uri.split("http://" + Config.host).pop();//because the implementation is wrong, this needs changing, the url sent should be the full version
                     res.statusCode.should.equal(200);
                     done();
                 });

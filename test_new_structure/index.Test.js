@@ -27,4 +27,10 @@ require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
 
 /*require(Config.absPathInTestsFolder("/routes/posts/countNum/routes.posts.countNum.Test.js"));*/
 
-require(Config.absPathInTestsFolder("/routes/posts/uri/routes.posts.uri.Test.js"));
+/*require(Config.absPathInTestsFolder("/routes/posts/uri/routes.posts.uri.Test.js"));*/
+
+/*require(Config.absPathInTestsFolder("/routes/shares/uri/routes.shares.uri.Test.js"));*/
+
+/*require(Config.absPathInTestsFolder("/routes/notifications/all/routes.notifications.all.Test.js"));*/
+
+require(Config.absPathInTestsFolder("/routes/notifications/notification/routes.notifications.notification.Test.js"));

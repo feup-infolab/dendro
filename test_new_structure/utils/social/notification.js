@@ -51,8 +51,34 @@ var getNotificationContent = function (jsonOnly, agent, notificationUri, cb) {
     }
 };
 
+var deleteNotification = function (jsonOnly, agent, notificationUri, cb) {
+    var path = "/notifications/notification";
+    if(jsonOnly)
+    {
+        agent
+            .delete(path)
+            .query({notificationUri : notificationUri})
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .delete(path)
+            .query({notificationUri : notificationUri})
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 
 module.exports = {
     getUserNotifications: getUserNotifications,
-    getNotificationContent: getNotificationContent
+    getNotificationContent: getNotificationContent,
+    deleteNotification : deleteNotification
 };
