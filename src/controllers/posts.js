@@ -1371,11 +1371,11 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
 };
 
 exports.post = function (req, res) {
-    /*var acceptsHTML = req.accepts('html');
+    var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsHTML && !acceptsJSON)  //will be null if the client does not accept html
-    {*/
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    {
         var currentUser = req.session.user;
         //var postUri = "http://"+req.headers.host + req.url;
         var postUri = "http://"+Config.host + req.url;
@@ -1384,16 +1384,21 @@ exports.post = function (req, res) {
         {
             if(!err && post != null)
             {
-                /*async.parallel([
+                async.parallel([
                         function(callback) {
-                            setTimeout(function() {
-                                callback(null, 'one');
-                            }, 200);
+                            getCommentsForAPost(post.uri, function (err, commentsData) {
+                               callback(err, commentsData);
+                            });
                         },
                         function(callback) {
-                            setTimeout(function() {
-                                callback(null, 'two');
-                            }, 100);
+                            getLikesForAPost(post.uri, function (err, likesData) {
+                                callback(err, likesData);
+                            });
+                        },
+                        function (callback) {
+                            getSharesForAPost(post.uri, function (err, sharesData) {
+                                callback(err, sharesData);
+                            });
                         }
                     ],
                     // optional callback
@@ -1401,14 +1406,13 @@ exports.post = function (req, res) {
                         // the results array will equal ['one','two'] even though
                         // the second function had a shorter timeout.
                         //TODO AQUI FAZER O RENDER E MANDAR OS OBJETOS
-                    });*/
-
-                res.render('social/showPost',
-                    {
-                        postUri : postUri,
-                        postContent: post
-                    }
-                );
+                        console.log("Results data: ");
+                        console.log(results);
+                        post.commentsContent = results[0];
+                        post.likesContent = results[1];
+                        post.sharesContent = results[2];
+                        res.json(post);
+                    });
             }
             else
             {
@@ -1419,16 +1423,15 @@ exports.post = function (req, res) {
                 });
             }
         }, null, db_social.graphUri, null);
-    //}
-    /*else
+    }
+    else
     {
-        var msg = "This method is only accessible via HTML. Accept:\"text/html\" header is missing or is not the only Accept type";
-        req.flash('error', "Invalid Request");
-        res.status(400).json({
-            result : "Error",
-            message : msg
-        });
-    }*/
+        res.render('social/showPost',
+            {
+                postUri : postUri
+            }
+        );
+    }
 };
 
 exports.getShare = function (req, res) {
@@ -1537,13 +1540,13 @@ var getLikesForAPost = function (postUri, callback) {
                     if(likesArray.length)
                     {
                         resultInfo = {
-                            postURI: postUri, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
+                            postURI: post.uri, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
                         };
                     }
                     else
                     {
                         resultInfo = {
-                            postURI: postURI, numLikes : 0, usersWhoLiked : 'undefined'
+                            postURI: post.uri, numLikes : 0, usersWhoLiked : 'undefined'
                         };
                     }
                     callback(null, resultInfo);

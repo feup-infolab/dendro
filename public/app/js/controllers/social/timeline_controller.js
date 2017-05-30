@@ -229,7 +229,8 @@ angular.module('dendroApp.controllers')
             }
         };
 
-        $scope.initSinglePost = function () {
+        $scope.initSinglePost = function (postUri) {
+            $scope.postUri = postUri;
             $scope.new_post_content = "";
             $scope.commentList = [];
             $scope.shareList = [];
@@ -237,6 +238,14 @@ angular.module('dendroApp.controllers')
             $scope.postList = [];
             $scope.posts = [];
             $scope.likesPostInfo = [];
+            $scope.loggedUser = "";
+            timelineService.getPostInfo(postUri).then(function(response)
+            {
+                $scope.postContent = response.data;
+            })
+            .catch(function(error){
+                console.error("Error initSinglePost" + JSON.stringify(error));
+            });
         };
 
         $scope.show_popup = function(type, title, message)

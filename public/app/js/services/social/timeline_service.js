@@ -14,6 +14,17 @@ angular.module('dendroApp.services')
             });
         };
 
+
+        this.getPostInfo = function (postUri) {
+            return $http({
+                method: 'GET',
+                url: postUri,
+                contentType: "application/json",
+                accept: "text/html",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
         this.get_all_posts = function(currentPage)
         {
             var requestUri = "/posts/all";
