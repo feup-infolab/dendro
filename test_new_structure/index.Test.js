@@ -18,6 +18,27 @@ require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
 require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
 
 require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
+
+/*require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
+require(Config.absPathInTestsFolder("/routes/users/routes.users.Test.js"));
+require(Config.absPathInTestsFolder("/routes/users/loggedUser/routes.users.loggedUser.Test.js"));
+
+require(Config.absPathInTestsFolder("/routes/user/demouser1/routes.user.demouser1.Test.js"));
+require(Config.absPathInTestsFolder("/routes/user/demouser2/routes.user.demouser2.Test.js"));
+require(Config.absPathInTestsFolder("/routes/user/demouser3/routes.user.demouser3.Test.js"));
+
+require(Config.absPathInTestsFolder("/routes/ontologies/all/routes.ontologies.all.Test.js"));
+
+require(Config.absPathInTestsFolder("/routes/ontologies/autocomplete/routes.ontologies.autocomplete.Test.js"));
+
+require(Config.absPathInTestsFolder("/routes/ontologies/edit/routes.ontologies.edit.Test.js"));
+
+require(Config.absPathInTestsFolder("/routes/ontologies/public/routes.ontologies.public.Test.js"));
+
+require(Config.absPathInTestsFolder("/routes/set_new_password/routes.set_new_password.Test.js"));
+
+require(Config.absPathInTestsFolder("/routes/reset_password/routes.reset_password.Test.js"));
+
 /*require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
 
 /*require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
