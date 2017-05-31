@@ -293,6 +293,13 @@
     },
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
 
+    "public_ontologies" : [
+      "foaf",
+      "dcterms",
+      "bdv",
+      "research"
+    ],
+
     "authentication" :
     {
       "default" : {
@@ -310,14 +317,7 @@
         "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
         "issuer": "passport-saml"
       }
-    },
-
-    "public_ontologies" : [
-      "foaf",
-      "dcterms",
-      "bdv",
-      "research"
-    ]
+    }
   },
   "prd" : {
     "port" : 3001,
@@ -622,8 +622,27 @@
         "research"
       ]
     },
-    "analytics_tracking_code" : "GOOGLE_ANALYTICS_PRODUCTION_ANALYTICS_TRACKING_CODE"
-    },
+    "analytics_tracking_code" : "GOOGLE_ANALYTICS_PRODUCTION_ANALYTICS_TRACKING_CODE",
+
+    "authentication" :
+    {
+      "default" : {
+        "enabled" : "true"
+      },
+      "orcid" : {
+        "enabled" : "true",
+        "client_id" : "CLIENT_ID",
+        "client_secret" : "CLIENT_SECRET",
+        "callback_url" : "/auth/orcid/callback"
+      },
+      "saml" : {
+        "enabled" : "true",
+        "path": "/auth/saml/callback",
+        "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
+        "issuer": "passport-saml"
+      }
+    }
+  },
   "test" : {
     "port" : 3001,
     "host" : "127.0.0.1:3001",
@@ -951,7 +970,26 @@
       "dcterms",
       "bdv",
       "research"
-    ]
+    ],
+
+    "authentication" :
+    {
+      "default" : {
+        "enabled" : "true"
+      },
+      "orcid" : {
+        "enabled" : "true",
+        "client_id" : "CLIENT_ID",
+        "client_secret" : "CLIENT_SECRET",
+        "callback_url" : "/auth/orcid/callback"
+      },
+      "saml" : {
+        "enabled" : "true",
+        "path": "/auth/saml/callback",
+        "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
+        "issuer": "passport-saml"
+      }
+    }
   },
   "jenkins_buildserver_test" : {
     "port" : 3001,
@@ -1267,6 +1305,25 @@
       "dcterms",
       "bdv",
       "research"
-    ]
+    ],
+
+    "authentication" :
+    {
+      "default" : {
+        "enabled" : "true"
+      },
+      "orcid" : {
+        "enabled" : "true",
+        "client_id" : "CLIENT_ID",
+        "client_secret" : "CLIENT_SECRET",
+        "callback_url" : "/auth/orcid/callback"
+      },
+      "saml" : {
+        "enabled" : "true",
+        "path": "/auth/saml/callback",
+        "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
+        "issuer": "passport-saml"
+      }
+    }
   }
 }
