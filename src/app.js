@@ -10,8 +10,9 @@ Config.initGlobals();
  * Module dependencies.
  */
 
-var express = require('express'),
+let express = require('express'),
     domain = require('domain'),
+    passport = require('passport'),
     flash = require('connect-flash'),
     http = require('http'),
     path = require('path'),
@@ -28,31 +29,29 @@ var express = require('express'),
     YAML = require('yamljs'),
     swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
 
-var bootupPromise = Q.defer();
-var connectionsInitializedPromise = Q.defer();
+let bootupPromise = Q.defer();
+let connectionsInitializedPromise = Q.defer();
 
-var app = express();
+let app = express();
 
-var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var GridFSConnection = require(Config.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
-var RedisConnection = require(Config.absPathInSrcFolder("/kb/redis.js")).RedisConnection;
-var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
-var QueryBasedRouter = Object.create(require(Config.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
-var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
-var RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+let IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+let DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+let GridFSConnection = require(Config.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
+let RedisConnection = require(Config.absPathInSrcFolder("/kb/redis.js")).RedisConnection;
+let Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+let QueryBasedRouter = Object.create(require(Config.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
+let PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
+let Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+let Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+let UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+let RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
-var async = require('async');
-var util = require('util');
-var mkdirp = require('mkdirp');
+let async = require('async');
+let util = require('util');
+let mkdirp = require('mkdirp');
 
 //create temporary uploads folder if not exists
-var tempUploadsFolder = Config.tempFilesDir;
-var fs = require('fs');
-
+let tempUploadsFolder = Config.tempFilesDir;
 let pid;
 
 try{
@@ -355,6 +354,7 @@ var appendLocalsToUseInViews = function(req, res, next)
     else
     {
         res.locals.session = req.session;
+        req.passport = passport;
 
         /*if(req.session != null && req.session.user != null)
          {
@@ -1171,6 +1171,9 @@ async.series([
             })
         );
 
+        app.use(passport.initialize());
+        app.use(passport.session());
+
         app.use(flash());
 
         if(Config.debug.active && Config.debug.session.auto_login)
@@ -1228,8 +1231,82 @@ async.series([
         //app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
 
         //authentication
-        app.get('/login', auth.login);
-        app.post('/login', auth.login);
+        
+        if(Config.authentication.default.enabled)
+        {
+            const LocalStrategy = require('passport-local').Strategy;
+
+            passport.use(new LocalStrategy({
+                    usernameField: 'username',
+                    passwordField: 'password'
+                },
+                function(username, password, done) {
+                    const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                    User.findByUsername(username, function (err, user) {
+
+                        const bcrypt = require('bcryptjs');
+                        bcrypt.hash(password, user.ddr.salt, function(err, hashedPassword) {
+                            if(!err) {
+                                if (user != null) {
+                                    if (user.ddr.password == hashedPassword) {
+                                        user.isAdmin(function (err, isAdmin) {
+                                            if (!err) {
+                                                return done(
+                                                    err,
+                                                    user,
+                                                    {
+                                                        isAdmin : isAdmin
+                                                    });
+                                            }
+                                            else {
+                                                return done("Unable to check for admin user when authenticating with username " + username, null);
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        return done("Invalid username/password combination.", null);
+                                    }
+                                }
+                                else {
+                                    console.error(err.stack);
+                                    return done("Unknown error during authentication, calculating password hash.", null);
+                                }
+                            }
+                            else
+                            {
+                                return done("There is no user with username " + username + " registered in this system.", null);
+                            }
+                        });
+                    });
+                }
+            ));
+
+            app.get('/login', auth.login);
+            app.post('/login', auth.login);
+        }
+
+        if(Config.authentication.orcid.enabled)
+        {
+            const OrcidStrategy = require('passport-orcid').Strategy;
+
+            passport.use(new OrcidStrategy({
+                    clientID: Config.authentication.orcid.client_id,
+                    clientSecret: Config.authentication.orcid.client_secret,
+                    callbackURL: Config.baseUri + Config.authentication.orcid.callback_url
+                },
+                function(accessToken, refreshToken, params, profile, done) {
+                    // NOTE: `profile` is empty, use `params` instead
+                    const User = require(Config.absPathInSrcFolder("/models/user.js").User);
+                    User.findByORCID(params.id, function (err, user) {
+                        return done(err, user);
+                    });
+                }
+            ));
+
+            app.get('/auth/orcid', passport.authenticate('orcid'));
+            app.get('/auth/orcid/callback', passport.authenticate('orcid', { failureRedirect: '/login' }), auth.orcid_login);
+        }
+
 
         //ontologies
 

@@ -43,6 +43,28 @@ function User (object)
     return self;
 }
 
+User.findByORCID = function(orcid, callback, removePrivateDescriptors)
+{
+    User.findByPropertyValue(username, "ddr:orcid", function(err, user){
+        if(!err && user != null && user instanceof User)
+        {
+            if(removePrivateDescriptors)
+            {
+                user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
+                callback(err, user);
+            }
+            else
+            {
+                callback(err, user);
+            }
+        }
+        else
+        {
+            callback(err, user);
+        }
+    });
+};
+
 User.findByUsername = function(username, callback, removePrivateDescriptors)
 {
     User.findByPropertyValue(username, "ddr:username", function(err, user){

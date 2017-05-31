@@ -1038,6 +1038,11 @@ Elements.ddr = {
     {
         type : DbConnection.string,
         control : Config.controls.input_box
+    },
+    orcid :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
     }
 };
 
