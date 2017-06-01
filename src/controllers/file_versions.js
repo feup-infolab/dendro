@@ -172,7 +172,7 @@ exports.all = function (req, res) {
                    {
                        res.status(500).json({
                            result : "Error",
-                           message : "Error getting posts. " + JSON.stringify(err)
+                           message : "Error getting FileVersions. " + JSON.stringify(err)
                        });
                    }
                });
@@ -204,34 +204,33 @@ exports.getFileVersion = function (req, res) {
 exports.fileVersionLikesInfo = function (req, res) {
     var currentUser = req.session.user;
     var fileVersionUri = req.body.fileVersionUri;
-    var resultInfo;
+    //var resultInfo;
 
-    getNumLikesForAFileVersion(fileVersionUri, function (err, likesArray) {
-        if(!err)
+    FileVersion.findByUri(fileVersionUri, function(err, fileVersion)
+    {
+        if(!err && fileVersion != null)
         {
-            if(likesArray.length)
-            {
-                resultInfo = {
-                    fileVersionUri: fileVersionUri, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
-                };
-            }
-            else
-            {
-                resultInfo = {
-                    fileVersionUri: fileVersionUri, numLikes : 0, usersWhoLiked : 'undefined'
-                };
-            }
-            res.json(resultInfo);
+            fileVersion.getLikes(function (err, data) {
+                if(!err)
+                    res.json(data);
+                else
+                {
+                    res.status(500).json({
+                        result: "Error",
+                        message: "Error getting likesInfo from a fileVersion " + JSON.stringify(err)
+                    });
+                }
+            });
         }
         else
         {
-            res.status(500).json({
+            var errorMsg = "Invalid fileVersion uri";
+            res.status(404).json({
                 result: "Error",
-                message: "Error getting likesInfo from a fileVersion " + JSON.stringify(err)
+                message: errorMsg
             });
         }
-
-    });
+    }, null, db_social.graphUri, null);
 };
 
 var getNumLikesForAFileVersion = function(fileVersionUri, cb)
@@ -243,7 +242,7 @@ var getNumLikesForAFileVersion = function(fileVersionUri, cb)
         "FROM [0] \n" +
         "WHERE { \n" +
         "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:fileVersionUri [1]. \n" +
         "?likeURI ddr:userWhoLiked ?userURI . \n" +
         "} \n";
 
@@ -292,7 +291,7 @@ exports.like = function (req, res) {
                     var newLike = new Like({
                         ddr: {
                             userWhoLiked : currentUser.uri,
-                            postURI: fileVersion.uri
+                            fileVersionUri: fileVersion.uri
                         }
                     });
 
@@ -398,7 +397,7 @@ var removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) {
         "FROM [0] \n" +
         "WHERE { \n" +
         "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:fileVersionUri [1]. \n" +
         "?likeURI ddr:userWhoLiked [2]. \n" +
         "} \n";
 
@@ -447,7 +446,7 @@ exports.comment = function (req, res) {
         var newComment = new Comment({
             ddr: {
                 userWhoCommented : currentUser.uri,
-                postURI: fileVersion.uri,
+                fileVersionUri: fileVersion.uri,
                 commentMsg: commentMsg
             }
         });
@@ -497,6 +496,39 @@ exports.comment = function (req, res) {
         }, false, null, null, null, null, db_social.graphUri);
 
     }, null, db_social.graphUri);
+};
+
+exports.getFileVersionComments = function (req, res) {
+    var currentUser = req.session.user;
+    var fileVersionUri = req.body.fileVersionUri;
+
+    FileVersion.findByUri(fileVersionUri, function(err, fileVersion)
+    {
+        if(!err && fileVersion != null)
+        {
+            fileVersion.getComments(function (err, comments) {
+                if(err)
+                {
+                    res.status(500).json({
+                        result: "Error",
+                        message: "Error getting comments from a FileVersion " + JSON.stringify(comments)
+                    });
+                }
+                else
+                {
+                    res.json(comments);
+                }
+            });
+        }
+        else
+        {
+            var errorMsg = "Invalid fileVersion uri";
+            res.status(404).json({
+                result: "Error",
+                message: errorMsg
+            });
+        }
+    }, null, db_social.graphUri, null);
 };
 
 exports.share = function (req, res) {
@@ -570,34 +602,37 @@ exports.getFileVersionShares = function (req, res) {
     var currentUser = req.session.user;
     var fileVersionUri = req.body.fileVersionUri;
 
-    getSharesForAFileVersion(fileVersionUri, function (err, shares) {
-        if(err)
+    FileVersion.findByUri(fileVersionUri, function(err, fileVersion)
+    {
+        if(!err && fileVersion != null)
         {
-            res.status(500).json({
-                result: "Error",
-                message: "Error getting shares from a FileVersion " + JSON.stringify(shares)
+            fileVersion.getShares(function (err, shares) {
+                if(err)
+                {
+                    res.status(500).json({
+                        result: "Error",
+                        message: "Error getting shares from a FileVersion " + JSON.stringify(shares)
+                    });
+                }
+                else
+                {
+                    res.json(shares);
+                }
             });
         }
         else
         {
-            res.json(shares);
+            var errorMsg = "Invalid fileVersion uri";
+            res.status(404).json({
+                result: "Error",
+                message: errorMsg
+            });
         }
-    });
-
+    }, null, db_social.graphUri, null);
 };
 
 
-exports.fileVersion = function (req, res) {
-    var currentUser = req.session.user;
-    var fileVersionUri = "http://"+req.headers.host + req.url;
-    res.render('social/showFileVersion',
-        {
-            fileVersionUri : fileVersionUri
-        }
-    );
-};
-
-var getSharesForAFileVersion = function (fileVersionUri, cb) {
+exports.getSharesForAFileVersion = function (fileVersionUri, cb) {
     var self = this;
 
     var query =
@@ -637,3 +672,163 @@ var getSharesForAFileVersion = function (fileVersionUri, cb) {
             }
         });
 };
+
+exports.getCommentsForAFileVersion = function (fileVersionUri, cb) {
+//var getCommentsForAFileVersion = function (fileVersionUri, cb) {
+    var self = this;
+
+    var query =
+        "SELECT ?commentURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?commentURI rdf:type ddr:Comment. \n" +
+        "?commentURI ddr:fileVersionUri [1]. \n" +
+        "?commentURI dcterms:modified ?date. \n " +
+        "} \n" +
+        "ORDER BY ASC(?date) \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : fileVersionUri
+            }
+        ]),
+        function(err, results) {
+            if(!err)
+            {
+                async.map(results, function(commentUri, callback){
+                    Comment.findByUri(commentUri.commentURI, function(err, comment)
+                    {
+                        callback(false,comment);
+                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                    }, null, db_social.graphUri, null);
+                }, function (err, comments) {
+                    cb(false, comments);
+                });
+            }
+            else
+            {
+                cb(true, "Error fetching comments for a fileVersion");
+            }
+        });
+};
+
+exports.getLikesForAFileVersion = function (fileVersionUri, callback) {
+    var resultInfo;
+    getNumLikesForAFileVersion(fileVersionUri, function (err, likesArray) {
+        if(!err)
+        {
+            if(likesArray.length)
+            {
+                resultInfo = {
+                    fileVersionUri: fileVersionUri, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
+                };
+            }
+            else
+            {
+                resultInfo = {
+                    fileVersionUri: fileVersionUri, numLikes : 0, usersWhoLiked : 'undefined'
+                };
+            }
+            callback(null, resultInfo);
+        }
+        else
+        {
+            callback(err, likesArray);
+        }
+
+    });
+};
+
+exports.fileVersion = function (req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    var currentUser = req.session.user;
+    var fileVersionUri = "http://"+req.headers.host + req.url;
+    /*res.render('social/showFileVersion',
+     {
+     fileVersionUri : fileVersionUri
+     }
+     );*/
+    FileVersion.findByUri(fileVersionUri, function(err, fileVersion)
+    {
+        if(!err && fileVersion != null)
+        {
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            {
+                async.parallel([
+                        function(callback) {
+                            fileVersion.getComments(function (err, commentsData) {
+                                callback(err, commentsData);
+                            });
+                            /*getCommentsForAFileVersion(fileVersion.uri, function (err, commentsData) {
+                                callback(err, commentsData);
+                            });*/
+                        },
+                        function(callback) {
+                            fileVersion.getLikes(function (err, likesData) {
+                                callback(err, likesData);
+                            });
+                            /*getLikesForAFileVersion(fileVersion.uri, function (err, likesData) {
+                                callback(err, likesData);
+                            });*/
+                        },
+                        function (callback) {
+                            fileVersion.getShares(function (err, sharesData) {
+                                callback(err, sharesData);
+                            });
+                            /*getSharesForAFileVersion(fileVersion.uri, function (err, sharesData) {
+                                callback(err, sharesData);
+                            });*/
+                        }
+                    ],
+                    // optional callback
+                    function(err, results) {
+                        fileVersion.commentsContent = results[0];
+                        fileVersion.likesContent = results[1];
+                        fileVersion.sharesContent = results[2];
+                        res.json(fileVersion);
+                    });
+            }
+            else
+            {
+                res.render('social/showFileVersion',
+                    {
+                        fileVersionUri : fileVersionUri
+                    }
+                );
+            }
+        }
+        else
+        {
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            {
+                var errorMsg = "Invalid fileVersion uri";
+                res.status(404).json({
+                    result: "Error",
+                    message: errorMsg
+                });
+            }
+            else
+            {
+                flash('error', "Unable to retrieve the fileVersion : " + fileVersionUri);
+                res.render('index',
+                    {
+                        error_messages : ["FileVersion " + fileVersionUri + " not found."]
+                    });
+            }
+        }
+    }, null, db_social.graphUri, null);
+};
+
+/*module.exports = {
+    getSharesForAFileVersion : getSharesForAFileVersion
+};*/
+
+module.exports = exports;

@@ -10,6 +10,8 @@ angular.module('dendroApp.controllers')
         $scope.totalPosts = 0;
         $scope.postsPerPage = 5; // this should match however many results your API puts on one page
         $scope.renderPosts = false;
+        $scope.postsContents = [];
+        $scope.sharesContents = [];
 
         $scope.pagination = {
             current: 1
@@ -231,19 +233,32 @@ angular.module('dendroApp.controllers')
 
         $scope.initSinglePost = function (postUri) {
             $scope.postUri = postUri;
-            $scope.new_post_content = "";
-            $scope.commentList = [];
-            $scope.shareList = [];
-            $scope.likedPosts = [];
-            $scope.postList = [];
-            $scope.posts = [];
-            $scope.likesPostInfo = [];
             $scope.loggedUser = "";
             timelineService.getPostInfo(postUri).then(function(response)
             {
-                $scope.postContent = response.data;
+                //$scope.postContent = response.data;
+                $scope.postsContents[postUri] = response.data;
             })
             .catch(function(error){
+                console.error("Error initSinglePost" + JSON.stringify(error));
+            });
+        };
+
+        $scope.initSingleShare = function (shareUri) {
+            $scope.shareUri = shareUri;
+            $scope.loggedUser = "";
+            
+            timelineService.getShareInfo(shareUri).then(function(response)
+            {
+                $scope.sharesContents[shareUri] = response.data;
+                return response.data;
+                //return $scope.shareContent = response.data;
+            }).then(function (shareContent) {
+                timelineService.getPostInfo(shareContent.ddr.postURI).then(function (response) {
+                    //$scope.postContent = response.data;
+                    $scope.postsContents[shareContent.ddr.postURI] = response.data;
+                });
+            }).catch(function(error){
                 console.error("Error initSinglePost" + JSON.stringify(error));
             });
         };

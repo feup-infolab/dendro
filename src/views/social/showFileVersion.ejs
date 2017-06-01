@@ -1,15 +1,19 @@
 <%- include ../layout/header.ejs %>
 
-<div ng-controller="fileVersionsCtrl" ng-init="initSingleFileVersion();get_logged_user();">
+<div ng-controller="fileVersionsCtrl" ng-init="initSingleFileVersion('<%=fileVersionUri%>');get_logged_user();">
+    <ng-include src="'/app/views/social/showFileVersion.html'"></ng-include>
+</div>
+
+<!--<div ng-controller="fileVersionsCtrl" ng-init="initSingleFileVersion();get_logged_user();">
     <div ng-init='getFileVersion("<%=fileVersionUri %>");fileVersionLikesInfo("<%=fileVersionUri %>");getCommentsFromFileVersion("<%=fileVersionUri %>");getSharesFromFileVersion("<%=fileVersionUri %>");'>
         <div class="panel panel-info" ng-if='fileVersionsList["<%=fileVersionUri %>"].rdf.isShare'>
             <div class="panel-heading">
                 <h3 class="panel-title"> {{fileVersionsList["<%=fileVersionUri %>"].dcterms.modified | date : 'dd/MMM/yyyy'}}  <a ng-href="{{fileVersionsList['<%=fileVersionUri %>'].ddr.userWhoShared}}">{{fileVersionsList["<%=fileVersionUri %>"].ddr.userWhoShared.split('/').pop()}}</a> : "{{fileVersionsList["<%=fileVersionUri %>"].ddr.shareMsg}}"</h3>
             </div>
             <div class="panel-body">
-                <!-- obtain the original post information-->
+                &lt;!&ndash; obtain the original post information&ndash;&gt;
                 <div ng-init='getFileVersion(fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri)' style="padding-left: 2%">
-                    <!-- The info from the original post-->
+                    &lt;!&ndash; The info from the original post&ndash;&gt;
                     <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
                         <div class="panel-heading">
                             <h3 class="panel-title"> {{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{fileVersionsList[fileVersionsList['<%=fileVersionUri %>'].ddr.fileVersionUri].ddr.creatorUri}}">{{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}}</a>  added a file version</h3>
@@ -51,7 +55,7 @@
             </div>
         </div>
 
-        <!-- aqui -->
+        &lt;!&ndash; aqui &ndash;&gt;
         <div class="panel panel-success" ng-if='!fileVersionsList["<%=fileVersionUri %>"].rdf.isShare'>
             <div class="panel-heading">
                 <h3 class="panel-title"> {{fileVersionsList["<%=fileVersionUri %>"].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{fileVersionsList['<%=fileVersionUri %>'].ddr.creatorUri}}">{{fileVersionsList["<%=fileVersionUri %>"].ddr.creatorUri.split('/').pop()}}</a> added a file version </h3>
@@ -93,7 +97,7 @@
     </div>
     <p> {{likesFileVersionInfo["<%=fileVersionUri %>"].numLikes}} likes, {{commentList["<%=fileVersionUri %>"].length}} comments, {{shareList["<%=fileVersionUri %>"].length}} shares</p>
     <div class="btn-group">
-        <!--indexOf(substring) > -1-->
+        &lt;!&ndash;indexOf(substring) > -1&ndash;&gt;
         <label ng-model="checkModel.left" ng-class="likesFileVersionInfo['<%=fileVersionUri %>'].usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data='{{"<%=fileVersionUri %>"}}' ng-click='like_file_version("<%=fileVersionUri %>")'> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</label>
         <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data='{{"<%=fileVersionUri %>"}}' ng-click='isReplyFormOpen = !isReplyFormOpen; getCommentsFromFileVersion("<%=fileVersionUri %>");isShareFormOpen = false;'> <i class="fa fa-comment" aria-hidden="true"></i> Comment</label>
         <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data='{{"<%=fileVersionUri %>"}}' ng-click='isShareFormOpen = !isShareFormOpen; getSharesFromFileVersion("<%=fileVersionUri %>");isReplyFormOpen = false;'> <i class="fa fa-share" aria-hidden="true"></i> Share</label>
@@ -119,5 +123,5 @@
             <a ng-click="shareFileVersion('<%=fileVersionUri %>',share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
         </div>
     </div>
-</div>
+</div>-->
 <%- include ../layout/footer.ejs %>

@@ -854,53 +854,44 @@ exports.upload = function(req, res)
                                                             if (!error)
                                                             {
                                                                 async.map(fileVersionsInMongoDb, function (fileVersion, cb) {
-                                                                    FileVersion.findByUri(fileVersion.filename, function(err, fileVersion){
-                                                                        if(!err)
-                                                                        {
-                                                                            if(fileVersion == null)
-                                                                            {
-                                                                                console.log('FileinfoFromMongo: ', fileVersion);
-                                                                                var newFileVersion = new FileVersion({
-                                                                                    nfo: {
-                                                                                        fileName: fileVersion.filename,
-                                                                                        hashValue: fileVersion.md5,
-                                                                                        hashAlgorithm: 'md5'
-                                                                                    },
-                                                                                    nie: {
-                                                                                        contentLastModified: fileVersion.uploadDate,
-                                                                                        byteSize: fileVersion.length
-                                                                                    },
-                                                                                    ddr: {
-                                                                                        contentType: fileVersion.contentType,
-                                                                                        chunkSize: fileVersion.chunkSize,
-                                                                                        projectUri: fileVersion.metadata.project,
-                                                                                        itemType: fileVersion.metadata.type,
-                                                                                        creatorUri: currentUserUri
-                                                                                    }
-                                                                                });
-
-                                                                                newFileVersion.save(function (err, fileVersion)
-                                                                                {
-                                                                                    if (!err)
-                                                                                    {
-                                                                                        cb(null, fileVersion);
-                                                                                    }
-                                                                                    else
-                                                                                    {
-                                                                                        cb(true, fileVersion);
-                                                                                    }
-                                                                                }, false, null, null, null, null, db_social.graphUri)
+                                                                    if(fileVersion != null)
+                                                                    {
+                                                                        console.log('FileinfoFromMongo: ', fileVersion);
+                                                                        var newFileVersion = new FileVersion({
+                                                                            nfo: {
+                                                                                fileName: fileVersion.filename,
+                                                                                hashValue: fileVersion.md5,
+                                                                                hashAlgorithm: 'md5'
+                                                                            },
+                                                                            nie: {
+                                                                                contentLastModified: fileVersion.uploadDate,
+                                                                                byteSize: fileVersion.length
+                                                                            },
+                                                                            ddr: {
+                                                                                contentType: fileVersion.contentType,
+                                                                                chunkSize: fileVersion.chunkSize,
+                                                                                projectUri: fileVersion.metadata.project,
+                                                                                itemType: fileVersion.metadata.type,
+                                                                                creatorUri: currentUserUri
                                                                             }
-                                                                            else
+                                                                        });
+
+                                                                        newFileVersion.save(function (err, fileVersion)
+                                                                        {
+                                                                            if (!err)
                                                                             {
                                                                                 cb(null, fileVersion);
                                                                             }
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            cb(1, "Error fetching file version with URI " + fileVersion.uri);
-                                                                        }
-                                                                    });
+                                                                            else
+                                                                            {
+                                                                                cb(true, fileVersion);
+                                                                            }
+                                                                        }, false, null, null, null, null, db_social.graphUri)
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        cb(null, fileVersion);
+                                                                    }
                                                                 }, function (err, results)
                                                                 {
                                                                     if (!err)

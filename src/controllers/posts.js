@@ -3,12 +3,16 @@ var Like = require('../models/social/like.js').Like;
 var Notification = require('../models/notifications/notification.js').Notification;
 var Comment = require('../models/social/comment.js').Comment;
 var Share = require('../models/social/share.js').Share;
+var FileVersion = require('../models/versions/file_version.js').FileVersion;
 var Ontology = require('../models/meta/ontology.js').Ontology;
 var Project = require('../models/project.js').Project;
 var DbConnection = require("../kb/db.js").DbConnection;
+var fileVersionController = require("./file_versions");
+
 var _ = require('underscore');
 
 var async = require('async');
+var flash = require('connect-flash');
 var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
 var db_notifications = function () { return GLOBAL.db.notifications;}();
@@ -1373,21 +1377,19 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
 exports.post = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
+    var currentUser = req.session.user;
+    var postUri = "http://"+Config.host + req.url;
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    Post.findByUri(postUri, function(err, post)
     {
-        var currentUser = req.session.user;
-        //var postUri = "http://"+req.headers.host + req.url;
-        var postUri = "http://"+Config.host + req.url;
-        //TODO async.parallel (getCommentsForAPost, getLikesForAPost, getSharesForAPost) -> e depois manda dos respectivos objetos no render
-        Post.findByUri(postUri, function(err, post)
+        if(!err && post != null)
         {
-            if(!err && post != null)
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
                 async.parallel([
                         function(callback) {
                             getCommentsForAPost(post.uri, function (err, commentsData) {
-                               callback(err, commentsData);
+                                callback(err, commentsData);
                             });
                         },
                         function(callback) {
@@ -1403,11 +1405,6 @@ exports.post = function (req, res) {
                     ],
                     // optional callback
                     function(err, results) {
-                        // the results array will equal ['one','two'] even though
-                        // the second function had a shorter timeout.
-                        //TODO AQUI FAZER O RENDER E MANDAR OS OBJETOS
-                        console.log("Results data: ");
-                        console.log(results);
                         post.commentsContent = results[0];
                         post.likesContent = results[1];
                         post.sharesContent = results[2];
@@ -1416,33 +1413,177 @@ exports.post = function (req, res) {
             }
             else
             {
+                res.render('social/showPost',
+                    {
+                        postUri : postUri
+                    }
+                );
+            }
+        }
+        else
+        {
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            {
                 var errorMsg = "Invalid post uri";
                 res.status(404).json({
                     result: "Error",
                     message: errorMsg
                 });
             }
-        }, null, db_social.graphUri, null);
-    }
-    else
-    {
-        res.render('social/showPost',
+            else
             {
-                postUri : postUri
+                 flash('error', "Unable to retrieve the post : " + postUri);
+                 res.render('index',
+                 {
+                     error_messages : ["Post " + postUri + " not found."]
+                 });
             }
-        );
-    }
+        }
+    }, null, db_social.graphUri, null);
 };
 
 exports.getShare = function (req, res) {
-/*    var acceptsHTML = req.accepts('html');
+    var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
+    var currentUser = req.session.user;
+    var shareUri = "http://"+req.headers.host + req.url;
+    var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersion";
+    var shareOfAPost;
+
+    Share.findByUri(shareUri, function(err, share)
+    {
+        if(!err && share != null)
+        {
+            shareOfAPost = share.ddr.fileVersionUri == null ? true : false;
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            {
+                if(shareOfAPost)
+                {
+                    async.parallel([
+                            function(callback) {
+                                getCommentsForAPost(share.uri, function (err, commentsData) {
+                                    callback(err, commentsData);
+                                });
+                            },
+                            function(callback) {
+                                getLikesForAPost(share.uri, function (err, likesData) {
+                                    callback(err, likesData);
+                                });
+                            },
+                            function (callback) {
+                                getSharesForAPost(share.uri, function (err, sharesData) {
+                                    callback(err, sharesData);
+                                });
+                            }
+                        ],
+                        // optional callback
+                        function(err, results) {
+                            share.commentsContent = results[0];
+                            share.likesContent = results[1];
+                            share.sharesContent = results[2];
+                            res.json(share);
+                        });
+                }
+                else
+                {
+                    //Is a share of a fileVersion
+                    FileVersion.findByUri(share.uri, function(err, fileVersion)
+                    {
+                        if(!err && fileVersion != null)
+                        {
+                            async.parallel([
+                                    function(callback) {
+                                        fileVersion.getComments(function (err, commentsData) {
+                                            callback(err, commentsData);
+                                        });
+                                        /*getCommentsForAPost(share.uri, function (err, commentsData) {
+                                         callback(err, commentsData);
+                                         });*/
+                                    },
+                                    function(callback) {
+                                        fileVersion.getLikes(function (err, likesData) {
+                                            callback(err, likesData);
+                                        });
+                                        /*getLikesForAPost(share.uri, function (err, likesData) {
+                                         callback(err, likesData);
+                                         });*/
+                                    },
+                                    function (callback) {
+                                        fileVersion.getShares(function (err, sharesData) {
+                                            callback(err, sharesData);
+                                        });
+                                        /*getSharesForAPost(share.uri, function (err, sharesData) {
+                                         callback(err, sharesData);
+                                         });*/
+                                    }
+                                ],
+                                // optional callback
+                                function(err, results) {
+                                    fileVersion.commentsContent = results[0];
+                                    fileVersion.likesContent = results[1];
+                                    fileVersion.sharesContent = results[2];
+                                    res.json(fileVersion);
+                                });
+                        }
+                        else
+                        {
+                            var errorMsg = "Error looking for a shared fileVersion with uri " + share.uri;
+                            res.status(404).json({
+                                result: "Error",
+                                message: errorMsg
+                            });
+                        }
+                    }, null, db_social.graphUri, null);
+                }
+            }
+            else
+            {
+                //TODO AQUI UM IF verificar se é um share de um post ou fileversion
+                if(shareOfAPost)
+                {
+                    res.render('social/showShare',
+                        {
+                            shareUri : shareUri
+                        }
+                    );
+                }
+                else
+                {
+                    res.render('social/showShareFileVersion',
+                        {
+                            shareUri : shareUri
+                        }
+                    );
+                }
+            }
+        }
+        else
+        {
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            {
+                var errorMsg = "Invalid share uri";
+                res.status(404).json({
+                    result: "Error",
+                    message: errorMsg
+                });
+            }
+            else
+            {
+                flash('error', "Unable to retrieve the share : " + shareUri);
+                res.render('index',
+                    {
+                        error_messages : ["Share " + shareUri + " not found."]
+                    });
+            }
+        }
+    }, null, db_social.graphUri, null);
+
+    return;
+    /*
     if(acceptsHTML && !acceptsJSON)  //will be null if the client does not accept html
     {*/
-        var currentUser = req.session.user;
-        var shareUri = "http://"+req.headers.host + req.url;
-        var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersion";
+
 
         //TODO find the share in database
         //TODO see if it has ddr:postURI or ddr:fileVersionUri

@@ -1,12 +1,8 @@
-
-    <div class="panel panel-info" ng-if="postContent.rdf.isShare">
-        <p>IT IS A SHARE</p>
-    </div>
-
-    <div class="panel panel-success" ng-if="!postContent.rdf.isShare">
-        <p>Creator {{postContent.dcterms.creator}}</p>
+<p> Tenho acesso ao postURI AQUI : {{postUri}} </p>
+<div class="panel panel-success" ng-if="!postsContents[postUri].rdf.isShare">
+        <p>Creator {{postsContents[postUri].dcterms.creator}}</p>
         <div class="panel-heading">
-            <h3 class="panel-title"> {{postContent.dcterms.modified | date : "dd/MMM/yyyy"}} <a ng-href="{{postContent.dcterms.creator}}"> {{postContent.dcterms.creator.split('/').pop()}} </a> {{actionTypesDictionary[postContent.ddr.changeType]}} a descriptor </h3>
+            <h3 class="panel-title"> {{postsContents[postUri].dcterms.modified | date : "dd/MMM/yyyy"}} <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a> {{actionTypesDictionary[postsContents[postUri].ddr.changeType]}} a descriptor </h3>
         </div>
         <div class="panel-body">
             <img width="10%" height="10%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
@@ -41,27 +37,27 @@
 
                 <tr>
                     <td> </td>
-                    <td> <a ng-href="{{postContent.dcterms.creator}}"> {{postContent.dcterms.creator.split('/').pop()}} </a> </td>
-                    <td> {{postContent.ddr.changeType}} </td>
-                    <td> <a ng-href="{{postContent.ddr.hasContent.split('/version/')[0]}}"> {{postContent.ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
-                    <td> {{postContent.ddr.changedDescriptor}} </td>
-                    <td ng-hide="postContent.ddr.newValue == null"> {{postContent.ddr.newValue}} </td>
+                    <td> <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a> </td>
+                    <td> {{postsContents[postUri].ddr.changeType}} </td>
+                    <td> <a ng-href="{{postsContents[postUri].ddr.hasContent.split('/version/')[0]}}"> {{postsContents[postUri].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
+                    <td> {{postsContents[postUri].ddr.changedDescriptor}} </td>
+                    <td ng-hide="postsContents[postUri].ddr.newValue == null"> {{postsContents[postUri].ddr.newValue}} </td>
                     <td> </td>
                 </tr>
 
             </table>
         </div>
     </div>
-    <p> {{postContent.likesContent.numLikes}} likes, {{postContent.commentsContent.length}} comments, {{postContent.sharesContent.length}} shares</p>
+    <p> {{postsContents[postUri].likesContent.numLikes}} likes, {{postsContents[postUri].commentsContent.length}} comments, {{postsContents[postUri].sharesContent.length}} shares</p>
     <div class="btn-group">
-        <label ng-model="checkModel.left" ng-class="postContent.likesContent.usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{postContent.uri}}" ng-click="likePost(postContent.uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</label>
-        <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{postContent.uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="fa fa-comment" aria-hidden="true"></i> Comment</label>
-        <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{postContent.uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="fa fa-share" aria-hidden="true"></i> Share</label>
+        <label ng-model="checkModel.left" ng-class="postsContents[postUri].likesContent.usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="likePost(postsContents[postUri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</label>
+        <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="fa fa-comment" aria-hidden="true"></i> Comment</label>
+        <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="fa fa-share" aria-hidden="true"></i> Share</label>
     </div>
 
     <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
         <div class="wall">
-            <div ng-repeat="comment in postContent.commentsContent | orderBy: 'dcterms.created' track by $index">
+            <div ng-repeat="comment in postsContents[postUri].commentsContent | orderBy: 'dcterms.created' track by $index">
                 <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
                 <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
                 <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
@@ -69,7 +65,7 @@
             </div>
             <label for="new_comment_box">{{loggedUser.split('/').pop()}} :</label>
             <textarea class="form-control" rows="5" id="new_comment_box" ng-model="comment_content" placeholder="Write your comment here"></textarea>
-            <a ng-click="commentPost(postContent.uri,comment_content);comment_content=''" class="btn btn-default btn-primary">Send</a>
+            <a ng-click="commentPost(postsContents[postUri].uri,comment_content);comment_content=''" class="btn btn-default btn-primary">Send</a>
         </div>
     </div>
 
@@ -77,7 +73,7 @@
         <div class="wall">
             <label for="new_post_box_share">{{loggedUser.split('/').pop()}} :</label>
             <textarea class="form-control" rows="5" id="new_post_box_share" ng-model="share_content" placeholder="Write your share message here"></textarea>
-            <a ng-click="sharePost(postContent.uri,share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
+            <a ng-click="sharePost(postsContents[postUri].uri,share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
         </div>
     </div>
 

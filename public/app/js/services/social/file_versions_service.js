@@ -3,6 +3,16 @@
 angular.module('dendroApp.services')
     .service('fileVersionsService', ['$http', function ($http) {
 
+        this.getFileVersionInfo = function (fileVersionUri) {
+            return $http({
+                method: 'GET',
+                url: fileVersionUri,
+                contentType: "application/json",
+                accept: "text/html",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
         this.countNumFileVersions = function ()
         {
             var requestUri = "/fileVersions/countNum";
@@ -129,6 +139,40 @@ angular.module('dendroApp.services')
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             });
-        }
+        };
+
+        this.getCommentsFromFileVersion = function(fileVersionUri)
+        {
+            var requestUri = "/fileVersions/comments";
+
+            var params = {
+                fileVersionUri : fileVersionUri
+            };
+
+            return $http({
+                method: 'POST',
+                url: requestUri,
+                data: params,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
+        this.getLikesFromFileVersion = function(fileVersionUri)
+        {
+            var requestUri = "/fileVersions/likes";
+
+            var params = {
+                fileVersionUri : fileVersionUri
+            };
+
+            return $http({
+                method: 'POST',
+                url: requestUri,
+                data: params,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        };
 
     }]);

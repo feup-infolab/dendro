@@ -1803,6 +1803,7 @@ async.series([
         app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.share);
         app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.fileVersionLikesInfo);
         app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersionShares);
+        app.post('/fileVersions/comments', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersionComments);
 
         //shares
         app.get('/shares/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getShare);

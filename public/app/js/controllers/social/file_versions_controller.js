@@ -74,13 +74,29 @@ angular.module('dendroApp.controllers')
                 });
         };
 
-        $scope.initSingleFileVersion = function () {
-            $scope.commentList = [];
-            $scope.shareList = [];
-            $scope.likedFileVersions = [];
-            $scope.fileVersionsList = [];
-            $scope.fileVersions = [];
-            $scope.likesFileVersionInfo = [];
+        $scope.initSingleFileVersion = function (fileVersionUri) {
+            $scope.loggedUser = "";
+            fileVersionsService.getFileVersionInfo(fileVersionUri).then(function(response)
+            {
+                $scope.fileVersionContent = response.data;
+            })
+            .catch(function(error){
+                console.error("Error initSingleFileVersion" + JSON.stringify(error));
+            });
+        };
+
+        $scope.initSingleFileVersionShare = function (fileVersionShareUri) {
+            $scope.loggedUser = "";
+            fileVersionsService.getFileVersionInfo(fileVersionShareUri).then(function(response)
+            {
+                return $scope.fileVersionShareContent = response.data;
+            }).then(function (fileVersionShareContent) {
+                fileVersionsService.getFileVersionInfo(fileVersionShareContent.ddr.fileVersionUri).then(function (response) {
+                    $scope.fileVersionContent = response.data;
+                });
+            }).catch(function(error){
+                console.error("Error initSingleFileVersionShare" + JSON.stringify(error));
+            });
         };
 
         $scope.initFileVersions = function()
@@ -191,7 +207,8 @@ angular.module('dendroApp.controllers')
 
         $scope.getCommentsFromFileVersion = function (fileVersionUri) {
             $scope.doing_getCommentsFromFileVersion = true;
-            timelineService.getCommentsFromPost(fileVersionUri)
+            //timelineService.getCommentsFromPost(fileVersionUri)
+            fileVersionsService.getCommentsFromFileVersion(fileVersionUri)
                 .then(function(response)
                 {
                     $scope.show_popup(response.data);

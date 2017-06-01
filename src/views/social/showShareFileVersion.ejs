@@ -1,0 +1,7 @@
+<%- include ../layout/header.ejs %>
+
+<div ng-controller="fileVersionsCtrl" ng-init="initSingleFileVersionShare('<%=shareUri%>');get_logged_user();">
+    <ng-include src="'/app/views/social/showShareFileVersion.html'"></ng-include>
+</div>
+
+<%- include ../layout/footer.ejs %>

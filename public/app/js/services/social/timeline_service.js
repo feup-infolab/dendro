@@ -25,6 +25,16 @@ angular.module('dendroApp.services')
             });
         };
 
+        this.getShareInfo = function (shareUri) {
+            return $http({
+                method: 'GET',
+                url: shareUri,
+                contentType: "application/json",
+                accept: "text/html",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
         this.get_all_posts = function(currentPage)
         {
             var requestUri = "/posts/all";

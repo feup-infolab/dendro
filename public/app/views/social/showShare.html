@@ -1,0 +1,84 @@
+<div class="panel panel-info" ng-if="shareContent.rdf.isShare">
+    <p>IT IS A SHARE</p>
+    <div class="panel-heading">
+        <h3 class="panel-title"> {{shareContent.dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{shareContent.ddr.userWhoShared}}"> {{shareContent.ddr.userWhoShared.split('/').pop()}} </a> : "{{shareContent.ddr.shareMsg}}"</h3>
+    </div>
+    <div class="panel-body">
+        <!--<div ng-init='getPost(postList["<%= postUri %>"].ddr.postURI, null);' style="padding-left: 2%">-->
+        <div style="padding-left: 2%">
+            <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
+                <div class="panel-heading">
+                    <h3 class="panel-title"> {{postContent.dcterms.modified | date : "dd/MMM/yyyy"}} <a ng-href="{{postContent.dcterms.creator}}"> {{postContent.dcterms.creator.split('/').pop()}} </a> {{actionTypesDictionary[postContent.ddr.changeType]}} a descriptor </h3>
+                </div>
+                <div class="panel-body">
+                    <table class="table changelog-table text-center">
+                        <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
+                        <tr>
+                            <th class="text-center" width="14%">
+
+                            </th>
+                            <th width="14%" class="text-center">
+                                Author
+                            </th>
+                            <th width="14%" class="text-center">
+                                Change Type
+                            </th>
+                            <th width="14%" class="text-center">
+                                File
+                            </th>
+                            <th width="14%" class="text-center">
+                                Descriptor
+                            </th>
+
+                            <th width="14%" class="text-center" ng-hide='postContent.ddr.newValue == null'>
+                                Value
+                            </th>
+
+                            <th width="14%" class="text-center">
+
+                            </th>
+                        </tr>
+
+                        <tr>
+                            <td> </td>
+                            <td> <a ng-href='{{postContent.dcterms.creator}}'> {{postContent.dcterms.creator.split('/').pop()}} </a> </td>
+                            <td> {{postContent.ddr.changeType}} </td>
+                            <td> <a ng-href="{{postContent.ddr.hasContent.split('/version/')[0]}}"> {{postContent.ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
+                            <td> {{postContent.ddr.changedDescriptor}} </td>
+                            <td ng-hide='postContent.ddr.newValue == null'> {{postContent.ddr.newValue}} </td>
+                            <td> </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<p> {{shareContent.likesContent.numLikes}} likes, {{shareContent.commentsContent.length}} comments, {{shareContent.sharesContent.length}} shares</p>
+<div class="btn-group">
+    <label ng-model="checkModel.left" ng-class="shareContent.likesContent.usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{shareContent.uri}}" ng-click="likePost(shareContent.uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</label>
+    <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{shareContent.uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="fa fa-comment" aria-hidden="true"></i> Comment</label>
+    <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{shareContent.uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="fa fa-share" aria-hidden="true"></i> Share</label>
+</div>
+
+<div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
+    <div class="wall">
+        <div ng-repeat="comment in shareContent.commentsContent | orderBy: 'dcterms.created' track by $index">
+            <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
+            <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
+            <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+            <hr>
+        </div>
+        <label for="new_comment_box">{{loggedUser.split('/').pop()}} :</label>
+        <textarea class="form-control" rows="5" id="new_comment_box" ng-model="comment_content" placeholder="Write your comment here"></textarea>
+        <a ng-click="commentPost(shareContent.uri,comment_content);comment_content=''" class="btn btn-default btn-primary">Send</a>
+    </div>
+</div>
+
+<div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare">
+    <div class="wall">
+        <label for="new_post_box_share">{{loggedUser.split('/').pop()}} :</label>
+        <textarea class="form-control" rows="5" id="new_post_box_share" ng-model="share_content" placeholder="Write your share message here"></textarea>
+        <a ng-click="sharePost(shareContent.uri,share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
+    </div>
+</div>

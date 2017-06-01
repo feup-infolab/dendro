@@ -25,6 +25,7 @@ function Share (object)
 
 
 
+    //TODO this has to be changed, it is ugly code
     var objectType;
     if(object.ddr.postURI)
     {

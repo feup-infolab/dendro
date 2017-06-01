@@ -5,8 +5,11 @@ var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resourc
 var Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var Comment = require(Config.absPathInSrcFolder("/models/social/comment.js")).Comment;
+var Share = require(Config.absPathInSrcFolder("/models/social/share.js")).Share;
 
 var db = function() { return GLOBAL.db.default; }();
+var db_social = function() { return GLOBAL.db.social; }();
 var gfs = function() { return GLOBAL.gfs.default; }();
 
 var _ = require('underscore');
@@ -41,7 +44,7 @@ function FileVersion (object)
     }
     else
     {
-        self.uri = Config.baseUri + "/fileVersion/" + uuid.v4();
+        self.uri = Config.baseUri + "/fileVersions/" + uuid.v4();
     }
 
     self.copyOrInitDescriptors(object);
@@ -50,6 +53,155 @@ function FileVersion (object)
 
     return self;
 }
+
+FileVersion.prototype.getComments = function (cb) {
+    var self = this;
+
+    var query =
+        "SELECT ?commentURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?commentURI rdf:type ddr:Comment. \n" +
+        "?commentURI ddr:fileVersionUri [1]. \n" +
+        "?commentURI dcterms:modified ?date. \n " +
+        "} \n" +
+        "ORDER BY ASC(?date) \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : self.uri
+            }
+        ]),
+        function(err, results) {
+            if(!err)
+            {
+                async.map(results, function(commentUri, callback){
+                    Comment.findByUri(commentUri.commentURI, function(err, comment)
+                    {
+                        callback(false,comment);
+                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                    }, null, db_social.graphUri, null);
+                }, function (err, comments) {
+                    cb(false, comments);
+                });
+            }
+            else
+            {
+                cb(true, "Error fetching comments for a fileVersion");
+            }
+        });
+};
+
+FileVersion.prototype.getLikes = function (callback) {
+    var self = this;
+    var resultInfo;
+    self.getNumLikesForAFileVersion(function (err, likesArray) {
+        if(!err)
+        {
+            if(likesArray.length)
+            {
+                resultInfo = {
+                    fileVersionUri: self.uri, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
+                };
+            }
+            else
+            {
+                resultInfo = {
+                    fileVersionUri: self.uri, numLikes : 0, usersWhoLiked : 'undefined'
+                };
+            }
+            callback(null, resultInfo);
+        }
+        else
+        {
+            callback(err, likesArray);
+        }
+
+    });
+};
+
+FileVersion.prototype.getShares = function (cb) {
+    var self = this;
+
+    var query =
+        "SELECT ?shareURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?shareURI rdf:type ddr:Share. \n" +
+        "?shareURI ddr:fileVersionUri [1]. \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : self.uri
+            }
+        ]),
+        function(err, results) {
+            if(!err)
+            {
+                async.map(results, function(shareObject, callback){
+                    Share.findByUri(shareObject.shareURI, function(err, share)
+                    {
+                        callback(false,share);
+                    /*}, Ontology.getAllOntologiesUris(), db_social.graphUri);*/
+                    }, null, db_social.graphUri, null);
+                }, function (err, shares) {
+                    cb(false, shares);
+                });
+            }
+            else
+            {
+                cb(true, "Error shares for a FileVersion");
+            }
+        });
+};
+
+FileVersion.prototype.getNumLikesForAFileVersion = function (cb) {
+    var self = this;
+
+    var query =
+        "SELECT ?likeURI ?userURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:fileVersionUri [1]. \n" +
+        "?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : self.uri
+            }
+        ]),
+        function(err, results) {
+            if(!err)
+            {
+                cb(false, results);
+            }
+            else
+            {
+                cb(true, "Error fetching number of likes for a fileVersion");
+            }
+        });
+};
 
 FileVersion = Class.extend(FileVersion, Resource);
 
