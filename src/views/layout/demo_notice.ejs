@@ -1,5 +1,5 @@
 <%if (Config.demo_mode.active) {%>
-<div class="panel panel-info">
+<div class="panel panel-success">
     <div class="panel-heading">
         <h3 class="panel-title">This Dendro is in Demo Mode!</h3>
     </div>
@@ -10,17 +10,6 @@
         <b>Username</b> : <%=Config.demo_mode.users[0].username%>
         <br/>
         <b>Password</b> : <%=Config.demo_mode.users[0].password%>
-        <br/>
-        <br/>
-
-        <script type="application/javascript">
-            function prefillBoxes (){
-                $("#username").val("<%=Config.demo_mode.users[0].username%>");
-                $("#password").val("<%=Config.demo_mode.users[0].password%>");
-            }
-        </script>
-
-        <button onclick="prefillBoxes()" class="btn btn-sm btn-default"><i class="fa fa-paste"></i>Fill in the login boxes for me please!</button>
         <br/>
         <br/>
         <br/>

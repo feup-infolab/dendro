@@ -10,6 +10,8 @@
     }
     </style>
 
+    <%- include ../layout/demo_notice.ejs %>
+
     <div class="container well well-main">
             <div class="row-fluid">
                 <div class="row">
@@ -17,6 +19,9 @@
                         <div class="col-xs-12">
                             <div class="form-group text-center">
                                 <h1>Login</h1>
+                                <div class="text-center">
+                                    <button onclick="prefillBoxes()" class="btn btn-sm btn-success"><i class="fa fa-paste"></i>Login as demonstration user</button>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -51,6 +56,21 @@
 
                             <br/>
                             <br/>
+
+                            <script type="application/javascript">
+                                function prefillBoxes (){
+                                    if($("#username").length && $("#password").length)
+                                    {
+                                        $("#username").val("<%=Config.demo_mode.users[0].username%>");
+                                        $("#password").val("<%=Config.demo_mode.users[0].password%>");
+                                    }
+                                }
+                            </script>
+
+
+
+                            <br/>
+                            <br/>
                             <div class="text-center">
                                 Need a login? <a href="/register">Register here</a>. Forgot your password? <a href="/reset_password">Ask for a new one</a>.
                             </div>
@@ -78,10 +98,4 @@
                     <% } %>
             </div>
     </div>
-
-        <br/>
-        <br/>
-        <br/>
-    <%- include ../layout/demo_notice.ejs %>
-
 <%- include ../layout/footer.ejs %>
