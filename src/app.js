@@ -113,33 +113,45 @@ if(Config.logging != null)
 
                     var log_stdout = process.stdout;
 
-                    console.log = function (d)
-                    { //
-                        var date = new Date().toISOString();
-                        log_file.write("[ " + date + " ] "+ util.format(d) + '\n');
-                        log_stdout.write(util.format(d) + '\n');
-
-                        if(d != null && d.stack != null)
-                        {
-                            log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
-                            log_stdout.write(util.format(d.stack) + '\n');
-                        }
-                    };
-
-                    console.error = function (err)
+                    if(Config.logging.suppress_all_logs)
                     {
-                        var date = new Date().toISOString();
-                        log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(err) + '\n');
-                        log_stdout.write(util.format(err) + '\n');
+                        console.log = function (d)
+                        {};
+                    }
+                    else {
+                        console.log = function (d) { //
+                            var date = new Date().toISOString();
+                            log_file.write("[ " + date + " ] " + util.format(d) + '\n');
+                            log_stdout.write(util.format(d) + '\n');
 
-                        if(err != null && err.stack != null)
+                            if (d != null && d.stack != null) {
+                                log_file.write("[ " + date + " ] " + util.format(d.stack) + "\n");
+                                log_stdout.write(util.format(d.stack) + '\n');
+                            }
+                        };
+                    }
+                    if(Config.logging.suppress_all_errors)
+                    {
+                        console.error = function (d)
+                        {};
+                    }
+                    else
+                    {
+                        console.error = function (err)
                         {
-                            log_file.write("[ " + date + " ] "+ util.format(err.stack) + "\n");
-                            log_stdout.write(util.format(err.stack) + '\n');
-                        }
+                            var date = new Date().toISOString();
+                            log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(err) + '\n');
+                            log_stdout.write(util.format(err) + '\n');
 
-                        throw err;
-                    };
+                            if(err != null && err.stack != null)
+                            {
+                                log_file.write("[ " + date + " ] "+ util.format(err.stack) + "\n");
+                                log_stdout.write(util.format(err.stack) + '\n');
+                            }
+
+                            throw err;
+                        };
+                    }
 
                     process.on('uncaughtException', function (err)
                     {
@@ -324,7 +336,7 @@ var appendLocalsToUseInViews = function(req, res, next)
 
     if(Config.debug.session.auto_login)
     {
-        if(req.session != null && req.session.user != null)
+        if(req.session != null && req.session.user != null && req.session.user instanceof Object)
         {
             //append request and session to use directly in views and avoid passing around needless stuff
             res.locals.session = req.session;

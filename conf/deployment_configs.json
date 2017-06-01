@@ -185,7 +185,9 @@
       "log_request_times" : true,
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
-      "requests_in_apache_format_log_folder" : "logs/requests_apache_format"
+      "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
+      "suppress_all_logs" : true,
+      "suppress_all_errors" : true
     },
     "version" :
     {
@@ -315,7 +317,8 @@
         "enabled" : "true",
         "path": "/auth/saml/callback",
         "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
-        "issuer": "passport-saml"
+        "issuer": "passport-saml",
+        "button_text" : "Sign-in with SIGARRA"
       }
     }
   },
@@ -510,7 +513,9 @@
       "log_request_times" : true,
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : true,
-      "requests_in_apache_format_log_folder" : "logs/requests_apache_format"
+      "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
+      "suppress_all_logs" : true,
+      "suppress_all_errors" : true
     },
     "version" :
     {
@@ -631,15 +636,16 @@
       },
       "orcid" : {
         "enabled" : "true",
-        "client_id" : "CLIENT_ID",
-        "client_secret" : "CLIENT_SECRET",
+        "client_id" : "APP-2DLZER6DATDRNRM0",
+        "client_secret" : "7fe6cf53-d31f-4260-836a-63282d9fcce4",
         "callback_url" : "/auth/orcid/callback"
       },
       "saml" : {
         "enabled" : "true",
         "path": "/auth/saml/callback",
         "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
-        "issuer": "passport-saml"
+        "issuer": "passport-saml",
+        "button_text" : "Sign-in with SIGARRA"
       }
     }
   },
@@ -857,7 +863,9 @@
       "log_request_times" : true,
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
-      "requests_in_apache_format_log_folder" : "logs/requests_apache_format"
+      "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
+      "suppress_all_logs" : true,
+      "suppress_all_errors" : true
     },
     "version" :
     {
@@ -987,7 +995,8 @@
         "enabled" : "true",
         "path": "/auth/saml/callback",
         "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
-        "issuer": "passport-saml"
+        "issuer": "passport-saml",
+        "button_text" : "Sign-in with SIGARRA"
       }
     }
   },
@@ -1189,10 +1198,12 @@
       "pipe_console_to_logfile" : false,
       "format" : "combined",
       "app_logs_folder" : "logs/app",
-      "log_request_times" : true,
+      "log_request_times" : false,
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
-      "requests_in_apache_format_log_folder" : "logs/requests_apache_format"
+      "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
+      "suppress_all_logs" : true,
+      "suppress_all_errors" : true
     },
     "version" :
     {
