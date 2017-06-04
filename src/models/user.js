@@ -45,7 +45,7 @@ function User (object)
 
 User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 {
-    User.findByPropertyValue(username, "ddr:orcid", function(err, user){
+    User.findByPropertyValue(orcid, "ddr:orcid", function(err, user){
         if(!err && user != null && user instanceof User)
         {
             if(removePrivateDescriptors)

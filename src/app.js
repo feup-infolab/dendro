@@ -1116,6 +1116,7 @@ async.series([
         var notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
+        var auth_orcid = require(Config.absPathInSrcFolder("/controllers/auth_orcid"));
 
         var recommendation;
 
@@ -1307,18 +1308,35 @@ async.series([
                     callbackURL: Config.baseUri + Config.authentication.orcid.callback_url
                 },
                 function(accessToken, refreshToken, params, profile, done) {
-                    // NOTE: `profile` is empty, use `params` instead
-                    const User = require(Config.absPathInSrcFolder("/models/user.js").User);
-                    User.findByORCID(params.id, function (err, user) {
-                        return done(err, user);
+                    const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                    User.findByORCID(params.orcid, function (err, user) {
+                        if (err)
+                        {
+                            return done(err);
+                        }
+                        if (!user)
+                        {
+                            return done(null, false,
+                                {
+                                    orcid_data : {
+                                        accessToken: accessToken,
+                                        refreshToken: refreshToken,
+                                        params: params,
+                                        profile: profile
+                                    }
+                                });
+                        }
+
+                        return done(null, user);
                     });
                 }
             ));
 
             app.get('/auth/orcid', passport.authenticate('orcid'));
-            app.get('/auth/orcid/callback', passport.authenticate('orcid', { failureRedirect: '/login' }), auth.orcid_login);
+            app.get('/auth/orcid/callback', function(req, res, next) {
+                passport.authenticate('orcid', auth_orcid.login(req, res, next));
+            });
         }
-
 
         //ontologies
 

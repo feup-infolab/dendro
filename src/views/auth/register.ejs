@@ -15,9 +15,31 @@
     </h1>
 
     <form action="/register" method="POST">
+
+
         <div class="row">
             <div class="well span6 offset3">
                 <div class="row">
+                    <% if (locals.data_provider == "orcid") {%>
+                        <div class="form-group">
+                            <label for="orcid" class="col-sm-2 control-label"><img src="/images/logos/orcid_24x24.png"> ORCID</label>
+
+                            <div class="col-sm-10">
+                                <a href ="http://orcid.org/<%=locals.new_user.orcid%>">
+                                    <input type="text"
+                                           class="form-control"
+                                           id="orcid"
+                                           placeholder="ORCID"
+                                           disabled
+                                            <%if (locals.new_user.orcid) { %>
+                                           value="<%= locals.new_user.orcid %>%>"
+                                            <%}  %>
+                                           name="orcid">
+                                </a>
+                                <p class="help-block">Your ORCID id (gathered because you logged in with ORCID)</p>
+                            </div>
+                        </div>
+                    <% } %>
                     <div class="form-group">
                         <label for="username" class="col-sm-2 control-label">Username</label>
                         <div class="col-sm-10">
@@ -27,7 +49,9 @@
                                    placeholder="Username"
                                     <%if(locals.Config.debug.views.prefill_text_boxes){%>
                                         value="jrocha"
-                                    <%}%>
+                                    <%} else if (locals.new_user.username) { %>
+                                        value="<%= locals.new_user.username %>%>"
+                                    <%}  %>
                                    name="username">
                             <p class="help-block">Your username</p>
                         </div>
@@ -41,9 +65,43 @@
                                    placeholder="Email"
                                     <%if(locals.Config.debug.views.prefill_text_boxes){%>
                                         value="joaorosilva@gmail.com"
-                                    <%}%>
+                                    <%} else if (locals.new_user.email) { %>
+                                        value="<%= locals.new_user.email %>%>"
+                                    <%}  %>
                                    name="email">
                             <p class="help-block">Your email address</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="firstname" class="col-sm-2 control-label">First Name</label>
+                        <div class="col-sm-10">
+                            <input type="text"
+                                   class="form-control"
+                                   id="firstname"
+                                   placeholder="Username"
+                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                                   value="João"
+                                    <%} else if (locals.new_user.firstname) { %>
+                                   value="<%= locals.new_user.firstname %>%>"
+                                    <%}  %>
+                                   name="firstname">
+                            <p class="help-block">Your first name</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="surname" class="col-sm-2 control-label">Surname</label>
+                        <div class="col-sm-10">
+                            <input type="text"
+                                   class="form-control"
+                                   id="surname"
+                                   placeholder="Surname"
+                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                                   value="Rocha"
+                                    <%} else if (locals.new_user.surname) { %>
+                                   value="<%= locals.new_user.surname %>%>"
+                                    <%}  %>
+                                   name="surname">
+                            <p class="help-block">Your surname</p>
                         </div>
                     </div>
                     <div class="form-group">
@@ -74,40 +132,11 @@
                             <p class="help-block">Repeat your intended password</p>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="firstname" class="col-sm-2 control-label">First Name</label>
-                        <div class="col-sm-10">
-                            <input type="text"
-                                   class="form-control"
-                                   id="firstname"
-                                   placeholder="Username"
-                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
-                                        value="João"
-                                    <%}%>
-                                   name="firstname">
-                            <p class="help-block">Your first name</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="surname" class="col-sm-2 control-label">Surname</label>
-                        <div class="col-sm-10">
-                            <input type="text"
-                                   class="form-control"
-                                   id="surname"
-                                   placeholder="Surname"
-                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
-                                        value="Rocha"
-                                    <%}%>
-                                   name="surname">
-                            <p class="help-block">Your surname</p>
-                        </div>
-                    </div>
                 </div>
             </div>
-
-            <button class="btn btn-primary">Register</button>
-            
         </div>
+
+        <button class="btn btn-primary">Register</button>
     </form>
 
 

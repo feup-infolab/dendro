@@ -5,9 +5,7 @@ var db = function() { return GLOBAL.db.default; }();
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
-module.exports.orcid_login = function(req, res){
 
-};
 
 module.exports.login = function(req, res, next){
 
