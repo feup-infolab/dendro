@@ -16,7 +16,7 @@ var db_notifications = function () { return GLOBAL.db.notifications;}();
 var app = require('../app');
 
 exports.numPostsDatabase = function (req, res) {
-    var currentUserUri = req.session.user.uri;
+    var currentUserUri = req.user.uri;
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
         if(!err)
         {
@@ -48,7 +48,7 @@ exports.numPostsDatabase = function (req, res) {
 };
 
 exports.all = function(req, res){
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
     var username = currentUser.uri;
@@ -287,7 +287,7 @@ function pingNewPosts(sessionUser, cb) {
 
 exports.new = function(req, res){
     /*
-     var currentUser = req.session.user;
+     var currentUser = req.user;
 
      if(req.body.new_post_content != null)
      {
@@ -342,7 +342,7 @@ exports.getPost_controller = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         var postURI = req.body.postID;
 
         var debugGraph = db_social.graphUri;
@@ -389,7 +389,7 @@ exports.getPost_controller = function (req, res) {
 };
 
 exports.share = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var shareMsg = req.body.shareMsg;
     Post.findByUri(req.body.postID, function(err, post)
     {
@@ -459,7 +459,7 @@ exports.share = function (req, res) {
 };
 
 exports.getPostComments = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var postUri = req.body.postID;
     getCommentsForAPost(postUri, function (err, comments) {
         if(err)
@@ -483,7 +483,7 @@ exports.comment = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         var commentMsg = req.body.commentMsg;
 
         Post.findByUri(req.body.postID, function(err, post)
@@ -636,7 +636,7 @@ exports.checkIfPostIsLikedByUser = function (req, res) {
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var postID = req.body.postID;
-        var currentUser = req.session.user;
+        var currentUser = req.user;
 
         Post.findByUri(postID, function(err, post)
         {
@@ -679,7 +679,7 @@ exports.like = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         removeOrAdLike(req.body.postID, currentUser.uri, function (err, likeExists) {
             if(!err)
             {
@@ -1044,7 +1044,7 @@ function saveCurrentUserInRedis(req, res) {
 }
 
 exports.getPostShares = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
 
     var postUri = req.body.postID;
 
@@ -1071,7 +1071,7 @@ exports.postLikesInfo = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         var postURI = req.body.postURI;
         var resultInfo;
 
@@ -1265,7 +1265,7 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
 };
 
 exports.post = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var postUri = "http://"+req.headers.host + req.url;
     res.render('social/showPost',
         {
@@ -1275,7 +1275,7 @@ exports.post = function (req, res) {
 };
 
 exports.getShare = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var shareUri = "http://"+req.headers.host + req.url;
     var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersion";
 

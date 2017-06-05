@@ -27,6 +27,9 @@ let express = require('express'),
     Q = require('q'),
     swaggerUi = require('swagger-ui-express'),
     YAML = require('yamljs'),
+    csrf = require('csurf'),
+    csrfProtection = csrf({ cookie: true }),
+
     swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
 
 let bootupPromise = Q.defer();
@@ -45,10 +48,21 @@ let Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).On
 let Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 let UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 let RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+let User = require('./models/user.js').User;
 
 let async = require('async');
 let util = require('util');
 let mkdirp = require('mkdirp');
+
+//set serialization and deserialization methods
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+    done(null, new User(user));
+});
 
 //create temporary uploads folder if not exists
 let tempUploadsFolder = Config.tempFilesDir;
@@ -250,17 +264,16 @@ var appendIndexToRequest = function(req, res, next)
 var signInDebugUser = function(req, res, next)
 {
     //console.log("[INFO] Dendro is in debug mode, user " + Config.debug.session.login_user +" automatically logged in.");
-    var User = require('./models/user.js').User;
 
-    if(req.session.user == null)
+    if(req.user == null)
     {
         User.findByUsername(Config.debug.session.login_user,
             function(err, user) {
                 if(!err)
                 {
-                    if(req.session.user == null)
+                    if(req.user == null)
                     {
-                        req.session.user = user;
+                        req.user = user;
                         req.session.upload_manager = new UploadManager(user.ddr.username);
                     }
 
@@ -336,20 +349,20 @@ var appendLocalsToUseInViews = function(req, res, next)
 
     if(Config.debug.session.auto_login)
     {
-        if(req.session != null && req.session.user != null && req.session.user instanceof Object)
+        if(req.session != null && req.user != null && req.user instanceof Object)
         {
             //append request and session to use directly in views and avoid passing around needless stuff
             res.locals.session = req.session;
 
             if(req.session.isAdmin == null)
             {
-                req.session.user.isAdmin(function(err, isAdmin){
+                req.user.isAdmin(function(err, isAdmin){
                     req.session.isAdmin = isAdmin;
                     next(null, req, res);
 
                     if(err)
                     {
-                        console.error("Error checking for admin status of user " + req.session.user.uri + " !!");
+                        console.error("Error checking for admin status of user " + req.user.uri + " !!");
                     }
                 });
             }
@@ -366,12 +379,14 @@ var appendLocalsToUseInViews = function(req, res, next)
     else
     {
         res.locals.session = req.session;
+        res.locals.user = req.user;
+
         req.passport = passport;
 
-        /*if(req.session != null && req.session.user != null)
+        /*if(req.session != null && req.user != null)
          {
          //append request and session to use directly in views and avoid passing around needless stuff
-         res.locals.user = req.session.user;
+         res.locals.user = req.user;
          res.locals.isAdmin = req.session.isAdmin;
          }*/
 
@@ -1159,6 +1174,7 @@ async.series([
         app.use(methodOverride());
 
         app.use(cookieParser(appSecret));
+        
 
         const MongoStore = require('connect-mongo')(expressSession);
 
@@ -1333,7 +1349,7 @@ async.series([
             ));
 
             app.get('/auth/orcid', passport.authenticate('orcid'));
-            app.get('/auth/orcid/callback', function(req, res, next) {
+            app.get('/auth/orcid/callback', csrfProtection, function(req, res, next) {
                 passport.authenticate('orcid', auth_orcid.login(req, res, next));
             });
         }

@@ -1,9 +1,11 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function() { return GLOBAL.Config; }();
 
-var db = function() { return GLOBAL.db.default; }();
+const db = function() { return GLOBAL.db.default; }();
 
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+
+const async = require('async');
 
 
 
@@ -33,7 +35,7 @@ module.exports.login = function(req, res, next){
                 {
                     if(!err)
                     {
-                        req.session.user = user;
+                        req.user = user;
                         req.session.isAdmin = info.isAdmin;
                         req.session.upload_manager = new UploadManager(user.ddr.username);
 
@@ -82,9 +84,9 @@ module.exports.login = function(req, res, next){
 
 module.exports.logout = function(req, res){
 
-    if(req.session.user != null)
+    if(req.user != null)
     {
-        req.session.user = null;
+        req.user = null;
         req.session.isAdmin = null;
         req.session.upload_manager = null;
 
@@ -181,82 +183,150 @@ module.exports.register = function(req, res){
                     }
                 );
             }
-            else if(req.body.username != null && !req.body.username.match(/^[0-9a-z]+$/))
+            else if(req.body.username != null && !req.body.username.match(/^[0-9a-zA-Z]+$/))
             {
                 res.render('auth/register',
                     {
                         title: "Register on Dendro",
-                        error_messages: ["Username can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : johndoe91. Invalid: johndoe 01, johndoe*01, john@doe, john%doe9$ "]
+                        error_messages: ["Username can not include spaces or special characters. It should only include letters (a to Z) and numbers (0 to 9). Valid : joHNdoe91. Invalid: johndoe 01, johndoe*01, john@doe, john%doe9$ "]
                     }
                 );
             }
             else
             {
-                User.findByUsername(req.body.username, function(err, user){
-                    if(!err)
-                    {
-                        if(user != null)
+                const findByUsername = function(callback)
+                {
+                    User.findByUsername(req.body.username, function(err, user){
+                        if(!err)
                         {
-                            res.render('auth/register',
-                                {
-                                    title : "Register on Dendro",
-                                    error_messages: ["Username already exists"]
-                                }
-                            );
-                        }
-                        else
-                        {
-                            if(req.body.password == req.body.repeat_password)
+                            if(user != null)
                             {
-                                const userData = {
-                                    ddr : {
-                                        username : req.body.username,
-                                        password : req.body.password
-                                    },
-                                    foaf: {
-                                        mbox : req.body.email,
-                                        firstName : req.body.firstname,
-                                        surname : req.body.surname
-                                    }
-                                };
-
-                                User.createAndInsertFromObject(userData, function(err, newUser){
-                                    if(!err)
-                                    {
-                                        req.flash('success', "New user " + req.body.username +" created successfully. You can now login with the username and password you specified.");
-                                        res.redirect('/login');
-                                    }
-                                    else
-                                    {
-                                        res.render('index',
-                                            {
-                                                error_messages: [newUser]
-                                            }
-                                        );
-                                    }
-
-                                });
+                                callback(1, "Username already exists");
                             }
                             else
                             {
-                                res.render('auth/register',
-                                    {
-                                        title : "Register on Dendro",
-                                        error_messages: ["Passwords do not match"],
-                                        new_user : req.body
-                                    }
-                                );
+                                if(req.body.password == req.body.repeat_password)
+                                {
+                                    const userData = {
+                                        ddr : {
+                                            username : req.body.username,
+                                            password : req.body.password
+                                        },
+                                        foaf: {
+                                            mbox : req.body.email,
+                                            firstName : req.body.firstname,
+                                            surname : req.body.surname
+                                        }
+                                    };
+
+                                    callback(null, userData);
+                                }
+                                else
+                                {
+                                    callback(1, "Passwords do not match");
+                                }
                             }
                         }
+                        else
+                        {
+                            callback(1, user);
+                        }
+                    });
+                };
+
+                const findByORCID = function(callback)
+                {
+                    User.findByORCID(req.body.orcid, function(err, user){
+                        if(!err)
+                        {
+                            if(user != null)
+                            {
+                                callback(1, "User with that ORCID already exists");
+                            }
+                            else
+                            {
+                                if(req.body.password == req.body.repeat_password)
+                                {
+                                    const userData = {
+                                        ddr : {
+                                            username : req.body.username,
+                                            password : req.body.password,
+                                            orcid : req.body.orcid
+                                        },
+                                        foaf: {
+                                            mbox : req.body.email,
+                                            firstName : req.body.firstname,
+                                            surname : req.body.surname
+                                        }
+                                    };
+
+                                    callback(null, userData);
+                                }
+                                else
+                                {
+                                    callback(1, "Passwords do not match");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            callback(1, user);
+                        }
+                    });
+                };
+
+                const insertUserRecord = function(userData, callback)
+                {
+                    User.createAndInsertFromObject(userData, function(err, newUser){
+                        if(!err)
+                        {
+                            callback(null, "New user " + userData.ddr.username +" created successfully. You can now login with the username and password you specified.");
+                        }
+                        else
+                        {
+                            callback(1, newUser);
+                        }
+
+                    });
+                };
+
+                async.waterfall([
+                    function(cb)
+                    {
+                        if(req.body.orcid != null)
+                        {
+                            findByORCID(cb);
+                        }
+                        else
+                        {
+                            findByUsername(cb);
+                        }
+                    },
+                    function(user, cb)
+                    {
+                        if(user != null)
+                        {
+                            insertUserRecord(user, cb);
+                        }
+                        else
+                        {
+                            cb(1, user);
+                        }
+
+                    }
+                ], function(err, user){
+                    if(!err)
+                    {
+                        res.redirect('/login', {
+                            success_messages : [user]
+                        });
                     }
                     else
                     {
-                        res.render('auth/register',
-                            {
-                                error_messages: [user]
-                            }
-                        );
+                        
                     }
+
+
                 });
             }
         }

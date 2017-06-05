@@ -224,13 +224,13 @@ exports.show = function(req, res){
 };
 
 exports.me = function(req, res){
-    req.params.user = req.session.user;
+    req.params.user = req.user;
 
     if(req.originalMethod == "GET")
     {
         res.render('users/edit',
             {
-                user : req.session.user
+                user : req.user
             }
         );
     }
@@ -240,7 +240,7 @@ exports.me = function(req, res){
 
         res.render('users/edit',
             {
-                user : req.session.user
+                user : req.user
             }
         );
     }
@@ -482,9 +482,9 @@ exports.getLoggedUser = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(req.session.user != null)
+    if(req.user != null)
     {
-        req.params.username = req.session.user.ddr.username;
+        req.params.username = req.user.ddr.username;
         exports.show(req, res);
     }
     else

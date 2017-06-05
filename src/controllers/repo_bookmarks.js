@@ -173,7 +173,7 @@ exports.new = function(req, res) {
                 message : "HTTP Body of the request was null."
         });
     }
-    else if(req.session.user == null)
+    else if(req.user == null)
     {
         return res.status(401).json({
             result : "error",
@@ -200,7 +200,7 @@ exports.new = function(req, res) {
                 var newBookmark = new ExternalRepository({
                     dcterms: {
                         title: req.body.dcterms.title,
-                        creator: req.session.user.uri
+                        creator: req.user.uri
                     },
                     ddr: {
                         hasUsername: req.body.ddr.hasUsername,
@@ -215,7 +215,7 @@ exports.new = function(req, res) {
                         hasOrganization: req.body.ddr.hasOrganization,
                         hasAPIKey: req.body.ddr.hasAPIKey
                     }
-                }, req.session.user.ddr.username);
+                }, req.user.ddr.username);
 
                 if (newBookmark instanceof ExternalRepository) {
                     newBookmark.save(function (err, result) {
@@ -283,7 +283,7 @@ returned format :
  */
 
 exports.my = function(req, res) {
-    ExternalRepository.findByCreator(req.session.user.uri, function(err, myRepositoryBookmarks){
+    ExternalRepository.findByCreator(req.user.uri, function(err, myRepositoryBookmarks){
         if(!err)
         {
             var getPlatformDetails = function(myRepositoryBookmark, callback)
@@ -323,7 +323,7 @@ exports.my = function(req, res) {
         }
         else
         {
-            var msg = "Unable to find repository bookmarks created by " + req.session.user.uri + " . Error returned : " + myRepositoryBookmarks;
+            var msg = "Unable to find repository bookmarks created by " + req.user.uri + " . Error returned : " + myRepositoryBookmarks;
 
             res.status(500).json({
                 result : "error",

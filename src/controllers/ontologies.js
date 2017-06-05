@@ -8,7 +8,7 @@ exports.recommend = function(req, res) {
 
     if(req.params.requestedResource != null)
     {
-        Ontology.previouslyUsed(req.session.user, function(error, previouslyUsedOntologies){
+        Ontology.previouslyUsed(req.user, function(error, previouslyUsedOntologies){
             if(!err)
             {
                 res.json(previouslyUsedOntologies)
@@ -36,9 +36,9 @@ exports.get_recommendation_ontologies = function(req, res) {
     {
         if(req.params.requestedResource != null)
         {
-            if(req.session.user != null)
+            if(req.user != null)
             {
-                var user = req.session.user;
+                var user = req.user;
 
                 if( user.recommendations != null &&
                     user.recommendations.ontologies.accepted != null &&

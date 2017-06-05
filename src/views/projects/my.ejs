@@ -36,7 +36,7 @@
                                         {
                                         var project = locals.projects[i];
                                     %>
-                                        <%if(!project.ddr.deleted == 1 || (locals.session != null && locals.session.user != null && locals.session.user && locals.session.user.uri == project.dcterms.creator)) { %>
+                                        <%if(!project.ddr.deleted == 1 || (locals.user != null && locals.user.uri == project.dcterms.creator)) { %>
                                             <tr
                                                 <%if(project.ddr.deleted == 1) {%>
                                                     class="warning"
@@ -64,7 +64,7 @@
                                                             <%
                                                             }
                                                             %>
-                                                            <%if(locals.session != null && locals.session.user != null && locals.session.user && locals.session.user.uri == project.dcterms.creator) {%>
+                                                            <%if(locals.user != null && locals.user.uri == project.dcterms.creator) {%>
                                                                 <span class="label label-success">Creator</span>
                                                             <%}%>
                                                             <%if(project.ddr.deleted == 1) {%>
@@ -99,7 +99,7 @@
                                                     </b>
                                                 </td>
                                                 <%
-                                                if(locals.session != null && locals.session.user != null && locals.session.user && locals.session.user.uri == project.dcterms.creator)
+                                                if(locals.user != null && locals.user.uri == project.dcterms.creator)
                                                 {
                                                 %>
                                                     <td class="col-md-2 col-xs-4">

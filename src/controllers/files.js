@@ -653,11 +653,11 @@ exports.upload = function(req, res)
             username != null
         )
         {
-            if (req.session.upload_manager != null && req.session.user != null)
+            if (req.session.upload_manager != null && req.user != null)
             {
                 if (upload != null)
                 {
-                    if (upload.username === upload.username && req.session.user != null && req.session.user.ddr.username == username)
+                    if (upload.username === upload.username && req.user != null && req.user.ddr.username == username)
                     {
                         if(restart)
                         {
@@ -767,7 +767,7 @@ exports.upload = function(req, res)
     else if (req.originalMethod == "POST")
     {
         var requestedResourceURI = req.params.requestedResource;
-        var currentUserUri = req.session.user.uri;
+        var currentUserUri = req.user.uri;
 
         var processFiles = function (callback)
         {
@@ -1245,7 +1245,7 @@ exports.restore = function(req, res){
                                 });
                             }
 
-                            User.findByUri(req.session.user, function(err, user){
+                            User.findByUri(req.user, function(err, user){
                                 if(!err && user instanceof User)
                                 {
                                     folder.restoreFromLocalBackupZipFile(tempFilePath, user, function(err, result){
@@ -1354,9 +1354,9 @@ exports.rm = function(req, res){
                         File.findByUri(resourceToDelete, function(err, file){
                             if(!err)
                             {
-                                if(req.session.user != null)
+                                if(req.user != null)
                                 {
-                                    var userUri = req.session.user.uri;
+                                    var userUri = req.user.uri;
                                 }
                                 else
                                 {
@@ -1408,9 +1408,9 @@ exports.rm = function(req, res){
                         Folder.findByUri(resourceToDelete, function(err, folder){
                             if(!err)
                             {
-                                if(req.session.user != null)
+                                if(req.user != null)
                                 {
-                                    var userUri = req.session.user.uri;
+                                    var userUri = req.user.uri;
                                 }
                                 else
                                 {

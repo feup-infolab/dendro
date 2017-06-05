@@ -389,7 +389,7 @@ exports.refresh_interactions = function(req, res)
 exports.by_user = function(req, res)
 {
     var username = req.params["username"];
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
@@ -488,7 +488,7 @@ exports.by_user = function(req, res)
             var ejs = require('ejs');
 
             DendroRecommender.renderView(res, "interactions", {
-                user : req.session.user,
+                user : req.user,
                 title : "Interactions recorded in the system"
             });
         }

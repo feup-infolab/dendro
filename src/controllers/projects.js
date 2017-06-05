@@ -58,17 +58,17 @@ exports.all = function(req, res) {
                 cb(err, projects);
             }, req);
         }
-        else if( req.session.user != null && req.session.user.uri != null )
+        else if( req.user != null && req.user.uri != null )
         {
 
-            Project.allNonPrivateUnlessTheyBelongToMe(req.session.user, function(err, projects)
+            Project.allNonPrivateUnlessTheyBelongToMe(req.user, function(err, projects)
             {
                 cb(err, projects);
             }, req);
         }
         else
         {
-            Project.allNonPrivate(req.session.user, function(err, projects)
+            Project.allNonPrivate(req.user, function(err, projects)
             {
                 cb(err, projects);
             }, req);
@@ -108,7 +108,7 @@ exports.my = function(req, res) {
         //title: "My projects"
     };
 
-    Project.findByCreatorOrContributor(req.session.user.uri, function(err, projects) {
+    Project.findByCreatorOrContributor(req.user.uri, function(err, projects) {
         if(!err && projects != null)
         {
             var acceptsHTML = req.accepts('html');
@@ -219,7 +219,7 @@ exports.change_log = function(req, res){
 };
 
 exports.show = function(req, res) {
-    var userIsLoggedIn = req.session.user ? true : false;
+    var userIsLoggedIn = req.user ? true : false;
 
     if(req.params.requestedResource != null)
     {
@@ -747,7 +747,7 @@ exports.new = function(req, res) {
 
                         var projectData = {
                             dcterms : {
-                                creator : req.session.user.uri,
+                                creator : req.user.uri,
                                 title : req.body.title,
                                 description : req.body.description,
                                 publisher: req.body.publisher,
@@ -862,7 +862,7 @@ exports.administer = function(req, res) {
                             from: 'support@dendro.fe.up.pt',
                             to: user.foaf.mbox,
                             subject: 'Added as contributor for project "' + req.params.handle + '"',
-                            text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
+                            text: 'User ' + req.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
                         };
 
                         client.sendMail(email, function (err, info) {
@@ -1424,7 +1424,7 @@ exports.stats = function(req, res) {
 
 exports.interactions = function(req, res) {
     var username = req.params["username"];
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
@@ -1500,7 +1500,7 @@ exports.requestAccess = function(req, res){
     else if(req.originalMethod == "POST")
     {
         var flash = require('connect-flash');
-        console.log(req.session.user);
+        console.log(req.user);
         Project.findByHandle(req.params.handle, function (err, project) {
             if (!err && project instanceof Project) {
                 var lastSlash = project.dcterms.creator.lastIndexOf("\/");
@@ -1523,7 +1523,7 @@ exports.requestAccess = function(req, res){
                             from: 'support@dendro.fe.up.pt',
                             to: 'ffjs1993@gmail.com',
                             subject: 'Request for project "' + req.params.handle + '"',
-                            text: 'User ' + req.session.user.uri +' requested access for project "' + req.params.handle + '".\ ' +
+                            text: 'User ' + req.user.uri +' requested access for project "' + req.params.handle + '".\ ' +
                             'To accept this, please add him as a contributor.'
                         };
 

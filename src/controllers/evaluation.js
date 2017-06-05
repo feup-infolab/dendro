@@ -73,7 +73,7 @@ exports.shared.evaluate_metadata = function(req, callback)
 
             recommendation.recommend_descriptors(
                 requestedResource.uri,
-                req.session.user.uri,
+                req.user.uri,
                 0,
                 recommendationOntologies,
                 req.index, function(err, descriptors)

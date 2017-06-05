@@ -65,7 +65,7 @@ var numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
 };
 
 exports.numFileVersionsInDatabase = function (req, res) {
-    var currentUserUri = req.session.user.uri;
+    var currentUserUri = req.user.uri;
 
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
         if(!err)
@@ -152,7 +152,7 @@ var getProjectFileVersions = function (projectUrisArray, startingResultPosition,
 };
 
 exports.all = function (req, res) {
-    var currentUserUri = req.session.user.uri;
+    var currentUserUri = req.user.uri;
     var currentPage = req.query.currentPage;
     var index = currentPage == 1? 0 : (currentPage*5) - 5;
     var maxResults = 5;
@@ -182,7 +182,7 @@ exports.all = function (req, res) {
 };
 
 exports.getFileVersion = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var fileVersionUri = req.body.fileVersionUri;
 
     FileVersion.findByUri(fileVersionUri, function (err, fileVersion) {
@@ -202,7 +202,7 @@ exports.getFileVersion = function (req, res) {
 
 
 exports.fileVersionLikesInfo = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var fileVersionUri = req.body.fileVersionUri;
     var resultInfo;
 
@@ -272,7 +272,7 @@ var getNumLikesForAFileVersion = function(fileVersionUri, cb)
 
 exports.like = function (req, res) {
     var fileVersionUri = req.body.fileVersionUri;
-    var currentUser = req.session.user;
+    var currentUser = req.user;
 
     removeOrAdLikeFileVersion(fileVersionUri, currentUser.uri, function (err, likeExists) {
         if(!err)
@@ -439,7 +439,7 @@ var removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) {
 };
 
 exports.comment = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var fileVersionUri = req.body.fileVersionUri;
     var commentMsg = req.body.commentMsg;
     FileVersion.findByUri(fileVersionUri, function(err, fileVersion)
@@ -500,7 +500,7 @@ exports.comment = function (req, res) {
 };
 
 exports.share = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var fileVersionUri = req.body.fileVersionUri;
     var shareMsg = req.body.shareMsg;
     FileVersion.findByUri(fileVersionUri, function(err, fileVersion)
@@ -567,7 +567,7 @@ exports.share = function (req, res) {
 };
 
 exports.getFileVersionShares = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var fileVersionUri = req.body.fileVersionUri;
 
     getSharesForAFileVersion(fileVersionUri, function (err, shares) {
@@ -588,7 +588,7 @@ exports.getFileVersionShares = function (req, res) {
 
 
 exports.fileVersion = function (req, res) {
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var fileVersionUri = "http://"+req.headers.host + req.url;
     res.render('social/showFileVersion',
         {

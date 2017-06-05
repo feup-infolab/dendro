@@ -25,6 +25,7 @@ module.exports.login = function(req, res, next){
                                     orcid : info.orcid_data.params.orcid
                                 },
                                 data_provider : "orcid",
+                                csrfToken: req.csrfToken(),
                                 "info_messages" : ["Some information was already filled from your ORCID profile."]
                             }
                         )
@@ -42,6 +43,13 @@ module.exports.login = function(req, res, next){
                         )
                     });
             }
+            else
+            {
+                req.logIn(user, function(err) {
+                    if (err) { return next(err); }
+                    return res.redirect('/projects/my');
+                });
+            }
         })(req, res, next);
 
     /*req.passport.authenticate('orcid', module.exports.register);
@@ -52,28 +60,3 @@ module.exports.login = function(req, res, next){
     });*/
 };
 
-module.exports.register = function(err, user, data, done){
-    if(!err)
-    {
-        if(req.originalMethod == "GET")
-        {
-            return res.render('auth/register',
-                {
-                    title : "Register on Dendro"
-                }
-            );
-        }
-    }
-    else
-    {
-        if(req.originalMethod == "GET")
-        {
-            return res.render('/',
-                {
-                    title : "Register on Dendro",
-                    error_messages : ["There was an error communicating with ORCID."]
-                }
-            );
-        }
-    }
-};
