@@ -242,7 +242,8 @@ module.exports.register = function(req, res){
                                 res.render('auth/register',
                                     {
                                         title : "Register on Dendro",
-                                        error_messages: ["Passwords do not match"]
+                                        error_messages: ["Passwords do not match"],
+                                        new_user : req.body
                                     }
                                 );
                             }
