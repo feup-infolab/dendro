@@ -115,6 +115,43 @@ exports.all = function(req, res){
     );
 };
 
+exports.username_exists = function(req, res){
+    const username = req.query["username"];
+
+    User.findByUsername(username, function(err, user)
+    {
+        if(!err)
+        {
+            if(user != null)
+            {
+                res.json(
+                    {
+                        result: "ok",
+                        message: "found"
+                    }
+                );
+            }
+            else
+            {
+                res.json(
+                    {
+                        result: "ok",
+                        message: "not_found"
+                    }
+                );
+            }
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    result: "error"
+                }
+            );
+        }
+    }, true);
+};
+
 exports.show = function(req, res){
     var username = req.params["username"];
 

@@ -1365,6 +1365,7 @@ async.series([
         //people listing
         app.get('/users', users.all);
         app.get('/user/:username', async.apply(Permissions.require, [Permissions.role.system.user]), users.show);
+        app.get('/username_exists', users.username_exists);
         app.get('/users/loggedUser', users.getLoggedUser);
 
         app.all('/reset_password', users.reset_password);
