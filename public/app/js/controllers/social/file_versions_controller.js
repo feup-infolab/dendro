@@ -10,6 +10,9 @@ angular.module('dendroApp.controllers')
         $scope.totalFileVersions = 0;
         $scope.fileVersionsPerPage = 5; // this should match however many results your API puts on one page
         $scope.renderFileVersions = false;
+        //$scope.fileVersionsSharesContents = [];
+        $scope.fileVersionsContents = [];
+        $scope.loggedUser = "";
 
         $scope.pagination = {
             current: 1
@@ -49,7 +52,8 @@ angular.module('dendroApp.controllers')
 
             fileVersionsService.fileVersionLikesInfo(fileVersionUri).then(function (response) {
                 $scope.doing_fileVersionLikesInfo = false;
-                $scope.likesFileVersionInfo[fileVersionUri] = response.data;
+                //$scope.likesFileVersionInfo[fileVersionUri] = response.data;
+                $scope.fileVersionsContents[fileVersionUri].likesContent = response.data;
                 return response.data;
             }).catch(function (error) {
                 console.error("Error at file_versions_controller fileVersionLikesInfo" + JSON.stringify(error));
@@ -75,10 +79,10 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.initSingleFileVersion = function (fileVersionUri) {
-            $scope.loggedUser = "";
             fileVersionsService.getFileVersionInfo(fileVersionUri).then(function(response)
             {
-                $scope.fileVersionContent = response.data;
+                //$scope.fileVersionContent = response.data;
+                $scope.fileVersionsContents[fileVersionUri] = response.data;
             })
             .catch(function(error){
                 console.error("Error initSingleFileVersion" + JSON.stringify(error));
@@ -86,13 +90,16 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.initSingleFileVersionShare = function (fileVersionShareUri) {
-            $scope.loggedUser = "";
             fileVersionsService.getFileVersionInfo(fileVersionShareUri).then(function(response)
             {
-                return $scope.fileVersionShareContent = response.data;
+                //return $scope.fileVersionShareContent = response.data;
+                //$scope.fileVersionsSharesContents[fileVersionShareUri] = response.data;
+                $scope.fileVersionsContents[fileVersionShareUri] = response.data;
+                return response.data;
             }).then(function (fileVersionShareContent) {
                 fileVersionsService.getFileVersionInfo(fileVersionShareContent.ddr.fileVersionUri).then(function (response) {
-                    $scope.fileVersionContent = response.data;
+                    //$scope.fileVersionContent = response.data;
+                    $scope.fileVersionsContents[fileVersionShareContent.ddr.fileVersionUri] = response.data;
                 });
             }).catch(function(error){
                 console.error("Error initSingleFileVersionShare" + JSON.stringify(error));
@@ -109,6 +116,7 @@ angular.module('dendroApp.controllers')
                 $scope.fileVersionsList = [];
                 $scope.likesFileVersionInfo = [];
                 $scope.fileVersions = [];
+                $scope.fileVersionsContents = [];
                 $scope.pageChangeHandlerFVersion($scope.pagination.current);
             }
         };
@@ -212,7 +220,8 @@ angular.module('dendroApp.controllers')
                 .then(function(response)
                 {
                     $scope.show_popup(response.data);
-                    $scope.commentList[fileVersionUri] = response.data;
+                    //$scope.commentList[fileVersionUri] = response.data;
+                    $scope.fileVersionsContents[fileVersionUri].commentsContent = response.data;
                     $scope.doing_getCommentsFromFileVersion = false;
                 })
                 .catch(function(error){
@@ -244,6 +253,7 @@ angular.module('dendroApp.controllers')
                 .then(function(response)
                 {
                     $scope.show_popup(response.data.message);
+                    $scope.getSharesFromFileVersion(fileVersionUri);
                     $scope.get_all_file_versions($scope.pagination.current);//TODO remove this function call???
                     $scope.doing_shareFileVersion = false;
                 })
@@ -261,7 +271,8 @@ angular.module('dendroApp.controllers')
                 .then(function(response)
                 {
                     $scope.show_popup(response.data);
-                    $scope.shareList[fileVersionUri] = response.data;
+                    //$scope.shareList[fileVersionUri] = response.data;
+                    $scope.fileVersionsContents[fileVersionUri].sharesContent = response.data;
                     $scope.doing_getSharesFromFileVersion = false;
                 })
                 .catch(function(error){

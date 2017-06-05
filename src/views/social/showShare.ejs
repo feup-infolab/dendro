@@ -1,7 +1,7 @@
 <%- include ../layout/header.ejs %>
 
 <div ng-controller="timelineCtrl" ng-init="initSingleShare('<%=shareUri%>');get_logged_user();">
-    <ng-include src="'/app/views/social/showShare.html'"></ng-include>
+    <ng-include src="'/app/views/social/showShare.html'" ng-init="shareUri = '<%=shareUri%>'"></ng-include>
 </div>
 
 <%- include ../layout/footer.ejs %>

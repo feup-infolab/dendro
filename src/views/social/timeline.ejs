@@ -7,143 +7,17 @@
                 <h4>There are no Posts</h4>
                 <i class="fa fa-file-o fa-5x" aria-hidden="true"></i>
             </div>
-            <div dir-paginate="postURI in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">
 
-                <div ng-init="getPost(postURI.uri, null);postLikesInfo(postURI.uri);getCommentsFromPost(postURI.uri);getSharesFromPost(postURI.uri)">
-                    <div>
-                        <div class="panel panel-info" ng-if="postList[postURI.uri].rdf.isShare">
-                            <div class="panel-heading">
-                                <h3 class="panel-title"> {{postList[postURI.uri].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{postList[postURI.uri].ddr.userWhoShared}}"> {{postList[postURI.uri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postList[postURI.uri].ddr.shareMsg}}" </h3>
-                            </div>
-                            <div class="panel-body">
-                                <!-- obtain the original post information-->
-                                <div ng-init="getPost(postList[postURI.uri].ddr.postURI, null);" style="padding-left: 2%">
-                                    <!-- The info from the original post-->
-                                    <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
-                                        <div class="panel-heading">
-                                            <h3 class="panel-title"> {{postList[postList[postURI.uri].ddr.postURI].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{postList[postList[postURI.uri].ddr.postURI].dcterms.creator}}"> {{postList[postList[postURI.uri].ddr.postURI].dcterms.creator.split('/').pop()}} </a>  {{actionTypesDictionary[postList[postList[postURI.uri].ddr.postURI].ddr.changeType]}} a descriptor </h3>
-                                        </div>
-                                        <div class="panel-body">
-                                            <table class="table changelog-table text-center">
-                                                <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
-                                                <tr>
-                                                    <th width="14%" class="text-center">
+            <p>posts.length : {{posts.length}}</p>
+            <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">
 
-                                                    </th>
-                                                    <th width="14%" class="text-center">
-                                                        Author
-                                                    </th>
-                                                    <th width="14%" class="text-center">
-                                                        Change Type
-                                                    </th>
-                                                    <th width="14%" class="text-center">
-                                                        File
-                                                    </th>
-                                                    <th width="14%" class="text-center">
-                                                        Descriptor
-                                                    </th>
+                <div ng-init="getPost(post.uri, null);">
+                    <div ng-if="postList[post.uri].rdf.isShare">
+                        <ng-include src="'/app/views/social/showShare.html'" ng-init="shareUri = post.uri; initSingleShare(shareUri);"></ng-include>
+                    </div>
 
-                                                    <th width="14%" class="text-center" ng-hide="postList[postList[postURI.uri].ddr.postURI].ddr.newValue == null">
-                                                        Value
-                                                    </th>
-
-                                                    <th width="14%" class="text-center">
-
-                                                    </th>
-                                                </tr>
-
-                                                <tr>
-                                                    <td> </td>
-                                                    <td> <a ng-href="{{postList[postList[postURI.uri].ddr.postURI].dcterms.creator}}"> {{postList[postList[postURI.uri].ddr.postURI].dcterms.creator.split('/').pop()}} </a> </td>
-                                                    <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.changeType}} </td>
-                                                    <td> <a ng-href="{{postList[postList[postURI.uri].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postList[postList[postURI.uri].ddr.postURI].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
-                                                    <td> {{postList[postList[postURI.uri].ddr.postURI].ddr.changedDescriptor}} </td>
-                                                    <td ng-hide="postList[postList[postURI.uri].ddr.postURI].ddr.newValue == null"> {{postList[postList[postURI.uri].ddr.postURI].ddr.newValue}} </td>
-                                                    <td> </td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="panel panel-success" ng-if="!postList[postURI.uri].rdf.isShare">
-                            <div class="panel-heading">
-                                <h3 class="panel-title"> {{postList[postURI.uri].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{postList[postURI.uri].dcterms.creator}}">{{postList[postURI.uri].dcterms.creator.split('/').pop()}}</a> {{actionTypesDictionary[postList[postURI.uri].ddr.changeType]}} a descriptor </h3>
-                            </div>
-                            <div class="panel-body">
-                                <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
-                                <table class="table changelog-table text-center">
-                                    <tr>
-                                        <th width="14%" class="text-center">
-
-                                        </th>
-                                        <th width="14%" class="text-center">
-                                            Author
-                                        </th>
-                                        <th width="14%" class="text-center">
-                                            Change Type
-                                        </th>
-                                        <th width="14%" class="text-center">
-                                            File
-                                        </th>
-                                        <th width="14%" class="text-center">
-                                            Descriptor
-                                        </th>
-
-                                        <th width="14%" class="text-center" ng-hide="postList[postURI.uri].ddr.newValue == null">
-                                            Value
-                                        </th>
-
-                                        <th width="14%" class="text-center">
-
-                                        </th>
-                                    </tr>
-
-                                    <tr>
-                                        <td> </td>
-                                        <td> <a ng-href="{{postList[postURI.uri].dcterms.creator}}"> {{postList[postURI.uri].dcterms.creator.split('/').pop()}} </a> </td>
-                                        <td> {{postList[postURI.uri].ddr.changeType}} </td>
-                                        <td> <a ng-href="{{postList[postURI.uri].ddr.hasContent.split('/version/')[0]}}"> {{postList[postURI.uri].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
-                                        <td> {{postList[postURI.uri].ddr.changedDescriptor}} </td>
-                                        <td ng-hide="postList[postURI.uri].ddr.newValue == null"> {{postList[postURI.uri].ddr.newValue}} </td>
-                                        <td> </td>
-                                    </tr>
-                                </table>
-                            </div>
-                        </div>
-                        <p> {{likesPostInfo[postURI.uri].numLikes}} likes, {{commentList[postURI.uri].length}} comments, {{shareList[postURI.uri].length}} shares</p>
-                        <div class="btn-group">
-                            <!--indexOf(substring) > -1-->
-                            <label ng-model="checkModel.left" ng-class="likesPostInfo[postURI.uri].usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="likePost(postList[postURI.uri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</label>
-                            <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; getCommentsFromPost(postList[postURI.uri].uri);isShareFormOpen = false;"> <i class="fa fa-comment" aria-hidden="true"></i> Comment</label>
-                            <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{postList[postURI.uri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen; getSharesFromPost(postList[postURI.uri].uri);isReplyFormOpen = false;"> <i class="fa fa-share" aria-hidden="true"></i> Share</label>
-                        </div>
-
-                        <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
-                            <div class="wall">
-                                <div ng-repeat="comment in commentList[postList[postURI.uri].uri] | orderBy: 'dcterms.created'">
-                                    <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
-                                    <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
-                                    <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
-                                    <hr>
-                                </div>
-                                <div class="form-group">
-                                    <label for="new_comment_box">{{loggedUser.split('/').pop()}} :</label>
-                                    <textarea class="form-control" rows="5" id="new_comment_box" ng-model="comment_content" placeholder="Write your comment here"></textarea>
-                                    <a ng-click="commentPost(postList[postURI.uri].uri,comment_content);comment_content=''" class="btn btn-default btn-primary">Send</a>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare">
-                            <div class="wall">
-                                <label for="new_post_box_share">{{loggedUser.split('/').pop()}} :</label>
-                                <textarea class="form-control" rows="5" id="new_post_box_share" ng-model="share_content" placeholder="Write your share message here"></textarea>
-                                <a ng-click="sharePost(postList[postURI.uri].uri,share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
-                            </div>
-                        </div>
+                    <div ng-if="!postList[post.uri].rdf.isShare">
+                        <ng-include src="'/app/views/social/showPost.html'" ng-init="postUri = post.uri; initSinglePost(postUri);"></ng-include>
                     </div>
                     <hr>
                 </div>

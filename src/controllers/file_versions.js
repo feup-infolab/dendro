@@ -10,6 +10,7 @@ var DbConnection = require("../kb/db.js").DbConnection;
 var _ = require('underscore');
 
 var async = require('async');
+var flash = require('connect-flash');
 var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
 var db_notifications = function () { return GLOBAL.db.notifications;}();

@@ -11,7 +11,7 @@ angular.module('dendroApp.controllers')
         $scope.postsPerPage = 5; // this should match however many results your API puts on one page
         $scope.renderPosts = false;
         $scope.postsContents = [];
-        $scope.sharesContents = [];
+        $scope.loggedUser = "";
 
         $scope.pagination = {
             current: 1
@@ -23,6 +23,7 @@ angular.module('dendroApp.controllers')
             "delete": "deleted"
         };
 
+        //THIS IS THE FUNCTION THAT GETS THE postsURIs for the timeline
         $scope.get_all_posts = function(currentPage)
         {
             $scope.countNumPosts();
@@ -93,10 +94,9 @@ angular.module('dendroApp.controllers')
         $scope.postLikesInfo = function(postURI) {
 
             $scope.doing_postLikesInfo = true;
-
             timelineService.postLikesInfo(postURI).then(function (response) {
                 $scope.doing_postLikesInfo = false;
-                $scope.likesPostInfo[postURI] = response.data;
+                $scope.postsContents[postURI].likesContent = response.data;
                 return response.data;
             }).catch(function (error) {
                 console.error("Error at timeline_controller postLikesInfo" + JSON.stringify(error));
@@ -150,9 +150,7 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.commentPost = function (postID, commentMsg) {
-
             $scope.doing_commentPost = true;
-
             timelineService.commentPost(postID, commentMsg)
                 .then(function(response)
                 {
@@ -173,6 +171,7 @@ angular.module('dendroApp.controllers')
                 .then(function(response)
                 {
                     $scope.show_popup(response.data.message);
+                    $scope.getSharesFromPost(postID);
                     $scope.get_all_posts($scope.pagination.current);//TODO remove this function call???
                     $scope.doing_sharePost = false;
                 })
@@ -183,14 +182,12 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.getSharesFromPost = function (postID) {
-
             $scope.doing_getSharesFromPost = true;
-
             timelineService.getSharesFromPost(postID)
                 .then(function(response)
                 {
                     $scope.show_popup(response.data);
-                    $scope.shareList[postID] = response.data;
+                    $scope.postsContents[postID].sharesContent = response.data;
                     $scope.doing_getSharesFromPost = false;
                 })
                 .catch(function(error){
@@ -207,7 +204,7 @@ angular.module('dendroApp.controllers')
                 .then(function(response)
                 {
                     $scope.show_popup(response.data);
-                    $scope.commentList[postID] = response.data;
+                    $scope.postsContents[postID].commentsContent = response.data;
                     $scope.doing_getCommentsFromPost = false;
                 })
                 .catch(function(error){
@@ -227,16 +224,14 @@ angular.module('dendroApp.controllers')
                 $scope.postList = [];
                 $scope.posts = [];
                 $scope.likesPostInfo = [];
+                $scope.postsContents = [];
                 $scope.pageChangeHandler($scope.pagination.current);
             }
         };
 
         $scope.initSinglePost = function (postUri) {
-            $scope.postUri = postUri;
-            $scope.loggedUser = "";
             timelineService.getPostInfo(postUri).then(function(response)
             {
-                //$scope.postContent = response.data;
                 $scope.postsContents[postUri] = response.data;
             })
             .catch(function(error){
@@ -245,17 +240,12 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.initSingleShare = function (shareUri) {
-            $scope.shareUri = shareUri;
-            $scope.loggedUser = "";
-            
             timelineService.getShareInfo(shareUri).then(function(response)
             {
-                $scope.sharesContents[shareUri] = response.data;
+                $scope.postsContents[shareUri] = response.data;
                 return response.data;
-                //return $scope.shareContent = response.data;
             }).then(function (shareContent) {
                 timelineService.getPostInfo(shareContent.ddr.postURI).then(function (response) {
-                    //$scope.postContent = response.data;
                     $scope.postsContents[shareContent.ddr.postURI] = response.data;
                 });
             }).catch(function(error){

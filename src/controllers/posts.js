@@ -32,18 +32,30 @@ exports.numPostsDatabase = function (req, res) {
                 async.map(projects, function (project, cb1) {
                     cb1(null, project.uri);
                 }, function (err, projectsUris) {
-                    numPostsDatabaseAux(projectsUris,function (err, count) {
-                        if(!err)
-                        {
-                            res.json(count);
-                        }
-                        else{
-                            res.status(500).json({
-                                result : "Error",
-                                message : "Error counting posts. " + JSON.stringify(err)
-                            });
-                        }
-                    });
+                    if(!err)
+                    {
+                        numPostsDatabaseAux(projectsUris,function (err, count) {
+                            if(!err)
+                            {
+                                res.json(count);
+                            }
+                            else{
+                                res.status(500).json({
+                                    result : "Error",
+                                    message : "Error counting posts. " + JSON.stringify(err)
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        console.error("Error iterating over projets URIs");
+                        console.log(err);
+                        res.status(500).json({
+                            result : "Error",
+                            message : "Error counting posts. " + JSON.stringify(err)
+                        });
+                    }
                 })
             }
             else
@@ -439,8 +451,24 @@ exports.share = function (req, res) {
                         },
                         dcterms: {
                             creator: currentUser.uri
+                        },
+                        rdf: {
+                            isShare : true
                         }
                     });
+
+                    /*var newShare = new Share({
+                        ddr: {
+                            userWhoShared : currentUser.uri,
+                            fileVersionUri: fileVersion.uri,
+                            shareMsg: shareMsg,
+                            projectUri: fileVersion.ddr.projectUri,
+                            creatorUri: currentUser.uri
+                        },
+                        rdf: {
+                            isShare : true
+                        }
+                    });*/
 
                     var newNotification = new Notification({
                         ddr: {

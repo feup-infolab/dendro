@@ -1,7 +1,7 @@
 <%- include ../layout/header.ejs %>
 
 <div ng-controller="timelineCtrl" ng-init="initSinglePost('<%=postUri%>');get_logged_user();">
-    <ng-include src="'/app/views/social/showPost.html'"></ng-include>
+    <ng-include src="'/app/views/social/showPost.html'" ng-init="postUri = '<%=postUri%>'"></ng-include>
 </div>
 
 <%- include ../layout/footer.ejs %>
