@@ -13,11 +13,12 @@
 
                 <div ng-init="getPost(post.uri, null);">
                     <div ng-if="postList[post.uri].rdf.isShare">
-                        <ng-include src="'/app/views/social/showShare.html'" ng-init="shareUri = post.uri; initSingleShare(shareUri);"></ng-include>
+                        <p> IS A SHARE </p>
+                        <ng-include src="'/app/views/social/showShare.html'" onload="initSingleShare(post.uri); shareUri = post.uri;"></ng-include>
                     </div>
 
                     <div ng-if="!postList[post.uri].rdf.isShare">
-                        <ng-include src="'/app/views/social/showPost.html'" ng-init="postUri = post.uri; initSinglePost(postUri);"></ng-include>
+                        <ng-include src="'/app/views/social/showPost.html'" onload="initSinglePost(post.uri); postUri = post.uri;"></ng-include>
                     </div>
                     <hr>
                 </div>

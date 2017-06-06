@@ -37,11 +37,11 @@ exports.descriptors_autocomplete = function(req, res) {
 
 exports.from_ontology = function(req, res)
 {
-    var acceptsHTML = req.accepts('html');
+   /* var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-    {
+    {*/
         if (req.query.project_handle != null)
         {
             var project_handle = req.query.project_handle;
@@ -406,7 +406,7 @@ exports.from_ontology = function(req, res)
                 message : "Project handle was not specified!"
             })
         }
-    }
+    /*}
     else
     {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
@@ -416,5 +416,5 @@ exports.from_ontology = function(req, res)
             {
             }
         );
-    }
+    }*/
 };

@@ -180,3 +180,6 @@ Animations (uncomment to have animations)
 .file_explorer_icon {
   text-shadow: 1px 1px 1px #ccc;
 }
+.social-dendro-btn {
+  font-size: 10px;
+}

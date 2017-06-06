@@ -8,7 +8,7 @@ var async = require('async');
 var db = function() { return GLOBAL.db.default; }();
 
 var mysql = function() {
-    return GLOBAL.mysql.connection;
+    return GLOBAL.mysql.pool;
 };
 
 function Interaction (object, callback)

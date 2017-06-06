@@ -33,6 +33,7 @@ function Project(object)
         self.uri = Config.baseUri + "/project/" + self.ddr.handle;
     }
 
+    self.dcterms.socialUpdatedAt = new Date().toISOString();
     self.rdf.type = "ddr:Project";
 
     return self;

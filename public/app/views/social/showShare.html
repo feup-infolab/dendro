@@ -1,67 +1,25 @@
-<p> ShareUri : {{shareUri}} </p>
-<div class="panel panel-info" ng-if="postsContents[shareUri].rdf.isShare">
+<div class="panel panel-default" style="margin-left: 20%; margin-right: 20%">
     <div class="panel-heading">
-        <h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>
+        <h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <img width="5%" height="5%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>
     </div>
+
     <div class="panel-body">
-        <!--<div ng-init='getPost(postList["<%= postUri %>"].ddr.postURI, null);' style="padding-left: 2%">-->
-        <div style="padding-left: 2%">
-            <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
-                <div class="panel-heading">
-                    <h3 class="panel-title"> {{postsContents[postsContents[shareUri].ddr.postURI].dcterms.modified | date : "dd/MMM/yyyy"}} <a ng-href="{{postsContents[postsContents[shareUri].ddr.postURI].dcterms.creator}}"> {{postsContents[postsContents[shareUri].ddr.postURI].dcterms.creator.split('/').pop()}} </a> {{actionTypesDictionary[postsContents[postsContents[shareUri].ddr.postURI].ddr.changeType]}} a descriptor </h3>
-                </div>
-                <div class="panel-body">
-                    <table class="table changelog-table text-center">
-                        <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description">
-                        <tr>
-                            <th class="text-center" width="14%">
-
-                            </th>
-                            <th width="14%" class="text-center">
-                                Author
-                            </th>
-                            <th width="14%" class="text-center">
-                                Change Type
-                            </th>
-                            <th width="14%" class="text-center">
-                                File
-                            </th>
-                            <th width="14%" class="text-center">
-                                Descriptor
-                            </th>
-
-                            <th width="14%" class="text-center" ng-hide='postsContents[postsContents[shareUri].ddr.postURI].ddr.newValue == null'>
-                                Value
-                            </th>
-
-                            <th width="14%" class="text-center">
-
-                            </th>
-                        </tr>
-
-                        <tr>
-                            <td> </td>
-                            <td> <a ng-href='{{postsContents[postsContents[shareUri].ddr.postURI].dcterms.creator}}'> {{postsContents[postsContents[shareUri].ddr.postURI].dcterms.creator.split('/').pop()}} </a> </td>
-                            <td> {{postsContents[postsContents[shareUri].ddr.postURI].ddr.changeType}} </td>
-                            <td> <a ng-href="{{postsContents[postsContents[shareUri].ddr.postURI].ddr.hasContent.split('/version/')[0]}}"> {{postsContents[postsContents[shareUri].ddr.postURI].ddr.hasContent.split('/version/')[0].split('/').pop()}} </a> </td>
-                            <td> {{postsContents[postsContents[shareUri].ddr.postURI].ddr.changedDescriptor}} </td>
-                            <td ng-hide='postsContents[postsContents[shareUri].ddr.postURI].ddr.newValue == null'> {{postsContents[postsContents[shareUri].ddr.postURI].ddr.newValue}} </td>
-                            <td> </td>
-                        </tr>
-                    </table>
-                </div>
+        <div class="media">
+            <div class="media-left">
+                <p>The post uri shared is : {{postsContents[shareUri].ddr.postURI}}</p>
+                <ng-include src="'/app/views/social/showPost.html'" onload="postUri = postsContents[shareUri].ddr.postURI;"></ng-include>
             </div>
         </div>
     </div>
-</div>
-<p> {{postsContents[shareUri].likesContent.numLikes}} likes, {{postsContents[shareUri].commentsContent.length}} comments, {{postsContents[shareUri].sharesContent.length}} shares</p>
-<div class="btn-group">
-    <label ng-model="checkModel.left" ng-class="postsContents[shareUri].likesContent.usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn btn-success' : 'btn btn-primary'" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="likePost(postsContents[shareUri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</label>
-    <label class="btn btn-primary" ng-model="checkModel.middle" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="fa fa-comment" aria-hidden="true"></i> Comment</label>
-    <label class="btn btn-primary" ng-model="checkModel.right" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="fa fa-share" aria-hidden="true"></i> Share</label>
+
+    <div class="panel-footer">
+        <a ng-model="checkModel.left" ng-class="postsContents[shareUri].likesContent.usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn-sm btn-success' : 'btn-sm'" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="likePost(postsContents[shareUri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</a> {{postsContents[shareUri].likesContent.numLikes}},
+        <a class="btn-sm" ng-model="checkModel.middle" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="social-dendro-btn fa fa-comment" aria-hidden="true"></i> Comment</a> {{postsContents[shareUri].commentsContent.length}},
+        <a class="btn-sm" ng-model="checkModel.right" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="social-dendro-btn fa fa-share" aria-hidden="true"></i> Share</a> {{postsContents[shareUri].sharesContent.length}}
+    </div>
 </div>
 
-<div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
+<div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm" style="margin-left: 20%; margin-right: 20%">
     <div class="wall">
         <div ng-repeat="comment in postsContents[shareUri].commentsContent | orderBy: 'dcterms.created' track by $index">
             <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
@@ -75,7 +33,7 @@
     </div>
 </div>
 
-<div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare">
+<div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare" style="margin-left: 20%; margin-right: 20%">
     <div class="wall">
         <label for="new_post_box_share">{{loggedUser.split('/').pop()}} :</label>
         <textarea class="form-control" rows="5" id="new_post_box_share" ng-model="share_content" placeholder="Write your share message here"></textarea>
