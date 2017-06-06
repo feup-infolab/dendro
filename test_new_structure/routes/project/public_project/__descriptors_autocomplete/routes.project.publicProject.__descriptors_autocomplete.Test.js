@@ -11,6 +11,7 @@ const should = chai.should();
 const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const publicProjectUrl = publicProject.handle;
 
 
 
@@ -49,24 +50,31 @@ describe("public project descriptors autocomplete", function (done) {
 
         it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
         {
-            projectUtils.descriptors_autocomplete(false, publicProject.handle, "", "abstract", function(err, cb){
+            projectUtils.descriptors_autocomplete(false, publicProject.handle, "", "abstract", function(err, res){
+                res.statusCode.should.equal(500);
+                done();
 
             });
-            done();
         });
 
         it('[JSON] should forbid descriptor autocomplete requests for ontologies in project '+ publicProjectUrl +' if no user is authenticated.', function (done)
         {
-            projectUtils.descriptors_autocomplete(true, publicProject.handle, "", "abstract", function(err, cb){
+            //TODO permissions are default for project root so this won't give an error
+            projectUtils.descriptors_autocomplete(true, publicProject.handle, "", "abstract", function(err, res){
+                res.statusCode.should.equal(500);
+
+                done();
 
             });
-            done();
         });
 
         it('[JSON] should allow descriptor autocomplete requests for ontologies in project '+ publicProjectUrl +' if user ' +demouser1.username+ ' is authenticated (creator).', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                projectUtils.descriptors_autocomplete(true, publicProject.handle, "", "abstract", function(err, cb){
+                projectUtils.descriptors_autocomplete(true, publicProject.handle, "", "abstract", function(err, res){
+                    res.body.length.should.not.equal(0);
+                    res.body.should.be.instanceof(Array);
+                    res.body[0].shortName.toLowerCase().should.contain("abstract");
                     done();
 
                 });
@@ -75,8 +83,10 @@ describe("public project descriptors autocomplete", function (done) {
 
         it('[JSON] should forbid requests for descriptor autocomplete in project '+ publicProjectUrl +' if user ' +demouser3.username+ ' is authenticated (not contributor nor creator).', function (done)
         {
+            //TODO permissions are default for project root so this won't give an error
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-                projectUtils.descriptors_autocomplete(true, publicProject.handle, "", "abstract", function(err, cb){
+                projectUtils.descriptors_autocomplete(true, publicProject.handle, "", "abstract", function(err, res){
+                    res.statusCode.should.equal(500);
                     done();
 
                 });
@@ -86,7 +96,10 @@ describe("public project descriptors autocomplete", function (done) {
         it('[JSON] should allow requests for descriptor autocomplete in project '+ publicProjectUrl +' if user ' +demouser2.username+ ' is authenticated (contributor).', function (done)
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                projectUtils.descriptors_autocomplete(true, publicProject.handle, "", "abstract", function(err, cb){
+                projectUtils.descriptors_autocomplete(true, publicProject.handle, "", "abstract", function(err, res){
+                    res.body.length.should.not.equal(0);
+                    res.body.should.be.instanceof(Array);
+                    res.body[0].shortName.toLowerCase().should.contain("abstract");
                     done();
 
                 });

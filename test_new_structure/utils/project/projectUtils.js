@@ -589,7 +589,7 @@ var descriptors_autocomplete = function(jsonOnly, projectHandle, folderPath, des
     if(folderPath){
         projectFolder += "/data/" + folderPath;
     }
-    var path = '/project/' + projectFolder +'?descriptors_autocomplete&' + descriptor;
+    var path = '/project/' + projectFolder +'?descriptors_autocomplete&descriptor_autocomplete=' + descriptor;
     if(jsonOnly)
     {
         agent
