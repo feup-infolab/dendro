@@ -3,10 +3,23 @@ var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 function Elements (){}
 
+
+/**
+ * Elements of the schema.org Ontology
+ */
+
+Elements.schema = {
+    sharedContent :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+
+    }
+};
+
 /**
  * Elements of the DC Ontology
  */
-
 Elements.dcterms =
 {
     abstract :
