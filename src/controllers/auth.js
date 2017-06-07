@@ -317,7 +317,7 @@ module.exports.register = function(req, res){
                 ], function(err, user){
                     if(!err)
                     {
-                        res.redirect('/login', {
+                        res.render('/login', {
                             success_messages : [user]
                         });
                     }
