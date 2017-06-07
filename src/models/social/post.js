@@ -33,6 +33,26 @@ function Post (object)
     return self;
 }
 
+Post.buildFromArchivedVersion = function (archivedVersion) {
+    //CREATE A POST FOR EACH ARCHIVED VERSION CHANGE
+    //DONT SAVE IT HERE
+};
+
+Post.buildFromMkdirOperation = function (mkdirOperation) {
+    //CREATE A POST FOR EACH MKDIR OPERATION
+    //DONT SAVE IT HERE
+};
+
+Post.buildFromRmdirOperation = function (rmdirOperation) {
+    //CREATE A POST FOR EACH RMDIR OPERATION
+    //DONT SAVE IT HERE
+};
+
+Post.buildManualPost = function (postContent) {
+    //CREATE A POST WITH MANUAL CONTENT
+    //DONT SAVE IT HERE
+};
+
 Post.prefixedRDFType = "ddr:Post";
 
 Post = Class.extend(Post, Event);

@@ -8,6 +8,7 @@ var async = require('async');
 var _ = require('underscore');
 
 var db = function() { return GLOBAL.db.default; }();
+var db_social = function() { return GLOBAL.db.social; }();
 
 var redis = function(graphUri)
 {
