@@ -370,6 +370,15 @@ Config.initGlobals = function()
             description: "Computational Fluid Dynamics... Flow Case, Initial Condition, Temporal Discretization...",
             domain: "Computational Fluid Dynamics",
             domain_specific: true
+        },
+        schema : {
+            prefix: "schema",
+            uri: "http://schema.org/",
+            elements: Elements.schema,
+            label: "Schema.org",
+            description: "General Purpose schema",
+            domain: "Generic",
+            domain_specific: false
         }
     };
 
