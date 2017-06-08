@@ -35,25 +35,48 @@ module.exports.login = function(req, res, next){
                 {
                     if(!err)
                     {
-                        req.user = user;
-                        req.session.isAdmin = info.isAdmin;
-                        req.session.upload_manager = new UploadManager(user.ddr.username);
+                        req.logIn(user, function(err) {
+                            if (!err)
+                            {
+                                req.session.isAdmin = info.isAdmin;
+                                req.session.upload_manager = new UploadManager(user.ddr.username);
 
-                        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-                        {
-                            res.json(
+                                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                                 {
-                                    result : "ok",
-                                    message : "User " + user.ddr.username+ " signed in."
+                                    res.json(
+                                        {
+                                            result : "ok",
+                                            message : "User " + user.ddr.username+ " signed in."
+                                        }
+                                    );
                                 }
-                            );
-                        }
-                        else
-                        {
-                            req.flash('success', "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
-                            console.log("User " + user.ddr.username + " signed in.");
-                            res.redirect('/projects/my');
-                        }
+                                else
+                                {
+                                    req.flash('success', "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
+                                    console.log("User " + user.ddr.username + " signed in.");
+                                    res.redirect('/projects/my');
+                                }
+                            }
+                            else
+                            {
+                                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                                {
+                                    res.json(
+                                        {
+                                            result : "error",
+                                            message : "Error signing in user",
+                                            error : err
+                                        }
+                                    );
+                                }
+                                else
+                                {
+                                    req.flash('success', "There was an error signing you in.");
+                                    console.log("Error signing in user " + JSON.stringify(err));
+                                    throw err;
+                                }
+                            }
+                        });
                     }
                     else
                     {
@@ -86,21 +109,20 @@ module.exports.logout = function(req, res){
 
     if(req.user != null)
     {
-        req.user = null;
-        req.session.isAdmin = null;
-        req.session.upload_manager = null;
+        req.logOut();
+        delete req.user;
+        delete req.session.isAdmin;
+        delete req.session.upload_manager;
+        delete res.locals.user;
+        delete res.locals.session;
 
-        res.render('index', {
-            title : "Dendro",
-            success_messages: ["Successfully logged out"]
-        });
+        req.flash("success", "Successfully logged out");
+        res.redirect('/');
     }
     else
     {
-        res.render('index', {
-            title : "Dendro",
-            success_messages: ["Cannot log you out because you are not logged in"]
-        });
+        req.flash("error", "Cannot log you out because you are not logged in");
+        res.redirect('/');
     }
 };
 

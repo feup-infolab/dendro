@@ -305,16 +305,16 @@
     "authentication" :
     {
       "default" : {
-        "enabled" : "true"
+        "enabled" : true
       },
       "orcid" : {
-        "enabled" : "true",
-        "client_id" : "CLIENT_ID",
-        "client_secret" : "CLIENT_SECRET",
+        "enabled" : true,
+        "client_id" : "ORCID_CLIENT_ID",
+        "client_secret" : "ORCID_CLIENT_SECRET",
         "callback_url" : "/auth/orcid/callback"
       },
       "saml" : {
-        "enabled" : "true",
+        "enabled" : true,
         "path": "/auth/saml/callback",
         "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
         "issuer": "passport-saml",
