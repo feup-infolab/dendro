@@ -8,6 +8,7 @@ var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var UploadManager =  require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 var FileVersion = require(Config.absPathInSrcFolder("/models/versions/file_version.js")).FileVersion;
+var Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
 
 var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
@@ -1411,10 +1412,19 @@ exports.rm = function(req, res){
                                 folder.delete(function(err, result){
                                     if(!err)
                                     {
-                                        res.status(200).json({
+                                        //TODO HERE CREATE A SOCIAL DENDRO POST
+                                        Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
+                                            Post.buildFromRmdirOperation(req.session.user.uri, project, result, function(err, post){
+                                                res.status(200).json({
+                                                    "result" : "success",
+                                                    "message" : "Successfully deleted " + resourceToDelete
+                                                });
+                                            });
+                                        });
+                                        /*res.status(200).json({
                                             "result" : "success",
                                             "message" : "Successfully deleted " + resourceToDelete
-                                        });
+                                        });*/
                                     }
                                     else
                                     {
@@ -1623,13 +1633,25 @@ exports.mkdir = function(req, res){
                                 {
                                     if(!err)
                                     {
-                                        res.json(
+                                        //TODO here create a SocialDendro Post
+                                        Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
+                                            Post.buildFromMkdirOperation(req.session.user.uri, project, result, function(err, post){
+                                                res.json(
+                                                    {
+                                                        "status" : "1",
+                                                        "id" : newChildFolder.uri,
+                                                        "result" : "ok"
+                                                    }
+                                                );
+                                            });
+                                        });
+                                        /*res.json(
                                             {
                                                 "status" : "1",
                                                 "id" : newChildFolder.uri,
                                                 "result" : "ok"
                                             }
-                                        );
+                                        );*/
                                     }
                                     else
                                     {
