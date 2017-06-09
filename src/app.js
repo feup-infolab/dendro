@@ -10,8 +10,9 @@ Config.initGlobals();
  * Module dependencies.
  */
 
-var express = require('express'),
+let express = require('express'),
     domain = require('domain'),
+    passport = require('passport'),
     flash = require('connect-flash'),
     http = require('http'),
     path = require('path'),
@@ -26,33 +27,45 @@ var express = require('express'),
     Q = require('q'),
     swaggerUi = require('swagger-ui-express'),
     YAML = require('yamljs'),
+    csrf = require('csurf'),
+    csrfProtection = csrf({ cookie: true }),
+
     swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
 
-var bootupPromise = Q.defer();
-var connectionsInitializedPromise = Q.defer();
+let bootupPromise = Q.defer();
+let connectionsInitializedPromise = Q.defer();
 
-var app = express();
+let app = express();
 
-var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var GridFSConnection = require(Config.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
-var RedisConnection = require(Config.absPathInSrcFolder("/kb/redis.js")).RedisConnection;
-var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
-var QueryBasedRouter = Object.create(require(Config.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
-var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
-var RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+let IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+let DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+let GridFSConnection = require(Config.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
+let RedisConnection = require(Config.absPathInSrcFolder("/kb/redis.js")).RedisConnection;
+let Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+let QueryBasedRouter = Object.create(require(Config.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
+let PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
+let Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+let Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+let UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+let RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+let User = require('./models/user.js').User;
 
-var async = require('async');
-var util = require('util');
-var mkdirp = require('mkdirp');
+let async = require('async');
+let util = require('util');
+let mkdirp = require('mkdirp');
+
+//set serialization and deserialization methods
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+    done(null, new User(user));
+});
 
 //create temporary uploads folder if not exists
-var tempUploadsFolder = Config.tempFilesDir;
-var fs = require('fs');
-
+let tempUploadsFolder = Config.tempFilesDir;
 let pid;
 
 try{
@@ -114,33 +127,45 @@ if(Config.logging != null)
 
                     var log_stdout = process.stdout;
 
-                    console.log = function (d)
-                    { //
-                        var date = new Date().toISOString();
-                        log_file.write("[ " + date + " ] "+ util.format(d) + '\n');
-                        log_stdout.write(util.format(d) + '\n');
-
-                        if(d != null && d.stack != null)
-                        {
-                            log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
-                            log_stdout.write(util.format(d.stack) + '\n');
-                        }
-                    };
-
-                    console.error = function (err)
+                    if(Config.logging.suppress_all_logs)
                     {
-                        var date = new Date().toISOString();
-                        log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(err) + '\n');
-                        log_stdout.write(util.format(err) + '\n');
+                        console.log = function (d)
+                        {};
+                    }
+                    else {
+                        console.log = function (d) { //
+                            var date = new Date().toISOString();
+                            log_file.write("[ " + date + " ] " + util.format(d) + '\n');
+                            log_stdout.write(util.format(d) + '\n');
 
-                        if(err != null && err.stack != null)
+                            if (d != null && d.stack != null) {
+                                log_file.write("[ " + date + " ] " + util.format(d.stack) + "\n");
+                                log_stdout.write(util.format(d.stack) + '\n');
+                            }
+                        };
+                    }
+                    if(Config.logging.suppress_all_errors)
+                    {
+                        console.error = function (d)
+                        {};
+                    }
+                    else
+                    {
+                        console.error = function (err)
                         {
-                            log_file.write("[ " + date + " ] "+ util.format(err.stack) + "\n");
-                            log_stdout.write(util.format(err.stack) + '\n');
-                        }
+                            var date = new Date().toISOString();
+                            log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(err) + '\n');
+                            log_stdout.write(util.format(err) + '\n');
 
-                        throw err;
-                    };
+                            if(err != null && err.stack != null)
+                            {
+                                log_file.write("[ " + date + " ] "+ util.format(err.stack) + "\n");
+                                log_stdout.write(util.format(err.stack) + '\n');
+                            }
+
+                            throw err;
+                        };
+                    }
 
                     process.on('uncaughtException', function (err)
                     {
@@ -239,17 +264,16 @@ var appendIndexToRequest = function(req, res, next)
 var signInDebugUser = function(req, res, next)
 {
     //console.log("[INFO] Dendro is in debug mode, user " + Config.debug.session.login_user +" automatically logged in.");
-    var User = require('./models/user.js').User;
 
-    if(req.session.user == null)
+    if(req.user == null)
     {
         User.findByUsername(Config.debug.session.login_user,
             function(err, user) {
                 if(!err)
                 {
-                    if(req.session.user == null)
+                    if(req.user == null)
                     {
-                        req.session.user = user;
+                        req.user = user;
                         req.session.upload_manager = new UploadManager(user.ddr.username);
                     }
 
@@ -325,20 +349,20 @@ var appendLocalsToUseInViews = function(req, res, next)
 
     if(Config.debug.session.auto_login)
     {
-        if(req.session != null && req.session.user != null)
+        if(req.session != null && req.user != null && req.user instanceof Object)
         {
             //append request and session to use directly in views and avoid passing around needless stuff
             res.locals.session = req.session;
 
             if(req.session.isAdmin == null)
             {
-                req.session.user.isAdmin(function(err, isAdmin){
+                req.user.isAdmin(function(err, isAdmin){
                     req.session.isAdmin = isAdmin;
                     next(null, req, res);
 
                     if(err)
                     {
-                        console.error("Error checking for admin status of user " + req.session.user.uri + " !!");
+                        console.error("Error checking for admin status of user " + req.user.uri + " !!");
                     }
                 });
             }
@@ -355,11 +379,14 @@ var appendLocalsToUseInViews = function(req, res, next)
     else
     {
         res.locals.session = req.session;
+        res.locals.user = req.user;
 
-        /*if(req.session != null && req.session.user != null)
+        req.passport = passport;
+
+        /*if(req.session != null && req.user != null)
          {
          //append request and session to use directly in views and avoid passing around needless stuff
-         res.locals.user = req.session.user;
+         res.locals.user = req.user;
          res.locals.isAdmin = req.session.isAdmin;
          }*/
 
@@ -1104,6 +1131,7 @@ async.series([
         var notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
+        var auth_orcid = require(Config.absPathInSrcFolder("/controllers/auth_orcid"));
 
         var recommendation;
 
@@ -1146,6 +1174,7 @@ async.series([
         app.use(methodOverride());
 
         app.use(cookieParser(appSecret));
+        
 
         const MongoStore = require('connect-mongo')(expressSession);
 
@@ -1170,6 +1199,9 @@ async.series([
                 saveUninitialized: false
             })
         );
+
+        app.use(passport.initialize());
+        app.use(passport.session());
 
         app.use(flash());
 
@@ -1228,8 +1260,99 @@ async.series([
         //app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
 
         //authentication
-        app.get('/login', auth.login);
-        app.post('/login', auth.login);
+        
+        if(Config.authentication.default.enabled)
+        {
+            const LocalStrategy = require('passport-local').Strategy;
+
+            passport.use(new LocalStrategy({
+                    usernameField: 'username',
+                    passwordField: 'password'
+                },
+                function(username, password, done) {
+                    const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                    User.findByUsername(username, function (err, user) {
+
+                        const bcrypt = require('bcryptjs');
+                        bcrypt.hash(password, user.ddr.salt, function(err, hashedPassword) {
+                            if(!err) {
+                                if (user != null) {
+                                    if (user.ddr.password == hashedPassword) {
+                                        user.isAdmin(function (err, isAdmin) {
+                                            if (!err) {
+                                                return done(
+                                                    err,
+                                                    user,
+                                                    {
+                                                        isAdmin : isAdmin
+                                                    });
+                                            }
+                                            else {
+                                                return done("Unable to check for admin user when authenticating with username " + username, null);
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        return done("Invalid username/password combination.", null);
+                                    }
+                                }
+                                else {
+                                    console.error(err.stack);
+                                    return done("Unknown error during authentication, calculating password hash.", null);
+                                }
+                            }
+                            else
+                            {
+                                return done("There is no user with username " + username + " registered in this system.", null);
+                            }
+                        });
+                    });
+                }
+            ));
+
+            app.get('/login', auth.login);
+            app.post('/login', auth.login);
+        }
+
+        if(Config.authentication.orcid.enabled)
+        {
+            const OrcidStrategy = require('passport-orcid').Strategy;
+
+            passport.use(new OrcidStrategy({
+                    clientID: Config.authentication.orcid.client_id,
+                    clientSecret: Config.authentication.orcid.client_secret,
+                    callbackURL: Config.baseUri + Config.authentication.orcid.callback_url
+                },
+                function(accessToken, refreshToken, params, profile, done) {
+                    const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                    User.findByORCID(params.orcid, function (err, user) {
+                        if (err)
+                        {
+                            return done(err);
+                        }
+                        if (!user)
+                        {
+                            return done(null, false,
+                                {
+                                    orcid_data : {
+                                        accessToken: accessToken,
+                                        refreshToken: refreshToken,
+                                        params: params,
+                                        profile: profile
+                                    }
+                                });
+                        }
+
+                        return done(null, user);
+                    });
+                }
+            ));
+
+            app.get('/auth/orcid', passport.authenticate('orcid'));
+            app.get('/auth/orcid/callback', csrfProtection, function(req, res, next) {
+                passport.authenticate('orcid', auth_orcid.login(req, res, next));
+            });
+        }
 
         //ontologies
 
@@ -1258,6 +1381,7 @@ async.series([
         //people listing
         app.get('/users', users.all);
         app.get('/user/:username', async.apply(Permissions.require, [Permissions.role.system.user]), users.show);
+        app.get('/username_exists', users.username_exists);
         app.get('/users/loggedUser', users.getLoggedUser);
 
         app.all('/reset_password', users.reset_password);

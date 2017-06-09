@@ -107,9 +107,9 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
         if(Config.debug.permissions.log_authorizations)
         {
             var user = "-> NO USER AUTHENTICATED <-";
-            if(req.session.user)
+            if(req.user)
             {
-                user = req.session.user.uri;
+                user = req.user.uri;
             }
 
             console.log("[ALLOW-ACCESS] User " + user + " granted access to " + req.originalUrl + " .");
@@ -129,9 +129,9 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
         if(Config.debug.permissions.log_authorizations)
         {
             var user = "-> NO USER AUTHENTICATED <-";
-            if(req.session.user)
+            if(req.user)
             {
-                user = req.session.user.uri;
+                user = req.user.uri;
             }
 
             console.log("[DENY-ACCESS] User " + user + " denied access to " + req.originalUrl + " . Reasons: " + messageUser);
@@ -160,7 +160,7 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
 
             req.flash('error', messageUser);
 
-            if(req.session.user)
+            if(req.user)
             {
                 return res.status(401).redirect('/');
             }
@@ -321,7 +321,7 @@ Permissions.check = function(permissionsRequired, req, callback)
     if(!req.session.isAdmin)
     {
         var resource = Config.baseUri + require('url').parse(req.url).pathname;
-        var user = req.session.user;
+        var user = req.user;
 
         var checkPermissions = function(req, user, resource, permission, cb){
             if(permission.type == Permissions.types.system)

@@ -1294,7 +1294,7 @@ export_to_repository_b2share = function(req, res){
 
                                                                         var email = {
                                                                         from: 'support@dendro.fe.up.pt',
-                                                                        to: req.session.user.foaf.mbox,
+                                                                        to: req.user.foaf.mbox,
                                                                         subject: requestedResourceUri + ' exported',
                                                                         text: requestedResourceUri + ' was deposited in B2Share. The URL is ' + recordURL
                                                                         };
@@ -1392,7 +1392,7 @@ export_to_repository_b2share = function(req, res){
 
                                                 var email = {
                                                 from: 'support@dendro.fe.up.pt',
-                                                to: req.session.user.foaf.mbox,
+                                                to: req.user.foaf.mbox,
                                                 subject: requestedResourceUri + ' exported',
                                                 text: requestedResourceUri + ' was deposited in B2Share. The URL is ' + recordURL
                                                 };

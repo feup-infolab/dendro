@@ -11,7 +11,7 @@ var app = require('../app');
 //Get user notifications for a specific user, ordered by date
 exports.get_unread_user_notifications = function (req ,res) {
 
-    var userUri = req.session.user.uri;
+    var userUri = req.user.uri;
 
     if(userUri)
     {
@@ -65,7 +65,7 @@ exports.get_unread_user_notifications = function (req ,res) {
 };
 
 exports.get_notification_info = function (req, res) {
-    var userUri = req.session.user.uri;
+    var userUri = req.user.uri;
     var notificationUri = req.query.notificationUri;
 
     if(userUri && notificationUri)
@@ -126,7 +126,7 @@ exports.get_notification_info = function (req, res) {
 
 //Deletes a user's notification
 exports.delete = function (req, res) {
-    var userUri = req.session.user.uri;
+    var userUri = req.user.uri;
     var notificationUri = req.query.notificationUri;
     
     if(userUri && notificationUri)

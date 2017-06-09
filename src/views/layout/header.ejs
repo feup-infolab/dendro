@@ -57,7 +57,7 @@
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
-                        <% if(locals.session != null && locals.session.user != null)
+                        <% if(locals.user != null)
                         {
                          %>
                             <li class="dropdown">
@@ -88,12 +88,12 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins<b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <% if(locals.session != null && locals.session.user != null && locals.session.isAdmin)
+                                <% if(locals.user != null && locals.session != null && locals.session.isAdmin)
                                 {
                                 %>
                                     <li role="presentation" class="dropdown-header">Dendro Recommender</li>
                                     <li>
-                                        <a href="/plugins/dendro_recommender/interactions/user/<%=locals.session.user.ddr.username%>">User interaction analysis</a>
+                                        <a href="/plugins/dendro_recommender/interactions/user/<%=locals.user.ddr.username%>">User interaction analysis</a>
                                     </li>
                                     <li role="presentation" class="dropdown-header">Dendro Interactions CSV Exporter</li>
                                     <li>
@@ -111,16 +111,16 @@
                             </div>
                             <button type="submit" class="btn btn-default">Submit</button>
                         </form>
-                        <% if(locals.session != null && locals.session.user != null)
+                        <% if(locals.user != null)
                         {
                         %>
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=locals.session.user.foaf.firstName%> <%=locals.session.user.foaf.surname%><b class="caret"></b></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=locals.user.foaf.firstName%> <%=locals.user.foaf.surname%><b class="caret"></b></a>
                                 <ul class="dropdown-menu">
                                     <li>
                                         <a href="/me">Profile</a>
                                     </li>
-                                    <% if(locals.session.isAdmin)
+                                    <% if(locals.session != null && locals.session.isAdmin)
                                     {
                                     %>
                                         <li>
@@ -130,7 +130,7 @@
                                     }
                                     %>
                                     <li>
-                                        <a href="/logout">Logout <%=locals.session.user.foaf.firstName%> <%=locals.session.user.foaf.surname%></a>
+                                        <a href="/logout">Logout <%=locals.user.foaf.firstName%> <%=locals.user.foaf.surname%></a>
                                     </li>
                                 </ul>
                             </li>
@@ -147,7 +147,7 @@
                             }
                             %>
 
-                        <%if(locals.session.user != null) { %>
+                        <%if(locals.user != null) { %>
 
                             <li ng-controller="notificationCtrl" ng-init="init();getAlerts()" class="dropdown">
                                 <a class="notifications-icon" href="#" ng-alerts-popover popover-placement="bottom-right" style="

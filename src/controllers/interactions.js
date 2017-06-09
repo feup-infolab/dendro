@@ -14,22 +14,22 @@ var _ = require('underscore');
 
 var addOntologyToListOfActiveOntologiesInSession = function(ontology, req)
 {
-    if(req.session.user.recommendations == null)
+    if(req.user.recommendations == null)
     {
-        req.session.user.recommendations = {};
+        req.user.recommendations = {};
     }
 
-    if(req.session.user.recommendations.ontologies == null)
+    if(req.user.recommendations.ontologies == null)
     {
-        req.session.user.recommendations.ontologies = {};
+        req.user.recommendations.ontologies = {};
     }
 
-    if(req.session.user.recommendations.ontologies.accepted == null)
+    if(req.user.recommendations.ontologies.accepted == null)
     {
-        req.session.user.recommendations.ontologies.accepted = {};
+        req.user.recommendations.ontologies.accepted = {};
     }
 
-    req.session.user.recommendations.ontologies.accepted[ontology.prefix] = ontology;
+    req.user.recommendations.ontologies.accepted[ontology.prefix] = ontology;
 
     return req;
 };
@@ -182,7 +182,7 @@ exports.accept_descriptor_from_quick_list = function(req, res) {
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -226,7 +226,7 @@ exports.accept_descriptor_from_manual_list = function(req, res) {
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -270,7 +270,7 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_project_favorite = fun
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -314,7 +314,7 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_user_favorite = functi
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -358,7 +358,7 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favor
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -402,7 +402,7 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_project_favorite = func
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -446,7 +446,7 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_user_favorite = functio
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -490,7 +490,7 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favori
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -529,7 +529,7 @@ exports.hide_descriptor_from_quick_list_for_project = function(req, res) {
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -568,7 +568,7 @@ exports.unhide_descriptor_from_quick_list_for_project = function(req, res) {
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -607,7 +607,7 @@ exports.hide_descriptor_from_quick_list_for_user = function(req, res) {
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -646,7 +646,7 @@ exports.unhide_descriptor_from_quick_list_for_user = function(req, res) {
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -684,7 +684,7 @@ exports.favorite_descriptor_from_quick_list_for_project = function(req, res) {
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -722,7 +722,7 @@ exports.favorite_descriptor_from_quick_list_for_user = function(req, res) {
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -760,7 +760,7 @@ exports.unfavorite_descriptor_from_quick_list_for_project = function(req, res) {
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -798,7 +798,7 @@ exports.unfavorite_descriptor_from_quick_list_for_user = function(req, res) {
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -842,7 +842,7 @@ exports.accept_descriptor_from_autocomplete = function(req, res) {
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -887,7 +887,7 @@ exports.accept_smart_descriptor_in_metadata_editor = function(req, res)
 
                 //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -932,7 +932,7 @@ exports.accept_favorite_descriptor_in_metadata_editor = function(req, res)
 
                 //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -977,7 +977,7 @@ exports.delete_descriptor_in_metadata_editor = function(req, res)
 
                 //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1022,7 +1022,7 @@ exports.fill_in_descriptor_from_manual_list_in_metadata_editor = function(req, r
 
                 //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1066,7 +1066,7 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite = fu
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1110,7 +1110,7 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite = funct
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1154,7 +1154,7 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favo
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1198,7 +1198,7 @@ exports.fill_in_descriptor_from_quick_list_in_metadata_editor = function(req, re
 
                 //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1242,7 +1242,7 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite = fun
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1286,7 +1286,7 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite = functi
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1330,7 +1330,7 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favor
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1363,7 +1363,7 @@ exports.select_ontology_manually = function(req, res)
     {
         if(req.body.interactionType == Interaction.types.select_ontology_manually.key)
         {
-            if(req.session.user != null)
+            if(req.user != null)
             {
                 var ontology = new Ontology({
                     uri : req.body.uri
@@ -1371,7 +1371,7 @@ exports.select_ontology_manually = function(req, res)
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
         }
         else
@@ -1397,13 +1397,13 @@ exports.select_descriptor_manually = function(req, res)
     {
         if(req.body.interactionType == Interaction.types.select_descriptor_from_manual_list.key)
         {
-            if (req.session.user != null)
+            if (req.user != null)
             {
                 var descriptor = new Descriptor({
                     uri: req.body.uri
                 });
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
         }
         else
@@ -1429,17 +1429,17 @@ exports.reject_ontology_from_quick_list = function(req, res)
     {
         if(req.body.interactionType == Interaction.types.reject_ontology_from_quick_list.key)
         {
-            if(req.session.user != null)
+            if(req.user != null)
             {
                 var ontology = new Ontology({
                     uri : req.body.uri
                 });
 
-                if(req.session.user.recommendations.ontologies.accepted != null)
+                if(req.user.recommendations.ontologies.accepted != null)
                 {
-                    delete req.session.user.recommendations.ontologies.accepted[ontology.prefix];
+                    delete req.user.recommendations.ontologies.accepted[ontology.prefix];
 
-                    recordInteractionOverAResource(req.session.user, req.body, req, res);
+                    recordInteractionOverAResource(req.user, req.body, req, res);
 
                     res.json({
                         result : "OK",
@@ -1471,13 +1471,13 @@ exports.fill_in_inherited_descriptor = function(req, res)
     {
         if(req.body.interactionType == Interaction.types.fill_in_inherited_descriptor.key)
         {
-            if (req.session.user != null)
+            if (req.user != null)
             {
                 var descriptor = new Descriptor({
                     uri: req.body.uri
                 });
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
         }
         else

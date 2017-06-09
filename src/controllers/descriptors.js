@@ -180,13 +180,13 @@ exports.from_ontology = function(req, res)
                                                 [
                                                     function (callback)
                                                     {
-                                                        if (req.session.user == null)
+                                                        if (req.user == null)
                                                         {
                                                             callback(null, []);
                                                         }
                                                         else
                                                         {
-                                                            getUsersFavoriteDescriptors(req.session.user.uri, callback);
+                                                            getUsersFavoriteDescriptors(req.user.uri, callback);
                                                         }
                                                     },
                                                     function (callback)
@@ -202,13 +202,13 @@ exports.from_ontology = function(req, res)
                                                     },
                                                     function (callback)
                                                     {
-                                                        if (req.session.user == null)
+                                                        if (req.user == null)
                                                         {
                                                             callback(null, []);
                                                         }
                                                         else
                                                         {
-                                                            getUsersHiddenDescriptors(req.session.user.uri, callback);
+                                                            getUsersHiddenDescriptors(req.user.uri, callback);
                                                         }
                                                     },
                                                     function (callback)

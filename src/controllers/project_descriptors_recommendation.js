@@ -22,9 +22,9 @@ exports.recommend_descriptors = function(req, res) {
     {
         var resourceUri = req.params.requestedResource;
 
-        if(req.session.user != null)
+        if(req.user != null)
         {
-            var userUri = req.session.user.uri;
+            var userUri = req.user.uri;
         }
         else
         {

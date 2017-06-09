@@ -271,9 +271,9 @@ exports.update = function(req, res) {
                         {
                             if(!err)
                             {
-                                if(req.session.user != null)
+                                if(req.user != null)
                                 {
-                                    var changeAuthor = req.session.user.uri;
+                                    var changeAuthor = req.user.uri;
                                 }
                                 else
                                 {
@@ -478,7 +478,7 @@ exports.restore_metadata_version = function(req, res) {
                         {
                             if(version != null)
                             {
-                                var user = req.session.user;
+                                var user = req.user;
 
                                 if(user)
                                 {

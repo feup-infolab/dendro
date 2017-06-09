@@ -43,6 +43,28 @@ function User (object)
     return self;
 }
 
+User.findByORCID = function(orcid, callback, removePrivateDescriptors)
+{
+    User.findByPropertyValue(orcid, "ddr:orcid", function(err, user){
+        if(!err && user != null && user instanceof User)
+        {
+            if(removePrivateDescriptors)
+            {
+                user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
+                callback(err, user);
+            }
+            else
+            {
+                callback(err, user);
+            }
+        }
+        else
+        {
+            callback(err, user);
+        }
+    });
+};
+
 User.findByUsername = function(username, callback, removePrivateDescriptors)
 {
     User.findByPropertyValue(username, "ddr:username", function(err, user){
@@ -217,28 +239,35 @@ User.createAndInsertFromObject = function(object, callback) {
     console.log("creating user from object" + util.inspect(object));
 
     //encrypt password
-    var bcrypt = require('bcryptjs');
-    self.ddr.password = bcrypt.hashSync(self.ddr.password, self.ddr.salt);
+    const bcrypt = require('bcryptjs');
+    bcrypt.hash(self.ddr.password, self.ddr.salt, function(err, password){
+        if(!err)
+        {
+            self.ddr.password = password;
 
-    //TODO CACHE DONE
-
-    self.save(function(err, newUser) {
-            if(!err)
-            {
-                if(newUser instanceof User)
+            self.save(function(err, newUser) {
+                if(!err)
                 {
-                    callback(null, self);
+                    if(newUser instanceof User)
+                    {
+                        callback(null, newUser);
+                    }
+                    else
+                    {
+                        callback(null, false);
+                    }
                 }
                 else
                 {
-                    callback(null, false);
+                    callback(err, newUser);
                 }
-            }
-            else
-            {
-                callback(err, newUser);
-            }
-        });
+            });
+        }
+        else
+        {
+            callback(err, password);
+        }
+    });
 };
 
 

@@ -6,7 +6,6 @@ properties(
     
 pipeline {
     agent any
-
     stages {
         stage('Build') {
             steps {
@@ -27,6 +26,13 @@ pipeline {
                 echo 'No deployments yet. Skipping.'
                 //sh "chmod +x $WORKSPACE/conf/scripts/deploy.sh"
             }
+        }
+    }
+    post
+    {
+        always {
+            echo "Cleaning workspace at $WORKSPACE"
+            sh "rm -rf $WORKSPACE/*"
         }
     }
 }

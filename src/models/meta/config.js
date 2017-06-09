@@ -682,4 +682,6 @@ Config.regex_routes = {
     }
 }
 
+Config.authentication = getConfigParameter("authentication");
+
 module.exports.Config = Config;
