@@ -34,11 +34,15 @@ var redis = function(graphUri)
 function Resource (object)
 {
     Resource.baseConstructor.call(this, object);
-    var self = this;
+    let self = this;
 
-    if(object.uri != null)
+    if(typeof object.uri !== "undefined")
     {
         self.uri = object.uri;
+    }
+
+    if(typeof object.id !== "undefined") {
+        self.id = object.id;
     }
 
     self.copyOrInitDescriptors(object);
@@ -1620,7 +1624,11 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                     {
                         if(!err)
                         {
-                            saveToCache(uri, object);
+                            if(object !== null)
+                            {
+                                saveToCache(uri, object);
+                            }
+
                             cb(err, object);
                         }
                         else

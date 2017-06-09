@@ -28,7 +28,7 @@ function Project(object)
     Project.baseConstructor.call(this, object);
     var self = this;
 
-    if(self.uri == null)
+    if(self.uri === null)
     {
         self.uri = Config.baseUri + "/project/" + self.ddr.handle;
     }
@@ -596,7 +596,7 @@ Project.createAndInsertFromObject = function(object, callback) {
         }
         else
         {
-            callback(err, result);
+            callback(err, newProject);
         }
     });
 };

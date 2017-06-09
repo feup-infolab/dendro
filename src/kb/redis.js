@@ -74,29 +74,35 @@ RedisConnection.prototype.put = function(resourceUri, object, callback) {
 
     if(Config.cache.active)
     {
-
-        if(self.redis != null)
+        if(object != null)
         {
-            self.redis.set(resourceUri, JSON.stringify(object), function(err, reply)
+            if(self.redis != null)
             {
-                if(!err)
+                self.redis.set(resourceUri, JSON.stringify(object), function(err, reply)
                 {
-                    if (Config.debug.active && Config.debug.cache.log_cache_writes)
+                    if(!err)
                     {
-                        console.log("[DEBUG] Saved cache record for " + resourceUri);
-                    }
+                        if (Config.debug.active && Config.debug.cache.log_cache_writes)
+                        {
+                            console.log("[DEBUG] Saved cache record for " + resourceUri);
+                        }
 
-                    callback(null);
-                }
-                else
-                {
-                    callback(1, "Unable to set value of " + resourceUri + " as " + JSON.stringify(object) + " into redis cache");
-                }
-            })
+                        callback(null);
+                    }
+                    else
+                    {
+                        callback(1, "Unable to set value of " + resourceUri + " as " + JSON.stringify(object) + " into redis cache");
+                    }
+                })
+            }
+            else
+            {
+                callback(1, "Tried to save a resource into cache providing a null object!");
+            }
         }
         else
         {
-            callback(1, "Must open connection to Redis first!");
+            callback(null, null);
         }
     }
     else
@@ -113,29 +119,36 @@ RedisConnection.prototype.get = function(resourceUri, callback) {
 
         if(self.redis != null)
         {
-            self.redis.get(resourceUri, function(err, cachedJSON)
+            if(resourceUri != null)
             {
-                if(!err)
+                self.redis.get(resourceUri, function(err, cachedJSON)
                 {
-                    if(Config.cache.active && Config.debug.cache.log_cache_hits)
+                    if(!err)
                     {
-                        if(cachedJSON != null)
+                        if(Config.cache.active && Config.debug.cache.log_cache_hits)
                         {
-                            console.log("Cache HIT on " + resourceUri);
+                            if(cachedJSON != null)
+                            {
+                                console.log("Cache HIT on " + resourceUri);
+                            }
+                            else
+                            {
+                                console.log("Cache MISS on " + resourceUri);
+                            }
                         }
-                        else
-                        {
-                            console.log("Cache MISS on " + resourceUri);
-                        }
-                    }
 
-                    callback(null, JSON.parse(cachedJSON));
-                }
-                else
-                {
-                    callback(err, "Unable to retrieve value of " + resourceUri + " as " + JSON.stringify(object) + " from redis cache");
-                }
-            });
+                        callback(null, JSON.parse(cachedJSON));
+                    }
+                    else
+                    {
+                        callback(err, "Unable to retrieve value of " + resourceUri + " as " + JSON.stringify(object) + " from redis cache");
+                    }
+                });
+            }
+            else
+            {
+                callback(1, "Tried to fetch a resource from cache providing a null resourceUri!");
+            }
         }
         else
         {
@@ -155,24 +168,31 @@ RedisConnection.prototype.delete = function(resourceUriOrArrayOfResourceUris, ca
     {
         if(self.redis != null)
         {
-            self.redis.del(resourceUriOrArrayOfResourceUris, function (err)
+            if(resourceUriOrArrayOfResourceUris != null)
             {
-                if(!err)
+                self.redis.del(resourceUriOrArrayOfResourceUris, function (err)
                 {
-                    if (Config.debug.active && Config.debug.cache.log_cache_deletes)
+                    if(!err)
                     {
-                        console.log("[DEBUG] Deleted cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
-                    }
+                        if (Config.debug.active && Config.debug.cache.log_cache_deletes)
+                        {
+                            console.log("[DEBUG] Deleted cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                        }
 
-                    callback(null, null);
-                }
-                else
-                {
-                    var msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris  + " from redis cache. " + err;
-                    console.log(msg);
-                    callback(err, msg);
-                }
-            });
+                        callback(null, null);
+                    }
+                    else
+                    {
+                        var msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris  + " from redis cache. " + err;
+                        console.log(msg);
+                        callback(err, msg);
+                    }
+                });
+            }
+            else
+            {
+                callback(1, "Tried to delete resources in cache with null uri array");
+            }
         }
         else
         {

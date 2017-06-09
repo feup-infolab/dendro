@@ -17,6 +17,8 @@ require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
 
 require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
 
+return;
+
 require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
 /*require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
 

@@ -293,6 +293,7 @@
 
       }
     },
+
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
 
     "public_ontologies" : [
@@ -619,15 +620,15 @@
       "ckan" :
       {
 
-      },
-      "public_ontologies" : [
-        "foaf",
-        "dcterms",
-        "bdv",
-        "research"
-      ]
+      }
     },
-    "analytics_tracking_code" : "GOOGLE_ANALYTICS_PRODUCTION_ANALYTICS_TRACKING_CODE",
+
+    "public_ontologies" : [
+      "foaf",
+      "dcterms",
+      "bdv",
+      "research"
+    ],
 
     "authentication" :
     {
@@ -636,8 +637,8 @@
       },
       "orcid" : {
         "enabled" : true,
-        "client_id" : "APP-2DLZER6DATDRNRM0",
-        "client_secret" : "7fe6cf53-d31f-4260-836a-63282d9fcce4",
+        "client_id" : "ORCID_CLIENT_ID",
+        "client_secret" : "ORCID_CLIENT_SECRET",
         "callback_url" : "/auth/orcid/callback"
       },
       "saml" : {
@@ -647,8 +648,11 @@
         "issuer": "passport-saml",
         "button_text" : "Sign-in with SIGARRA"
       }
-    }
+    },
+
+    "analytics_tracking_code" : "GOOGLE_ANALYTICS_PRODUCTION_ANALYTICS_TRACKING_CODE"
   },
+
   "test" : {
     "port" : 3001,
     "host" : "127.0.0.1:3001",
@@ -971,6 +975,7 @@
 
       }
     },
+
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
 
     "public_ontologies" : [
@@ -1309,6 +1314,7 @@
 
       }
     },
+
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
 
     "public_ontologies" : [

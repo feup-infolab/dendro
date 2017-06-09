@@ -15,13 +15,13 @@ var async = require('async');
 function Comment (object)
 {
     Comment.baseConstructor.call(this, object);
-    var self = this;
+    let self = this;
 
     self.copyOrInitDescriptors(object);
 
     self.rdf.type = "ddr:Comment";
 
-    if(object.uri != null)
+    if(object.uri !== null)
     {
         self.uri = object.uri;
     }

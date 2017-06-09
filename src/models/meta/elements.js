@@ -625,6 +625,13 @@ Elements.foaf =
  */
 
 Elements.ddr = {
+    id :  {
+        type : DbConnection.string,
+        control : Config.controls.input_box,
+        private : true,
+        locked : true,
+        api_accessible : true
+    },
     handle :  {
         type : DbConnection.string,
         control : Config.controls.input_box,
