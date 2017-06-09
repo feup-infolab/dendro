@@ -6,9 +6,10 @@ var ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archi
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-var Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
+var MetadataChangePost = require(Config.absPathInSrcFolder("/models/social/metadataChangePost.js")).MetadataChangePost;
 
 var db = function() { return GLOBAL.db.default; }();
+var db_social = function() { return GLOBAL.db.social; }();
 var gfs = function() { return GLOBAL.gfs.default; }();
 
 var _ = require('underscore');
@@ -301,9 +302,53 @@ exports.update = function(req, res) {
                                                             {
                                                                 if(!err && latestArchivedVersion!=null)
                                                                 {
-                                                                    Post.buildFromArchivedVersion(latestArchivedVersion, project, function (err, post) {
-                                                                        console.log(post);
-                                                                        if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
+                                                                    MetadataChangePost.buildFromArchivedVersion(latestArchivedVersion, project, function (err, post) {
+                                                                        //console.log(post);
+                                                                        post.save(function(err, post)
+                                                                        {
+                                                                            if (!err)
+                                                                            {
+                                                                                if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
+                                                                                {
+
+                                                                                    resource.ddr.metadataQuality = evaluation.metadata_evaluation;
+                                                                                    resource.save(function (err, result)
+                                                                                    {
+                                                                                        if (!err)
+                                                                                        {
+                                                                                            res.json({
+                                                                                                result: "OK",
+                                                                                                message: "Updated successfully.",
+                                                                                                new_metadata_quality_assessment: evaluation
+                                                                                            });
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            res.status(500).json({
+                                                                                                result: "Error",
+                                                                                                message: "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body)
+                                                                                            });
+                                                                                        }
+                                                                                    });
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    res.json({
+                                                                                        result: "OK",
+                                                                                        message: "Updated successfully.",
+                                                                                        new_metadata_quality_assessment: evaluation
+                                                                                    });
+                                                                                }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                res.status(500).json({
+                                                                                    result: "Error",
+                                                                                    message: "Unable to create Social Dendro post from metadata changes to resource uri: " + requestedResourceURI + ". Error reported : " + err
+                                                                                });
+                                                                            }
+                                                                        }, false, null, null, null, null, db_social.graphUri);
+                                                                        /*if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
                                                                         {
 
                                                                             resource.ddr.metadataQuality = evaluation.metadata_evaluation;
@@ -333,7 +378,7 @@ exports.update = function(req, res) {
                                                                                 message: "Updated successfully.",
                                                                                 new_metadata_quality_assessment: evaluation
                                                                             });
-                                                                        }
+                                                                        }*/
                                                                     });
                                                                 }
                                                                 else

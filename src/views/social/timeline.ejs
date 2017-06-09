@@ -11,13 +11,15 @@
             <p>posts.length : {{posts.length}}</p>
             <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">
 
+                <p> The post URI is : {{post.uri}}</p>
                 <div ng-init="getPost(post.uri, null);">
-                    <div ng-if="postList[post.uri].rdf.isShare">
+                    {{postsContents[post.uri].rdf.type}}
+                    <div ng-if="postsContents[post.uri].rdf.isShare">
                         <p> IS A SHARE </p>
                         <ng-include src="'/app/views/social/showShare.html'" onload="initSingleShare(post.uri); shareUri = post.uri;"></ng-include>
                     </div>
 
-                    <div ng-if="!postList[post.uri].rdf.isShare">
+                    <div ng-if="!postsContents[post.uri].rdf.isShare">
                         <ng-include src="'/app/views/social/showPost.html'" onload="initSinglePost(post.uri); postUri = post.uri;"></ng-include>
                     </div>
                     <hr>

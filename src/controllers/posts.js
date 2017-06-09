@@ -34,7 +34,8 @@ exports.numPostsDatabase = function (req, res) {
                 }, function (err, projectsUris) {
                     if(!err)
                     {
-                        numPostsDatabaseAux(projectsUris,function (err, count) {
+                        //numPostsDatabaseAux(projectsUris,function (err, count) {
+                        numPostsDatabaseAuxNew(projectsUris,function (err, count) {
                             if(!err)
                             {
                                 res.json(count);
@@ -49,7 +50,7 @@ exports.numPostsDatabase = function (req, res) {
                     }
                     else
                     {
-                        console.error("Error iterating over projets URIs");
+                        console.error("Error iterating over projects URIs");
                         console.log(err);
                         res.status(500).json({
                             result : "Error",
@@ -91,7 +92,37 @@ exports.all = function(req, res){
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        if(pingForNewPosts)
+        Project.findByCreatorOrContributor(currentUser.uri, function (err, projects) {
+            if(!err)
+            {
+                async.map(projects, function (project, cb1) {
+                    cb1(null, project.uri);
+                }, function (err, fullProjectsUris) {
+                    //getAllPosts(fullProjectsUris,function (err, results) {
+                    getAllPostsNew(fullProjectsUris,function (err, results) {
+                        if(!err)
+                        {
+                            res.json(results);
+                        }
+                        else{
+                            res.status(500).json({
+                                result : "Error",
+                                message : "Error getting posts. " + JSON.stringify(err)
+                            });
+                        }
+                    }, index, maxResults);
+                })
+            }
+            else
+            {
+                res.status(500).json({
+                    result : "Error",
+                    message : "Error finding user projects"
+                });
+            }
+        });
+
+        /*if(pingForNewPosts)
         {
             pingNewPosts(currentUser, function (error, newposts) {
                 if(error)
@@ -109,7 +140,8 @@ exports.all = function(req, res){
                             async.map(projects, function (project, cb1) {
                                 cb1(null, project.uri);
                             }, function (err, fullProjectsUris) {
-                                getAllPosts(fullProjectsUris,function (err, results) {
+                                //getAllPosts(fullProjectsUris,function (err, results) {
+                                getAllPostsNew(fullProjectsUris,function (err, results) {
                                     if(!err)
                                     {
                                         res.json(results);
@@ -131,7 +163,7 @@ exports.all = function(req, res){
                             });
                         }
                     });
-                    /*
+                    /!*
                     getAllPosts(function (err, results) {
                         if(!err)
                         {
@@ -143,7 +175,7 @@ exports.all = function(req, res){
                                 message : "Error getting posts. " + JSON.stringify(err)
                             });
                         }
-                    }, index, maxResults);*/
+                    }, index, maxResults);*!/
                 }
             });
         }
@@ -189,7 +221,7 @@ exports.all = function(req, res){
                     });
                 }
             }, db_social.graphUri, false);
-        }
+        }*/
     }
     else
     {
@@ -906,6 +938,61 @@ exports.like = function (req, res) {
     );
 };*/
 
+
+var numPostsDatabaseAuxNew = function (projectUrisArray, callback) {
+    /*WITH <http://127.0.0.1:3001/social_dendro>
+     SELECT (COUNT(DISTINCT ?postURI) AS ?count)
+     WHERE {
+     ?postURI rdf:type ddr:Post.
+     }*/
+    if(projectUrisArray && projectUrisArray.length > 0)
+    {
+        async.map(projectUrisArray, function (uri, cb1) {
+            cb1(null, '<'+uri+ '>');
+        }, function (err, fullProjectsUris) {
+            var projectsUris = fullProjectsUris.join(" ");
+            var query =
+                "WITH [0] \n" +
+                "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
+                projectsUris +
+                "} \n" +
+                "VALUES ?postTypes { \n" +
+                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" +
+                "} \n" +
+                "?uri rdf:type ?postTypes. \n" +
+                "?uri ddr:projectUri ?project. \n" +
+                "} \n ";
+
+            db.connection.execute(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type : DbConnection.resourceNoEscape,
+                        value: db_social.graphUri
+                    }
+                ]),
+                function(err, results) {
+                    if(!err)
+                    {
+                        callback(err,results[0].count);
+                    }
+                    else
+                    {
+                        callback(true, "Error fetching numPosts in numPostsDatabaseAux");
+                    }
+                });
+        });
+    }
+    else
+    {
+        //User has no projects
+        var results = 0;
+        callback(null, results);
+    }
+};
+
+
 var numPostsDatabaseAux = function (projectUrisArray, callback) {
     /*WITH <http://127.0.0.1:3001/social_dendro>
     SELECT (COUNT(DISTINCT ?postURI) AS ?count)
@@ -1344,6 +1431,69 @@ var getNumLikesForAPost = function(postID, cb)
         });
 };
 
+
+/**
+ * Gets all the posts ordered by modified date and using pagination
+ * @param callback the function callback
+ * @param startingResultPosition the starting position to start the query
+ * @param maxResults the limit for the query
+ */
+var getAllPostsNew = function (projectUrisArray, callback, startingResultPosition, maxResults) {
+    //based on getRecentProjectWideChangesSocial
+    //TODO ALTERAR ESTA FUNCAO PARA TER TODOS OS TIPOS DE SHARES (E TB FILEVERSIOS?????)
+    var self = this;
+
+    if(projectUrisArray && projectUrisArray.length > 0)
+    {
+        async.map(projectUrisArray, function (uri, cb1) {
+            cb1(null, '<'+uri+ '>');
+        }, function (err, fullProjects) {
+            var projectsUris = fullProjects.join(" ");
+            var query =
+                "WITH [0] \n" +
+                "SELECT DISTINCT ?uri \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
+                projectsUris +
+                "} \n" +
+                "VALUES ?postTypes { \n" +
+                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" +
+                "} \n" +
+                "?uri dcterms:modified ?date. \n" +
+                "?uri rdf:type ?postTypes. \n" +
+                "?uri ddr:projectUri ?project. \n" +
+                "} \n "+
+                "ORDER BY DESC(?date) \n";
+
+            query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+
+            db.connection.execute(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type : DbConnection.resourceNoEscape,
+                        value: db_social.graphUri
+                    }
+                ]),
+                function(err, results) {
+                    if(!err)
+                    {
+                        callback(err,results);
+                    }
+                    else
+                    {
+                        callback(true, "Error fetching posts in getAllPosts");
+                    }
+                });
+        });
+    }
+    else
+    {
+        //User has no projects
+        var results = [];
+        callback(null, results);
+    }
+};
+
 /**
  * Gets all the posts ordered by modified date and using pagination
  * @param callback the function callback
@@ -1352,6 +1502,7 @@ var getNumLikesForAPost = function(postID, cb)
  */
 var getAllPosts = function (projectUrisArray, callback, startingResultPosition, maxResults) {
     //based on getRecentProjectWideChangesSocial
+    //TODO ALTERAR ESTA FUNCAO PARA TER TODOS OS TIPOS DE SHARES (E TB FILEVERSIOS?????)
     var self = this;
 
     if(projectUrisArray && projectUrisArray.length > 0)

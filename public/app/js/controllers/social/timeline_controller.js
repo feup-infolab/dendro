@@ -138,7 +138,8 @@ angular.module('dendroApp.controllers')
                     else
                     {
                         //using for post service
-                        $scope.postList[postURI] = response.data;
+                        //$scope.postList[postURI] = response.data;
+                        $scope.postsContents[postURI] = response.data;
                     }
 
                     $scope.doing_getPost = false;
