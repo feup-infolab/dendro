@@ -65,9 +65,14 @@ MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project
         //TODO MAYBE ADD THE URI OF THE RESOURCE????
         var newMetadataChangePost = new MetadataChangePost({
             ddr: {
+                hasNumberOfDescriptorsAdded: hasNumberOfDescriptorsAdded,//TODO adicionar isto ao elements.js
+                hasNumberOfDescriptorsEdited: hasNumberOfDescriptorsEdited,//TODO adicionar isto ao elements.js
+                hasNumberOfDescriptorsDeleted: hasNumberOfDescriptorsDeleted,//TODO adicionar isto ao elements.js
+                hasNumberOfChanges : numberOfChanges,//TODO adicionar isto ao elements.js
                 //hasContent: JSON.stringify(results),//substituir por sharedContent da SocialMediaMetadataChangePosting http://schema.org/SocialMediaMetadataChangePosting -> fazer JSON.parse depois para aceder
                 numLikes: 0,//isto não é necessário aqui
                 projectUri: project.uri,
+                refersTo : versionUri//Já existe -> http://onto.dm2e.eu/schemas/dm2e#refersTo //TODO adicionar isto ao elements.js
             },
             dcterms: {
                 creator: changeAuthor,
@@ -81,6 +86,7 @@ MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project
     });
 };
 
+/*MetadataChangePost.prefixedRDFType = "ddr:MetadataChangePost";*/
 
 MetadataChangePost = Class.extend(MetadataChangePost, Post);
 
