@@ -6,6 +6,7 @@ const chai = require('chai');
 chai.use(require('chai-http'));
 const should = chai.should();
 const async = require('async');
+const colors = require('colors');
 
 const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -23,12 +24,27 @@ const metadataOnlyProjectForHTMLTestsData = require(Config.absPathInTestsFolder(
 const privateProjectForHTMLTestsData = require(Config.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
 function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
+    delete require.cache[require.resolve(module)];
+    return require(module);
 }
+
+const start = function()
+{
+    console.log("**********************************************".green);
+    console.log("[Create Projects Unit] Setting up projects...".green);
+    console.log("**********************************************".green);
+};
+
+const end = function()
+{
+    console.log("**********************************************".blue);
+    console.log("[Create Projects Unit] Complete...".blue);
+    console.log("**********************************************".blue);
+};
 
 module.exports.setup = function(finish)
 {
+    start();
     const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
     //let bootupUnit = requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
     let createUsersUnit = requireUncached(Config.absPathInTestsFolder("units/users/createUsers.Unit.js"));
@@ -37,6 +53,7 @@ module.exports.setup = function(finish)
         //should.equal(err, null);
         if(err)
         {
+            end();
             finish(err, results);
         }
         else
@@ -45,12 +62,13 @@ module.exports.setup = function(finish)
                 userUtils.loginUser(demouser1.username,demouser1.password, function (err, agent) {
                     if(err)
                     {
+                        end();
                         cb(err, agent);
                     }
                     else
                     {
                         projectUtils.createNewProject(true, agent, projectData, function (err, res) {
-                            //res.should.have.status(200);
+                            end();
                             cb(err, res);
                         });
                     }

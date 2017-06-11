@@ -768,11 +768,8 @@ exports.new = function(req, res) {
                             }
                             else
                             {
-                                res.render('index',
-                                    {
-                                        error_messages: [result]
-                                    }
-                                );
+                                req.flash('error', "Error creating project " + projectData.dcterms.title +" with handle "+ projectData.ddr.handle +"!");
+                                throw err;
                             }
 
                         });

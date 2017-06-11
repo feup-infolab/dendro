@@ -223,7 +223,7 @@
                                         Select one of the resource on the file explorer to view its metadata.
                                     </div>
                                 </div>
-                                <div ng-show="edit_mode === false || edit_mode === null || showing_project_root()">
+                                <div ng-show="!edit_mode || showing_project_root()">
                                     <div ng-if="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
                                         <%- include show/file_preview.ejs %>
                                     </div>

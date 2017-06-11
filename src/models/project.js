@@ -28,7 +28,7 @@ function Project(object)
     Project.baseConstructor.call(this, object);
     var self = this;
 
-    if(self.uri === null)
+    if(typeof self.uri === "undefined")
     {
         self.uri = Config.baseUri + "/project/" + self.ddr.handle;
     }
@@ -562,8 +562,6 @@ Project.createAndInsertFromObject = function(object, callback) {
     var projectRootFolderURI = newProject.rootFolder();
 
     console.log("creating project from object\n" + util.inspect(object));
-
-    //TODO CACHE DONE
 
     newProject.save(function(err, newProject) {
         if(!err)

@@ -53,51 +53,16 @@ let User = require('./models/user.js').User;
 let async = require('async');
 let util = require('util');
 let mkdirp = require('mkdirp');
-
-//set serialization and deserialization methods
-
-passport.serializeUser(function(user, done) {
-    done(null, user);
-});
-
-passport.deserializeUser(function(user, done) {
-    done(null, new User(user));
-});
-
-//create temporary uploads folder if not exists
-let tempUploadsFolder = Config.tempFilesDir;
 let pid;
 
-try{
-    fs.statSync(tempUploadsFolder).isDirectory();
-}
-catch(e)
-{
-    console.log("[INFO] Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
-    try{
-        mkdirp.sync(tempUploadsFolder);
-        console.log("[SUCCESS] Temp uploads folder " + tempUploadsFolder + " created.")
-    }
-    catch(e)
-    {
-        console.error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
-        process.exit(1);
-    }
-}
 
-var busboy = require('connect-busboy');
-app.use(busboy());
-
-var self = this;
-
-var appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::?=?)=)';
-
+//Setup logging
 if(Config.logging != null)
 {
     async.series([
         function(cb)
         {
-            if (Config.logging.app_logs_folder != null && Config.logging.pipe_console_to_logfile)
+            if (Config.logging.app_logs_folder !== null && (Config.logging.pipe_console_to_logfile || Config.logging.suppress_all_logs || Config.logging.suppress_all_logs))
             {
                 var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
 
@@ -130,7 +95,9 @@ if(Config.logging != null)
                     if(Config.logging.suppress_all_logs)
                     {
                         console.log = function (d)
-                        {};
+                        {
+                            let a = 1;
+                        };
                     }
                     else {
                         console.log = function (d) { //
@@ -176,7 +143,10 @@ if(Config.logging != null)
                             log_file.write("[ " + date + " ] [ uncaughtException ] " + util.format(err.stack) + "\n");
                         }
 
-                        pid.remove();
+                        if(typeof pid !== "undefined")
+                        {
+                            pid.remove();
+                        }
 
                         throw err;
                     });
@@ -245,6 +215,43 @@ if(Config.logging != null)
     });
 
 }
+
+//set serialization and deserialization methods
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+    done(null, new User(user));
+});
+
+//create temporary uploads folder if not exists
+let tempUploadsFolder = Config.tempFilesDir;
+
+try{
+    fs.statSync(tempUploadsFolder).isDirectory();
+}
+catch(e)
+{
+    console.log("[INFO] Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
+    try{
+        mkdirp.sync(tempUploadsFolder);
+        console.log("[SUCCESS] Temp uploads folder " + tempUploadsFolder + " created.")
+    }
+    catch(e)
+    {
+        console.error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
+        process.exit(1);
+    }
+}
+
+var busboy = require('connect-busboy');
+app.use(busboy());
+
+var self = this;
+
+var appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::?=?)=)';
 
 var appendIndexToRequest = function(req, res, next)
 {

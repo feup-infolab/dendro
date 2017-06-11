@@ -800,20 +800,37 @@ Resource.prototype.save = function
 
     var validateValues = function(cb)
     {
-        self.validateDescriptorValues(function(err, results){
-            if(err)
-            {
-                console.error("Error validating values before saving resource " + self.uri + " : " + JSON.stringify(results));
-            }
-            cb(err, results);
-        });
+        if(typeof self.uri === "undefined")
+        {
+            cb(1, "Cannot save a resource without providing an URI. Please make sure that the .uri key is not null in every object you save");
+        }
+        else
+        {
+            self.validateDescriptorValues(function(err, results){
+                if(err)
+                {
+                    console.error("Error validating values before saving resource " + self.uri + " : " + JSON.stringify(results));
+                }
+                cb(err, results);
+            });
+        }
     };
 
     var getMyLastSavedVersion = function(myUri, cb)
     {
         Resource.findByUri(myUri, function(err, currentResource)
         {
-            cb(err, currentResource);
+            if(!err)
+            {
+                cb(err, currentResource);
+            }
+            else
+            {
+                console.error("Error occurred while getting last version of the resource " + myUri);
+                console.error(JSON.stringify(currentResource));
+                cb(err, currentResource);
+            }
+
         }, null, customGraphUri);
     };
 
@@ -947,7 +964,7 @@ Resource.prototype.save = function
         },
         function(currentResource, cb)
         {
-            if(currentResource == null)
+            if(typeof currentResource === "undefined")
             {
                 createNewResource(self, function(err, result)
                 {
@@ -1481,7 +1498,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
         {
             if (!err)
             {
-                if (result != null)
+                if (typeof result === "undefined")
                 {
                     var resource = Object.create(self.prototype);
 
@@ -1500,12 +1517,12 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                 }
                 else
                 {
-                    callback(null, null);
+                    callback(err, result);
                 }
             }
             else
             {
-                callback(err)
+                callback(err, result);
             }
         });
     };

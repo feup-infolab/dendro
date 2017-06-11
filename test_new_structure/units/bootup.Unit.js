@@ -2,6 +2,7 @@ process.env.NODE_ENV = 'test';
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');
+const colors = require('colors');
 chai.use(chaiHttp);
 
 const should = chai.should();
@@ -10,8 +11,23 @@ function requireUncached(module) {
     return require(module)
 }
 
+const start = function()
+{
+    console.log("**********************************************".green);
+    console.log("[Boot up Unit] Booting Dendro test instance...".green);
+    console.log("**********************************************".green);
+};
+
+const end = function()
+{
+    console.log("**********************************************".blue);
+    console.log("[Boot up Unit] Complete".blue);
+    console.log("**********************************************".blue);
+};
+
 module.exports.setup = function(finish)
 {
+    start();
     let connectionsInitalized = requireUncached(Config.absPathInSrcFolder("app.js")).connectionsInitialized;
 
     connectionsInitalized.then(function(){
@@ -25,10 +41,9 @@ module.exports.setup = function(finish)
                 chai.request(appInfo.app)
                     .get('/')
                     .end((err, res) => {
-                        //res.should.have.status(200);
-                        //res.text.should.contain('<h2>Welcome to Dendro Beta</h2>');
                         GLOBAL.tests.app = appInfo.app;
                         GLOBAL.tests.server = appInfo.server;
+                        end();
                         finish(err, res);
                     });
             });
