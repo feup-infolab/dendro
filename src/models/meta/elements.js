@@ -1,5 +1,9 @@
-var Config = function() { return GLOBAL.Config; }();
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 function Elements (){}
 
@@ -1107,7 +1111,7 @@ Elements.rdf = {
         control : Config.controls.input_box,
         locked: true
     }
-}
+};
 
 /**
  * Nepomuk Information Element Ontology

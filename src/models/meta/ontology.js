@@ -1,33 +1,39 @@
-var Config = function() { return GLOBAL.Config; }();
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-var ResearchDomain = require(Config.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
-var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var db = function() { return GLOBAL.db.default; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const ResearchDomain = require(Config.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
+const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
-var _ = require('underscore');
-var async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+
+const _ = require('underscore');
+const async = require('async');
 
 function Ontology (object)
 {
-    var self = this;
-    if(object != null && object instanceof Object)
+    const self = this;
+    if(!isNull(object) && object instanceof Object)
     {
-        if(object.uri != null && object.prefix == null)
+        if(!isNull(object.uri) && isNull(object.prefix))
         {
-            var allOntologies = Ontology.getAllOntologiesArray();
-            for(var i = 0; i < allOntologies.length; i++)
+            const allOntologies = Ontology.getAllOntologiesArray();
+            for(let i = 0; i < allOntologies.length; i++)
             {
-                var ontology = allOntologies[i];
+                const ontology = allOntologies[i];
 
-                if(ontology.uri == object.uri)
+                if(ontology.uri === object.uri)
                 {
                     self.prefix = ontology.prefix;
 
-                    if(Ontology.allOntologies[self.prefix] != null)
+                    if(!isNull(Ontology.allOntologies[self.prefix]))
                     {
                         self.prefix = Ontology.allOntologies[self.prefix].prefix;
                         self.uri = Ontology.allOntologies[self.prefix].uri;
@@ -36,9 +42,9 @@ function Ontology (object)
                 }
             }
         }
-        else if(object.prefix != null)
+        else if(!isNull(object.prefix))
         {
-            if(Ontology.allOntologies[object.prefix] != null)
+            if(!isNull(Ontology.allOntologies[object.prefix]))
             {
                 self.prefix = Ontology.allOntologies[object.prefix].prefix;
                 self.uri = Ontology.allOntologies[object.prefix].uri;
@@ -46,12 +52,12 @@ function Ontology (object)
             }
         }
 
-        if(object.description != null)
+        if(!isNull(object.description))
         {
             self.description = object.description;
         }
 
-        if(object.domain != null)
+        if(!isNull(object.domain))
         {
             self.domain = object.domain;
         }
@@ -62,19 +68,19 @@ function Ontology (object)
 
 Ontology.findByUri = function(uri, callback)
 {
-    var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+    const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
     Resource.findByUri(uri, function(err, ontology){
 
         if(!err)
         {
-            if(ontology != null)
+            if(!isNull(ontology))
             {
-                var newOntology = new Ontology({
-                    prefix : ontology.ddr.hasPrefix,
-                    uri : ontology.uri,
-                    description : ontology.dcterms.description,
-                    domain : ontology.ddr.hasResearchDomain
+                const newOntology = new Ontology({
+                    prefix: ontology.ddr.hasPrefix,
+                    uri: ontology.uri,
+                    description: ontology.dcterms.description,
+                    domain: ontology.ddr.hasResearchDomain
                 });
                 
                 callback(null, newOntology);
@@ -93,7 +99,7 @@ Ontology.findByUri = function(uri, callback)
 
 Ontology.all = function(callback)
 {
-    var query =
+    const query =
         "WITH [0] \n" +
         "SELECT ?uri \n" +
         "WHERE { \n" +
@@ -111,8 +117,7 @@ Ontology.all = function(callback)
         {
             if (!err)
             {
-                var getOntology = function (ontologyResult, callback)
-                {
+                const getOntology = function (ontologyResult, callback) {
                     Ontology.findByUri(ontologyResult.uri, callback)
                 };
 
@@ -127,47 +132,36 @@ Ontology.initAllFromDatabase = function(callback)
 {
     console.log("(Re) Loading ontology configurations from database...");
 
-    var getFullResearchDomain = function(researchDomainUri, callback)
-    {
+    const getFullResearchDomain = function (researchDomainUri, callback) {
         ResearchDomain.findByUri(researchDomainUri, callback);
     };
 
-    var addResearchDomainsDetails = function(ontology, callback)
-    {
-        if(ontology.domain instanceof Array)
-        {
-            async.map(ontology.domain, getFullResearchDomain, function(err, results)
-            {
-                if(!err)
-                {
+    const addResearchDomainsDetails = function (ontology, callback) {
+        if (ontology.domain instanceof Array) {
+            async.map(ontology.domain, getFullResearchDomain, function (err, results) {
+                if (!err) {
                     ontology.domain = results;
                 }
 
                 callback(err, ontology);
             });
         }
-        else if(typeof ontology.domain === "string")
-        {
-            async.map([ontology.domain], getFullResearchDomain, function(err, results)
-            {
-                if(results != null)
-                {
+        else if (typeof ontology.domain === "string") {
+            async.map([ontology.domain], getFullResearchDomain, function (err, results) {
+                if (!isNull(results)) {
                     ontology.domain = results;
                 }
 
                 callback(err, ontology);
             });
         }
-        else
-        {
+        else {
             callback(null, ontology);
         }
     };
 
-    var addValidationData = function(ontology, callback)
-    {
-        var getAlternativesForDescriptor = function(elementUri, callback)
-        {
+    const addValidationData = function (ontology, callback) {
+        const getAlternativesForDescriptor = function (elementUri, callback) {
             db.connection.execute(
                 "WITH [0] \n" +
                 "SELECT ?alternative \n" +
@@ -177,36 +171,30 @@ Ontology.initAllFromDatabase = function(callback)
                 "} \n",
                 [
                     {
-                        type : DbConnection.resourceNoEscape,
-                        value : ontology.uri
+                        type: DbConnection.resourceNoEscape,
+                        value: ontology.uri
                     },
                     {
-                        type : DbConnection.resourceNoEscape,
-                        value : elementUri
+                        type: DbConnection.resourceNoEscape,
+                        value: elementUri
                     }
                 ],
-                function(err, alternatives)
-                {
-                    if(!err)
-                    {
-                        if(alternatives.length == 0)
-                        {
+                function (err, alternatives) {
+                    if (!err) {
+                        if (alternatives.length === 0) {
                             callback(null, null);
                         }
-                        else
-                        {
-                            var results = [];
+                        else {
+                            const results = [];
 
-                            for(var i = 0; i < alternatives.length; i++)
-                            {
+                            for (let i = 0; i < alternatives.length; i++) {
                                 results.push(alternatives[i].alternative);
                             }
 
                             callback(null, results);
                         }
                     }
-                    else
-                    {
+                    else {
                         console.error("Error retrieving valid alternatives for descriptor " + elementUri + "! Error returned " + JSON.stringify(alternatives));
                         callback(null, null);
                     }
@@ -215,8 +203,7 @@ Ontology.initAllFromDatabase = function(callback)
             );
         };
 
-        var getRegexForDescriptor = function(elementUri, ontologyUri, callback)
-        {
+        const getRegexForDescriptor = function (elementUri, ontologyUri, callback) {
             db.connection.execute(
                 "WITH [0] \n" +
                 "SELECT ?regex \n" +
@@ -226,37 +213,30 @@ Ontology.initAllFromDatabase = function(callback)
                 "} \n",
                 [
                     {
-                        type : DbConnection.resourceNoEscape,
-                        value : ontologyUri
+                        type: DbConnection.resourceNoEscape,
+                        value: ontologyUri
                     },
                     {
-                        type : DbConnection.resourceNoEscape,
-                        value : elementUri
+                        type: DbConnection.resourceNoEscape,
+                        value: elementUri
                     }
                 ],
-                function(err, regex)
-                {
-                    if(!err)
-                    {
-                        if(regex.length > 1)
-                        {
+                function (err, regex) {
+                    if (!err) {
+                        if (regex.length > 1) {
                             console.error("There are two different Regular Expressions for validating element " + elementUri + "! Please review the ontology with URI " + ontologyUri + " and delete hasRegex annotation properties until there is only one.");
                             callback(1, null);
                         }
-                        else
-                        {
-                            if(regex.length == 1)
-                            {
+                        else {
+                            if (regex.length === 1) {
                                 callback(null, regex[0].regex);
                             }
-                            else
-                            {
+                            else {
                                 callback(null, null);
                             }
                         }
                     }
-                    else
-                    {
+                    else {
                         console.error("Error retrieving Regular Expression that validates " + elementUri + "! Error returned " + JSON.stringify(regex));
                         callback(null, null);
                     }
@@ -265,24 +245,18 @@ Ontology.initAllFromDatabase = function(callback)
             );
         };
 
-        if(ontology.elements != null)
-        {
+        if (!isNull(ontology.elements)) {
             async.map(
                 Object.keys(ontology.elements),
-                function(elementShortName, callback)
-                {
-                    var elementUri = Ontology.allOntologies[ontology.prefix].uri + elementShortName;
-                    var element = ontology.elements[elementShortName];
+                function (elementShortName, callback) {
+                    const elementUri = Ontology.allOntologies[ontology.prefix].uri + elementShortName;
+                    const element = ontology.elements[elementShortName];
 
                     async.waterfall([
-                        function(callback)
-                        {
-                            getRegexForDescriptor(elementUri, ontology.uri, function(err, result)
-                            {
-                                if(!err)
-                                {
-                                    if(result != null)
-                                    {
+                        function (callback) {
+                            getRegexForDescriptor(elementUri, ontology.uri, function (err, result) {
+                                if (!err) {
+                                    if (!isNull(result)) {
                                         element.hasRegex = result;
                                         element.control = Config.controls.regex_checking_input_box;
                                     }
@@ -292,14 +266,11 @@ Ontology.initAllFromDatabase = function(callback)
                             });
                         }
                         ,
-                        function(element, callback)
-                        {
-                            getAlternativesForDescriptor(elementUri, function(err, result){
+                        function (element, callback) {
+                            getAlternativesForDescriptor(elementUri, function (err, result) {
 
-                                if(!err)
-                                {
-                                    if(result != null)
-                                    {
+                                if (!err) {
+                                    if (!isNull(result)) {
                                         element.hasAlternative = result;
                                         element.control = Config.controls.combo_box;
                                     }
@@ -309,23 +280,19 @@ Ontology.initAllFromDatabase = function(callback)
                             });
                         }
                     ],
-                    function(err, results)
-                    {
+                    function (err, results) {
                         callback(err, results);
                     });
                 },
-                function(err, results)
-                {
+                function (err, results) {
                     callback(err, results);
                 });
         }
     };
 
-    var checkForOntology = function(ontologyObject, callback)
-    {
-        Ontology.findByUri(ontologyObject.uri, function(err, ontology){
-            if(err)
-            {
+    const checkForOntology = function (ontologyObject, callback) {
+        Ontology.findByUri(ontologyObject.uri, function (err, ontology) {
+            if (err) {
                 console.log("Error occurred when searching for ontology with URI : " + ontologyObject.uri + ". Error description : " + JSON.stringify(ontology));
             }
 
@@ -333,57 +300,48 @@ Ontology.initAllFromDatabase = function(callback)
         });
     };
 
-    var createOntologyRecordInDatabase = function(ontologyObject, callback)
-    {
-        var newOntology = new Ontology(ontologyObject);
+    const createOntologyRecordInDatabase = function (ontologyObject, callback) {
+        const newOntology = new Ontology(ontologyObject);
 
-        newOntology.save(function(err, result){
+        newOntology.save(function (err, result) {
             callback(err, result);
         });
     };
 
-    var recreateOntologiesInDatabase = function(ontologiesArray, callback)
-    {
-        async.map(ontologiesArray, function(ontologyObject, callback)
-        {
-            checkForOntology(ontologyObject, function(err, ontology){
-                if(ontology == null)
-                {
-                    createOntologyRecordInDatabase(ontologyObject, function(err, result){
+    const recreateOntologiesInDatabase = function (ontologiesArray, callback) {
+        async.map(ontologiesArray, function (ontologyObject, callback) {
+            checkForOntology(ontologyObject, function (err, ontology) {
+                if (isNull(ontology)) {
+                    createOntologyRecordInDatabase(ontologyObject, function (err, result) {
                         callback(err, result);
                     });
                 }
-                else
-                {
+                else {
                     callback(null, null);
                 }
             });
-        }, function(err, results){
+        }, function (err, results) {
             callback(err, results);
         });
     };
 
-    var loadOntologyConfigurationsFromDatabase = function(callback)
-    {
-        Ontology.all(function(err, ontologies){
-            if(!err)
-            {
+    const loadOntologyConfigurationsFromDatabase = function (callback) {
+        Ontology.all(function (err, ontologies) {
+            if (!err) {
                 async.waterfall(
                     [
-                        function(callback){
-                            async.map(ontologies, addResearchDomainsDetails, function(err, loadedOntologies){
-                                if(!err)
-                                {
+                        function (callback) {
+                            async.map(ontologies, addResearchDomainsDetails, function (err, loadedOntologies) {
+                                if (!err) {
                                     console.log("[INFO] Finished loading research domain configurations for descriptors from database");
                                 }
 
                                 callback(err, loadedOntologies);
                             });
                         },
-                        function(loadedOntologies, callback){
-                            async.map(loadedOntologies, addValidationData, function(err, loadedOntologies){
-                                if(!err)
-                                {
+                        function (loadedOntologies, callback) {
+                            async.map(loadedOntologies, addValidationData, function (err, loadedOntologies) {
+                                if (!err) {
                                     console.log("[INFO] Finished loading validation information (Regex + alternatives) for the descriptors in the database");
                                 }
 
@@ -391,22 +349,18 @@ Ontology.initAllFromDatabase = function(callback)
                             });
                         }
                     ],
-                    function(err, loadedOntologies)
-                    {
-                        if(!err)
-                        {
+                    function (err, loadedOntologies) {
+                        if (!err) {
                             callback(err, loadedOntologies);
                         }
-                        else
-                        {
+                        else {
                             callback(err, loadedOntologies);
                         }
                     }
                 )
             }
-            else
-            {
-                var msg = "[ERROR] Error loading ontology configurations from database: Unable to fetch all resources from the graph";
+            else {
+                const msg = "[ERROR] Error loading ontology configurations from database: Unable to fetch all resources from the graph";
                 console.log(msg);
                 callback(1, msg);
             }
@@ -441,14 +395,14 @@ Ontology.allOntologies = function()
 
 Ontology.getAllOntologyPrefixes = function()
 {
-    if(Ontology.allOntologyPrefixes == null)
+    if(isNull(Ontology.allOntologyPrefixes))
     {
         Ontology.allOntologyPrefixes = [];
-        var ontologies = Ontology.getAllOntologiesArray();
+        const ontologies = Ontology.getAllOntologiesArray();
 
-        for(var i = 0; i < ontologies.length; i++)
+        for(let i = 0; i < ontologies.length; i++)
         {
-            var ontology = ontologies[i];
+            const ontology = ontologies[i];
             Ontology.allOntologyPrefixes.push(ontology.prefix);
         }
     }
@@ -460,11 +414,11 @@ Ontology.getAllOntologiesArray = function()
 {
     Ontology.allOntologiesArray = [];
 
-    for(var ontologyPrefix in Ontology.allOntologies)
+    for(let ontologyPrefix in Ontology.allOntologies)
     {
         if(Ontology.allOntologies.hasOwnProperty(ontologyPrefix))
         {
-            var ontology = Ontology.allOntologies[ontologyPrefix];
+            const ontology = Ontology.allOntologies[ontologyPrefix];
             Ontology.allOntologiesArray.push(ontology);
         }
     }
@@ -474,15 +428,15 @@ Ontology.getAllOntologiesArray = function()
 
 Ontology.getAllOntologiesUris = function()
 {
-    if(Ontology.ontologyUris == null)
+    if(isNull(Ontology.ontologyUris))
     {
-        var ontologies = Ontology.getAllOntologiesArray();
+        const ontologies = Ontology.getAllOntologiesArray();
 
         Ontology.ontologyUris = [];
 
-        for(var i = 0 ; i < ontologies.length; i++)
+        for(let i = 0 ; i < ontologies.length; i++)
         {
-            var ontology = ontologies[i];
+            const ontology = ontologies[i];
             Ontology.ontologyUris.push(ontology.uri);
         }
     }
@@ -497,15 +451,15 @@ Ontology.getAllOntologiesUris = function()
 
 Ontology.getPublicOntologyPrefixes = function()
 {
-    if(Ontology.publicOntologyPrefixes == null)
+    if(isNull(Ontology.publicOntologyPrefixes))
     {
         Ontology.publicOntologyPrefixes = [];
 
-        var ontologies = Ontology.getAllOntologiesArray();
+        const ontologies = Ontology.getAllOntologiesArray();
 
-        for(var i = 0 ; i < ontologies.length; i++)
+        for(let i = 0 ; i < ontologies.length; i++)
         {
-            var ontology = ontologies[i];
+            const ontology = ontologies[i];
             if(!ontology.private)
             {
                 Ontology.publicOntologyPrefixes.push(ontology.prefix);
@@ -518,11 +472,11 @@ Ontology.getPublicOntologyPrefixes = function()
 
 Ontology.getPublicOntologies = function()
 {
-    if(Ontology.publicOntologies == null)
+    if(isNull(Ontology.publicOntologies))
     {
         Ontology.publicOntologies = [];
 
-        if(Config.public_ontologies != null && Config.public_ontologies != [])
+        if(typeof Config.public_ontologies !== "undefined" && Config.public_ontologies !== [])
         {
             var ontologies = _.filter(Ontology.getAllOntologiesArray(), function(ontology){
                 return _.contains(Config.public_ontologies, ontology.prefix);
@@ -533,7 +487,7 @@ Ontology.getPublicOntologies = function()
             var ontologies = Ontology.getAllOntologiesArray();
         }
 
-        for(var i = 0 ; i < ontologies.length; i++)
+        for(let i = 0 ; i < ontologies.length; i++)
         {
             var ontology = ontologies[i];
             if(!ontology.private)
@@ -548,14 +502,14 @@ Ontology.getPublicOntologies = function()
 
 Ontology.getPublicOntologiesUris = function()
 {
-    if(Ontology.publicOntologyUris == null)
+    if(isNull(Ontology.publicOntologyUris))
     {
         Ontology.publicOntologyUris = [];
 
-        var ontologies = Ontology.getAllOntologiesArray();
-        for(var i = 0 ; i < ontologies.length; i++)
+        const ontologies = Ontology.getAllOntologiesArray();
+        for(let i = 0 ; i < ontologies.length; i++)
         {
-            var ontology = ontologies[i];
+            const ontology = ontologies[i];
             if(!ontology.private)
             {
                 Ontology.publicOntologyUris.push(ontology.uri);
@@ -568,15 +522,15 @@ Ontology.getPublicOntologiesUris = function()
 
 Ontology.getOntologyPrefix = function(ontologyUri)
 {
-    if(Ontology.ontologyPrefixesMatcher == null)
+    if(isNull(Ontology.ontologyPrefixesMatcher))
     {
         Ontology.ontologyPrefixesMatcher = {};
 
-        var ontologies = Ontology.getAllOntologiesArray();
+        const ontologies = Ontology.getAllOntologiesArray();
 
-        for(var i = 0 ; i < ontologies.length; i++)
+        for(let i = 0 ; i < ontologies.length; i++)
         {
-            var ontology = ontologies[i];
+            const ontology = ontologies[i];
             Ontology.ontologyPrefixesMatcher[ontology.uri] = ontology.prefix;
         }
     }
@@ -586,42 +540,33 @@ Ontology.getOntologyPrefix = function(ontologyUri)
 
 Ontology.findByResearchDomainPrefixOrComment = function(query, maxNumberOfResults, callback)
 {
-    var results = [];
+    const results = [];
 
-    var containsString = function(needle, haystack)
-    {
-        if(haystack == null)
-        {
+    const containsString = function (needle, haystack) {
+        if (isNull(haystack)) {
             return false;
         }
-        else
-        {
-            var downcasedNeedle = needle.toLowerCase();
-            var downcasedHaystack= haystack.toLowerCase();
+        else {
+            const downcasedNeedle = needle.toLowerCase();
+            const downcasedHaystack = haystack.toLowerCase();
 
-            if(downcasedHaystack.indexOf(downcasedNeedle) > - 1)
-            {
+            if (downcasedHaystack.indexOf(downcasedNeedle) > -1) {
                 return true;
             }
-            else
-            {
+            else {
                 return false;
             }
         }
 
-    }
+    };
 
-    var containsResearchDomain = function(ontology, query)
-    {
-        if(ontology.domain == null || !(ontology.domain instanceof Array))
-        {
+    const containsResearchDomain = function (ontology, query) {
+        if (isNull(ontology.domain) || !(ontology.domain instanceof Array)) {
             return false;
         }
-        else
-        {
-            for(var i = 0; i < ontology.domain.length;i++)
-            {
-                var aDomain = ontology.domain[i];
+        else {
+            for (let i = 0; i < ontology.domain.length; i++) {
+                const aDomain = ontology.domain[i];
 
                 //TODO should be aDomain.dcterms.description but not implemented yet
                 return containsString(query, aDomain);
@@ -630,15 +575,15 @@ Ontology.findByResearchDomainPrefixOrComment = function(query, maxNumberOfResult
         }
     };
 
-    var ontologies = Ontology.getPublicOntologies();
+    const ontologies = Ontology.getPublicOntologies();
 
     for(var i = 0; i < ontologies.length && results.length < maxNumberOfResults; i++)
     {
         var ontology = ontologies[i];
 
-        if(ontology.description != null || ontology.prefix != null || (ontology.domain != null))
+        if(!isNull(ontology.description) || !isNull(ontology.prefix) || (!isNull(ontology.domain)))
         {
-            var typeOfDomain = typeof ontology.domain;
+            const typeOfDomain = typeof ontology.domain;
             if(typeOfDomain === "string")
             {
                 ontology.domain = [ontology.domain];
@@ -677,49 +622,49 @@ Ontology.findByResearchDomainPrefixOrComment = function(query, maxNumberOfResult
 
 Ontology.prototype.save = function(callback)
 {
-    var self = this;
-    var uri = self.uri;
+    const self = this;
+    const uri = self.uri;
 
-    var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
-    var description = new Descriptor(
+    const description = new Descriptor(
         {
             prefixedForm: "dcterms:description",
             value: self.description
         });
 
-    var domainsArray = [];
+    const domainsArray = [];
 
-    if(self.domain != null && self.domain instanceof Array)
+    if(!isNull(self.domain) && self.domain instanceof Array)
     {
-        for(var i = 0; i < self.domain.length; i++)
+        for(let i = 0; i < self.domain.length; i++)
         {
             domainsArray.push(self.domain[i].uri);
         }
     }
 
-    var domain = new Descriptor(
+    const domain = new Descriptor(
         {
             prefixedForm: "ddr:hasResearchDomain",
             value: domainsArray
         });
 
-    var type = new Descriptor({
+    const type = new Descriptor({
         prefixedForm: "rdf:type",
-        value : Ontology.prefixedRDFType
+        value: Ontology.prefixedRDFType
     });
 
-    var prefix = new Descriptor({
+    const prefix = new Descriptor({
         prefixedForm: "ddr:hasPrefix",
-        value : self.prefix
+        value: self.prefix
     });
 
-    var modified = new Descriptor({
+    const modified = new Descriptor({
         prefixedForm: "dcterms:modified",
-        value : new Date().toISOString()
+        value: new Date().toISOString()
     });
 
-    var newDescriptorsArray = [description, domain, type, prefix, modified];
+    const newDescriptorsArray = [description, domain, type, prefix, modified];
 
 
     self.replaceDescriptorsInTripleStore(newDescriptorsArray, db.graphUri, function(err, result){
@@ -729,7 +674,7 @@ Ontology.prototype.save = function(callback)
         }
         else
         {
-            var msg = "Unable to SAVE ontology with uri : " + uri + " because of error: " + result;
+            const msg = "Unable to SAVE ontology with uri : " + uri + " because of error: " + result;
             console.error(msg);
             callback(err, msg);
         }
@@ -764,7 +709,7 @@ Ontology.autocomplete_research_domains = function(query, callback)
             if (err)
             {
                 var domains = [];
-                for(var i = 0; i < results.length; i++)
+                for(let i = 0; i < results.length; i++)
                 {
                     domains.push(results['domain']);
                 }
@@ -776,21 +721,21 @@ Ontology.autocomplete_research_domains = function(query, callback)
 
 Ontology.findByPrefix = function(prefix, callback)
 {
-    var prefixes = Object.keys(Ontology.allOntologies);
+    const prefixes = Object.keys(Ontology.allOntologies);
 
     //look first in memory, then go to the database if if fails.
-    for (var i = 0; i < prefixes.length; i++)
+    for (let i = 0; i < prefixes.length; i++)
     {
-        var aPrefix = prefixes[i];
-        if (aPrefix == prefix)
+        const aPrefix = prefixes[i];
+        if (aPrefix === prefix)
         {
-            var result = { "uri" : Ontology.allOntologies[aPrefix].uri };
-            var ontology = new Ontology(result);
+            const result = {"uri": Ontology.allOntologies[aPrefix].uri};
+            const ontology = new Ontology(result);
             return callback(null, ontology);
         }
     }
 
-    var query =
+    const query =
         "WITH [0] \n" +
         "SELECT * \n" +
         "WHERE \n" +
@@ -812,17 +757,17 @@ Ontology.findByPrefix = function(prefix, callback)
         ],
         function (err, results)
         {
-            if (!err && results != null)
+            if (!err && !isNull(results))
             {
                 if (results.length > 1)
                 {
-                    var msg = "[FATAL ERROR] More than one ontology registered for the same prefix in Dendro! There must be only one ontology with a given prefix! Prefix that has more than one ontology associated is : " + prefix;
+                    const msg = "[FATAL ERROR] More than one ontology registered for the same prefix in Dendro! There must be only one ontology with a given prefix! Prefix that has more than one ontology associated is : " + prefix;
                     console.error(msg);
                     callback(1, msg);
                 }
-                else if (results.length == 1)
+                else if (results.length === 1)
                 {
-                    var newOntology = new Ontology(results[0]);
+                    const newOntology = new Ontology(results[0]);
                     callback(null, newOntology);
                 }
                 else

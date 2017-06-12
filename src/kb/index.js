@@ -1,9 +1,15 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var util = require('util');
-var db = function() { return GLOBAL.db.default; }();
-var es = require('elasticsearch');
-var slug = require('slug');
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+
+const util = require('util');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const es = require('elasticsearch');
+const slug = require('slug');
 
 IndexConnection.indexTypes =
 {
@@ -80,7 +86,7 @@ function IndexConnection()
 
 IndexConnection.prototype.open = function(host, port, index, callback)
 {	
-    var self = this;
+    const self = this;
     if (!self.client)
     {
 		const util = require('util');
@@ -94,7 +100,7 @@ IndexConnection.prototype.open = function(host, port, index, callback)
             host: host + ":" + port,
         };
 
-        if(Config.debug.index.elasticsearch_connection_log_type !== null && Config.elasticsearch_connection_log_type !== "")
+        if(Config.debug.index.elasticsearch_connection_log_type !== "undefined" && Config.elasticsearch_connection_log_type !== "")
         {
             serverOptions.log = Config.debug.index.elasticsearch_connection_log_type;
         }
@@ -122,9 +128,9 @@ IndexConnection.prototype.open = function(host, port, index, callback)
 
 
 IndexConnection.prototype.indexDocument = function(type, document, callback) {
-    var self = this;
+    const self = this;
 
-    if(document._id != null)
+    if(typeof document._id !== "undefined")
     {
         delete document._id;
 
@@ -173,8 +179,8 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
 
 IndexConnection.prototype.deleteDocument = function(documentID, type, callback)
 {
-    var self = this;
-    if(documentID == null)
+    const self = this;
+    if(isNull(documentID))
     {
         callback(null, "No document to delete");
     }
@@ -239,10 +245,8 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
 		},
 		function(callback) {
 
-			var settings = {
-			    body : {
-
-                }
+			const settings = {
+                body: {}
             };
 
 			if (numberOfShards) {
@@ -259,7 +263,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
             self.client.indices.create(settings, function(err, data){
                 if(!err)
                 {
-                    if(data.error == null && data.acknowledged == true)
+                    if(isNull(data.error) && typeof data.acknowledged === true)
                     {
                         endCallback(null, "Index with name " + indexName + " successfully created.");
                     }
@@ -283,7 +287,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
 
 IndexConnection.prototype.delete_index  = function (callback)
 {
-    var self = this;
+    const self = this;
     
     this.client.indices.delete(
         {
@@ -296,7 +300,7 @@ IndexConnection.prototype.delete_index  = function (callback)
             }
             else
             {
-                var error = "Error deleting index : " + data.error;
+                const error = "Error deleting index : " + data.error;
                 console.error(error);
                 callback(error, result);
             }
@@ -312,24 +316,24 @@ IndexConnection.prototype.delete_index  = function (callback)
 
 IndexConnection.prototype.check_if_index_exists = function (callback)
 {
-    var self = this;
-	var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-	var xmlHttp = new XMLHttpRequest();
+    const self = this;
+	const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
+	const xmlHttp = new XMLHttpRequest();
 
     //var util = require('util');
 
 	// prepare callback
 	xmlHttp.onreadystatechange = function() {
-		if (xmlHttp.readyState == 4) {
+		if (xmlHttp.readyState === 4) {
 
-            if (xmlHttp.status != 200)  {
+            if (xmlHttp.status !== 200)  {
                 console.log("[FATAL ERROR] Unable to contact ElasticSearch indexing service " +
                     "on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
                 process.exit(1);
             }
             else
             {
-                var response = JSON.parse(xmlHttp.responseText);
+                const response = JSON.parse(xmlHttp.responseText);
 
                 if(response.indices.hasOwnProperty(self.index.short_name))
                 {
@@ -343,14 +347,14 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 		}
 
         if (xmlHttp.status &&
-            xmlHttp.status != 200)  {
+            xmlHttp.status !== 200)  {
             console.log("[FATAL ERROR] Unable to contact ElasticSearch indexing service " +
                 "on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
             process.exit(1);
         }
 	};
 
-	var fullUrl = "http://" + self.host + ":" + self.port + "/_stats";
+	const fullUrl = "http://" + self.host + ":" + self.port + "/_stats";
 
     console.error("Index Checker URL: "+ util.inspect(fullUrl));
 
@@ -390,7 +394,7 @@ IndexConnection.prototype.moreLikeThis = function(typeName,
 {
     let self = this;
 
-    if(documentId != null)
+    if(!isNull(documentId))
     {
         self.client.search(
             self.index.short_name,
@@ -423,7 +427,7 @@ IndexConnection.prototype.moreLikeThis = function(typeName,
         console.error(error);
         callback(1, error);
     }
-}
+};
 
 
 /**
@@ -432,8 +436,8 @@ IndexConnection.prototype.moreLikeThis = function(typeName,
 
 IndexConnection.prototype.transformURIintoVarName = function(uri)
 {
-    var transformedUri = uri.replace(/[^A-z]|[0-9]/g, "_");
+    const transformedUri = uri.replace(/[^A-z]|[0-9]/g, "_");
     return transformedUri;
-}
+};
 
 module.exports.IndexConnection = IndexConnection;

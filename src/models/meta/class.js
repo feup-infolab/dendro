@@ -1,52 +1,48 @@
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+
 function Class(){
-    var newClass = Object.create(Class);
+    const newClass = Object.create(Class);
     return newClass;
 }
 
-var copyPrototypeFromParent = function(parentClass, childClass)
-{
-    if(parentClass == null || parentClass === Class)
-    {
+const copyPrototypeFromParent = function (parentClass, childClass) {
+    if (isNull(parentClass) || parentClass === Class) {
         return childClass;
     }
-    else
-    {
+    else {
         childClass.baseConstructor = parentClass;
         childClass.prototype['baseConstructor'] = parentClass;
 
-        for(aClassMethod in parentClass)
-        {
-            if(aClassMethod != "prototype" )
-            {
-                if(childClass[aClassMethod] == null)
-                {
+        for (aClassMethod in parentClass) {
+            if (aClassMethod !== "prototype") {
+                if (isNull(childClass[aClassMethod])) {
                     childClass[aClassMethod] = parentClass[aClassMethod];
                 }
-                else
-                {
+                else {
                     childClass[aClassMethod] = childClass[aClassMethod]; //superfluous, for debugging
                 }
             }
         }
 
-        for(aClassMethod in parentClass.prototype)
-        {
-            if(childClass.prototype[aClassMethod] == null)
-            {
+        for (aClassMethod in parentClass.prototype) {
+            if (isNull(childClass.prototype[aClassMethod])) {
                 childClass.prototype[aClassMethod] = parentClass.prototype[aClassMethod];
             }
         }
 
-        var grandparentClass = parentClass.baseConstructor;
+        const grandparentClass = parentClass.baseConstructor;
 
-        var childClassWithGrandparentMethods = copyPrototypeFromParent(grandparentClass, childClass);
+        const childClassWithGrandparentMethods = copyPrototypeFromParent(grandparentClass, childClass);
         return childClassWithGrandparentMethods;
     }
 };
 
-var getParentConstructor = function(parentClass)
-{
-    var parentConstructor = parentClass;
+const getParentConstructor = function (parentClass) {
+    const parentConstructor = parentClass;
     return parentConstructor;
 };
 
@@ -55,7 +51,7 @@ Class.extend = function(childClass, parentClass)
     childClass.baseConstructor = getParentConstructor(parentClass);
     childClass.prototype['baseConstructor'] = getParentConstructor(parentClass);
 
-    var childClassWithFamilyTreePrototypes = copyPrototypeFromParent(parentClass, childClass);
+    const childClassWithFamilyTreePrototypes = copyPrototypeFromParent(parentClass, childClass);
 
     return childClassWithFamilyTreePrototypes;
 };

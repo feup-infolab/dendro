@@ -1,5 +1,6 @@
-var XMLWriter = require('xml-writer');
-var self = this;
+const XMLWriter = require('xml-writer');
+const self = this;
+const isNull = require("../utils/null.js").isNull;
 
 module.exports.dataToJSON = function(data){
 
@@ -7,15 +8,15 @@ module.exports.dataToJSON = function(data){
 };
 module.exports.metadataToRDF = function(metadata){
 
-    var xw = new XMLWriter;
+    const xw = new XMLWriter;
     xw.startDocument('1.0','UTF-8');
     xw.startElementNS('rdf','RDF');
     xw.writeAttributeNS('xmlns','rdf', 'http://www.w3.org/1999/02/22-rdf-syntax-ns#');
 
-    var namespaces = {};
-    var tempXML = self.metadataToRDFRec(metadata, namespaces);
+    const namespaces = {};
+    const tempXML = self.metadataToRDFRec(metadata, namespaces);
 
-    for(var prop in namespaces){
+    for(let prop in namespaces){
         xw.writeAttributeNS('xmlns',prop, namespaces[prop]);
     }
     xw.writeRaw(tempXML);
@@ -25,14 +26,14 @@ module.exports.metadataToRDF = function(metadata){
     return xw.toString();
 };
 exports.metadataToRDFRec = function (metadata,namespaces){
-    var xw = new XMLWriter;
+    const xw = new XMLWriter;
 
-    if(metadata.title != null)
+    if(!isNull(metadata.title))
         xw.startElementNS('rdf','Description').writeAttributeNS('rdf','about', metadata.title.toString());
     else
         xw.startElementNS('rdf','Description');
 
-    if(metadata.descriptors != null){
+    if(!isNull(metadata.descriptors)){
         metadata.descriptors.forEach(function(descriptor){
             namespaces[descriptor.prefix] = descriptor.ontology;
             xw.startElementNS(descriptor.prefix, descriptor.shortName);
@@ -41,7 +42,7 @@ exports.metadataToRDFRec = function (metadata,namespaces){
         });
     }
 
-    if(metadata.hasLogicalParts != null && metadata.hasLogicalParts.length > 0)
+    if(!isNull(metadata.hasLogicalParts) && metadata.hasLogicalParts.length > 0)
     {
         namespaces['nie'] = "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#";
 
@@ -59,35 +60,35 @@ exports.metadataToRDFRec = function (metadata,namespaces){
 };
 module.exports.metadataToText = function(metadata){
 
-    var level = 0;
-    var namespaces = {};
-    var comments = {};
-    var tempText = self.metadataToTextRec(metadata, level,namespaces, comments);
+    const level = 0;
+    const namespaces = {};
+    const comments = {};
+    const tempText = self.metadataToTextRec(metadata, level, namespaces, comments);
 
-    var namespacesText = "";
+    let namespacesText = "";
     for(var prefix in namespaces){
         namespacesText += prefix + ":" + namespaces[prefix] + "\n";
     }
 
-    var commentsText = "";
+    let commentsText = "";
     for(var prefix in comments){
         commentsText += prefix + ":" + "\n";
-        for(var shortName in comments[prefix])
+        for(let shortName in comments[prefix])
             commentsText += " " + comments[prefix][shortName]['label']+ "(" + shortName +")" + ": " + comments[prefix][shortName]['comment'] + "\n";
     }
 
     return namespacesText + "\n" +  tempText + "\n" + commentsText;
 };
 exports.metadataToTextRec = function(metadata, level, namespaces, comments){
-    var text = ""
+    let text = "";
 
-    for(var i = 0; i< level-1; i++){
+    for(let i = 0; i< level-1; i++){
         text += " " + " " + " ";
     }
     if(level >0) text+= "|" + "-" + "-";
 
-    if(metadata.file_extension != null){
-        if(metadata.file_extension ==  "folder"){
+    if(typeof metadata.file_extension !== "undefined"){
+        if(metadata.file_extension ===  "folder"){
             text += "./";
         } else{
             text += ".";
@@ -97,11 +98,11 @@ exports.metadataToTextRec = function(metadata, level, namespaces, comments){
        text += "./";
     }
 
-    if(metadata.title !=null)
+    if(metadata.title !==null)
         text += metadata.title + "\n";
     else
         text+= "\n";
-    if(metadata.descriptors!= null){
+    if(typeof metadata.descriptors!== "undefined"){
         metadata.descriptors.forEach(function(descriptor){
             namespaces[descriptor.prefix] = descriptor.ontology;
             if (!(descriptor.prefix in comments)) {
@@ -115,14 +116,14 @@ exports.metadataToTextRec = function(metadata, level, namespaces, comments){
             comments[descriptor.prefix][descriptor.shortName]['comment'] = descriptor.comment;
             comments[descriptor.prefix][descriptor.shortName]['label'] = descriptor.label;
 
-            for(var j = 0; j< level-1; j++) text += " " + " " + " ";
+            for(let j = 0; j< level-1; j++) text += " " + " " + " ";
             if(level >0){
                 text+= " " + " " + " "  ;
             }
             text += "|" +" "+ "+" + descriptor.label + "(" + descriptor.prefixedForm +")"+ " : " + descriptor.value.toString() + "\n";
         });
 
-        if(metadata.hasLogicalParts != null && metadata.hasLogicalParts.length > 0){
+        if(!isNull(metadata.hasLogicalParts) && metadata.hasLogicalParts.length > 0){
             level++;
             metadata.hasLogicalParts.forEach(function(logicalPart){
                 text += self.metadataToTextRec(logicalPart, level, namespaces,comments);
@@ -132,6 +133,6 @@ exports.metadataToTextRec = function(metadata, level, namespaces, comments){
 
 
     return text;
-}
+};
 
 

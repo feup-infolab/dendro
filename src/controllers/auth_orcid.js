@@ -1,5 +1,6 @@
 const Config = function() { return GLOBAL.Config; }();
 
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
 module.exports.login = function(req, res, next){

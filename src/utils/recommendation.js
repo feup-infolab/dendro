@@ -1,16 +1,20 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var RecommendationUtils = {};
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+
+const RecommendationUtils = {};
 
 RecommendationUtils.getActiveRecommender = function()
 {
-    var recommendationModes = Object.keys(Config.recommendation.modes);
-    var activeMode;
+    const recommendationModes = Object.keys(Config.recommendation.modes);
+    let activeMode;
 
-    for (var i = 0; i < recommendationModes.length; i++)
+    for (let i = 0; i < recommendationModes.length; i++)
     {
-        var key = recommendationModes[i];
-        if (Config.recommendation.modes[key] != null && Config.recommendation.modes[key].active)
+        const key = recommendationModes[i];
+        if (!isNull(Config.recommendation.modes[key]) && Config.recommendation.modes[key].active)
         {
             if (!activeMode)
             {
@@ -25,6 +29,6 @@ RecommendationUtils.getActiveRecommender = function()
     }
 
     return activeMode;
-}
+};
 
 module.exports.RecommendationUtils = RecommendationUtils;

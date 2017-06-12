@@ -1,113 +1,108 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-var records = require(Config.absPathInSrcFolder("/controllers/records.js"));
-var Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
-var swordConnection = require(Config.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
-var Figshare = require(Config.absPathInSrcFolder("/export_libs/figshare/figshare.js"));
-var B2ShareClient = require('node-b2share-v2');
-var Zenodo = require(Config.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
-var Utils = require(Config.absPathInPublicFolder("/js/utils.js")).Utils;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var async = require('async');
-var nodemailer = require('nodemailer');
-var flash = require('connect-flash');
-var _ = require('underscore');
-var fs = require('fs');
-var path = require('path');
+const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+const records = require(Config.absPathInSrcFolder("/controllers/records.js"));
+const Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
+const swordConnection = require(Config.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
+const Figshare = require(Config.absPathInSrcFolder("/export_libs/figshare/figshare.js"));
+const B2ShareClient = require('node-b2share-v2');
+const Zenodo = require(Config.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
+const Utils = require(Config.absPathInPublicFolder("/js/utils.js")).Utils;
+
+const async = require('async');
+const nodemailer = require('nodemailer');
+const flash = require('connect-flash');
+const _ = require('underscore');
+const fs = require('fs');
+const path = require('path');
 
 
-var createPackage = function(parentFolderPath, folder, callback){
+const createPackage = function (parentFolderPath, folder, callback) {
 
-    var folderToZip = path.join(parentFolderPath, folder.nie.title);
-    var outputFilenameZip = path.join(parentFolderPath,folder.nie.title + ".zip");
-    var outputFilenameRDF = path.join(parentFolderPath,folder.nie.title + ".rdf");
-    var outputFilenameTXT = path.join(parentFolderPath,folder.nie.title + ".txt");
-    var outputFilenameJSON = path.join(parentFolderPath,folder.nie.title + ".json");
+    const folderToZip = path.join(parentFolderPath, folder.nie.title);
+    const outputFilenameZip = path.join(parentFolderPath, folder.nie.title + ".zip");
+    const outputFilenameRDF = path.join(parentFolderPath, folder.nie.title + ".rdf");
+    const outputFilenameTXT = path.join(parentFolderPath, folder.nie.title + ".txt");
+    const outputFilenameJSON = path.join(parentFolderPath, folder.nie.title + ".json");
 
-    var filesToIncludeInPackage = [];
-    var extraFiles = [];
+    const filesToIncludeInPackage = [];
+    const extraFiles = [];
 
     async.series([
-            function(cb)
-            {
-                fs.readdir(folderToZip, function (err, files)
-                {
-                    if (!err)
-                    {
-                        async.map(files, function (file, callback)
-                        {
-                            var absPathToChild = path.join(folderToZip, file);
-                            fs.stat(absPathToChild, function (err, stats)
-                            {
-                                if (!stats.isDirectory())
-                                {
+            function (cb) {
+                fs.readdir(folderToZip, function (err, files) {
+                    if (!err) {
+                        async.map(files, function (file, callback) {
+                            const absPathToChild = path.join(folderToZip, file);
+                            fs.stat(absPathToChild, function (err, stats) {
+                                if (!stats.isDirectory()) {
                                     filesToIncludeInPackage.push(absPathToChild);
                                 }
                                 callback(err, stats);
                             });
-                        }, function (err, results)
-                        {
+                        }, function (err, results) {
                             cb(err);
                         })
                     }
-                    else
-                    {
+                    else {
                         cb(err, files);
                     }
                 })
             },
-            function(cb)
-            {
-                var archiver = require('archiver');
+            function (cb) {
+                const archiver = require('archiver');
 
-                var output = fs.createWriteStream(outputFilenameZip);
-                var zipArchive = archiver('zip');
+                const output = fs.createWriteStream(outputFilenameZip);
+                const zipArchive = archiver('zip');
 
                 zipArchive.pipe(output);
 
                 zipArchive.bulk([
-                    { expand: true,src:["**"], cwd: folderToZip}
+                    {expand: true, src: ["**"], cwd: folderToZip}
                 ]);
 
-                zipArchive.finalize(function(err, bytes) {
+                zipArchive.finalize(function (err, bytes) {
 
                     if (err) {
                         throw err;
                     }
                 });
 
-                output.on('close', function() {
+                output.on('close', function () {
                     console.log('Done with the zip', folderToZip);
                     filesToIncludeInPackage.push(outputFilenameZip);
                     extraFiles.push(outputFilenameZip);
 
-                    folder.findMetadataRecursive(function(err, result) {
+                    folder.findMetadataRecursive(function (err, result) {
                         if (!err) {
-                            var metadataRDF = require('pretty-data').pd.xml(Serializers.metadataToRDF(result));
+                            const metadataRDF = require('pretty-data').pd.xml(Serializers.metadataToRDF(result));
 
-                            fs.writeFile(outputFilenameRDF, metadataRDF, function(err) {
+                            fs.writeFile(outputFilenameRDF, metadataRDF, function (err) {
                                 if (!err) {
                                     console.log("The file " + outputFilenameRDF + " was saved!");
                                     filesToIncludeInPackage.push(outputFilenameRDF);
                                     extraFiles.push(outputFilenameRDF);
 
-                                    var metadataTXT = Serializers.metadataToText(result);
+                                    const metadataTXT = Serializers.metadataToText(result);
 
-                                    fs.writeFile(outputFilenameTXT, metadataTXT, function(err) {
+                                    fs.writeFile(outputFilenameTXT, metadataTXT, function (err) {
                                         if (!err) {
                                             console.log("The file " + outputFilenameTXT + " was saved!");
                                             filesToIncludeInPackage.push(outputFilenameTXT);
                                             extraFiles.push(outputFilenameTXT);
 
-                                            var metadataJSON = require('pretty-data').pd.json(JSON.stringify(result));
+                                            const metadataJSON = require('pretty-data').pd.json(JSON.stringify(result));
 
-                                            fs.writeFile(outputFilenameJSON, metadataJSON, function(err) {
+                                            fs.writeFile(outputFilenameJSON, metadataJSON, function (err) {
                                                 if (!err) {
-                                                    console.log("The file " + outputFilenameJSON  + " was saved!");
+                                                    console.log("The file " + outputFilenameJSON + " was saved!");
                                                     filesToIncludeInPackage.push(outputFilenameJSON);
                                                     extraFiles.push(outputFilenameJSON);
 
@@ -133,7 +128,7 @@ var createPackage = function(parentFolderPath, folder, callback){
                             });
                         }
                         else {
-                            var msg = "Error finding metadata in " + folder.uri;
+                            const msg = "Error finding metadata in " + folder.uri;
                             console.error(msg);
                             cb(true, null);
 
@@ -142,24 +137,21 @@ var createPackage = function(parentFolderPath, folder, callback){
                 });
             }
         ],
-        function(err, results)
-        {
-            if (!err)
-            {
+        function (err, results) {
+            if (!err) {
                 callback(err, filesToIncludeInPackage, extraFiles);
             }
-            else
-            {
+            else {
                 callback(err, results);
             }
         });
-}
+};
 
 export_to_repository_sword = function(req, res){
-    var requestedResourceUri = req.params.requestedResource;
-    var targetRepository = req.body.repository;
+    const requestedResourceUri = req.params.requestedResource;
+    const targetRepository = req.body.repository;
 
-    if (targetRepository.ddr.hasExternalUri == null) {
+    if (isNull(targetRepository.ddr.hasExternalUri)) {
         var msg = "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute";
         console.error(msg);
         res.status(500).json(
@@ -172,8 +164,8 @@ export_to_repository_sword = function(req, res){
     else {
         Folder.findByUri(requestedResourceUri, function (err, folder) {
             if (!err) {
-                if (folder != null) {
-                    if (folder.dcterms.title == null) {
+                if (!isNull(folder)) {
+                    if (isNull(folder.dcterms.title)) {
                         var msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
                         console.error(msg);
                         res.status(400).json(
@@ -191,15 +183,15 @@ export_to_repository_sword = function(req, res){
                                         console.log("Package for export " + requestedResourceUri + " created.");
 
 
-                                        var serviceDocumentRef = null;
+                                        let serviceDocumentRef = null;
 
-                                        if (targetRepository.ddr.hasPlatform.foaf.nick == "dspace") {
+                                        if (targetRepository.ddr.hasPlatform.foaf.nick === "dspace") {
                                             serviceDocumentRef = targetRepository.ddr.hasExternalUri + Config.swordConnection.DSpaceServiceDocument;
                                         }
-                                        else if (targetRepository.ddr.hasPlatform.foaf.nick == "eprints") {
+                                        else if (targetRepository.ddr.hasPlatform.foaf.nick === "eprints") {
                                             serviceDocumentRef = targetRepository.ddr.hasExternalUri + Config.swordConnection.EprintsServiceDocument;
                                         }
-                                        var options = {
+                                        const options = {
                                             files: files,
                                             collectionRef: targetRepository.ddr.hasSwordCollectionUri,
                                             repositoryType: targetRepository.ddr.hasPlatform.foaf.nick,
@@ -285,12 +277,12 @@ export_to_repository_sword = function(req, res){
 
 export_to_repository_ckan = function(req, res){
     try{
-        var CKAN = require('ckan');
+        const CKAN = require('ckan');
 
-        var requestedResourceUri = req.params.requestedResource;
-        var targetRepository = req.body.repository;
+        const requestedResourceUri = req.params.requestedResource;
+        const targetRepository = req.body.repository;
 
-        var overwrite = false;
+        let overwrite = false;
 
         try{
             overwrite = JSON.parse(req.body.overwrite);
@@ -300,102 +292,93 @@ export_to_repository_ckan = function(req, res){
             console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
         }
 
-        var createOrUpdateFilesInPackage = function(datasetFolderMetadata, packageId, client, callback, overwrite, extraFiles)
-        {
-            var files = [];
-            var locations = [];
+        const createOrUpdateFilesInPackage = function (datasetFolderMetadata, packageId, client, callback, overwrite, extraFiles) {
+            const files = [];
+            const locations = [];
 
 
-            for(var i = 0; i < datasetFolderMetadata.original_node.nie.hasLogicalPart.length; i++)
-            {
-                var child = datasetFolderMetadata.children[i];
-                if(child != null)
-                {
-                    if(child.original_node instanceof File)
-                    {
+            for (var i = 0; i < datasetFolderMetadata.original_node.nie.hasLogicalPart.length; i++) {
+                const child = datasetFolderMetadata.children[i];
+                if (!isNull(child)) {
+                    if (child.original_node instanceof File) {
                         files.push(child.original_node);
                         locations.push(datasetFolderMetadata.children[i].temp_location);
                     }
-                    else
-                    {
+                    else {
                         callback(1, "There was an error preparing a file in the server: " + JSON.stringify(child));
                     }
                 }
             }
 
-            var resources = [];
-            var path = require('path');
+            const resources = [];
+            const path = require('path');
 
-            for(var i = 0; i < files.length; i++)
-            {
-                var file = files[i];
+            for (var i = 0; i < files.length; i++) {
+                const file = files[i];
                 var location = locations[i];
 
                 var fileExtension = path.extname(location).substr(1);
                 var fileName = path.basename(location);
 
                 var record =
-                {
-                    absolute_file_path : location,
-                    url : targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,
-                    package_id : packageId,
-                    description: file.dcterms.description || '< no description available >',
-                    filename : fileName,
-                    mimetype: Config.mimeType(fileExtension),
-                    extension : fileExtension,
-                    format : fileExtension.toUpperCase(),
-                    overwrite_if_exists : overwrite
-                };
+                    {
+                        absolute_file_path: location,
+                        url: targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,
+                        package_id: packageId,
+                        description: file.dcterms.description || '< no description available >',
+                        filename: fileName,
+                        mimetype: Config.mimeType(fileExtension),
+                        extension: fileExtension,
+                        format: fileExtension.toUpperCase(),
+                        overwrite_if_exists: overwrite
+                    };
 
                 resources.push(record);
             }
 
-            for(var i = 0; i < extraFiles.length; i++)
-            {
+            for (var i = 0; i < extraFiles.length; i++) {
                 var location = extraFiles[i];
 
                 var fileExtension = path.extname(location).substr(1);
                 var fileName = path.basename(location);
 
                 var record =
-                {
-                    absolute_file_path : location,
-                    url : targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,
-                    package_id : packageId,
-                    filename : fileName,
-                    mimetype: Config.mimeType(fileExtension),
-                    extension : fileExtension,
-                    format : fileExtension.toUpperCase(),
-                    overwrite_if_exists : overwrite
-                };
+                    {
+                        absolute_file_path: location,
+                        url: targetRepository.ddr.hasExternalUri + "/dataset/" + packageId + "/resource/" + fileName,
+                        package_id: packageId,
+                        filename: fileName,
+                        mimetype: Config.mimeType(fileExtension),
+                        extension: fileExtension,
+                        format: fileExtension.toUpperCase(),
+                        overwrite_if_exists: overwrite
+                    };
 
-                if(Config.exporting.generated_files_metadata[fileExtension] != null)
-                {
+                if (typeof Config.exporting.generated_files_metadata[fileExtension] !== "undefined") {
                     record.description = Config.exporting.generated_files_metadata[fileExtension].dcterms.description;
                 }
-                else
-                {
+                else {
                     record.description = '< no description available >';
                 }
 
                 resources.push(record);
             }
 
-            client.upload_files_into_package(resources, packageId, function(err, result){
+            client.upload_files_into_package(resources, packageId, function (err, result) {
                 callback(err, result);
             });
         };
 
-        if(req.body.repository != null && req.body.repository.ddr != null)
+        if(!isNull(req.body.repository) && !isNull(req.body.repository.ddr))
         {
-            var organization = req.body.repository.ddr.hasOrganization;
+            const organization = req.body.repository.ddr.hasOrganization;
 
             Folder.findByUri(requestedResourceUri, function(err, folder){
                 if(!err)
                 {
-                    if(folder != null)
+                    if(!isNull(folder))
                     {
-                        if(folder.dcterms.title == null)
+                        if(isNull(folder.dcterms.title))
                         {
                             var msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
                             console.error(msg);
@@ -406,7 +389,7 @@ export_to_repository_ckan = function(req, res){
                                 }
                             );
                         }
-                        else if(folder.dcterms.description == null)
+                        else if(isNull(folder.dcterms.description))
                         {
                             var msg = "Folder " + folder.uri + " has no description! Please set the Description property (from the dcterms metadata schema) and try the exporting process again.";
                             console.error(msg);
@@ -419,18 +402,18 @@ export_to_repository_ckan = function(req, res){
                         }
                         else
                         {
-                            var jsonDescriptors = folder.getDescriptors([Config.types.private, Config.types.locked]);
+                            const jsonDescriptors = folder.getDescriptors([Config.types.private, Config.types.locked]);
 
-                            var extrasJSONArray = [];
+                            const extrasJSONArray = [];
 
                             jsonDescriptors.forEach(function(column) {
-                                var extraJson = {};
+                                const extraJson = {};
                                 extraJson["key"] = column.uri;
                                 extraJson["value"] = column.value;
                                 extrasJSONArray.push(extraJson);
                             });
 
-                            if(targetRepository.ddr.hasExternalUri == null)
+                            if(isNull(targetRepository.ddr.hasExternalUri))
                             {
                                 var msg = "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute";
                                 console.error(msg);
@@ -443,7 +426,7 @@ export_to_repository_ckan = function(req, res){
                             }
                             else
                             {
-                                var client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
+                                const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
 
                                 /**Check if organization exists**/
                                 client.action("organization_show",
@@ -454,9 +437,9 @@ export_to_repository_ckan = function(req, res){
                                     {
                                         if(!err)
                                         {
-                                            var slug = require('slug');
+                                            const slug = require('slug');
                                             //var slugifiedTitle = slug(folder.dcterms.title, "-");
-                                            var packageId = slug(folder.uri, "-");
+                                            let packageId = slug(folder.uri, "-");
 
                                             //ckan only accepts alphanumeric characters and dashes for the dataset ids
                                             //slugifiedTitle = slugifiedTitle.replace(/[^A-Za-z0-9-]/g, "").replace(/\./g, "").toLowerCase();
@@ -468,7 +451,7 @@ export_to_repository_ckan = function(req, res){
                                                     {
                                                         if (!err)
                                                         {
-                                                            var packageContents = [
+                                                            const packageContents = [
                                                                 {
                                                                     name: packageId,
                                                                     package_id: packageId,
@@ -492,8 +475,8 @@ export_to_repository_ckan = function(req, res){
                                                                         {
                                                                             deleteFolderRecursive(parentFolderPath);
 
-                                                                            var datasetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
-                                                                            var msg = "This dataset was already exported to this CKAN instance and is available at: <a href=\"" + datasetLocationOnCkan + "\">" + datasetLocationOnCkan + "</a> <br/><br/> Activate the Overwrite option to force an update."
+                                                                            const datasetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
+                                                                            var msg = "This dataset was already exported to this CKAN instance and is available at: <a href=\"" + datasetLocationOnCkan + "\">" + datasetLocationOnCkan + "</a> <br/><br/> Activate the Overwrite option to force an update.";
                                                                             res.status(500).json(
                                                                                 {
                                                                                     "result": "error",
@@ -516,8 +499,8 @@ export_to_repository_ckan = function(req, res){
                                                                                         {
                                                                                             if (!err)
                                                                                             {
-                                                                                                var dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
-                                                                                                var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten."
+                                                                                                const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
+                                                                                                var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten.";
 
                                                                                                 res.json(
                                                                                                     {
@@ -551,7 +534,7 @@ export_to_repository_ckan = function(req, res){
                                                                                             "message": msg
                                                                                         };
 
-                                                                                        if (result != null)
+                                                                                        if (!isNull(result))
                                                                                         {
                                                                                             response.result = result;
                                                                                         }
@@ -579,8 +562,8 @@ export_to_repository_ckan = function(req, res){
                                                                                     createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function(err, response){
                                                                                         if(!err)
                                                                                         {
-                                                                                            var dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
-                                                                                            var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/>"
+                                                                                            const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
+                                                                                            var msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/>";
 
                                                                                             res.json(
                                                                                                 {
@@ -592,7 +575,7 @@ export_to_repository_ckan = function(req, res){
                                                                                         else
                                                                                         {
                                                                                             var msg = "Error uploading files in the dataset to CKAN.";
-                                                                                            if (response != null)
+                                                                                            if (!isNull(response))
                                                                                             {
                                                                                                 msg += " Error returned : " + response;
                                                                                             }
@@ -612,7 +595,7 @@ export_to_repository_ckan = function(req, res){
                                                                                 else
                                                                                 {
                                                                                     var msg = "Error exporting dataset to CKAN.";
-                                                                                    if (response != null)
+                                                                                    if (!isNull(response))
                                                                                     {
                                                                                         msg += " Error returned : " + response;
                                                                                     }
@@ -631,7 +614,7 @@ export_to_repository_ckan = function(req, res){
                                                                         );
                                                                     }
                                                                     //dataset not found and error occurred
-                                                                    else if (!result.success && result.error.__type != "Not Found Error")
+                                                                    else if (!result.success && result.error.__type !== "Not Found Error")
                                                                     {
                                                                         deleteFolderRecursive(parentFolderPath);
                                                                         var msg = "Error checking for presence of old dataset for " + requestedResourceUri + " Error reported : " + result;
@@ -687,7 +670,7 @@ export_to_repository_ckan = function(req, res){
                                         {
                                             var msg = "Unable to check if organization "+targetRepository.ddr.hasOrganization+"  exists.";
 
-                                            if(info != null && info.error != null && (typeof info.error.message == "string"))
+                                            if(!isNull(info) && !isNull(info.error) && (typeof info.error.message === "string"))
                                             {
                                                 msg += " Error returned : " + info.error.message;
                                             }
@@ -756,10 +739,10 @@ export_to_repository_ckan = function(req, res){
 
 
 export_to_repository_figshare = function(req, res){
-    var requestedResourceUri = req.params.requestedResource;
-    var targetRepository = req.body.repository;
+    const requestedResourceUri = req.params.requestedResource;
+    const targetRepository = req.body.repository;
 
-    if (targetRepository.ddr.hasExternalUri == null) {
+    if (isNull(targetRepository.ddr.hasExternalUri)) {
         var msg = "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute";
         console.error(msg);
         res.status(500).json(
@@ -772,9 +755,9 @@ export_to_repository_figshare = function(req, res){
     else {
         Folder.findByUri(requestedResourceUri, function(err, folder){
             if(!err){
-                if(folder != null)
+                if(!isNull(folder))
                 {
-                    if(folder.dcterms.title == null)
+                    if(isNull(folder.dcterms.title))
                     {
                         var msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
                         console.error(msg);
@@ -794,21 +777,21 @@ export_to_repository_figshare = function(req, res){
 
 
                                         try {
-                                            var accessCodes = {
+                                            const accessCodes = {
                                                 consumer_key: targetRepository.ddr.hasConsumerKey,
                                                 consumer_secret: targetRepository.ddr.hasConsumerSecret,
                                                 access_token: targetRepository.ddr.hasAccessToken,
                                                 access_token_secret: targetRepository.ddr.hasAccessTokenSecret
                                             };
 
-                                            var title;
+                                            let title;
                                             if (Array.isArray(folder.dcterms.title)) {
                                                 title = folder.dcterms.title[0]
                                             }
                                             else {
                                                 title = folder.dcterms.title;
                                             }
-                                            var description;
+                                            let description;
                                             if (Array.isArray(folder.dcterms.description)) {
                                                 description = folder.dcterms.description[0]
                                             }
@@ -816,12 +799,12 @@ export_to_repository_figshare = function(req, res){
                                                 description = folder.dcterms.description;
                                             }
 
-                                            var article_data = {
+                                            const article_data = {
                                                 title: title,
                                                 description: description
                                             };
 
-                                            var figshare = new Figshare(accessCodes);
+                                            const figshare = new Figshare(accessCodes);
                                             figshare.createArticle(article_data, function (err, article) {
                                                 if (err) {
                                                     deleteFolderRecursive(parentFolderPath);
@@ -927,10 +910,10 @@ export_to_repository_figshare = function(req, res){
 };
 
 export_to_repository_zenodo = function(req, res){
-    var requestedResourceUri = req.params.requestedResource;
-    var targetRepository = req.body.repository;
+    const requestedResourceUri = req.params.requestedResource;
+    const targetRepository = req.body.repository;
 
-    if (targetRepository.ddr.hasExternalUri == null) {
+    if (isNull(targetRepository.ddr.hasExternalUri)) {
         var msg = "No target repository URL specified. Check the value of the ddr.hasExternalUri attribute";
         console.error(msg);
         res.status(500).json(
@@ -943,8 +926,8 @@ export_to_repository_zenodo = function(req, res){
     else {
         Folder.findByUri(requestedResourceUri, function (err, folder) {
             if (!err) {
-                if (folder != null) {
-                    if (folder.dcterms.title == null) {
+                if (!isNull(folder)) {
+                    if (isNull(folder.dcterms.title)) {
                         var msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
                         console.error(msg);
                         res.status(400).json(
@@ -963,17 +946,17 @@ export_to_repository_zenodo = function(req, res){
 
 
                                         try {
-                                            var accessTocken = targetRepository.ddr.hasAccessToken;
+                                            const accessTocken = targetRepository.ddr.hasAccessToken;
 
 
-                                            var title;
+                                            let title;
                                             if (Array.isArray(folder.dcterms.title)) {
                                                 title = folder.dcterms.title[0]
                                             }
                                             else {
                                                 title = folder.dcterms.title;
                                             }
-                                            var description;
+                                            let description;
                                             if (Array.isArray(folder.dcterms.description)) {
                                                 description = folder.dcterms.description[0]
                                             }
@@ -981,13 +964,13 @@ export_to_repository_zenodo = function(req, res){
                                                 description = folder.dcterms.description;
                                             }
 
-                                            var data = {
+                                            const data = {
                                                 title: title,
                                                 description: description,
                                                 creator: folder.dcterms.creator
                                             };
 
-                                            var zenodo = new Zenodo(accessTocken);
+                                            const zenodo = new Zenodo(accessTocken);
                                             zenodo.createDeposition(data, function (err, deposition) {
                                                 if (err) {
                                                     deleteFolderRecursive(parentFolderPath);
@@ -1001,7 +984,7 @@ export_to_repository_zenodo = function(req, res){
                                                     );
                                                 }
                                                 else {
-                                                    var depositionID = deposition.id;
+                                                    const depositionID = deposition.id;
 
                                                     zenodo.uploadMultipleFilesToDeposition(depositionID, files, function (err) {
                                                         if (err) {
@@ -1109,14 +1092,14 @@ export_to_repository_zenodo = function(req, res){
 };
 
 export_to_repository_b2share = function(req, res){
-    var requestedResourceUri = req.params.requestedResource;
-    var targetRepository = req.body.repository;
+    const requestedResourceUri = req.params.requestedResource;
+    const targetRepository = req.body.repository;
     //targetRepository.ddr.hasExternalUri -> the b2share host url
 
     Folder.findByUri(requestedResourceUri, function(err, folder){
         if(!err){
-            if(folder != null) {
-                if(folder.dcterms.title == null || folder.dcterms.creator == null){
+            if(!isNull(folder)) {
+                if(isNull(folder.dcterms.title) || isNull(folder.dcterms.creator)){
                     var msg = "Folder " + folder.uri + " has no title or creator! Please set these properties (from the dcterms metadata schema) and try the exporting process again.";
                     console.error(msg);
                     res.status(400).json(
@@ -1138,9 +1121,9 @@ export_to_repository_b2share = function(req, res){
                                            console.log("Package for export " + requestedResourceUri + " created.");
 
                                            try{
-                                               var accessToken = targetRepository.ddr.hasAccessToken;
+                                               const accessToken = targetRepository.ddr.hasAccessToken;
 
-                                               var title;
+                                               let title;
 
                                                if (Array.isArray(folder.dcterms.title)) {
                                                    title = folder.dcterms.title[0]
@@ -1148,7 +1131,7 @@ export_to_repository_b2share = function(req, res){
                                                else {
                                                    title = folder.dcterms.title;
                                                }
-                                               var description;
+                                               let description;
                                                if (Array.isArray(folder.dcterms.description)) {
                                                    description = folder.dcterms.description[0]
                                                }
@@ -1156,19 +1139,19 @@ export_to_repository_b2share = function(req, res){
                                                    description = folder.dcterms.description;
                                                }
 
-                                               var draftData = {
-                                                   "titles":[{"title":title}],
+                                               const draftData = {
+                                                   "titles": [{"title": title}],
                                                    "community": Config.eudatCommunityId,
-                                                   "open_access":true,
+                                                   "open_access": true,
                                                    "community_specific": {},
-                                                   "creators":[{"creator_name": folder.dcterms.creator}]
+                                                   "creators": [{"creator_name": folder.dcterms.creator}]
                                                };
 
                                                if(folder.dcterms.publisher)
                                                {
                                                    draftData["publisher"] = folder.dcterms.publisher;
                                                }
-                                               else if(project.dcterms.publisher != null)
+                                               else if(!isNull(project.dcterms.publisher))
                                                {
                                                    draftData["publisher"] = project.dcterms.publisher;
                                                }
@@ -1178,11 +1161,11 @@ export_to_repository_b2share = function(req, res){
                                                }
 
                                                if(folder.dcterms.subject){
-                                                   var subject = '';
+                                                   let subject = '';
                                                    if(Array.isArray(folder.dcterms.subject)){
                                                        for(var i = 0; i < folder.dcterms.subject.length; i++){
                                                            subject += folder.dcterms.subject[i];
-                                                           if(i != folder.dcterms.subject.length - 1){
+                                                           if(i !== folder.dcterms.subject.length - 1){
                                                                subject += ',';
                                                            }
                                                        }
@@ -1197,7 +1180,7 @@ export_to_repository_b2share = function(req, res){
                                                if(folder.dcterms.language){
                                                    draftData["language"] = folder.dcterms.language;
                                                }
-                                               else if(project.dcterms.language != null)
+                                               else if(!isNull(project.dcterms.language))
                                                {
                                                    draftData["language"] = project.dcterms.language;
                                                }
@@ -1207,11 +1190,11 @@ export_to_repository_b2share = function(req, res){
                                                }
 
                                                if(folder.dcterms.contributor){
-                                                   var contributors = '';
+                                                   let contributors = '';
                                                    if(Array.isArray(folder.dcterms.contributor)){
                                                        for(var i = 0; i < folder.dcterms.contributor.length; i++){
                                                            contributors += folder.dcterms.contributor[i];
-                                                           if(i != folder.dcterms.contributor.length - 1){
+                                                           if(i !== folder.dcterms.contributor.length - 1){
                                                                contributors += ';';
                                                            }
                                                        }
@@ -1223,7 +1206,7 @@ export_to_repository_b2share = function(req, res){
                                                    draftData["contributors"] = contributors;
                                                }
 
-                                               var b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
+                                               const b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);
                                                b2shareClient.createADraftRecord(draftData, function (err, body) {
                                                    if (err) {
                                                        deleteFolderRecursive(parentFolderPath);
@@ -1239,9 +1222,9 @@ export_to_repository_b2share = function(req, res){
                                                    else
                                                    {
                                                        //TODO send email
-                                                       var recordIDToUpdate = body.data.id;
-                                                       var bucketUrlToListFiles = body.data.links.files;
-                                                       var fileBucketID = bucketUrlToListFiles.split('/').pop();
+                                                       const recordIDToUpdate = body.data.id;
+                                                       const bucketUrlToListFiles = body.data.links.files;
+                                                       const fileBucketID = bucketUrlToListFiles.split('/').pop();
 
                                                        prepareFilesForUploadToB2share(files, fileBucketID, b2shareClient, function (error, result) {
                                                            if(error)
@@ -1275,7 +1258,7 @@ export_to_repository_b2share = function(req, res){
                                                                        deleteFolderRecursive(parentFolderPath);
                                                                        var msg = "Folder " + folder.nie.title + " successfully exported from Dendro";
 
-                                                                       if(body.data != null && body.data.metadata != null && body.data.metadata.ePIC_PID != null)
+                                                                       if(!isNull(body.data) && !isNull(body.data.metadata) && typeof body.data.metadata.ePIC_PID !== "undefined")
                                                                        {
                                                                            msg = msg + "<br/><br/><a href='" + body.data.metadata.ePIC_PID + "'>Click to see your published dataset<\/a>"
                                                                        }
@@ -1477,24 +1460,24 @@ exports.export_to_repository = function(req, res){
 
     try{
 
-        var targetRepository = req.body.repository;
+        const targetRepository = req.body.repository;
 
-        if(targetRepository.ddr.hasPlatform.foaf.nick == 'ckan' ){
+        if(targetRepository.ddr.hasPlatform.foaf.nick === 'ckan' ){
             export_to_repository_ckan(req, res);
         }
-        else if(targetRepository.ddr.hasPlatform.foaf.nick == 'dspace' || targetRepository.ddr.hasPlatform.foaf.nick == 'eprints'  )
+        else if(targetRepository.ddr.hasPlatform.foaf.nick === 'dspace' || targetRepository.ddr.hasPlatform.foaf.nick === 'eprints'  )
         {
             export_to_repository_sword(req, res);
         }
-        else if(targetRepository.ddr.hasPlatform.foaf.nick == 'figshare'  )
+        else if(targetRepository.ddr.hasPlatform.foaf.nick === 'figshare'  )
         {
             export_to_repository_figshare(req, res);
         }
-        else if(targetRepository.ddr.hasPlatform.foaf.nick == 'zenodo'  )
+        else if(targetRepository.ddr.hasPlatform.foaf.nick === 'zenodo'  )
         {
             export_to_repository_zenodo(req, res);
         }
-        else if(targetRepository.ddr.hasPlatform.foaf.nick == 'b2share')
+        else if(targetRepository.ddr.hasPlatform.foaf.nick === 'b2share')
         {
             export_to_repository_b2share(req, res);
         }
@@ -1524,20 +1507,20 @@ exports.export_to_repository = function(req, res){
 };
 
 exports.sword_collections = function(req, res){
-    var targetRepository = req.body.repository;
-    var serviceDocumentRef = null;
-    if(targetRepository.ddr.hasPlatform.foaf.nick == "dspace"){
+    const targetRepository = req.body.repository;
+    let serviceDocumentRef = null;
+    if(targetRepository.ddr.hasPlatform.foaf.nick === "dspace"){
         serviceDocumentRef =targetRepository.ddr.hasExternalUrl+ Config.swordConnection.DSpaceServiceDocument;
     }
-    else if(targetRepository.ddr.hasPlatform.foaf.nick == "eprints")
+    else if(targetRepository.ddr.hasPlatform.foaf.nick === "eprints")
     {
         serviceDocumentRef =targetRepository.ddr.hasExternalUrl+ Config.swordConnection.EprintsServiceDocument;
     }
-    var options = {
+    const options = {
         user: targetRepository.ddr.hasUsername,
         password: targetRepository.ddr.hasPassword,
-        serviceDocRef:serviceDocumentRef
-    }
+        serviceDocRef: serviceDocumentRef
+    };
     swordConnection.listCollections(options, function(err, message,collections){
         if(!err)
         {
@@ -1557,11 +1540,11 @@ exports.sword_collections = function(req, res){
 };
 
 deleteFolderRecursive = function(path) {
-    var files = [];
+    let files = [];
     if( fs.existsSync(path) ) {
         files = fs.readdirSync(path);
         files.forEach(function(file,index){
-            var curPath = path + "/" + file;
+            const curPath = path + "/" + file;
             if(fs.lstatSync(curPath).isDirectory()) { // recurse
                 deleteFolderRecursive(curPath);
             } else { // delete file
@@ -1574,11 +1557,11 @@ deleteFolderRecursive = function(path) {
 
 prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, cb) {
     async.each(files, function(file, callback){
-        var info = {"fileBucketID":fileBucketID, "fileNameWithExt": file.split('\\').pop()};
+        const info = {"fileBucketID": fileBucketID, "fileNameWithExt": file.split('\\').pop()};
         fs.readFile(file, function (err, buffer) {
             if(err)
             {
-                var msg = 'There was an error reading a file';
+                const msg = 'There was an error reading a file';
                 callback(err, msg);
             }
             else

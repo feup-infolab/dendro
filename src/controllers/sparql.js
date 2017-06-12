@@ -1,10 +1,16 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
-var db = function() { return GLOBAL.db.default; }();
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+
+const db = function () {
+    return GLOBAL.db.default;
+}();
 
 /*
  * GET users listing.
@@ -12,8 +18,8 @@ var db = function() { return GLOBAL.db.default; }();
 
 exports.show = function(req, res){
 
-    var viewVars = {
-        title : 'Researchers in the knowledge base'
+    let viewVars = {
+        title: 'Researchers in the knowledge base'
     };
 
     viewVars = DbConnection.paginate(req,
@@ -41,11 +47,11 @@ exports.show = function(req, res){
 };
 
 exports.query = function(req, res){
-    var username = req.params["username"];
+    const username = req.params["username"];
 
     User.findByUsername(username, function(err, user)
     {
-        if(err == null)
+        if(isNull(err))
         {
             res.render('users/show',
                 {

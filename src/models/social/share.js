@@ -1,22 +1,32 @@
-var Config = require("../meta/config.js").Config;
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
-var Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
-var uuid = require('uuid');
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
+const Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
+const uuid = require('uuid');
 
-var gfs = function() { return GLOBAL.gfs.default; }();
-var async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const db_social = function () {
+    return GLOBAL.db.social;
+}();
+
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
+const async = require('async');
 
 function Share (object)
 {
     Share.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
     self.copyOrInitDescriptors(object);
 
@@ -25,10 +35,10 @@ function Share (object)
 
 
 
-    var objectType;
+    let objectType;
     if(object.ddr.postURI)
     {
-        console.log('is postURI')
+        console.log('is postURI');
         objectType = "ddr:Post";
     }
     else if(object.ddr.fileVersionUri){
@@ -36,7 +46,7 @@ function Share (object)
         objectType = "ddr:FileVersion";
     }
 
-    if(object.uri != null)
+    if(!isNull(object.uri))
     {
         self.uri = object.uri;
     }
@@ -45,11 +55,11 @@ function Share (object)
         self.uri = Config.baseUri + "/shares/" + uuid.v4();
     }
 
-    var descriptor = new Descriptor ({
-        prefixedForm : "rdf:type",
-        type : DbConnection.prefixedResource,
+    const descriptor = new Descriptor({
+        prefixedForm: "rdf:type",
+        type: DbConnection.prefixedResource,
         //value : "ddr:Post"
-        value : objectType
+        value: objectType
     });
 
     /*var newAdminDescriptor = new Descriptor({

@@ -63,8 +63,7 @@ angular.module('dendroApp.controller', [])
                 return Math.floor((1 + Math.random()) * 0x10000)
                     .toString(16)
                     .substring(1);
-            };
-
+            }
             function guid() {
                 return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
                     s4() + '-' + s4() + s4() + s4();
@@ -124,7 +123,7 @@ angular.module('dendroApp.controller', [])
                     $scope.download_url("/plugins/dendro_interaction2csv/average_descriptor_length_per_interaction", "?graph_uri=" + $scope.graph_uri);
                 }
             }
-        }
+        };
 
         $scope.total_number_of_descriptors_per_interaction = function()
         {
@@ -139,7 +138,7 @@ angular.module('dendroApp.controller', [])
                     $scope.download_url("/plugins/dendro_interaction2csv/total_number_of_descriptors_per_interaction", "?graph_uri=" + $scope.graph_uri);
                 }
             }
-        }
+        };
 
         $scope.number_of_descriptors_of_each_type_per_interaction = function()
         {

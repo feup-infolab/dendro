@@ -3,7 +3,11 @@ var path = require('path');
 var needle = require('needle');
 var _ = require('underscore');
 
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;

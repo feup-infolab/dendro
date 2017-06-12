@@ -1,3 +1,9 @@
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+
 const util = require('util');
 const GridFSBucket = require('mongodb').GridFSBucket;
 
@@ -11,21 +17,20 @@ function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, p
 
     self.username = username;
     self.password = password;
-};
-
+}
 GridFSConnection.prototype.openConnection = function(callback) {
-    var self = this;
+    const self = this;
 
-    if(self.gfs != null)
+    if(!isNull(self.gfs))
     {
         callback(1, "Database connection is already open");
     }
     else
     {
-        var mongo = require('mongodb');
-        var Grid = require('gridfs-stream');
+        const mongo = require('mongodb');
+        const Grid = require('gridfs-stream');
 
-        var db = new mongo.Db(self.collectionName, new mongo.Server(
+        const db = new mongo.Db(self.collectionName, new mongo.Server(
             self.hostname,
             self.port,
             {
@@ -33,9 +38,9 @@ GridFSConnection.prototype.openConnection = function(callback) {
                 poolSize: 4
             }),
             {
-                w : 'majority',
-                safe : false,
-                strict : false
+                w: 'majority',
+                safe: false,
+                strict: false
             }
         );
 
@@ -59,7 +64,7 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
     let self = this;
     let message;
 
-    if(self.gfs != null)
+    if(!isNull(self.gfs))
     {
         let bucket = new GridFSBucket(self.db, { bucketName: customBucket });
         let uploadStream = bucket.openUploadStream(
@@ -107,7 +112,7 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
 GridFSConnection.prototype.get = function(fileUri, outputStream, callback, customBucket) {
     let self = this;
 
-    if(self.gfs != null && self.db != null)
+    if(!isNull(self.gfs) && !isNull(self.db))
     {
         let bucket = new GridFSBucket(self.db, { bucketName: customBucket });
         let downloadStream = bucket.openDownloadStreamByName(fileUri);
@@ -128,12 +133,12 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback, custo
         });
 
         downloadStream.on('end', function() {
-            var msg = "EOF of file";
+            const msg = "EOF of file";
             console.log(msg);
         });
 
         downloadStream.on('close', function() {
-            var msg = "Finished reading the file";
+            const msg = "Finished reading the file";
             console.log(msg);
             callback(0, msg);
         });
@@ -150,7 +155,7 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback, custo
 GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
     let self = this;
 
-    if(self.gfs != null && self.db != null)
+    if(!isNull(self.gfs) && !isNull(self.db))
     {
         let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
         bucket.delete(fileUri, function (err)

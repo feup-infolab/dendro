@@ -1,16 +1,26 @@
-var Config = function() { return GLOBAL.Config; }();
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
-var uuid = require('uuid');
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
+const uuid = require('uuid');
 
-var gfs = function() { return GLOBAL.gfs.default; }();
-var async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const db_social = function () {
+    return GLOBAL.db.social;
+}();
+
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
+const async = require('async');
 
 function Comment (object)
 {
@@ -21,7 +31,7 @@ function Comment (object)
 
     self.rdf.type = "ddr:Comment";
 
-    if(object.uri !== null)
+    if(!isNull(object.uri))
     {
         self.uri = object.uri;
     }

@@ -1,22 +1,28 @@
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+
 function Loader ()
 {
-    var self = this;
+    const self = this;
 }
 
 Loader.prototype.destroyCurrentAndReload = function() {
 
-}
+};
 
 Loader.prototype.clearDownloadedFiles = function() {
 
-}
+};
 
 Loader.prototype.downloadFiles = function() {
 
-}
+};
 
 Loader.prototype.loadFromDownloadedFiles = function() {
 
-}
+};
 
 module.exports.Loader = Loader;

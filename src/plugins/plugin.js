@@ -1,7 +1,11 @@
 var path = require('path');
 var async = require('async');
 
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 var Permissions = require(Config.absPathInSrcFolder("models/meta/permissions.js")).Permissions;
 
 function Plugin (object)

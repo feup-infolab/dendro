@@ -1,20 +1,21 @@
-var _ = require('underscore');
+const _ = require('underscore');
 
-var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+const Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 
-var QueryBasedRouter = function(){};
+const QueryBasedRouter = function () {
+};
 
 
 QueryBasedRouter.applyRoutes = function(routes, req, res, next)
 {
-    var method = req.originalMethod.toLowerCase();
-    var matchingRoute;
-    var routeThatMatchesTheMostQueries;
+    const method = req.originalMethod.toLowerCase();
+    let matchingRoute;
+    let routeThatMatchesTheMostQueries;
 
 
     function extractFirstElementFromArray(array)
     {
-        if(array != null && array instanceof Array && array.length == 1)
+        if(!isNull(array) && array instanceof Array && array.length === 1)
         {
             return array[0];
         }
@@ -29,17 +30,17 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
 
     function getMatchingRoute(methodRoutes)
     {
-        var queryKeysSent = Object.keys(req.query);
+        const queryKeysSent = Object.keys(req.query);
 
         if(queryKeysSent.length > 0)
         {
 
-            var routesThatHaveAtLeastOneQuery = _.filter(methodRoutes, function (route) {
+            const routesThatHaveAtLeastOneQuery = _.filter(methodRoutes, function (route) {
 
-                var queryKeysThatNeedToBePresent = route.queryKeys;
-                var queryKeysPresent = _.intersection(queryKeysThatNeedToBePresent, queryKeysSent);
+                const queryKeysThatNeedToBePresent = route.queryKeys;
+                const queryKeysPresent = _.intersection(queryKeysThatNeedToBePresent, queryKeysSent);
 
-                if(queryKeysPresent.length == 0) {
+                if (queryKeysPresent.length === 0) {
                     return false;
                 }
                 else {
@@ -50,8 +51,8 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
             if(routesThatHaveAtLeastOneQuery.length > 0)
             {
                 routeThatMatchesTheMostQueries = _.max(routesThatHaveAtLeastOneQuery, function(route){
-                    var queryKeysThatNeedToBePresent = route.queryKeys;
-                    var queryKeysPresent = _.intersection(queryKeysThatNeedToBePresent, queryKeysSent);
+                    const queryKeysThatNeedToBePresent = route.queryKeys;
+                    const queryKeysPresent = _.intersection(queryKeysThatNeedToBePresent, queryKeysSent);
                     return queryKeysPresent.length;
                 });
 
@@ -76,7 +77,7 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
     {
         Permissions.check(matchingRoute.permissions, req, function(err, req)
         {
-            if (req.permissions_management.reasons_for_authorizing != null && req.permissions_management.reasons_for_authorizing.length > 0)
+            if (typeof req.permissions_management.reasons_for_authorizing !== "undefined" && req.permissions_management.reasons_for_authorizing.length > 0)
             {
                 matchingRoute.handler(req, res);
             }
@@ -88,16 +89,16 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
     }
 
     var methodRoutes;
-    if(routes[method] != null) {
+    if(!isNull(routes[method])) {
         matchingRoute = getMatchingRoute(routes[method]);
 
         //try all
-        if(matchingRoute == null)
+        if(isNull(matchingRoute))
         {
             matchingRoute = getMatchingRoute(routes['all']);
         }
 
-        if(matchingRoute != null)
+        if(!isNull(matchingRoute))
         {
             passRequestToRoute(matchingRoute);
         }
@@ -111,7 +112,7 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
         //try all
         matchingRoute = getMatchingRoute(routes['all']);
 
-        if(matchingRoute != null)
+        if(!isNull(matchingRoute))
         {
             passRequestToRoute(matchingRoute);
         }
@@ -120,6 +121,6 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
             next();
         }
     }
-}
+};
 
 module.exports.QueryBasedRouter = QueryBasedRouter;

@@ -1,22 +1,28 @@
-var async = require('async');
+const async = require('async');
 
-var Config = function() { return GLOBAL.Config; }();
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var db = function() { return GLOBAL.db.default; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+
+const db = function () {
+    return GLOBAL.db.default;
+}();
 
 function ResearchDomain (object, callback)
 {
     ResearchDomain.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
     self.rdf.type = ResearchDomain.prefixedRDFType;
 
-    var now = new Date();
+    const now = new Date();
 
-    if(object.dcterms == null)
+    if(isNull(object.dcterms))
     {
         self.dcterms = {
             created : now.toISOString()
@@ -24,7 +30,7 @@ function ResearchDomain (object, callback)
     }
     else
     {
-        if(object.dcterms.created == null)
+        if(isNull(object.dcterms.created))
         {
             self.dcterms.created = now.toISOString();
         }
@@ -34,12 +40,12 @@ function ResearchDomain (object, callback)
         }
     }
 
-    if(self.uri == null)
+    if(isNull(self.uri))
     {
         if(typeof self.dcterms.title === "string")
         {
-            var slug = require('slug');
-            var slugified_title = slug(self.dcterms.title);
+            const slug = require('slug');
+            const slugified_title = slug(self.dcterms.title);
             self.uri = db.baseURI+"/research_domains/"+slugified_title;
             callback(null, self);
         }
@@ -52,8 +58,7 @@ function ResearchDomain (object, callback)
     {
         callback(0, self);
     }
-};
-
+}
 ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results)
 {
     var query =
@@ -74,14 +79,14 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         "   } \n" +
         "} \n";
 
-    var arguments = [
+    const arguments = [
         {
-            type : DbConnection.resourceNoEscape,
-            value : db.graphUri
+            type: DbConnection.resourceNoEscape,
+            value: db.graphUri
         }
     ];
 
-    if(max_results != null && typeof max_results === "number")
+    if(typeof max_results !== "undefined" && typeof max_results === "number")
     {
         query = query + "LIMIT [1]";
 
@@ -97,11 +102,10 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         {
             if (!err)
             {
-                var fetchResearchDomain = function(result, callback)
-                {
-                   ResearchDomain.findByUri(result.uri, function(err, domain){
-                       callback(err, domain);
-                   });
+                const fetchResearchDomain = function (result, callback) {
+                    ResearchDomain.findByUri(result.uri, function (err, domain) {
+                        callback(err, domain);
+                    });
                 };
 
                 async.map(results, fetchResearchDomain, function(err, researchDomains){

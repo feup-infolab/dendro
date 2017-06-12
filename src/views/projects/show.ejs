@@ -1,10 +1,9 @@
 <%- include ../layout/header.ejs %>
 
 <script type="text/javascript">
-    var makeToolTipHtml = function(tooltipTitle, tooltipText)
-    {
-        return "<h4>"+tooltipTitle+"</h4>" + tooltipText;
-    }
+    const makeToolTipHtml = function (tooltipTitle, tooltipText) {
+        return "<h4>" + tooltipTitle + "</h4>" + tooltipText;
+    };
 </script>
 <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
     <div class="row main-row">

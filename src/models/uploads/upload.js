@@ -1,20 +1,24 @@
-var Config = function() { return GLOBAL.Config; }();
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 
 function Upload (object)
 {
-    var self = this;
+    const self = this;
     Upload.baseConstructor.call(this, object);
 
-    if( object.username != null
+    if( !isNull(object.username)
         &&
-        object.filename != null
+        !isNull(object.filename)
         &&
-        object.parent_folder != null
+        typeof object.parent_folder !== "undefined"
         &&
-        object.expected != null
+        !isNull(object.expected)
         &&
-        object.md5_checksum != null
+        typeof object.md5_checksum !== "undefined"
     )
     {
         self.username = object.username;
@@ -23,7 +27,7 @@ function Upload (object)
         self.expected = object.expected;
         self.md5_checksum = object.md5_checksum;
 
-        if (self.loaded == null)
+        if (isNull(self.loaded))
         {
             self.loaded = 0;
         }
@@ -32,7 +36,7 @@ function Upload (object)
             self.loaded = object.loaded;
         }
 
-        var uuid = require('uuid');
+        const uuid = require('uuid');
         self.id = uuid.v4();
     }
     else
@@ -45,12 +49,12 @@ function Upload (object)
 
 Upload.create = function(object, callback)
 {
-    var self = new Upload(object);
+    const self = new Upload(object);
 
-    if(object.tmp_file_dir == null)
+    if(typeof object.tmp_file_dir === "undefined")
     {
-        var tmp = require('tmp');
-        var path = require('path');
+        const tmp = require('tmp');
+        const path = require('path');
 
         tmp.dir(
             {
@@ -71,12 +75,12 @@ Upload.create = function(object, callback)
                 }
             });
     }
-}
+};
 
 
 Upload.prototype.restart = function(callback)
 {
-    var self = this;
+    const self = this;
 
     fs.unlink(self.temp_file, function(err)
     {
@@ -87,17 +91,17 @@ Upload.prototype.restart = function(callback)
         }
         else
         {
-            var msg = "Unable to delete file " + self.temp_file + " when restarting the upload " + self.id;
+            const msg = "Unable to delete file " + self.temp_file + " when restarting the upload " + self.id;
             callback(err, msg);
         }
     });
-}
+};
 
 Upload.prototype.destroy = function(callback)
 {
-    var self = this;
+    const self = this;
 
-    var rmdir = require('rmdir');
+    const rmdir = require('rmdir');
 
     rmdir(self.temp_dir, function (err, dirs, files) {
         console.log(dirs);
@@ -106,27 +110,27 @@ Upload.prototype.destroy = function(callback)
 
         callback(err, dirs, files);
     });
-}
+};
 
 Upload.prototype.set_expected = function(expected)
 {
-    var self = this;
+    const self = this;
     self.expected = expected;
-}
+};
 
 Upload.prototype.pipe = function(part, callback)
 {
-    var self = this;
-    var fs = require('fs');
+    const self = this;
+    const fs = require('fs');
 
-    var targetStream = fs.createWriteStream(
+    const targetStream = fs.createWriteStream(
         self.temp_file,
         {
             'flags': 'a'
         }
     );
 
-    var error = null;
+    let error = null;
 
     targetStream.on('error', function(err){
         error = err;
@@ -138,7 +142,7 @@ Upload.prototype.pipe = function(part, callback)
     });
 
     targetStream.on('finish', function(){
-        if (error != null)
+        if (!isNull(error))
         {
             fs.unlink(file.path);
             callback(1, "There was an error writing to the temporary file on upload of file " + self.filename + " by username " + file.username, error);
@@ -151,23 +155,23 @@ Upload.prototype.pipe = function(part, callback)
     });
 
     part.pipe(targetStream);
-}
+};
 
 Upload.prototype.is_finished = function()
 {
-    var self = this;
+    const self = this;
     console.log("FINISHED " + self.loaded / self.expected + " of file " + self.filename);
     return (self.loaded >= self.expected);
-}
+};
 
 Upload.prototype.get_temp_file_size = function(callback)
 {
-    var self = this;
+    const self = this;
 
-    var fs = require('fs');
-    var stat = fs.statSync(self.temp_file);
+    const fs = require('fs');
+    const stat = fs.statSync(self.temp_file);
     callback(null, stat.size);
-}
+};
 
 Upload = Class.extend(Upload, Class);
 

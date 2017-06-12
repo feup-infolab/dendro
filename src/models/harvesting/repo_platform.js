@@ -1,33 +1,41 @@
 //DCTerms ontology : "http://purl.org/dc/elements/1.1/"
 
-var Config = function() { return GLOBAL.Config; }();
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
-var async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
+
+const async = require('async');
 
 function RepositoryPlatform(object)
 {
     RepositoryPlatform.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
     self.rdf.type = "ddr:RepositoryPlatform";
 
-    var slug = require('slug');
+    const slug = require('slug');
 
-    if(object.uri == null)
+    if(isNull(object.uri))
     {
-        if(self.ddr.handle != null && self.dcterms.title != null)
+        if(!isNull(self.ddr.handle) && !isNull(self.dcterms.title))
         {
             self.uri = Config.baseUri + "/repository_platform/" + object.ddr.handle;
         }
         else
         {
-            var error = "Unable to create an external repository resource without specifying its ddr:handle and its dcterms:title";
+            const error = "Unable to create an external repository resource without specifying its ddr:handle and its dcterms:title";
             console.error(error);
             return {error : error};
         }
@@ -43,9 +51,9 @@ function RepositoryPlatform(object)
 RepositoryPlatform.findByUri = function(uri, callback)
 {
     RepositoryPlatform.all(function(err, platformTypes){
-        for(var i = 0; i < platformTypes.length; i++)
+        for(let i = 0; i < platformTypes.length; i++)
         {
-            if(platformTypes[i].uri == uri)
+            if(platformTypes[i].uri === uri)
             {
                 return callback(null, platformTypes[i]);
             }

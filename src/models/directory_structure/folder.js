@@ -1,30 +1,38 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-var Config = function() { return GLOBAL.Config; }();
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var slug = require('slug');
-var fs = require('fs');
-var path = require('path');
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
-var async = require('async');
-var _ = require('underscore');
+const slug = require('slug');
+const fs = require('fs');
+const path = require('path');
+
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
+const async = require('async');
+const _ = require('underscore');
 
 function Folder (object)
 {
     Folder.baseConstructor.call(this, object);
 
-    var self = this;
+    const self = this;
 
-    if(self.uri == null && object.nie != null)
+    if(isNull(self.uri) && !isNull(object.nie))
     {
         self.uri = object.nie.isLogicalPartOf + "/" + object.nie.title;
     }
@@ -33,7 +41,7 @@ function Folder (object)
     self.ddr.fileExtension = "folder";
     self.ddr.hasFontAwesomeClass = "fa-folder";
 
-    if(object.nie != null && object.nie.title != null)
+    if(!isNull(object.nie) && !isNull(object.nie.title))
     {
         self.nie.title = object.nie.title;
     }
@@ -43,24 +51,24 @@ function Folder (object)
 
 Folder.prototype.getLogicalParts = function(final_callback)
 {
-    var self = this;
-    var fs = require('fs');
+    const self = this;
+    const fs = require('fs');
 
-    var query =
-            "SELECT ?uri ?type\n" +
-            "FROM [0] \n" +
-            "WHERE \n" +
-            "{ \n" +
-                "{ \n" +
-                    " [1] nie:hasLogicalPart ?uri . \n" +
-                    "?uri rdf:type ?type . \n" +
-                    "?uri rdf:type nfo:Folder  \n"+
-                " } UNION { \n" +
-                    " [1] nie:hasLogicalPart ?uri . \n" +
-                    "?uri rdf:type ?type . \n" +
-                    "?uri rdf:type nfo:FileDataObject \n"+
-                "} \n" +
-            "} \n";
+    const query =
+        "SELECT ?uri ?type\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "{ \n" +
+        " [1] nie:hasLogicalPart ?uri . \n" +
+        "?uri rdf:type ?type . \n" +
+        "?uri rdf:type nfo:Folder  \n" +
+        " } UNION { \n" +
+        " [1] nie:hasLogicalPart ?uri . \n" +
+        "?uri rdf:type ?type . \n" +
+        "?uri rdf:type nfo:FileDataObject \n" +
+        "} \n" +
+        "} \n";
 
     db.connection.execute(query,
         [
@@ -76,27 +84,21 @@ Folder.prototype.getLogicalParts = function(final_callback)
         function(err, children) {
             if(!err)
             {
-                if(children != null && children instanceof Array)
+                if(!isNull(children) && children instanceof Array)
                 {
-                    var getChildrenProperties = function(child, cb)
-                    {
-                        if(child.type == Folder.rdfType)
-                        {
-                            Folder.findByUri(child.uri, function(err, folder)
-                            {
+                    const getChildrenProperties = function (child, cb) {
+                        if (child.type === Folder.rdfType) {
+                            Folder.findByUri(child.uri, function (err, folder) {
                                 cb(err, folder);
                             });
                         }
-                        else if(child.type == File.rdfType)
-                        {
-                            File.findByUri(child.uri, function(err, file)
-                            {
+                        else if (child.type === File.rdfType) {
+                            File.findByUri(child.uri, function (err, file) {
                                 cb(err, file);
                             });
                         }
-                        else
-                        {
-                            var error = "Unknown child node type : " + child.type;
+                        else {
+                            const error = "Unknown child node type : " + child.type;
                             console.error(error);
                             cb(1, error);
                         }
@@ -128,175 +130,147 @@ Folder.prototype.saveIntoFolder = function(
     includeOriginalNodes,
     callback)
 {
-    var self = this;
+    const self = this;
 
-    var saveIntoFolder = function
-        (
-            node,
-            destinationFolderAbsPath,
-            includeMetadata,
-            includeTempFilesLocations,
-            includeOriginalNodes,
-            callback)
-    {
-        if(node instanceof File)
-        {
+    const saveIntoFolder = function
+        (node,
+         destinationFolderAbsPath,
+         includeMetadata,
+         includeTempFilesLocations,
+         includeOriginalNodes,
+         callback) {
+        if (node instanceof File) {
             node.saveIntoFolder(
                 destinationFolderAbsPath,
                 includeMetadata,
                 includeTempFilesLocations,
                 includeOriginalNodes,
-                function(err, absPathOfFinishedFile)
-            {
-                if(!err)
-                {
-                    var descriptors = node.getDescriptors([Config.types.locked],[Config.types.backuppable]);
-                    var fileNode = {
-                        resource : node.uri,
-                        metadata : descriptors
+                function (err, absPathOfFinishedFile) {
+                if (!err) {
+                    const descriptors = node.getDescriptors([Config.types.locked], [Config.types.backuppable]);
+                    const fileNode = {
+                        resource: node.uri,
+                        metadata: descriptors
                     };
 
-                    if(includeOriginalNodes)
-                        fileNode.original_node = node
+                    if (includeOriginalNodes)
+                        fileNode.original_node = node;
 
-                    if(includeTempFilesLocations)
+                    if (includeTempFilesLocations)
                         fileNode.temp_location = absPathOfFinishedFile;
 
                     callback(0, absPathOfFinishedFile, fileNode);
                 }
-                else
-                {
-                    var error = "Error saving a file node (leaf) at " + node.uri + " " + message;
+                else {
+                    const error = "Error saving a file node (leaf) at " + node.uri + " " + message;
                     console.log(error);
                     callback(1, error);
                 }
             });
         }
-        else if(node instanceof Folder)
-        {
-            var fs = require('fs');
-            var nfs = require('node-fs');
-            var path = require('path');
-            var destinationFolder = destinationFolderAbsPath + "/" + node.nie.title;
+        else if (node instanceof Folder) {
+            const fs = require('fs');
+            const nfs = require('node-fs');
+            const path = require('path');
+            const destinationFolder = destinationFolderAbsPath + "/" + node.nie.title;
 
             //mode = 0777, recursive = true
-            nfs.mkdir(destinationFolder, Config.tempFilesCreationMode, true, function(err)
-            {
-                if(!err)
-                {
-                    node.getLogicalParts(function(err, children){
-                        if(!err && children != null && children instanceof Array)
-                        {
-                            if(children.length > 0)
-                            {
-                                var saveChild = function(child, callback)
-                                {
-                                    saveIntoFolder(child, destinationFolder, includeMetadata, includeTempFilesLocations, includeOriginalNodes, function(err, message, childNode){
-                                        if(!err)
-                                        {
-                                            if(includeMetadata)
-                                            {
+            nfs.mkdir(destinationFolder, Config.tempFilesCreationMode, true, function (err) {
+                if (!err) {
+                    node.getLogicalParts(function (err, children) {
+                        if (!err && !isNull(children) && children instanceof Array) {
+                            if (children.length > 0) {
+                                const saveChild = function (child, callback) {
+                                    saveIntoFolder(child, destinationFolder, includeMetadata, includeTempFilesLocations, includeOriginalNodes, function (err, message, childNode) {
+                                        if (!err) {
+                                            if (includeMetadata) {
                                                 callback(null, childNode);
                                             }
-                                            else
-                                            {
+                                            else {
                                                 callback(null, null);
                                             }
                                         }
-                                        else
-                                        {
-                                            var error = "Unable to save a child with uri : " + child.uri + ". Message returned : " + message;
+                                        else {
+                                            const error = "Unable to save a child with uri : " + child.uri + ". Message returned : " + message;
                                             console.error(error);
                                             callback(1, error);
-                                            return;
+
                                         }
                                     });
                                 };
 
-                                async.map(children, saveChild, function(err, childrenNodes)
-                                {
-                                    if(!err)
-                                    {
-                                        var message = "Finished saving a complete folder at " + node.uri;
+                                async.map(children, saveChild, function (err, childrenNodes) {
+                                    if (!err) {
+                                        const message = "Finished saving a complete folder at " + node.uri;
                                         console.log(message);
 
-                                        if(includeMetadata)
-                                        {
-                                            var descriptors = node.getDescriptors([Config.types.locked],[Config.types.backuppable]);
+                                        if (includeMetadata) {
+                                            const descriptors = node.getDescriptors([Config.types.locked], [Config.types.backuppable]);
 
-                                            var folderNode = {
-                                                resource : node.uri,
-                                                metadata : descriptors
+                                            const folderNode = {
+                                                resource: node.uri,
+                                                metadata: descriptors
                                             };
 
-                                            if(childrenNodes != null)
-                                            {
+                                            if (!isNull(childrenNodes)) {
                                                 folderNode.children = childrenNodes;
                                             }
 
-                                            if(includeTempFilesLocations)
+                                            if (includeTempFilesLocations)
                                                 folderNode.temp_location = destinationFolder;
 
-                                            if(includeOriginalNodes)
-                                                folderNode.original_node = node
+                                            if (includeOriginalNodes)
+                                                folderNode.original_node = node;
 
                                             callback(null, destinationFolder, folderNode);
                                         }
-                                        else
-                                        {
+                                        else {
                                             callback(0, destinationFolder);
                                         }
                                     }
-                                    else
-                                    {
-                                        var error = "Error saving a file node (leaf) at " + node.uri + " " + childrenNodes;
+                                    else {
+                                        const error = "Error saving a file node (leaf) at " + node.uri + " " + childrenNodes;
                                         console.log(error);
                                         callback(1, error);
                                     }
                                 });
                             }
-                            else
-                            {
+                            else {
                                 var message = "Encountered empty folder at " + node.uri + ", when attempting to save the resource to " + destinationFolder;
                                 console.log(message);
 
-                                var selfMetadata = {
-                                    resource : node.uri,
-                                    metadata : node.getDescriptors([Config.types.locked],[Config.types.backuppable]),
-                                    children : []
+                                const selfMetadata = {
+                                    resource: node.uri,
+                                    metadata: node.getDescriptors([Config.types.locked], [Config.types.backuppable]),
+                                    children: []
                                 };
 
-                                if(includeOriginalNodes)
-                                    selfMetadata.original_node = node
+                                if (includeOriginalNodes)
+                                    selfMetadata.original_node = node;
 
-                                if(includeMetadata)
-                                {
+                                if (includeMetadata) {
                                     callback(0, destinationFolder, selfMetadata);
                                 }
-                                else
-                                {
+                                else {
                                     callback(0, destinationFolder);
                                 }
                             }
                         }
-                        else
-                        {
+                        else {
                             var error = "Error getting children of node at " + node.uri + " " + err + ", when attempting to save the resource to " + destinationFolder;
                             console.error(error);
                             callback(1, error);
                         }
                     });
                 }
-                else
-                {
+                else {
                     var error = "Error creating subfolder for saving node at " + node.uri + " " + err + ", when attempting to save the resource to " + destinationFolder;
                     console.error(error);
                     callback(1, error);
                 }
             });
         }
-        else
-        {
+        else {
             console.log("Null or invalid node " + node + ", when attempting to save the resource to " + destinationFolderAbsPath);
         }
     };
@@ -310,10 +284,10 @@ Folder.prototype.createTempFolderWithContents = function(
     includeOriginalNodes,
     callback)
 {
-    var self = this;
-    var fs = require('fs');
+    const self = this;
+    const fs = require('fs');
 
-    var tmp = require('tmp');
+    const tmp = require('tmp');
     tmp.dir({
             dir : Config.tempFilesDir
         },
@@ -322,7 +296,7 @@ Folder.prototype.createTempFolderWithContents = function(
             {
                 console.log("Producing temporary folder on " + tempFolderPath +" to download "+self.uri);
 
-                var tempSubFolderWithCorrectTitle = tempFolderPath+"/"+self.nie.title;
+                const tempSubFolderWithCorrectTitle = tempFolderPath + "/" + self.nie.title;
                 fs.mkdir(tempSubFolderWithCorrectTitle, function(err)
                 {
                     if(!err)
@@ -366,7 +340,7 @@ Folder.prototype.createTempFolderWithContents = function(
 
 Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptions)
 {
-    var self = this;
+    const self = this;
     self.createTempFolderWithContents(includeMetadata, false, false, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
     {
         if(!err)
@@ -377,9 +351,9 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
                 function(cb){
                     if(includeMetadata)
                     {
-                        var fs = require('fs');
+                        const fs = require('fs');
 
-                        var outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
+                        const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
 
                         console.log("FINAL METADATA : " + JSON.stringify(metadata));
 
@@ -388,7 +362,7 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
                                 console.log(err);
                                 cb(err);
                             } else {
-                                var msg = "JSON saved to " + outputFilename;
+                                const msg = "JSON saved to " + outputFilename;
                                 console.log(msg);
                                 cb(null);
                             }
@@ -401,7 +375,7 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
                 },
                 function(cb)
                 {
-                    if(bagItOptions != null && bagItOptions instanceof Object)
+                    if(!isNull(bagItOptions) && bagItOptions instanceof Object)
                     {
                         self.bagit(absolutePathOfFinishedFolder, parentFolderPath, bagItOptions, function(err, absolutePathOfBaggedFolder){
                             if(!err)
@@ -452,15 +426,15 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
 
 //bag folder according to the Bagit 0.97 Spec
 Folder.prototype.bagit = function(bagItOptions, callback) {
-    var self = this;
+    const self = this;
 
     async.waterfall(
     [
         function(cb)
         {
-            if(typeof bagItOptions.bagName == 'undefined' || bagItOptions.bagName == null)
+            if(typeof bagItOptions.bagName === 'undefined' || bagItOptions.bagName === "undefined")
             {
-                if (self.nie.title === null)
+                if (isNull(self.nie.title))
                 {
                     self.nie.title = "bagit_backup";
                 }
@@ -470,10 +444,10 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
                     if (!err)
                     {
                         console.log("Produced temporary folder on " + absolutePathOfFinishedFolder + " to bagit " + self.uri);
-                        var path = require('path');
+                        const path = require('path');
 
-                        var fs = require('fs');
-                        var outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
+                        const fs = require('fs');
+                        const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
 
                         console.log("FINAL METADATA : " + JSON.stringify(metadata));
 
@@ -482,7 +456,7 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
                                 console.log(err);
                                 cb(err);
                             } else {
-                                var msg = "JSON saved to " + outputFilename;
+                                const msg = "JSON saved to " + outputFilename;
                                 console.log(msg);
 
                                 bagItOptions.bagName = path.join(parentFolderPath, "bagit_temp");
@@ -504,7 +478,7 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
         },
         function(absolutePathOfFinishedFolder, parentFolderPath, cb)
         {
-            var gladstone = require(Config.absPathInApp("/node_modules/gladstone/gladstone.js"));
+            const gladstone = require(Config.absPathInApp("/node_modules/gladstone/gladstone.js"));
             gladstone.createBagDirectory(bagItOptions)
                 .then(function(result){
                     cb(null, {
@@ -525,7 +499,7 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
 
 Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callback, nameForFinishedZipFile, zipContentsInsteadOfFolder)
 {
-    var path = require('path');
+    const path = require('path');
     if(!sourceFolderAbsPath.startsWith(path.sep))
     {
         callback(1, "Invalid source folder absolute path specified. It does not start with " + path.sep);
@@ -536,17 +510,17 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
     }
     else
     {
-        var fs = require('fs');
-        var exec = require('child_process').exec;
+        const fs = require('fs');
+        const exec = require('child_process').exec;
 
-        if(nameForFinishedZipFile == null)
+        if(isNull(nameForFinishedZipFile))
         {
             nameForFinishedZipFile = path.basename(sourceFolderAbsPath);
             nameForFinishedZipFile = slug(nameForFinishedZipFile) + ".zip";
         }
 
-        var parentFolderAbsPath = path.resolve(sourceFolderAbsPath, '..');
-        var nameOfFolderToZip = path.basename(sourceFolderAbsPath);
+        const parentFolderAbsPath = path.resolve(sourceFolderAbsPath, '..');
+        const nameOfFolderToZip = path.basename(sourceFolderAbsPath);
 
         if(zipContentsInsteadOfFolder)
         {
@@ -562,24 +536,19 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
 
         console.log("Zipping file with command " + command + " on folder " + parentFolderAbsPath + "....");
 
-        var zip = exec(command, cwd, function (error, stdout, stderr)
-        {
-            if (error)
-            {
-                var errorMessage = "Error zipping file with command " + command + " on folder " + parentFolderAbsPath + ". Code Returned by Zip Command " + JSON.stringify(error);
+        const zip = exec(command, cwd, function (error, stdout, stderr) {
+            if (error) {
+                const errorMessage = "Error zipping file with command " + command + " on folder " + parentFolderAbsPath + ". Code Returned by Zip Command " + JSON.stringify(error);
                 console.error(errorMessage);
                 callback(1, errorMessage);
             }
-            else
-            {
+            else {
                 console.log(stdout);
 
-                if(zipContentsInsteadOfFolder)
-                {
+                if (zipContentsInsteadOfFolder) {
                     var finishedZipFileAbsPath = destinationFolderForZipAbsPath;
                 }
-                else
-                {
+                else {
                     var finishedZipFileAbsPath = path.join(destinationFolderForZipAbsPath, nameForFinishedZipFile);
                 }
 
@@ -588,25 +557,25 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
             }
         });
     }
-}
+};
 
 Folder.prototype.restoreFromLocalBackupZipFile = function(zipFileAbsLocation, userRestoringTheFolder, callback)
 {
-    var self = this;
+    const self = this;
     File.unzip(zipFileAbsLocation, function(err, unzippedContentsLocation)
     {
         fs.exists(unzippedContentsLocation, function (exists) {
             if(exists)
             {
-                var fs = require('fs');
+                const fs = require('fs');
 
                 fs.readdir(unzippedContentsLocation, function(err, files){
 
                     files = InformationElement.removeInvalidFileNames(files);
 
-                    if(!err && files instanceof Array && files.length == 1)
+                    if(!err && files instanceof Array && files.length === 1)
                     {
-                        var location = path.join(unzippedContentsLocation, files[0]);
+                        const location = path.join(unzippedContentsLocation, files[0]);
 
                         self.restoreFromFolder(location, userRestoringTheFolder, true, true,function(err, result)
                         {
@@ -623,7 +592,7 @@ Folder.prototype.restoreFromLocalBackupZipFile = function(zipFileAbsLocation, us
                     }
                     else
                     {
-                        var util = require('util');
+                        const util = require('util');
                         console.log('Error: There should only be one folder at the root of the contents. Is this a valid backup? ' + util.inspect(files));
                         callback(1, "There should only be one folder at the root of the contents. Is this a valid backup?");
                     }
@@ -640,170 +609,142 @@ Folder.prototype.restoreFromLocalBackupZipFile = function(zipFileAbsLocation, us
 
 Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFolder, replaceExistingFolder, callback, runningOnRoot, userPerformingTheOperation)
 {
-    var self = this;
-    var path = require('path');
+    const self = this;
+    const path = require('path');
 
     console.error("Starting to load children of " + self.uri);
 
-    var deleteFolder = function(cb)
-    {
-        if(runningOnRoot)
-        {
-            self.delete(function(err, result){
+    const deleteFolder = function (cb) {
+        if (runningOnRoot) {
+            self.delete(function (err, result) {
                 cb(err, result);
             });
         }
-        else
-        {
+        else {
             cb(null, self);
         }
     };
 
-    var addChildrenToMe = function(childrenFileNamesArray, cb)
-    {
-        for(var i = 0; i < childrenFileNamesArray.length; i++)
-        {
+    const addChildrenToMe = function (childrenFileNamesArray, cb) {
+        for (let i = 0; i < childrenFileNamesArray.length; i++) {
             childrenFileNamesArray[i] = self.uri + "/" + childrenFileNamesArray[i];
         }
 
-        if(self.nie.hasLogicalPart instanceof Array)
-        {
+        if (self.nie.hasLogicalPart instanceof Array) {
             self.nie.hasLogicalPart.push(childrenFileNamesArray);
         }
-        else if(self.nie.hasLogicalPart != null)
-        {
+        else if (!isNull(self.nie.hasLogicalPart)) {
             childrenFileNamesArray.push(self.nie.hasLogicalPart);
             self.nie.hasLogicalPart = childrenFileNamesArray;
         }
-        else
-        {
+        else {
             self.nie.hasLogicalPart = childrenFileNamesArray;
         }
 
         self.save(cb);
     };
 
-    var loadChildFolder = function(folderName, cb)
-    {
-        var createFolder = function(folderName, cb){
-            Folder.findByParentAndName(self.uri, folderName, function(err, childFolder){
-                if(childFolder == null)
-                {
+    const loadChildFolder = function (folderName, cb) {
+        const createFolder = function (folderName, cb) {
+            Folder.findByParentAndName(self.uri, folderName, function (err, childFolder) {
+                if (isNull(childFolder)) {
                     var childFolder = new Folder({
-                        nie : {
-                            isLogicalPartOf : self.uri,
-                            title : folderName
+                        nie: {
+                            isLogicalPartOf: self.uri,
+                            title: folderName
                         }
                     });
 
                     childFolder.save(cb);
                 }
-                else
-                {
+                else {
                     var childFolder = new Folder(childFolder);
 
-                    if(childFolder.nie.isLogicalPartOf instanceof Array)
-                    {
+                    if (childFolder.nie.isLogicalPartOf instanceof Array) {
                         childFolder.nie.isLogicalPartOf.push(self.uri)
                     }
-                    else
-                    {
+                    else {
                         childFolder.nie.isLogicalPartOf = self.uri;
                     }
 
                     childFolder.nie.title = folderName;
 
-                    childFolder.save(function(err, result){
+                    childFolder.save(function (err, result) {
                         cb(null, childFolder);
                     });
                 }
             });
         };
 
-        createFolder(folderName, function(err, childFolder){
-            if(!err)
-            {
-                var childPathAbsFolder = path.join(absolutePathOfLocalFolder, folderName);
-                childFolder.loadContentsOfFolderIntoThis(childPathAbsFolder, replaceExistingFolder, function(err, loadedFolder){
+        createFolder(folderName, function (err, childFolder) {
+            if (!err) {
+                const childPathAbsFolder = path.join(absolutePathOfLocalFolder, folderName);
+                childFolder.loadContentsOfFolderIntoThis(childPathAbsFolder, replaceExistingFolder, function (err, loadedFolder) {
                     childFolder.undelete(cb, userPerformingTheOperation, true);
                 });
             }
-            else
-            {
+            else {
                 cb(1, "Unable to create subfolder of " + self.uri + " with title " + folderName);
             }
         });
     };
 
-    var loadChildFile = function(fileName, cb)
-    {
-        var createFile = function(fileName, cb){
-            File.findByParentAndName(self.uri, fileName, function(err, childFile){
-                if(childFile == null)
-                {
+    const loadChildFile = function (fileName, cb) {
+        const createFile = function (fileName, cb) {
+            File.findByParentAndName(self.uri, fileName, function (err, childFile) {
+                if (isNull(childFile)) {
                     var childFile = new File({
-                        nie : {
-                            isLogicalPartOf : self.uri,
-                            title : fileName
+                        nie: {
+                            isLogicalPartOf: self.uri,
+                            title: fileName
                         }
                     });
 
                     childFile.save(cb);
                 }
-                else
-                {
+                else {
                     var childFile = new File(childFile);
 
-                    if(childFile.nie.isLogicalPartOf instanceof Array)
-                    {
+                    if (childFile.nie.isLogicalPartOf instanceof Array) {
                         childFile.nie.isLogicalPartOf.push(self.uri)
                     }
-                    else
-                    {
+                    else {
                         childFile.nie.isLogicalPartOf = self.uri;
                     }
 
                     childFile.nie.title = fileName;
 
 
-
-
-                    childFile.save(function(err, result){
+                    childFile.save(function (err, result) {
                         cb(null, childFile);
                     });
                 }
             });
         };
 
-        createFile(fileName, function(err, childFile){
-            if(!err)
-            {
-                var localFilePath = path.join(absolutePathOfLocalFolder, fileName);
-                childFile.loadFromLocalFile(localFilePath, function(err, childFile){
-                    if(!err)
-                    {
-                        if(childFile != null && childFile instanceof File)
-                        {
+        createFile(fileName, function (err, childFile) {
+            if (!err) {
+                const localFilePath = path.join(absolutePathOfLocalFolder, fileName);
+                childFile.loadFromLocalFile(localFilePath, function (err, childFile) {
+                    if (!err) {
+                        if (!isNull(childFile) && childFile instanceof File) {
                             childFile.undelete(cb, userPerformingTheOperation, false);
                         }
-                        else
-                        {
+                        else {
                             console.err("File was loaded but was not returned " + childFile);
                             callback(1, "File was loaded but was not returned " + childFile);
                         }
                     }
-                    else
-                    {
+                    else {
                         callback(1, "Error loading file " + self.uri + " from local file " + localFilePath);
                     }
                 });
             }
-            else
-            {
+            else {
                 cb(err, childFile);
             }
         });
-    }
+    };
 
     /**
      * LOGIC
@@ -822,7 +763,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
             {
                 _.each(files, function(fileName){
 
-                    var absPath = path.join(absolutePathOfLocalFolder, fileName);
+                    const absPath = path.join(absolutePathOfLocalFolder, fileName);
                     fs.stat(absPath, function(err, stats){
                         if(stats.isFile())
                         {
@@ -852,17 +793,17 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
 
 Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
-    var self = this;
+    const self = this;
     console.log("Restoring " + node.resource + " into "+ self.uri);
-    if(node != null)
+    if(!isNull(node))
     {
-        if(node.resource == self.uri)
+        if(node.resource === self.uri)
         {
-            var metadata = node.metadata;
-            if(metadata != null && metadata instanceof Array)
+            const metadata = node.metadata;
+            if(!isNull(metadata) && metadata instanceof Array)
             {
                 var descriptors = [];
-                for(var i = 0; i < metadata.length; i++)
+                for(let i = 0; i < metadata.length; i++)
                 {
                     descriptors.push(
                         new Descriptor(
@@ -874,71 +815,60 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
 
             Descriptor.mergeDescriptors(descriptors, function(err, oldDescriptors)
             {
-                if(node.children != null && node.children instanceof Array)
+                if(!isNull(node.children) && node.children instanceof Array)
                 {
                     Folder.findByUri(node.resource, function(err, currentFolder){
-                        if(currentFolder != null)
+                        if(!isNull(currentFolder))
                         {
                             /**
                              * Function to carry on metadata loading for children
                              * @param childNode
                              * @param callback
                              */
-                            var loadMetadataForChildFolder = function(childNode, callback)
-                            {
-                                if(childNode.children != null && childNode.children instanceof Array)
-                                {
-                                    Folder.findByUri(childNode.resource, function(err, folder){
-                                        if(!err && folder != null)
-                                        {
+                            const loadMetadataForChildFolder = function (childNode, callback) {
+                                if (!isNull(childNode.children) && childNode.children instanceof Array) {
+                                    Folder.findByUri(childNode.resource, function (err, folder) {
+                                        if (!err && !isNull(folder)) {
                                             folder.loadMetadata(
                                                 childNode,
-                                                function(err, result){
-                                                    if(!err)
-                                                    {
-                                                        callback(null, "Folder " + folder.uri +" successfully restored. ");
+                                                function (err, result) {
+                                                    if (!err) {
+                                                        callback(null, "Folder " + folder.uri + " successfully restored. ");
                                                     }
-                                                    else
-                                                    {
+                                                    else {
                                                         callback(err, "Error restoring folder " + folder.uri + " : " + result);
                                                     }
                                                 },
                                                 entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
                                             );
                                         }
-                                        else
-                                        {
-                                            callback(null, "Folder " + childNode.resource +" does not exist or there was an error retrieving it. Error " + folder);
+                                        else {
+                                            callback(null, "Folder " + childNode.resource + " does not exist or there was an error retrieving it. Error " + folder);
                                         }
                                     });
                                 }
-                                else
-                                {
-                                    File.findByUri(childNode.resource, function(err, file){
-                                        if(!err && file != null)
-                                        {
+                                else {
+                                    File.findByUri(childNode.resource, function (err, file) {
+                                        if (!err && !isNull(file)) {
                                             file.loadMetadata(
                                                 childNode,
-                                                function(err, result){
-                                                    if(!err)
-                                                    {
-                                                        callback(null, "File " + file.uri +" successfully restored. ");
+                                                function (err, result) {
+                                                    if (!err) {
+                                                        callback(null, "File " + file.uri + " successfully restored. ");
                                                     }
-                                                    else
-                                                    {
+                                                    else {
                                                         callback(err, "Error restoring file " + file.uri + " : " + result);
                                                     }
                                                 },
                                                 entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
                                             );
                                         }
-                                        else
-                                        {
-                                            callback(null, "File " + childNode.resource +" does not exist or there was an error retrieving it. Error " + file);
+                                        else {
+                                            callback(null, "File " + childNode.resource + " does not exist or there was an error retrieving it. Error " + file);
                                         }
                                     });
                                 }
-                            }
+                            };
 
                             async.map(node.children, loadMetadataForChildFolder, function(err, results){
                                 if(!err)
@@ -973,7 +903,7 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                     {
                         if(!err)
                         {
-                            if(currentFile != null)
+                            if(!isNull(currentFile))
                             {
                                 currentFile.loadMetadata(
                                     node,
@@ -1012,7 +942,7 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
     {
         callback(1, "Cannot restore from a null metadata node");
     }
-}
+};
 
 Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
                                               entityLoadingTheMetadata,
@@ -1021,9 +951,9 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
                                               callback,
                                               runningOnRoot)
 {
-    var self = this;
+    const self = this;
 
-    if(entityLoadingTheMetadata != null && entityLoadingTheMetadata instanceof User)
+    if(!isNull(entityLoadingTheMetadata) && entityLoadingTheMetadata instanceof User)
     {
         var entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
     }
@@ -1040,8 +970,8 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
                 /**
                  * Restore metadata values from medatada.json file
                  */
-                var metadataFileLocation = path.join(absPathOfRootFolder,  Config.packageMetadataFileName);
-                var fs = require('fs');
+                const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
+                const fs = require('fs');
 
                 fs.exists(metadataFileLocation, function (existsMetadataFile) {
                     if(attemptToRestoreMetadata && existsMetadataFile)
@@ -1052,7 +982,7 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
                                 return;
                             }
 
-                            var node = JSON.parse(data);
+                            const node = JSON.parse(data);
 
                             self.loadMetadata(node, function(err, result){
                                 if(!err)
@@ -1086,30 +1016,22 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
 
 Folder.prototype.setDescriptorsRecursively = function(descriptors, callback, uriOfUserDeletingTheFolder)
 {
-    var self = this;
-    var setDescriptors = function(node, cb)
-    {
-        if(node instanceof File)
-        {
+    const self = this;
+    const setDescriptors = function (node, cb) {
+        if (node instanceof File) {
             node.updateDescriptors(descriptors);
             node.save(cb);
         }
-        else if(node instanceof Folder)
-        {
+        else if (node instanceof Folder) {
             node.updateDescriptors(descriptors);
-            node.save(function(err, result){
-                if(!err)
-                {
-                    node.getLogicalParts(function(err, children){
-                        if(!err && children != null && children instanceof Array)
-                        {
-                            if(children.length > 0)
-                            {
-                                async.map(children, setDescriptors, function(err, results)
-                                {
-                                    if(!err)
-                                    {
-                                        /*if(Config.debug.active && Config.debug.files.log_all_restore_operations)
+            node.save(function (err, result) {
+                    if (!err) {
+                        node.getLogicalParts(function (err, children) {
+                            if (!err && !isNull(children) && children instanceof Array) {
+                                if (children.length > 0) {
+                                    async.map(children, setDescriptors, function (err, results) {
+                                        if (!err) {
+                                            /*if(Config.debug.active && Config.debug.files.log_all_restore_operations)
                                         {
                                             var message = "Finished updating a complete folder at " + node.uri;
                                             console.log(message);
@@ -1119,7 +1041,7 @@ Folder.prototype.setDescriptorsRecursively = function(descriptors, callback, uri
                                     }
                                     else
                                     {
-                                        var error = "Error saving a file node (leaf) at " + node.uri + " " + results;
+                                        const error = "Error saving a file node (leaf) at " + node.uri + " " + results;
                                         console.log(error);
                                         cb(1, error);
                                     }
@@ -1139,25 +1061,26 @@ Folder.prototype.setDescriptorsRecursively = function(descriptors, callback, uri
                             cb(1, error);
                         }
                     });
-                }
-                else
+                } else
                 {
                     cb(1, "Unable to save descriptors "+ JSON.stringify(descriptors) + " for folder " + node.uri);
                 }
-            }, true, uriOfUserDeletingTheFolder);
+            }, true,
+                uriOfUserDeletingTheFolder);
         }
         else
         {
-            console.log("Null or invalid node " + JSON.stringify(node) + ", when attempting to save the descriptors " + JSON.stringify(descriptors));
+            console.log("Null or invalid node " + JSON.stringify(node) +
+                ", when attempting to save the descriptors " + JSON.stringify(descriptors));
         }
     };
 
     setDescriptors(self,callback);
-}
+};
 
 Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecursive, reallyDelete)
 {
-    var self = this;
+    const self = this;
 
     if(notRecursive)
     {
@@ -1205,10 +1128,9 @@ Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecu
         {
             self.getLogicalParts(function(err, children){
 
-                var deleteChild = function(child, cb)
-                {
+                const deleteChild = function (child, cb) {
                     child.delete(cb, uriOfUserDeletingTheFolder, notRecursive);
-                }
+                };
 
                 async.map(children, deleteChild, function(err, result){
                     if(!err)
@@ -1261,11 +1183,11 @@ Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecu
             );
         }
     }
-}
+};
 
 Folder.prototype.undelete = function(callback, uriOfUserUnDeletingTheFolder, notRecursive)
 {
-    var self = this;
+    const self = this;
 
     if(notRecursive)
     {
@@ -1304,13 +1226,12 @@ Folder.prototype.undelete = function(callback, uriOfUserUnDeletingTheFolder, not
 
 Folder.deleteOnLocalFileSystem = function(absPath, callback)
 {
-    var exec = require('child_process').exec;
-    var command = "rm -rf absPath";
-    var rm = exec(command, {}, function (error, stdout, stderr)
-    {
+    const exec = require('child_process').exec;
+    const command = "rm -rf absPath";
+    const rm = exec(command, {}, function (error, stdout, stderr) {
         callback(error, stdout, stderr);
     });
-}
+};
 
 Folder.rdfType = "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder";
 Folder.prefixedRDFType = "nfo:Folder";

@@ -1,45 +1,50 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var Loader = require(Config.absPathInSrcFolder("/kb/loaders/loader.js")).Loader;
-var HarvestedResource = require(Config.absPathInSrcFolder("/models/harvesting/harvested_resource.js")).HarvestedResource;
-var ExternalRepository = require(Config.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
+const Loader = require(Config.absPathInSrcFolder("/kb/loaders/loader.js")).Loader;
+const HarvestedResource = require(Config.absPathInSrcFolder("/models/harvesting/harvested_resource.js")).HarvestedResource;
+const ExternalRepository = require(Config.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
 
 function DryadLoader ()
 {
-    var self = this;
+    const self = this;
 }
 
 DryadLoader.prototype = Loader.prototype;
 
 DryadLoader.prototype.destroyCurrentAndReload = function() {
 
-}
+};
 
 DryadLoader.prototype.clearDownloadedFiles = function() {
 
-}
+};
 
 DryadLoader.prototype.downloadFiles = function() {
 
-}
+};
 
 DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
-    var dir = (__dirname + "/DryadCrawler/dryad_mets");
-    var fs = require('fs');
+    const dir = (__dirname + "/DryadCrawler/dryad_mets");
+    const fs = require('fs');
 
-    var dryadRepository = new ExternalRepository({
-        uri : "http://dryad.org",
-        dcterms :
-        {
-            title : "Dryad",
-            description : "Dryad"
+    const dryadRepository = new ExternalRepository({
+        uri: "http://dryad.org",
+        dcterms: {
+            title: "Dryad",
+            description: "Dryad"
         }
     });
 
-    var md5 = require('md5');
+    const md5 = require('md5');
 
     dryadRepository.save(function(err, result)
     {
@@ -55,23 +60,23 @@ DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
                             if (!err)
                             {
                                 console.log("No error, parsing file " + file);
-                                var xmlParser = require('xml2js').parseString;
+                                const xmlParser = require('xml2js').parseString;
                                 xmlParser(contents, function (err, result) {
 
                                     try{
-                                        var descriptors = result["mets:METS"]["mets:dmdSec"][0]["mets:mdWrap"][0]["mets:xmlData"][0]["dim:dim"][0]["dim:field"];
-                                        var resourceURI =  "http://datadryad.org" + result["mets:METS"]["$"]["OBJID"];
+                                        const descriptors = result["mets:METS"]["mets:dmdSec"][0]["mets:mdWrap"][0]["mets:xmlData"][0]["dim:dim"][0]["dim:field"];
+                                        const resourceURI = "http://datadryad.org" + result["mets:METS"]["$"]["OBJID"];
 
-                                        var formattedDescriptors = [];
+                                        const formattedDescriptors = [];
 
                                         for(var i = 0; i < descriptors.length; i++)
                                         {
-                                            var descriptor = descriptors[i];
+                                            const descriptor = descriptors[i];
 
-                                            var descriptorElement = descriptor["$"]["element"];
-                                            var descriptorQualifier = descriptor["$"]["qualifier"];
-                                            var descriptorNamespace = descriptor["$"]["mdschema"];
-                                            var descriptorValue = descriptor["_"];
+                                            const descriptorElement = descriptor["$"]["element"];
+                                            const descriptorQualifier = descriptor["$"]["qualifier"];
+                                            const descriptorNamespace = descriptor["$"]["mdschema"];
+                                            const descriptorValue = descriptor["_"];
 
                                             formattedDescriptors.push({
                                                 namespace : descriptorNamespace,
@@ -81,9 +86,9 @@ DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
                                             });
                                         }
 
-                                        var timestamp = new Date().toISOString();
-                                        var md5sum = md5(contents);
-                                        var dryadRecord =
+                                        const timestamp = new Date().toISOString();
+                                        const md5sum = md5(contents);
+                                        const dryadRecord =
                                             new HarvestedResource(
                                                 resourceURI,
                                                 dryadRepository,
@@ -128,6 +133,6 @@ DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
         }
     });
 
-}
+};
 
 module.exports.DryadLoader = DryadLoader;

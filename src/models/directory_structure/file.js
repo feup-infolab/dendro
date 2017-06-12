@@ -1,24 +1,32 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-var Config = function() { return GLOBAL.Config; }();
-var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
-var path = require('path');
-var async = require('async');
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
+const path = require('path');
+const async = require('async');
 
 function File (object)
 {
     File.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
-    if(self.uri == null)
+    if(isNull(self.uri))
     {
-        if(object.uri == null && object.nie != null)
+        if(isNull(object.uri) && !isNull(object.nie))
         {
             self.uri = object.nie.isLogicalPartOf +  "/" + object.nie.title;
         }
@@ -28,7 +36,7 @@ function File (object)
         }
     }
 
-    if(object.nie != null)
+    if(!isNull(object.nie))
     {
         self.nie.isLogicalPartOf = object.nie.isLogicalPartOf;
         self.nie.title = object.nie.title;
@@ -39,7 +47,7 @@ function File (object)
     const re = /(?:\.([^.]+))?$/;
     let ext = re.exec(self.nie.title)[1];   // "txt"
 
-    if(ext == null)
+    if(isNull(ext))
     {
         self.ddr.fileExtension = "default";
     }
@@ -55,12 +63,12 @@ function File (object)
 
 File.prototype.save = function(callback)
 {
-    var self = this;
+    const self = this;
 
-    var newDescriptorsOfParent = [
+    const newDescriptorsOfParent = [
         new Descriptor({
-            prefixedForm : "nie:hasLogicalPart",
-            value : self.uri
+            prefixedForm: "nie:hasLogicalPart",
+            value: self.uri
         })
     ];
 
@@ -68,7 +76,7 @@ File.prototype.save = function(callback)
     {
         if(!err)
         {
-            if(text != null)
+            if(!isNull(text))
             {
                 self.ddr.text_content = text;
             }
@@ -84,14 +92,14 @@ File.prototype.save = function(callback)
             db.graphUri,
             function(err, result)
             {
-                if(err == null)
+                if(isNull(err))
                 {
-                    var objectOfParentClass = new self.baseConstructor(self);
+                    const objectOfParentClass = new self.baseConstructor(self);
 
                     objectOfParentClass.save(
                         function(err, result)
                         {
-                            if(err == null)
+                            if(isNull(err))
                             {
                                 callback(null, self);
                             }
@@ -115,12 +123,12 @@ File.prototype.save = function(callback)
 
 File.prototype.deleteThumbnails = function()
 {
-    var self = this;
-    if(Config.thumbnailableExtensions[self.ddr.fileExtension] != null)
+    const self = this;
+    if(!isNull(Config.thumbnailableExtensions[self.ddr.fileExtension]))
     {
-        for(var i = 0; i < Config.thumbnails.sizes.length; i++)
+        for(let i = 0; i < Config.thumbnails.sizes.length; i++)
         {
-            var dimension = Config.thumbnails.sizes[i];
+            const dimension = Config.thumbnails.sizes[i];
             if (Config.thumbnails.size_parameters.hasOwnProperty(dimension)) {
                 gfs.connection.delete(self.uri + "?thumbnail&size=" + dimension, function(err, result){
                     if(err)
@@ -135,7 +143,7 @@ File.prototype.deleteThumbnails = function()
 
 File.prototype.delete = function(callback, uriOfUserDeletingTheFile, reallyDelete)
 {
-    var self = this;
+    const self = this;
 
     if(self.ddr.deleted && reallyDelete)
     {
@@ -175,7 +183,7 @@ File.prototype.delete = function(callback, uriOfUserDeletingTheFile, reallyDelet
 
 File.prototype.undelete = function(callback, uriOfUserUnDeletingTheFile)
 {
-    var self = this;
+    const self = this;
     self.updateDescriptors(
         [
             new Descriptor({
@@ -199,8 +207,8 @@ File.prototype.undelete = function(callback, uriOfUserUnDeletingTheFile)
 
 File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, includeTempFileLocations, includeOriginalNodes, callback)
 {
-    var self = this;
-    var fs = require('fs');
+    const self = this;
+    const fs = require('fs');
 
     fs.exists(destinationFolderAbsPath, function(exists){
         if(!exists)
@@ -209,10 +217,10 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
         }
         else
         {
-            var fs = require('fs');
-            var tempFilePath = destinationFolderAbsPath + path.sep + self.nie.title;
+            const fs = require('fs');
+            const tempFilePath = destinationFolderAbsPath + path.sep + self.nie.title;
 
-            var writeStream = fs.createWriteStream(tempFilePath);
+            const writeStream = fs.createWriteStream(tempFilePath);
             gfs.connection.get(self.uri, writeStream, function(err, result){
                 if(!err)
                 {
@@ -225,7 +233,7 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
             });
         }
     });
-}
+};
 
 File.prototype.writeToTempFile = function(callback)
 {
@@ -237,12 +245,12 @@ File.prototype.writeToTempFile = function(callback)
         {
             let writeToFileCallback = function(callback)
             {
-                var tempFilePath = tempFolderPath + path.sep + self.nie.title;
+                const tempFilePath = tempFolderPath + path.sep + self.nie.title;
 
                 console.log("Temp file location: " + tempFilePath);
 
-                var fs = require('fs');
-                var writeStream = fs.createWriteStream(tempFilePath);
+                const fs = require('fs');
+                const writeStream = fs.createWriteStream(tempFilePath);
                 gfs.connection.get(self.uri, writeStream, function(err, result){
                     if(!err)
                     {
@@ -255,7 +263,7 @@ File.prototype.writeToTempFile = function(callback)
                 });
             };
 
-            if(self.nie.title == null)
+            if(isNull(self.nie.title))
             {
                 self.findByUri(function(err)
                 {
@@ -287,7 +295,7 @@ File.prototype.getThumbnail = function(size, callback)
     const tmp = require('tmp');
     const fs = require('fs');
 
-    if(size == null)
+    if(isNull(size))
     {
         size = Config.thumbnails.size_parameters.icon.description;
     }
@@ -302,7 +310,7 @@ File.prototype.getThumbnail = function(size, callback)
             const tempFilePath = tempFolderPath + path.sep + path.basename(self.nie.title) + "_thumbnail_" + size + path.extname(self.nie.title);
             let writeStream = fs.createWriteStream(tempFilePath);
             gfs.connection.get(self.uri + "?thumbnail&size=" + size, writeStream, function(err, result){
-                if(err == 404)
+                if(err === 404)
                 {
                     //try to regenerate thumbnails, fire and forget
                     self.generateThumbnails(function(err, result){
@@ -320,15 +328,15 @@ File.prototype.getThumbnail = function(size, callback)
                 }
             });
         });
-}
+};
 
 File.prototype.loadFromLocalFile = function(localFile, callback)
 {
-    var self = this;
-    var tmp = require('tmp');
-    var fs = require('fs');
+    const self = this;
+    const tmp = require('tmp');
+    const fs = require('fs');
 
-    var ownerProject = self.getOwnerProjectFromUri();
+    const ownerProject = self.getOwnerProjectFromUri();
 
     /**SAVE FILE**/
     gfs.connection.put(
@@ -336,7 +344,7 @@ File.prototype.loadFromLocalFile = function(localFile, callback)
         fs.createReadStream(localFile),
         function(err, result)
         {
-            if(err == null)
+            if(isNull(err))
             {
                 callback(null, self);
             }
@@ -358,7 +366,7 @@ File.prototype.extract_text = function(callback)
 {
     let self = this;
 
-    if(Config.indexableFileExtensions[self.ddr.fileExtension] != null)
+    if(!isNull(Config.indexableFileExtensions[self.ddr.fileExtension]))
     {
         self.writeToTempFile(function(err, locationOfTempFile)
         {
@@ -392,35 +400,35 @@ File.prototype.extract_text = function(callback)
     {
         callback(null, null);
     }
-}
+};
 
 File.estimateUnzippedSize = function(pathOfZipFile, callback)
 {
-    var path = require('path');
-    var exec = require('child_process').exec;
+    const path = require('path');
+    const exec = require('child_process').exec;
 
-    var command = 'unzip -l ' + pathOfZipFile + " | tail -n 1";
-    var parentFolderPath = path.resolve(pathOfZipFile, "..");
+    const command = 'unzip -l ' + pathOfZipFile + " | tail -n 1";
+    const parentFolderPath = path.resolve(pathOfZipFile, "..");
 
 
     exec(command, {cwd : parentFolderPath},  function (error, stdout, stderr) {
         if(!error)
         {
-            var regex = new RegExp(" *[0-9]* [0-9]* file[s]?");
+            const regex = new RegExp(" *[0-9]* [0-9]* file[s]?");
 
-            var size = stdout.replace(regex, "");
+            let size = stdout.replace(regex, "");
             size = size.replace(/ /g, "");
             size = size.replace(/\n/g, "");
             console.log("Estimated unzipped file size is " + size);
             callback(null, Number.parseInt(size));
 
         } else {
-            var errorMessage = "[INFO] There was an error estimating unzipped file size with command "+ command +". Code Returned by Zip Command " + JSON.stringify(error);
+            const errorMessage = "[INFO] There was an error estimating unzipped file size with command " + command + ". Code Returned by Zip Command " + JSON.stringify(error);
             console.error(errorMessage);
             callback(1, errorMessage);
         }
     });
-}
+};
 
 /**
  * unzip a file into a directory
@@ -428,9 +436,9 @@ File.estimateUnzippedSize = function(pathOfZipFile, callback)
  * @param callback
  */
 File.unzip = function(pathOfFile, callback) {
-    var fs = require('fs');
-    var exec = require('child_process').exec;
-    var tmp = require('tmp');
+    const fs = require('fs');
+    const exec = require('child_process').exec;
+    const tmp = require('tmp');
 
     tmp.dir(
         {
@@ -443,14 +451,13 @@ File.unzip = function(pathOfFile, callback) {
             {
                 var command = 'unzip -qq -o ' + pathOfFile;
 
-                var unzip = exec(command, {cwd : tmpFolderPath},  function (error, stdout, stderr) {
-                    if(!error)
-                    {
+                const unzip = exec(command, {cwd: tmpFolderPath}, function (error, stdout, stderr) {
+                    if (!error) {
                         console.log("Contents are in folder " + tmpFolderPath);
                         callback(null, tmpFolderPath);
 
                     } else {
-                        var errorMessage = "[INFO] There was an error unzipping file with command "+ command +" on folder " + tmpFolderPath +". Code Returned by Zip Command " + JSON.stringify(error);
+                        const errorMessage = "[INFO] There was an error unzipping file with command " + command + " on folder " + tmpFolderPath + ". Code Returned by Zip Command " + JSON.stringify(error);
                         console.error(errorMessage);
                         callback(1, tmpFolderPath);
                     }
@@ -468,8 +475,8 @@ File.unzip = function(pathOfFile, callback) {
 };
 
 File.prototype.connectToMongo = function (callback) {
-    var MongoClient = require('mongodb').MongoClient;
-    var url = 'mongodb://'+Config.mongoDBHost+':'+Config.mongoDbPort+'/'+Config.mongoDbCollectionName;
+    const MongoClient = require('mongodb').MongoClient;
+    const url = 'mongodb://' + Config.mongoDBHost + ':' + Config.mongoDbPort + '/' + Config.mongoDbCollectionName;
     MongoClient.connect(url, function(err, db) {
         if(!err)
         {
@@ -478,14 +485,14 @@ File.prototype.connectToMongo = function (callback) {
         }
         else
         {
-            var msg = 'Error connecting to MongoDB';
+            const msg = 'Error connecting to MongoDB';
             callback(true, msg);
         }
     });
 };
 
 File.prototype.findFileInMongo = function (db, callback) {
-    var collection = db.collection('fs.files');
+    const collection = db.collection('fs.files');
     collection.find({filename: this.uri}).toArray(function(err, files) {
 
         if(Config.debug.files.log_file_version_fetches)
@@ -500,7 +507,7 @@ File.prototype.findFileInMongo = function (db, callback) {
         }
         else
         {
-            var msg = 'Error findind document with uri: ' + this.uri + ' in Mongo';
+            const msg = 'Error findind document with uri: ' + this.uri + ' in Mongo';
             callback(true, msg);
         }
     });
@@ -508,14 +515,14 @@ File.prototype.findFileInMongo = function (db, callback) {
 
 File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
-    var self = this;
-    if(node != null)
+    const self = this;
+    if(!isNull(node))
     {
-        var metadata = node.metadata;
-        if(metadata != null && metadata instanceof Array)
+        const metadata = node.metadata;
+        if(!isNull(metadata) && metadata instanceof Array)
         {
             var descriptors = [];
-            for(var i = 0; i < metadata.length; i++)
+            for(let i = 0; i < metadata.length; i++)
             {
                 descriptors.push(
                     new Descriptor(
@@ -575,9 +582,9 @@ File.prototype.generateThumbnails = function(callback)
                     fs.createReadStream(thumbnailFile),
                     function(err, result)
                     {
-                        if(err != null)
+                        if(!isNull(err))
                         {
-                            var msg = "Error saving thumbnail file in GridFS :" + result + " when generating " + sizeTag + " size thumbnail for file " + self.uri;
+                            const msg = "Error saving thumbnail file in GridFS :" + result + " when generating " + sizeTag + " size thumbnail for file " + self.uri;
                             console.error(msg);
                             cb(err, msg);
                         }
@@ -603,7 +610,7 @@ File.prototype.generateThumbnails = function(callback)
     self.getOwnerProject(function(err, project){
         if(!err)
         {
-            if(Config.thumbnailableExtensions[self.ddr.fileExtension] != null)
+            if(!isNull(Config.thumbnailableExtensions[self.ddr.fileExtension]))
             {
                 self.writeToTempFile(function(err, tempFileAbsPath){
                     if(!err)
@@ -642,8 +649,8 @@ File.prototype.generateThumbnails = function(callback)
 
 File.createBlankTempFile = function(fileName, callback)
 {
-    var tmp = require('tmp');
-    var path = require('path');
+    const tmp = require('tmp');
+    const path = require('path');
 
     tmp.dir(
         {
@@ -652,7 +659,7 @@ File.createBlankTempFile = function(fileName, callback)
         },
         function(err, tempFolderAbsPath)
         {
-            var tempFilePath = path.join(tempFolderAbsPath, fileName);
+            const tempFilePath = path.join(tempFolderAbsPath, fileName);
 
             if(!err)
             {
@@ -670,17 +677,17 @@ File.createBlankTempFile = function(fileName, callback)
 
 File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
 {
-    var fs = require('fs');
+    const fs = require('fs');
     
-    var absPathToFile = Config.absPathInApp(relativePathToFile);
-    var parentFolder = path.resolve(absPathToFile, "..");
+    const absPathToFile = Config.absPathInApp(relativePathToFile);
+    const parentFolder = path.resolve(absPathToFile, "..");
 
     fs.stat(absPathToFile, function(err, stat) {
-        if(err == null) {
+        if(isNull(err)) {
             callback(0, absPathToFile, parentFolder);
-        } else if(err.code == 'ENOENT') {
+        } else if(typeof err.code === 'ENOENT') {
             // file does not exist
-            var mkpath = require('mkpath');
+            const mkpath = require('mkpath');
 
             mkpath(parentFolder, function (err) {
                 if (err)
@@ -689,7 +696,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
                 }
                 else
                 {
-                    var fs = require("fs");
+                    const fs = require("fs");
                     fs.open(absPathToFile, "wx", function (err, fd) {
                         // handle error
                         fs.close(fd, function (err) {
@@ -709,13 +716,12 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
 
 File.deleteOnLocalFileSystem = function(err, callback)
 {
-    var exec = require('child_process').exec;
-    var command = "rm absPath";
-    var rm = exec(command, {}, function (error, stdout, stderr)
-    {
+    const exec = require('child_process').exec;
+    const command = "rm absPath";
+    const rm = exec(command, {}, function (error, stdout, stderr) {
         callback(error, stdout, stderr);
     });
-}
+};
 
 File.prefixedRDFType = "nfo:FileDataObject";
 
