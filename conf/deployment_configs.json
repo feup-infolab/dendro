@@ -854,7 +854,7 @@
       "load_databases" : false,
       "reload_administrators_on_startup" : true,
       "reload_demo_users_on_startup" : true,
-      "reload_ontologies_on_startup": false
+      "reload_ontologies_on_startup": true
     },
     "baselines" : {
 
@@ -864,12 +864,12 @@
       "pipe_console_to_logfile" : false,
       "format" : "combined",
       "app_logs_folder" : "logs/app",
-      "log_request_times" : true,
+      "log_request_times" : false,
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
       "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
       "suppress_all_logs" : true,
-      "suppress_all_errors" : true
+      "suppress_all_errors" : false
     },
     "version" :
     {

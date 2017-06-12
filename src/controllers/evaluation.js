@@ -54,12 +54,14 @@ exports.shared.evaluate_metadata = function(req, callback)
 {
     const requestedResourceURI = req.params.requestedResource;
     const recommendationsMode = req.query.recommendations_mode;
+    let includeOnlyFavorites = false;
+    let smartRecommendationMode = false;
 
     //ignore restrictions to favorites and smart if the
     if(!Config.recommendation.modes.none.active)
     {
-        const includeOnlyFavorites = (recommendationsMode === recommendation.recommendation_options.favorites);
-        const smartRecommendationMode = (recommendationsMode === recommendation.recommendation_options.smart);
+        includeOnlyFavorites = (recommendationsMode === recommendation.recommendation_options.favorites);
+        smartRecommendationMode = (recommendationsMode === recommendation.recommendation_options.smart);
     }
 
     const getMetadataRecommendations = function (requestedResource, callback) {

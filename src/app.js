@@ -58,7 +58,7 @@ let pid;
 
 
 //Setup logging
-if(isNull(Config.logging))
+if(!isNull(Config.logging))
 {
     async.series([
         function(cb)
@@ -130,8 +130,6 @@ if(isNull(Config.logging))
                                 log_file.write("[ " + date + " ] "+ util.format(err.stack) + "\n");
                                 log_stdout.write(util.format(err.stack) + '\n');
                             }
-
-                            throw err;
                         };
                     }
 
@@ -314,10 +312,10 @@ const appendLocalsToUseInViews = function (req, res, next) {
 
     const flashMessagesError = req.flash('error');
 
-    if (isNull(flashMessagesError) &&
+    if (!isNull(flashMessagesError) &&
         flashMessagesError instanceof Array &&
         flashMessagesError.length > 0) {
-        if (typeof res.locals.error_messages === "undefined") {
+        if (isNull(res.locals.error_messages)) {
             res.locals.error_messages = flashMessagesError;
         }
         else {

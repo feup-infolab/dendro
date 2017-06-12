@@ -1456,7 +1456,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     const getFromCache = function (uri, callback) {
         redis(customGraphUri).connection.get(uri, function (err, result) {
             if (!err) {
-                if (isNull(result)) {
+                if (!isNull(result)) {
                     const resource = Object.create(self.prototype);
 
                     resource.uri = uri;

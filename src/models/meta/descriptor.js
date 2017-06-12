@@ -350,6 +350,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
         " { \n" +
         "   {\n " +
         "      ?uri  rdf:type     rdf:Property    . \n" +
+        "      FILTER( STRSTARTS(str(?uri), str([0]) ) )    . \n" +
         "       OPTIONAL {  \n" +
         "           ?uri    rdfs:label  ?label .\n" +
         "           FILTER (lang(?label) = \"\" || lang(?label) = [1] )\n" +
@@ -384,7 +385,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
     ];
 
 
-    if(typeof page_number === "number" && typeof pagesize === "number")
+    if(typeof page_number === "number")
     {
         query = query  +
             " OFFSET [2] \n" +

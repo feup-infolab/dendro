@@ -188,7 +188,7 @@ Project.allNonPrivate = function(currentUser, callback) {
 
         function(err, projects) {
 
-            if(!err && !isNull(projects) && typeof projects instanceof Array)
+            if(!err && !isNull(projects) && projects instanceof Array)
             {
                 Project.addProjectInformations(projects, callback);
             }

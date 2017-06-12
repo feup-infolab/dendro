@@ -56,7 +56,7 @@ else
 const active_config = configs[active_config_key];
 
 const getConfigParameter = function (parameter, defaultValue) {
-    if (typeof active_config[parameter] === "undefined") {
+    if (isNull(active_config[parameter])) {
         if (!isNull(defaultValue)) {
             console.error("[WARNING] Using default value " + JSON.stringify(defaultValue) + " for parameter " + parameter + " !");
             Config[parameter] = defaultValue;

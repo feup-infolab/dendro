@@ -1,6 +1,11 @@
 function isNull(object)
 {
-    return typeof object == "undefined" || object === null;
+    if(object === null)
+        return true;
+    else if(typeof object === "undefined")
+        return true;
+    else
+        return false;
 }
 
 module.exports.isNull = isNull;

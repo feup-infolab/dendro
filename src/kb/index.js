@@ -263,7 +263,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
             self.client.indices.create(settings, function(err, data){
                 if(!err)
                 {
-                    if(isNull(data.error) && typeof data.acknowledged === true)
+                    if(isNull(data.error) && data.acknowledged === true)
                     {
                         endCallback(null, "Index with name " + indexName + " successfully created.");
                     }
@@ -356,7 +356,7 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 
 	const fullUrl = "http://" + self.host + ":" + self.port + "/_stats";
 
-    console.error("Index Checker URL: "+ util.inspect(fullUrl));
+    console.log("Index Checker URL: "+ util.inspect(fullUrl));
 
 	xmlHttp.open("GET", fullUrl, true);
 	xmlHttp.send(null);
