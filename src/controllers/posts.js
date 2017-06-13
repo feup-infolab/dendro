@@ -1559,12 +1559,15 @@ exports.post = function (req, res) {
     var currentUser = req.session.user;
     var postUri = "http://"+Config.host + req.url;
 
+    //TODO VERIFICAR AQUI QUE TIPO DE POST É e construir as 3 changes etc
     Post.findByUri(postUri, function(err, post)
     {
         if(!err && post != null)
         {
             if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
+                //TODO ARRANJAR MANEIRA AQUI para correr diferentes funções dependendo do type
+                //TODO -> como está feito no users.js
                 async.parallel([
                         function(callback) {
                             getCommentsForAPost(post.uri, function (err, commentsData) {

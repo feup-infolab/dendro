@@ -57,7 +57,18 @@ MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project
 
     async.map(changesSortedByType, function(changeType, callback)
     {
-        callback(null, changeType[0]);
+        var change = {
+            ddr : {
+                changedDescriptor: changeType[0].ddr.changedDescriptor,
+                newValue: changeType[0].ddr.newValue,
+                changeType: changeType[0].ddr.changeType,
+                pertainsTo: changeType[0].ddr.pertainsTo,
+                changeIndex: changeType[0].ddr.changeIndex,
+                oldValue: changeType[0].ddr.oldValue
+            }
+        };
+        //callback(null, changeType[0]);
+        callback(null, change);
     }, function(err, results){
         //Add to the post the number of changes added, edited, deleted
         //the number of changes total
@@ -72,14 +83,16 @@ MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project
                 //hasContent: JSON.stringify(results),//substituir por sharedContent da SocialMediaMetadataChangePosting http://schema.org/SocialMediaMetadataChangePosting -> fazer JSON.parse depois para aceder
                 numLikes: 0,//isto não é necessário aqui
                 projectUri: project.uri,
-                refersTo : versionUri//Já existe -> http://onto.dm2e.eu/schemas/dm2e#refersTo //TODO adicionar isto ao elements.js
+                //refersTo : versionUri//Já existe -> http://onto.dm2e.eu/schemas/dm2e#refersTo //TODO adicionar isto ao elements.js
             },
             dcterms: {
                 creator: changeAuthor,
                 title: title
             },
             schema: {
-                sharedContent: JSON.stringify(results)
+                //sharedContent: JSON.stringify(results)
+                //sharedContent: results//TODO retirar isto e mandar apenas a uri da ArchivedVersion, o processamento das 3 changes etc fica do lado do controller
+                sharedContent: versionUri
             }
         });
         callback(null, newMetadataChangePost);

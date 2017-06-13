@@ -1,5 +1,6 @@
 <div class="panel panel-default" style="margin-left: 20%; margin-right: 20%">
-    <p>the share uri level 2 is {{shareUri}} </p>
+    <p> Contents at showShare.html : </p>
+    <p> {{postsContents[shareUri]}} </p>
     <div class="panel-heading">
         <h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <img width="5%" height="5%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>
     </div>
