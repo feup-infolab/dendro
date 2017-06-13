@@ -8,7 +8,7 @@ exports.recommend = function(req, res) {
 
     if(req.params.requestedResource != null)
     {
-        Ontology.previouslyUsed(req.session.user, function(error, previouslyUsedOntologies){
+        Ontology.previouslyUsed(req.user, function(error, previouslyUsedOntologies){
             if(!err)
             {
                 res.json(previouslyUsedOntologies)
@@ -22,51 +22,71 @@ exports.recommend = function(req, res) {
 };
 
 exports.get_recommendation_ontologies = function(req, res) {
-    if(req.params.requestedResource != null)
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if(!acceptsJSON && acceptsHTML)
     {
-        if(req.session.user != null)
-        {
-            var user = req.session.user;
-
-            if( user.recommendations != null &&
-                user.recommendations.ontologies.accepted != null &&
-                user.recommendations.ontologies.accepted instanceof Object)
-            {
-                var ontologiesToReturn = [];
-
-                for(var prefix in user.recommendations.ontologies.accepted)
-                {
-                    if(user.recommendations.ontologies.accepted.hasOwnProperty(prefix))
-                    {
-                        var ontologyToReturn = user.recommendations.ontologies.accepted[prefix];
-
-                        /**hide elements**/
-                        delete ontologyToReturn.elements;
-
-                        var label = Ontology.allOntologies[prefix].label;
-                        var description = Ontology.allOntologies[prefix].description;
-
-                        ontologyToReturn.label = label;
-                        ontologyToReturn.description = description;
-
-                        ontologiesToReturn.push(ontologyToReturn);
-                    }
-                }
-
-                res.json(ontologiesToReturn);
-            }
-            else
-            {
-                res.json([]);
-            }
-        }
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
     }
     else
     {
-        res.status(500).json({
-            result : "Error",
-            message : "No/invalid requested resource"
-        });
+        if(req.params.requestedResource != null)
+        {
+            if(req.user != null)
+            {
+                var user = req.user;
+
+                if( user.recommendations != null &&
+                    user.recommendations.ontologies.accepted != null &&
+                    user.recommendations.ontologies.accepted instanceof Object)
+                {
+                    var ontologiesToReturn = [];
+
+                    for(var prefix in user.recommendations.ontologies.accepted)
+                    {
+                        if(user.recommendations.ontologies.accepted.hasOwnProperty(prefix))
+                        {
+                            var ontologyToReturn = user.recommendations.ontologies.accepted[prefix];
+
+                            /**hide elements**/
+                            delete ontologyToReturn.elements;
+
+                            var label = Ontology.allOntologies[prefix].label;
+                            var description = Ontology.allOntologies[prefix].description;
+
+                            ontologyToReturn.label = label;
+                            ontologyToReturn.description = description;
+
+                            ontologiesToReturn.push(ontologyToReturn);
+                        }
+                    }
+
+                    res.json(ontologiesToReturn);
+                }
+                else
+                {
+                    res.json([]);
+                }
+            }
+            else
+            {
+                res.status(401).json({
+                    result : "Error",
+                    message : "Action not permitted. You are not logged into the system."
+                });
+            }
+        }
+        else
+        {
+            res.status(500).json({
+                result : "Error",
+                message : "No/invalid requested resource"
+            });
+        }
     }
 };
 
@@ -118,7 +138,7 @@ exports.public = function(req, res) {
     }
     else
     {
-        res.render('ontologies/all');
+        res.render('ontologies/public');
     }
 };
 
@@ -131,14 +151,7 @@ exports.all = function(req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        if(Config.baselines.dublin_core_only)
-        {
-            var allOntologies = [Ontology.allOntologies['dcterms']];
-        }
-        else
-        {
-            var allOntologies = Ontology.getAllOntologiesArray();
-        }
+        var allOntologies = Ontology.getAllOntologiesArray();
 
         res.json(allOntologies);
     }

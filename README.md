@@ -1,4 +1,24 @@
+[![Build Status](http://buildserver-rdm.up.pt:8111/job/FEUP%20Information%20Systems%20Laboratory/job/dendro/job/master/badge/icon)](http://buildserver-rdm.up.pt:8111/job/FEUP%20Information%20Systems%20Laboratory/job/dendro/job/master/)
+[![Coverage Status](https://codeclimate.com/github/feup-infolab/dendro/coverage.png)](https://codeclimate.com/github/feup-infolab/dendro/trends)
+[![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
+[![Code Climate](https://codeclimate.com/github/feup-infolab/dendro/badges/gpa.svg)](https://codeclimate.com/github/feup-infolab/dendro)
+[![Issue Count](https://codeclimate.com/github/feup-infolab/dendro/badges/issue_count.svg)](https://codeclimate.com/github/feup-infolab/dendro)
+
 #	Welcome to Dendro
+
+![dendro UI](https://raw.githubusercontent.com/feup-infolab/dendro/master/public/images/Screen%20Shot%202017-04-04%20at%2012.22.08.png "Dendro UI")
+
+## Demo instance
+
+[DEMO](http://dendro.fe.up.pt/demo)
+
+If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
+
+## How to install
+
+[Installation](https://github.com/feup-infolab/dendro-install)
+
+## What is Dendro?
 
 The Dendro platform is a completely open-source platform designed to help researchers describe their datasets, fully build on Linked Open Data. It is designed to capture data and metadata during the research workflow. Whenever researchers want to publish a dataset, they can export to repositories such as [CKAN](http://ckan.org/), [DSpace](http://www.dspace.org/), [Invenio](http://invenio-software.org/), or [EUDAT's B2Share](https://www.eudat.eu/services/b2share). Any repository can be added by writing small plug-ins.
 
@@ -9,11 +29,7 @@ You are free to use Dendro to build any service for your research group or insti
 
 Pull requests are welcome!
 
-##Demo instance
-
-See the [DEMO PAGE](http://dendro.fe.up.pt/demo). If it is down, please file an [issue](https://github.com/feup-infolab-rdm/dendro/issues/new).
-
-##Dependencies
+## Dependencies
 
 Dendro relies on
 
@@ -22,8 +38,9 @@ Dendro relies on
 * MongoDB and its GridFS system for scalable file storage
 * NodeJS and ExpressJS for the server side
 * Twitter Boostrap
+* [![Built with Grunt](https://cdn.gruntjs.com/builtwith.svg)](https://gruntjs.com/)
 
-##Acknowledgements
+## Acknowledgements
 
 This work was supported by project NORTE-07-0124-FEDER-000059, financed by the North Portugal Regional Operational Programme (ON.2-O Novo Norte), under the National Strategic Reference Framework (NSRF), through the European Regional Development Fund (ERDF), and by national funds, through the Portuguese funding agency, Fundação para a Ciência e a Tecnologia (FCT). João Rocha da Silva was also supported by research grant SFRH/BD/77092/2011, provided by the Portuguese funding agency, Fundação para a Ciência e a Tecnologia (FCT).
 
@@ -33,9 +50,11 @@ This work is financed by the ERDF – European Regional Development Fund through
 
 ## License
 
+[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
+
 All source code is freely available under a standard [BSD 3-Clause license](https://opensource.org/licenses/BSD-3-Clause).
 
-Copyright (c) 2016, João Rocha da Silva, FEUP InfoLab (http://dendro.fe.up.pt)
+Copyright (c) 2016, FEUP InfoLab (http://dendro.fe.up.pt)
 
 All rights reserved.
 

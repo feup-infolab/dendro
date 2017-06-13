@@ -13,15 +13,15 @@ var _ = require('underscore');
 exports.recommend_descriptors = function(req, res) {
     if(req.params.requestedResource != null)
     {
-        if(req.session.user != null)
+        if(req.user != null)
         {
             var recommendationMode = req.query.recommendations_mode;
 
             var getAllowedOntologies = function()
             {
-                if(req.session.user.recommendations != null && req.session.user.recommendations.ontologies != null)
+                if(req.user.recommendations != null && req.user.recommendations.ontologies != null)
                 {
-                    var acceptedOntologies = req.session.user.recommendations.ontologies.accepted;
+                    var acceptedOntologies = req.user.recommendations.ontologies.accepted;
                     var fullOntologies = [];
 
                     for(var prefix in acceptedOntologies)
@@ -44,7 +44,7 @@ exports.recommend_descriptors = function(req, res) {
             {
                 if(req.query.page != null)
                 {
-                    var oldPage = req.session.user.recommendations.descriptor_page;
+                    var oldPage = req.user.recommendations.descriptor_page;
 
                     if(oldPage == null)
                     {
@@ -53,7 +53,7 @@ exports.recommend_descriptors = function(req, res) {
 
                     var newPage = parseInt(req.query.page);
 
-                    req.session.user.recommendations.descriptor_page = newPage;
+                    req.user.recommendations.descriptor_page = newPage;
 
                     var interactionType;
 
@@ -68,12 +68,12 @@ exports.recommend_descriptors = function(req, res) {
 
                     if(interactionType != null)
                     {
-                        var lastRecommendationList = JSON.stringify(req.session.user.recommendations.lastRecommendationList);
+                        var lastRecommendationList = JSON.stringify(req.user.recommendations.lastRecommendationList);
 
                         new Interaction(
                             {
                                 ddr : {
-                                    performedBy : req.session.user.uri,
+                                    performedBy : req.user.uri,
                                     interactionType : interactionType,
                                     lastDescriptorRecommendationsList : lastRecommendationList,
                                     originallyRecommendedFor : req.params.requestedResource
@@ -98,21 +98,14 @@ exports.recommend_descriptors = function(req, res) {
                 }
             };
 
-            if(Config.baselines.dublin_core_only)
-            {
-                var allowedOntologies = [Ontology.allOntologies['dcterms'].uri];
-            }
-            else
-            {
-                var allowedOntologies = getAllowedOntologies();
-            }
+            var allowedOntologies = getAllowedOntologies();
 
-            exports.shared.recommend_descriptors(req.params.requestedResource, req.session.user.uri, req.query.page, allowedOntologies, req.index, function(err, descriptors){
+            exports.shared.recommend_descriptors(req.params.requestedResource, req.user.uri, req.query.page, allowedOntologies, req.index, function(err, descriptors){
                 if(!err)
                 {
                     registerRecommendationRequestInteraction();
 
-                    req.session.user.recommendations.lastRecommendationList = descriptors;
+                    req.user.recommendations.lastRecommendationList = descriptors;
                     res.json(
                         {
                             result : "ok",
@@ -786,6 +779,15 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 results = flattenAndMergeDescriptors(results);
                 results = rankDescriptors(results);
                 results = removeLockedAndPrivate(results);
+
+                var uuid = require('uuid');
+                var recommendation_call_id = uuid.v4();
+                var recommendation_call_timestamp = new Date().toISOString();
+                for(var i = 0; i < results.length; i++)
+                {
+                    results[i].recommendationCallId = recommendation_call_id;
+                    results[i].recommendationCallTimeStamp = recommendation_call_timestamp;
+                }
 
                 if(!includeOnlyFavorites && !includeOnlyHiddenDescriptors)
                 {

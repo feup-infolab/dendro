@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 var Config = require('../models/meta/config.js').Config;
 
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
@@ -12,15 +13,55 @@ var db = function () {
 var gfs = function () {
     return GLOBAL.gfs.default;
 }();
+=======
+const Config = function() { return GLOBAL.Config; }();
 
-var async = require('async');
-var _ = require('underscore');
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+
+const db = function() { return GLOBAL.db.default; }();
+const gfs = function() { return GLOBAL.gfs.default; }();
+>>>>>>> master
+
+const async = require('async');
+const _ = require('underscore');
 
 /*
  * GET users listing.
  */
+exports.users_autocomplete = function(req, res){
+
+    if(req.params.requestedResource != null)
+    {
+
+        User.autocomplete_search(
+            req.query.user_autocomplete,
+            Config.recommendation.max_autocomplete_results,
+            function(err, users)
+            {
+                if(!err)
+                {
+                    res.json(
+                        users
+                    );
+                }
+                else
+                {
+                    res.status(500).json(
+                        {
+                            error_messages : [users]
+                        }
+                    );
+                }
+            }
+        );
+    }
+}
 
 exports.all = function (req, res) {
+
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
     var viewVars = {
         title: 'Researchers in the knowledge base'
@@ -30,6 +71,7 @@ exports.all = function (req, res) {
         viewVars
     );
 
+<<<<<<< HEAD
 
     User.all(function (err, users) {
         if (!err) {
@@ -49,14 +91,110 @@ exports.all = function (req, res) {
             viewVars.error_messages = [users];
             res.render('users/all',
                 viewVars
+=======
+    var getUserCount = function(cb)
+    {
+        User.getCount(function(err, count){
+            cb(err, count);
+        });
+    }
+
+    var getAllUsers = function(cb)
+    {
+        User.all(function(err, users) {
+            cb(err, users);
+        }, req, null, [Config.types.private, Config.types.locked], [Config.types.api_readable]);
+    }
+
+    async.parallel(
+        [
+            getUserCount, getAllUsers
+        ], function(err, results)
+        {
+            if(!err)
+            {
+                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    var users = results[1];
+                    res.json(
+                        users
+                    );
+                }
+                else
+                {
+                    viewVars.count = results[0];
+                    viewVars.users = results[1];
+
+                    res.render('users/all',
+                        viewVars
+                    )
+                }
+            }
+            else
+            {
+                if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.json({
+                        result : "error",
+                        message : "Unable to fetch users list.",
+                        error : results
+                    });
+                }
+                else
+                {
+                    viewVars.users = [];
+                    viewVars.error_messages = [results];
+                    res.render('users/all',
+                        viewVars
+                    )
+                }
+            }
+        }
+    );
+};
+
+exports.username_exists = function(req, res){
+    const username = req.query["username"];
+
+    User.findByUsername(username, function(err, user)
+    {
+        if(!err)
+        {
+            if(user != null)
+            {
+                res.json(
+                    {
+                        result: "ok",
+                        message: "found"
+                    }
+                );
+            }
+            else
+            {
+                res.json(
+                    {
+                        result: "ok",
+                        message: "not_found"
+                    }
+                );
+            }
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    result: "error"
+                }
+>>>>>>> master
             );
         }
-    });
+    }, true);
 };
 
 exports.show = function (req, res) {
     var username = req.params["username"];
 
+<<<<<<< HEAD
 
     User.findByUsername(username, function (err, user) {
         var viewVars = {
@@ -152,17 +290,92 @@ exports.show = function (req, res) {
                     ]
                 }
             );
+=======
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    User.findByUsername(username, function(err, user)
+    {
+        if(!err)
+        {
+            if(user != null)
+            {
+                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.json(
+                        user
+                    );
+                }
+                else
+                {
+                    res.render('users/show',
+                        {
+                            title : "Viewing user " + username,
+                            user : user
+                        }
+                    )
+                }
+            }
+            else
+            {
+                if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                {
+                    res.json({
+                        result : "error",
+                        message : "User " + username + " does not exist."
+                    });
+                }
+                else
+                {
+                    res.render('index',
+                        {
+                            error_messages : ["User " + username + " does not exist."]
+                        }
+                    )
+                }
+            }
         }
-    });
+        else
+        {
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            {
+                res.json(
+                    {
+                        result : "error",
+                        message : "There is no user authenticated in the system."
+                    }
+                );
+            }
+            else
+            {
+                res.render('users/show',
+                    {
+                        title : "Viewing user " + username,
+                        user : user
+                    }
+                )
+            }
+>>>>>>> master
+        }
+    }, true);
 };
 
+<<<<<<< HEAD
 exports.me = function (req, res) {
     req.params.user = req.session.user;
+=======
+exports.me = function(req, res){
+    req.params.user = req.user;
+>>>>>>> master
 
     if (req.originalMethod == "GET") {
         res.render('users/edit',
             {
+<<<<<<< HEAD
                 user: req.session.user
+=======
+                user : req.user
+>>>>>>> master
             }
         );
     }
@@ -171,7 +384,11 @@ exports.me = function (req, res) {
 
         res.render('users/edit',
             {
+<<<<<<< HEAD
                 user: req.session.user
+=======
+                user : req.user
+>>>>>>> master
             }
         );
     }
@@ -365,6 +582,38 @@ exports.reset_password = function (req, res) {
                         "Please specify a valid email address"
                     ]
                 }
+            );
+        }
+    }
+};
+
+exports.getLoggedUser = function (req, res) {
+
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if(req.user != null)
+    {
+        req.params.username = req.user.ddr.username;
+        exports.show(req, res);
+    }
+    else
+    {
+        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+        {
+            res.json(
+                {
+                    result : "error",
+                    message : "There is no user authenticated in the system."
+                }
+            );
+        }
+        else
+        {
+            viewVars.projects = [];
+            viewVars.info_messages = ["There is no user authenticated in the system."];
+            res.render('index',
+                viewVars
             );
         }
     }

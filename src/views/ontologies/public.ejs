@@ -1,19 +1,19 @@
 <%- include ../layout/header.ejs %>
 
-<div class="content" ng-controller="ontologiesCtrl">
+<div class="content" ng-controller="ontologiesCtrl" ng-init="init(true)">
     <h1 class="header">
-        Descriptor Sets
+        Public Descriptor Sets
     </h1>
 
-    <div class="alert alert-info" ng-if="getting_ontologies == false && public_ontologies.length == 0">
+    <div class="alert alert-info" ng-show="getting_ontologies == false && public_ontologies.length == 0">
         There are no ontologies in this Dendro instance.
     </div>
 
-    <div class="alert alert-info" ng-if="getting_ontologies" >
+    <div class="alert alert-info" ng-show="getting_ontologies" >
         Fetching list of descriptor sets...
     </div>
 
-    <table class="table table-striped" ng-if="getting_ontologies == false && public_ontologies.length > 0" style="table-layout:fixed">
+    <table class="table table-striped" ng-show="getting_ontologies == false && public_ontologies.length > 0" style="table-layout:fixed">
         <tr>
             <th style="width:10%">
                 Prefix

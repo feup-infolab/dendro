@@ -3,7 +3,13 @@ angular.module('dendroApp.controllers')
     /**
      * share folder controller
      */
-    .controller('shareCtrl', function ($scope, $http, $filter) {
+    .controller('shareCtrl',
+        function (
+            $scope,
+            $http,
+            $filter
+        )
+        {
 
         $scope.get_current_url = function()
         {
@@ -57,6 +63,28 @@ angular.module('dendroApp.controllers')
             return baseAddress != null && $scope.valid_url(baseAddress) && !baseAddress.endsWith("/");
         }
 
+
+        $scope.valid_api_key = function(key)
+        {
+            if(key == null)
+            {
+                return false;
+            }
+            else
+            {
+                var regexp = /^[a-zA-Z0-9-_]+$/;
+
+                if (key.search(regexp) == -1)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true
+                }
+            }
+        }
+
         $scope.valid_organization = function(organization)
         {
             if(organization == null || organization.length == 0)
@@ -91,7 +119,7 @@ angular.module('dendroApp.controllers')
                 },
                 success: function (e, data) {
                     $scope.clear_repository_type();
-                    $scope.get_my_repositories();
+                    //$scope.get_my_repositories();
                     $scope.show_popup("success", "Success", e.message);
                 },
                 statusCode: $scope.statusCodeDefaults
@@ -213,7 +241,29 @@ angular.module('dendroApp.controllers')
 
                 if(data!= null)
                 {
-                    $scope.show_popup("success", "Success", data.message);
+                    if(data.result === "error")
+                    {
+                        if(data.message != null)
+                        {
+                            $scope.show_popup("error", "Error", data.message);
+                        }
+                        else
+                        {
+                            $scope.show_popup("error", "Error", "Unknown error occurred.");
+                        }
+
+                    }
+                    else
+                    {
+                        if(data.message != null)
+                        {
+                            $scope.show_popup("success", "Success", data.message);
+                        }
+                        else
+                        {
+                            $scope.show_popup("success", "Success", "Operation completed successfully.");
+                        }
+                    }
                 }
                 else
                 {
@@ -223,9 +273,13 @@ angular.module('dendroApp.controllers')
                 $scope.clear_recalled_repository();
 
             }).catch(function(error){
-                if(e != null)
+                if(error.data != null && error.data.message != null)
                 {
-                    $scope.show_popup("error", "Error", JSON.stringify(error));
+                    $scope.show_popup("error", error.data.title, error.data.message);
+                }
+                else
+                {
+                    $scope.show_popup("error", "Error occurred", JSON.stringify(error));
                 }
                 $scope.is_sending_data = false;
             });
@@ -309,13 +363,13 @@ angular.module('dendroApp.controllers')
 
                     }
             }).catch(function(error){
-                if(error.message != null && error.title != null)
+                if(error.data != null && error.data.message != null)
                 {
-                    Utils.show_popup("error", error.title, error.message);
+                    $scope.show_popup("error", error.data.title, error.data.message);
                 }
                 else
                 {
-                    Utils.show_popup("error", "Error occurred", JSON.stringify(error));
+                    $scope.show_popup("error", "Error occurred", JSON.stringify(error));
                 }
             });
 

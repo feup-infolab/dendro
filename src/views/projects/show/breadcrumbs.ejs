@@ -8,19 +8,18 @@
             for(var i = 0; i < locals.breadcrumbs.length; i++)
             {
                 var breadcrumb = locals.breadcrumbs[i];
-        %>
-                <%if(i < locals.breadcrumbs.length - 1)
-                    {
+                if(i < locals.breadcrumbs.length)
+                {
                 %>
                         <li><a href="<%=breadcrumb.uri%>"><%=breadcrumb.title%></a></li>
                 <%
-                    }
-                    else
-                    {
+                }
+                else
+                {
                 %>
                         <li class="active"><%=breadcrumb.title%></li>
                 <%
-                    }
+                }
                 %>
         <%
             }

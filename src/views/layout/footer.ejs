@@ -3,7 +3,22 @@
         <div class="navbar navbar-default navbar-fixed-bottom">
             <div class="container-fluid">
                 <span class="navbar-text">
-                    &copy; <a href="http://dendro.fe.up.pt">FEUP InfoLab</a>. <small class="version_description"><%= locals.Config.version.name %>. v.<%= locals.Config.version.number %></small>
+                    &copy; <a href="http://dendro.fe.up.pt">FEUP InfoLab</a>.
+                       <small><b>Version:</b></small> <small class="version_description"><b><%= locals.Config.version.name %>. v.<%= locals.Config.version.number %></small>
+                    <% if (locals.Config.demo_mode.active && locals.Config.demo_mode.git_info instanceof Object) { %>
+                        <small><b>Active Branch:</b></small>
+                        <small class="version_description">
+                            <a href="http://github.com/feup-infolab-rdm/dendro/tree/<%= encodeURIComponent(locals.Config.demo_mode.git_info.active_branch) %>"><%= locals.Config.demo_mode.git_info.active_branch %></a>
+                        </small>
+                        <small><b>Commit:</b></small>
+                        <small class="version_description">
+                            <a href="http://github.com/feup-infolab-rdm/dendro/commit/<%= encodeURIComponent(locals.Config.demo_mode.git_info.commit_hash) %>"><%= locals.Config.demo_mode.git_info.commit_hash %></a>
+                        </small>
+                        <small><b>Date</b></small>
+                        <small class="version_description">
+                            <%= locals.Config.demo_mode.git_info.last_commit_date %>
+                        </small>
+                    <% } %>
                 </span>
             </div>
         </div>

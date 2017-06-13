@@ -123,8 +123,8 @@ RepositoryPlatform.all = function(callback){
             uri : Config.baseUri + "/repository_platform/b2share",
             dcterms :
             {
-                title : "B2Share",
-                description : "A B2Share deposition"
+                title : "EUDAT B2Share",
+                description : "A EUDAT B2Share deposition"
             },
             foaf :
             {

@@ -24,19 +24,139 @@ function User (object)
         self.uri = db.baseURI+"/user/"+self.ddr.username;
     }
 
+    if(self.ddr.salt == null)
+    {
+        var bcrypt = require('bcryptjs');
+
+        if(process.env.NODE_ENV != "test")
+        {
+            self.ddr.salt = bcrypt.genSaltSync(10);
+        }
+        else
+        {
+            self.ddr.salt = bcrypt.genSaltSync(1);
+        }
+    }
+
     self.rdf.type = "ddr:User";
 
     return self;
 }
 
-User.findByUsername = function(username, callback)
+User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 {
-    User.findByPropertyValue(username, "ddr:username", callback);
+    User.findByPropertyValue(orcid, "ddr:orcid", function(err, user){
+        if(!err && user != null && user instanceof User)
+        {
+            if(removePrivateDescriptors)
+            {
+                user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
+                callback(err, user);
+            }
+            else
+            {
+                callback(err, user);
+            }
+        }
+        else
+        {
+            callback(err, user);
+        }
+    });
+};
+
+User.findByUsername = function(username, callback, removePrivateDescriptors)
+{
+    User.findByPropertyValue(username, "ddr:username", function(err, user){
+        if(!err && user != null && user instanceof User)
+        {
+            if(removePrivateDescriptors)
+            {
+                user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
+                callback(err, user);
+            }
+            else
+            {
+                callback(err, user);
+            }
+        }
+        else
+        {
+            callback(err, user);
+        }
+    });
 };
 
 User.findByEmail = function(email, callback)
 {
     User.findByPropertyValue(email, "foaf:mbox", callback);
+};
+
+User.autocomplete_search = function(value, maxResults, callback) {
+
+    if(Config.debug.users.log_fetch_by_username)
+    {
+        console.log("finding by username " + username);
+    }
+
+    var query =
+        "SELECT * \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   ?uri rdf:type [1] . \n" +
+        "   ?uri foaf:firstName ?firstname . \n" +
+        "   ?uri foaf:surname ?surname . \n" +
+        "   ?uri ddr:username ?username . \n" +
+        "   FILTER (regex(?firstname, [2], [3]) || regex(?surname, [2], [3]) || regex(?username, [2], [3])). \n" +
+        "} \n" +
+        " LIMIT [4]";
+
+
+    db.connection.execute(query,
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.prefixedResource,
+                value : User.prefixedRDFType
+            },
+            {
+                type : DbConnection.string,
+                value : value
+            },
+            {
+                type : DbConnection.string,
+                value : "i"
+            },
+            {
+                type : DbConnection.int,
+                value : maxResults
+            }
+        ],
+
+        function(err, users) {
+            if(!err && users instanceof Array)
+            {
+                var getUserProperties = function(resultRow, cb)
+                {
+                    User.findByUri(resultRow.uri, function(err, user)
+                    {
+                        cb(err, user);
+                    });
+                };
+
+                async.map(users, getUserProperties, function(err, results){
+                    callback(err, results);
+                })
+            }
+            else
+            {
+                callback(err, user);
+            }
+        });
 };
 
 User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
@@ -88,9 +208,11 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                         {
                             var userToReturn = new User(fetchedUser);
 
-                            userToReturn.loadOntologyRecommendations(function(err, user){
-                                callback(err, user);
-                            });
+                            callback(err, fetchedUser);
+
+                            /*userToReturn.loadOntologyRecommendations(function(err, user){
+
+                            });*/
                         }
                         else
                         {
@@ -116,86 +238,47 @@ User.createAndInsertFromObject = function(object, callback) {
 
     console.log("creating user from object" + util.inspect(object));
 
-    var crypto = require('crypto')
-      , shasum = crypto.createHash('sha1');
+    //encrypt password
+    const bcrypt = require('bcryptjs');
+    bcrypt.hash(self.ddr.password, self.ddr.salt, function(err, password){
+        if(!err)
+        {
+            self.ddr.password = password;
 
-    shasum.update(object.ddr.password);
-    self.ddr.password = shasum.digest('hex');
-
-    //TODO CACHE DONE
-
-    self.save(function(err, newUser) {
-            if(!err)
-            {
-                if(newUser instanceof User)
+            self.save(function(err, newUser) {
+                if(!err)
                 {
-                    callback(null, self);
+                    if(newUser instanceof User)
+                    {
+                        callback(null, newUser);
+                    }
+                    else
+                    {
+                        callback(null, false);
+                    }
                 }
                 else
                 {
-                    callback(null, false);
+                    callback(err, newUser);
                 }
-            }
-            else
-            {
-                callback(err, newUser);
-            }
-        });
+            });
+        }
+        else
+        {
+            callback(err, password);
+        }
+    });
 };
 
 
-User.all = function(callback) {
-    var query =
-            "SELECT ?uri \n" +
-            "FROM [0] \n" +
-            "WHERE {\n" +
-                "?uri rdf:type ddr:User  \n"+
-            "} \n";
+User.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+{
+    var self = this;
+    User.baseConstructor.all.call(self, function(err, users) {
 
-    db.connection.execute(query,
-        [
-            {
-                type: DbConnection.resourceNoEscape,
-                value : db.graphUri
-            }
-        ],
-        function(err, users) {
-            if(!err)
-            {
-                 if(users instanceof Array && users.length > 0)
-                 {
-                     var getUserProperties = function(resultRow, cb)
-                     {
-                         User.findByUri(resultRow.uri, function(err, project)
-                         {
-                             cb(err, project);
-                         });
-                     };
+        callback(err, users);
 
-                     //get all the information about all the projects
-                     // and return the array of projects, complete with that info
-                     async.map(users, getUserProperties, function(err, usersToReturn)
-                     {
-                         if(!err)
-                         {
-                             callback(null, usersToReturn);
-                         }
-                         else
-                         {
-                             callback("error fetching user information : " + err, usersToReturn);
-                         }
-                     });
-                 }
-                 else
-                 {
-                     callback(null, []);
-                 }
-            }
-            else
-            {
-                callback(1, results);
-            }
-        });
+    }, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
 };
 
 User.allInPage = function(page, pageSize, callback) {
@@ -1142,11 +1225,11 @@ User.prototype.isAdmin = function(callback)
     {
         if(_.contains(self.rdf.type, "ddr:Administrator"))
         {
-            callback(null, true);
+            return true;
         }
         else
         {
-            callback(null, false);
+            return false;
         }
     }
 
@@ -1271,7 +1354,7 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
 User.prototype.startPasswordReset = function(callback)
 {
     var self = this;
-    var uuid = require('node-uuid');
+    var uuid = require('uuid');
 
     var token = uuid.v4();
 
@@ -1480,6 +1563,8 @@ User.prototype.countDescriptors = function(callback)
 User.anonymous = {
     uri: "http://dendro.fe.up.pt/user/anonymous"
 };
+
+User.prefixedRDFType = "ddr:User";
 
 User = Class.extend(User, Resource);
 

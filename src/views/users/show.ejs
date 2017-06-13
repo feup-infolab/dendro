@@ -1,11 +1,12 @@
 <%- include ../layout/header.ejs %>
 
 <h1 class="page-header">
-    Viewing user <%= user.foaf.firstName %> <%= user.foaf.surname %>
+    Viewing user <%= locals.user.foaf.firstName %> <%= locals.user.foaf.surname %>
 </h1>
 
 <br/>
 
+<<<<<<< HEAD
 <div class="container">
     <div class="col-md-4 pull-left pr-4">
         <table class="table">
@@ -256,3 +257,42 @@
 
 
 <%- include ../layout/footer.ejs %>
+=======
+<table class="table">
+    <tr>
+        <td>
+            <b>Username</b>
+        </td>
+        <td>
+            <%= locals.user.ddr.username%>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>Name</b>
+        </td>
+        <td>
+            <%= locals.user.foaf.firstName %> <%= locals.user.foaf.surname %>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>Email address</b>
+        </td>
+        <td>
+            <a href="mailto:<%= locals.user.foaf.mbox %>"><%= locals.user.foaf.mbox %></a>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <b>URI</b>
+        </td>
+        <td>
+            <a href="<%= locals.user.uri %>"><%= locals.user.uri %></a>
+        </td>
+    </tr>
+</table>
+
+
+<%- include ../layout/footer.ejs %>
+>>>>>>> master

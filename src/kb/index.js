@@ -2,7 +2,7 @@ var Config = function() { return GLOBAL.Config; }();
 
 var util = require('util');
 var db = function() { return GLOBAL.db.default; }();
-var ElasticSearchClient = require('elasticsearchclient');
+var es = require('elasticsearch');
 var slug = require('slug');
 
 IndexConnection.indexTypes =
@@ -39,7 +39,7 @@ IndexConnection.indexes = {
                     {
                         "properties" :
                         {
-                            "property" :
+                            "predicate" :
                             {
                                 "type" : "string",
                                 "index" : "not_analyzed" //we only want exact matches, disable term analysis
@@ -75,7 +75,7 @@ IndexConnection.indexes = {
 
 function IndexConnection()
 {
-    var self = this;
+    let self = this;
 }
 
 IndexConnection.prototype.open = function(host, port, index, callback)
@@ -83,27 +83,35 @@ IndexConnection.prototype.open = function(host, port, index, callback)
     var self = this;
     if (!self.client)
     {
-		var util = require('util');
+		const util = require('util');
 		
 		self.client = {};
 		self.host = host;
 		self.port = port;
+        self.index = index;
 
-        var serverOptions = {
-            host: host,
-            port: port
+        let serverOptions = {
+            host: host + ":" + port,
         };
 
+        if(Config.debug.index.elasticsearch_connection_log_type !== null && Config.elasticsearch_connection_log_type !== "")
+        {
+            serverOptions.log = Config.debug.index.elasticsearch_connection_log_type;
+        }
+        
         if(Config.useElasticSearchAuth)
         {
             serverOptions.secure = Config.useElasticSearchAuth;
             serverOptions.auth = Config.elasticSearchAuthCredentials;
         }
-		self.client = new ElasticSearchClient(serverOptions);
+        
+		self.client = new es.Client(serverOptions).cluster.client;
 
-        self.index = index;
-		
-		callback(self);
+        self.client.indices.getMapping()
+            .then(function(mapping){
+                console.log(mapping);
+                callback(self);
+            });
     }
     else
     {
@@ -116,35 +124,47 @@ IndexConnection.prototype.open = function(host, port, index, callback)
 IndexConnection.prototype.indexDocument = function(type, document, callback) {
     var self = this;
 
-    if(document._id == null)
+    if(document._id != null)
     {
-        self.client.index(self.index.short_name, type, document, function(err, data)
+        delete document._id;
+
+        self.client.update({
+            index : self.index.short_name,
+            type : type,
+            body : document
+        }, function(err, data)
         {
             if(!err)
             {
-                var data = JSON.parse(data);
-                callback(0, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
+                callback(0, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             else
             {
-                callback(1, "Unable to index document " + JSON.stringify(document));
+                console.error(err.stack);
+                callback(1, "Unable to RE index document " + JSON.stringify(document));
             }
         });
     }
     else
     {
-        var id = document._id;
-        delete document._id;
+        /*self.client.indices.getMapping()
+            .then(function(mapping){
+                console.log(mapping);
+            });*/
 
-        self.client.update(self.index.short_name, type, id, {doc : document}, function(err, data)
+        self.client.index({
+            index : self.index.short_name,
+            type : type,
+            body : document
+        }, function(err, data)
         {
             if(!err)
             {
-                var data = JSON.parse(data);
                 callback(0, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             else
             {
+                console.error(err.stack);
                 callback(1, "Unable to index document " + JSON.stringify(document));
             }
         });
@@ -159,7 +179,7 @@ IndexConnection.prototype.deleteDocument = function(documentID, type, callback)
         callback(null, "No document to delete");
     }
 
-    self.client.deleteDocument(self.index.short_name,
+    self.client.delete(self.index.short_name,
         type,
         documentID,
         {},
@@ -175,15 +195,14 @@ IndexConnection.prototype.deleteDocument = function(documentID, type, callback)
         .on('error', function(data) {
             callback(1, "Unable to delete document " + JSON.stringify(document) + ".  error reported : " + data);
         })
-        .exec();
-}
+};
 
 IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfReplicas, deleteIfExists, callback)
 {
-    var self = this;
-    var endCallback = callback;
-    var async = require('async');
-    var indexName = self.index.short_name;
+    let self = this;
+    let endCallback = callback;
+    let async = require('async');
+    let indexName = self.index.short_name;
     
     async.waterfall([
         function(callback) {
@@ -220,7 +239,11 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
 		},
 		function(callback) {
 
-			var settings = {};
+			var settings = {
+			    body : {
+
+                }
+            };
 
 			if (numberOfShards) {
                 settings.number_of_shards = numberOfShards;
@@ -230,21 +253,21 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
                 settings.number_of_replicas = numberOfReplicas;
 			}
 
-            settings.mappings = self.index.elasticsearch_mappings;
+            settings.body.mappings = self.index.elasticsearch_mappings;
+			settings.index = indexName;
 
-            self.client.createIndex(indexName, settings, function(err, data){
+            self.client.indices.create(settings, function(err, data){
                 if(!err)
                 {
-                    var data = JSON.parse(data);
-                    if(data.error == null && data.ok == true && data.acknowledged == true)
+                    if(data.error == null && data.acknowledged == true)
                     {
-                        endCallback(0, "Index with name " + indexName + " successfully created.");
+                        endCallback(null, "Index with name " + indexName + " successfully created.");
                     }
                     else
                     {
-                        var error = "Error creating index : " + JSON.stringify(data);
+                        const error = "Error creating index : " + JSON.stringify(data);
                         console.error(error);
-                        endCallback(1, error);
+                        endCallback(err, error);
                     }
                 }
                 else
@@ -262,19 +285,22 @@ IndexConnection.prototype.delete_index  = function (callback)
 {
     var self = this;
     
-    this.client.deleteIndex(self.index.short_name, function(err, data){
-        var data = JSON.parse(data);
-        if(data.error == null && data.ok == true && data.acknowledged == true)
+    this.client.indices.delete(
         {
-            callback(0, "Index with name " + self.index.short_name + " successfully deleted.");
-        }
-        else
+            index: self.index.short_name
+        }, function(err, data)
         {
-            var error = "Error deleting index : " + data.error;
-            console.error(error);
-            callback(error, result);
-        }
-    });
+            if(!err && !data.error)
+            {
+                callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
+            }
+            else
+            {
+                var error = "Error deleting index : " + data.error;
+                console.error(error);
+                callback(error, result);
+            }
+        });
 };
 
 // according to the elasticsearch docs (see below)
@@ -341,56 +367,59 @@ IndexConnection.prototype.search = function(typeName,
                                             queryObject,
                                             callback)
 {
-    var self = this;
+    let self = this;
 
     self.client.search(
-            self.index.short_name,
-            typeName,
-            queryObject)
-        .on('data', function(data) {
-            var data = JSON.parse(data);
-            if(data.error == null)
-            {
-                callback(null, data);
-            }
-            else
-            {
-                var error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(data);
-                console.error(error);
-                callback(1, error);
-            }
+        {
+            index : self.index.short_name,
+            type: typeName,
+            body : queryObject
         })
-        .exec();
+        .then(function(response) {
+            callback(null, response.hits.hits);
+        },function(error){
+            error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
+            console.error(error);
+            callback(1, error);
+        });
 };
 
 IndexConnection.prototype.moreLikeThis = function(typeName,
                                                   documentId,
-                                                  params,
                                                   callback)
 {
-    var self = this;
+    let self = this;
 
     if(documentId != null)
     {
-        self.client.moreLikeThis(self.index.short_name, typeName, documentId,{})
-            .on('data', function(data) {
-                var data = JSON.parse(data);
-                if(data.error == null)
-                {
-                    callback(null, data);
-                }
-                else
-                {
-                    var error = "Error fetching documents similar to document with ID : " + documentId + ". Reported error : " + JSON.stringify(data);
-                    console.error(error);
-                    callback(1, error);
+        self.client.search(
+            self.index.short_name,
+            typeName,
+            {
+                "query": {
+                    "more_like_this": {
+                        "docs": [
+                            {
+                                "_index": self.index.short_name,
+                                "_type": typeName,
+                                "_id": documentId
+                            }
+                        ]
+                    }
                 }
             })
-            .exec();
+            .then(function(data)
+            {
+                callback(null, data.hits.hits);
+            }, function(error){
+                error = "Error fetching documents similar to document with ID : " + documentId + ". Reported error : " + JSON.stringify(error);
+                console.error(error);
+                callback(1, error);
+            });
     }
     else
     {
-        var error = "No documentId Specified for similarity calculation";
+        const error = "No documentId Specified for similarity calculation";
         console.error(error);
         callback(1, error);
     }

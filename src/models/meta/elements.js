@@ -186,7 +186,7 @@ Elements.dcterms =
     relation :
     {
         type : DbConnection.string,
-        control : Config.controls.url_box
+        control : Config.controls.markdown_box
     },
     replaces :
     {
@@ -236,11 +236,16 @@ Elements.dcterms =
     type :
     {
         type : DbConnection.string,
-        control : Config.controls.input_box
+        control : Config.controls.markdown_box
     },
     title :
     {
         type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    socialUpdatedAt:
+    {
+        type : DbConnection.date,
         control : Config.controls.input_box
     },
     hasVersion :
@@ -628,7 +633,9 @@ Elements.ddr = {
     password :
     {
         type : DbConnection.string,
-        control : Config.controls.input_box
+        control : Config.controls.input_box,
+        private : true,
+        locked : true
     },
     password_reset_token :
     {
@@ -645,7 +652,64 @@ Elements.ddr = {
     username :
     {
         type : DbConnection.string,
+        control : Config.controls.input_box,
+        api_readable : true
+    },
+    contentType :
+    {
+        type : DbConnection.string,
         control : Config.controls.input_box
+    },
+    chunkSize :
+    {
+        type : DbConnection.int,
+        control : Config.controls.input_box
+    },
+    projectUri :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
+    authorUri :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
+    resourceAuthorUri :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
+    userWhoActed :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
+    resourceTargetUri :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
+    },
+    actionType :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    itemType :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    creatorUri :
+    {
+        type : DbConnection.resource,
+        api_readable: true,
+        control : Config.controls.url_box
     },
     fileExtension :
     {
@@ -782,6 +846,12 @@ Elements.ddr = {
         api_readable: true,
         control : Config.controls.url_box
     },
+    hasAPIKey :
+    {
+        type : DbConnection.string,
+        api_readable: true,
+        control : Config.controls.input_box
+    },
     hasOrganization :
     {
         type : DbConnection.resource,
@@ -874,6 +944,66 @@ Elements.ddr = {
         api_readable: true,
         control : Config.controls.input_box
     },
+    numLikes :
+    {
+        type : DbConnection.int,
+        api_readable : true,
+        control : Config.controls.input_box
+    },
+    userWhoLiked :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
+    postURI :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
+    fileVersionUri :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
+    userWhoCommented :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
+    commentMsg :
+    {
+        type : DbConnection.string,
+        api_readable: true,
+        control : Config.controls.input_box
+    },
+    shareMsg :
+    {
+        type : DbConnection.string,
+        api_readable: true,
+        control : Config.controls.input_box
+    },
+    shareURI :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
+    userWhoShared :
+    {
+        type : DbConnection.resource,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
+    usersWhoLiked :
+    {
+        type : DbConnection.string,
+        control : Config.controls.url_box,
+        locked_for_projects : true
+    },
     beingBackedUp :
     {
         type : DbConnection.boolean,
@@ -881,6 +1011,7 @@ Elements.ddr = {
         locked : true,
         control : Config.controls.input_box
     },
+<<<<<<< HEAD
     lastSavedBy :
         {
             type : DbConnection.resourceNoEscape,
@@ -889,6 +1020,43 @@ Elements.ddr = {
             private : true,
             control : Config.controls.input_box
         }
+=======
+    salt :
+    {
+        type : DbConnection.string,
+        locked : true,
+        private :true,
+        control : Config.controls.input_box
+    },
+    hasFontAwesomeClass :
+    {
+        type : DbConnection.string,
+        locked : true,
+        control : Config.controls.input_box
+    },
+    pageNumber :
+    {
+        type : DbConnection.int,
+        control : Config.controls.input_box
+    },
+    recommendationCallId :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    recommendationCallTimeStamp :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+    },
+    orcid :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box,
+        private : true,
+        locked : true,
+    }
+>>>>>>> master
 };
 
 /**
@@ -932,6 +1100,16 @@ Elements.rdf = {
     {
         type : DbConnection.string,
         control : Config.controls.input_box
+    },
+    isShare :
+    {
+        type : DbConnection.boolean,
+        control : Config.controls.input_box
+    },
+    type : {
+        type : DbConnection.prefixedResource,
+        control : Config.controls.input_box,
+        locked: true
     }
 }
 
@@ -1121,7 +1299,7 @@ Elements.nie = {
         type : DbConnection.string,
         backuppable : true,
         restorable : true,
-        locked : true
+        locked_for_projects : true
     },
     version :
     {

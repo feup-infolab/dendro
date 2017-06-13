@@ -4,11 +4,32 @@ var Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).El
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
-var db = function() { return GLOBAL.db.default; }();
-var redis = function() { return GLOBAL.redis.default; }();
-
 var async = require('async');
 var _ = require('underscore');
+
+var db = function() { return GLOBAL.db.default; }();
+
+var redis = function(graphUri)
+{
+    if(graphUri == null || typeof graphUri === "undefined" || !graphUri)
+    {
+        if(GLOBAL.redis.default != null)
+        {
+            //console.log('ENTRAR DEFAULT REDIS:');
+            return GLOBAL.redis.default;
+        }
+        else
+        {
+            console.error("DEU ASNEIRA");
+            process.exit(1);
+        }
+
+    }
+    else
+    {
+        return Config.caches[graphUri];
+    }
+};
 
 function Resource (object)
 {
@@ -25,7 +46,7 @@ function Resource (object)
     return self;
 }
 
-Resource.prototype.copyOrInitDescriptors = function(object)
+Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumentObject)
 {
     var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     var self = this;
@@ -45,10 +66,20 @@ Resource.prototype.copyOrInitDescriptors = function(object)
                 self[aPrefix] = object[aPrefix];
             }
         }
+        else if(self[aPrefix] != null)
+        {
+            if(deleteIfNotInArgumentObject)
+            {
+                if(object[aPrefix] == null)
+                {
+                    self[aPrefix] = {};
+                }
+            }
+        }
     }
 };
 
-Resource.all = function(req, callback, customGraphUri)
+Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
 {
     var self = this;
     var type = self.prefixedRDFType;
@@ -56,16 +87,14 @@ Resource.all = function(req, callback, customGraphUri)
     var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
 
     var query =
-        "WITH [0] \n" +
-        "SELECT DISTINCT(?uri) \n" +
+        "SELECT ?uri " +
+        "FROM [0]" +
         "WHERE " +
-        "{\n" +
-        "    ?uri ?p ?o .\n" ;
-
+        "{ ";
 
     if(type != null)
     {
-        query = query + "   ?uri rdf:type [1] .\n"
+        query = query + "   ?uri rdf:type [1] "
     }
 
 
@@ -77,7 +106,7 @@ Resource.all = function(req, callback, customGraphUri)
             title : 'All vertexes in the knowledge base'
         };
 
-        viewVars = DbConnection.paginate(req,
+        req.viewVars = DbConnection.paginate(req,
             viewVars
         );
 
@@ -106,26 +135,37 @@ Resource.all = function(req, callback, customGraphUri)
         query,
         arguments,
         function(err, results) {
-        if(!err)
-        {
-            var allResources = [];
-            for(var i = 0; i < results.length ; i++)
+            if(!err)
             {
-                var aResource = new Resource(results[i]);
-                allResources.push(aResource);
+                async.map(results,
+                    function(result, cb)
+                    {
+                        var aResource = new self.prototype.constructor(result);
+                        self.findByUri(aResource.uri, function(err, completeResource){
+
+                            if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
+                            {
+                                completeResource.clearDescriptors(descriptorTypesToExemptFromRemoval, descriptorTypesToRemove);
+                            }
+
+                            cb(err, completeResource);
+                        });
+                    },
+                    function(err, results)
+                    {
+                        callback(err, results);
+                    });
             }
-            callback(null, allResources);
-        }
-        else
-        {
-            callback(1, "Unable to fetch all resources from the graph");
-        }
-    });
+            else
+            {
+                callback(1, "Unable to fetch all resources from the graph");
+            }
+        });
 };
 
 /**
  * Removes all the triples with this resource as their subject
- * @type {updateDescriptorsInMemory}
+ * @type {updateDescriptors}
  */
 Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
 {
@@ -133,7 +173,7 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
     var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
 
     //Invalidate cache record for the updated resources
-    redis.connection.delete(self.uri, function(err, result){
+    redis(customGraphUri).connection.delete(self.uri, function(err, result){
 
     });
 
@@ -214,7 +254,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        redis.connection.delete([self.uri, valueInPrefixedForm], function(err, result){
+                        redis(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
                             callback(err, result);
                         });
                     }
@@ -252,7 +292,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        redis.connection.delete([self.uri, valueInPrefixedForm], function(err, result){
+                        redis(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
                             callback(err, result);
                         });
                     }
@@ -500,7 +540,7 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
                     "?uri  rdfs:comment   ?comment. \n" +
                     "FILTER (lang(?comment) = \"\" || lang(?comment) = \"en\")" +
                 "} .\n" +
-            
+
                 filterString +
             " } \n";
 
@@ -710,7 +750,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
             "} \n";
 
         //Invalidate cache record for the updated resources
-        redis.connection.delete(subject, function(err, result){});
+        redis().connection.delete(subject, function(err, result){});
 
         db.connection.execute(query, arguments, function(err, results)
         {
@@ -732,6 +772,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
  * @param descriptorsToExcludeFromChangesCalculation
  * @param descriptorsToExcludeFromChangeLog
  * @param descriptorsToExceptionFromChangeLog
+ * @param customGraphUri if the resource is not to be saved in the main graph of the Dendro instance, speciby the uri of the other graph where to save the resource.
  */
 
 Resource.prototype.save = function
@@ -769,7 +810,7 @@ Resource.prototype.save = function
         Resource.findByUri(myUri, function(err, currentResource)
         {
             cb(err, currentResource);
-        });
+        }, null, customGraphUri);
     };
 
     var calculateChangesBetweenResources = function(currentResource, newResource, cb)
@@ -982,12 +1023,12 @@ Resource.prototype.save = function
 
 /**
  * Update descriptors with the ones sent as argument, leaving existing descriptors untouched
- * MERGE DESCRIPTORS BEFORE CALLING
+ * MERGE DESCRIPTORS BEFORE CALLING (for cases when descriptor values are arrays)
  * @param descriptors
  * @param callback
  */
 
-Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes)
+Resource.prototype.updateDescriptors = function(descriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
 {
     var self = this;
 
@@ -997,7 +1038,7 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDes
         var descriptor = descriptors[i];
         if(descriptor.prefix != null && descriptor.shortName != null)
         {
-            if(descriptor.isAuthorized(excludedDescriptorTypes, exceptionedDescriptorTypes))
+            if(descriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
             {
                 self[descriptor.prefix][descriptor.shortName] = descriptor.value;
             }
@@ -1011,7 +1052,7 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDes
     }
 
     return self;
-}
+};
 
 /**
  * Used for deleting a resource.
@@ -1019,44 +1060,75 @@ Resource.prototype.updateDescriptorsInMemory = function(descriptors, excludedDes
  *
  * Only triples with this resource as their subject will be deleted.
  */
-Resource.prototype.clearAllDescriptorsInMemory = function()
+Resource.prototype.clearAllDescriptors = function()
 {
     var self = this;
-    self.copyOrInitDescriptors({});
+    self.copyOrInitDescriptors({}, true);
     return self;
-}
+};
 
-Resource.prototype.clearAllAuthorizedDescriptorsInMemory = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
+/**
+ * Used for deleting a resource.
+ * Resources pointing to this resource will not be deleted.
+ *
+ * Only triples with this resource as their subject will be deleted.
+ */
+Resource.prototype.clearDescriptors = function(descriptorTypesToClear, exceptionedDescriptorTypes)
 {
-    var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
-    var authorizedDescriptors = Descriptor.getAuthorizedDescriptors(excludedDescriptorTypes, exceptionedDescriptorTypes);
-    var myDescriptors = self.getDescriptors(excludedDescriptorTypes, exceptionedDescriptorTypes);
 
-    for(var i = 0; i < myDescriptors.length; i++)
-    {
-        var myDescriptor = myDescriptors[i];
-        if(authorizedDescriptors[myDescriptor.prefix][myDescriptor.shortName])
-        {
-            delete self[myDescriptor.prefix][myDescriptor.shortName];
-        }
-    }
-}
+    var myDescriptors = self.getDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
+    self.clearAllDescriptors();
+
+    self.updateDescriptors(myDescriptors);
+};
 
 /**
  * Replace descriptors with the ones sent as argument
  * MERGE DESCRIPTORS BEFORE CALLING
  * @param descriptors
- * @param callback
  */
 
-Resource.prototype.replaceDescriptorsInMemory = function(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes)
+
+Resource.prototype.replaceDescriptors = function(newDescriptors, cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes)
 {
-    var self = this;
+    let self = this;
+    let currentDescriptors = self.getDescriptors();
+    let newDescriptorsUris = [];
 
-    self.clearAllAuthorizedDescriptorsInMemory(excludedDescriptorTypes, exceptionedDescriptorTypes);
+    //update descriptors with new ones
+    for(let i = 0; i < newDescriptors.length; i++)
+    {
+        let newDescriptor = newDescriptors[i];
+        let newDescriptorPrefix =  newDescriptor.prefix;
+        let newDescriptorShortName =  newDescriptor.shortName;
+        newDescriptorsUris.push(newDescriptor.uri);
 
-    self.updateDescriptorsInMemory(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
+        if(newDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
+        {
+            self[newDescriptorPrefix][newDescriptorShortName] = newDescriptor.value;
+        }
+    }
+
+    //clean other authorized descriptors that
+    // were not changed not included in
+    // newDescriptors
+
+    for(let i = 0; i < currentDescriptors.length; i++)
+    {
+        let currentDescriptor = currentDescriptors[i];
+        let currentDescriptorPrefix =  currentDescriptor.prefix;
+        let currentDescriptorShortName =  currentDescriptor.shortName;
+
+        if(!_.contains(newDescriptorsUris, currentDescriptor.uri))
+        {
+            if(currentDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
+            {
+                delete self[currentDescriptorPrefix][currentDescriptorShortName];
+            }
+        }
+    }
+
     return self;
 };
 
@@ -1146,7 +1218,14 @@ Resource.prototype.reindex = function(indexConnection, callback)
     {
         if(!err && results != null)
         {
-            var now = new Date();
+            const now = new Date();
+
+            for(let i = 0; i < results.length; i++)
+            {
+                results[i].predicate = results[i].property;
+                delete results[i].property;
+            }
+
             var document = {
                     uri : self.uri,
                     graph : indexConnection.index.uri,
@@ -1154,7 +1233,9 @@ Resource.prototype.reindex = function(indexConnection, callback)
                     last_indexing_date : now.toISOString()
             };
 
-            console.log("Reindexing resource " + self.uri + " with document " + JSON.stringify(document));
+            //console.log("Reindexing resource " + self.uri);
+            //console.log("Document: \n" + JSON.stringify(document, null, 4));
+
             self.getIndexDocumentId(indexConnection, function(err, id)
             {
                 if(!err)
@@ -1176,7 +1257,9 @@ Resource.prototype.reindex = function(indexConnection, callback)
                             }
                             else
                             {
-                                errorMessages.push("Error deleting old document for resource " + self.uri + " error returned " + result);
+                                const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
+                                errorMessages.push(msg);
+                                console.error(msg);
                                 callback(1, errorMessages);
                             }
                         });
@@ -1198,7 +1281,7 @@ Resource.prototype.reindex = function(indexConnection, callback)
 
 Resource.prototype.getIndexDocumentId = function(indexConnection, callback)
 {
-    var self = this;
+    let self = this;
 
     self.restoreFromIndexDocument(indexConnection, function(err, restoredResource)
     {
@@ -1211,11 +1294,11 @@ Resource.prototype.getIndexDocumentId = function(indexConnection, callback)
             callback(err, null);
         }
     });
-}
+};
 
 Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxResultSize, callback)
 {
-    var self = this;
+    let self = this;
 
     self.getIndexDocumentId(indexConnection, function(err, id)
     {
@@ -1226,16 +1309,16 @@ Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxR
                 indexConnection.moreLikeThis(
                     IndexConnection.indexTypes.resource, //search in all graphs for resources (generic type)
                     id,
-                    /*{
-                        mlt_fields : "resource.descriptors.object" //fields that are to be included in the mlt calculations
-                    },*/
-                    {},
                     function(err, results)
                     {
                         if(!err)
                         {
-                            var retrievedResources;
-                            retrievedResources = Resource.restoreFromIndexResults(results);
+                            let retrievedResources = Resource.restoreFromIndexResults(results);
+
+                            retrievedResources = _.filter(retrievedResources, function(resource){
+                                return resource.uri !== self.uri;
+                            });
+
                             callback(0, retrievedResources);
                         }
                         else
@@ -1265,15 +1348,12 @@ Resource.findResourcesByTextQuery = function (
     maxResultSize,
     callback)
 {
-    /**
-     * see http://okfnlabs.org/blog/2013/07/01/elasticsearch-query-tutorial.html
-     */
-    var queryObject = {
-        "query" : {
-            "query_string" :
-            {
-                "query" : queryString,
-                "default_field" : "descriptors.object"
+    const queryObject = {
+        "query": {
+            "match": {
+                "descriptors.object": {
+                    "query": queryString
+                }
             }
         },
         "from": resultSkip,
@@ -1287,14 +1367,14 @@ Resource.findResourcesByTextQuery = function (
     //var util = require('util');
     //util.debug("Query in JSON : " + util.inspect(queryObject));
 
-    indexConnection.search(IndexConnection.indexTypes.resource, //search in all graphs for resources (generic type)
+    indexConnection.search(
+        IndexConnection.indexTypes.resource, //search in all graphs for resources (generic type)
         queryObject,
         function(err, results)
         {
             if(!err)
             {
-                var retrievedResources;
-                retrievedResources = Resource.restoreFromIndexResults(results);
+                let retrievedResources = Resource.restoreFromIndexResults(results);
                 callback(0, retrievedResources);
             }
             else
@@ -1305,10 +1385,9 @@ Resource.findResourcesByTextQuery = function (
     );
 }
 
-Resource.restoreFromIndexResults = function(resultsFromIndex)
+Resource.restoreFromIndexResults = function(hits)
 {
     var results = [];
-    var hits = resultsFromIndex.hits.hits;
 
     if(hits != null && hits.length > 0)
     {
@@ -1324,23 +1403,26 @@ Resource.restoreFromIndexResults = function(resultsFromIndex)
     }
 
     return results;
-}
+};
 
 Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback)
 {
-    var self = this;
+    let self = this;
 
     //fetch document from the index that matches the current resource
-    var queryObject = {
+    const queryObject = {
         "query" : {
-            "term" :
-            {
-                "resource.uri" : self.uri
+            "filtered" : {
+                "query" : {
+                    "match_all" : {}
+                },
+                "filter" : {
+                    "term" : {
+                        "resource.uri" : self.uri
+                    }
+                }
             }
         },
-        "sort": [
-            "_score"
-        ],
         "from": 0,
         "size": 2,
         "sort": [
@@ -1352,12 +1434,11 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
     indexConnection.search(
         IndexConnection.indexTypes.resource, //search in all graphs for resources (generic type)
         queryObject,
-        function(err, results)
+        function(err, hits)
         {
             if(!err)
             {
-                var id = null;
-                var hits = results.hits.hits;
+                let id = null;
 
                 if(hits != null && hits instanceof Array && hits.length > 0)
                 {
@@ -1366,7 +1447,7 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
                         console.error("Duplicate document in index detected for resource !!! Fix it " + self.uri);
                     }
 
-                    var hit = hits[0];
+                    let hit = hits[0];
                     self.loadFromIndexHit(hit);
                 }
 
@@ -1374,7 +1455,7 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
             }
             else
             {
-                callback(1, [results]);
+                callback(1, [hits]);
             }
         }
     );
@@ -1386,12 +1467,12 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
  * @param callback callback function
  */
 
-Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri, skipCache)
+Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
 {
     var self = this;
     var getFromCache = function (uri, callback)
     {
-        redis.connection.get(uri, function(err, result)
+        redis(customGraphUri).connection.get(uri, function(err, result)
         {
             if (!err)
             {
@@ -1405,7 +1486,12 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                     // if they are not already present
                     resource.copyOrInitDescriptors(result);
 
-                    callback(err, result);
+                    if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
+                    {
+                        resource.clearDescriptors(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                    }
+
+                    callback(err, resource);
                 }
                 else
                 {
@@ -1422,7 +1508,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
     var saveToCache = function(uri, resource, callback)
     {
-        redis.connection.put(uri, resource, function (err) {
+        redis(customGraphUri).connection.put(uri, resource, function (err) {
             if(!err)
             {
                 if(typeof callback === "function")
@@ -1438,7 +1524,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
         });
     };
 
-    var getFromTripleStore = function(uri, callback)
+    var getFromTripleStore = function(uri, callback, customGraphUri)
     {
         var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
@@ -1467,6 +1553,9 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
                     resource.uri = uri;
 
+                    /**
+                     * TODO Handle the edge case where there is a resource with the same uri in different graphs in Dendro
+                     */
                     resource.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject)
                     {
                         if (!err)
@@ -1480,12 +1569,16 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                             console.error(msg);
                             callback(1, msg);
                         }
-                    });
+                    }, customGraphUri);
                 }
                 else
                 {
-                    var msg = uri + " does not exist in Dendro.";
-                    console.log(msg);
+                    if(Config.debug.resources.log_missing_resources)
+                    {
+                        var msg = uri + " does not exist in Dendro.";
+                        console.log(msg);
+                    }
+
                     callback(0, null);
                 }
             }
@@ -1495,7 +1588,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                 console.error(msg);
                 callback(1, msg);
             }
-        });
+        }, customGraphUri);
     };
 
 
@@ -1535,7 +1628,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                             console.error(msg);
                             console.error(err);
                         }
-                    });
+                    }, customGraphUri);
                 }
             }
         ], function(err, result){
@@ -1546,7 +1639,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     {
         getFromTripleStore(uri, function(err, result){
             callback(err, result);
-        });
+        }, customGraphUri);
     }
 };
 
@@ -1562,7 +1655,7 @@ Resource.prototype.loadFromIndexHit = function(hit)
     this.indexData.score = hit._score;
     this.uri = hit._source.uri;
     this.indexData.graph = hit._source.graph;
-    this.indexData.last_indexing_data = hit._source.last_indexing_date;
+    this.indexData.last_indexing_date = hit._source.last_indexing_date;
     this.indexData.descriptors = hit._source.descriptors;
 
     return this;
@@ -1626,7 +1719,7 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
                     ArchivedResource.findByUri(versionRow.uri, function(err, archivedResource)
                     {
                         cb(err, archivedResource)
-                    });
+                    }, null, customGraphUri);
                 };
 
                 async.map(versions, getVersionContents, function(err, formattedVersions)
@@ -1751,9 +1844,9 @@ var groupPropertiesArrayIntoObject = function(results)
     }
 
     return properties;
-}
+};
 
-Resource.prototype.getDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
+Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)
 {
     var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     var self = this;
@@ -1778,7 +1871,7 @@ Resource.prototype.getDescriptors = function(excludedDescriptorTypes, exceptione
                     }
                 );
 
-                if(newDescriptor.isAuthorized(excludedDescriptorTypes, exceptionedDescriptorTypes))
+                if(newDescriptor.isAuthorized(descriptorTypesNotToGet, descriptorTypesToForcefullyGet))
                 {
                     descriptorsArray.push(newDescriptor);
                 }
@@ -2016,7 +2109,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                 });
         };
 
-        redis.connection.get(self.uri, function(err, cachedDescriptor){
+        redis(customGraphUri).connection.get(self.uri, function(err, cachedDescriptor){
            if(!err && cachedDescriptor != null)
            {
                var namespace = descriptorToCheck.getNamespacePrefix();
@@ -2058,7 +2151,7 @@ Resource.prototype.restoreFromArchivedVersion = function(version, callback, uriO
 
     var oldDescriptors = version.getDescriptors(typesToExclude);
 
-    self.replaceDescriptorsInMemory(oldDescriptors, typesToExclude);
+    self.replaceDescriptors(oldDescriptors, typesToExclude);
 
     self.save(
         callback,
@@ -2187,126 +2280,6 @@ Resource.prototype.findMetadataRecursive = function(callback){
     });
 };
 
-Resource.prototype.findMetadata = function(callback){
-    var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-    var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder")).Folder;
-
-    var self = this;
-    Resource.findByUri(self.uri, function(err, resource){
-        if(!err){
-            if(resource != null)
-            {
-                resource.getPropertiesFromOntologies(
-                    Ontology.getPublicOntologiesUris(),
-                    function(err, descriptors)
-                    {
-                        if(!err)
-                        {
-                            //remove locked descriptors
-                            for(var i = 0 ; i < descriptors.length ; i++)
-                            {
-                                if(descriptors[i].locked)
-                                {
-                                    descriptors.splice(i, 1);
-                                    i--;
-                                }
-                            }
-
-                            Folder.findByUri(resource.uri, function(err, folder) {
-                                var metadataResult = {
-                                    title: resource.nie.title,
-                                    descriptors: descriptors,
-                                    file_extension: resource.ddr.fileExtension,
-                                    hasLogicalParts : []
-                                };
-
-                                if(folder.ddr != null && folder.ddr.metadataQuality != null)
-                                {
-                                    metadataResult.metadata_quality = folder.ddr.metadataQuality;
-                                }
-                                else
-                                {
-                                    metadataResult.metadata_quality = 0;
-                                }
-
-                                if(!err){
-
-                                    folder.getLogicalParts(function (err, children) {
-                                        if (!err) {
-                                            var _ = require('underscore');
-                                            children = _.reject(children, function (child) {
-                                                return child.ddr.deleted;
-                                            });
-
-                                            if (children.length > 0) {
-
-                                                var async = require("async");
-
-                                                // 1st parameter in async.each() is the array of items
-                                                async.each(children,
-                                                    // 2nd parameter is the function that each item is passed into
-                                                    function(child, callback){
-                                                        // Call an asynchronous function
-                                                        metadataResult.hasLogicalParts.push({
-                                                            'title':child.nie.title
-                                                        });
-                                                        callback(null);
-                                                    },
-                                                    // 3rd parameter is the function call when everything is done
-                                                    function(err){
-                                                        if(!err) {
-                                                            // All tasks are done now
-                                                            callback(false, metadataResult);
-                                                        }
-                                                        else{
-                                                            callback(true, null);
-                                                        }
-                                                    }
-                                                );
-                                            }
-                                            else {
-                                                callback(false, metadataResult);
-                                            }
-                                        }
-                                        else {
-                                            console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
-                                            callback(true, null);
-                                        }
-                                    });
-                                }
-                                else {
-                                    console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
-                                    callback(false, metadataResult);
-                                }
-
-                            });
-                        }
-                        else
-                        {
-
-                            console.error("[findMetadataRecursive] error accessing properties from ontologies in " + self.uri)
-
-                            callback(true, [descriptors]);
-                        }
-                    });
-            }
-            else
-            {
-                var msg = self.uri + " does not exist in Dendro.";
-                console.error(msg);
-
-                callback(true, msg);
-            }
-        }
-        else
-        {
-            var msg = "Error fetching " + self.uri + " from the Dendro platform.";
-            console.error(msg);
-
-            callback(true, msg);
-        }
-    });
-}
 Resource.prototype.isOfClass = function(classNameInPrefixedForm, callback)
 {
     var self = this;
@@ -2540,7 +2513,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
 
                     if(resourceUris.length > 0)
                     {
-                        redis.connection.delete(resourceUris, function(err, result){
+                        redis(customGraphUri).connection.delete(resourceUris, function(err, result){
                             if(!err)
                             {
                                 if(resourceUris.length === pageSize)
@@ -2712,6 +2685,45 @@ Resource.exists = function(uri, callback, customGraphUri)
             }
         });
 }
+
+
+Resource.getCount = function(callback) {
+    var self = this;
+    var countQuery =
+        "SELECT " +
+        "COUNT(?uri) as ?count " +
+        "FROM [0] " +
+        "WHERE " +
+        "{ " +
+        " ?uri rdf:type [1] " +
+        "}";
+
+    var totalCount;
+
+    db.connection.execute(countQuery,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.prefixedResource,
+                value: self.prefixedRDFType
+            }
+        ],
+
+        function(err, count) {
+            if(!err && count instanceof Array)
+            {
+                totalCount = parseInt(count[0].count);
+                callback(null, totalCount);
+            } else{
+                callback(err, count[0]);
+            }
+        }
+    );
+}
+
 
 Resource = Class.extend(Resource, Class);
 

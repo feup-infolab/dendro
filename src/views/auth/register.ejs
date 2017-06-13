@@ -10,100 +10,202 @@
     }
     </style>
 
-    <form action="/register" method="POST">
+    <div class="container">
+        <div id="error_messages" class="bs-callout bs-callout-error hidden">
+            <p>There are some invalid information in the form. Please review the fields below.</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="success_messages" class="bs-callout bs-callout-success hidden">
+            <p>All information is valid</p>
+        </div>
+    </div>
+
+    <h1 class="page-header">
+        Register new user
+    </h1>
+
+    <script type="text/javascript">
+
+        function validate_form ()
+        {
+            let ok = $('.parsley-error').length === 0;
+            $('.bs-callout-info').toggleClass('hidden', !ok);
+            $('.bs-callout-warning').toggleClass('hidden', ok);
+
+            if(!ok)
+                $('#register_button').prop("disabled", true );
+            else
+                $('#register_button').prop( "disabled", false );
+        }
+
+        $( document ).ready(function() {
+            $(function () {
+                Parsley.addAsyncValidator('validate_username',
+                    function(result){
+                        return result.responseJSON.message === "not_found";
+                    },
+                    '/username_exists?username={value}'
+                );
+
+                $('#register_form').parsley().on('field:validated', function() {
+                    validate_form();
+                })
+                    .on('click', function() {
+                        let ok = $('.parsley-error').length === 0;
+
+                        if(!ok)
+                        {
+                            return false;
+                        }
+                    });
+            });
+        });
+
+    </script>
+
+    <form action="/register" method="POST" id="register_form" data-parsley-validate="">
+        <input type="hidden" name="_csrf" value="<%=locals.csrfToken%>}}">
         <div class="row">
             <div class="well span6 offset3">
                 <div class="row">
+                    <% if (locals.data_provider == "orcid") {%>
+                        <div class="form-group">
+                            <label for="orcid" class="col-sm-2 control-label"><img src="/images/logos/orcid_24x24.png"> ORCID</label>
+
+                            <div class="col-sm-10">
+                                <a href ="http://orcid.org/<%=locals.new_user.orcid%>">
+                                    <input type="text"
+                                           class="form-control"
+                                           id="orcid"
+                                           placeholder="ORCID"
+                                           readonly
+                                            <%if (locals.new_user != null && locals.new_user.orcid) { %>
+                                           value="<%= locals.new_user.orcid %>%>"
+                                            <%}  %>
+                                           name="orcid">
+                                </a>
+                                <p class="help-block">Your ORCID id (gathered because you logged in with ORCID)</p>
+                            </div>
+                        </div>
+                    <% } %>
                     <div class="form-group">
-                        <label for="username" class="col-sm-2 control-label">Username</label>
+                        <label for="username" class="col-sm-2 control-label">Username <span class="label label-warning">*</span></label>
                         <div class="col-sm-10">
                             <input type="text"
                                    class="form-control"
                                    id="username"
                                    placeholder="Username"
+                                   data-parsley-trigger="change"
+                                   required=""
+                                   data-parsley-type="alphanum"
+                                   data-parsley-remote
+                                   data-parsley-remote-validator="validate_username"
+                                   data-parsley-remote-message="Username already exists. please choose another one."
                                     <%if(locals.Config.debug.views.prefill_text_boxes){%>
-                                        value="jrocha"
-                                    <%}%>
+                                   value="jrocha"
+                                    <%} else if (locals.new_user != null && locals.new_user.username) { %>
+                                   value="<%= locals.new_user.username %>%>"
+                                    <%}  %>
                                    name="username">
                             <p class="help-block">Your username</p>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="email" class="col-sm-2 control-label">Email</label>
+                        <label for="email" class="col-sm-2 control-label">Email <span class="label label-warning">*</span></label>
                         <div class="col-sm-10">
-                            <input type="text"
+                            <input type="email"
                                    class="form-control"
                                    id="email"
                                    placeholder="Email"
+                                   data-parsley-trigger="change"
+                                   required=""
                                     <%if(locals.Config.debug.views.prefill_text_boxes){%>
                                         value="joaorosilva@gmail.com"
-                                    <%}%>
+                                    <%} else if (locals.new_user != null && locals.new_user.email) { %>
+                                        value="<%= locals.new_user.email %>%>"
+                                    <%}  %>
                                    name="email">
                             <p class="help-block">Your email address</p>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="password" class="col-sm-2 control-label">Password</label>
-                        <div class="col-sm-10">
-                            <input type="password"
-                                   class="form-control"
-                                   id="password"
-                                   placeholder="Password"
-                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
-                                        value="jrocha"
-                                    <%}%>
-                                   name="password">
-                            <p class="help-block">Your intended password</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="repeat_password" class="col-sm-2 control-label">Repeat Password</label>
-                        <div class="col-sm-10">
-                            <input type="password"
-                                   class="form-control"
-                                   id="repeat_password"
-                                   placeholder="Repeat Password"
-                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
-                                        value="jrocha"
-                                    <%}%>
-                                   name="repeat_password">
-                            <p class="help-block">Repeat your intended password</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="firstname" class="col-sm-2 control-label">First Name</label>
+                        <label for="firstname" class="col-sm-2 control-label">First Name <span class="label label-warning">*</span></label>
                         <div class="col-sm-10">
                             <input type="text"
                                    class="form-control"
                                    id="firstname"
                                    placeholder="Username"
+                                   data-parsley-trigger="change"
+                                   required=""
                                     <%if(locals.Config.debug.views.prefill_text_boxes){%>
-                                        value="João"
-                                    <%}%>
+                                   value="João"
+                                    <%} else if (locals.new_user != null && locals.new_user.firstname) { %>
+                                   value="<%= locals.new_user.firstname %>%>"
+                                    <%}  %>
                                    name="firstname">
                             <p class="help-block">Your first name</p>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="surname" class="col-sm-2 control-label">Surname</label>
+                        <label for="surname" class="col-sm-2 control-label">Surname <span class="label label-warning">*</span></label>
                         <div class="col-sm-10">
                             <input type="text"
                                    class="form-control"
                                    id="surname"
                                    placeholder="Surname"
+                                   data-parsley-trigger="change"
+                                   required=""
                                     <%if(locals.Config.debug.views.prefill_text_boxes){%>
-                                        value="Rocha"
-                                    <%}%>
+                                   value="Rocha"
+                                    <%} else if (locals.new_user != null && locals.new_user.surname) { %>
+                                   value="<%= locals.new_user.surname %>%>"
+                                    <%}  %>
                                    name="surname">
                             <p class="help-block">Your surname</p>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="password" class="col-sm-2 control-label">Password <span class="label label-warning">*</span></label>
+                        <div class="col-sm-10">
+                            <input type="password"
+                                   class="form-control"
+                                   id="password"
+                                   placeholder="Password"
+                                   data-parsley-trigger="change"
+                                   required=""
+                                   data-parsley-minlength="8"
+                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                                        value="jrocha"
+                                    <%}%>
+                                   name="password">
+                            <p class="help-block">Your intended password (min 8 chars)</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="repeat_password" class="col-sm-2 control-label">Repeat Password <span class="label label-warning">*</span></label>
+                        <div class="col-sm-10">
+                            <input type="password"
+                                   class="form-control"
+                                   id="repeat_password"
+                                   placeholder="Repeat Password"
+                                   data-parsley-trigger="change"
+                                   required=""
+                                   data-parsley-minlength="8"
+                                   data-parsley-equalto="#password"
+                                    <%if(locals.Config.debug.views.prefill_text_boxes){%>
+                                        value="jrocha"
+                                    <%}%>
+                                   name="repeat_password">
+                            <p class="help-block">Repeat your intended password (min 8 chars)</p>
+                        </div>
+                    </div>
                 </div>
-
-                <button class="btn btn-primary">Register</button>
-
             </div>
         </div>
+
+        <button class="btn btn-primary" id="register_button" disabled>Register</button>
     </form>
 
 

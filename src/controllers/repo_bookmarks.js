@@ -85,6 +85,18 @@ var validateNewBookmarkRequest = function(req, res)
             return false;
         }
     }
+    else if( req.body.ddr.hasPlatform.foaf.nick == 'ckan' )
+    {
+        if(req.body.ddr.hasAPIKey == null)
+        {
+            res.status(400).json({
+                result : "error",
+                message : "No API Key specified"
+            });
+
+            return false;
+        }
+    }
     else if(req.body.ddr.hasPlatform.foaf.nick == 'figshare' )
     {
         if(req.body.ddr.hasConsumerKey == null)
@@ -161,7 +173,7 @@ exports.new = function(req, res) {
                 message : "HTTP Body of the request was null."
         });
     }
-    else if(req.session.user == null)
+    else if(req.user == null)
     {
         return res.status(401).json({
             result : "error",
@@ -188,7 +200,7 @@ exports.new = function(req, res) {
                 var newBookmark = new ExternalRepository({
                     dcterms: {
                         title: req.body.dcterms.title,
-                        creator: req.session.user.uri
+                        creator: req.user.uri
                     },
                     ddr: {
                         hasUsername: req.body.ddr.hasUsername,
@@ -200,9 +212,10 @@ exports.new = function(req, res) {
                         hasConsumerSecret: req.body.ddr.hasConsumerSecret,
                         hasAccessToken: req.body.ddr.hasAccessToken,
                         hasAccessTokenSecret: req.body.ddr.hasAccessTokenSecret,
-                        hasOrganization: req.body.ddr.hasOrganization
+                        hasOrganization: req.body.ddr.hasOrganization,
+                        hasAPIKey: req.body.ddr.hasAPIKey
                     }
-                }, req.session.user.ddr.username);
+                }, req.user.ddr.username);
 
                 if (newBookmark instanceof ExternalRepository) {
                     newBookmark.save(function (err, result) {
@@ -270,7 +283,7 @@ returned format :
  */
 
 exports.my = function(req, res) {
-    ExternalRepository.findByCreator(req.session.user.uri, function(err, myRepositoryBookmarks){
+    ExternalRepository.findByCreator(req.user.uri, function(err, myRepositoryBookmarks){
         if(!err)
         {
             var getPlatformDetails = function(myRepositoryBookmark, callback)
@@ -310,7 +323,7 @@ exports.my = function(req, res) {
         }
         else
         {
-            var msg = "Unable to find repository bookmarks created by " + req.session.user.uri + " . Error returned : " + myRepositoryBookmarks;
+            var msg = "Unable to find repository bookmarks created by " + req.user.uri + " . Error returned : " + myRepositoryBookmarks;
 
             res.status(500).json({
                 result : "error",
@@ -321,26 +334,39 @@ exports.my = function(req, res) {
 }
 
 exports.all = function(req, res) {
-    ExternalRepository.all(function(err, externalRepositories){
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
 
-        if(!err)
-        {
-            for(var i = 0; i < externalRepositories.length; i++)
+    if(!acceptsJSON && acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        ExternalRepository.all(function(err, externalRepositories){
+
+            if(!err)
             {
-                Descriptor.removeUnauthorizedFromObject([Config.types.private, Config.types.audit], [Config.types.api_readable]);
-            }
+                for(var i = 0; i < externalRepositories.length; i++)
+                {
+                    Descriptor.removeUnauthorizedFromObject([Config.types.private, Config.types.audit], [Config.types.api_readable]);
+                }
 
-            res.json(externalRepositories);
-        }
-        else
-        {
-            var msg = "Unable to retrieve all instances of external repositories";
-            res.status(500).json({
-                result : "error",
-                message : msg
-            });
-        }
-    });
+                res.json(externalRepositories);
+            }
+            else
+            {
+                var msg = "Unable to retrieve all instances of external repositories";
+                res.status(500).json({
+                    result : "error",
+                    message : msg
+                });
+            }
+        });
+    }
 };
 
 exports.delete = function(req, res){

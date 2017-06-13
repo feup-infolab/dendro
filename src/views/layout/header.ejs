@@ -9,11 +9,35 @@
 
        <title>
             <% if (locals.title != null) { %>
-                <%= settings.title %> - <%= title %>
+                <%= title %> - <%= Config.version.name%>
             <% } else { %>
-                <%= settings.title %>
+                <%= Config.version.name%>
             <% } %>
         </title>
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/logos/apple-touch-icon.png">
+        <link rel="icon" type="image/png" href="/images/logos/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="/images/logos/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="/images/logos/manifest.json">
+        <link rel="mask-icon" href="/images/logos/safari-pinned-tab.svg" color="#5bbad5">
+        <link rel="shortcut icon" href="/images/logos/favicon.ico">
+        <meta name="msapplication-config" content="/images/logos/browserconfig.xml">
+        <meta name="theme-color" content="#ffffff">
+
+
+        <% if (Config.analytics_tracking_code != null && Config.analytics_tracking_code != "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE") { %>
+            <script>
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+                ga('create', "<%= Config.analytics_tracking_code %>" , 'auto');
+                ga('send', 'pageview');
+
+            </script>
+        <% } %>
+
     </head>
     <body>
     <div id="wrap" ng-controller="windowCtrl">
@@ -31,9 +55,9 @@
                 </div>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <div class="collapse navbar-collapse">
                     <ul class="nav navbar-nav">
-                        <% if(locals.session != null && locals.session.user != null)
+                        <% if(locals.user != null)
                         {
                          %>
                             <li class="dropdown">
@@ -64,12 +88,12 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins<b class="caret"></b></a>
                             <ul class="dropdown-menu">
-                                <% if(locals.session != null && locals.session.user != null && locals.session.isAdmin)
+                                <% if(locals.user != null && locals.session != null && locals.session.isAdmin)
                                 {
                                 %>
                                     <li role="presentation" class="dropdown-header">Dendro Recommender</li>
                                     <li>
-                                        <a href="/plugins/dendro_recommender/interactions/user/<%=locals.session.user.ddr.username%>">User interaction analysis</a>
+                                        <a href="/plugins/dendro_recommender/interactions/user/<%=locals.user.ddr.username%>">User interaction analysis</a>
                                     </li>
                                     <li role="presentation" class="dropdown-header">Dendro Interactions CSV Exporter</li>
                                     <li>
@@ -87,42 +111,62 @@
                             </div>
                             <button type="submit" class="btn btn-default">Submit</button>
                         </form>
-                        <% if(locals.session != null && locals.session.user != null)
+                        <% if(locals.user != null)
                         {
                         %>
-                        <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=locals.session.user.foaf.firstName%> <%=locals.session.user.foaf.surname%><b class="caret"></b></a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a href="/me">Profile</a>
-                                </li>
-                                <% if(locals.session.isAdmin)
-                                {
-                                %>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=locals.user.foaf.firstName%> <%=locals.user.foaf.surname%><b class="caret"></b></a>
+                                <ul class="dropdown-menu">
                                     <li>
-                                        <a href="/admin">Admin Panel</a>
+                                        <a href="/me">Profile</a>
                                     </li>
-                                <%
-                                }
-                                %>
-                                <li>
-                                    <a href="/logout">Logout <%=locals.session.user.foaf.firstName%> <%=locals.session.user.foaf.surname%></a>
-                                </li>
-                            </ul>
-                        </li>
+                                    <% if(locals.session != null && locals.session.isAdmin)
+                                    {
+                                    %>
+                                        <li>
+                                            <a href="/admin">Admin Panel</a>
+                                        </li>
+                                    <%
+                                    }
+                                    %>
+                                    <li>
+                                        <a href="/logout">Logout <%=locals.user.foaf.firstName%> <%=locals.user.foaf.surname%></a>
+                                    </li>
+                                </ul>
+                            </li>
                         <li>
                             <%
                             }
                             else
                             {
                             %>
-                        <li>
-                            <a href="/login">Login</a>
-                        </li>
-                        <%
-                        }
-                        %>
-                        <!--<li><a href="#">Link</a></li>-->
+                                <li>
+                                    <a href="/login">Login</a>
+                                </li>
+                            <%
+                            }
+                            %>
+
+                        <%if(locals.user != null) { %>
+
+                            <li ng-controller="notificationCtrl" ng-init="init();getAlerts()" class="dropdown">
+                                <a class="notifications-icon" href="#" ng-alerts-popover popover-placement="bottom-right" style="
+                                    padding-top: 10px;
+                                    padding-bottom: 4px;
+                                ">
+                                    <ng-alerts-count badge="true" hide-empty="true"> </ng-alerts-count>
+                                                        <span class="fa-stack fa-1x notifications-icon">
+                                                            <i class="fa fa-bell fa-stack-2x text-default" ng-class="{'faa-horizontal' : numNotifications > 0, 'animated' : numNotifications > 0}"></i>
+                                                            <i class="fa fa-circle fa-stack-2x text-default badge-circle text-danger" ng-show="numNotifications > 0"></i>
+                                                            <strong class="fa-stack-1x notifications-text badge-text" ng-show="numNotifications > 0">{{numNotifications}}</strong>
+                                                        </span>
+                                </a>
+                                <div ng-repeat="notifUri in notifsUris">
+                                    <div ng-init="get_notification_info(notifUri.uri)">
+                                    </div>
+                                </div>
+                            </li>
+                        <% } %>
                     </ul>
                 </div><!-- /.navbar-collapse -->
             </div>

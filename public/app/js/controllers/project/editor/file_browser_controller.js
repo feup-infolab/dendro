@@ -4,14 +4,17 @@ angular.module('dendroApp.controllers')
     */
     .controller('fileBrowserCtrl', function (
         $scope,
+        $rootScope,
         $http,
         $filter,
         $q,
         $log,
+        $timeout,
+        $compile,
+        Upload,
         focus,
         preview,
         $localStorage,
-        $timeout,
         metadataService,
         windowService,
         cacheService,
@@ -19,10 +22,31 @@ angular.module('dendroApp.controllers')
         interactionsService,
         ontologiesService,
         storageService,
-        recommendationService
+        recommendationService,
+        usersService
     )
 {
+    $scope.thumbnailable = function(file)
+    {
+        if($rootScope.config != null)
+        {
+            const thumbnailable = $rootScope.config.thumbnailable_file_extensions[file.ddr.fileExtension];
 
+            if(thumbnailable != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    };
+    
     $scope.delete_file_or_folder = function()
     {
         var selectedFiles = $scope.get_selected_files();
@@ -155,67 +179,32 @@ angular.module('dendroApp.controllers')
             }
         });
     };
-    
-    $scope.setup_upload_area = function(file_upload_div_id, progress_bar_div_id)
-    {
-        var uploadUrl = windowService.get_current_url() + "?upload";
 
-        $(function () {
-            'use strict';
-            // Change this to the location of your server-side upload handler:
-            $(file_upload_div_id).fileupload({
-                url: uploadUrl,
-                dataType: 'json',
-                done: function (e, data) {
-                    $scope.show_popup("success", "Success", "Files uploaded successfully.");
-                    $scope.get_folder_contents(true);
-                    $scope.get_stats();
-                },
-                fail: function(e, data){
-                    $scope.show_popup("error", "Error", "There was an error uploading the file(s).");
-                },
-                progressall: function (e, data) {
-                    var progress = parseInt(data.loaded / data.total * 100, 10);
-                    $(progress_bar_div_id + '.progress-bar').css(
-                        'width',
-                        progress + '%'
-                    );
-                }
-            }).prop('disabled', !$.support.fileInput)
-                .parent().addClass($.support.fileInput ? undefined : 'disabled');
-        });
+    $scope.upload_callback = function(err, result)
+    {
+        if(!err)
+        {
+            $scope.show_popup("success", "Success", "Files uploaded successfully.");
+            $scope.get_folder_contents(true);
+        }
+        else
+        {
+            $scope.show_popup("error", "Error", result[0].message);
+        }
     };
 
-    $scope.setup_restore_area = function(file_upload_div_id, progress_bar_div_id)
+    $scope.restore_callback = function(err, result)
     {
-        var uploadUrl = $scope.currentUrl + "?restore";
-
-        $(function () {
-            'use strict';
-            // Change this to the location of your server-side upload handler:
-            $(file_upload_div_id).fileupload({
-                url: uploadUrl,
-                dataType: 'json',
-                done: function (e, data) {
-                    $scope.show_popup("success", "Success", "Backup successfully restored");
-                    $scope.load_metadata();
-                    $scope.get_folder_contents(true);
-                },
-                fail: function(e, data){
-                    $scope.show_popup("error", "Error", data._response.jqXHR.responseJSON.message);
-                },
-                progressall: function (e, data) {
-                    var progress = parseInt(data.loaded / data.total * 100, 10);
-                    $(progress_bar_div_id + '.progress-bar').css(
-                        'width',
-                        progress + '%'
-                    );
-                }
-            }).prop('disabled', !$.support.fileInput)
-                .parent().addClass($.support.fileInput ? undefined : 'disabled');
-        });
-
-        $(file_upload_div_id).tooltip({title :"<i>Uploading a backup package will replace the contents of the current folder with the contents of the backup package.</i>", html: true});
+        if(!err)
+        {
+            $scope.show_popup("success", "Success", "Backup successfully restored");
+            $scope.load_metadata();
+            $scope.get_folder_contents(true);
+        }
+        else
+        {
+            $scope.show_popup("error", "Error", "There was an error restoring your data.");
+        }
     };
 
     $scope.clear_selection_and_get_parent_metadata = function()
@@ -325,7 +314,17 @@ angular.module('dendroApp.controllers')
             {
                 if($scope.showing_project_root())
                 {
-                    window.location.href= '/projects/my';
+                    usersService.get_logged_user()
+                        .then(function(user){
+                            if(!user)
+                            {
+                                window.location.href= '/projects/my';
+                            }
+                            else
+                            {
+                                window.location.href= '/projects';
+                            }
+                        });
                 }
                 else
                 {
@@ -357,8 +356,13 @@ angular.module('dendroApp.controllers')
             {
                 $scope.clear_selected_files();
 
-                recommendationService.get_recommendations(
-                    $scope.get_calling_uri()
+               recommendationService.get_recommendations(
+                    $scope.get_calling_uri(),
+                    $scope.descriptor_filter,
+                    $scope.shared.metadata,
+                    $scope.recommend_already_filled_in,
+                    $scope.recommendations_page,
+                    $scope.recommendations_page_size
                 );
 
                 metadataService.load_metadata()
@@ -403,7 +407,15 @@ angular.module('dendroApp.controllers')
 
                             $scope.set_selected_file(index);
 
-                            recommendationService.get_recommendations($scope.get_calling_uri());
+                            recommendationService.get_recommendations(
+                                $scope.get_calling_uri(),
+                                $scope.descriptor_filter,
+                                $scope.shared.metadata,
+                                $scope.recommend_already_filled_in,
+                                $scope.recommendations_page,
+                                $scope.recommendations_page_size
+                            );
+
                             metadataService.load_metadata($scope.get_calling_uri())
                                 .then(function(metadata){
                                     $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
@@ -475,5 +487,33 @@ angular.module('dendroApp.controllers')
         $scope.set_from_local_storage_and_then_from_value("restore_area_visible", false);
         $scope.set_from_local_storage_and_then_from_value("showing_deleted_files", false, $scope, "shared");
         $scope.get_folder_contents(true);
+
+        $scope.modelOptionsObj = {
+            debounce:100
+        };
+
+        $scope.multiple = true;
+
+        $scope.pattern="*";
+        $scope.acceptSelect = true;
+        $scope.disabled = false;
+        $scope.capture = "camera";
+
+        /*$scope.validateObj= {
+            size: {max: '2000MB', min: '1B'},
+            height: {max: 12000},
+            width: {max: 12000}
+            //,
+            //duration: {max: '5m'}
+        };*/
+
+        $scope.keepDistinct = true;
+        $scope.maxFiles = 10;
+        $scope.ignoreInvalid = false;
+
+        $scope.allowDir = false;
+        $scope.dropAvailable = true;
+
+
     };
 });

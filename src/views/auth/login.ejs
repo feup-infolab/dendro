@@ -10,49 +10,88 @@
     }
     </style>
 
-    <h1 class="page-header">
-        Please sign in
-    </h1>
+    <%- include ../layout/demo_notice.ejs %>
 
-    <form action="/login" method="POST">
-        <div class="row-fluid">
-            <div class="well span6 offset3">
+    <div class="container well well-main">
+            <div class="row-fluid">
                 <div class="row">
-                    <div class="form-group">
-                        <label for="handle" class="col-sm-2 control-label">Username</label>
-                        <div class="col-sm-10">
-                            <input type="text"
-                                   class="form-control"
-                                   id="username"
-                                   placeholder="Username"
-                                   name="username">
-                            <p class="help-block">Your username</p>
-                        </div>
-                    </div>
+                    <form action="/login" method="POST">
+                        <div class="col-xs-12">
+                            <h1>Login</h1>
+                            <div class="form-group text-center">
+                                <div class="text-center">
+                                    <button onclick="prefillBoxes()" class="btn btn-sm btn-success"><i class="fa fa-paste"></i>Login as demonstration user</button>
+                                </div>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="handle" class="col-sm-2 control-label">Password</label>
-                        <div class="col-sm-10">
-                            <input type="password"
-                                   class="form-control"
-                                   id="password"
-                                   placeholder="Password"
-                                   name="password">
-                            <p class="help-block">Your password</p>
+                            <div class="form-group">
+                                <label for="handle" class="col-sm-2 control-label">Username</label>
+                                <div class="col-sm-10">
+                                    <input type="text"
+                                           class="form-control"
+                                           id="username"
+                                           placeholder="Username"
+                                           name="username">
+                                    <p class="help-block">Your username</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="handle" class="col-sm-2 control-label">Password</label>
+                                <div class="col-sm-10">
+                                    <input type="password"
+                                           class="form-control"
+                                           id="password"
+                                           placeholder="Password"
+                                           name="password">
+                                    <p class="help-block">Your password</p>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="text-center">
+                                    <button class="btn btn-primary btn-block">Sign in</button>
+                                </div>
+                            </div>
+
+                            <script type="application/javascript">
+                                function prefillBoxes (){
+                                    if($("#username").length && $("#password").length)
+                                    {
+                                        $("#username").val("<%=Config.demo_mode.users[0].username%>");
+                                        $("#password").val("<%=Config.demo_mode.users[0].password%>");
+                                    }
+                                }
+                            </script>
+
+                            <div class="form-group">
+                                <div class="text-center">
+                                    Need a login? <a href="/register">Register here</a>. Forgot your password? <a href="/reset_password">Ask for a new one</a>.
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                    </form>
+
+                    <%if (Config.authentication.orcid.enabled || Config.authentication.saml.enabled) { %>
+                        <div class="col-xs-12">
+                            <br/>
+                            <div class="form-group text-center">
+                                <h4>Other sign in alternatives</h4>
+                            </div>
+
+                            <div class="form-group text-center">
+                                <div class="form-group text-center">
+                                    <%if (Config.authentication.orcid.enabled) { %>
+                                    <a href="/auth/orcid" class="btn btn-default"><img src="images/logos/orcid_24x24.png"> Sign in with ORCID</a>
+                                    <% } %>
+
+                                    <%if (Config.authentication.orcid.enabled) { %>
+                                    <a href="/auth/saml" class="btn btn-default"><img src="images/logos/saml.png"> <%= Config.authentication.saml.button_text %></a>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
             </div>
-        </div>
-
-        <button class="btn btn-primary">Sign in</button>
-        <br/>
-        <br/>
-        Need a login? <a href="/register">Register here</a> .
-        <br/>
-        <br/>
-        Forgot your password? <a href="/reset_password">Reset it here</a>.
-    </form>
-
-
+    </div>
 <%- include ../layout/footer.ejs %>

@@ -189,58 +189,146 @@ Project.prototype.backup = function(callback)
     });
 };
 
-Project.all = function(callback) {
+Project.addProjectInformations = function(arrayOfProjectsUris, callback)
+{
+    if(arrayOfProjectsUris instanceof Array)
+    {
+        var getProjectInformation = function(project, callback)
+        {
+            Project.findByUri(project.uri, callback);
+        };
+
+        //get all the information about all the projects
+        // and return the array of projects, complete with that info
+        async.map(arrayOfProjectsUris, getProjectInformation, function(err, projectsToReturn)
+        {
+            if(!err)
+            {
+                callback(null, projectsToReturn);
+            }
+            else
+            {
+                callback("error fetching project information : " + err, projectsToReturn);
+            }
+        });
+    }
+    else
+    {
+        //projects var will contain an error message instead of an array of results.
+        callback(1);
+    }
+}
+
+Project.allNonPrivate = function(currentUser, callback) {
+
+    //TODO @silvae86 exception for the projects where the current user is either creator or contributor.
     var query =
-            "SELECT * " +
-            "FROM [0] "+
-            "WHERE " +
-            "{ " +
-            " ?uri rdf:type ddr:Project " +
-            "} ";
+        "SELECT * " +
+        "FROM [0] "+
+        "WHERE " +
+        "{ " +
+        " ?uri rdf:type ddr:Project " +
+        " FILTER NOT EXISTS {" +
+        "    ?uri ddr:privacyStatus [1] " +
+        "   } " +
+        "} ";
+
 
     db.connection.execute(query,
         [
             {
                 type: DbConnection.resourceNoEscape,
                 value: db.graphUri
+            },
+            {
+                type: DbConnection.string,
+                value: "private"
             }
         ],
 
         function(err, projects) {
-            if(!err && projects instanceof Array)
-            {
-                var getProjectInformation = function(project, callback)
-                {
-                    Project.findByUri(project.uri, callback);
-                };
 
-                //get all the information about all the projects
-                // and return the array of projects, complete with that info
-                async.map(projects, getProjectInformation, function(err, projectsToReturn)
-                {
-                    if(!err)
-                    {
-                        callback(null, projectsToReturn);
-                    }
-                    else
-                    {
-                        callback("error fetching project information : " + err, projectsToReturn);
-                    }
-                });
+            if(!err && projects != null && projects instanceof Array)
+            {
+                Project.addProjectInformations(projects, callback);
             }
             else
             {
                 //projects var will contain an error message instead of an array of results.
-                callback(err, projects);
+                callback(1, projects);
             }
-    });
+        });
+}
+
+Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
+
+    //TODO @silvae86 exception for the projects where the current user is either creator or contributor.
+    var query =
+        "SELECT DISTINCT(?uri) \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "    {  \n" +
+        "        ?uri rdf:type ddr:Project \n" +
+        "        FILTER NOT EXISTS { \n" +
+        "           ?uri ddr:privacyStatus [1] \n" +
+        "        }\n" +
+        "    }\n" +
+        "    UNION \n" +
+        "    {\n" +
+        "        ?uri rdf:type ddr:Project .\n" +
+        "        ?uri dcterms:creator  [2]\n" +
+        "    }\n" +
+        "    UNION\n" +
+        "    {\n" +
+        "        ?uri rdf:type ddr:Project .\n" +
+        "        ?uri dcterms:contributor  [2]\n" +
+        "    }\n" +
+        "}\n";
+
+    db.connection.execute(query,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.string,
+                value: "private"
+            },
+            {
+                type: DbConnection.resourceNoEscape,
+                value: currentUser.uri
+            }
+        ],
+
+        function(err, projects) {
+
+            if(!err && projects != null && projects instanceof Array)
+            {
+                Project.addProjectInformations(projects, callback);
+            }
+            else
+            {
+                //projects var will contain an error message instead of an array of results.
+                callback(1, projects);
+            }
+        });
+}
+
+Project.all = function(callback, req) {
+    var self = this;
+    Project.baseConstructor.all.call(self, function(err, projects) {
+
+        //projects var will contain an error message instead of an array of results.
+        callback(err, projects);
+
+    }, req);
 }
 
 Project.findByHandle = function(handle, callback) {
-    var self = this;
-
     var query =
-            "SELECT ?uri " +
+            "SELECT ?uri \n" +
             "FROM [0] " +
             "WHERE " +
             "{ " +
@@ -603,6 +691,172 @@ Project.prototype.getFirstLevelDirectoryContents = function(callback)
             callback(1, "unable to retrieve project " + self.ddr.handle + " 's root folder's contents. Error :" + err);
         }
     });
+};
+
+Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
+{
+    var self = this;
+    console.log('In getProjectWideFolderFileCreationEvents');
+    console.log('the projectUri is:');
+    //<http://127.0.0.1:3001/project/testproject3/data>
+    //var projectData = projectUri + '/data'; //TODO this is probably wrong
+    var projectData = self.uri + '/data'; //TODO this is probably wrong
+    /*WITH <http://127.0.0.1:3001/dendro_graph>
+     SELECT ?dataUri
+     WHERE {
+     ?dataUri dcterms:modified ?date.
+     <http://127.0.0.1:3001/project/testproject3/data> <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#hasLogicalPart> ?dataUri.
+     }
+     ORDER BY DESC(?date)
+     OFFSET 0
+     LIMIT 5*/
+
+    //TODO test query first
+
+    var query =
+        "WITH [0] \n" +
+        "SELECT ?dataUri \n" +
+        "WHERE { \n" +
+        "?dataUri dcterms:modified ?date. \n" +
+        "[1] nie:hasLogicalPart ?dataUri. \n" +
+        "} \n" +
+        "ORDER BY DESC(?date) \n";
+
+    //query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.resourceNoEscape,
+                value : projectData
+            }/*,
+            {
+                type : DbConnection.date,
+                value: createdAfterDate
+            }*/
+        ]),//, startingResultPosition, maxResults),
+        function(err, itemsUri) {
+            if(!err)
+            {
+                console.log('itemsUri: ', itemsUri);
+
+                async.map(itemsUri, function (itemUri, cb1) {
+                    Resource.findByUri(itemUri.dataUri, function (error, item) {
+                        console.log(item);
+                        //item.get
+                        //TODO get author
+                    });
+                }, function (err, fullItems) {
+                    if(!err)
+                    {
+                        callback(null, fullItems);
+                    }
+                    else
+                    {
+                        var msg = "Error fetching file/folders creation info for project:" + self.uri;
+                        callback(true, msg);
+                    }
+                });
+
+                /*
+                var getVersionDetails = function(result, callback){
+                    ArchivedResource.findByUri(result.version, function(err, result){
+                        if(!err)
+                        {
+                            result.getDetailedInformation(function(err, versionWithDetailedInfo)
+                            {
+                                callback(err, versionWithDetailedInfo);
+                            });
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
+                    });
+                };
+
+                async.map(results, getVersionDetails, function(err, fullVersions){
+                    callback(err, fullVersions);
+                })*/
+            }
+            else
+            {
+                var msg = "Error fetching file/folder change data";
+                console.log(msg);
+                callback(1, msg);
+            }
+        });
+};
+
+Project.prototype.getRecentProjectWideChangesSocial = function (callback, startingResultPosition, maxResults, createdAfterDate) {
+    var self = this;
+    console.log('createdAfterDate:', createdAfterDate);
+    console.log('startingResultPosition: ', startingResultPosition);
+    console.log('maxResults: ', maxResults);
+
+    var query =
+        "WITH [0] \n" +
+        "SELECT ?version \n" +
+        "WHERE { \n" +
+        "?version dcterms:created ?date. \n" +
+        "filter ( \n" +
+        "xsd:dateTime(?date) >= [2]" + "^^xsd:dateTime" + " ). \n" +
+        "?version rdf:type ddr:ArchivedResource . \n" +
+        " filter ( \n" +
+        "STRSTARTS(STR(?version), [1]) \n" +
+        " ) \n" +
+        "} \n" +
+        "ORDER BY DESC(?date) \n";
+
+    query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.stringNoEscape,
+                value : self.uri
+            },
+            {
+                type : DbConnection.date,
+                value: createdAfterDate
+            }
+        ], startingResultPosition, maxResults),
+        function(err, results) {
+            if(!err)
+            {
+                var getVersionDetails = function(result, callback){
+                    ArchivedResource.findByUri(result.version, function(err, result){
+                        if(!err)
+                        {
+                            result.getDetailedInformation(function(err, versionWithDetailedInfo)
+                            {
+                                callback(err, versionWithDetailedInfo);
+                            });
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
+                    });
+                };
+
+                async.map(results, getVersionDetails, function(err, fullVersions){
+                    callback(err, fullVersions);
+                })
+            }
+            else
+            {
+                callback(1, "Error fetching children of project root folder");
+            }
+        });
 };
 
 Project.prototype.getRecentProjectWideChanges = function(callback, startingResultPosition, maxResults)
@@ -1181,7 +1435,35 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         });
 };
 
+Project.prototype.findMetadata = function(callback)
+{
+    var self = this;
 
+    self.getPropertiesFromOntologies(
+        Ontology.getPublicOntologiesUris(),
+        function(err, descriptors)
+        {
+            callback(err,
+                {
+                    descriptors : descriptors,
+                    title : self.dcterms.title
+                }
+            );
+        }
+    );
+}
+
+Project.prototype.findMetadataOfRootFolder = function(callback)
+{
+    var self = this;
+    var rootFolder = self.ddr.rootFolder;
+
+    var rootFolder = new Folder({
+        uri : rootFolder
+    })
+
+    rootFolder.findMetadata(callback);
+}
 
 /**
  * Attempts to determine the project of a requested resource based on its uri
@@ -1195,6 +1477,7 @@ Project.getOwnerProjectBasedOnUri = function(requestedResource, callback)
     handle = handle.replace(/\/.*$/,"");
     Project.findByHandle(handle, callback);
 };
+
 
 Project.privacy = function (projectUri, callback) {
     Project.findByUri(projectUri, function (err, project) {
@@ -1495,6 +1778,9 @@ Project.rebaseAllUris = function(structure, newBaseUri)
 
     modifyNode(structure);
 };
+
+
+Project.prefixedRDFType = "ddr:Project";
 
 Project = Class.extend(Project, Resource);
 

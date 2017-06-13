@@ -8,15 +8,15 @@
 </script>
 <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
     <div class="row main-row">
-        <div class="col-md-9 col-sm-7 col-xs-6">
+        <div class="col-lg-9 col-md-9 col-sm-6 col-xs-6">
             <%- include show/breadcrumbs.ejs %>
         </div>
 
         <%
-        if(locals.session != null && locals.session.user != null)
+        if(locals.user != null)
         {
         %>
-            <div class="col-md-3 col-sm-5 col-xs-6">
+            <div class="col-lg-3 col-md-3 col-sm-5 col-xs-6">
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="btn-group">
@@ -94,7 +94,20 @@
                 </script>
             </div>
 
-            <br/>
+            <div class="row ng-hide"
+                 id="file_upload_area"
+                 ng-show="upload_area_visible">
+                <br/>
+
+                <div ng-controller="uploadsCtrl" ng-init="init(get_calling_uri, 'upload_files', 'upload_files_invalid', 'upload_files_successful', upload_callback, 1000)">
+                    <div class="col-xs-12">
+                        <%- include ../uploads/upload_box.ejs %>
+                    </div>
+                    <div class="col-xs-12">
+                        <%- include ../uploads/progress_bars.ejs %>
+                    </div>
+                </div>
+            </div>
 
             <div>
                 <h4>Selection</h4>
@@ -147,52 +160,13 @@
                 </script>
             </div>
 
-            <link rel='stylesheet' href='/js/jQueryFileUpload/css/jquery.fileupload.css'/>
-
-            <div class="row ng-hide" id="file_upload_area" ng-show="upload_area_visible" ng-init="setup_upload_area('#file_upload_area', '#progress')">
-                <!-- The fileinput-button span is used to style the file input field as button -->
-                <div class="col-lg-10">
-                                <span class="btn btn-success fileinput-button">
-                                    <i class="glyphicon glyphicon-plus"></i>
-                                    <span>Select files to upload...</span>
-                                    <!-- The file input field used as target for the file upload widget -->
-                                    <input id="fileupload" type="file" name="files[]" multiple>
-                                </span>
-                </div>
-                <br>
-                <br>
-                <!-- The global progress bar -->
+            <div class="row ng-hide" id="restore_upload_area" ng-show="restore_area_visible" ng-controller="uploadsCtrl" ng-init="init(get_calling_uri)">
                 <div class="col-xs-12">
-                    <div id="progress" class="progress">
-                        <div class="progress-bar progress-bar-success"></div>
-                    </div>
+                    <%- include ../uploads/upload_box.ejs %>
                 </div>
-                <!-- The container for the uploaded files -->
-                <div id="uploaded_files" class="files"></div>
-            </div>
-
-            <div class="row ng-hide" id="restore_upload_area" ng-show="restore_area_visible" ng-init="setup_restore_area('#restore_upload_area', '#progress_restore')">
-                <!-- The fileinput-button span is used to style the file input field as button -->
-                <div class="col-lg-10">
-                                <span class="btn btn-warning fileinput-button">
-                                    <i class="glyphicon glyphicon-plus"></i>
-                                    <span>Select backup package</span>
-                                    <!-- The file input field used as target for the file upload widget -->
-                                    <input id="fileupload" type="file" name="files[]">
-                                </span>
-                </div>
-                <br>
-                <br>
-                <!-- The global progress bar -->
                 <div class="col-xs-12">
-                    <div id="progress_restore" class="progress">
-                        <div class="progress-bar progress-bar-success"></div>
-                    </div>
+                    <%- include ../uploads/progress_bars.ejs %>
                 </div>
-                <!-- The container for the uploaded files -->
-                <div id="uploaded_files" class="files"></div>
-                <br>
-                <br>
             </div>
 
             <div class="row">
@@ -208,7 +182,7 @@
                 <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
                     <li class="active">
                         <a href="#metadata-editor" data-toggle="tab" ng-click="load_metadata()">
-                            About <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}" onerror="noIcon(this);"/> {{get_calling_uri_filename()}}
+                            About <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_calling_uri_filename()}}
                         </a>
                     </li>
                     <li>
@@ -286,37 +260,7 @@
                 </div>
 
         <div class="col-md-3 col-xs-12 col-sm-12" id="improvements" ng-show="showing_descriptor_selection_area()" ng-controller="descriptorListCtrl" ng-init="init()" ng-show="!(shared.multiple_selection_active && file_explorer_selected_something())">
-            <%if(locals.Config.baselines.dublin_core_only)
-            {
-            %>
-                <%if(locals.Config.recommendation.modes.none.active)
-                {
-                %>
-                    <%- include show/descriptor_selection_variants/descriptors_selection_area_dc_non_rec.ejs %>
-                <%
-                } else {
-                %>
-                    <%- include show/descriptor_selection_variants/descriptors_selection_area_dc_rec.ejs %>
-                <%
-                }
-                %>
-            <%
-            } else {
-            %>
-                <%if(locals.Config.recommendation.modes.none.active)
-                {
-                %>
-                    <%- include show/descriptor_selection_variants/descriptors_selection_area_non_rec.ejs %>
-                <%
-                } else {
-                %>
-                    <%- include show/descriptor_selection_variants/descriptors_selection_area_rec.ejs %>
-                <%
-                }
-                %>
-            <%
-            }
-            %>
+            <%- include show/descriptor_selection_variants/descriptors_selection_area_rec.ejs %>
         </div>
 
         <div ng-show="shared.multiple_selection_active && file_explorer_selected_something()" class="panel panel-warning">

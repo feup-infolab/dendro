@@ -1,27 +1,31 @@
 var Config = function() { return GLOBAL.Config; }();
+var RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
 var _ = require('underscore');
 var async = require('async');
 
+var recommendation_mode = RecommendationUtils.getActiveRecommender();
 var recommendation;
 
-if(Config.recommendation.modes.dendro_recommender.active)
+if(recommendation_mode == "dendro_recommender")
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation.js")).shared;
 }
-else if(Config.recommendation.modes.standalone.active)
+else if(recommendation_mode == "standalone")
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
 }
-else if(Config.recommendation.modes.none.active)
+else if(recommendation_mode == "project_descriptors")
+{
+    recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation.js")).shared;
+}
+else if(recommendation_mode == "none")
 {
     recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;
 }
 
 var records = require(Config.absPathInSrcFolder("/controllers/records.js"));
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 
 exports.metadata_evaluation = function(req, res)
 {
@@ -62,59 +66,33 @@ exports.shared.evaluate_metadata = function(req, callback)
         }
         else
         {
-            if(Config.baselines.dublin_core_only)
-            {
-                var recommendationOntologies = [Ontology.allOntologies['dcterms'].uri];
-            }
-            else if(req.session.recommendation != null && req.session.recommendation.ontologies.ontologies != null)
+            if(req.session.recommendation != null && req.session.recommendation.ontologies.ontologies != null)
             {
                 var recommendationOntologies = req.session.recommendation.ontologies.ontologies;
             }
 
-            if(Config.baselines.dublin_core_only && Config.recommendation.modes.none.active)
-            {
-                Descriptor.DCElements(function(err, descriptors)
+            recommendation.recommend_descriptors(
+                requestedResource.uri,
+                req.user.uri,
+                0,
+                recommendationOntologies,
+                req.index, function(err, descriptors)
                 {
-                    for(var i = 0; i < descriptors.length; i++)
+                    if (!err)
                     {
-                        //all elements will have the same score (No difference in importance)
-                        descriptors[i].score = 1;
-                        var dc_element_forced_rec_type = Descriptor.recommendation_types.dc_element_forced.key;
-
-                        if(descriptors[i].recommendation_types == null)
-                        {
-                            descriptors[i].recommendation_types = {};
-                        }
-
-                        descriptors[i].recommendation_types[dc_element_forced_rec_type] = true;
+                        callback(null, descriptors);
                     }
-
-                    callback(null, descriptors);
+                    else
+                    {
+                        callback(1, "Unable to retrieve metadata recommendations for uri: " + requestedResource.uri + ". Error reported : " + err + " Full Error : " + JSON.stringify(descriptors));
+                    }
+                },
+                {
+                    favorites : includeOnlyFavorites,
+                    smart : smartRecommendationMode,
+                    page_number : req.query.page_number,
+                    page_size : req.query.page_size
                 });
-            }
-            else
-            {
-                recommendation.recommend_descriptors(
-                    requestedResource.uri,
-                    req.session.user.uri,
-                    0,
-                    recommendationOntologies,
-                    req.index, function(err, descriptors)
-                    {
-                        if (!err)
-                        {
-                            callback(null, descriptors);
-                        }
-                        else
-                        {
-                            callback(1, "Unable to retrieve metadata recommendations for uri: " + requestedResource.uri + ". Error reported : " + err + " Full Error : " + JSON.stringify(descriptors));
-                        }
-                    },
-                    {
-                        favorites : includeOnlyFavorites,
-                        smart : smartRecommendationMode
-                    });
-            }
         }
     };
 
@@ -179,7 +157,7 @@ exports.shared.evaluate_metadata = function(req, callback)
         return metadata_evaluation;
     };
 
-    Resource.findByUri(requestedResourceURI, function (err, requestedResource)
+    var calculateQuality = function(err, requestedResource)
     {
         if (!err)
         {
@@ -229,5 +207,15 @@ exports.shared.evaluate_metadata = function(req, callback)
         {
             callback(1, "Error "+err+" fetching metadata for resource " + requestedResourceURI + ": " + requestedResource);
         }
-    });
+    }
+
+
+    if(req.params.is_project_root)
+    {
+        Project.findByUri(requestedResourceURI, calculateQuality);
+    }
+    else
+    {
+        InformationElement.findByUri(requestedResourceURI, calculateQuality);
+    }
 };

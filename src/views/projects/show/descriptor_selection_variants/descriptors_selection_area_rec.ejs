@@ -30,6 +30,7 @@
 
 <div ng-switch="descriptor_selection_mode">
     <div id="manual_descriptor_selection" ng-switch-when="manual">
+
         <div ng-show="manually_selected_ontology == null">
             <br/>
             <div class="row">
@@ -170,7 +171,7 @@
             <br/>
         </div>
     </div>
-
+    </div>
 
     <div id="recommendation_based_descriptor_selection" ng-switch-when="recommendation">
         <div id="recommendations_mode">

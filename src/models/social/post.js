@@ -1,7 +1,8 @@
 var Config = function() { return GLOBAL.Config; }();
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
-var uuid = require('node-uuid');
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var uuid = require('uuid');
 
 var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
@@ -26,6 +27,8 @@ function Post (object)
     self.copyOrInitDescriptors(object);
 
     self.rdf.type = "ddr:Post";
+
+    self.ddr.numLikes = 0;
 
     return self;
 }

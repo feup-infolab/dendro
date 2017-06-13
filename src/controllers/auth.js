@@ -1,10 +1,18 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function() { return GLOBAL.Config; }();
 
-var db = function() { return GLOBAL.db.default; }();
+const db = function() { return GLOBAL.db.default; }();
 
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
-module.exports.login = function(req, res){
+const async = require('async');
+
+
+
+module.exports.login = function(req, res, next){
+
+    const acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(req.originalMethod == "GET")
     {
@@ -16,107 +24,71 @@ module.exports.login = function(req, res){
         var alphaNumericTest = new RegExp(/^[a-zA-Z0-9_]+$/);
         if(req.body.username != null && alphaNumericTest.test(req.body.username))
         {
-            User.findByUsername(req.body.username,
-                function(err, user) {
+            req.passport.authenticate(
+                'local',
+                {
+                    successRedirect: '/user/me',
+                    failureRedirect: '/login',
+                    failureFlash: true
+                },
+                function(err, user, info)
+                {
                     if(!err)
                     {
-                        if( user != null )
-                        {
-                            var crypto = require('crypto'),
-                                shasum = crypto.createHash('sha1');
-
-                            shasum.update(req.body.password);
-                            var encodedPassword = shasum.digest('hex');
-
-                            var acceptsHTML = req.accepts('html');
-                            var acceptsJSON = req.accepts('json');
-
-                            if(user.ddr.password == encodedPassword)
+                        req.logIn(user, function(err) {
+                            if (!err)
                             {
-                                req.session.user = user;
+                                req.session.isAdmin = info.isAdmin;
+                                req.session.upload_manager = new UploadManager(user.ddr.username);
 
-                                user.isAdmin(function(err, isAdmin){
-                                    if(!err)
-                                    {
-                                        req.session.isAdmin = isAdmin;
-
-                                        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
-                                        {
-                                            res.json(
-                                                {
-                                                    result : "ok",
-                                                    message : "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + "."
-                                                }
-                                            );
-                                        }
-                                        else
-                                        {
-                                            req.flash('success', "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
-                                            console.log("User " + req.body.username + " signed in.");
-                                            res.redirect('/projects/my');
-                                        }
-                                    }
-                                    else
-                                    {
-                                        res.json(
-                                            {
-                                                result : "error",
-                                                message : "Error occurred when checking if user " + user.ddr.username + " is an administrator. Error reported: " + JSON.stringify(isAdmin)
-                                            }
-                                        );
-                                    }
-                                });
-                            }
-                            else
-                            {
                                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                                 {
-                                    res.status(401).json(
+                                    res.json(
                                         {
-                                            result : "error",
-                                            message : "Invalid username/password combination."
+                                            result : "ok",
+                                            message : "User " + user.ddr.username+ " signed in."
                                         }
                                     );
                                 }
                                 else
                                 {
-                                    res.render('auth/login',
+                                    req.flash('success', "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
+                                    console.log("User " + user.ddr.username + " signed in.");
+                                    res.redirect('/projects/my');
+                                }
+                            }
+                            else
+                            {
+                                if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                                {
+                                    res.json(
                                         {
-                                            title : 'Error Logging in',
-                                            error_messages: [
-                                                "Invalid username/password combination"
-                                            ]
+                                            result : "error",
+                                            message : "Error signing in user",
+                                            error : err
                                         }
                                     );
                                 }
-                            }
-                        }
-                        else
-                        {
-                            res.render('auth/login',
+                                else
                                 {
-                                    title : 'Error Logging in',
-                                    error_messages :
-                                        [
-                                            "Non-existent user " + req.body.username
-                                        ]
+                                    req.flash('success', "There was an error signing you in.");
+                                    console.log("Error signing in user " + JSON.stringify(err));
+                                    throw err;
                                 }
-                            );
-                        }
+                            }
+                        });
                     }
                     else
                     {
-                        res.render('auth/login',
+                        res.status(401).json(
                             {
-                                title : 'Error Logging in',
-                                error_messages :
-                                    [
-                                        "Error accessing user data " + user
-                                    ]
+                                result : "error",
+                                message : err
                             }
                         );
                     }
-            });
+                }
+            )(req, res, next);
         }
         else
         {
@@ -134,105 +106,251 @@ module.exports.login = function(req, res){
 };
 
 module.exports.logout = function(req, res){
-    req.session.user = null;
 
-    req.flash('success', "Successfully logged out");
+    if(req.user != null)
+    {
+        req.logOut();
+        delete req.user;
+        delete req.session.isAdmin;
+        delete req.session.upload_manager;
+        delete res.locals.user;
+        delete res.locals.session;
 
-    console.log("Redirecting...");
-    res.redirect('/');
-
+        req.flash("success", "Successfully logged out");
+        res.redirect('/');
+    }
+    else
+    {
+        req.flash("error", "Cannot log you out because you are not logged in");
+        res.redirect('/');
+    }
 };
 
 module.exports.register = function(req, res){
+    const acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
-    if(req.originalMethod == "GET")
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        res.render('auth/register',
+        res.status(405).json(
             {
-                title : "Register on Dendro"
+                result : "error",
+                message : "This function is not yet available via the JSON API. You need to register at " + Config.host + " ."
             }
         );
     }
-    else if (req.originalMethod == "POST")
+    else
     {
-        if(req.body.username != null && !req.body.username.match(/^[0-9a-z]+$/))
+        if(req.originalMethod == "GET")
         {
             res.render('auth/register',
                 {
-                    title: "Register on Dendro",
-                    error_messages: ["Username can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : johndoe91. Invalid: johndoe 01, johndoe*01, john@doe, john%doe9$ "]
+                    title : "Register on Dendro"
                 }
             );
         }
-        else
+        else if (req.originalMethod == "POST")
         {
-            User.findByUsername(req.body.username, function(err, user){
-                if(!err)
-                {
-                    if(user != null)
+            if(req.body.username == null)
+            {
+                res.render('auth/register',
                     {
-                        res.render('auth/register',
-                            {
-                                title : "Register on Dendro",
-                                error_messages: ["Username already exists"]
-                            }
-                        );
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your username"]
                     }
-                    else
+                );
+            }
+            else if(req.body.email == null)
+            {
+                res.render('auth/register',
                     {
-                        if(req.body.password == req.body.repeat_password)
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your email"]
+                    }
+                );
+            }
+            else if(req.body.password == null)
+            {
+                res.render('auth/register',
+                    {
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your password"]
+                    }
+                );
+            }
+            else if(req.body.repeat_password == null)
+            {
+                res.render('auth/register',
+                    {
+                        title: "Register on Dendro",
+                        error_messages: ["Please repeat your password"]
+                    }
+                );
+            }
+            else if(req.body.firstname == null)
+            {
+                res.render('auth/register',
+                    {
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your first name"]
+                    }
+                );
+            }
+            else if(req.body.surname == null)
+            {
+                res.render('auth/register',
+                    {
+                        title: "Register on Dendro",
+                        error_messages: ["Please specify your surname"]
+                    }
+                );
+            }
+            else if(req.body.username != null && !req.body.username.match(/^[0-9a-zA-Z]+$/))
+            {
+                res.render('auth/register',
+                    {
+                        title: "Register on Dendro",
+                        error_messages: ["Username can not include spaces or special characters. It should only include letters (a to Z) and numbers (0 to 9). Valid : joHNdoe91. Invalid: johndoe 01, johndoe*01, john@doe, john%doe9$ "]
+                    }
+                );
+            }
+            else
+            {
+                const findByUsername = function(callback)
+                {
+                    User.findByUsername(req.body.username, function(err, user){
+                        if(!err)
                         {
-                            var userData = {
-                                ddr : {
-                                    username : req.body.username,
-                                    password : req.body.password
-                                },
-                                foaf: {
-                                    mbox : req.body.email,
-                                    firstName : req.body.firstname,
-                                    surname : req.body.surname
-                                }
-                            };
-
-                            User.createAndInsertFromObject(userData, function(err, newUser){
-                                if(!err)
+                            if(user != null)
+                            {
+                                callback(1, "Username already exists");
+                            }
+                            else
+                            {
+                                if(req.body.password == req.body.repeat_password)
                                 {
-                                    req.session.user = newUser;
-                                    req.flash('success', "New user " + req.body.username +" created successfully");
-                                    var messages = req.flash('info');
-                                    res.redirect('/projects/my');
+                                    const userData = {
+                                        ddr : {
+                                            username : req.body.username,
+                                            password : req.body.password
+                                        },
+                                        foaf: {
+                                            mbox : req.body.email,
+                                            firstName : req.body.firstname,
+                                            surname : req.body.surname
+                                        }
+                                    };
+
+                                    callback(null, userData);
                                 }
                                 else
                                 {
-                                    res.render('index',
-                                        {
-                                            error_messages: [newUser]
-                                        }
-                                    );
+                                    callback(1, "Passwords do not match");
                                 }
-
-                            });
+                            }
                         }
                         else
                         {
-                            res.render('auth/register',
-                                {
-                                    title : "Register on Dendro",
-                                    error_messages: ["Passwords do not match"]
-                                }
-                            );
+                            callback(1, user);
                         }
-                    }
-                }
-                else
+                    });
+                };
+
+                const findByORCID = function(callback)
                 {
-                    res.render('auth/register',
+                    User.findByORCID(req.body.orcid, function(err, user){
+                        if(!err)
                         {
-                            error_messages: [user]
+                            if(user != null)
+                            {
+                                callback(1, "User with that ORCID already exists");
+                            }
+                            else
+                            {
+                                if(req.body.password == req.body.repeat_password)
+                                {
+                                    const userData = {
+                                        ddr : {
+                                            username : req.body.username,
+                                            password : req.body.password,
+                                            orcid : req.body.orcid
+                                        },
+                                        foaf: {
+                                            mbox : req.body.email,
+                                            firstName : req.body.firstname,
+                                            surname : req.body.surname
+                                        }
+                                    };
+
+                                    callback(null, userData);
+                                }
+                                else
+                                {
+                                    callback(1, "Passwords do not match");
+                                }
+                            }
                         }
-                    );
-                }
-            });
+                        else
+                        {
+                            callback(1, user);
+                        }
+                    });
+                };
+
+                const insertUserRecord = function(userData, callback)
+                {
+                    User.createAndInsertFromObject(userData, function(err, newUser){
+                        if(!err)
+                        {
+                            callback(null, "New user " + userData.ddr.username +" created successfully. You can now login with the username and password you specified.");
+                        }
+                        else
+                        {
+                            callback(1, newUser);
+                        }
+
+                    });
+                };
+
+                async.waterfall([
+                    function(cb)
+                    {
+                        if(req.body.orcid != null)
+                        {
+                            findByORCID(cb);
+                        }
+                        else
+                        {
+                            findByUsername(cb);
+                        }
+                    },
+                    function(user, cb)
+                    {
+                        if(user != null)
+                        {
+                            insertUserRecord(user, cb);
+                        }
+                        else
+                        {
+                            cb(1, user);
+                        }
+
+                    }
+                ], function(err, user){
+                    if(!err)
+                    {
+                        res.render('/login', {
+                            success_messages : [user]
+                        });
+                    }
+                    else
+                    {
+                        
+                    }
+
+
+                });
+            }
         }
     }
 };
