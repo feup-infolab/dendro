@@ -79,7 +79,7 @@ ArchivedResource.findByUri = function(uri, callback)
 {
     ArchivedResource.baseConstructor.findByUri(uri, function(err, archivedResource)
     {
-        if(!err)
+        if(!err && !isNull(archivedResource))
         {
             Change.findByAssociatedRevision(uri, function(err, changes)
             {

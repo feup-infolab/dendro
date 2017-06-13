@@ -475,17 +475,22 @@ Descriptor.removeUnauthorizedFromObject = function(object, excludedDescriptorTyp
 {
     if(!isNull(object))
     {
-        const authorizedDescriptors = Descriptor.getAuthorizedDescriptors(excludedDescriptorTypes, exceptionedDescriptorTypes);
-
         for (let prefix in Elements)
         {
             if(!isNull(object[prefix]))
             {
                 for(let shortName in Elements[prefix])
                 {
-                    if(!isNull(object[prefix][shortName]) && !authorizedDescriptors[prefix][shortName])
+                    if(Elements.hasOwnProperty(prefix) && Elements[prefix].hasOwnProperty(shortName))
                     {
-                        delete object[prefix][shortName];
+                        if(!isNull(object[prefix][shortName]) && !Descriptor.isAuthorized(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes))
+                        {
+                            if(Config.debug.descriptors.log_descriptor_filtering_operations)
+                            {
+                                console.log("Removing descriptor " + prefix +":" + shortName + " because excluded descriptor types are " + JSON.stringify(excludedDescriptorTypes) + " and exceptioned descriptor types are " + JSON.stringify(exceptionedDescriptorTypes));
+                            }
+                            delete object[prefix][shortName];
+                        }
                     }
                 }
             }
@@ -497,94 +502,106 @@ Descriptor.removeUnauthorizedFromObject = function(object, excludedDescriptorTyp
     }
 };
 
-Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
+Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
-    /**TODO make this more efficient**/
-    const self = this;
-
     if(isNull(excludedDescriptorTypes))
-    {
         return true;
-    }
     else
     {
-        const authorizedDescriptors = Descriptor.getAuthorizedDescriptors(excludedDescriptorTypes, exceptionedDescriptorTypes);
+        const _ = require('underscore');
+        const sortedExcluded = excludedDescriptorTypes.sort();
+        const sortedExceptioned = exceptionedDescriptorTypes.sort();
 
-        if(typeof authorizedDescriptors[self.prefix][self.shortName] === true)
+        const sum = require('hash-sum');
+        const excludedHash = sum(sortedExcluded);
+        const exceptionedHash = sum(sortedExceptioned);
+
+        if(isNull(Descriptor.excludedDescriptors))
         {
-            return true;
+            Descriptor.excludedDescriptors = {};
         }
-        else if(typeof authorizedDescriptors[self.prefix][self.shortName] === false)
+
+        if(isNull(Descriptor.exceptionedDescriptors))
         {
-            return false;
+            Descriptor.exceptionedDescriptors = {};
         }
-        else if(isNull(authorizedDescriptors[self.prefix]))
-        {
-            return true;
-        }
-        else
-        {
-            return true;
-        }
-    }
-};
 
-Descriptor.getAuthorizedDescriptors = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
-{
-    const authorizedDescriptors = {};
-    for (let prefix in Elements)
-    {
-        authorizedDescriptors[prefix] = {};
+        const getDescriptorsOfType = function (type) {
+            const descriptorsOfType = {};
 
-        for(let shortName in Elements[prefix])
-        {
-            authorizedDescriptors[prefix][shortName] = false;
+            for (let prefix in Elements) {
+                for (let shortName in Elements[prefix]) {
+                    if (!isNull(Elements[prefix]) && !isNull(Elements[prefix][shortName])) {
+                        let descriptor = Elements[prefix][shortName];
+                        if (descriptor[type]) {
+                            if (isNull(descriptorsOfType[type]))
+                                descriptorsOfType[type] = {};
+                            if (isNull(descriptorsOfType[type][prefix]))
+                                descriptorsOfType[type][prefix] = {};
 
-            let excluded = false;
-            let exceptioned = false;
-
-            const descriptor = new Descriptor({
-                prefix: prefix,
-                shortName: shortName
-            });
-
-            if(!isNull(exceptionedDescriptorTypes))
-            {
-                for(var i = 0; i < exceptionedDescriptorTypes.length; i++)
-                {
-                    const exceptionedType = exceptionedDescriptorTypes[i];
-
-                    if(descriptor[exceptionedType])
-                    {
-                        exceptioned = true;
-                    }
-                }
-            }
-
-            if(!isNull(excludedDescriptorTypes))
-            {
-                if(!exceptioned)
-                {
-                    for(var i = 0; i < excludedDescriptorTypes.length; i++)
-                    {
-                        const excludedType = excludedDescriptorTypes[i];
-
-                        if(Ontology.allOntologies[prefix][excludedType] || descriptor[excludedType])
-                        {
-                            excluded = true;
+                            descriptorsOfType[type][prefix][shortName] = true;
                         }
                     }
                 }
             }
 
-            if(!excluded || exceptioned)
-            {
-                authorizedDescriptors[prefix][shortName] = true;
-            }
-        }
-    }
+            return descriptorsOfType;
+        };
 
-    return authorizedDescriptors;
+        if(isNull(Descriptor.exceptionedDescriptors[exceptionedHash]))
+        {
+            let allExceptioned = {};
+            for(let i = 0; i < exceptionedDescriptorTypes.length; i++)
+            {
+                let descriptorsOfExceptionedType = getDescriptorsOfType(exceptionedDescriptorTypes[i]);
+                Object.assign(allExceptioned, descriptorsOfExceptionedType);
+            }
+
+            Descriptor.exceptionedDescriptors[exceptionedHash] = allExceptioned;
+        }
+
+        if(isNull(Descriptor.excludedDescriptors[excludedHash]))
+        {
+            let allExcluded = {};
+            for(let i = 0; i < excludedDescriptorTypes.length; i++)
+            {
+                let descriptorsOfExcludedType = getDescriptorsOfType(excludedDescriptorTypes[i]);
+                Object.assign(allExcluded, descriptorsOfExcludedType);
+            }
+
+            Descriptor.excludedDescriptors[excludedHash] = allExcluded;
+        }
+
+        const existsInMap = function (map, prefix, shortName)
+        {
+            return      !isNull(Descriptor.exceptionedDescriptors)
+                    &&  !isNull(Descriptor.exceptionedDescriptors[exceptionedHash])
+                    &&  !isNull(Descriptor.exceptionedDescriptors[exceptionedHash][prefix])
+                    &&  !isNull(Descriptor.exceptionedDescriptors[exceptionedHash][prefix][shortName]);
+        };
+
+        if(existsInMap(Descriptor.exceptionedDescriptors, prefix, shortName))
+            return true;
+        else if(existsInMap(Descriptor.excludedDescriptors, prefix, shortName))
+        {
+            if(Config.debug.descriptors.log_descriptor_filtering_operations)
+            {
+                console.log("Removing descriptor " + prefix +":" + shortName + " because excluded descriptor types are " + JSON.stringify(excludedDescriptorTypes) + " and exceptioned descriptor types are " + JSON.stringify(exceptionedDescriptorTypes));
+            }
+            return false;
+        }
+        else
+            return true;
+    }
+};
+
+Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
+{
+    const self = this;
+    const prefix = self.prefix;
+    const shortName = self.shortName;
+    
+    return Descriptor.isAuthorized(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes);
 };
 
 Descriptor.prototype.getNamespacePrefix = function()

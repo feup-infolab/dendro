@@ -152,14 +152,12 @@ Config.recommendation.getTargetTable = function()
 {
     if(Config.recommendation.modes.dendro_recommender.log_modes.phase_1.active)
     {
-        var targetTable = Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
+        return Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
     }
     else if(Config.recommendation.modes.dendro_recommender.log_modes.phase_2.active)
     {
-        var targetTable = Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
+        return Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
     }
-
-    return targetTable;
 };
 
 Config.exporting = getConfigParameter("exporting");

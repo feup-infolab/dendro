@@ -634,7 +634,7 @@ Elements.ddr = {
         control : Config.controls.input_box,
         private : true,
         locked : true,
-        api_accessible : true
+        api_readable : true
     },
     handle :  {
         type : DbConnection.string,

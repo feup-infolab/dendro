@@ -409,51 +409,60 @@ exports.show_version = function(req, res) {
         const requestedResourceURI = req.params.requestedResource;
         const requestedVersion = req.query.version;
 
-        Resource.findByUri(requestedResourceURI, function(err, resource)
-        {
-            if(!err)
+        if(!isNull(req.query.version) && typeof req.query.version === "string") {
+            Resource.findByUri(requestedResourceURI, function(err, resource)
             {
-                if(!isNull(resource))
+                if(!err)
                 {
-                    ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
-                        if(err)
-                        {
-                            const error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI + ". Error retrieved : " + version;
-                            console.error(error);
-                            res.status(500).json({
-                                result : "Error",
-                                message : error
-                            });
-                        }
-                        else
-                        {
-                            const descriptors = version.getDescriptors([Config.types.locked], [Config.types.api_readable]);
-                            res.json({
-                                descriptors : descriptors
-                            });
-                        }
-                    });
+                    if(!isNull(resource))
+                    {
+                        ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
+                            if(err)
+                            {
+                                const error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI + ". Error retrieved : " + version;
+                                console.error(error);
+                                res.status(500).json({
+                                    result : "Error",
+                                    message : error
+                                });
+                            }
+                            else
+                            {
+                                let descriptors = version.getDescriptors([Config.types.locked], [Config.types.api_readable]);
+                                res.json({
+                                    descriptors : descriptors
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        var error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI;
+                        console.error(error);
+                        res.status(500).json({
+                            result : "Error",
+                            message : error
+                        });
+                    }
                 }
                 else
                 {
-                    var error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI;
+                    var error = "Unable to retrieve resource with uri : " + req.params.requestedResource + ". Error retrieved : " + resource;
                     console.error(error);
                     res.status(500).json({
                         result : "Error",
                         message : error
                     });
                 }
-            }
-            else
-            {
-                var error = "Unable to retrieve resource with uri : " + req.params.requestedResource + ". Error retrieved : " + resource;
-                console.error(error);
-                res.status(500).json({
-                    result : "Error",
-                    message : error
-                });
-            }
-        });
+            });
+        }
+        else
+        {
+            res.status(405).json({
+                result: "error",
+                message : "Revision must be an integer"
+            });
+        }
     }
 };
 

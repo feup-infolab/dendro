@@ -43,7 +43,7 @@ describe("Public project testFolder1 level ?version", function () {
             });
         });
 
-        it("Should the version information if the user is unauthenticated", function (done) {
+        it("Should show the version information if the user is unauthenticated", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
 

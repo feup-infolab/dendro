@@ -334,7 +334,7 @@ exports.all = function(req, res) {
             {
                 for(let i = 0; i < externalRepositories.length; i++)
                 {
-                    Descriptor.removeUnauthorizedFromObject([Config.types.private, Config.types.audit], [Config.types.api_readable]);
+                    Descriptor.removeUnauthorizedFromObject(externalRepositories[i],[Config.types.private, Config.types.audit], [Config.types.api_readable]);
                 }
 
                 res.json(externalRepositories);

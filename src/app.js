@@ -160,6 +160,11 @@ if(!isNull(Config.logging))
         },
         function(cb)
         {
+            if(Config.logging.log_all_requests)
+            {
+                app.use(morgan('combined'));
+            }
+
             if (Config.logging.log_request_times && typeof Config.logging.request_times_log_folder !== "undefined")
             {
                 const absPath = Config.absPathInApp(Config.logging.app_logs_folder);

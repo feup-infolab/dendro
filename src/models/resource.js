@@ -1812,24 +1812,25 @@ Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptor
 {
     const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;
-    const descriptorsArray = [];
+    let descriptorsArray = [];
 
-    for (let prefix in Elements)
+    const prefixes = Object.keys(Elements);
+    for (let i = 0; i < prefixes.length; i++)
     {
-        for(let shortName in Elements[prefix])
-        {
-            if(!isNull(self[prefix]))
-            {
-                var descriptorValue = self[prefix][shortName];
-            }
+        let prefix = prefixes[i];
+        const elements = Object.keys(Elements[prefix]);
 
-            if(!isNull(descriptorValue))
+        for (let j = 0; j < elements.length; j++)
+        {
+            const element = elements[j];
+
+            if(self[prefix] !== null && !isNull(self[prefix][element]))
             {
                 const newDescriptor = new Descriptor(
                     {
                         prefix: prefix,
-                        shortName: shortName,
-                        value: descriptorValue
+                        shortName: element,
+                        value: self[prefix][element]
                     }
                 );
 

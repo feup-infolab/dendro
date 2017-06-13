@@ -160,7 +160,7 @@ var getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, c
 
 var getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVersion, cb) {
     // /project/:handle/data/foldername?version
-    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?version';
+    var path = '/project/' + projectHandle +'/data/'+ itemPath;
     if(jsonOnly)
     {
         agent
