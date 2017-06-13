@@ -178,6 +178,82 @@ Post.buildManualPost = function (project, creatorUri, postContent, callback) {
     callback(null, newPost);
 };
 
+Post.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval) {
+    var self = this;
+
+    var getFromTripleStore = function(uri, callback, customGraphUri)
+    {
+        var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+
+        if (uri instanceof Object && uri.uri != null)
+        {
+            uri = uri.uri;
+        }
+
+        if (allowedGraphsArray != null && allowedGraphsArray instanceof Array)
+        {
+            var ontologiesArray = allowedGraphsArray;
+        }
+        else
+        {
+            var ontologiesArray = Ontology.getAllOntologiesUris();
+        }
+
+        Post.exists(uri, function(err, exists){
+            if(!err)
+            {
+                if(exists)
+                {
+                    var post = Object.create(self.prototype);
+                    //initialize all ontology namespaces in the new object as blank objects
+                    // if they are not already present
+
+                    post.uri = uri;
+
+                    /**
+                     * TODO Handle the edge case where there is a resource with the same uri in different graphs in Dendro
+                     */
+                    post.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject)
+                    {
+                        if (!err)
+                        {
+                            post.baseConstructor(loadedObject);
+                            callback(null, post);
+                        }
+                        else
+                        {
+                            var msg = "Error " + post + " while trying to retrieve post with uri " + uri + " from triple store.";
+                            console.error(msg);
+                            callback(1, msg);
+                        }
+                    }, customGraphUri);
+                }
+                else
+                {
+                    if(Config.debug.resources.log_missing_resources)
+                    {
+                        var msg = uri + " does not exist in Dendro.";
+                        console.log(msg);
+                    }
+
+                    callback(0, null);
+                }
+            }
+            else
+            {
+                var msg = "Error " + exists + " while trying to check existence of post with uri " + uri + " from triple store.";
+                console.error(msg);
+                callback(1, msg);
+            }
+        }, customGraphUri);
+    };
+
+
+    getFromTripleStore(uri, function(err, result){
+        callback(err, result);
+    }, customGraphUri);
+};
+
 Post.prefixedRDFType = "ddr:Post";
 
 Post = Class.extend(Post, Event);
