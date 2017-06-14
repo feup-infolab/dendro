@@ -1011,7 +1011,6 @@ Elements.ddr = {
         locked : true,
         control : Config.controls.input_box
     },
-<<<<<<< HEAD
     lastSavedBy :
         {
             type : DbConnection.resourceNoEscape,
@@ -1019,8 +1018,7 @@ Elements.ddr = {
             locked : true,
             private : true,
             control : Config.controls.input_box
-        }
-=======
+        },
     salt :
     {
         type : DbConnection.string,
@@ -1056,7 +1054,7 @@ Elements.ddr = {
         private : true,
         locked : true,
     }
->>>>>>> master
+
 };
 
 /**

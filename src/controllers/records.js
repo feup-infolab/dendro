@@ -76,6 +76,7 @@ exports.show_deep = function(req, res) {
         }
     }
 };
+
 exports.show = function(req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
@@ -123,7 +124,6 @@ exports.show = function(req, res) {
         });
     }
 };
-
 
 exports.show_parent = function(req, res) {
     var acceptsHTML = req.accepts('html');
@@ -287,244 +287,11 @@ exports.update = function(req, res) {
                                 }
 
                                 resource.replaceDescriptors(fusedDescriptors, [Config.types.locked, Config.types.private], []);
-
+                                resource.ddr.lastSavedBy=changeAuthor;
                                 resource.save(function(err, record)
                                 {
-
-
                                     if(!err)
                                     {
-<<<<<<< HEAD
-                                        if(req.session.user != null)
-                                        {
-                                            var changeAuthor = req.session.user.uri;
-                                        }
-                                        else
-                                        {
-                                            var changeAuthor = null;
-                                        }
-
-                                        if(!itsAProject)
-                                        {
-                                            resource.replaceDescriptorsInMemory(
-                                                fusedDescriptors,
-                                                [Config.types.locked]
-                                            );
-                                        }
-                                        else
-                                        {
-                                            resource.replaceDescriptorsInMemory(
-                                                fusedDescriptors,
-                                                [Config.types.locked, Config.types.locked_for_project]
-                                            );
-                                        }
-
-
-                                        resource.ddr.lastSavedBy=changeAuthor;
-                                        resource.save(function(err, record)
-                                        {
-                                            if(!err)
-                                            {
-                                                async.waterfall([function(callback)
-                                                    {
-                                                        User.findByUri(changeAuthor, function (err, user){
-                                                            if(!err)
-                                                            {
-                                                                if (user == null) {
-                                                                    //everything ok, user simply does not exist
-                                                                    callback(null);
-                                                                }
-                                                                else
-                                                                {
-                                                                    callback(null,user);
-                                                                }
-                                                            }
-                                                            else
-                                                            {
-                                                                callback(err);
-                                                            }
-                                                        });
-                                                    },
-                                                        function(user,callback){
-                                                            user.countDescriptors(function (err, descriptorCount) {
-                                                                if(!err)
-                                                                {
-                                                                    callback(null,descriptorCount,user);
-                                                                }
-                                                                else
-                                                                {
-                                                                    callback(err);
-                                                                }
-                                                            });
-                                                        },
-                                                        function(descriptorCount,user,callback){
-                                                            Progress.findByUserAndType(user.uri,"Descriptor",function (err, progress) {
-                                                                if(!err)
-                                                                {
-                                                                    callback(null,descriptorCount,user,progress);
-                                                                }
-                                                                else
-                                                                {
-                                                                    callback(err);
-                                                                }
-                                                            });
-                                                        },
-                                                        function(descriptorCount,user,progress,callback){
-                                                            progress.update(descriptorCount,function (err, result) {
-                                                                if(!err)
-                                                                {
-                                                                    callback(null,user,progress);
-                                                                }
-                                                                else
-                                                                {
-                                                                    callback(err);
-                                                                }
-                                                            });
-                                                        },
-                                                        function(user,progress,callback){
-                                                            MedalType.all(function (err, medaltypes) {
-                                                                if(!err)
-                                                                {
-                                                                    Medal.allByUser(user.ddr.username,function(err,medals)
-                                                                    {
-                                                                        if(!err)
-                                                                        {
-                                                                            callback(null,user,progress,medaltypes,medals);
-                                                                        }
-                                                                        else
-                                                                        {
-
-                                                                        }
-                                                                    });
-
-                                                                }
-                                                                else
-                                                                {
-                                                                    callback(err);
-                                                                }
-                                                            });
-                                                        },
-                                                        function(user,progress,medaltypes,medals,callback){
-                                                            var messages= [];
-                                                            async.map(medaltypes,function(medaltype,cb){
-                                                                if(progress.gm.numActions>=medaltype.gm.numActions && medaltype.gm.objectType=="Descriptor")
-                                                                {
-
-                                                                    var alreadyHave=false;
-                                                                    async.map(medals,function (medal) {
-                                                                        if(medal.gm.hasType==medaltype.uri)
-                                                                        {
-                                                                            alreadyHave=true;
-                                                                        }
-                                                                    },function(err, result) {
-
-                                                                    });
-
-                                                                    if(alreadyHave==false)
-                                                                    {
-                                                                        var medalData = {
-                                                                            gm: {
-                                                                                hasType: medaltype.uri,
-                                                                                belongsTo: user.uri
-                                                                            }
-                                                                        };
-
-                                                                        messages.push("You win a "+medaltype.gm.material+" medal: "+medaltype.dcterms.title);
-
-                                                                        Medal.createAndInsertFromObject(medalData,function(err,insertMedal){
-
-                                                                            if(!err)
-                                                                            {
-
-
-                                                                            }
-                                                                            else
-                                                                            {
-
-                                                                            }
-
-                                                                        });
-
-
-                                                                    }
-                                                                    else
-                                                                    {
-
-                                                                    }
-
-                                                                }
-                                                                cb(null);
-                                                            },function(err, result) {
-                                                                console.log(messages);
-                                                                callback(null,messages);
-                                                            });
-
-
-                                                        },
-                                                        function(messages,callback)
-                                                        {
-
-                                                            record.reindex(req.index, function(err, result)
-                                                            {
-                                                                if(!err)
-                                                                {
-                                                                    //Refresh metadata evaluation
-                                                                    require(Config.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
-                                                                    {
-                                                                        if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
-                                                                        {
-
-                                                                            resource.ddr.metadataQuality = evaluation.metadata_evaluation;
-                                                                            resource.save(function (err, result)
-                                                                            {
-                                                                                if (!err)
-                                                                                {
-                                                                                    res.json({
-                                                                                        result: "OK",
-                                                                                        message: "Updated successfully. ",
-                                                                                        medalmessages: messages,
-                                                                                        new_metadata_quality_assessment: evaluation
-                                                                                    });
-
-
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    res.status(500).json({
-                                                                                        result: "Error",
-                                                                                        message: "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body)
-                                                                                    });
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            res.json({
-                                                                                result: "OK",
-                                                                                message: "Updated successfully. ",
-                                                                                medalmessages: messages,
-                                                                                new_metadata_quality_assessment: evaluation
-                                                                            });
-                                                                        }
-                                                                    });
-                                                                }
-                                                                else
-                                                                {
-                                                                    res.status(500).json({
-                                                                        result : "Error",
-                                                                        message : "Error updating resource : unable to reindex new values. Error reported : " + result
-                                                                    });
-                                                                }
-                                                            });
-                                                            callback(null);
-                                                        }]
-                                                    , function (err, result) {
-                                                        console.log(result);
-                                                    });
-
-
-
-=======
                                         record.reindex(req.index, function(err, result)
                                         {
                                             if(!err)
@@ -540,11 +307,202 @@ exports.update = function(req, res) {
                                                         {
                                                             if (!err)
                                                             {
-                                                                res.json({
-                                                                    result: "OK",
-                                                                    message: "Updated successfully.",
-                                                                    new_metadata_quality_assessment: evaluation
-                                                                });
+                                                                async.waterfall([function(callback)
+                                                                    {
+                                                                        User.findByUri(changeAuthor, function (err, user){
+                                                                            if(!err)
+                                                                            {
+                                                                                if (user == null) {
+                                                                                    //everything ok, user simply does not exist
+                                                                                    callback(null);
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    callback(null,user);
+                                                                                }
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                callback(err);
+                                                                            }
+                                                                        });
+                                                                    },
+                                                                        function(user,callback){
+                                                                            user.countDescriptors(function (err, descriptorCount) {
+                                                                                if(!err)
+                                                                                {
+                                                                                    callback(null,descriptorCount,user);
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    callback(err);
+                                                                                }
+                                                                            });
+                                                                        },
+                                                                        function(descriptorCount,user,callback){
+                                                                            Progress.findByUserAndType(user.uri,"Descriptor",function (err, progress) {
+                                                                                if(!err)
+                                                                                {
+                                                                                    callback(null,descriptorCount,user,progress);
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    callback(err);
+                                                                                }
+                                                                            });
+                                                                        },
+                                                                        function(descriptorCount,user,progress,callback){
+                                                                            progress.update(descriptorCount,function (err, result) {
+                                                                                if(!err)
+                                                                                {
+                                                                                    callback(null,user,progress);
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    callback(err);
+                                                                                }
+                                                                            });
+                                                                        },
+                                                                        function(user,progress,callback){
+                                                                            MedalType.all(function (err, medaltypes) {
+                                                                                if(!err)
+                                                                                {
+                                                                                    Medal.allByUser(user.ddr.username,function(err,medals)
+                                                                                    {
+                                                                                        if(!err)
+                                                                                        {
+                                                                                            callback(null,user,progress,medaltypes,medals);
+                                                                                        }
+                                                                                        else
+                                                                                        {
+
+                                                                                        }
+                                                                                    });
+
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    callback(err);
+                                                                                }
+                                                                            });
+                                                                        },
+                                                                        function(user,progress,medaltypes,medals,callback){
+                                                                            var messages= [];
+                                                                            async.map(medaltypes,function(medaltype,cb){
+                                                                                if(progress.gm.numActions>=medaltype.gm.numActions && medaltype.gm.objectType=="Descriptor")
+                                                                                {
+
+                                                                                    var alreadyHave=false;
+                                                                                    async.map(medals,function (medal) {
+                                                                                        if(medal.gm.hasType==medaltype.uri)
+                                                                                        {
+                                                                                            alreadyHave=true;
+                                                                                        }
+                                                                                    },function(err, result) {
+
+                                                                                    });
+
+                                                                                    if(alreadyHave==false)
+                                                                                    {
+                                                                                        var medalData = {
+                                                                                            gm: {
+                                                                                                hasType: medaltype.uri,
+                                                                                                belongsTo: user.uri
+                                                                                            }
+                                                                                        };
+
+                                                                                        messages.push("You win a "+medaltype.gm.material+" medal: "+medaltype.dcterms.title);
+
+                                                                                        Medal.createAndInsertFromObject(medalData,function(err,insertMedal){
+
+                                                                                            if(!err)
+                                                                                            {
+
+
+                                                                                            }
+                                                                                            else
+                                                                                            {
+
+                                                                                            }
+
+                                                                                        });
+
+
+                                                                                    }
+                                                                                    else
+                                                                                    {
+
+                                                                                    }
+
+                                                                                }
+                                                                                cb(null);
+                                                                            },function(err, result) {
+                                                                                console.log(messages);
+                                                                                callback(null,messages);
+                                                                            });
+
+
+                                                                        },
+                                                                        function(messages,callback)
+                                                                        {
+
+                                                                            record.reindex(req.index, function(err, result)
+                                                                            {
+                                                                                if(!err)
+                                                                                {
+                                                                                    //Refresh metadata evaluation
+                                                                                    require(Config.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
+                                                                                    {
+                                                                                        if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
+                                                                                        {
+
+                                                                                            resource.ddr.metadataQuality = evaluation.metadata_evaluation;
+                                                                                            resource.save(function (err, result)
+                                                                                            {
+                                                                                                if (!err)
+                                                                                                {
+                                                                                                    res.json({
+                                                                                                        result: "OK",
+                                                                                                        message: "Updated successfully. ",
+                                                                                                        medalmessages: messages,
+                                                                                                        new_metadata_quality_assessment: evaluation
+                                                                                                    });
+
+
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    res.status(500).json({
+                                                                                                        result: "Error",
+                                                                                                        message: "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body)
+                                                                                                    });
+                                                                                                }
+                                                                                            });
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            res.json({
+                                                                                                result: "OK",
+                                                                                                message: "Updated successfully. ",
+                                                                                                medalmessages: messages,
+                                                                                                new_metadata_quality_assessment: evaluation
+                                                                                            });
+                                                                                        }
+                                                                                    });
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    res.status(500).json({
+                                                                                        result : "Error",
+                                                                                        message : "Error updating resource : unable to reindex new values. Error reported : " + result
+                                                                                    });
+                                                                                }
+                                                                            });
+                                                                            callback(null);
+                                                                        }]
+                                                                    , function (err, result) {
+                                                                        console.log(result);
+                                                                    });
                                                             }
                                                             else
                                                             {
@@ -557,14 +515,204 @@ exports.update = function(req, res) {
                                                     }
                                                     else
                                                     {
-                                                        res.json({
-                                                            result: "OK",
-                                                            message: "Updated successfully.",
-                                                            new_metadata_quality_assessment: evaluation
-                                                        });
+                                                        async.waterfall([function(callback)
+                                                            {
+                                                                User.findByUri(changeAuthor, function (err, user){
+                                                                    if(!err)
+                                                                    {
+                                                                        if (user == null) {
+                                                                            //everything ok, user simply does not exist
+                                                                            callback(null);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            callback(null,user);
+                                                                        }
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        callback(err);
+                                                                    }
+                                                                });
+                                                            },
+                                                                function(user,callback){
+                                                                    user.countDescriptors(function (err, descriptorCount) {
+                                                                        if(!err)
+                                                                        {
+                                                                            callback(null,descriptorCount,user);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            callback(err);
+                                                                        }
+                                                                    });
+                                                                },
+                                                                function(descriptorCount,user,callback){
+                                                                    Progress.findByUserAndType(user.uri,"Descriptor",function (err, progress) {
+                                                                        if(!err)
+                                                                        {
+                                                                            callback(null,descriptorCount,user,progress);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            callback(err);
+                                                                        }
+                                                                    });
+                                                                },
+                                                                function(descriptorCount,user,progress,callback){
+                                                                    progress.update(descriptorCount,function (err, result) {
+                                                                        if(!err)
+                                                                        {
+                                                                            callback(null,user,progress);
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            callback(err);
+                                                                        }
+                                                                    });
+                                                                },
+                                                                function(user,progress,callback){
+                                                                    MedalType.all(function (err, medaltypes) {
+                                                                        if(!err)
+                                                                        {
+                                                                            Medal.allByUser(user.ddr.username,function(err,medals)
+                                                                            {
+                                                                                if(!err)
+                                                                                {
+                                                                                    callback(null,user,progress,medaltypes,medals);
+                                                                                }
+                                                                                else
+                                                                                {
+
+                                                                                }
+                                                                            });
+
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            callback(err);
+                                                                        }
+                                                                    });
+                                                                },
+                                                                function(user,progress,medaltypes,medals,callback){
+                                                                    var messages= [];
+                                                                    async.map(medaltypes,function(medaltype,cb){
+                                                                        if(progress.gm.numActions>=medaltype.gm.numActions && medaltype.gm.objectType=="Descriptor")
+                                                                        {
+
+                                                                            var alreadyHave=false;
+                                                                            async.map(medals,function (medal) {
+                                                                                if(medal.gm.hasType==medaltype.uri)
+                                                                                {
+                                                                                    alreadyHave=true;
+                                                                                }
+                                                                            },function(err, result) {
+
+                                                                            });
+
+                                                                            if(alreadyHave==false)
+                                                                            {
+                                                                                var medalData = {
+                                                                                    gm: {
+                                                                                        hasType: medaltype.uri,
+                                                                                        belongsTo: user.uri
+                                                                                    }
+                                                                                };
+
+                                                                                messages.push("You win a "+medaltype.gm.material+" medal: "+medaltype.dcterms.title);
+
+                                                                                Medal.createAndInsertFromObject(medalData,function(err,insertMedal){
+
+                                                                                    if(!err)
+                                                                                    {
+
+
+                                                                                    }
+                                                                                    else
+                                                                                    {
+
+                                                                                    }
+
+                                                                                });
+
+
+                                                                            }
+                                                                            else
+                                                                            {
+
+                                                                            }
+
+                                                                        }
+                                                                        cb(null);
+                                                                    },function(err, result) {
+                                                                        console.log(messages);
+                                                                        callback(null,messages);
+                                                                    });
+
+
+                                                                },
+                                                                function(messages,callback)
+                                                                {
+
+                                                                    record.reindex(req.index, function(err, result)
+                                                                    {
+                                                                        if(!err)
+                                                                        {
+                                                                            //Refresh metadata evaluation
+                                                                            require(Config.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
+                                                                            {
+                                                                                if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
+                                                                                {
+
+                                                                                    resource.ddr.metadataQuality = evaluation.metadata_evaluation;
+                                                                                    resource.save(function (err, result)
+                                                                                    {
+                                                                                        if (!err)
+                                                                                        {
+                                                                                            res.json({
+                                                                                                result: "OK",
+                                                                                                message: "Updated successfully. ",
+                                                                                                medalmessages: messages,
+                                                                                                new_metadata_quality_assessment: evaluation
+                                                                                            });
+
+
+                                                                                        }
+                                                                                        else
+                                                                                        {
+                                                                                            res.status(500).json({
+                                                                                                result: "Error",
+                                                                                                message: "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body)
+                                                                                            });
+                                                                                        }
+                                                                                    });
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    res.json({
+                                                                                        result: "OK",
+                                                                                        message: "Updated successfully. ",
+                                                                                        medalmessages: messages,
+                                                                                        new_metadata_quality_assessment: evaluation
+                                                                                    });
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            res.status(500).json({
+                                                                                result : "Error",
+                                                                                message : "Error updating resource : unable to reindex new values. Error reported : " + result
+                                                                            });
+                                                                        }
+                                                                    });
+                                                                    callback(null);
+                                                                }]
+                                                            , function (err, result) {
+                                                                console.log(result);
+                                                            });
                                                     }
                                                 });
->>>>>>> master
                                             }
                                             else
                                             {
@@ -791,6 +939,5 @@ exports.restore_metadata_version = function(req, res) {
         });
     }
 };
-
 
 

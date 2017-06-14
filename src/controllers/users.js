@@ -1,27 +1,13 @@
-<<<<<<< HEAD
-var Config = require('../models/meta/config.js').Config;
-
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var Medal = require(Config.absPathInSrcFolder("/models/game/medal.js")).Medal;
-var MedalType = require(Config.absPathInSrcFolder("/models/game/medal_type.js")).MedalType;
-var Progress = require(Config.absPathInSrcFolder("/models/game/progress.js")).Progress;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-
-var db = function () {
-    return GLOBAL.db.default;
-}();
-var gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-=======
 const Config = function() { return GLOBAL.Config; }();
 
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+var Medal = require(Config.absPathInSrcFolder("/models/game/medal.js")).Medal;
+var MedalType = require(Config.absPathInSrcFolder("/models/game/medal_type.js")).MedalType;
+var Progress = require(Config.absPathInSrcFolder("/models/game/progress.js")).Progress;
 const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 const db = function() { return GLOBAL.db.default; }();
 const gfs = function() { return GLOBAL.gfs.default; }();
->>>>>>> master
 
 const async = require('async');
 const _ = require('underscore');
@@ -58,40 +44,19 @@ exports.users_autocomplete = function(req, res){
     }
 }
 
-exports.all = function (req, res) {
+exports.all = function(req, res){
 
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
     var viewVars = {
-        title: 'Researchers in the knowledge base'
+        title : 'Researchers in the knowledge base'
     };
 
     viewVars = DbConnection.paginate(req,
         viewVars
     );
 
-<<<<<<< HEAD
-
-    User.all(function (err, users) {
-        if (!err) {
-            users.sort(function(a, b){
-                var keyA = a.gm.score,
-                    keyB = b.gm.score;
-                if(keyA > keyB) return -1;
-                if(keyA < keyB) return 1;
-                return 0;
-            });
-            viewVars.users = users;
-            res.render('users/all',
-                viewVars
-            );
-        }
-        else {
-            viewVars.error_messages = [users];
-            res.render('users/all',
-                viewVars
-=======
     var getUserCount = function(cb)
     {
         User.getCount(function(err, count){
@@ -116,6 +81,13 @@ exports.all = function (req, res) {
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
                     var users = results[1];
+                    users.sort(function(a, b){
+                        var keyA = a.gm.score,
+                            keyB = b.gm.score;
+                        if(keyA > keyB) return -1;
+                        if(keyA < keyB) return 1;
+                        return 0;
+                    });
                     res.json(
                         users
                     );
@@ -124,6 +96,13 @@ exports.all = function (req, res) {
                 {
                     viewVars.count = results[0];
                     viewVars.users = results[1];
+                    viewVars.users.sort(function(a, b){
+                        var keyA = a.gm.score,
+                            keyB = b.gm.score;
+                        if(keyA > keyB) return -1;
+                        if(keyA < keyB) return 1;
+                        return 0;
+                    });
 
                     res.render('users/all',
                         viewVars
@@ -185,112 +164,14 @@ exports.username_exists = function(req, res){
                 {
                     result: "error"
                 }
->>>>>>> master
             );
         }
     }, true);
 };
 
-exports.show = function (req, res) {
+exports.show = function(req, res){
     var username = req.params["username"];
 
-<<<<<<< HEAD
-
-    User.findByUsername(username, function (err, user) {
-        var viewVars = {
-            title: 'Researcher'
-        };
-
-
-        if (err == null) {
-            Medal.allByUser(username, function (err, medals) {
-                if (!err)
-                {
-                    MedalType.all(function (err, medaltypes)
-                    {
-                        if (!err)
-                        {
-                            Progress.findByUserAndType(user.uri,"Project",function (err, progressProject){
-                                if(!err)
-                                {
-                                    Progress.findByUserAndType(user.uri,"Descriptor",function (err, progressDescriptor){
-                                       if(!err)
-                                       {
-                                           Progress.findByUserAndType(user.uri,"Rating",function (err, progressRating){
-                                              if(!err)
-                                              {
-                                                  Progress.findByUserAndType(user.uri,"Signup",function (err, progressSignup){
-                                                      if(!err)
-                                                      {
-                                                          console.log("Progesso no projecto para o utilizador:"+progressProject.gm.numActions);
-                                                          console.log("Progesso nos descritore para o utilizador:"+progressDescriptor.gm.numActions);
-
-                                                          res.render('users/show',
-                                                              {
-                                                                  title: "Viewing user " + username,
-                                                                  user: user,
-                                                                  medals: medals,
-                                                                  medaltypes: medaltypes,
-                                                                  progressProject:progressProject,
-                                                                  progressDescriptor:progressDescriptor,
-                                                                  progressRating:progressRating,
-                                                                  progressSignup:progressSignup
-                                                              }
-                                                          )
-                                                      }
-                                                      else
-                                                      {
-
-                                                      }
-                                                  });
-                                              }
-                                              else
-                                              {
-
-                                              }
-                                           });
-
-                                       }
-                                       else
-                                       {
-
-                                       }
-                                    });
-
-                                }
-                                else
-                                {
-
-                                }
-                                }
-
-                            );
-
-                        }
-                        else
-                        {
-                        }
-                    });
-                }
-
-                else
-                {
-
-                }
-            });
-
-        }
-        else {
-            res.render('users/all',
-                {
-                    title: "Researchers",
-                    error_messages: [
-                        "Unable to retrieve information for user " + username,
-                        err
-                    ]
-                }
-            );
-=======
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
@@ -302,18 +183,159 @@ exports.show = function (req, res) {
             {
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
-                    res.json(
-                        user
-                    );
+                    Medal.allByUser(username, function (err, medals) {
+                        if (!err)
+                        {
+                            MedalType.all(function (err, medaltypes)
+                            {
+                                if (!err)
+                                {
+                                    Progress.findByUserAndType(user.uri,"Project",function (err, progressProject){
+                                            if(!err)
+                                            {
+                                                Progress.findByUserAndType(user.uri,"Descriptor",function (err, progressDescriptor){
+                                                    if(!err)
+                                                    {
+                                                        Progress.findByUserAndType(user.uri,"Rating",function (err, progressRating){
+                                                            if(!err)
+                                                            {
+                                                                Progress.findByUserAndType(user.uri,"Signup",function (err, progressSignup){
+                                                                    if(!err)
+                                                                    {
+                                                                        console.log("Progesso no projecto para o utilizador:"+progressProject.gm.numActions);
+                                                                        console.log("Progesso nos descritore para o utilizador:"+progressDescriptor.gm.numActions);
+
+                                                                        res.render('users/show',
+                                                                            {
+                                                                                title: "Viewing user " + username,
+                                                                                user: user,
+                                                                                medals: medals,
+                                                                                medaltypes: medaltypes,
+                                                                                progressProject:progressProject,
+                                                                                progressDescriptor:progressDescriptor,
+                                                                                progressRating:progressRating,
+                                                                                progressSignup:progressSignup
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                    else
+                                                                    {
+
+                                                                    }
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+
+                                                            }
+                                                        });
+
+                                                    }
+                                                    else
+                                                    {
+
+                                                    }
+                                                });
+
+                                            }
+                                            else
+                                            {
+
+                                            }
+                                        }
+
+                                    );
+
+                                }
+                                else
+                                {
+                                }
+                            });
+                        }
+
+                        else
+                        {
+
+                        }
+                    });
                 }
                 else
                 {
-                    res.render('users/show',
+                    Medal.allByUser(username, function (err, medals) {
+                        if (!err)
                         {
-                            title : "Viewing user " + username,
-                            user : user
+                            MedalType.all(function (err, medaltypes)
+                            {
+                                if (!err)
+                                {
+                                    Progress.findByUserAndType(user.uri,"Project",function (err, progressProject){
+                                            if(!err)
+                                            {
+                                                Progress.findByUserAndType(user.uri,"Descriptor",function (err, progressDescriptor){
+                                                    if(!err)
+                                                    {
+                                                        Progress.findByUserAndType(user.uri,"Rating",function (err, progressRating){
+                                                            if(!err)
+                                                            {
+                                                                Progress.findByUserAndType(user.uri,"Signup",function (err, progressSignup){
+                                                                    if(!err)
+                                                                    {
+                                                                        console.log("Progesso no projecto para o utilizador:"+progressProject.gm.numActions);
+                                                                        console.log("Progesso nos descritore para o utilizador:"+progressDescriptor.gm.numActions);
+
+                                                                        res.render('users/show',
+                                                                            {
+                                                                                title: "Viewing user " + username,
+                                                                                user: user,
+                                                                                medals: medals,
+                                                                                medaltypes: medaltypes,
+                                                                                progressProject:progressProject,
+                                                                                progressDescriptor:progressDescriptor,
+                                                                                progressRating:progressRating,
+                                                                                progressSignup:progressSignup
+                                                                            }
+                                                                        )
+                                                                    }
+                                                                    else
+                                                                    {
+
+                                                                    }
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+
+                                                            }
+                                                        });
+
+                                                    }
+                                                    else
+                                                    {
+
+                                                    }
+                                                });
+
+                                            }
+                                            else
+                                            {
+
+                                            }
+                                        }
+
+                                    );
+
+                                }
+                                else
+                                {
+                                }
+                            });
                         }
-                    )
+
+                        else
+                        {
+
+                        }
+                    });
                 }
             }
             else
@@ -355,92 +377,89 @@ exports.show = function (req, res) {
                     }
                 )
             }
->>>>>>> master
         }
     }, true);
 };
 
-<<<<<<< HEAD
-exports.me = function (req, res) {
-    req.params.user = req.session.user;
-=======
 exports.me = function(req, res){
     req.params.user = req.user;
->>>>>>> master
 
-    if (req.originalMethod == "GET") {
+    if(req.originalMethod == "GET")
+    {
         res.render('users/edit',
             {
-<<<<<<< HEAD
-                user: req.session.user
-=======
                 user : req.user
->>>>>>> master
             }
         );
     }
-    else if (req.originalMethod == "POST") {
+    else if (req.originalMethod == "POST")
+    {
         //perform modifications
 
         res.render('users/edit',
             {
-<<<<<<< HEAD
-                user: req.session.user
-=======
                 user : req.user
->>>>>>> master
             }
         );
     }
 };
 
-exports.set_new_password = function (req, res) {
+exports.set_new_password = function(req, res) {
 
     if (req.originalMethod == "GET") {
 
         var email = req.query["email"];
         var token = req.query["token"];
 
-        if (email == null || token == null) {
+        if(email == null || token == null)
+        {
             res.render('index',
                 {
-                    info_messages: ["Invalid request."]
+                    info_messages : ["Invalid request."]
                 }
             );
         }
-        else {
-            User.findByEmail(email, function (err, user) {
-                if (!err) {
-                    if (!user) {
+        else
+        {
+            User.findByEmail(email, function(err, user){
+                if(!err)
+                {
+                    if(!user)
+                    {
                         res.render('index',
                             {
-                                error_messages: ["Non-existent user with email " + email + " : " + JSON.stringify(user)]
+                                error_messages : ["Non-existent user with email " + email + " : " + JSON.stringify(user)]
                             }
                         );
                     }
-                    else {
-                        user.checkIfHasPredicateValue("ddr:password_reset_token", token, function (err, tokenMatches) {
-                            if (!err) {
-                                if (tokenMatches) {
+                    else
+                    {
+                        user.checkIfHasPredicateValue("ddr:password_reset_token", token, function(err, tokenMatches){
+                            if(!err)
+                            {
+                                if(tokenMatches)
+                                {
                                     res.render('users/set_new_password',
                                         {
-                                            email: email,
-                                            token: token
+                                            email : email,
+                                            token : token
                                         }
                                     );
                                 }
-                                else {
+                                else
+                                {
                                     res.render('index',
                                         {
-                                            error_messages: ["Invalid token"]
+                                            error_messages : ["Invalid token"]
                                         }
                                     );
                                 }
                             }
-                            else {
+                            else
+                            {
                                 res.render('index',
                                     {
-                                        error_messages: ["Error retrieving token : " + JSON.stringify(user)]
+                                        error_messages : ["Error retrieving token : " + JSON.stringify(user)]
                                     }
                                 );
                             }
@@ -448,75 +467,89 @@ exports.set_new_password = function (req, res) {
 
                     }
                 }
-                else {
+                else
+                {
                     res.render('index',
                         {
-                            error_messages: ["Error retrieving user with email " + email + " : " + JSON.stringify(user)]
+                            error_messages : ["Error retrieving user with email " + email + " : " + JSON.stringify(user)]
                         }
                     );
                 }
             });
         }
     }
-    else if (req.originalMethod == "POST") {
+    else if (req.originalMethod == "POST")
+    {
         var email = req.body["email"];
         var token = req.body["token"];
 
         if (token == null || email == null) {
             res.render('users/set_new_password',
                 {
-                    token: token,
-                    email: email,
+                    token : token,
+                    email : email,
                     "error_messages": [
                         "Wrong link specified."
                     ]
                 }
             );
         }
-        else {
+        else
+        {
             var new_password = req.body["new_password"];
             var new_password_confirm = req.body["new_password_confirm"];
 
-            if (new_password != new_password_confirm) {
+            if(new_password != new_password_confirm)
+            {
                 res.render('users/set_new_password',
                     {
-                        token: token,
-                        email: email,
-                        error_messages: [
+                        token : token,
+                        email : email,
+                        error_messages : [
                             "Please make sure that the password and its confirmation match."
                         ]
                     }
                 );
             }
-            else {
-                User.findByEmail(email, function (err, user) {
-                    if (!err) {
-                        if (!user) {
+            else
+            {
+                User.findByEmail(email, function(err, user){
+                    if(!err)
+                    {
+                        if(!user)
+                        {
                             res.render('index',
                                 {
-                                    "error_messages": [
-                                        "Unknown account with email " + email + "."
-                                    ]
+                                    "error_messages" :
+                                        [
+                                            "Unknown account with email " + email + "."
+                                        ]
                                 }
                             );
                         }
-                        else {
-                            user.finishPasswordReset(new_password, token, function (err, result) {
-                                if (err) {
+                        else
+                        {
+                            user.finishPasswordReset(new_password, token, function(err, result)
+                            {
+                                if(err)
+                                {
                                     res.render('index',
                                         {
-                                            "error_messages": [
-                                                "Error resetting password for email : " + email + ". Error description: " + JSON.stringify(result)
-                                            ]
+                                            "error_messages" :
+                                                [
+                                                    "Error resetting password for email : " + email +". Error description: " + JSON.stringify(result)
+                                                ]
                                         }
                                     );
                                 }
-                                else {
+                                else
+                                {
                                     res.render('index',
                                         {
-                                            "info_messages": [
-                                                "Password successfully reset for : " + email + ". You can now login with your new password."
-                                            ]
+                                            "info_messages" :
+                                                [
+                                                    "Password successfully reset for : " + email +". You can now login with your new password."
+                                                ]
                                         }
                                     );
                                 }
@@ -529,44 +562,57 @@ exports.set_new_password = function (req, res) {
     }
 };
 
-exports.reset_password = function (req, res) {
+exports.reset_password = function(req, res){
 
-    if (req.originalMethod == "GET") {
+    if(req.originalMethod == "GET")
+    {
         res.render('users/reset_password',
-            {}
+            {
+            }
         );
     }
-    else if (req.originalMethod == "POST") {
+    else if (req.originalMethod == "POST")
+    {
         var email = req.body["email"];
-        if (email != null) {
-            User.findByEmail(email, function (err, user) {
-                if (!err) {
-                    if (!user) {
+        if(email != null)
+        {
+            User.findByEmail(email, function(err, user){
+                if(!err)
+                {
+                    if(!user)
+                    {
                         res.render('users/reset_password',
                             {
-                                "error_messages": [
-                                    "Unknown account with email " + email + "."
-                                ]
+                                "error_messages" :
+                                    [
+                                        "Unknown account with email " + email + "."
+                                    ]
                             }
                         );
                     }
-                    else {
-                        user.startPasswordReset(function (err, result) {
-                            if (err) {
+                    else
+                    {
+                        user.startPasswordReset(function(err, result)
+                        {
+                            if(err)
+                            {
                                 res.render('index',
                                     {
-                                        "error_messages": [
-                                            "Error resetting password for email : " + email + ". Error description: " + JSON.stringify(result)
-                                        ]
+                                        "error_messages" :
+                                            [
+                                                "Error resetting password for email : " + email +". Error description: " + JSON.stringify(result)
+                                            ]
                                     }
                                 );
                             }
-                            else {
+                            else
+                            {
                                 res.render('index',
                                     {
-                                        "info_messages": [
-                                            "Password reset instructions have been sent to : " + email + "."
-                                        ]
+                                        "info_messages" :
+                                            [
+                                                "Password reset instructions have been sent to : " + email +"."
+                                            ]
                                     }
                                 );
                             }
@@ -575,12 +621,14 @@ exports.reset_password = function (req, res) {
                 }
             });
         }
-        else {
+        else
+        {
             res.render('users/reset_password',
                 {
-                    "error_messages": [
-                        "Please specify a valid email address"
-                    ]
+                    "error_messages" :
+                        [
+                            "Please specify a valid email address"
+                        ]
                 }
             );
         }

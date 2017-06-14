@@ -6,6 +6,21 @@
   <component name="ChangeListManager">
     <list default="true" id="37a74947-2fdb-4da4-b1fb-85b8b233ca6b" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/conf/deployment_configs.json" afterPath="$PROJECT_DIR$/conf/deployment_configs.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/package.json" afterPath="$PROJECT_DIR$/package.json" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/date_picker.html" afterPath="$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/date_picker.html" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/stylesheets/explorer.css" afterPath="$PROJECT_DIR$/public/stylesheets/explorer.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/public/stylesheets/style.css" afterPath="$PROJECT_DIR$/public/stylesheets/style.css" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/app.js" afterPath="$PROJECT_DIR$/src/app.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/projects.js" afterPath="$PROJECT_DIR$/src/controllers/projects.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/ratings.js" afterPath="$PROJECT_DIR$/src/controllers/ratings.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/records.js" afterPath="$PROJECT_DIR$/src/controllers/records.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/controllers/users.js" afterPath="$PROJECT_DIR$/src/controllers/users.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/config.js" afterPath="$PROJECT_DIR$/src/models/meta/config.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/models/meta/elements.js" afterPath="$PROJECT_DIR$/src/models/meta/elements.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/layout/includes.ejs" afterPath="$PROJECT_DIR$/src/views/layout/includes.ejs" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/users/all.ejs" afterPath="$PROJECT_DIR$/src/views/users/all.ejs" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/views/users/show.ejs" afterPath="$PROJECT_DIR$/src/views/users/show.ejs" />
     </list>
     <ignored path="dendro.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -25,11 +40,43 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="rating.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/models/game/rating.js">
+      <file leaf-file-name="users.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/controllers/users.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="731">
-              <caret line="43" column="0" lean-forward="false" selection-start-line="43" selection-start-column="0" selection-end-line="47" selection-end-column="31" />
+            <state relative-caret-position="-82">
+              <caret line="185" column="70" lean-forward="false" selection-start-line="185" selection-start-column="69" selection-end-line="185" selection-end-column="70" />
+              <folding>
+                <element signature="e#727#1367#0" expanded="false" />
+                <element signature="e#9614#13885#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="show.ejs" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/views/users/show.ejs">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="264">
+              <caret line="257" column="35" lean-forward="false" selection-start-line="257" selection-start-column="35" selection-end-line="257" selection-end-column="35" />
+              <folding>
+                <element signature="e#2532#2553#0#HTML" expanded="true" />
+                <element signature="e#2773#2825#0#HTML" expanded="true" />
+                <element signature="e#2848#2919#0#HTML" expanded="true" />
+                <element signature="e#6847#6919#0#HTML" expanded="true" />
+                <element signature="e#6954#7030#0#HTML" expanded="true" />
+                <element signature="e#7635#7642#0#HTML" expanded="true" />
+                <element signature="e#8419#8471#0#HTML" expanded="true" />
+                <element signature="e#8510#8586#0#HTML" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="date_picker.html" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/date_picker.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="204">
+              <caret line="24" column="0" lean-forward="true" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -38,28 +85,18 @@
       <file leaf-file-name="ratings.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/controllers/ratings.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6596">
-              <caret line="388" column="42" lean-forward="false" selection-start-line="382" selection-start-column="12" selection-end-line="389" selection-end-column="19" />
+            <state relative-caret-position="506">
+              <caret line="423" column="37" lean-forward="false" selection-start-line="423" selection-start-column="37" selection-end-line="423" selection-end-column="37" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="metadata_service.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/public/app/js/services/metadata_service.js">
+      <file leaf-file-name="records.js" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/controllers/records.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="3485">
-              <caret line="205" column="79" lean-forward="false" selection-start-line="205" selection-start-column="79" selection-end-line="205" selection-end-column="79" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="app.js" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/app.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="26112">
-              <caret line="1536" column="39" lean-forward="false" selection-start-line="1536" selection-start-column="39" selection-end-line="1536" selection-end-column="39" />
+            <state relative-caret-position="234">
+              <caret line="289" column="70" lean-forward="false" selection-start-line="289" selection-start-column="70" selection-end-line="289" selection-end-column="70" />
               <folding />
             </state>
           </provider>
@@ -68,331 +105,9 @@
       <file leaf-file-name="deployment_configs.json" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/conf/deployment_configs.json">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-799">
-              <caret line="110" column="34" lean-forward="false" selection-start-line="110" selection-start-column="34" selection-end-line="110" selection-end-column="34" />
+            <state relative-caret-position="106">
+              <caret line="303" column="47" lean-forward="true" selection-start-line="303" selection-start-column="47" selection-end-line="303" selection-end-column="47" />
               <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="feedback.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/models/game/feedback.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="459">
-              <caret line="27" column="34" lean-forward="false" selection-start-line="27" selection-start-column="34" selection-end-line="27" selection-end-column="34" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="medal_type.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/models/game/medal_type.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="51">
-              <caret line="3" column="0" lean-forward="false" selection-start-line="3" selection-start-column="0" selection-end-line="3" selection-end-column="80" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="active_deployment_config.json" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/conf/active_deployment_config.json">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="medal.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/models/game/medal.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="elements.js" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/models/meta/elements.js">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="680">
-              <caret line="40" column="41" lean-forward="false" selection-start-line="40" selection-start-column="41" selection-end-line="40" selection-end-column="41" />
-              <folding>
-                <marker date="1497355648307" expanded="true" signature="28942:28955" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="28942:30042" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="28975:29087" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="29112:29199" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="29215:29302" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="29330:29417" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="29439:29526" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="29550:29645" ph="{&quot;type&quot;: DbConnection.long_string...}" />
-                <marker date="1497355648307" expanded="true" signature="29666:29753" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="29776:29863" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="29881:30040" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="30045:30138" ph="/** &quot;NEPOMUK File Ontology&quot; ontology ...*/" />
-                <marker date="1497355648307" expanded="true" signature="30155:38708" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="30179:30266" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="30293:30377" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="30408:30495" ph="{&quot;control&quot;: Config.controls.url_box...}" />
-                <marker date="1497355648307" expanded="true" signature="30516:30600" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="30626:30710" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="30732:30819" ph="{&quot;control&quot;: Config.controls.url_box...}" />
-                <marker date="1497355648307" expanded="true" signature="30840:30924" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="30951:31035" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="31053:31140" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="31174:31258" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="31286:31373" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="31395:31482" ph="{&quot;control&quot;: Config.controls.url_box...}" />
-                <marker date="1497355648307" expanded="true" signature="31511:31598" ph="{&quot;control&quot;: Config.controls.url_box...}" />
-                <marker date="1497355648307" expanded="true" signature="31633:31720" ph="{&quot;control&quot;: Config.controls.url_box...}" />
-                <marker date="1497355648307" expanded="true" signature="31738:31822" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="31847:31936" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="31964:32053" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="32087:32176" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="32201:32288" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="32309:32396" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="32417:32504" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-                <marker date="1497355648307" expanded="true" signature="32528:32615" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="32644:32731" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="32760:32847" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="32868:32955" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="32977:33064" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="33085:33169" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="33189:33276" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="33299:33386" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="33406:33493" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="33516:33600" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="33622:33706" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="33732:33816" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="33836:33923" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="33957:34044" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="34071:34160" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="34186:34273" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="34295:34382" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="34401:34485" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="34518:34602" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="34628:34715" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="34748:34836" ph="{&quot;type&quot;: DbConnection.boolean...}" />
-                <marker date="1497355648307" expanded="true" signature="34860:34944" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="34966:35050" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="35086:35173" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="35206:35293" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="35322:35409" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="35431:35515" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="35539:35626" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="35658:35745" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="35762:35846" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="35871:35955" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="35979:36063" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="36086:36170" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="36195:36279" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="36302:36389" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="36418:36502" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="36533:36617" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="36635:36719" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="36741:36825" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="36848:36935" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="36964:37051" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="37073:37160" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="37182:37269" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="37298:37379" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="37400:37489" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="37508:37595" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="37623:37710" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="37736:37823" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="37844:37931" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="37962:38050" ph="{&quot;type&quot;: DbConnection.boolean...}" />
-                <marker date="1497355648307" expanded="true" signature="38075:38162" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="38184:38271" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="38294:38381" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="38407:38494" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="38516:38603" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="38619:38706" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="38731:39779" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="38991:39078" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="39101:39188" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="39206:39296" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="39314:39401" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="39421:39508" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="39529:39640" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="39667:39777" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="39797:41160" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="39818:39905" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="39936:40026" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="40055:40145" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="40176:40263" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="40290:40377" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="40404:40491" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="40517:40604" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="40631:40718" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="40737:40827" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="40848:40935" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="40959:41046" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="41071:41158" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="41180:41400" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="41201:41288" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="41311:41398" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="41418:47894" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="41445:41532" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="41559:41646" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="41677:41764" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="41793:41880" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="41916:42003" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="42044:42131" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="42159:42246" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="42273:42360" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="42391:42478" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="42508:42595" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="42630:42717" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="42752:42839" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="42867:42954" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="42985:43072" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="43105:43192" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="43224:43311" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="43338:43425" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="43450:43537" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="43557:43644" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="43664:43751" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="43776:43865" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="43894:43981" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="44016:44103" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="44143:44230" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="44260:44347" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="44376:44463" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="44507:44594" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="44646:44733" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="44790:44877" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="44926:45013" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="45037:45124" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="45161:45248" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="45286:45373" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="45415:45502" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="45549:45636" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="45668:45755" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="45786:45873" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="45902:45992" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="46021:46108" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="46134:46221" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="46250:46337" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="46370:46457" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="46491:46578" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="46608:46695" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="46736:46823" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="46858:46945" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="46982:47069" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="47108:47195" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="47232:47319" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="47339:47426" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="47452:47541" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="47572:47659" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="47691:47778" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="47805:47892" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="47913:49286" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="47952:48039" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="48061:48148" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="48180:48267" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="48291:48378" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="48399:48486" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="48523:48610" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="48644:48731" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="48753:48840" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="48859:48946" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="48969:49056" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="49080:49167" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="49197:49284" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="49307:51360" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="49329:49416" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="49438:49525" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="49544:49631" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="49664:49754" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="49775:49862" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="49889:49976" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="50009:50096" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="50122:50209" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="50233:50320" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="50349:50436" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="50468:50555" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="50586:50676" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="50702:50792" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="50823:50910" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="50936:51023" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="51038:51125" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="51151:51238" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="51271:51358" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="51379:52692" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="51409:51496" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="51529:51616" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="51652:51739" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="51764:51851" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="51873:51960" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="51993:52083" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="52113:52200" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="52230:52317" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="52353:52440" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="52478:52565" ph="{&quot;type&quot;: DbConnection.date...}" />
-                <marker date="1497355648307" expanded="true" signature="52600:52690" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="52710:53726" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="52730:52817" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="52837:52924" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="52955:53042" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="53069:53156" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="53190:53277" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="53299:53386" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="53420:53507" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="53530:53617" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="53637:53724" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="53744:55111" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="53774:53861" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="53882:53969" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="53996:54083" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="54111:54198" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="54218:54305" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="54338:54428" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="54450:54540" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="54565:54652" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="54679:54766" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="54785:54872" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="54904:54994" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="55022:55109" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="55132:56283" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="55163:55252" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="55289:55379" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="55413:55500" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="55522:55609" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="55632:55719" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="55741:55831" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="55854:55944" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="55966:56053" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="56083:56173" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="56194:56281" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="56301:57827" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="56332:56422" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="56451:56538" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="56569:56656" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="56687:56777" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="56797:56884" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="56912:57002" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="57031:57121" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="57146:57236" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="57264:57354" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="57383:57470" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="57505:57592" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="57623:57710" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="57738:57825" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="57844:58754" ph="{...}" />
-                <marker date="1497355648307" expanded="true" signature="57857:57939" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="57955:58040" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="58058:58140" ph="{&quot;type&quot;: DbConnection.int...}" />
-                <marker date="1497355648307" expanded="true" signature="58157:58242" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="58257:58342" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="58360:58443" ph="{&quot;type&quot;: DbConnection.string...}" />
-                <marker date="1497355648307" expanded="true" signature="58469:58554" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="58573:58658" ph="{&quot;type&quot;: DbConnection.resource...}" />
-                <marker date="1497355648307" expanded="true" signature="58671:58751" ph="{&quot;type&quot;: DbConnection.int...}" />
-              </folding>
             </state>
           </provider>
         </entry>
@@ -408,17 +123,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>user</find>
-      <find>DbConnection.int</find>
-      <find>deleteAllMyTriples</find>
-      <find>ng-class</find>
-      <find>Vote</find>
-      <find>feedback</find>
-      <find>restore_metadata_version</find>
-      <find>DescriptorLastEditor</find>
-      <find>thum</find>
-      <find>restore</find>
-      <find>thumb</find>
       <find>medal</find>
       <find>feedbackto</find>
       <find>ratingtosave</find>
@@ -429,7 +133,6 @@
       <find>messages</find>
       <find>delete</find>
       <find>update</find>
-      <find>rating</find>
       <find>rat</find>
       <find>load</find>
       <find>save_metadata</find>
@@ -438,11 +141,26 @@
       <find>demouser3</find>
       <find>resource</find>
       <find>Resource</find>
+      <find>&lt;&lt;HEAD</find>
+      <find>rating</find>
+      <find>thumb</find>
+      <find>export_to_repository</find>
+      <find>ratings</find>
+      <find>req.sess</find>
+      <find>lastS</find>
+      <find>log</find>
+      <find>changeAut</find>
+      <find>user</find>
+      <find>las</find>
+      <find>Date Modified</find>
     </findStrings>
     <replaceStrings>
       <replace>Feedback</replace>
       <replace>Rating</replace>
     </replaceStrings>
+    <dirStrings>
+      <dir>C:\Users\bruno\Desktop\dendro</dir>
+    </dirStrings>
   </component>
   <component name="Git.Settings">
     <option name="PREVIOUS_COMMIT_AUTHORS">
@@ -473,9 +191,7 @@
         <option value="$PROJECT_DIR$/src/views/medaltypes/all.ejs" />
         <option value="$PROJECT_DIR$/src/models/game/medal.js" />
         <option value="$PROJECT_DIR$/public/stylesheets/pie.css" />
-        <option value="$PROJECT_DIR$/src/views/layout/includes.ejs" />
         <option value="$PROJECT_DIR$/public/stylesheets/game.css" />
-        <option value="$PROJECT_DIR$/src/models/meta/config.js" />
         <option value="$PROJECT_DIR$/src/kb/db.js" />
         <option value="$PROJECT_DIR$/src/models/project.js" />
         <option value="$PROJECT_DIR$/src/models/versions/archived_resource.js" />
@@ -486,26 +202,28 @@
         <option value="$PROJECT_DIR$/src/models/game/rating.js" />
         <option value="$PROJECT_DIR$/src/models/game/feedback.js" />
         <option value="$PROJECT_DIR$/public/app/js/controllers/project/editor/file_browser_controller.js" />
-        <option value="$PROJECT_DIR$/src/views/users/show.ejs" />
         <option value="$PROJECT_DIR$/public/app/js/controllers/project/editor/project_editor_controller.js" />
-        <option value="$PROJECT_DIR$/src/controllers/users.js" />
-        <option value="$PROJECT_DIR$/src/views/users/all.ejs" />
         <option value="$PROJECT_DIR$/src/models/game/progress.js" />
-        <option value="$PROJECT_DIR$/src/controllers/ratings.js" />
-        <option value="$PROJECT_DIR$/src/models/meta/elements.js" />
-        <option value="$PROJECT_DIR$/src/controllers/projects.js" />
         <option value="$PROJECT_DIR$/public/app/js/controllers/project/editor/metadata_editor_controller.js" />
-        <option value="$PROJECT_DIR$/src/controllers/records.js" />
         <option value="$PROJECT_DIR$/public/app/js/services/metadata_service.js" />
         <option value="$PROJECT_DIR$/public/app/views/projects/show/partials/controls/descriptor_toolbar.ejs" />
-        <option value="$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/date_picker.html" />
         <option value="$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/input_box.html" />
         <option value="$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/map.html" />
         <option value="$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/markdown_box.html" />
         <option value="$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/url_box.html" />
-        <option value="$PROJECT_DIR$/conf/deployment_configs.json" />
         <option value="$PROJECT_DIR$/src/models/game/medal_type.js" />
+        <option value="$PROJECT_DIR$/src/models/meta/config.js" />
+        <option value="$PROJECT_DIR$/src/models/meta/elements.js" />
+        <option value="$PROJECT_DIR$/src/controllers/projects.js" />
         <option value="$PROJECT_DIR$/src/app.js" />
+        <option value="$PROJECT_DIR$/src/views/users/all.ejs" />
+        <option value="$PROJECT_DIR$/src/views/layout/includes.ejs" />
+        <option value="$PROJECT_DIR$/src/controllers/ratings.js" />
+        <option value="$PROJECT_DIR$/conf/deployment_configs.json" />
+        <option value="$PROJECT_DIR$/src/controllers/records.js" />
+        <option value="$PROJECT_DIR$/src/controllers/users.js" />
+        <option value="$PROJECT_DIR$/src/views/users/show.ejs" />
+        <option value="$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/date_picker.html" />
       </list>
     </option>
   </component>
@@ -517,12 +235,17 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
+  <component name="JsbtTreeLayoutManager">
+    <layout place="tools.popupnpm">
+      <scroll-view-position x="0" y="0" />
+    </layout>
+  </component>
   <component name="NodeModulesDirectoryManager">
     <handled-path value="$PROJECT_DIR$/node_modules" />
   </component>
   <component name="ProjectFrameBounds">
     <option name="x" value="-7" />
-    <option name="width" value="1369" />
+    <option name="width" value="1370" />
     <option name="height" value="735" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
@@ -591,7 +314,7 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="src" />
+              <option name="myItemId" value="public" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -605,7 +328,131 @@
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
             <PATH_ELEMENT>
-              <option name="myItemId" value="conf" />
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="app" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="views" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="app" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="views" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="projects" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="show" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="partials" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="app" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="views" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="projects" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="show" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="partials" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="controls_read_only" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="app" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="views" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="projects" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="dendro" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="public" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="app" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
           </PATH>
@@ -617,7 +464,7 @@
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../app.js" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="HbShouldOpenHtmlAsHb" value="" />
     <property name="nodejs_interpreter_path" value="/usr/local/bin/node" />
@@ -631,14 +478,15 @@
     <property name="js.buildTools.gulp.gulp_package_dir" value="/usr/local/lib/node_modules/gulp" />
     <property name="js.eslint.eslintPackage" value="" />
     <property name="list.type.of.created.stylesheet" value="CSS" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/../app.js" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/views/projects/administration" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\bruno\Desktop\dendro\public\app\js\controllers" />
       <recent name="$PROJECT_DIR$/test" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/views/projects/administration" />
     </key>
   </component>
   <component name="RunManager" selected="Node.js.Run">
@@ -833,7 +681,7 @@
       <workItem from="1496498593901" duration="1110000" />
       <workItem from="1497023874093" duration="3378000" />
       <workItem from="1497275059701" duration="1231000" />
-      <workItem from="1497355856165" duration="1817000" />
+      <workItem from="1497355856165" duration="22921000" />
     </task>
     <servers />
   </component>
@@ -870,7 +718,7 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="440087000" />
+    <option name="totallyTimeSpent" value="461191000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -882,15 +730,16 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="-7" y="0" width="1369" height="735" extended-state="0" />
-    <editor active="false" />
+    <frame x="-7" y="0" width="1370" height="735" extended-state="0" />
+    <editor active="true" />
     <layout>
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24793388" sideWeight="0.5366379" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.24774775" sideWeight="0.5366379" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32707182" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3152" sideWeight="0.51119405" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.32890365" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4833887" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32890365" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="npm" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19379845" sideWeight="0.40273973" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.16611296" sideWeight="0.48062015" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.4152824" sideWeight="0.48062015" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24925596" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32724252" sideWeight="0.48880598" order="8" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.19345239" sideWeight="0.46336207" order="3" side_tool="true" content_ui="tabs" />
@@ -900,12 +749,29 @@
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4833887" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="processedProjectFiles" value="true" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="Vcs.Log.UiProperties">
     <option name="RECENTLY_FILTERED_USER_GROUPS">
@@ -931,11 +797,23 @@
           <line>286</line>
           <option name="timeStamp" value="420" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/controllers/ratings.js</url>
+          <line>378</line>
+          <properties />
+          <option name="timeStamp" value="616" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="javascript">
+          <url>file://$PROJECT_DIR$/src/controllers/ratings.js</url>
+          <line>422</line>
+          <properties />
+          <option name="timeStamp" value="618" />
+        </line-breakpoint>
       </breakpoints>
       <breakpoints-dialog>
         <breakpoints-dialog />
       </breakpoints-dialog>
-      <option name="time" value="613" />
+      <option name="time" value="619" />
     </breakpoint-manager>
     <watches-manager>
       <configuration name="NodeJSConfigurationType">
@@ -954,48 +832,6 @@
     </watches-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/src/models/versions/archived_resource.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="391">
-          <caret line="190" column="5" lean-forward="false" selection-start-line="190" selection-start-column="4" selection-end-line="190" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/scratch_pad/Queries SPARQL/latest_versions.rq">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="109">
-          <caret line="23" column="37" lean-forward="false" selection-start-line="23" selection-start-column="37" selection-end-line="23" selection-end-column="37" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/directory_structure/information_element.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="314">
-          <caret line="415" column="0" lean-forward="false" selection-start-line="415" selection-start-column="0" selection-end-line="415" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/descriptors.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/meta/descriptor.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1568">
-          <caret line="564" column="0" lean-forward="false" selection-start-line="564" selection-start-column="0" selection-end-line="564" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/dr_recommendation.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="95">
-          <caret line="183" column="17" lean-forward="false" selection-start-line="183" selection-start-column="17" selection-end-line="183" selection-end-column="17" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/views/projects/show/changelog_modal.ejs">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-213">
@@ -1028,13 +864,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-80">
           <caret line="12" column="0" lean-forward="false" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/medaltypes.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
         </state>
       </provider>
     </entry>
@@ -1095,45 +924,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/views/users/show.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="17">
-          <caret line="45" column="4" lean-forward="false" selection-start-line="45" selection-start-column="4" selection-end-line="83" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/views/users/all.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="204">
-          <caret line="83" column="72" lean-forward="false" selection-start-line="83" selection-start-column="72" selection-end-line="83" selection-end-column="72" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/repo_bookmarks.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="116">
-          <caret line="21" column="25" lean-forward="false" selection-start-line="21" selection-start-column="25" selection-end-line="21" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/datasets.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="65">
-          <caret line="38" column="24" lean-forward="false" selection-start-line="38" selection-start-column="24" selection-end-line="38" selection-end-column="24" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/models/meta/ontology.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="218">
           <caret line="356" column="28" lean-forward="false" selection-start-line="356" selection-start-column="28" selection-end-line="356" selection-end-column="49" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/kb/db.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="252">
-          <caret line="493" column="9" lean-forward="false" selection-start-line="493" selection-start-column="8" selection-end-line="493" selection-end-column="9" />
         </state>
       </provider>
     </entry>
@@ -1151,45 +945,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/editor/project_editor_controller.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="168">
-          <caret line="555" column="23" lean-forward="false" selection-start-line="542" selection-start-column="16" selection-end-line="555" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/projects.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="187">
-          <caret line="23" column="0" lean-forward="false" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/editor/metadata_editor_controller.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1309">
           <caret line="90" column="96" lean-forward="false" selection-start-line="90" selection-start-column="96" selection-end-line="90" selection-end-column="96" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/records.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3961">
-          <caret line="442" column="93" lean-forward="false" selection-start-line="442" selection-start-column="93" selection-end-line="442" selection-end-column="93" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls/descriptor_toolbar.ejs">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2550">
-          <caret line="150" column="11" lean-forward="false" selection-start-line="150" selection-start-column="11" selection-end-line="153" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/date_picker.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="136">
-          <caret line="32" column="18" lean-forward="false" selection-start-line="32" selection-start-column="18" selection-end-line="32" selection-end-column="18" />
         </state>
       </provider>
     </entry>
@@ -1221,308 +980,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/users.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2669">
-          <caret line="280" column="55" lean-forward="false" selection-start-line="280" selection-start-column="51" selection-end-line="280" selection-end-column="55" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/models/user.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1887">
           <caret line="1430" column="0" lean-forward="false" selection-start-line="1430" selection-start-column="0" selection-end-line="1430" selection-end-column="0" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/game/progress.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="425">
-          <caret line="39" column="20" lean-forward="false" selection-start-line="39" selection-start-column="20" selection-end-line="39" selection-end-column="20" />
-          <folding>
-            <element signature="n#!!block;n#Progress#0" expanded="false" />
-            <element signature="e#3968#4451#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/models/meta/elements.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="680">
-          <caret line="40" column="41" lean-forward="false" selection-start-line="40" selection-start-column="41" selection-end-line="40" selection-end-column="41" />
-          <folding>
-            <marker date="1497355648307" expanded="true" signature="28942:28955" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="28942:30042" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="28975:29087" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="29112:29199" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="29215:29302" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="29330:29417" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="29439:29526" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="29550:29645" ph="{&quot;type&quot;: DbConnection.long_string...}" />
-            <marker date="1497355648307" expanded="true" signature="29666:29753" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="29776:29863" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="29881:30040" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="30045:30138" ph="/** &quot;NEPOMUK File Ontology&quot; ontology ...*/" />
-            <marker date="1497355648307" expanded="true" signature="30155:38708" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="30179:30266" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="30293:30377" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="30408:30495" ph="{&quot;control&quot;: Config.controls.url_box...}" />
-            <marker date="1497355648307" expanded="true" signature="30516:30600" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="30626:30710" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="30732:30819" ph="{&quot;control&quot;: Config.controls.url_box...}" />
-            <marker date="1497355648307" expanded="true" signature="30840:30924" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="30951:31035" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="31053:31140" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="31174:31258" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="31286:31373" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="31395:31482" ph="{&quot;control&quot;: Config.controls.url_box...}" />
-            <marker date="1497355648307" expanded="true" signature="31511:31598" ph="{&quot;control&quot;: Config.controls.url_box...}" />
-            <marker date="1497355648307" expanded="true" signature="31633:31720" ph="{&quot;control&quot;: Config.controls.url_box...}" />
-            <marker date="1497355648307" expanded="true" signature="31738:31822" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="31847:31936" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="31964:32053" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="32087:32176" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="32201:32288" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="32309:32396" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="32417:32504" ph="{&quot;control&quot;: Config.controls.input_box...}" />
-            <marker date="1497355648307" expanded="true" signature="32528:32615" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="32644:32731" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="32760:32847" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="32868:32955" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="32977:33064" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="33085:33169" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="33189:33276" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="33299:33386" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="33406:33493" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="33516:33600" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="33622:33706" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="33732:33816" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="33836:33923" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="33957:34044" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="34071:34160" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="34186:34273" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="34295:34382" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="34401:34485" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="34518:34602" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="34628:34715" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="34748:34836" ph="{&quot;type&quot;: DbConnection.boolean...}" />
-            <marker date="1497355648307" expanded="true" signature="34860:34944" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="34966:35050" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="35086:35173" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="35206:35293" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="35322:35409" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="35431:35515" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="35539:35626" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="35658:35745" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="35762:35846" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="35871:35955" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="35979:36063" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="36086:36170" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="36195:36279" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="36302:36389" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="36418:36502" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="36533:36617" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="36635:36719" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="36741:36825" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="36848:36935" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="36964:37051" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="37073:37160" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="37182:37269" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="37298:37379" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="37400:37489" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="37508:37595" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="37623:37710" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="37736:37823" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="37844:37931" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="37962:38050" ph="{&quot;type&quot;: DbConnection.boolean...}" />
-            <marker date="1497355648307" expanded="true" signature="38075:38162" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="38184:38271" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="38294:38381" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="38407:38494" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="38516:38603" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="38619:38706" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="38731:39779" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="38991:39078" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="39101:39188" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="39206:39296" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="39314:39401" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="39421:39508" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="39529:39640" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="39667:39777" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="39797:41160" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="39818:39905" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="39936:40026" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="40055:40145" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="40176:40263" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="40290:40377" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="40404:40491" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="40517:40604" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="40631:40718" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="40737:40827" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="40848:40935" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="40959:41046" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="41071:41158" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="41180:41400" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="41201:41288" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="41311:41398" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="41418:47894" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="41445:41532" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="41559:41646" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="41677:41764" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="41793:41880" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="41916:42003" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="42044:42131" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="42159:42246" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="42273:42360" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="42391:42478" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="42508:42595" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="42630:42717" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="42752:42839" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="42867:42954" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="42985:43072" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="43105:43192" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="43224:43311" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="43338:43425" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="43450:43537" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="43557:43644" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="43664:43751" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="43776:43865" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="43894:43981" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="44016:44103" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="44143:44230" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="44260:44347" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="44376:44463" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="44507:44594" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="44646:44733" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="44790:44877" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="44926:45013" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="45037:45124" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="45161:45248" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="45286:45373" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="45415:45502" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="45549:45636" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="45668:45755" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="45786:45873" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="45902:45992" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="46021:46108" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="46134:46221" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="46250:46337" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="46370:46457" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="46491:46578" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="46608:46695" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="46736:46823" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="46858:46945" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="46982:47069" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="47108:47195" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="47232:47319" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="47339:47426" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="47452:47541" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="47572:47659" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="47691:47778" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="47805:47892" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="47913:49286" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="47952:48039" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="48061:48148" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="48180:48267" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="48291:48378" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="48399:48486" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="48523:48610" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="48644:48731" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="48753:48840" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="48859:48946" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="48969:49056" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="49080:49167" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="49197:49284" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="49307:51360" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="49329:49416" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="49438:49525" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="49544:49631" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="49664:49754" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="49775:49862" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="49889:49976" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="50009:50096" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="50122:50209" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="50233:50320" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="50349:50436" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="50468:50555" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="50586:50676" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="50702:50792" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="50823:50910" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="50936:51023" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="51038:51125" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="51151:51238" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="51271:51358" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="51379:52692" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="51409:51496" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="51529:51616" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="51652:51739" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="51764:51851" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="51873:51960" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="51993:52083" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="52113:52200" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="52230:52317" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="52353:52440" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="52478:52565" ph="{&quot;type&quot;: DbConnection.date...}" />
-            <marker date="1497355648307" expanded="true" signature="52600:52690" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="52710:53726" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="52730:52817" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="52837:52924" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="52955:53042" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="53069:53156" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="53190:53277" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="53299:53386" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="53420:53507" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="53530:53617" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="53637:53724" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="53744:55111" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="53774:53861" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="53882:53969" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="53996:54083" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="54111:54198" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="54218:54305" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="54338:54428" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="54450:54540" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="54565:54652" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="54679:54766" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="54785:54872" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="54904:54994" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="55022:55109" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="55132:56283" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="55163:55252" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="55289:55379" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="55413:55500" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="55522:55609" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="55632:55719" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="55741:55831" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="55854:55944" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="55966:56053" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="56083:56173" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="56194:56281" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="56301:57827" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="56332:56422" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="56451:56538" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="56569:56656" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="56687:56777" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="56797:56884" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="56912:57002" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="57031:57121" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="57146:57236" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="57264:57354" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="57383:57470" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="57505:57592" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="57623:57710" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="57738:57825" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="57844:58754" ph="{...}" />
-            <marker date="1497355648307" expanded="true" signature="57857:57939" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="57955:58040" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="58058:58140" ph="{&quot;type&quot;: DbConnection.int...}" />
-            <marker date="1497355648307" expanded="true" signature="58157:58242" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="58257:58342" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="58360:58443" ph="{&quot;type&quot;: DbConnection.string...}" />
-            <marker date="1497355648307" expanded="true" signature="58469:58554" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="58573:58658" ph="{&quot;type&quot;: DbConnection.resource...}" />
-            <marker date="1497355648307" expanded="true" signature="58671:58751" ph="{&quot;type&quot;: DbConnection.int...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1544,24 +1005,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/models/game/rating.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="731">
+        <state relative-caret-position="0">
           <caret line="43" column="0" lean-forward="false" selection-start-line="43" selection-start-column="0" selection-end-line="47" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/controllers/ratings.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6596">
-          <caret line="388" column="42" lean-forward="false" selection-start-line="382" selection-start-column="12" selection-end-line="389" selection-end-column="19" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/public/app/js/services/metadata_service.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3485">
-          <caret line="205" column="79" lean-forward="false" selection-start-line="205" selection-start-column="79" selection-end-line="205" selection-end-column="79" />
           <folding />
         </state>
       </provider>
@@ -1574,6 +1019,14 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/src/kb/db.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="15" lean-forward="true" selection-start-line="14" selection-start-column="15" selection-end-line="14" selection-end-column="15" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/conf/active_deployment_config.json">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="0">
@@ -1582,18 +1035,210 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/conf/deployment_configs.json">
+    <entry file="file://$PROJECT_DIR$/src/models/meta/config.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-799">
-          <caret line="110" column="34" lean-forward="false" selection-start-line="110" selection-start-column="34" selection-end-line="110" selection-end-column="34" />
+        <state relative-caret-position="424">
+          <caret line="702" column="48" lean-forward="false" selection-start-line="702" selection-start-column="48" selection-end-line="702" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controllers/projects.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="290">
+          <caret line="900" column="39" lean-forward="false" selection-start-line="900" selection-start-column="39" selection-end-line="900" selection-end-column="39" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/users/all.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1508">
+          <caret line="92" column="35" lean-forward="false" selection-start-line="92" selection-start-column="35" selection-end-line="92" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/js/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1019">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/layout/includes.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="89">
+          <caret line="44" column="67" lean-forward="false" selection-start-line="44" selection-start-column="65" selection-end-line="44" selection-end-column="67" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/projects/show/metadata_viewer.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls/descriptor_toolbar.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-442">
+          <caret line="25" column="50" lean-forward="true" selection-start-line="25" selection-start-column="50" selection-end-line="25" selection-end-column="50" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controllers/repo_bookmarks.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="451" column="0" lean-forward="false" selection-start-line="451" selection-start-column="0" selection-end-line="451" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/medaltypes/all.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="153">
+          <caret line="24" column="37" lean-forward="false" selection-start-line="24" selection-start-column="37" selection-end-line="24" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controllers/medaltypes.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-16">
+          <caret line="25" column="12" lean-forward="false" selection-start-line="25" selection-start-column="12" selection-end-line="25" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controllers/datasets.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="108">
+          <caret line="1475" column="0" lean-forward="false" selection-start-line="1475" selection-start-column="0" selection-end-line="1475" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/js/services/projects_service.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1580">
+          <caret line="0" column="0" lean-forward="false" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/js/services/metadata_service.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="159">
+          <caret line="152" column="36" lean-forward="true" selection-start-line="152" selection-start-column="36" selection-end-line="152" selection-end-column="36" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="26112">
-          <caret line="1536" column="39" lean-forward="false" selection-start-line="1536" selection-start-column="39" selection-end-line="1536" selection-end-column="39" />
+        <state relative-caret-position="98">
+          <caret line="381" column="23" lean-forward="false" selection-start-line="381" selection-start-column="19" selection-end-line="381" selection-end-column="23" />
+          <folding>
+            <element signature="e#19669#20313#0" expanded="false" />
+            <element signature="e#36474#41236#0" expanded="false" />
+            <element signature="e#41269#46355#0" expanded="false" />
+            <element signature="e#46389#50001#0" expanded="false" />
+            <element signature="e#50035#52211#0" expanded="false" />
+            <element signature="e#52245#62818#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/js/controllers/project/editor/project_editor_controller.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-70">
+          <caret line="541" column="32" lean-forward="false" selection-start-line="541" selection-start-column="32" selection-end-line="541" selection-end-column="32" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/game/progress.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="57">
+          <caret line="31" column="0" lean-forward="false" selection-start-line="31" selection-start-column="0" selection-end-line="31" selection-end-column="0" />
+          <folding>
+            <element signature="n#!!block;n#Progress#0" expanded="false" />
+            <element signature="e#3968#4451#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/models/meta/elements.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-106">
+          <caret line="1013" column="9" lean-forward="false" selection-start-line="1013" selection-start-column="4" selection-end-line="1013" selection-end-column="9" />
+          <folding>
+            <marker date="1497361567647" expanded="true" signature="28908:28921" ph="{&quot;type&quot;: DbConnection.string...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/conf/deployment_configs.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="106">
+          <caret line="303" column="47" lean-forward="true" selection-start-line="303" selection-start-column="47" selection-end-line="303" selection-end-column="47" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controllers/ratings.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="506">
+          <caret line="423" column="37" lean-forward="false" selection-start-line="423" selection-start-column="37" selection-end-line="423" selection-end-column="37" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controllers/records.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="234">
+          <caret line="289" column="70" lean-forward="false" selection-start-line="289" selection-start-column="70" selection-end-line="289" selection-end-column="70" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/controllers/users.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-82">
+          <caret line="185" column="70" lean-forward="false" selection-start-line="185" selection-start-column="69" selection-end-line="185" selection-end-column="70" />
+          <folding>
+            <element signature="e#727#1367#0" expanded="false" />
+            <element signature="e#9614#13885#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/views/users/show.ejs">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="264">
+          <caret line="257" column="35" lean-forward="false" selection-start-line="257" selection-start-column="35" selection-end-line="257" selection-end-column="35" />
+          <folding>
+            <element signature="e#2532#2553#0#HTML" expanded="true" />
+            <element signature="e#2773#2825#0#HTML" expanded="true" />
+            <element signature="e#2848#2919#0#HTML" expanded="true" />
+            <element signature="e#6847#6919#0#HTML" expanded="true" />
+            <element signature="e#6954#7030#0#HTML" expanded="true" />
+            <element signature="e#7635#7642#0#HTML" expanded="true" />
+            <element signature="e#8419#8471#0#HTML" expanded="true" />
+            <element signature="e#8510#8586#0#HTML" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/public/app/views/projects/show/partials/controls_read_only/date_picker.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="204">
+          <caret line="24" column="0" lean-forward="true" selection-start-line="24" selection-start-column="0" selection-end-line="24" selection-end-column="0" />
           <folding />
         </state>
       </provider>

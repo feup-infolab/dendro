@@ -47,7 +47,7 @@ exports.getDescriptorRating = function (req, res) {
 
 exports.getFeedback = function (req, res) {
     var uri = req.body.uri;
-    getFeedbacks(uri,req.session.user.uri, function (err, feedbacks) {
+    getFeedbacks(uri,req.user.uri, function (err, feedbacks) {
         if (err) {
             res.status(500).json({
                 result: "Error",
@@ -83,7 +83,7 @@ exports.thumb = function (req, res) {
         deltaValue = -1;
     }
 
-    userRatesAlready(uri, descriptor, deltaValue,req.session.user.uri, function (err, userRates,sameRate,feedbackURI) {
+    userRatesAlready(uri, descriptor, deltaValue,req.user.uri, function (err, userRates,sameRate,feedbackURI) {
                 getRatings(uri, function (err, rating) {
                     var ratingToSave;
                     var newDelta=0;
@@ -198,7 +198,7 @@ exports.thumb = function (req, res) {
                                         hasResource: uri,
                                         score: scoreBeforeUpdate,
                                         delta: deltaValue,
-                                        belongsTo: req.session.user.uri
+                                        belongsTo: req.user.uri
                                     }
                                 });
 

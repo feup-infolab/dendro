@@ -242,7 +242,6 @@ Config.initGlobals = function()
             domain: "Generic",
             domain_specific: false
         },
-<<<<<<< HEAD
 
         gm:
             {
@@ -255,17 +254,6 @@ Config.initGlobals = function()
                 domain_specific : true
             },
 
-        rdf:
-        {
-            prefix : "rdf",
-            uri : "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            private : true,
-            elements : Elements.rdf,
-            label : "Resource Description Framework",
-            description : "Low-level technical ontology. It is the building block of all others.",
-            domain : "Low-level, System",
-            domain_specific : false
-=======
         rdf: {
             prefix: "rdf",
             uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
@@ -275,7 +263,6 @@ Config.initGlobals = function()
             description: "Low-level technical ontology. It is the building block of all others.",
             domain: "Low-level, System",
             domain_specific: false
->>>>>>> master
         },
         nie: {
             prefix: "nie",
@@ -427,24 +414,24 @@ Config.indexableFileExtensions = {
 };
 
 Config.limits =
-{
-    index : {
-        maxResults : 100,
-        pageSize : 100
-    },
-    db : {
-        maxResults : 1000,
-        pageSize : 1000
-    }
-};
+    {
+        index : {
+            maxResults : 100,
+            pageSize : 100
+        },
+        db : {
+            maxResults : 1000,
+            pageSize : 1000
+        }
+    };
 
 Config.streaming  =
-{
-    db :
     {
-        page_size : 200
-    }
-};
+        db :
+            {
+                page_size : 200
+            }
+    };
 
 Config.useElasticSearchAuth = active_config.useElasticSearchAuth;
 
@@ -459,7 +446,7 @@ Config.plugins = {
 };
 
 /*
-Element / Ontology related configuration
+ Element / Ontology related configuration
  */
 
 Config.acl = {
@@ -503,7 +490,7 @@ Config.types = {
 };
 
 /*
-Backup and restore
+ Backup and restore
  */
 
 Config.packageMetadataFileName = "metadata.json";
@@ -566,32 +553,32 @@ Config.thumbnails = {
     //every attribute of the size_parameters must be listed here for iteration TODO fix later
     sizes : ["big", "medium", "small", "icon"],
     size_parameters:
-    {
-        big : {
-            description : "big",
-            width : 256,
-            height : 256
-        },
-        medium : {
-            description : "medium",
-            width : 128,
-            height : 128
-        },
-        small : {
-            description : "small",
-            width : 64,
-            height : 64
-        },
-        icon : {
-            description : "icon",
-            width : 32,
-            height : 32
+        {
+            big : {
+                description : "big",
+                width : 256,
+                height : 256
+            },
+            medium : {
+                description : "medium",
+                width : 128,
+                height : 128
+            },
+            small : {
+                description : "small",
+                width : 64,
+                height : 64
+            },
+            icon : {
+                description : "icon",
+                width : 32,
+                height : 32
+            }
         }
-    }
 };
 
 /*
-MIME types
+ MIME types
  */
 
 Config.mimeType = function(extension) {
@@ -662,59 +649,57 @@ if(Config.demo_mode.active)
         {
             cwd: Config.appDir
         }, function (error, stdout, stderr) {
-        if (error == null) {
-            console.log("Last commit hash : " + JSON.stringify(stdout));
-            Config.demo_mode.git_info.commit_hash = stdout;
-        }
-        else
-        {
-            console.error("Unable to get commit hash : " + JSON.stringify(error));
-        }
-    });
+            if (error == null) {
+                console.log("Last commit hash : " + JSON.stringify(stdout));
+                Config.demo_mode.git_info.commit_hash = stdout;
+            }
+            else
+            {
+                console.error("Unable to get commit hash : " + JSON.stringify(error));
+            }
+        });
 
     exec('git log -1 | grep "Date:.*" | cut -c 9- | tr -d "\n"',
         {
             cwd: Config.appDir
         }, function (error, stdout, stderr) {
-        if (error == null) {
-            console.log("Last commit date : " + JSON.stringify(stdout));
-            Config.demo_mode.git_info.last_commit_date = stdout;
-        }
-        else
-        {
-            console.error("Unable to get last commit date : " + JSON.stringify(error));
-        }
-    });
+            if (error == null) {
+                console.log("Last commit date : " + JSON.stringify(stdout));
+                Config.demo_mode.git_info.last_commit_date = stdout;
+            }
+            else
+            {
+                console.error("Unable to get last commit date : " + JSON.stringify(error));
+            }
+        });
 }
 
 Config.email = getConfigParameter("email");
 
-<<<<<<< HEAD
-Config.medaltypes = getConfigParameter("medaltypes");
-
-Config.medals = getConfigParameter("medals");
-
-Config.progress= getConfigParameter("progress");
-=======
 Config.analytics_tracking_code = getConfigParameter("analytics_tracking_code");
 
 Config.public_ontologies = getConfigParameter("public_ontologies");
 
 Config.regex_routes = {
     project_root:
-    {
-        restore : "\/project\/([^\/]+)[\/data]?$",
-        bagit : "\/project\/([^\/]+)[\/data]?$",
-    },
+        {
+            restore : "\/project\/([^\/]+)[\/data]?$",
+            bagit : "\/project\/([^\/]+)[\/data]?$",
+        },
     inside_projects :
-    {
-        upload : "\/project\/([^\/]+)[\/data]?((?=(.*)\/upload\/?$).*)$",
-        restore : "\/project\/([^\/]+)[\/data]?((?=(.*)\/restore\/?$).*)$",
-        download : "\/project\/([^\/]+)[\/data]?((?=(.*)\/download\/?$).*)$"
-    }
+        {
+            upload : "\/project\/([^\/]+)[\/data]?((?=(.*)\/upload\/?$).*)$",
+            restore : "\/project\/([^\/]+)[\/data]?((?=(.*)\/restore\/?$).*)$",
+            download : "\/project\/([^\/]+)[\/data]?((?=(.*)\/download\/?$).*)$"
+        }
 }
 
 Config.authentication = getConfigParameter("authentication");
->>>>>>> master
+
+Config.medaltypes = getConfigParameter("medaltypes");
+
+Config.medals = getConfigParameter("medals");
+
+Config.progress= getConfigParameter("progress");
 
 module.exports.Config = Config;

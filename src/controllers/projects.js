@@ -1,6 +1,4 @@
-var Config = function () {
-    return GLOBAL.Config;
-}();
+var Config = function() { return GLOBAL.Config; }();
 
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
@@ -9,27 +7,17 @@ var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.j
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Permissions = require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var Progress = require(Config.absPathInSrcFolder("/models/game/progress.js")).Progress;
 var Medal = require(Config.absPathInSrcFolder("/models/game/medal.js")).Medal;
 var MedalType = require(Config.absPathInSrcFolder("/models/game/medal_type.js")).MedalType;
-
-
-
+var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 var nodemailer = require('nodemailer');
-var db = function () {
-    return GLOBAL.db.default;
-}();
+var db = function() { return GLOBAL.db.default; }();
 var flash = require('connect-flash');
 var async = require('async');
 
-<<<<<<< HEAD
-exports.all = function (req, res) {
-    Project.all(function (err, projects) {
-=======
 exports.all = function(req, res) {
->>>>>>> master
 
     var viewVars = {
         title: "All projects"
@@ -39,20 +27,6 @@ exports.all = function(req, res) {
         viewVars
     );
 
-<<<<<<< HEAD
-        if (!err && projects != null) {
-            viewVars.projects = projects;
-            res.render('projects/all',
-                viewVars
-            )
-        }
-        else {
-            viewVars.projects = [];
-            viewVars.error_messages = ["No projects available"];
-            res.render('projects/all',
-                viewVars
-            )
-=======
     var validateRequestType = function (cb) {
         var acceptsHTML = req.accepts('html');
         var acceptsJSON = req.accepts('json');
@@ -101,7 +75,6 @@ exports.all = function(req, res) {
             {
                 cb(err, projects);
             }, req);
->>>>>>> master
         }
 
     }
@@ -132,32 +105,28 @@ exports.all = function(req, res) {
     );
 };
 
-exports.my = function (req, res) {
+exports.my = function(req, res) {
 
     var viewVars = {
         //title: "My projects"
     };
 
-<<<<<<< HEAD
-    Project.findByCreatorOrContributor(req.session.user.uri, function (err, projects) {
-        if (!err && projects != null) {
-=======
     Project.findByCreatorOrContributor(req.user.uri, function(err, projects) {
         if(!err && projects != null)
         {
->>>>>>> master
             var acceptsHTML = req.accepts('html');
             var acceptsJSON = req.accepts('json');
 
-            if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
                 res.json(
                     {
-                        projects: projects
+                        projects : projects
                     }
                 );
             }
-            else {
+            else
+            {
                 viewVars = DbConnection.paginate(req,
                     viewVars
                 );
@@ -168,7 +137,8 @@ exports.my = function (req, res) {
                 );
             }
         }
-        else {
+        else
+        {
             viewVars.projects = [];
             viewVars.info_messages = ["You have not created any projects"];
             res.render('projects/my',
@@ -177,42 +147,53 @@ exports.my = function (req, res) {
         }
     });
 };
-exports.change_log = function (req, res) {
+exports.change_log = function(req, res){
 
-    var fetchVersionsInformation = function (archivedResource, cb) {
-        archivedResource.getDetailedInformation(function (err, result) {
+    var fetchVersionsInformation = function(archivedResource, cb)
+    {
+        archivedResource.getDetailedInformation(function(err, result)
+        {
             cb(err, result);
         });
     };
 
     //TODO make this an InformationElement instead of only a folder
-    Folder.findByUri(req.params.requestedResource, function (err, containingFolder) {
-        if (!err && containingFolder != null && containingFolder instanceof Folder) {
-            Project.findByHandle(req.params.handle, function (err, project) {
-                if (!err && project != null) {
+    Folder.findByUri(req.params.requestedResource, function(err, containingFolder)
+    {
+        if(!err && containingFolder != null && containingFolder instanceof Folder)
+        {
+            Project.findByHandle(req.params.handle, function(err, project) {
+                if(!err && project != null)
+                {
                     var offset;
 
-                    try {
+                    try{
                         offset = req.params.page * Config.change_log.default_page_length;
                     }
-                    catch (e) {
+                    catch(e)
+                    {
                         offset = 0;
                     }
 
-                    containingFolder.getArchivedVersions(offset, Config.change_log.default_page_length, function (err, archivedResources) {
-                        if (!err) {
-                            async.map(archivedResources, fetchVersionsInformation, function (err, fullVersions) {
-                                if (!err) {
+                    containingFolder.getArchivedVersions(offset, Config.change_log.default_page_length, function(err, archivedResources)
+                    {
+                        if(!err)
+                        {
+                            async.map(archivedResources, fetchVersionsInformation, function(err, fullVersions){
+                                if(!err)
+                                {
                                     res.json(fullVersions);
                                 }
-                                else {
+                                else
+                                {
                                     var flash = require('connect-flash');
                                     flash('error', "Unable to fetch descriptors. Reported Error: " + fullVersions);
                                     res.redirect('back');
                                 }
                             });
                         }
-                        else {
+                        else
+                        {
                             var flash = require('connect-flash');
                             flash('error', "Unable to fetch project revisions. Reported Error: " + archivedResources);
                             res.redirect('back');
@@ -220,64 +201,25 @@ exports.change_log = function (req, res) {
                     });
 
                 }
-                else {
+                else
+                {
                     var flash = require('connect-flash');
                     flash('error', "Unable to fetch contents of folder");
                     res.redirect('back');
                 }
             });
         }
-        else {
+        else
+        {
             var flash = require('connect-flash');
             flash('error', "Unable to fetch project");
-            if (!res._headerSent) {
+            if(!res._headerSent)
+            {
                 res.redirect('back');
             }
         }
     });
 };
-<<<<<<< HEAD
-exports.show = function (req, res) {
-    if (req.params.requestedResource != null) {
-        var resourceURI = req.params.requestedResource;
-    }
-    else if (req.params.handle) {
-        var project = new Project(
-            {
-                ddr: {
-                    handle: req.params
-                }
-            }
-        );
-
-        var resourceURI = project.uri;
-    }
-
-    if (req.query.show_history != null) {
-        var showing_history = 1;
-
-        var fetchVersionsInformation = function (archivedResource, cb) {
-            archivedResource.getDetailedInformation(function (err, result) {
-                cb(err, result);
-            });
-        }
-    }
-    else {
-        var showing_history = 0;
-    }
-
-    var viewVars = {
-        showing_history: showing_history,
-        Descriptor: Descriptor
-    };
-
-    var accept = req.header('Accept');
-    var serializer = null;
-    var contentType = null;
-    if (accept in Config.metadataSerializers) {
-        serializer = Config.metadataSerializers[accept];
-        contentType = Config.metadataContentTypes[accept];
-=======
 
 exports.show = function(req, res) {
     var userIsLoggedIn = req.user ? true : false;
@@ -311,7 +253,6 @@ exports.show = function(req, res) {
             {
                 serializer = Config.metadataSerializers[accept];
                 contentType = Config.metadataContentTypes[accept];
->>>>>>> master
 
                 if (req.query.deep != null)
                 {
@@ -338,15 +279,6 @@ exports.show = function(req, res) {
                         if (!err)
                         {
 
-<<<<<<< HEAD
-        var requestedResource = new Project({
-            uri: requestedResourceURI
-        });
-
-        if (req.query.deep != null && req.query.deep == 'true') {
-            requestedResource.findMetadataRecursive(function (err, result) {
-                if (!err) {
-=======
                             res.set('Content-Type', contentType);
                             res.send(serializer(result));
 
@@ -359,7 +291,6 @@ exports.show = function(req, res) {
                         }
                     });
                 }
->>>>>>> master
 
                 return false;
             }
@@ -375,19 +306,6 @@ exports.show = function(req, res) {
             return _.isEqual(reason, Permissions.role.project.creator) || _.isEqual(reason, Permissions.role.project.contributor) || _.isEqual(reason, Permissions.role.system.admin);
         });
 
-<<<<<<< HEAD
-                }
-                else {
-                    res.status(500).json({
-                        error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
-                    });
-                }
-            });
-        }
-        else {
-            requestedResource.findMetadata(function (err, result) {
-                if (!err) {
-=======
         if(isEditor.length > 0)
         {
             if(askedForHtml(req, res))
@@ -408,7 +326,6 @@ exports.show = function(req, res) {
                 var reason = authorization.role;
                 return _.isEqual(reason, Permissions.project_privacy_status.public) || _.isEqual(reason, Permissions.role.system.admin);
             });
->>>>>>> master
 
             var isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
                 var reason = authorization.role;
@@ -423,12 +340,6 @@ exports.show = function(req, res) {
                         viewVars
                     );
                 }
-<<<<<<< HEAD
-                else {
-                    res.status(500).json({
-                        error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
-                    });
-=======
             }
             else if(isPublicProject.length > 0)
             {
@@ -437,7 +348,6 @@ exports.show = function(req, res) {
                     res.render('projects/show_readonly',
                         viewVars
                     );
->>>>>>> master
                 }
 
             }
@@ -457,10 +367,6 @@ exports.show = function(req, res) {
     {
         var showing_history = 1;
     }
-<<<<<<< HEAD
-    else {
-        if (req.params.filepath == null) {
-=======
     else
     {
         var showing_history = 0;
@@ -473,32 +379,12 @@ exports.show = function(req, res) {
             cb(err, result);
         });
     }
->>>>>>> master
 
     var viewVars = {
         showing_history : showing_history,
         Descriptor : Descriptor
     };
 
-<<<<<<< HEAD
-            Project.findByHandle(req.params.handle, function (err, project) {
-                if (!err && project != null) {
-                    var showHome = req.session.user ? true : false;
-                    viewVars.project = project;
-                    viewVars.title = project.dcterms.title;
-                    viewVars.subtitle = "(Project handle : " + project.ddr.handle + ")";
-                    viewVars.breadcrumbs = [];
-
-                    if (req.public == false) {
-                        viewVars.breadcrumbs.push(
-                            {
-                                uri: res.locals.baseURI + "/projects/my",
-                                title: "My Projects",
-                                show_home: showHome
-                            }
-                        );
-                    }
-=======
     if(req.params.filepath == null)
     {
         viewVars.read_only = true;
@@ -511,20 +397,10 @@ exports.show = function(req, res) {
                 viewVars.title = project.dcterms.title;
                 viewVars.subtitle = "(Project handle : "+  project.ddr.handle + ")";
                 viewVars.breadcrumbs = [];
->>>>>>> master
 
                 if(userIsLoggedIn){
                     viewVars.breadcrumbs.push(
                         {
-<<<<<<< HEAD
-                            uri: res.locals.baseURI + "/projects/my",
-                            title: "My Projects",
-                            show_home: true
-                        },
-                        {
-                            uri: res.locals.baseURI + "/project/" + req.params.handle,
-                            title: decodeURI(req.params.handle)
-=======
                             uri : res.locals.baseURI + "/projects/my",
                             title : "My Projects",
                             show_home : true
@@ -538,59 +414,10 @@ exports.show = function(req, res) {
                             uri : res.locals.baseURI + "/projects",
                             title : "Public Projects",
                             show_home : false
->>>>>>> master
                         }
                     );
                 }
 
-<<<<<<< HEAD
-                    if (showing_history) {
-                        project.getArchivedVersions(null, null, function (err, archivedResources) {
-                            if (!err) {
-                                async.map(archivedResources, fetchVersionsInformation, function (err, archivedResourcesWithFullAuthorInformation) {
-                                    if (!err) {
-
-                                        viewVars.versions = archivedResourcesWithFullAuthorInformation;
-                                        res.render('projects/show',
-                                            viewVars
-                                        );
-                                    }
-                                    else {
-                                        var flash = require('connect-flash');
-                                        flash('error', "Unable to fetch information of the change authors. Reported Error: " + archivedResourcesWithFullAuthorInformation);
-                                        res.redirect('back');
-                                    }
-                                });
-                            }
-                            else {
-                                var flash = require('connect-flash');
-                                flash('error', "Unable to fetch project revisions. Reported Error: " + archivedResources);
-                                res.redirect('back');
-                            }
-                        });
-                    }
-                    else {
-                        project.getPropertiesFromOntologies(
-                            Ontology.getPublicOntologiesUris(),
-                            function (err, descriptors) {
-                                if (!err) {
-                                    viewVars.descriptors = descriptors;
-
-                                    if (req.public && req.public == true) {
-                                        res.render('projects/show_readonly',
-                                            viewVars
-                                        );
-                                    }
-                                    else {
-                                        res.render('projects/show',
-                                            viewVars
-                                        );
-                                    }
-
-                                    res.render('projects/show',
-                                        viewVars
-                                    );
-=======
                 viewVars.breadcrumbs.push(
                     {
                         uri : res.locals.baseURI + "/project/" + req.params.handle,
@@ -610,9 +437,9 @@ exports.show = function(req, res) {
 
                                     viewVars.versions = archivedResourcesWithFullAuthorInformation;
                                     sendResponse(viewVars, project);
->>>>>>> master
                                 }
-                                else {
+                                else
+                                {
                                     var flash = require('connect-flash');
                                     flash('error', "Unable to fetch information of the change authors. Reported Error: " + archivedResourcesWithFullAuthorInformation);
                                     res.redirect('back');
@@ -627,24 +454,6 @@ exports.show = function(req, res) {
                         }
                     });
                 }
-<<<<<<< HEAD
-                else {
-                    var flash = require('connect-flash');
-                    flash('error', "Unable to retrieve the project : " + resourceURI + " . " + project);
-                    res.redirect('back');
-                }
-            });
-        }
-        else {
-            Folder.findByUri(resourceURI, function (err, containingFolder) {
-                if (!err && containingFolder != null && containingFolder instanceof Folder) {
-                    var breadcrumbSections = req.params.filepath.split("/");
-                    var currentBreadCrumb = res.locals.baseURI + "/project/" + req.params.handle + "/" + breadcrumbSections[1]; //ignore leading "/data" section
-                    var breadcrumbs = [
-                        {
-                            uri: currentBreadCrumb,
-                            title: req.params.handle
-=======
                 else
                 {
                     project.getPropertiesFromOntologies(
@@ -705,27 +514,15 @@ exports.show = function(req, res) {
                             uri : res.locals.baseURI + "/projects",
                             title : "Public Projects",
                             show_home : false
->>>>>>> master
                         }
                     );
                 }
 
 
-<<<<<<< HEAD
-                    for (var i = 2; i < breadcrumbSections.length; i++) {
-                        currentBreadCrumb = currentBreadCrumb + "/" + breadcrumbSections[i];
-                        breadcrumbs.push(
-                            {
-                                uri: currentBreadCrumb,
-                                title: decodeURI(breadcrumbSections[i])
-                            }
-                        );
-=======
                 breadcrumbs.push(
                     {
                         uri : currentBreadCrumb,
                         title : req.params.handle
->>>>>>> master
                     }
                 );
 
@@ -749,55 +546,6 @@ exports.show = function(req, res) {
                 //viewVars.read_only = true;
                 viewVars.showing_project_root = false;
 
-<<<<<<< HEAD
-                    Project.findByHandle(req.params.handle, function (err, project) {
-                        if (!err && project != null) {
-                            viewVars.project = project;
-                            viewVars.title = project.dcterms.title;
-                            viewVars.subtitle = "(Project handle : " + project.ddr.handle + ")";
-
-                            if (showing_history) {
-                                containingFolder.getArchivedVersions(null, null, function (err, archivedResources) {
-                                    if (!err) {
-                                        async.map(archivedResources, fetchVersionsInformation, function (err, fullVersions) {
-                                            if (!err) {
-                                                viewVars.versions = fullVersions;
-
-                                                if (req.public && req.public == true) {
-                                                    res.render('projects/show_readonly',
-                                                        viewVars
-                                                    );
-                                                }
-                                                else {
-                                                    res.render('projects/show',
-                                                        viewVars
-                                                    );
-                                                }
-                                            }
-                                            else {
-                                                var flash = require('connect-flash');
-                                                flash('error', "Unable to fetch descriptors. Reported Error: " + fullVersions);
-                                                res.redirect('back');
-                                            }
-                                        });
-                                    }
-                                    else {
-                                        var flash = require('connect-flash');
-                                        flash('error', "Unable to fetch project revisions. Reported Error: " + archivedResources);
-                                        res.redirect('back');
-                                    }
-                                });
-                            }
-                            else {
-                                containingFolder.getPropertiesFromOntologies(
-                                    Ontology.getPublicOntologiesUris(),
-                                    function (err, descriptors) {
-                                        if (!err) {
-                                            viewVars.descriptors = descriptors;
-                                            res.render('projects/show',
-                                                viewVars
-                                            );
-=======
                 Project.findByHandle(req.params.handle, function(err, project) {
                     if(!err && project != null)
                     {
@@ -816,9 +564,9 @@ exports.show = function(req, res) {
                                         {
                                             viewVars.versions = fullVersions;
                                             sendResponse(viewVars, containingFolder);
->>>>>>> master
                                         }
-                                        else {
+                                        else
+                                        {
                                             var flash = require('connect-flash');
                                             flash('error', "Unable to fetch descriptors. Reported Error: " + fullVersions);
                                             res.redirect('back');
@@ -833,19 +581,6 @@ exports.show = function(req, res) {
                                 }
                             });
                         }
-<<<<<<< HEAD
-                        else {
-                            var flash = require('connect-flash');
-                            flash('error', "Unable to fetch contents of folder");
-                            res.redirect('back');
-                        }
-                    });
-                }
-                else {
-                    var flash = require('connect-flash');
-                    flash('error', "Unable to fetch project");
-                    if (!res._headerSent) {
-=======
                         else
                         {
                             containingFolder.getPropertiesFromOntologies(
@@ -871,7 +606,6 @@ exports.show = function(req, res) {
                     {
                         var flash = require('connect-flash');
                         flash('error', "Unable to fetch contents of folder");
->>>>>>> master
                         res.redirect('back');
                     }
                 });
@@ -889,51 +623,6 @@ exports.show = function(req, res) {
     }
 };
 
-<<<<<<< HEAD
-exports.new = function (req, res) {
-    if (req.originalMethod == "GET") {
-        res.render('projects/new',
-            {
-                title: "Create a new project"
-            }
-        );
-    }
-    else if (req.originalMethod == "POST") {
-        if (req.body.handle == null || req.body.handle == "") {
-            res.render('projects/new',
-                {
-                    error_messages: ["The project's handle cannot be null or an empty value."]
-                }
-            )
-        }
-        else if (req.body.handle != null && !req.body.handle.match(/^[0-9a-z]+$/)) {
-            res.render('projects/new',
-                {
-                    error_messages: ["Project handle can not include spaces or special characters. It should only include non-capital letters (a to z) and numbers (0 to 9). Valid : project01. Invalid: project 01, project*01, pro@ject, proj%91 "]
-                }
-            )
-        }
-        else if (!req.body.title || req.body.title == "") {
-            res.render('projects/new',
-                {
-                    error_messages: ["Please insert a title for your project."]
-                }
-            )
-        }
-        else if (!req.body.description || req.body.description == "") {
-            res.render('projects/new',
-                {
-                    error_messages: ["Please insert a description for your project."]
-                }
-            )
-        }
-        else if (!req.body.privacy || req.body.privacy == "") {
-            res.render('projects/new',
-                {
-                    error_messages: ["Please specify the privacy type for your project."]
-                }
-            )
-=======
 exports.new = function(req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
@@ -1032,30 +721,11 @@ exports.new = function(req, res) {
                     }
                 )
             }
->>>>>>> master
         }
-        else {
-            Project.findByHandle(req.body.handle, function (err, project) {
+        else
+        {
+            Project.findByHandle(req.body.handle, function(err, project){
 
-<<<<<<< HEAD
-                if (!err) {
-                    if ((project != null) && project instanceof Project) {
-                        res.render('projects/new',
-                            {
-                                //title : "Register on Dendro",
-                                error_messages: ["A project with handle " + req.body.handle + " already exists. Please choose another one."]
-                            }
-                        );
-                    }
-                    else {
-                        //creator will be the curently logged in user
-
-                        var projectData = {
-                            dcterms: {
-                                creator: req.session.user.uri,
-                                title: req.body.title,
-                                description: req.body.description,
-=======
                 if(!err)
                 {
                     if((project != null) && project instanceof Project)
@@ -1083,23 +753,19 @@ exports.new = function(req, res) {
                                 creator : req.user.uri,
                                 title : req.body.title,
                                 description : req.body.description,
->>>>>>> master
                                 publisher: req.body.publisher,
                                 language: req.body.language,
                                 coverage: req.body.coverage
                             },
-                            ddr: {
-                                handle: req.body.handle,
+                            ddr : {
+                                handle : req.body.handle,
                                 privacyStatus: req.body.privacy
                             }
                         };
 
-<<<<<<< HEAD
-                        Project.createAndInsertFromObject(projectData, function (err, result) {
-
-
-
-                            if (!err) {
+                        Project.createAndInsertFromObject(projectData, function(err, result){
+                            if(!err)
+                            {
                                 async.waterfall([function(callback)
                                     {
                                         User.findByUri(projectData.dcterms.creator, function (err, user){
@@ -1170,10 +836,8 @@ exports.new = function(req, res) {
                                                         }
                                                         else
                                                         {
-
                                                         }
                                                     });
-
                                                 }
                                                 else
                                                 {
@@ -1186,7 +850,6 @@ exports.new = function(req, res) {
                                             async.map(medaltypes,function(medaltype,cb){
                                                 if(progress.gm.numActions>=medaltype.gm.numActions && medaltype.gm.objectType=="Project")
                                                 {
-
                                                     var alreadyHave=false;
                                                     async.map(medals,function (medal) {
                                                         if(medal.gm.hasType==medaltype.uri)
@@ -1194,9 +857,7 @@ exports.new = function(req, res) {
                                                             alreadyHave=true;
                                                         }
                                                     },function(err, result) {
-
                                                     });
-
                                                     if(alreadyHave==false)
                                                     {
                                                         var medalData = {
@@ -1205,62 +866,42 @@ exports.new = function(req, res) {
                                                                 belongsTo: user.uri
                                                             }
                                                         };
-
                                                         messages.push("You win a "+medaltype.gm.material+" medal: "+medaltype.dcterms.title);
-
                                                         Medal.createAndInsertFromObject(medalData,function(err,insertMedal){
-
                                                             if(!err)
                                                             {
-
-
                                                             }
                                                             else
                                                             {
-
                                                             }
-
                                                         });
-
-
                                                     }
                                                     else
                                                     {
-
                                                     }
-
                                                 }
                                                 cb(null);
                                             },function(err, result) {
                                                 console.log(messages);
                                                 callback(null,messages);
                                             });
-
-
                                         },
                                         function(messages,callback)
                                         {
                                             for(var i=0; i<messages.length;i++)
                                             {
                                                 req.flash('success', messages[i]);
-
                                             }
                                             req.flash('success', "New project " + projectData.dcterms.title + " with handle " + projectData.ddr.handle + " created successfully");
                                             res.redirect('/projects/my');
                                             callback(null);
                                         }]
-                                , function (err, result) {
-                                    console.log(result);
-                                });
-=======
-                        Project.createAndInsertFromObject(projectData, function(err, result){
-                            if(!err)
-                            {
-                                req.flash('success', "New project " + projectData.dcterms.title +" with handle "+ projectData.ddr.handle +" created successfully");
-                                res.redirect('/projects/my');
->>>>>>> master
+                                    , function (err, result) {
+                                        console.log(result);
+                                    });
                             }
-                            else {
+                            else
+                            {
                                 res.render('index',
                                     {
                                         error_messages: [result]
@@ -1271,7 +912,8 @@ exports.new = function(req, res) {
                         });
                     }
                 }
-                else {
+                else
+                {
                     res.render('projects/new',
                         {
                             error_messages: [project]
@@ -1283,51 +925,13 @@ exports.new = function(req, res) {
     }
 };
 
-exports.administer = function (req, res) {
+exports.administer = function(req, res) {
 
     var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
     var viewVars = {
         title: "Administration Area"
     };
-<<<<<<< HEAD
-
-    Project.findByUri(requestedProjectURI, function (err, project) {
-        if (!err) {
-            viewVars.project = project;
-
-            if (project.ddr.privacyStatus != null && typeof project.ddr.privacyStatus === "string") {
-                var slashIndex = project.ddr.privacyStatus.lastIndexOf("\/");
-                var privacyType = project.ddr.privacyStatus.substring(slashIndex + 1);
-            }
-            else {
-                //By default it will be a private project
-                privacyType = "ddr:privateStatus";
-            }
-
-            viewVars.privacy = privacyType;
-
-            if (req.originalMethod == "POST") {
-                if (req.body.description != null) {
-                    project.dcterms.description = req.body.description;
-                }
-                if (req.body.title != null) {
-                    project.dcterms.title = req.body.title;
-                }
-                if (req.body.privacy != null) {
-                    viewVars.privacy = req.body.privacy;
-                    switch (req.body.privacy) {
-                        case "publicStatus":
-                            project.ddr.privacyStatus = 'ddr:publicStatus';
-                            break;
-                        case "privateStatus":
-                            project.ddr.privacyStatus = 'ddr:privateStatus';
-                            break;
-                        case "metadataOnlyStatus":
-                            project.ddr.privacyStatus = 'ddr:metadataOnlyStatus';
-                            break;
-                    }
-=======
 
     Project.findByUri(requestedProjectURI, function(err, project)
     {
@@ -1340,21 +944,10 @@ exports.administer = function (req, res) {
                 if (project.ddr.privacyStatus == null)
                 {
                     project.ddr.privacyStatus = 'private';
->>>>>>> master
                 }
 
                 viewVars.privacy = project.ddr.privacyStatus;
 
-<<<<<<< HEAD
-                if (req.body.contributor != null && req.body.contributor instanceof Array) {
-
-                    for (var i = 0; i < req.body.contributor.length; i++) {
-                        var contributor = req.body.contributor[i];
-
-
-                        if (regexp.test(contributor)) {
-                            contributors.push(contributor);
-=======
                 if (req.originalMethod == "POST")
                 {
                     let updateProjectMetadata = function(callback)
@@ -1384,20 +977,12 @@ exports.administer = function (req, res) {
                                     project.ddr.privacyStatus = 'metadata_only';
                                     break;
                             }
->>>>>>> master
                         }
 
-<<<<<<< HEAD
-                if (req.body.newContributor) {
-
-                    if (regexp.test(req.body.newContributor)) {
-                        contributors.push(req.body.newContributor);
-=======
                         callback(null, project);
                     };
 
                     let notifyContributor = function(user){
->>>>>>> master
 
                         const client = nodemailer.createTransport("SMTPS:", {
                             service: 'SendGrid',
@@ -1407,28 +992,6 @@ exports.administer = function (req, res) {
                             }
                         });
 
-<<<<<<< HEAD
-                        User.findByUri(req.body.newContributor, function (err, user) {
-
-                            if (!err && user && user.foaf.mbox) {
-                                var email = {
-                                    from: 'support@dendro.fe.up.pt',
-                                    to: user.foaf.mbox,
-                                    subject: 'Added as contributor for project "' + req.params.handle + '"',
-                                    text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
-                                };
-
-                                client.sendMail(email, function (err, info) {
-                                    if (err) {
-                                        console.log("[NODEMAILER] " + err);
-                                        flash('error', "Error sending request to user. Please try again later");
-                                    }
-                                    else {
-                                        console.log("[NODEMAILER] email sent: " + info);
-                                        flash('success', "Sent request to project's owner");
-                                    }
-                                });
-=======
                         const email = {
                             from: 'support@dendro.fe.up.pt',
                             to: user.foaf.mbox,
@@ -1444,7 +1007,6 @@ exports.administer = function (req, res) {
                             else {
                                 console.log("[NODEMAILER] email sent: " + info);
                                 flash('success', "Sent request to project's owner");
->>>>>>> master
                             }
                         });
                     };
@@ -1464,10 +1026,6 @@ exports.administer = function (req, res) {
 
                                     User.findByUri(contributor, function (err, user) {
 
-<<<<<<< HEAD
-                    project.save(function (err, result) {
-                        if (!err) {
-=======
                                         if (!err && user && user.foaf.mbox) {
                                             //TODO Check if user already is a contributor so as to not send a notification
                                             notifyContributor(user);
@@ -1491,7 +1049,7 @@ exports.administer = function (req, res) {
                                 }
 
                             }, function(err, contributors){
-                               if(!err){
+                                if(!err){
                                     project.dcterms.contributor = contributors;
                                     callback(null, project);
                                 }
@@ -1522,71 +1080,46 @@ exports.administer = function (req, res) {
                         if (!err)
                         {
                             viewVars.project = project;
->>>>>>> master
                             viewVars.success_messages = ["Project " + req.params.handle + " successfully updated."];
                             res.render('projects/administration/administer',
                                 viewVars
                             );
                         }
-<<<<<<< HEAD
-                        else {
-                            viewVars.error_messages = [result];
-=======
                         else
                         {
                             viewVars.error_messages = [project];
->>>>>>> master
                             res.render('projects/administration/administer',
                                 viewVars
                             );
                         }
                     })
                 }
-<<<<<<< HEAD
-                else if (req.originalMethod == "GET") {
-=======
                 else if (req.originalMethod == "GET")
                 {
                     viewVars.project = project;
->>>>>>> master
                     res.render('projects/administration/administer',
                         viewVars
                     );
                 }
             }
-<<<<<<< HEAD
-            else {
-                viewVars.error_messages = ["Error reported " + project];
-                res.render('projects/administration/administer',
-=======
             else
             {
                 viewVars.error_messages = ["Project " + req.params.handle + " does not exist."];
                 res.status(401).render('index',
->>>>>>> master
                     viewVars
                 );
             }
         }
-<<<<<<< HEAD
-        else {
-            viewVars.error_messages = ["Project " + req.params.handle + " does not exist."];
-            res.render('/',
-=======
         else
         {
             viewVars.error_messages = ["Error reported " + project];
             res.render('projects/administration/administer',
->>>>>>> master
                 viewVars
             );
         }
     });
 };
 
-<<<<<<< HEAD
-exports.bagit = function (req, res) {
-=======
 exports.get_contributors = function(req, res){
     var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
@@ -1640,24 +1173,29 @@ exports.get_contributors = function(req, res){
 
 exports.bagit = function(req,res)
 {
->>>>>>> master
     var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
-    Project.findByUri(requestedProjectURI, function (err, project) {
-        if (!err) {
-            if (project != null && project instanceof Project) {
-                project.backup(function (err, baggedContentsZipFileAbsPath, parentFolderPath) {
-                    if (!err) {
-                        if (baggedContentsZipFileAbsPath != null) {
+    Project.findByUri(requestedProjectURI, function(err, project){
+        if(!err)
+        {
+            if(project != null && project instanceof Project)
+            {
+                project.backup(function(err, baggedContentsZipFileAbsPath, parentFolderPath){
+                    if(!err)
+                    {
+                        if(baggedContentsZipFileAbsPath != null)
+                        {
                             var fs = require('fs');
                             var fileStream = fs.createReadStream(baggedContentsZipFileAbsPath);
 
                             res.on('end', function () {
-                                Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr) {
-                                    if (err) {
+                                Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
+                                    if(err)
+                                    {
                                         console.error("Unable to delete " + parentFolderPath);
                                     }
-                                    else {
+                                    else
+                                    {
                                         console.log("Deleted " + parentFolderPath);
                                     }
                                 });
@@ -1665,38 +1203,43 @@ exports.bagit = function(req,res)
 
                             fileStream.pipe(res);
                         }
-                        else {
+                        else
+                        {
                             var error = "There was an error attempting to backup project : " + requestedProjectURI;
                             console.error(error);
-                            res.write("500 Error : " + error + "\n");
+                            res.write("500 Error : "+ error +"\n");
                             res.end();
                         }
                     }
-                    else {
+                    else
+                    {
                         res.status(500).json({
                             result: "error",
-                            message: "project " + requestedProjectURI + " was found but it was impossible to delete because of error : " + baggedContentsZipFileAbsPath
+                            message : "project " + requestedProjectURI + " was found but it was impossible to delete because of error : " + baggedContentsZipFileAbsPath
                         })
                     }
                 });
             }
-            else {
+            else
+            {
                 res.status(404).json({
-                    result: "error",
-                    message: "Unable to find project with handle : " + req.params.handle
+                    result : "error",
+                    message : "Unable to find project with handle : " + req.params.handle
                 });
             }
         }
-        else {
+        else
+        {
             res.status(500).json({
-                result: "error",
-                message: "Invalid project : " + requestedProjectURI + " : " + project
+                result : "error",
+                message : "Invalid project : " + requestedProjectURI + " : " + project
             });
         }
     });
 };
 
-exports.delete = function (req, res) {
+exports.delete = function(req,res)
+{
     var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
     var acceptsHTML = req.accepts('html');
@@ -1706,114 +1249,125 @@ exports.delete = function (req, res) {
         title: "Administration Area"
     };
 
-    Project.findByUri(requestedProjectURI, function (err, project) {
-        if (!err) {
-            if (project != null) {
-                project.delete(function (err, result) {
-                    if (!err) {
+    Project.findByUri(requestedProjectURI, function(err, project){
+        if(!err)
+        {
+            if(project != null)
+            {
+                project.delete(function(err, result){
+                    if(!err)
+                    {
                         var success_messages = ["Project " + req.params.handle + " successfully marked as deleted"];
 
                         var acceptsHTML = req.accepts('html');
                         var acceptsJSON = req.accepts('json');
 
-                        if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                         {
                             res.json(
                                 {
-                                    result: "ok",
-                                    message: success_messages
+                                    result : "ok",
+                                    message : success_messages
                                 }
                             );
                         }
-                        else {
+                        else
+                        {
                             res.redirect('/projects/my');
                         }
                     }
-                    else {
+                    else
+                    {
                         res.status(500).json({
                             result: "error",
-                            message: "project " + requestedProjectURI + " was found but it was impossible to delete because of error : " + result
+                            message : "project " + requestedProjectURI + " was found but it was impossible to delete because of error : " + result
                         })
                     }
                 });
             }
-            else {
+            else
+            {
                 res.status(404).json({
-                    result: "error",
-                    message: "Unable to find project with handle : " + req.params.handle
+                    result : "error",
+                    message : "Unable to find project with handle : " + req.params.handle
                 });
             }
         }
-        else {
+        else
+        {
             res.status(500).json({
-                result: "error",
-                message: "Invalid project : " + requestedProjectURI + " : " + project
+                result : "error",
+                message : "Invalid project : " + requestedProjectURI + " : " + project
             });
         }
     });
 };
 
-exports.undelete = function (req, res) {
+exports.undelete = function(req,res)
+{
     var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
     var viewVars = {
         title: "Administration Area"
     };
 
-    Project.findByUri(requestedProjectURI, function (err, project) {
-        if (!err) {
-            if (project != null) {
-                project.undelete(function (err, result) {
-                    if (!err) {
+    Project.findByUri(requestedProjectURI, function(err, project){
+        if(!err)
+        {
+            if(project != null)
+            {
+                project.undelete(function(err, result){
+                    if(!err)
+                    {
                         var success_messages = ["Project " + req.params.handle + " successfully recovered"];
 
                         var acceptsHTML = req.accepts('html');
                         var acceptsJSON = req.accepts('json');
 
-                        if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                         {
                             res.json(
                                 {
-                                    result: "ok",
-                                    message: success_messages
+                                    result : "ok",
+                                    message : success_messages
                                 }
                             );
                         }
-                        else {
+                        else
+                        {
                             res.redirect('/projects/my');
                         }
                     }
-                    else {
+                    else
+                    {
                         res.status(500).json({
                             result: "error",
-                            message: "project " + requestedProjectURI + " was found but it was impossible to undelete because of error : " + result
+                            message : "project " + requestedProjectURI + " was found but it was impossible to undelete because of error : " + result
                         })
                     }
                 });
             }
-            else {
+            else
+            {
                 res.status(404).json({
-                    result: "error",
-                    message: "Unable to find project with handle : " + req.params.handle
+                    result : "error",
+                    message : "Unable to find project with handle : " + req.params.handle
                 });
             }
         }
-        else {
+        else
+        {
             res.status(500).json({
-                result: "error",
-                message: "Invalid project : " + requestedProjectURI + " : " + project
+                result : "error",
+                message : "Invalid project : " + requestedProjectURI + " : " + project
             });
         }
     });
 };
 
-<<<<<<< HEAD
-exports.recent_changes = function (req, res) {
-=======
 exports.recent_changes = function(req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
->>>>>>> master
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -1827,40 +1381,6 @@ exports.recent_changes = function(req, res) {
         var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
 
-<<<<<<< HEAD
-    Project.findByUri(req.params.requestedResource, function (err, project) {
-        if (!err) {
-            if (project != null) {
-                var offset = parseInt(req.query.offset);
-                var limit = parseInt(req.query.limit);
-
-                project.getRecentProjectWideChanges(function (err, changes) {
-                    if (!err) {
-                        res.json(changes);
-                    }
-                    else {
-                        res.status(500).json({
-                            result: "error",
-                            message: "Invalid project : " + requestedProjectURI + " : " + project
-                        });
-                    }
-                }, offset, limit);
-            }
-            else {
-                res.status(404).json({
-                    result: "error",
-                    message: "Unable to find project with handle : " + req.params.handle
-                });
-            }
-        }
-        else {
-            res.status(500).json({
-                result: "error",
-                message: "Invalid project : " + requestedProjectURI + " : " + project
-            });
-        }
-    });
-=======
         Project.findByUri(req.params.requestedResource, function(err, project){
             if(!err)
             {
@@ -1900,31 +1420,19 @@ exports.recent_changes = function(req, res) {
             }
         });
     }
->>>>>>> master
 };
 
-exports.stats = function (req, res) {
+exports.stats = function(req, res) {
 
     var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
-    Project.findByUri(requestedProjectURI, function (err, project) {
-        if (!err) {
+    Project.findByUri(requestedProjectURI, function(err, project){
+        if(!err)
+        {
             var offset = parseInt(req.query.offset);
             var limit = parseInt(req.query.limit);
 
             async.waterfall([
-<<<<<<< HEAD
-                    function (callback) {
-                        project.getRevisionsCount(function (err, revisionsCount) {
-                            if (!err) {
-                                callback(err, revisionsCount)
-                            }
-                            else {
-                                callback(1,
-                                    {
-                                        result: "error",
-                                        message: "Error calculating calculating number of revisions in project . Error reported : " + JSON.stringify(err) + "."
-=======
                     function(callback)
                     {
                         project.getRevisionsCount(function(err, revisionsCount)
@@ -1939,23 +1447,10 @@ exports.stats = function (req, res) {
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of revisions in project . Error reported : " + JSON.stringify(err) + "."
->>>>>>> master
                                     });
                             }
                         });
                     },
-<<<<<<< HEAD
-                    function (revisionsCount, callback) {
-                        project.getFoldersCount(function (err, foldersCount) {
-                            if (!err) {
-                                callback(err, revisionsCount, foldersCount)
-                            }
-                            else {
-                                callback(1,
-                                    {
-                                        result: "error",
-                                        message: "Error calculating calculating number of folders in project . Error reported : " + JSON.stringify(err) + "."
-=======
                     function(revisionsCount, callback)
                     {
                         project.getFoldersCount(function(err, foldersCount)
@@ -1970,23 +1465,10 @@ exports.stats = function (req, res) {
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of folders in project . Error reported : " + JSON.stringify(err) + "."
->>>>>>> master
                                     });
                             }
                         });
                     },
-<<<<<<< HEAD
-                    function (revisionsCount, foldersCount, callback) {
-                        project.getFilesCount(function (err, filesCount) {
-                            if (!err) {
-                                callback(err, revisionsCount, foldersCount, filesCount);
-                            }
-                            else {
-                                callback(1,
-                                    {
-                                        result: "error",
-                                        message: "Error calculating calculating number of files in project . Error reported : " + JSON.stringify(err) + "."
-=======
                     function(revisionsCount, foldersCount, callback)
                     {
                         project.getFilesCount(function(err, filesCount)
@@ -2001,23 +1483,10 @@ exports.stats = function (req, res) {
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of files in project . Error reported : " + JSON.stringify(err) + "."
->>>>>>> master
                                     });
                             }
                         });
                     },
-<<<<<<< HEAD
-                    function (revisionsCount, foldersCount, filesCount, callback) {
-                        project.getMembersCount(function (err, membersCount) {
-                            if (!err) {
-                                callback(err, revisionsCount, foldersCount, filesCount, membersCount);
-                            }
-                            else {
-                                callback(1,
-                                    {
-                                        result: "error",
-                                        message: "Error calculating calculating number of members of the project . Error reported : " + JSON.stringify(err) + "."
-=======
                     function(revisionsCount, foldersCount, filesCount, callback)
                     {
                         project.getMembersCount(function(err, membersCount)
@@ -2032,44 +1501,10 @@ exports.stats = function (req, res) {
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of members of the project . Error reported : " + JSON.stringify(err) + "."
->>>>>>> master
                                     });
                             }
                         });
                     },
-<<<<<<< HEAD
-                    function (revisionsCount, foldersCount, filesCount, membersCount, callback) {
-                        project.getStorageSize(function (err, storageSize) {
-                            if (!err) {
-                                callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize)
-                            }
-                            else {
-                                callback(1,
-                                    {
-                                        result: "error",
-                                        message: "Error calculating size of project : " + requestedProjectURI + " . Error reported : " + JSON.stringify(err) + ".",
-                                        solution: "Did you install mongodb via apt-get? YOU NEED MONGODB 10GEN to run this, or it will give errors. Install the latest mongodb by .deb package instead of apt-get."
-                                    });
-                            }
-                        }, offset, limit);
-                    },
-                    function (revisionsCount, foldersCount, filesCount, membersCount, storageSize) {
-                        var humanize = require('humanize');
-
-                        res.json({
-                            size: humanize.filesize(storageSize),
-                            max_size: humanize.filesize(Config.maxProjectSize),
-                            percent_full: Math.round((storageSize / Config.maxProjectSize) * 100),
-                            members_count: membersCount,
-                            folders_count: foldersCount,
-                            files_count: filesCount,
-                            revisions_count: revisionsCount
-                        });
-                    }
-                ],
-                function (err, result) {
-                    if (err) {
-=======
                     function(revisionsCount, foldersCount, filesCount, membersCount, callback)
                     {
                         project.getStorageSize(function(err, storageSize){
@@ -2107,27 +1542,28 @@ exports.stats = function (req, res) {
                 {
                     if(err)
                     {
->>>>>>> master
                         res.status(500).json(result);
                     }
                 });
         }
-        else {
+        else
+        {
             res.status(500).json({
-                result: "error",
-                message: "Invalid project : " + requestedProjectURI + " : " + project
+                result : "error",
+                message : "Invalid project : " + requestedProjectURI + " : " + project
             });
         }
     });
 };
 
-exports.interactions = function (req, res) {
+exports.interactions = function(req, res) {
     var username = req.params["username"];
     var currentUser = req.user;
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if (!username) {
+    if(!username)
+    {
         username = currentUser.uri;
     }
 
@@ -2135,38 +1571,34 @@ exports.interactions = function (req, res) {
      * normal users can only access their own information, admins
      * can access information of all users
      */
-    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        Project.findByHandle(req.params.handle, function (err, project) {
-            if (!err) {
-                project.getInteractions(function (err, interactions) {
-                    if (!err) {
+        Project.findByHandle(req.params.handle, function(err, project){
+            if(!err)
+            {
+                project.getInteractions(function(err, interactions){
+                    if(!err)
+                    {
                         res.json(interactions);
                     }
-                    else {
+                    else
+                    {
                         res.status(500).json({
-                            result: "Error",
-                            message: "Error retrieving interactions for project " + req.params.handle
+                            result : "Error",
+                            message : "Error retrieving interactions for project " + req.params.handle
                         });
                     }
                 });
             }
-            else {
+            else
+            {
                 res.status(404).json({
-                    result: "Error",
-                    message: "Unable to find project " + req.params.handle
+                    result : "Error",
+                    message : "Unable to find project " + req.params.handle
                 });
             }
         });
     }
-<<<<<<< HEAD
-    else {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing";
-        req.flash('error', "Invalid Request");
-        console.log(msg);
-        res.status(400).render('/',
-            {}
-=======
     else
     {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
@@ -2175,16 +1607,10 @@ exports.interactions = function (req, res) {
         res.status(400).render('',
             {
             }
->>>>>>> master
         );
     }
 };
 
-<<<<<<< HEAD
-exports.requestAccess = function (req, res) {
-    if (req.originalMethod == "GET") {
-        res.render('projects/request_access',
-=======
 exports.requestAccess = function(req, res){
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
@@ -2200,13 +1626,13 @@ exports.requestAccess = function(req, res){
         else
         {
             res.render('projects/request_access',
->>>>>>> master
-            {
-                handle: req.params.handle
-            });
+                {
+                    handle: req.params.handle
+                });
         }
     }
-    else if (req.originalMethod == "POST") {
+    else if(req.originalMethod == "POST")
+    {
         var flash = require('connect-flash');
         console.log(req.user);
         Project.findByHandle(req.params.handle, function (err, project) {
@@ -2215,7 +1641,8 @@ exports.requestAccess = function(req, res){
                 var creatorUsername = project.dcterms.creator.substring(lastSlash + 1);
 
                 User.findByUsername(creatorUsername, function (err, user) {
-                    if (!err && user instanceof User) {
+                    if (!err && user instanceof User)
+                    {
                         var userMail = user.foaf.mbox;
 
                         var client = nodemailer.createTransport("SMTP", {
@@ -2230,34 +1657,34 @@ exports.requestAccess = function(req, res){
                             from: 'support@dendro.fe.up.pt',
                             to: 'ffjs1993@gmail.com',
                             subject: 'Request for project "' + req.params.handle + '"',
-<<<<<<< HEAD
-                            text: 'User ' + req.session.user.uri + ' requested access for project "' + req.params.handle + '".\ ' +
-=======
                             text: 'User ' + req.user.uri +' requested access for project "' + req.params.handle + '".\ ' +
->>>>>>> master
                             'To accept this, please add him as a contributor.'
                         };
 
-                        client.sendMail(email, function (err, info) {
-                            if (err) {
+                        client.sendMail(email, function(err, info){
+                            if(err)
+                            {
                                 console.log("[NODEMAILER] " + err);
                                 flash('error', "Error sending request to user. Please try again later");
                                 res.redirect("/");
                             }
-                            else {
+                            else
+                            {
                                 console.log("[NODEMAILER] email sent: " + info);
                                 flash('success', "Sent request to project's owner");
                                 res.redirect("/");
                             }
                         });
                     }
-                    else {
+                    else
+                    {
                         flash('error', "Error finding project's owner. Please try again later");
                         res.redirect("/");
                     }
                 });
             }
-            else {
+            else
+            {
                 flash('error', "Error retrieving project. Please try again later");
                 res.redirect("/");
             }
@@ -2265,19 +1692,6 @@ exports.requestAccess = function(req, res){
     }
 };
 
-<<<<<<< HEAD
-exports.import = function (req, res) {
-    if (req.originalMethod == "GET") {
-        var filesize = require('file-size');
-
-        res.render('projects/import/import',
-            {
-                title: "Import a project",
-                maxUploadSize: filesize(Config.maxUploadSize).human('jedec'),
-                maxProjectSize: filesize(Config.maxProjectSize).human('jedec')
-            }
-        );
-=======
 exports.import = function(req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
@@ -2302,56 +1716,62 @@ exports.import = function(req, res) {
                 }
             );
         }
->>>>>>> master
     }
-    else if (req.originalMethod == "POST") {
-        if (req.files != null && req.files.file instanceof Object) {
+    else if (req.originalMethod == "POST")
+    {
+        if(req.files != null && req.files.file instanceof Object)
+        {
             var uploadedFile = req.files.file;
             var path = require('path');
 
             var tempFilePath = uploadedFile.path;
 
-            if (path.extname(tempFilePath) == ".zip") {
-                Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function (err, result, structure) {
-                    if (!err) {
+            if(path.extname(tempFilePath) == ".zip")
+            {
+                Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function(err, result, structure){
+                    if(!err)
+                    {
                         var rebased_structure = JSON.parse(JSON.stringify(structure));
                         Project.rebaseAllUris(rebased_structure, Config.baseUri);
 
                         res.status(200).json(
                             {
-                                "result": "success",
-                                "original_contents": structure,
-                                "modified_contents": rebased_structure
+                                "result" : "success",
+                                "original_contents" : structure,
+                                "modified_contents" : rebased_structure
                             }
                         );
                     }
-                    else {
+                    else
+                    {
                         var msg = "Error restoring zip file to folder : " + result;
                         console.log(msg);
 
                         res.status(500).json(
                             {
-                                "result": "error",
-                                "message": msg
+                                "result" : "error",
+                                "message" : msg
                             }
                         );
                     }
                 });
             }
-            else {
+            else
+            {
                 res.status(400).json(
                     {
-                        "result": "error",
-                        "message": "Backup file is not a .zip file"
+                        "result" : "error",
+                        "message" : "Backup file is not a .zip file"
                     }
                 );
             }
         }
-        else {
+        else
+        {
             res.status(500).json(
                 {
-                    "result": "error",
-                    "message": "invalid request"
+                    "result" : "error",
+                    "message" : "invalid request"
                 }
             );
         }
