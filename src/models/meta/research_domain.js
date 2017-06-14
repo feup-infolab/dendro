@@ -79,7 +79,7 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         "   } \n" +
         "} \n";
 
-    const arguments = [
+    const queryArguments = [
         {
             type: DbConnection.resourceNoEscape,
             value: db.graphUri
@@ -90,14 +90,14 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
     {
         query = query + "LIMIT [1]";
 
-        arguments.push({
+        queryArguments.push({
             type : DbConnection.int,
             value : max_results
         })
     }
 
     db.connection.execute(query,
-        arguments,
+        queryArguments,
         function(err, results)
         {
             if (!err)

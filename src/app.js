@@ -55,7 +55,7 @@ let async = require('async');
 let util = require('util');
 let mkdirp = require('mkdirp');
 let pid;
-
+let registeredUncaughtExceptionHandler;
 
 //Setup logging
 if(!isNull(Config.logging))
@@ -133,22 +133,27 @@ if(!isNull(Config.logging))
                         };
                     }
 
-                    process.on('uncaughtException', function (err)
+                    if (!registeredUncaughtExceptionHandler && !(typeof Config.logging.app_logs_folder !== "undefined" && Config.logging.pipe_console_to_logfile))
                     {
-                        const date = new Date().toISOString();
-
-                        if (!isNull(err.stack))
+                        process.on('uncaughtException', function (err)
                         {
-                            log_file.write("[ " + date + " ] [ uncaughtException ] " + util.format(err.stack) + "\n");
-                        }
+                            const date = new Date().toISOString();
 
-                        if(!isNull(pid))
-                        {
-                            pid.remove();
-                        }
+                            if (!isNull(err.stack))
+                            {
+                                log_file.write("[ " + date + " ] [ uncaughtException ] " + util.format(err.stack) + "\n");
+                            }
 
-                        throw err;
-                    });
+                            if(!isNull(pid))
+                            {
+                                pid.remove();
+                            }
+
+                            throw err;
+                        });
+
+                        registeredUncaughtExceptionHandler = true;
+                    }
 
                     cb(null);
                 })
@@ -1973,15 +1978,6 @@ async.series([
                         pid.remove();
                         process.exit(err);
                     });
-
-                    if (!(typeof Config.logging.app_logs_folder !== "undefined" && Config.logging.pipe_console_to_logfile))
-                    {
-                        process.on('uncaughtException', function (err)
-                        {
-                            pid.remove();
-                            throw err;
-                        });
-                    }
 
                     console.log('Express server listening on port ' + app.get('port'));
                     const appInfo = {server: server, app: app};

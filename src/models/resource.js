@@ -121,7 +121,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
         );
     }
 
-    const arguments = [
+    const queryArguments = [
         {
             type: DbConnection.resourceNoEscape,
             value: graphUri
@@ -130,7 +130,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 
     if(!isNull(type))
     {
-        arguments.push({
+        queryArguments.push({
             type : DbConnection.prefixedResource,
             value : type
         });
@@ -138,7 +138,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 
     db.connection.execute(
         query,
-        arguments,
+        queryArguments,
         function(err, results) {
             if(!err)
             {
@@ -668,7 +668,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
         let predCount = 0;
         let argCount = 1;
 
-        const arguments = [
+        const queryArguments = [
             {
                 type: DbConnection.resourceNoEscape,
                 value: graphName
@@ -678,7 +678,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
         //build the delete string
         deleteString = deleteString + " [" + argCount++ + "]";
 
-        arguments.push({
+        queryArguments.push({
             type : DbConnection.resource,
             value : subject
         });
@@ -704,21 +704,21 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
                 {
                     insertString = insertString + " [" + argCount++ + "] ";
 
-                    arguments.push({
+                    queryArguments.push({
                         type : DbConnection.resource,
                         value : subject
                     });
 
                     insertString = insertString + " [" + argCount++ + "] ";
 
-                    arguments.push({
+                    queryArguments.push({
                         type : DbConnection.resource,
                         value : newDescriptor.uri
                     });
 
                     insertString = insertString + " [" + argCount++ + "] ";
 
-                    arguments.push({
+                    queryArguments.push({
                         type : newDescriptor.type,
                         value : objects[j]
                     });
@@ -746,7 +746,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
         //Invalidate cache record for the updated resources
         redis().connection.delete(subject, function(err, result){});
 
-        db.connection.execute(query, arguments, function(err, results)
+        db.connection.execute(query, queryArguments, function(err, results)
         {
             callback(err, results);
             //console.log(results);

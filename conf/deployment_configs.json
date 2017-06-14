@@ -146,7 +146,7 @@
       "descriptors": {
         "log_missing_unknown_descriptors": false,
         "log_unknown_types": false,
-        "log_descriptor_filtering_operations" : true
+        "log_descriptor_filtering_operations" : false
       },
       "ontologies" : {
         "log_autocomplete_requests" : false
@@ -479,7 +479,7 @@
       "descriptors": {
         "log_missing_unknown_descriptors": false,
         "log_unknown_types": false,
-        "log_descriptor_filtering_operations" : true
+        "log_descriptor_filtering_operations" : false
       },
       "ontologies" : {
         "log_autocomplete_requests" : false
@@ -876,10 +876,11 @@
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
       "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
-      "suppress_all_logs" : true,
+      "suppress_all_logs" : false,
       "suppress_all_errors" : false,
       "log_all_requests" : false,
-      "log_emailing" : false
+      "log_emailing" : false,
+      "custom_exception_logging" : false
     },
     "version" :
     {
@@ -1177,7 +1178,7 @@
       "descriptors": {
         "log_missing_unknown_descriptors": false,
         "log_unknown_types": false,
-        "log_descriptor_filtering_operations" : true
+        "log_descriptor_filtering_operations" : false
       },
       "ontologies" : {
         "log_autocomplete_requests" : false
@@ -1218,7 +1219,7 @@
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
       "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
-      "suppress_all_logs" : true,
+      "suppress_all_logs" : false,
       "suppress_all_errors" : false,
       "log_all_requests" : false,
       "log_emailing" : false

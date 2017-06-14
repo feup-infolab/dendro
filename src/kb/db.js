@@ -626,7 +626,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
         let i;
         let argCount = 1;
 
-        const arguments = [
+        const queryArguments = [
             {
                 type: DbConnection.resourceNoEscape,
                 value: graphName
@@ -650,7 +650,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
                 //build the delete string
                 triplesToDeleteString = triplesToDeleteString + " [" + argCount++ + "]";
 
-                arguments.push({
+                queryArguments.push({
                     type : DbConnection.resource,
                     value : triple.subject
                 });
@@ -658,7 +658,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
 
                 triplesToDeleteString = triplesToDeleteString + " [" + argCount++ + "]";
 
-                arguments.push({
+                queryArguments.push({
                     type : DbConnection.resource,
                     value : triple.predicate
                 });
@@ -667,7 +667,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
                 {
                     triplesToDeleteString = triplesToDeleteString + " [" + argCount++ + "]";
 
-                    arguments.push({
+                    queryArguments.push({
                         type : triple.object.type,
                         value : triple.object.value
                     });
@@ -704,7 +704,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
             });
         }
 
-        self.execute(query, arguments, function(err, results)
+        self.execute(query, queryArguments, function(err, results)
         {
             callback(err, results);
         });
@@ -724,7 +724,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
         let insertString = "";
         let argCount = 1;
 
-        const arguments = [
+        const queryArguments = [
             {
                 type: DbConnection.resourceNoEscape,
                 value: graphName
@@ -746,21 +746,21 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
 
                 insertString = insertString + " [" + argCount++ + "] ";
 
-                arguments.push({
+                queryArguments.push({
                     type : DbConnection.resource,
                     value : subject
                 });
 
                 insertString = insertString + " [" + argCount++ + "] ";
 
-                arguments.push({
+                queryArguments.push({
                     type : DbConnection.resource,
                     value : newDescriptor.uri
                 });
 
                 insertString = insertString + " [" + argCount++ + "] ";
 
-                arguments.push({
+                queryArguments.push({
                     type : newDescriptor.type,
                     value : objects[j]
                 });
@@ -780,7 +780,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
         let redis = GLOBAL.redis.default;
         redis.connection.delete(subject, function(err, result){});
 
-        self.execute(query, arguments, function(err, results)
+        self.execute(query, queryArguments, function(err, results)
         {
             callback(err, results);
             //console.log(results);
