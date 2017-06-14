@@ -1297,9 +1297,12 @@ Elements.nie = {
     title :
     {
         type : DbConnection.string,
+        control : Config.controls.input_box,
         backuppable : true,
         restorable : true,
-        locked_for_projects : true
+        locked_for_projects : true,
+        api_readable : true,
+        locked : true
     },
     version :
     {
@@ -1341,14 +1344,6 @@ Elements.nie = {
     {
         type : DbConnection.string,
         control : Config.controls.input_box
-    },
-    title :
-    {
-        type : DbConnection.date,
-        control : Config.controls.input_box,
-        private : true,
-        locked : true,
-        backuppable: true
     }
 };
 

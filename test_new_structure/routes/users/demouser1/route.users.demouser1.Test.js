@@ -40,8 +40,10 @@ describe("Test showing private descriptors", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 userUtils.getUserInfo(demouser1.username, true, agent, function(err, data)
                 {
-                    data.body.ddr.password.should.be.null();
-                    done();
+                    if(data.body.ddr.password)
+                        done(1);
+                    else
+                        done();
                 });
             });
         });

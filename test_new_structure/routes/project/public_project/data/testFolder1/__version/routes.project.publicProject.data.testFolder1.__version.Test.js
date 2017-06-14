@@ -49,7 +49,7 @@ describe("Public project testFolder1 level ?version", function () {
 
             itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
                 res.statusCode.should.equal(200);//because it is a public project
-                res.body.descriptors.length.should.equal(5);
+                res.body.descriptors.length.should.equal(6);
                 done();
             });
         });
@@ -76,7 +76,7 @@ describe("Public project testFolder1 level ?version", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(5);
+                    res.body.descriptors.length.should.equal(6);
                     done();
                 });
             });
@@ -86,7 +86,7 @@ describe("Public project testFolder1 level ?version", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(5);
+                    res.body.descriptors.length.should.equal(6);
                     done();
                 });
             });
@@ -96,7 +96,7 @@ describe("Public project testFolder1 level ?version", function () {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
                     res.statusCode.should.equal(200);//because this is a public project
-                    res.body.descriptors.length.should.equal(5);
+                    res.body.descriptors.length.should.equal(6);
                     done();
                 });
             });

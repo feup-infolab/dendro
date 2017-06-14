@@ -159,21 +159,25 @@ InformationElement.prototype.getParent = function(callback)
                 {
                     if(results.length === 1)
                     {
-                        var result = results[0];
-                        if(typeof results[0].parent_folder !== "undefined")
+                        const result = results[0];
+                        if(!isNull(results[0].parent_folder))
                         {
                             result.uri = result.parent_folder;
                             const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-                            var parent = new Folder(result);
+                            let parent = new Folder(result);
+                            callback(null,parent);
                         }
-                        else if(typeof result[0].parent_project !== "undefined")
+                        else if(!isNull(result[0].parent_project))
                         {
                             result.uri = result.parent_project;
                             const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-                            var parent = new Project(result);
+                            let parent = new Project(result);
+                            callback(null,parent);
                         }
-
-                        callback(null,parent);
+                        else
+                        {
+                            callback(1,"There was an error calculating the parent of resource " + self.uri);
+                        }
                     }
                     else if(results.length === 0)
                     {

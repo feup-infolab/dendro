@@ -1085,30 +1085,28 @@ Resource.prototype.replaceDescriptors = function(newDescriptors, cannotChangeThe
         let newDescriptor = newDescriptors[i];
         let newDescriptorPrefix =  newDescriptor.prefix;
         let newDescriptorShortName =  newDescriptor.shortName;
-        newDescriptorsUris.push(newDescriptor.uri);
 
         if(newDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
         {
             self[newDescriptorPrefix][newDescriptorShortName] = newDescriptor.value;
+            newDescriptorsUris.push(newDescriptor.uri);
         }
     }
 
-    //clean other authorized descriptors that
-    // were not changed not included in
-    // newDescriptors
+    const deletedDescriptors = _.filter(currentDescriptors, function(currentDescriptor){
+        return !_.contains(newDescriptorsUris, currentDescriptor.uri)
+    });
 
-    for(let i = 0; i < currentDescriptors.length; i++)
+    // clean other editable descriptors that
+    // were not included in
+    // newDescriptors (means that they need to be deleted)
+
+    for(let i = 0; i < deletedDescriptors.length; i++)
     {
-        let currentDescriptor = currentDescriptors[i];
-        let currentDescriptorPrefix =  currentDescriptor.prefix;
-        let currentDescriptorShortName =  currentDescriptor.shortName;
-
-        if(!_.contains(newDescriptorsUris, currentDescriptor.uri))
+        let deletedDescriptor = deletedDescriptors[i];
+        if(deletedDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
         {
-            if(currentDescriptor.isAuthorized(cannotChangeTheseDescriptorTypes, unlessTheyAreOfTheseTypes))
-            {
-                delete self[currentDescriptorPrefix][currentDescriptorShortName];
-            }
+            delete self[deletedDescriptor.getNamespacePrefix()][deletedDescriptor.getShortName()];
         }
     }
 
@@ -1806,6 +1804,26 @@ var groupPropertiesArrayIntoObject = function(results)
     }
 
     return properties;
+};
+
+Resource.prototype.getURIsOfCurrentDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)
+{
+    const self = this;
+    let currentDescriptors = self.getDescriptors(descriptorTypesNotToGet, descriptorTypesToForcefullyGet);
+    let currentDescriptorURIs = [];
+
+    for(let i = 0; i < currentDescriptors.length; i++)
+    {
+        currentDescriptorURIs.push(currentDescriptors[i].uri);
+    }
+
+    return currentDescriptorURIs;
+};
+
+Resource.prototype.getPublicDescriptorsForAPICalls = function()
+{
+    const self = this;
+    return self.getDescriptors([Config.types.locked, Config.types.private], [Config.types.api_readable]);
 };
 
 Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)

@@ -6,6 +6,7 @@ const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const ObjectManipulator = require(Config.absPathInSrcFolder("/utils/object_manipulation.js"));
 
 const db = function () {
     return GLOBAL.db.default;
@@ -495,16 +496,20 @@ Descriptor.removeUnauthorizedFromObject = function(object, excludedDescriptorTyp
                 }
             }
         }
+
+        return object;
     }
     else
     {
-        return(object);
+        return object;
     }
 };
 
 Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     if(isNull(excludedDescriptorTypes))
+        return true;
+    else if(isNull(exceptionedDescriptorTypes))
         return true;
     else
     {
@@ -530,23 +535,26 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
             const descriptorsOfType = {};
 
             for (let prefix in Elements) {
-                for (let shortName in Elements[prefix]) {
-                    if (!isNull(Elements[prefix]) && !isNull(Elements[prefix][shortName])) {
-                        let descriptor = Elements[prefix][shortName];
-                        if (descriptor[type]) {
-                            if (isNull(descriptorsOfType[type]))
-                                descriptorsOfType[type] = {};
-                            if (isNull(descriptorsOfType[type][prefix]))
-                                descriptorsOfType[type][prefix] = {};
+                if(isNull(descriptorsOfType[prefix]))
+                {
+                    descriptorsOfType[prefix] = {};
+                }
 
-                            descriptorsOfType[type][prefix][shortName] = true;
+                for (let shortName in Elements[prefix]) {
+                    if (!isNull(Elements[prefix]) && !isNull(Elements[prefix][shortName]))
+                    {
+                        let descriptor = Elements[prefix][shortName];
+
+                        if (!isNull(descriptor[type]) && descriptor[type])
+                        {
+                            descriptorsOfType[prefix][shortName] = true;
                         }
                     }
                 }
             }
 
             return descriptorsOfType;
-        };
+        }
 
         if(isNull(Descriptor.exceptionedDescriptors[exceptionedHash]))
         {
@@ -554,7 +562,7 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
             for(let i = 0; i < exceptionedDescriptorTypes.length; i++)
             {
                 let descriptorsOfExceptionedType = getDescriptorsOfType(exceptionedDescriptorTypes[i]);
-                Object.assign(allExceptioned, descriptorsOfExceptionedType);
+                ObjectManipulator.mergeDeep(allExceptioned, descriptorsOfExceptionedType);
             }
 
             Descriptor.exceptionedDescriptors[exceptionedHash] = allExceptioned;
@@ -566,7 +574,7 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
             for(let i = 0; i < excludedDescriptorTypes.length; i++)
             {
                 let descriptorsOfExcludedType = getDescriptorsOfType(excludedDescriptorTypes[i]);
-                Object.assign(allExcluded, descriptorsOfExcludedType);
+                ObjectManipulator.mergeDeep(allExcluded, descriptorsOfExcludedType);
             }
 
             Descriptor.excludedDescriptors[excludedHash] = allExcluded;
@@ -574,15 +582,26 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
 
         const existsInMap = function (map, prefix, shortName)
         {
-            return      !isNull(Descriptor.exceptionedDescriptors)
-                    &&  !isNull(Descriptor.exceptionedDescriptors[exceptionedHash])
-                    &&  !isNull(Descriptor.exceptionedDescriptors[exceptionedHash][prefix])
-                    &&  !isNull(Descriptor.exceptionedDescriptors[exceptionedHash][prefix][shortName]);
+            if(!isNull(map) &&  !isNull(map[prefix]))
+            {
+                if(map[prefix][shortName])
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         };
 
-        if(existsInMap(Descriptor.exceptionedDescriptors, prefix, shortName))
+        if(existsInMap(Descriptor.exceptionedDescriptors[exceptionedHash], prefix, shortName))
             return true;
-        else if(existsInMap(Descriptor.excludedDescriptors, prefix, shortName))
+        else if(existsInMap(Descriptor.excludedDescriptors[excludedHash], prefix, shortName))
         {
             if(Config.debug.descriptors.log_descriptor_filtering_operations)
             {
@@ -598,10 +617,10 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
 Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptionedDescriptorTypes)
 {
     const self = this;
-    const prefix = self.prefix;
-    const shortName = self.shortName;
-    
-    return Descriptor.isAuthorized(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes);
+    const prefix = self.getNamespacePrefix();
+    const shortName = self.getShortName();
+    const isAuthorized = Descriptor.isAuthorized(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes);
+    return isAuthorized;
 };
 
 Descriptor.prototype.getNamespacePrefix = function()

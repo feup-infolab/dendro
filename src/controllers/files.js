@@ -1524,13 +1524,15 @@ exports.mkdir = function(req, res){
 
     if(acceptsJSON && !acceptsHTML)
     {
+        let parentFolderURI;
+
         if(req.params.is_project_root)
         {
-            var parentFolderURI = req.params.requestedResource + "/data";
+            parentFolderURI = req.params.requestedResource + "/data";
         }
         else
         {
-            var parentFolderURI = req.params.requestedResource;
+            parentFolderURI = req.params.requestedResource;
         }
 
         const newFolderTitle = req.query.mkdir;
@@ -1548,7 +1550,7 @@ exports.mkdir = function(req, res){
         {
             Folder.findByUri(parentFolderURI, function(err, parentFolder)
             {
-                if(!err && typeof parentFolder!==null)
+                if(!err && !isNull(parentFolder))
                 {
                     const newChildFolder = new Folder({
                         nie: {
@@ -1575,7 +1577,8 @@ exports.mkdir = function(req, res){
                                             {
                                                 "status" : "1",
                                                 "id" : newChildFolder.uri,
-                                                "result" : "ok"
+                                                "result" : "ok",
+                                                "new_folder" : Descriptor.removeUnauthorizedFromObject(result, [Config.types.private], [Config.types.api_readable])
                                             }
                                         );
                                     }

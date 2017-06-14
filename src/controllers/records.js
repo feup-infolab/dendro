@@ -152,7 +152,7 @@ exports.show_parent = function(req, res) {
                         ie.getParent(function(err, parent){
                             if(!err)
                             {
-                                if(!isNull(parent))
+                                if(!isNull(parent) && parent instanceof Object)
                                 {
                                     parent.getPropertiesFromOntologies(
                                         Ontology.getPublicOntologiesUris(),
@@ -160,7 +160,7 @@ exports.show_parent = function(req, res) {
                                         {
                                             if(!err)
                                             {
-                                                //remove locked descriptors
+                                                //remove sensitive descriptors
                                                 for(let i = 0 ; i < descriptors.length ; i++)
                                                 {
                                                     if(descriptors[i].locked)
@@ -186,7 +186,8 @@ exports.show_parent = function(req, res) {
                                 {
                                     res.status(404).json({
                                         result : "error",
-                                        message : "Unable to retrieve parent of " + requestedResourceURI + " ."
+                                        message : "Unable to retrieve parent of " + requestedResourceURI + " .",
+                                        error : parent
                                     });
                                 }
                             }
@@ -350,7 +351,7 @@ exports.update = function(req, res) {
                                             message : record
                                         })
                                     }
-                                }, true, changeAuthor, [Config.types.locked], null, [Config.types.audit]);
+                                }, true, changeAuthor, [Config.types.locked], [], [Config.types.audit]);
                             }
                             else
                             {
@@ -428,7 +429,7 @@ exports.show_version = function(req, res) {
                             }
                             else
                             {
-                                let descriptors = version.getDescriptors([Config.types.locked], [Config.types.api_readable]);
+                                let descriptors = version.getPublicDescriptorsForAPICalls();
                                 res.json({
                                     descriptors : descriptors
                                 });

@@ -845,7 +845,11 @@ exports.administer = function(req, res) {
 
                         client.sendMail(email, function (err, info) {
                             if (err) {
-                                console.log("[NODEMAILER] " + err);
+                                if(Config.logging.log_emails)
+                                {
+                                    console.log("[NODEMAILER] " + err);
+                                }
+
                                 flash('error', "Error sending request to user. Please try again later");
                             }
                             else {
