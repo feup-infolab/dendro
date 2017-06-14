@@ -439,7 +439,7 @@ exports.getPost_controller = function (req, res) {
                     message: "Error getting a post. " + JSON.stringify(post)
                 });
             }
-        }, null, db_social.graphUri, null);
+        }, null, db_social.graphUri, false, null, null);
     }
     else
     {
@@ -474,7 +474,7 @@ exports.share = function (req, res) {
                 }
                 else
                 {
-                    var newShare = new Share({
+                    /*var newShare = new Share({
                         ddr: {
                             userWhoShared : currentUser.uri,
                             postURI: post.uri,
@@ -487,6 +487,75 @@ exports.share = function (req, res) {
                         rdf: {
                             isShare : true
                         }
+                    });*/
+
+                    var newShareData = {
+                        ddr: {
+                            userWhoShared : currentUser.uri,
+                            postURI: post.uri,
+                            shareMsg: shareMsg,
+                            projectUri: post.ddr.projectUri
+                        },
+                        dcterms: {
+                            creator: currentUser.uri
+                        },
+                        rdf: {
+                            isShare : true
+                        }
+                    };
+
+                    Share.buildFromInfo(newShareData, function (err, newShare) {
+                        var newNotification = new Notification({
+                            ddr: {
+                                userWhoActed : currentUser.uri,
+                                resourceTargetUri: post.uri,
+                                actionType: "Share",
+                                resourceAuthorUri: post.dcterms.creator,
+                                shareURI : newShare.uri
+                            },
+                            foaf :
+                                {
+                                    status : "unread"
+                                }
+                        });
+
+                        newShare.save(function(err, resultShare)
+                        {
+                            if(!err)
+                            {
+                                /*
+                                 res.json({
+                                 result : "OK",
+                                 message : "Post shared successfully"
+                                 });*/
+                                newNotification.save(function (error, resultNotification) {
+                                    if(!error)
+                                    {
+                                        res.json({
+                                            result : "OK",
+                                            message : "Post shared successfully"
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json({
+                                            result: "Error",
+                                            message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
+                                        });
+                                    }
+                                }, false, null, null, null, null, db_notifications.graphUri);
+                            }
+                            else
+                            {
+                                console.error("Error share a post");
+                                console.error(err);
+                                res.status(500).json({
+                                    result: "Error",
+                                    message: "Error sharing a post. " + JSON.stringify(resultShare)
+                                });
+                            }
+
+                        }, false, null, null, null, null, db_social.graphUri);
                     });
 
                     /*var newShare = new Share({
@@ -501,56 +570,6 @@ exports.share = function (req, res) {
                             isShare : true
                         }
                     });*/
-
-                    var newNotification = new Notification({
-                        ddr: {
-                            userWhoActed : currentUser.uri,
-                            resourceTargetUri: post.uri,
-                            actionType: "Share",
-                            resourceAuthorUri: post.dcterms.creator,
-                            shareURI : newShare.uri
-                        },
-                        foaf :
-                            {
-                                status : "unread"
-                            }
-                    });
-
-                    newShare.save(function(err, resultShare)
-                    {
-                        if(!err)
-                        {
-                            /*
-                             res.json({
-                             result : "OK",
-                             message : "Post shared successfully"
-                             });*/
-                            newNotification.save(function (error, resultNotification) {
-                                if(!error)
-                                {
-                                    res.json({
-                                        result : "OK",
-                                        message : "Post shared successfully"
-                                    });
-                                }
-                                else
-                                {
-                                    res.status(500).json({
-                                        result: "Error",
-                                        message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
-                                    });
-                                }
-                            }, false, null, null, null, null, db_notifications.graphUri);
-                        }
-                        else
-                        {
-                            res.status(500).json({
-                                result: "Error",
-                                message: "Error sharing a post. " + JSON.stringify(resultShare)
-                            });
-                        }
-
-                    }, false, null, null, null, null, db_social.graphUri);
                 }
             }
             else
@@ -1559,6 +1578,7 @@ exports.post = function (req, res) {
     var currentUser = req.session.user;
     var postUri = "http://"+Config.host + req.url;
 
+    //uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval
     //TODO VERIFICAR AQUI QUE TIPO DE POST É e construir as 3 changes etc
     Post.findByUri(postUri, function(err, post)
     {
@@ -1566,8 +1586,14 @@ exports.post = function (req, res) {
         {
             if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
-                //TODO ARRANJAR MANEIRA AQUI para correr diferentes funções dependendo do type
+                //TODO ARRANJAR MANEIRA AQUI para correr diferentes funções dependendo do type do post(mandar changes etc)
                 //TODO -> como está feito no users.js
+                //EXEMPLO
+                /*async.parallel(
+                    [
+                        getUserCount, getAllUsers
+                    ], function(err, results)
+                    {*/
                 async.parallel([
                         function(callback) {
                             getCommentsForAPost(post.uri, function (err, commentsData) {
@@ -1621,7 +1647,7 @@ exports.post = function (req, res) {
                  });
             }
         }
-    }, null, db_social.graphUri, null);
+    }, null, db_social.graphUri, false, null, null);
 };
 
 exports.getShare = function (req, res) {

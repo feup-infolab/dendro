@@ -30,17 +30,35 @@ function MetadataChangePost (object)
 
     self.rdf.type = "ddr:MetadataChangePost";
 
-    self.ddr.numLikes = 0;
+    /*self.ddr.numLikes = 0;*/
 
-    var descriptor = new Descriptor ({
+    return self;
+
+    /*var descriptor = new Descriptor ({
+        prefixedForm : "rdf:type",
+        type : DbConnection.prefixedResource,
+        value : "ddr:Post"
+    });*/
+
+    /*var descriptorForPostType = new Descriptor ({
         prefixedForm : "rdf:type",
         type : DbConnection.prefixedResource,
         value : "ddr:Post"
     });
 
-    self.insertDescriptors([descriptor], function(err, result){
+    var descriptorForMetadataChangePostType = new Descriptor ({
+        prefixedForm : "rdf:type",
+        type : DbConnection.prefixedResource,
+        value : "ddr:MetadataChangePost"
+    });*/
+
+    /*self.insertDescriptors([descriptor], function(err, result){
         return self;
-    }, db_social.graphUri);
+    }, db_social.graphUri);*/
+
+    /*self.insertDescriptors([descriptorForPostType, descriptorForMetadataChangePostType], function(err, result){
+        return self;
+    }, db_social.graphUri);*/
 }
 
 MetadataChangePost.buildFromArchivedVersion = function (archivedVersion, project, callback) {

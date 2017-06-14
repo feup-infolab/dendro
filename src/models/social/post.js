@@ -11,6 +11,28 @@ var gfs = function() { return GLOBAL.gfs.default; }();
 var _ = require('underscore');
 var async = require('async');
 
+var redis = function(graphUri)
+{
+    if(graphUri == null || typeof graphUri === "undefined" || !graphUri)
+    {
+        if(GLOBAL.redis.default != null)
+        {
+            //console.log('ENTRAR DEFAULT REDIS:');
+            return GLOBAL.redis.default;
+        }
+        else
+        {
+            console.error("DEU ASNEIRA");
+            process.exit(1);
+        }
+
+    }
+    else
+    {
+        return Config.caches[graphUri];
+    }
+};
+
 function Post (object)
 {
     Post.baseConstructor.call(this, object);
@@ -180,6 +202,59 @@ Post.buildManualPost = function (project, creatorUri, postContent, callback) {
 
 Post.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval) {
     var self = this;
+    var getFromCache = function (uri, callback)
+    {
+        redis(customGraphUri).connection.get(uri, function(err, result)
+        {
+            if (!err)
+            {
+                if (result != null)
+                {
+                    var post = Object.create(self.prototype);
+
+                    post.uri = uri;
+
+                    //initialize all ontology namespaces in the new object as blank objects
+                    // if they are not already present
+                    post.copyOrInitDescriptors(result);
+
+                    if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
+                    {
+                        post.clearDescriptors(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                    }
+
+                    callback(err, post);
+                }
+                else
+                {
+                    callback(null, null);
+                }
+            }
+            else
+            {
+                callback(err)
+            }
+        });
+    };
+
+
+    var saveToCache = function(uri, post, callback)
+    {
+        redis(customGraphUri).connection.put(uri, post, function (err) {
+            if(!err)
+            {
+                if(typeof callback === "function")
+                {
+                    callback(null, post);
+                }
+            }
+            else
+            {
+                var msg = "Unable to set value of " + post.uri + " as " + JSON.stringify(post) + " in cache : " + JSON.stringify(err);
+                console.log(msg);
+            }
+        });
+    };
 
     var getFromTripleStore = function(uri, callback, customGraphUri)
     {
@@ -211,7 +286,7 @@ Post.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri, sk
                     post.uri = uri;
 
                     /**
-                     * TODO Handle the edge case where there is a resource with the same uri in different graphs in Dendro
+                     * TODO Handle the edge case where there is a post with the same uri in different graphs in Dendro
                      */
                     post.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject)
                     {
@@ -249,9 +324,55 @@ Post.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri, sk
     };
 
 
-    getFromTripleStore(uri, function(err, result){
-        callback(err, result);
-    }, customGraphUri);
+    if(!skipCache)
+    {
+        async.waterfall([
+            function(cb)
+            {
+                getFromCache(uri, function(err, object)
+                {
+                    cb(err, object);
+                });
+            },
+            function(object, cb)
+            {
+                if(object != null)
+                {
+                    var post = Object.create(self.prototype);
+                    post.uri = uri;
+
+                    post.copyOrInitDescriptors(object);
+
+                    cb(null, post);
+                }
+                else
+                {
+                    getFromTripleStore(uri, function(err, object)
+                    {
+                        if(!err)
+                        {
+                            saveToCache(uri, object);
+                            cb(err, object);
+                        }
+                        else
+                        {
+                            var msg = "Unable to get post with uri " + uri + " from triple store.";
+                            console.error(msg);
+                            console.error(err);
+                        }
+                    }, customGraphUri);
+                }
+            }
+        ], function(err, result){
+            callback(err, result);
+        });
+    }
+    else
+    {
+        getFromTripleStore(uri, function(err, result){
+            callback(err, result);
+        }, customGraphUri);
+    }
 };
 
 Post.prefixedRDFType = "ddr:Post";

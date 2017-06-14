@@ -27,21 +27,44 @@ function Share (object)
     }
 
     self.copyOrInitDescriptors(object);
+    /*self.ddr.numLikes = 0;*/
 
     self.rdf.type = "ddr:Share";
 
-    self.ddr.numLikes = 0;
+    return self;
+    /*var descriptor = new Descriptor ({
+        prefixedForm : "rdf:type",
+        type : DbConnection.prefixedResource,
+        value : "ddr:Post"
+    });*/
 
-    var descriptor = new Descriptor ({
+    /*self.insertDescriptors([descriptor], function(err, result){
+        return self;
+    }, db_social.graphUri);*/
+
+    /*var descriptorForPostType = new Descriptor ({
         prefixedForm : "rdf:type",
         type : DbConnection.prefixedResource,
         value : "ddr:Post"
     });
 
-    self.insertDescriptors([descriptor], function(err, result){
+    var descriptorForShareType = new Descriptor ({
+        prefixedForm : "rdf:type",
+        type : DbConnection.prefixedResource,
+        value : "ddr:Share"
+    });
+
+    self.insertDescriptors([descriptorForPostType, descriptorForShareType], function(err, result){
+        self.copyOrInitDescriptors(object);
+        self.ddr.numLikes = 0;
         return self;
-    }, db_social.graphUri);
+    }, db_social.graphUri);*/
 }
+
+Share.buildFromInfo = function (info, callback) {
+    var newShare = new this(info);
+    callback(null, newShare);
+};
 
 Share = Class.extend(Share, Post);
 

@@ -133,7 +133,8 @@ angular.module('dendroApp.controllers')
                     if(sharePostURI)
                     {
                         //using for share service
-                        $scope.shareList[sharePostURI] = response.data;
+                        //$scope.shareList[sharePostURI] = response.data;
+                        $scope.postsContents[sharePostURI] = response.data;
                     }
                     else
                     {
