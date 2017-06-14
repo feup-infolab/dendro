@@ -876,7 +876,7 @@
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
       "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
-      "suppress_all_logs" : false,
+      "suppress_all_logs" : true,
       "suppress_all_errors" : false,
       "log_all_requests" : false,
       "log_emailing" : false
@@ -1218,7 +1218,7 @@
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
       "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
-      "suppress_all_logs" : false,
+      "suppress_all_logs" : true,
       "suppress_all_errors" : false,
       "log_all_requests" : false,
       "log_emailing" : false
