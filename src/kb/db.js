@@ -427,7 +427,7 @@ DbConnection.addLimitsClauses = function(query, offset, maxResults)
 DbConnection.pushLimitsArguments = function(unpaginatedArgumentsArray, maxResults, offset)
 {
     if(!isNull(offset) &&
-        typeof offset === "int" &&
+        typeof offset === "number" &&
         offset > 0)
     {
         unpaginatedArgumentsArray = unpaginatedArgumentsArray.push({
@@ -437,7 +437,7 @@ DbConnection.pushLimitsArguments = function(unpaginatedArgumentsArray, maxResult
     }
 
     if(!isNull(maxResults) &&
-        typeof maxResults === "int" &&
+        typeof maxResults === "number" &&
         maxResults > 0)
     {
         unpaginatedArgumentsArray = unpaginatedArgumentsArray.push({

@@ -685,7 +685,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
     fs.stat(absPathToFile, function(err, stat) {
         if(isNull(err)) {
             callback(0, absPathToFile, parentFolder);
-        } else if(typeof err.code === 'ENOENT') {
+        } else if(err.code === 'ENOENT') {
             // file does not exist
             const mkpath = require('mkpath');
 

@@ -623,8 +623,8 @@ exports.upload = function(req, res)
     if (req.originalMethod === "GET")
     {
         if (
-            typeof upload_id !== "undefined" &&
-            typeof upload_id !== "" &&
+            !isNull(upload_id) &&
+            upload_id !== "" &&
             !isNull(username)
         )
         {
@@ -938,7 +938,7 @@ exports.upload = function(req, res)
             }
         };
 
-        if (typeof typeof upload != null)
+        if (!isNull(upload))
         {
             const multiparty = require('multiparty');
             const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
