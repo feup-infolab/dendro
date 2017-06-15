@@ -45,7 +45,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
                                 if (!stats.isDirectory()) {
                                     filesToIncludeInPackage.push(absPathToChild);
                                 }
-                                callback(err, stats);
+                                return callback(err, stats);
                             });
                         }, function (err, results) {
                             cb(err);
@@ -139,10 +139,10 @@ const createPackage = function (parentFolderPath, folder, callback) {
         ],
         function (err, results) {
             if (!err) {
-                callback(err, filesToIncludeInPackage, extraFiles);
+                return callback(err, filesToIncludeInPackage, extraFiles);
             }
             else {
-                callback(err, results);
+                return callback(err, results);
             }
         });
 };
@@ -305,7 +305,7 @@ export_to_repository_ckan = function(req, res){
                         locations.push(datasetFolderMetadata.children[i].temp_location);
                     }
                     else {
-                        callback(1, "There was an error preparing a file in the server: " + JSON.stringify(child));
+                        return callback(1, "There was an error preparing a file in the server: " + JSON.stringify(child));
                     }
                 }
             }
@@ -365,7 +365,7 @@ export_to_repository_ckan = function(req, res){
             }
 
             client.upload_files_into_package(resources, packageId, function (err, result) {
-                callback(err, result);
+                return callback(err, result);
             });
         };
 
@@ -1562,12 +1562,12 @@ prepareFilesForUploadToB2share = function (files, fileBucketID, b2shareClient, c
             if(err)
             {
                 const msg = 'There was an error reading a file';
-                callback(err, msg);
+                return callback(err, msg);
             }
             else
             {
                 b2shareClient.uploadFileIntoDraftRecord(info, buffer, function (err , data) {
-                    callback(err, data);
+                    return callback(err, data);
                 });
             }
         });

@@ -98,11 +98,11 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
             }
             
-            callback(null, descriptors);
+            return callback(null, descriptors);
         }
         else
         {
-            callback(err, []);
+            return callback(err, []);
         }
     }, options.page_number, options.page_size);
 

@@ -823,7 +823,7 @@ exports.administer = function(req, res) {
                             }
                         }
 
-                        callback(null, project);
+                        return callback(null, project);
                     };
 
                     let notifyContributor = function(user){
@@ -877,9 +877,9 @@ exports.administer = function(req, res) {
                                         if (!err && user && user.foaf.mbox) {
                                             //TODO Check if user already is a contributor so as to not send a notification
                                             notifyContributor(user);
-                                            callback(false, user.uri);
+                                            return callback(false, user.uri);
                                         } else {
-                                            callback(true, contributor);
+                                            return callback(true, contributor);
                                         }
                                     });
                                 } else if(regexpUsername.test(contributor)){
@@ -887,27 +887,27 @@ exports.administer = function(req, res) {
 
                                         if (!err && user && user.foaf.mbox) {
                                             notifyContributor(user);
-                                            callback(false, user.uri);
+                                            return callback(false, user.uri);
                                         } else {
-                                            callback(true, contributor);
+                                            return callback(true, contributor);
                                         }
                                     });
                                 } else{
-                                    callback(true, contributor)
+                                    return callback(true, contributor)
                                 }
 
                             }, function(err, contributors){
                                if(!err){
                                     project.dcterms.contributor = contributors;
-                                    callback(null, project);
+                                    return callback(null, project);
                                 }
                                 else
                                 {
-                                    callback(err, contributors);
+                                    return callback(err, contributors);
                                 }
                             });
                         }else{
-                            callback(null, project);
+                            return callback(null, project);
                         }
                     };
 
@@ -915,7 +915,7 @@ exports.administer = function(req, res) {
                     {
                         project.save(function (err, result)
                         {
-                            callback(err, project);
+                            return callback(err, project);
                         });
                     };
 
@@ -992,13 +992,13 @@ exports.get_contributors = function(req, res){
                             User.findByUri(contributor, function (err, user) {
                                 if (!err && user) {
                                     contributors.push(user);
-                                    callback(null);
+                                    return callback(null);
                                 } else {
-                                    callback(true, contributor);
+                                    return callback(true, contributor);
                                 }
                             }, true);
                         } else {
-                            callback(true, contributor)
+                            return callback(true, contributor)
                         }
 
                     }, function (err, contributor) {
@@ -1287,11 +1287,11 @@ exports.stats = function(req, res) {
                         {
                             if(!err)
                             {
-                                callback(err, revisionsCount)
+                                return callback(err, revisionsCount)
                             }
                             else
                             {
-                                callback(1,
+                                return callback(1,
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of revisions in project . Error reported : " + JSON.stringify(err) + "."
@@ -1305,11 +1305,11 @@ exports.stats = function(req, res) {
                         {
                             if(!err)
                             {
-                                callback(err, revisionsCount, foldersCount)
+                                return callback(err, revisionsCount, foldersCount)
                             }
                             else
                             {
-                                callback(1,
+                                return callback(1,
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of folders in project . Error reported : " + JSON.stringify(err) + "."
@@ -1323,11 +1323,11 @@ exports.stats = function(req, res) {
                         {
                             if(!err)
                             {
-                                callback(err, revisionsCount, foldersCount, filesCount);
+                                return callback(err, revisionsCount, foldersCount, filesCount);
                             }
                             else
                             {
-                                callback(1,
+                                return callback(1,
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of files in project . Error reported : " + JSON.stringify(err) + "."
@@ -1341,11 +1341,11 @@ exports.stats = function(req, res) {
                         {
                             if(!err)
                             {
-                                callback(err, revisionsCount, foldersCount, filesCount, membersCount);
+                                return callback(err, revisionsCount, foldersCount, filesCount, membersCount);
                             }
                             else
                             {
-                                callback(1,
+                                return callback(1,
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of members of the project . Error reported : " + JSON.stringify(err) + "."
@@ -1358,11 +1358,11 @@ exports.stats = function(req, res) {
                         project.getStorageSize(function(err, storageSize){
                             if(!err)
                             {
-                                callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize)
+                                return callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize)
                             }
                             else
                             {
-                                callback(1,
+                                return callback(1,
                                     {
                                         result : "error",
                                         message : "Error calculating size of project : " + requestedProjectURI + " . Error reported : " + JSON.stringify(err) + ".",

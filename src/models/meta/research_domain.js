@@ -47,16 +47,16 @@ function ResearchDomain (object, callback)
             const slug = require('slug');
             const slugified_title = slug(self.dcterms.title);
             self.uri = db.baseURI+"/research_domains/"+slugified_title;
-            callback(null, self);
+            return callback(null, self);
         }
         else
         {
-            callback(1, "No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: " + JSON.stringify(object));
+            return callback(1, "No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: " + JSON.stringify(object));
         }
     }
     else
     {
-        callback(0, self);
+        return callback(0, self);
     }
 }
 ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results)
@@ -104,17 +104,17 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
             {
                 const fetchResearchDomain = function (result, callback) {
                     ResearchDomain.findByUri(result.uri, function (err, domain) {
-                        callback(err, domain);
+                        return callback(err, domain);
                     });
                 };
 
                 async.map(results, fetchResearchDomain, function(err, researchDomains){
-                    callback(err, researchDomains);
+                    return callback(err, researchDomains);
                 });
             }
             else
             {
-                callback(err, results);
+                return callback(err, results);
             }
         });
 };

@@ -793,7 +793,7 @@ exports.upload = function(req, res)
                     md5File(file.path, function (err, hash) {
                         if (!err) {
                             if (typeof hash !== upload.md5_checksum) {
-                                callback(400, {
+                                return callback(400, {
                                     result: "error",
                                     message: "File was corrupted during transfer. Please repeat.",
                                     error: "invalid_checksum",
@@ -854,7 +854,7 @@ exports.upload = function(req, res)
                                                                     });
                                                                 }, function (err, results) {
                                                                     if (!err) {
-                                                                        callback(null, {
+                                                                        return callback(null, {
                                                                             result: "success",
                                                                             message: "File submitted successfully. Message returned : " + result,
                                                                             files: files
@@ -862,7 +862,7 @@ exports.upload = function(req, res)
                                                                     }
                                                                     else {
                                                                         const msg = "Error saving file version";
-                                                                        callback(500, {
+                                                                        return callback(500, {
                                                                             result: "error",
                                                                             message: msg
                                                                         });
@@ -871,7 +871,7 @@ exports.upload = function(req, res)
                                                             }
                                                             else {
                                                                 var msg = "Database error";
-                                                                callback(500, {
+                                                                return callback(500, {
                                                                     result: "error",
                                                                     message: msg
                                                                 });
@@ -880,7 +880,7 @@ exports.upload = function(req, res)
                                                     }
                                                     else {
                                                         var msg = "Error submitting file : " + result;
-                                                        callback(500, {
+                                                        return callback(500, {
                                                             result: "error",
                                                             message: msg,
                                                             files: files
@@ -897,7 +897,7 @@ exports.upload = function(req, res)
                                             }
                                             else {
                                                 var msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                                callback(500, {
+                                                return callback(500, {
                                                     result: "error",
                                                     message: msg,
                                                     files: fileNames
@@ -907,7 +907,7 @@ exports.upload = function(req, res)
                                     }
                                     else {
                                         console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
-                                        callback(500, {
+                                        return callback(500, {
                                             result: "error",
                                             message: "Error saving the file : " + result,
                                             files: files
@@ -918,7 +918,7 @@ exports.upload = function(req, res)
 
                         }
                         else {
-                            callback(401, {
+                            return callback(401, {
                                 result: "error",
                                 message: "Unable to calculate the MD5 checksum of the uploaded file: " + newFile.filename,
                                 error: result
@@ -926,11 +926,11 @@ exports.upload = function(req, res)
                         }
                     })
                 }, function (err, results) {
-                    callback(err, results);
+                    return callback(err, results);
                 });
             }
             else {
-                callback(500, {
+                return callback(500, {
                     result: "error",
                     message: "Unknown error submitting files. Malformed message?",
                     files: fileNames

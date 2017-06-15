@@ -55,11 +55,11 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
                 ]),
                 function (err, results) {
                     if (!err) {
-                        callback(err, results[0].count);
+                        return callback(err, results[0].count);
                     }
                     else {
                         const msg = "Error fetching number of fileVersions in graph";
-                        callback(true, msg);
+                        return callback(true, msg);
                     }
                 });
         });
@@ -67,7 +67,7 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
     else {
         //User has no projects
         var results = 0;
-        callback(null, results);
+        return callback(null, results);
     }
 };
 
@@ -138,11 +138,11 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
                 ]),
                 function (err, results) {
                     if (!err) {
-                        callback(err, results);
+                        return callback(err, results);
                     }
                     else {
                         const msg = "Error fetching FileVersion";
-                        callback(true, msg);
+                        return callback(true, msg);
                     }
                 });
         });
@@ -150,7 +150,7 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
     else {
         //User has no projects
         var results = [];
-        callback(null, results);
+        return callback(null, results);
     }
 };
 
@@ -622,7 +622,7 @@ var getSharesForAFileVersion = function (fileVersionUri, cb) {
                 async.map(results, function(shareObject, callback){
                     Share.findByUri(shareObject.shareURI, function(err, share)
                     {
-                        callback(false,share);
+                        return callback(false,share);
                     }, Ontology.getAllOntologiesUris(), db_social.graphUri);
                 }, function (err, shares) {
                     cb(false, shares);

@@ -59,16 +59,16 @@ User.findByORCID = function(orcid, callback, removePrivateDescriptors)
             if(removePrivateDescriptors)
             {
                 user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
-                callback(err, user);
+                return callback(err, user);
             }
             else
             {
-                callback(err, user);
+                return callback(err, user);
             }
         }
         else
         {
-            callback(err, user);
+            return callback(err, user);
         }
     });
 };
@@ -81,16 +81,16 @@ User.findByUsername = function(username, callback, removePrivateDescriptors)
             if(removePrivateDescriptors)
             {
                 user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
-                callback(err, user);
+                return callback(err, user);
             }
             else
             {
-                callback(err, user);
+                return callback(err, user);
             }
         }
         else
         {
-            callback(err, user);
+            return callback(err, user);
         }
     });
 };
@@ -155,12 +155,12 @@ User.autocomplete_search = function(value, maxResults, callback) {
                 };
 
                 async.map(users, getUserProperties, function(err, results){
-                    callback(err, results);
+                    return callback(err, results);
                 })
             }
             else
             {
-                callback(err, user);
+                return callback(err, user);
             }
         });
 };
@@ -214,7 +214,7 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                         {
                             const userToReturn = new User(fetchedUser);
 
-                            callback(err, fetchedUser);
+                            return callback(err, fetchedUser);
 
                             /*userToReturn.loadOntologyRecommendations(function(err, user){
 
@@ -222,18 +222,18 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                         }
                         else
                         {
-                            callback(1, "Unable to fetch user with uri :" + uri + ". Error reported : " + fetchedUser);
+                            return callback(1, "Unable to fetch user with uri :" + uri + ". Error reported : " + fetchedUser);
                         }
                     });
                 }
                 else
                 {
-                    callback(0,null);
+                    return callback(0,null);
                 }
             }
             else
             {
-                callback(err, user);
+                return callback(err, user);
             }
         });
 };
@@ -256,22 +256,22 @@ User.createAndInsertFromObject = function(object, callback) {
                 {
                     if(newUser instanceof User)
                     {
-                        callback(null, newUser);
+                        return callback(null, newUser);
                     }
                     else
                     {
-                        callback(null, false);
+                        return callback(null, false);
                     }
                 }
                 else
                 {
-                    callback(err, newUser);
+                    return callback(err, newUser);
                 }
             });
         }
         else
         {
-            callback(err, password);
+            return callback(err, password);
         }
     });
 };
@@ -282,7 +282,7 @@ User.all = function(callback, req, customGraphUri, descriptorTypesToRemove, desc
     const self = this;
     User.baseConstructor.all.call(self, function(err, users) {
 
-        callback(err, users);
+        return callback(err, users);
 
     }, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
 };
@@ -324,18 +324,18 @@ User.allInPage = function(page, pageSize, callback) {
                     {
                         if(!err)
                         {
-                            callback(null, usersToReturn);
+                            return callback(null, usersToReturn);
                         }
                         else
                         {
-                            callback("error fetching user information : " + err, usersToReturn);
+                            return callback("error fetching user information : " + err, usersToReturn);
                         }
                     });
                 }
             }
             else
             {
-                callback(1, users);
+                return callback(1, users);
             }
         });
 };
@@ -357,7 +357,7 @@ User.prototype.loadOntologyRecommendations = function(callback)
         };
     }
 
-    callback(null, self);
+    return callback(null, self);
 };
 
 /**
@@ -366,7 +366,7 @@ User.prototype.loadOntologyRecommendations = function(callback)
  */
 User.prototype.saveOntologyRecommendations = function(callback)
 {
-    callback(null,
+    return callback(null,
         {
             accepted : {},
             rejected : {}
@@ -414,19 +414,19 @@ User.prototype.getInteractions = function(callback)
                             created: result.created
                         }
                     }, function (err, fullInteraction) {
-                        callback(err, fullInteraction);
+                        return callback(err, fullInteraction);
                     });
                 };
 
                 async.map(results, createInteraction, function(err, fullInteractions)
                 {
-                    callback(err, fullInteractions);
+                    return callback(err, fullInteractions);
                 });
             }
         }
         else
         {
-            callback(err, results);
+            return callback(err, results);
         }
     });
 };
@@ -458,10 +458,10 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
             suggestion.last_unhidden = Date.parse(result.last_unhidden);
 
             if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                callback(0, suggestion);
+                return callback(0, suggestion);
             }
             else {
-                callback(0, null);
+                return callback(0, null);
             }
         };
 
@@ -470,10 +470,10 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
                 /**remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
 
-                callback(null, fullDescriptors);
+                return callback(null, fullDescriptors);
             }
             else {
-                callback(1, null);
+                return callback(1, null);
             }
         });
     };
@@ -609,14 +609,14 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
             if(!err)
             {
                 createDescriptorsList(hidden, function(err, fullDescriptors){
-                    callback(err, fullDescriptors);
+                    return callback(err, fullDescriptors);
                 });
             }
             else
             {
                 const msg = "Unable to fetch hidden descriptors of the user " + self.uri + ". Error reported: " + hidden;
                 console.log(msg);
-                callback(err, hidden);
+                return callback(err, hidden);
             }
         }
     );
@@ -649,10 +649,10 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
             suggestion.last_unfavorited = Date.parse(result.last_unfavorited);
 
             if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                callback(0, suggestion);
+                return callback(0, suggestion);
             }
             else {
-                callback(0, null);
+                return callback(0, null);
             }
         };
 
@@ -661,10 +661,10 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
                 /**remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
 
-                callback(null, fullDescriptors);
+                return callback(null, fullDescriptors);
             }
             else {
-                callback(1, null);
+                return callback(1, null);
             }
         });
     };
@@ -800,14 +800,14 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
             if(!err)
             {
                 createDescriptorsList(favorites, function(err, fullDescriptors){
-                    callback(err, fullDescriptors);
+                    return callback(err, fullDescriptors);
                 });
             }
             else
             {
                 const msg = "Unable to fetch favorite descriptors of the user " + self.uri + ". Error reported: " + favorites;
                 console.log(msg);
-                callback(err, favorites);
+                return callback(err, favorites);
             }
         }
     );
@@ -906,10 +906,10 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
                     suggestion.times_favorite_accepted_in_md_editor = parseInt(result.times_favorite_accepted_in_md_editor);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        callback(0, suggestion);
+                        return callback(0, suggestion);
                     }
                     else {
-                        callback(0, null);
+                        return callback(0, null);
                     }
                 };
 
@@ -920,11 +920,11 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
 
-                        callback(null, fullDescriptors);
+                        return callback(null, fullDescriptors);
                     }
                     else
                     {
-                        callback(1, null);
+                        return callback(1, null);
                     }
                 });
             }
@@ -932,7 +932,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
             {
                 const util = require('util');
                 console.error("Error fetching most accepted favorite descriptors for user " + self.uri + " : " + descriptors);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
@@ -1030,10 +1030,10 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
                     suggestion.times_smart_accepted_in_md_editor = parseInt(result.times_smart_accepted_in_md_editor);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        callback(0, suggestion);
+                        return callback(0, suggestion);
                     }
                     else {
-                        callback(0, null);
+                        return callback(0, null);
                     }
                 };
 
@@ -1044,11 +1044,11 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
 
-                        callback(null, fullDescriptors);
+                        return callback(null, fullDescriptors);
                     }
                     else
                     {
-                        callback(1, null);
+                        return callback(1, null);
                     }
                 });
             }
@@ -1056,7 +1056,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
             {
                 const util = require('util');
                 console.error("Error fetching most accepted smart descriptors for user " + self.uri + " : " + descriptors);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
@@ -1156,10 +1156,10 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
                     suggestion.last_use = Date.parse(result.last_use);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        callback(0, suggestion);
+                        return callback(0, suggestion);
                     }
                     else {
-                        callback(0, null);
+                        return callback(0, null);
                     }
                 };
 
@@ -1170,11 +1170,11 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
 
-                        callback(null, fullDescriptors);
+                        return callback(null, fullDescriptors);
                     }
                     else
                     {
-                        callback(1, null);
+                        return callback(1, null);
                     }
                 });
             }
@@ -1182,7 +1182,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
             {
                 const util = require('util');
                 console.error("Error fetching most recently filled in descriptors for user " + self.uri);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
@@ -1195,7 +1195,7 @@ User.prototype.isAdmin = function(callback)
     {
         self.checkIfHasPredicateValue("rdf:type", "ddr:Administrator", function(err, isAdmin)
         {
-            callback(err, isAdmin);
+            return callback(err, isAdmin);
         });
     }
     else
@@ -1230,13 +1230,13 @@ User.prototype.makeGlobalAdmin = function(callback)
                 self.insertDescriptors([newAdminDescriptor], function(err, result){
                     if(!err)
                     {
-                        callback(null, self);
+                        return callback(null, self);
                     }
                     else
                     {
                         const msg = "Error setting " + self.uri + " as global admin : " + result;
                         console.error(msg);
-                        callback(1, msg);
+                        return callback(1, msg);
                     }
 
                 });
@@ -1245,14 +1245,14 @@ User.prototype.makeGlobalAdmin = function(callback)
             {
                 var msg = "User " + self.uri + " is already an admin, nothing to be done.";
                 console.error(msg);
-                callback(0, msg);
+                return callback(0, msg);
             }
         }
         else
         {
             var msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
             console.error(msg);
-            callback(1, msg);
+            return callback(1, msg);
         }
     });
 };
@@ -1267,21 +1267,21 @@ User.prototype.undoGlobalAdmin = function(callback)
             if (isAdmin)
             {
                 self.deleteDescriptorTriples("rdf:type", function(err, result){
-                    callback(err, result);
+                    return callback(err, result);
                 }, "ddr:Administrator");
             }
             else
             {
                 var msg = "User " + self.uri + " is not admin, no need to remove the triples.";
                 console.error(msg);
-                callback(0, msg);
+                return callback(0, msg);
             }
         }
         else
         {
             var msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
             console.error(msg);
-            callback(1, msg);
+            return callback(1, msg);
         }
     })
 };
@@ -1306,23 +1306,23 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
                     if(!err)
                     {
                         console.log("Successfully set new password for user : " + self.uri + ".");
-                        callback(err, result);
+                        return callback(err, result);
                     }
                     else
                     {
                         console.error("Error setting new password for user : " + self.uri + ". Error reported: " + result);
-                        callback(err, result);
+                        return callback(err, result);
                     }
                 });
             }
             else
             {
-                callback(1, "Incorrect password reset token");
+                return callback(1, "Incorrect password reset token");
             }
         }
         else
         {
-            callback(1, "Error checking password reset token: " + tokenIsCorrect);
+            return callback(1, "Error checking password reset token: " + tokenIsCorrect);
         }
     });
 };
@@ -1401,7 +1401,7 @@ User.prototype.startPasswordReset = function(callback)
             }
 
             smtpTransport.close();
-            callback(error, response);
+            return callback(error, response);
         });
     };
 
@@ -1413,7 +1413,7 @@ User.prototype.startPasswordReset = function(callback)
         else
         {
             console.error("Unable to set password reset token for user " + self.uri);
-            callback(err, updatedUser);
+            return callback(err, updatedUser);
         }
     });
 };
@@ -1429,13 +1429,13 @@ User.removeAllAdmins = function(callback)
     {
         if (!err)
         {
-            callback(0, results);
+            return callback(0, results);
         }
         else
         {
             const msg = "Error deleting all administrators: " + results;
             console.error(msg);
-            callback(1, msg);
+            return callback(1, msg);
         }
     });
 };

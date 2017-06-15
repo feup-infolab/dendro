@@ -30,11 +30,11 @@ UploadManager.add_upload = function(username, filename, size, md5_checksum, pare
         {
             const id = upload.id;
             UploadManager.__uploads[id] = upload;
-            callback(null, upload);
+            return callback(null, upload);
         }
         else
         {
-            callback(err, upload);
+            return callback(err, upload);
         }
     });
 };
@@ -82,7 +82,7 @@ UploadManager.writeBytesToUpload = function(id, buffer, callback)
     }
     else
     {
-        callback(1, "Upload with id " + id + " not found");
+        return callback(1, "Upload with id " + id + " not found");
     }
 };
 
@@ -96,7 +96,7 @@ UploadManager.destroy_upload= function (id, callback)
     }
     else
     {
-        callback(1, "Upload with id " + id + " not found");
+        return callback(1, "Upload with id " + id + " not found");
     }
 };
 

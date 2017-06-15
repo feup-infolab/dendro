@@ -178,25 +178,25 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
 
 const getOwnerProject = function (requestedResource, callback) {
     Project.getOwnerProjectBasedOnUri(requestedResource, function (err, project) {
-        callback(err, project);
+        return callback(err, project);
     });
 };
 
 const checkUsersRoleInSystem = function (req, user, role, callback) {
     user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result) {
-        callback(err, result);
+        return callback(err, result);
     });
 };
 
 const checkUsersRoleInProject = function (req, user, role, project, callback) {
     project.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result) {
-        callback(err, result);
+        return callback(err, result);
     });
 };
 
 const checkUsersRoleInResource = function (req, user, role, resource, callback) {
     resource.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result) {
-        callback(err, result);
+        return callback(err, result);
     });
 };
 
@@ -206,7 +206,7 @@ const checkPermissionsForRole = function (req, user, resource, role, callback) {
 
     if (role.type === Permissions.types.system) {
         checkUsersRoleInSystem(req, user, role, function (err, hasRole) {
-            callback(err, {authorized: hasRole, role: role});
+            return callback(err, {authorized: hasRole, role: role});
         });
     }
     else if (role.type === Permissions.types.project) {
@@ -214,21 +214,21 @@ const checkPermissionsForRole = function (req, user, resource, role, callback) {
             if (!err) {
                 if (project instanceof Project) {
                     checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
-                        callback(err, {authorized: hasRole, role: role});
+                        return callback(err, {authorized: hasRole, role: role});
                     });
                 }
                 else {
-                    callback(null, null);
+                    return callback(null, null);
                 }
             }
             else {
-                callback(err, null);
+                return callback(err, null);
             }
         });
     }
     else if (role.type === Permissions.types.resource) {
         checkUsersRoleInResource(req, user, role, resource, function (err, hasRole) {
-            callback(err, {authorized: hasRole, role: role});
+            return callback(err, {authorized: hasRole, role: role});
         });
     }
 };
@@ -243,7 +243,7 @@ const checkPermissionsForProject = function (req, permission, callback) {
                 const privacy = project.ddr.privacyStatus;
 
                 if (!isNull(permission.object) && privacy === permission.object) {
-                    callback(null,
+                    return callback(null,
                         {
                             authorized: true,
                             role: Permissions.project_privacy_status[permission.object]
@@ -251,7 +251,7 @@ const checkPermissionsForProject = function (req, permission, callback) {
                     );
                 }
                 else {
-                    callback(null,
+                    return callback(null,
                         {
                             authorized: false,
                             role: permission
@@ -260,7 +260,7 @@ const checkPermissionsForProject = function (req, permission, callback) {
                 }
             }
             else {
-                callback(null,
+                return callback(null,
                     {
                         authorized: true,
                         role: ["Project with uri" + requestedProjectURI + " does not exist."]
@@ -269,7 +269,7 @@ const checkPermissionsForProject = function (req, permission, callback) {
             }
         }
         else {
-            callback(null,
+            return callback(null,
                 {
                     authorized: true,
                     role: ["Error accessing project: " + project]
@@ -381,7 +381,7 @@ Permissions.check = function(permissionsRequired, req, callback)
 
                 req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
 
-                callback(err, req, results);
+                return callback(err, req, results);
             }
         );
     }
@@ -394,7 +394,7 @@ Permissions.check = function(permissionsRequired, req, callback)
 
         req = Permissions.addToReasons(req, reasonsForAllowing, true);
 
-        callback(null, req , reasonsForAllowing);
+        return callback(null, req , reasonsForAllowing);
     }
 };
 

@@ -106,25 +106,25 @@ Project.prototype.backup = function(callback)
                                     const finishedZipFileName = "bagit_backup.zip";
                                     const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
                                     Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function(err, zipFileFullPath){
-                                        callback(err, zipFileFullPath, parentFolderPath);
+                                        return callback(err, zipFileFullPath, parentFolderPath);
                                     }, finishedZipFileName, true);
                                 }
                                 else
                                 {
-                                    callback(1, "Unable to zip folder at " + finalBagItOptions.bagName + " \n " + finalBagItOptions);
+                                    return callback(1, "Unable to zip folder at " + finalBagItOptions.bagName + " \n " + finalBagItOptions);
                                 }
                             }
                         );
                     }
                     else
                     {
-                        callback(1, "Folder with " + self.ddr.rootFolder + " does not exist: " + folder);
+                        return callback(1, "Folder with " + self.ddr.rootFolder + " does not exist: " + folder);
                     }
                 });
             }
             else
             {
-                callback(1, "Project : " + self.uri + " has no root folder.");
+                return callback(1, "Project : " + self.uri + " has no root folder.");
             }
         }
     });
@@ -144,18 +144,18 @@ Project.addProjectInformations = function(arrayOfProjectsUris, callback)
         {
             if(!err)
             {
-                callback(null, projectsToReturn);
+                return callback(null, projectsToReturn);
             }
             else
             {
-                callback("error fetching project information : " + err, projectsToReturn);
+                return callback("error fetching project information : " + err, projectsToReturn);
             }
         });
     }
     else
     {
         //projects var will contain an error message instead of an array of results.
-        callback(1);
+        return callback(1);
     }
 };
 
@@ -195,7 +195,7 @@ Project.allNonPrivate = function(currentUser, callback) {
             else
             {
                 //projects var will contain an error message instead of an array of results.
-                callback(1, projects);
+                return callback(1, projects);
             }
         });
 };
@@ -251,7 +251,7 @@ Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
             else
             {
                 //projects var will contain an error message instead of an array of results.
-                callback(1, projects);
+                return callback(1, projects);
             }
         });
 };
@@ -261,7 +261,7 @@ Project.all = function(callback, req) {
     Project.baseConstructor.all.call(self, function(err, projects) {
 
         //projects var will contain an error message instead of an array of results.
-        callback(err, projects);
+        return callback(err, projects);
 
     }, req);
 };
@@ -303,21 +303,21 @@ Project.findByHandle = function(handle, callback) {
                         const projectUri = project[0].uri;
                         Project.findByUri(projectUri, function(err, project)
                         {
-                            callback(err, project);
+                            return callback(err, project);
                         });
                     }
                 }
                 else
                 {
                     //project does not exist, return null
-                    callback(0, null);
+                    return callback(0, null);
                 }
             }
             else
             {
                 //project var will contain an error message instead of a single-element
                 // array containing project data.
-                callback(err, project);
+                return callback(err, project);
             }
         });
 };
@@ -373,19 +373,19 @@ Project.prototype.getCreatorsAndContributors = function(callback)
                         contributorsToReturn.push(aContributor);
                     }
 
-                    callback(null, contributorsToReturn);
+                    return callback(null, contributorsToReturn);
                 }
                 else
                 {
                     //project does not exist, return null
-                    callback(0, null);
+                    return callback(0, null);
                 }
             }
             else
             {
                 //project var will contain an error message instead of a single-element
                 // array containing project data.
-                callback(err, [contributors]);
+                return callback(err, [contributors]);
             }
         });
 
@@ -429,19 +429,19 @@ Project.findByContributor = function(contributor, callback)
                         projectsToReturn.push(aProject);
                     }
 
-                    callback(null, projectsToReturn);
+                    return callback(null, projectsToReturn);
                 }
                 else
                 {
                     //project does not exist, return null
-                    callback(0, null);
+                    return callback(0, null);
                 }
             }
             else
             {
                 //project var will contain an error message instead of a single-element
                 // array containing project data.
-                callback(err, [projects]);
+                return callback(err, [projects]);
             }
         });
 };
@@ -485,19 +485,19 @@ Project.findByCreator = function(creator, callback) {
                         projectsToReturn.push(aProject);
                     }
 
-                    callback(null, projectsToReturn);
+                    return callback(null, projectsToReturn);
                 }
                 else
                 {
                     //project does not exist, return null
-                    callback(0, null);
+                    return callback(0, null);
                 }
             }
             else
             {
                 //project var will contain an error message instead of a single-element
                 // array containing project data.
-                callback(err, [projects]);
+                return callback(err, [projects]);
             }
         });
 };
@@ -543,20 +543,20 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
 
                     async.map(rows, getProjectProperties, function(err, projects)
                     {
-                        callback(err, projects);
+                        return callback(err, projects);
                     });
                 }
                 else
                 {
                     //project does not exist, return null
-                    callback(0, null);
+                    return callback(0, null);
                 }
             }
             else
             {
                 //project var will contain an error message instead of a single-element
                 // array containing project data.
-                callback(err, [rows]);
+                return callback(err, [rows]);
             }
     });
 };
@@ -587,18 +587,18 @@ Project.createAndInsertFromObject = function(object, callback) {
                     newProject.nie.hasLogicalPart = rootFolder.uri;
 
                     newProject.save(function(err, result){
-                        callback(err, result);
+                        return callback(err, result);
                     });
                 });
             }
             else
             {
-                callback(1, "Statement executed but result was not what was expected. " + result);
+                return callback(1, "Statement executed but result was not what was expected. " + result);
             }
         }
         else
         {
-            callback(err, newProject);
+            return callback(err, newProject);
         }
     });
 };
@@ -613,17 +613,17 @@ Project.prototype.getFirstLevelDirectoryContents = function(callback)
             folder.getLogicalParts(function(err, children){
                 if(!err)
                 {
-                    callback(null, children);
+                    return callback(null, children);
                 }
                 else
                 {
-                    callback(1, "Error fetching children of project root folder");
+                    return callback(1, "Error fetching children of project root folder");
                 }
             });
         }
         else
         {
-            callback(1, "unable to retrieve project " + self.ddr.handle + " 's root folder's contents. Error :" + err);
+            return callback(1, "unable to retrieve project " + self.ddr.handle + " 's root folder's contents. Error :" + err);
         }
     });
 };
@@ -688,12 +688,12 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
                 }, function (err, fullItems) {
                     if(!err)
                     {
-                        callback(null, fullItems);
+                        return callback(null, fullItems);
                     }
                     else
                     {
                         const msg = "Error fetching file/folders creation info for project:" + self.uri;
-                        callback(true, msg);
+                        return callback(true, msg);
                     }
                 });
 
@@ -704,25 +704,25 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
                         {
                             result.getDetailedInformation(function(err, versionWithDetailedInfo)
                             {
-                                callback(err, versionWithDetailedInfo);
+                                return callback(err, versionWithDetailedInfo);
                             });
                         }
                         else
                         {
-                            callback(err, result);
+                            return callback(err, result);
                         }
                     });
                 };
 
                 async.map(results, getVersionDetails, function(err, fullVersions){
-                    callback(err, fullVersions);
+                    return callback(err, fullVersions);
                 })*/
             }
             else
             {
                 var msg = "Error fetching file/folder change data";
                 console.log(msg);
-                callback(1, msg);
+                return callback(1, msg);
             }
         });
 };
@@ -771,22 +771,22 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
                     ArchivedResource.findByUri(result.version, function (err, result) {
                         if (!err) {
                             result.getDetailedInformation(function (err, versionWithDetailedInfo) {
-                                callback(err, versionWithDetailedInfo);
+                                return callback(err, versionWithDetailedInfo);
                             });
                         }
                         else {
-                            callback(err, result);
+                            return callback(err, result);
                         }
                     });
                 };
 
                 async.map(results, getVersionDetails, function(err, fullVersions){
-                    callback(err, fullVersions);
+                    return callback(err, fullVersions);
                 })
             }
             else
             {
-                callback(1, "Error fetching children of project root folder");
+                return callback(1, "Error fetching children of project root folder");
             }
         });
 };
@@ -827,22 +827,22 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
                     ArchivedResource.findByUri(result.version, function (err, result) {
                         if (!err) {
                             result.getDetailedInformation(function (err, versionWithDetailedInfo) {
-                                callback(err, versionWithDetailedInfo);
+                                return callback(err, versionWithDetailedInfo);
                             });
                         }
                         else {
-                            callback(err, result);
+                            return callback(err, result);
                         }
                     });
                 };
 
                 async.map(results, getVersionDetails, function(err, fullVersions){
-                    callback(err, fullVersions);
+                    return callback(err, fullVersions);
                 })
             }
             else
             {
-                callback(1, "Error fetching children of project root folder");
+                return callback(1, "Error fetching children of project root folder");
             }
         });
 };
@@ -875,24 +875,24 @@ Project.prototype.getStorageSize = function(callback)
                 {
                     if(!isNull(result) && result instanceof Array && result.length === 1 && !isNull(result[0].sum))
                     {
-                        callback(null, result[0].sum);
+                        return callback(null, result[0].sum);
                     }
                     else
                     {
-                        callback(null, 0);
+                        return callback(null, 0);
                     }
                 }
                 else
                 {
                     console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
-                    callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
+                    return callback(1, "Error retrieving project size : " + JSON.stringify(err) + JSON.stringify(result));
                 }
             });
         }
         else
         {
             console.error("* YOU NEED MONGODB 10GEN to run this aggregate function, or it will give errors. Error retrieving project size : " + JSON.stringify(err)  + JSON.stringify(result));
-            callback(1, "Error retrieving files collection : " + collection);
+            return callback(1, "Error retrieving files collection : " + collection);
         }
     });
 };
@@ -933,16 +933,16 @@ Project.prototype.getFilesCount = function(callback)
             {
                 if(result instanceof Array && result.length > 0)
                 {
-                    callback(null, result[0].file_count);
+                    return callback(null, result[0].file_count);
                 }
                 else
                 {
-                    callback(1, "invalid result retrieved when querying for project file count");
+                    return callback(1, "invalid result retrieved when querying for project file count");
                 }
             }
             else
             {
-                callback(err, -1);
+                return callback(err, -1);
             }
         });
 };
@@ -984,16 +984,16 @@ Project.prototype.getMembersCount = function(callback)
             {
                 if(result instanceof Array && result.length > 0)
                 {
-                    callback(null, result[0].contributor_count);
+                    return callback(null, result[0].contributor_count);
                 }
                 else
                 {
-                    callback(1, "invalid result retrieved when querying for project contributor count");
+                    return callback(1, "invalid result retrieved when querying for project contributor count");
                 }
             }
             else
             {
-                callback(err, -1);
+                return callback(err, -1);
             }
         });
 };
@@ -1034,17 +1034,17 @@ Project.prototype.getFoldersCount = function(callback)
             {
                 if(result instanceof Array && result.length > 0)
                 {
-                    callback(null, result[0].folder_count);
+                    return callback(null, result[0].folder_count);
                 }
                 else
                 {
-                    callback(1, "invalid result retrieved when querying for project folder count");
+                    return callback(1, "invalid result retrieved when querying for project folder count");
                 }
 
             }
             else
             {
-                callback(err, -1);
+                return callback(err, -1);
             }
         });
 };
@@ -1082,17 +1082,17 @@ Project.prototype.getRevisionsCount = function(callback)
             {
                 if(result instanceof Array && result.length > 0)
                 {
-                    callback(null, result[0].revision_count);
+                    return callback(null, result[0].revision_count);
                 }
                 else
                 {
-                    callback(1, "invalid result retrieved when querying for revisions count");
+                    return callback(1, "invalid result retrieved when querying for revisions count");
                 }
 
             }
             else
             {
-                callback(err, -1);
+                return callback(err, -1);
             }
         });
 };
@@ -1213,17 +1213,17 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
                         fullDescriptors.push(d);
                     }
 
-                    callback(null, fullDescriptors);
+                    return callback(null, fullDescriptors);
                 }
                 else
                 {
-                    callback(1, "invalid result retrieved when querying for project's favorite descriptors");
+                    return callback(1, "invalid result retrieved when querying for project's favorite descriptors");
                 }
 
             }
             else
             {
-                callback(err, -1);
+                return callback(err, -1);
             }
         });
 };
@@ -1347,17 +1347,17 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
                         fullDescriptors.push(d);
                     }
 
-                    callback(null, fullDescriptors);
+                    return callback(null, fullDescriptors);
                 }
                 else
                 {
-                    callback(1, "invalid result retrieved when querying for project's favorite descriptors");
+                    return callback(1, "invalid result retrieved when querying for project's favorite descriptors");
                 }
 
             }
             else
             {
-                callback(err, -1);
+                return callback(err, -1);
             }
         });
 };
@@ -1370,7 +1370,7 @@ Project.prototype.findMetadata = function(callback)
         Ontology.getPublicOntologiesUris(),
         function(err, descriptors)
         {
-            callback(err,
+            return callback(err,
                 {
                     descriptors : descriptors,
                     title : self.dcterms.title
@@ -1412,7 +1412,7 @@ Project.privacy = function (projectUri, callback) {
         {
             if(isNull(project))
             {
-                callback(1, null);
+                return callback(1, null);
             }
             else
             {
@@ -1420,17 +1420,17 @@ Project.privacy = function (projectUri, callback) {
 
                 if(!isNull(privacy) && privacy instanceof Array && privacy.length > 0)
                 {
-                    callback(null, privacy[0].p);
+                    return callback(null, privacy[0].p);
                 }
                 else
                 {
-                    callback(null, null);
+                    return callback(null, null);
                 }
             }
         }
         else
         {
-            callback(1, "Error occurred fetching the privacy status of project " + projectUri + ". Error : " + project);
+            return callback(1, "Error occurred fetching the privacy status of project " + projectUri + ". Error : " + project);
         }
     });
 };
@@ -1472,60 +1472,60 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                                                         {
                                                             if(folderContents.indexOf(Config.packageMetadataFileName) >= 0)
                                                             {
-                                                                callback(null, true, childOfDataFolderAbsPath);
+                                                                return callback(null, true, childOfDataFolderAbsPath);
                                                             }
                                                             else
                                                             {
-                                                                callback(null, false, "There is no " + Config.packageMetadataFileName + " inside the /data subdirectory.");
+                                                                return callback(null, false, "There is no " + Config.packageMetadataFileName + " inside the /data subdirectory.");
                                                             }
                                                         }
                                                         else
                                                         {
-                                                            callback(err, false, "child of /data contains only one element but is not a directory.");
+                                                            return callback(err, false, "child of /data contains only one element but is not a directory.");
                                                         }
                                                     });
                                                 }
                                                 else
                                                 {
-                                                    callback(0, false, "child of /data contains only one element but is not a directory.");
+                                                    return callback(0, false, "child of /data contains only one element but is not a directory.");
                                                 }
                                             }
                                             else
                                             {
-                                                callback(err, false, "/data contains only one element but is not a directory.");
+                                                return callback(err, false, "/data contains only one element but is not a directory.");
                                             }
                                         });
                                     }
                                     else
                                     {
-                                        callback(0, false, "/data folder should contain exactly one directory.");
+                                        return callback(0, false, "/data folder should contain exactly one directory.");
                                     }
                                 }
                                 else
                                 {
-                                    callback(err, false, "/data exists but is not a directory.");
+                                    return callback(err, false, "/data exists but is not a directory.");
                                 }
                             });
                         }
                         else
                         {
-                            callback(0, false, "/data exists but is not a directory.");
+                            return callback(0, false, "/data exists but is not a directory.");
                         }
                     }
                     else if (err.code === 'ENOENT')
                     {
-                        callback(0, false, "/data subfolder does not exist.");
+                        return callback(0, false, "/data subfolder does not exist.");
                     }
                 });
             }
             else
             {
-                callback(0, false, absPathOfBagItFolder + " is not a directory");
+                return callback(0, false, absPathOfBagItFolder + " is not a directory");
             }
         }
         else if (err.code === 'ENOENT')
         {
-            callback(0, false);
+            return callback(0, false);
         }
     });
 };
@@ -1551,23 +1551,23 @@ Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSi
                                 {
                                     const metadataFileAbsPath = path.join(pathToFolderToRestore, Config.packageMetadataFileName);
                                     const metadata = require(metadataFileAbsPath);
-                                    callback(null, true, metadata);
+                                    return callback(null, true, metadata);
                                 }
                                 else
                                 {
-                                    callback(1, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
+                                    return callback(1, "Invalid Bagit structure. Are you sure this is a Dendro project backup? Error reported: " + pathToFolderToRestore);
                                 }
                             }
                             else
                             {
-                                callback(err, pathToFolderToRestore);
+                                return callback(err, pathToFolderToRestore);
                             }
                         });
                     }
                     else
                     {
                         const msg = "Unable to unzip file " + absPathToZipFile + ". Error reported: " + absPathToZipFile;
-                        callback(err, msg);
+                        return callback(err, msg);
                     }
                 });
             }
@@ -1581,14 +1581,14 @@ Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSi
                 const humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
 
                 var msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
-                callback(err, msg);
+                return callback(err, msg);
             }
 
         }
         else
         {
             var msg = "Unable to estimate size of the zip file sent in as the project backup. Error reported: " + absPathToZipFile;
-            callback(err, msg);
+            return callback(err, msg);
         }
     });
 
@@ -1640,29 +1640,29 @@ Project.restoreFromFolder = function(absPathOfRootFolder,
                             self.loadMetadata(node, function(err, result){
                                 if(!err)
                                 {
-                                    callback(null, "Data and metadata restored successfully. Result : " + result);
+                                    return callback(null, "Data and metadata restored successfully. Result : " + result);
                                 }
                                 else
                                 {
-                                    callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
+                                    return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
                                 }
                             }, entityLoadingTheMetadataUri, [Config.types.locked],[Config.types.restorable])
                         });
                     }
                     else
                     {
-                        callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
+                        return callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
                     }
                 });
             }
             else
             {
-                callback(null, result);
+                return callback(null, result);
             }
         }
         else
         {
-            callback(err, result);
+            return callback(err, result);
         }
     }, runningOnRoot);
 };

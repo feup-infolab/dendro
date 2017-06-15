@@ -158,12 +158,12 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
                     },
                     function(err, results)
                     {
-                        callback(err, results);
+                        return callback(err, results);
                     });
             }
             else
             {
-                callback(1, "Unable to fetch all resources from the graph");
+                return callback(1, "Unable to fetch all resources from the graph");
             }
         });
 };
@@ -203,11 +203,11 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
         function(err, results) {
             if(!err)
             {
-                callback(err, results);
+                return callback(err, results);
             }
             else
             {
-                callback(1, results);
+                return callback(1, results);
             }
         });
 };
@@ -260,12 +260,12 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     {
                         //Invalidate cache record for the updated resources
                         redis(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
-                            callback(err, result);
+                            return callback(err, result);
                         });
                     }
                     else
                     {
-                        callback(1, results);
+                        return callback(1, results);
                     }
                 });
         }
@@ -298,12 +298,12 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     {
                         //Invalidate cache record for the updated resources
                         redis(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
-                            callback(err, result);
+                            return callback(err, result);
                         });
                     }
                     else
                     {
-                        callback(1, results);
+                        return callback(1, results);
                     }
                 });
         }
@@ -312,7 +312,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
     {
         const msg = "No descriptor specified --> Descriptor " + descriptorInPrefixedForm;
         console.error(msg);
-        callback(1, msg);
+        return callback(1, msg);
     }
 };
 
@@ -352,11 +352,11 @@ Resource.prototype.descriptorValue = function(descriptorWithNamespaceSeparatedBy
                     extractedResults.push(results[i].o);
                 }
 
-                callback(err, extractedResults);
+                return callback(err, extractedResults);
             }
             else
             {
-                callback(1, results);
+                return callback(1, results);
             }
         });
 };
@@ -479,12 +479,12 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
                     }
                 }
 
-                callback(null, self);
+                return callback(null, self);
             }
             else
             {
                 console.error("Error fetching descriptors from ontologies : "+ JSON.stringify(ontologyURIsArray)+ ". Error returned : " + descriptors);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
@@ -569,12 +569,12 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
                     formattedResults.push(formattedDescriptor);
                 }
 
-                callback(0, formattedResults);
+                return callback(0, formattedResults);
             }
             else
             {
                 console.error("Error fetching descriptors from ontologies : "+ JSON.stringify(ontologyURIsArray)+ ". Error returned : " + descriptors);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
@@ -593,7 +593,7 @@ Resource.prototype.validateDescriptorValues = function(callback)
             for (let i = 0; i < alternatives.length; i++) {
                 if (descriptor.value === alternatives[i]) {
 
-                    callback(null, null);
+                    return callback(null, null);
                     detectedAlternative = true;
                     break;
                 }
@@ -603,11 +603,11 @@ Resource.prototype.validateDescriptorValues = function(callback)
                 const error = "[ERROR] Value \"" + descriptor.value + "\" of descriptor " + descriptor.uri + " is invalid, because it is not one of the valid alternatives " + JSON.stringify(descriptor.hasAlternative) + ". " +
                     "This error occurred when checking the validity of the descriptors of resource " + self.uri;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         }
         else {
-            callback(null, null);
+            return callback(null, null);
         }
     };
 
@@ -619,14 +619,14 @@ Resource.prototype.validateDescriptorValues = function(callback)
                 const error = "[ERROR] Value \"" + descriptor.value + "\" of descriptor " + descriptor.uri + " is invalid, because it does not comply with the regular expression " + descriptor.hasRegex + ". " +
                     "This error occurred when checking the validity of the descriptors of resource " + self.uri;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
             else {
-                callback(null, null);
+                return callback(null, null);
             }
         }
         else {
-            callback(null, null);
+            return callback(null, null);
         }
     };
 
@@ -639,7 +639,7 @@ Resource.prototype.validateDescriptorValues = function(callback)
                 ],
                 function(firstError)
                 {
-                    callback(firstError);
+                    return callback(firstError);
                 }
             )
         },
@@ -649,7 +649,7 @@ Resource.prototype.validateDescriptorValues = function(callback)
                 console.error("Error detected while validating descriptors: " + JSON.stringify(errors));
             }
 
-            callback(err, errors);
+            return callback(err, errors);
         }
     );
 };
@@ -748,13 +748,13 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
 
         db.connection.execute(query, queryArguments, function(err, results)
         {
-            callback(err, results);
+            return callback(err, results);
             //console.log(results);
         });
     }
     else
     {
-        callback(1, "Invalid or no triples sent for insertion / update");
+        return callback(1, "Invalid or no triples sent for insertion / update");
     }
 };
 
@@ -930,7 +930,7 @@ Resource.prototype.save = function
                 createNewResource(self, function(err, result)
                 {
                     //there was no existing resource with same URI, create a new one and exit immediately
-                    callback(err, result);
+                    return callback(err, result);
                 });
             }
             else if(saveVersion)
@@ -964,7 +964,7 @@ Resource.prototype.save = function
                 else
                 {
                     //Nothing to be done, zero changes detected
-                    callback(null, self);
+                    return callback(null, self);
                 }
             }
             else
@@ -995,11 +995,11 @@ Resource.prototype.save = function
     {
         if(!err)
         {
-            callback(err, self);
+            return callback(err, self);
         }
         else
         {
-            callback(err, result);
+            return callback(err, result);
         }
     });
 };
@@ -1167,18 +1167,18 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function(ontologyURIsArr
             {
                 const error = "error retrieving literal properties for resource " + self.uri;
                 console.log(error);
-                callback(1, error);
+                return callback(1, error);
             }
             else
             {
                 if(returnAsFlatArray)
                 {
-                    callback(null, results);
+                    return callback(null, results);
                 }
                 else
                 {
                     const propertiesObject = groupPropertiesArrayIntoObject(results);
-                    callback(null, propertiesObject);
+                    return callback(null, propertiesObject);
                 }
             }
         });
@@ -1234,28 +1234,28 @@ Resource.prototype.reindex = function(indexConnection, callback)
                             if(!err)
                             {
                                 infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.index.short_name);
-                                callback(null, infoMessages);
+                                return callback(null, infoMessages);
                             }
                             else
                             {
                                 const msg = "Error deleting old document for resource " + self.uri + " error returned " + result;
                                 errorMessages.push(msg);
                                 console.error(msg);
-                                callback(1, errorMessages);
+                                return callback(1, errorMessages);
                             }
                         });
                 }
                 else
                 {
                     errorMessages.push("Error getting document id for resource " + self.uri + " error returned " + id);
-                    callback(1, errorMessages);
+                    return callback(1, errorMessages);
                 }
             });
         }
         else
         {
             infoMessages.push("Node "+ self.uri + " has no literal properties to be indexed, moving on");
-            callback(null, errorMessages);
+            return callback(null, errorMessages);
         }
     });
 };
@@ -1268,11 +1268,11 @@ Resource.prototype.getIndexDocumentId = function(indexConnection, callback)
     {
         if(!isNull(self.indexData))
         {
-            callback(err, self.indexData.id);
+            return callback(err, self.indexData.id);
         }
         else
         {
-            callback(err, null);
+            return callback(err, null);
         }
     });
 };
@@ -1300,11 +1300,11 @@ Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxR
                                 return resource.uri !== self.uri;
                             });
 
-                            callback(0, retrievedResources);
+                            return callback(0, retrievedResources);
                         }
                         else
                         {
-                            callback(1, [results]);
+                            return callback(1, [results]);
                         }
                     }
                 );
@@ -1312,12 +1312,12 @@ Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxR
             else
             {
                 //document is not indexed, therefore has no ID. return empty array as list of similar resources.
-                callback(null, []);
+                return callback(null, []);
             }
         }
         else
         {
-            callback(1, "Error retrieving similar resources for resource " + self.uri + " : " + id);
+            return callback(1, "Error retrieving similar resources for resource " + self.uri + " : " + id);
         }
     });
 };
@@ -1356,11 +1356,11 @@ Resource.findResourcesByTextQuery = function (
             if(!err)
             {
                 let retrievedResources = Resource.restoreFromIndexResults(results);
-                callback(0, retrievedResources);
+                return callback(0, retrievedResources);
             }
             else
             {
-                callback(1, [results]);
+                return callback(1, [results]);
             }
         }
     );
@@ -1432,11 +1432,11 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
                     self.loadFromIndexHit(hit);
                 }
 
-                callback(0, self);
+                return callback(0, self);
             }
             else
             {
-                callback(1, [hits]);
+                return callback(1, [hits]);
             }
         }
     );
@@ -1467,14 +1467,14 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                         resource.clearDescriptors(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
                     }
 
-                    callback(err, resource);
+                    return callback(err, resource);
                 }
                 else {
-                    callback(err, result);
+                    return callback(err, result);
                 }
             }
             else {
-                callback(err, result);
+                return callback(err, result);
             }
         });
     };
@@ -1484,7 +1484,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
         redis(customGraphUri).connection.put(uri, resource, function (err) {
             if (!err) {
                 if (typeof callback === "function") {
-                    callback(null, resource);
+                    return callback(null, resource);
                 }
             }
             else {
@@ -1523,12 +1523,12 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                     resource.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject) {
                         if (!err) {
                             resource.baseConstructor(loadedObject);
-                            callback(null, resource);
+                            return callback(null, resource);
                         }
                         else {
                             const msg = "Error " + resource + " while trying to retrieve resource with uri " + uri + " from triple store.";
                             console.error(msg);
-                            callback(1, msg);
+                            return callback(1, msg);
                         }
                     }, customGraphUri);
                 }
@@ -1538,13 +1538,13 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                         console.log(msg);
                     }
 
-                    callback(0, null);
+                    return callback(0, null);
                 }
             }
             else {
                 var msg = "Error " + exists + " while trying to check existence of resource with uri " + uri + " from triple store.";
                 console.error(msg);
-                callback(1, msg);
+                return callback(1, msg);
             }
         }, customGraphUri);
     };
@@ -1594,13 +1594,13 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                 }
             }
         ], function(err, result){
-            callback(err, result);
+            return callback(err, result);
         });
     }
     else
     {
         getFromTripleStore(uri, function(err, result){
-            callback(err, result);
+            return callback(err, result);
         }, customGraphUri);
     }
 };
@@ -1630,7 +1630,7 @@ Resource.prototype.insertDescriptors = function(newDescriptors, callback, custom
 
     db.connection.insertDescriptorsForSubject(self.uri, newDescriptors, graphUri, function(err, result)
     {
-        callback(err, result);
+        return callback(err, result);
     });
 };
 
@@ -1686,13 +1686,13 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
                 {
                     if(!err)
                     {
-                        callback(null, formattedVersions);
+                        return callback(null, formattedVersions);
                     }
                     else
                     {
                         const error = "Error occurred fetching data about a past version of resource " + self.uri + ". Error returned : " + formattedVersions;
                         console.error(error);
-                        callback(1, error);
+                        return callback(1, error);
                     }
                 });
             }
@@ -1700,7 +1700,7 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
             {
                 var error = "Error occurred fetching versions of resource " + self.uri + ". Error returned : " + versions;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
 };
@@ -1711,17 +1711,17 @@ Resource.prototype.getLatestArchivedVersion = function(callback)
     self.getArchivedVersions(0, 1, function(err, latestRevisionArray){
         if(!err && latestRevisionArray instanceof Array && latestRevisionArray.length === 1)
         {
-            callback(0, latestRevisionArray[0]);
+            return callback(0, latestRevisionArray[0]);
         }
         else if(!err && latestRevisionArray instanceof Array && latestRevisionArray.length === 0)
         {
-            callback(0, null);
+            return callback(0, null);
         }
         else
         {
             const error = "Error occurred fetching latest version of resource " + self.uri + ". Error returned : " + latestRevisionArray;
             console.error(error);
-            callback(1, error);
+            return callback(1, error);
         }
     });
 };
@@ -1772,13 +1772,13 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
             archivedResource.ddr.isVersionOf = self.uri;
             archivedResource.ddr.versionNumber = newVersionNumber;
 
-            callback(null, archivedResource);
+            return callback(null, archivedResource);
         }
         else
         {
             const error = "Error occurred creating a new archived version of resource " + self.uri + ". Error returned : " + latestArchivedVersion;
             console.error(error);
-            callback(1, error);
+            return callback(1, error);
         }
     });
 };
@@ -2062,10 +2062,10 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                 function (err, result) {
                     if (!err) {
                         if (result === true) {
-                            callback(0, true);
+                            return callback(0, true);
                         }
                         else {
-                            callback(0, false);
+                            return callback(0, false);
                         }
                     }
                     else {
@@ -2073,7 +2073,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                         if (Config.debug.resources.log_all_type_checks === true) {
                             console.error(msg);
                         }
-                        callback(1, msg);
+                        return callback(1, msg);
                     }
                 });
         };
@@ -2089,7 +2089,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                    cachedDescriptor[namespace][element] === value
                )
                {
-                   callback(null, true);
+                   return callback(null, true);
                }
                else
                {
@@ -2186,11 +2186,11 @@ Resource.prototype.findMetadataRecursive = function(callback){
                                                         child.findMetadataRecursive( function (err, result2) {
                                                             if (!err) {
                                                                 metadataResult.hasLogicalParts.push(result2);
-                                                                callback(null);
+                                                                return callback(null);
                                                             }
                                                             else {
                                                                 console.info("[findMetadataRecursive] error accessing metadata of resource " + folder.nie.title);
-                                                                callback(err);
+                                                                return callback(err);
                                                             }
                                                         });
                                                     },
@@ -2198,27 +2198,27 @@ Resource.prototype.findMetadataRecursive = function(callback){
                                                     function(err){
                                                         if(!err) {
                                                             // All tasks are done now
-                                                            callback(false, metadataResult);
+                                                            return callback(false, metadataResult);
                                                         }
                                                         else{
-                                                            callback(true, null);
+                                                            return callback(true, null);
                                                         }
                                                     }
                                                 );
                                             }
                                             else {
-                                                callback(false, metadataResult);
+                                                return callback(false, metadataResult);
                                             }
                                         }
                                         else {
                                             console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
-                                            callback(true, null);
+                                            return callback(true, null);
                                         }
                                     });
                                 }
                                 else {
                                     console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
-                                    callback(false, metadataResult);
+                                    return callback(false, metadataResult);
                                 }
 
                             });
@@ -2228,7 +2228,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
 
                             console.error("[findMetadataRecursive] error accessing properties from ontologies in " + self.uri);
 
-                            callback(true, [descriptors]);
+                            return callback(true, [descriptors]);
                         }
                     });
             }
@@ -2237,7 +2237,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
                 var msg = self.uri + " does not exist in Dendro.";
                 console.error(msg);
 
-                callback(true, msg);
+                return callback(true, msg);
             }
         }
         else
@@ -2245,7 +2245,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
             var msg = "Error fetching " + self.uri + " from the Dendro platform.";
             console.error(msg);
 
-            callback(true, msg);
+            return callback(true, msg);
         }
     });
 };
@@ -2265,7 +2265,7 @@ Resource.prototype.isOfClass = function(classNameInPrefixedForm, callback)
                 console.log("Resource " + self.uri + " IS NOT of type " + classNameInPrefixedForm);
             }
         }
-        callback(err, isOfClass);
+        return callback(err, isOfClass);
     });
 };
 
@@ -2363,11 +2363,11 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
                     if(!err)
                     {
                         const randomNumber = Math.floor(Math.random() * (results[0].c - 1));
-                        callback(null, randomNumber);
+                        return callback(null, randomNumber);
                     }
                     else
                     {
-                        callback(err, results);
+                        return callback(err, results);
                     }
                 });
         },
@@ -2406,17 +2406,17 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
                 {
                     const randomResourceUri = result[0].s;
                     self.findByUri(randomResourceUri, function(err, result){
-                        callback(err, result);
+                        return callback(err, result);
                     });
                 }
                 else
                 {
-                    callback(err, null);
+                    return callback(err, null);
                 }
             });
         }
     ], function(err, randomResourceInstance){
-        callback(err, randomResourceInstance);
+        return callback(err, randomResourceInstance);
     });
 };
 
@@ -2460,7 +2460,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
                 }
             ],
             function (err, result) {
-                callback(err, result);
+                return callback(err, result);
             }
         );
     };
@@ -2482,21 +2482,21 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
                                     deleteAllCachedResourcesWithDescriptorValue(descriptor, page, pageSize, callback);
                                 }
                                 else {
-                                    callback(null, null);
+                                    return callback(null, null);
                                 }
                             }
                             else {
-                                callback(err, result);
+                                return callback(err, result);
                             }
 
                         });
                     }
                     else {
-                        callback(null, null);
+                        return callback(null, null);
                     }
                 }
                 else {
-                    callback(1, "Unable to delete resources with descriptor " + descriptor.getPrefixedForm() + " and value" + descriptor.value + " from cache.");
+                    return callback(1, "Unable to delete resources with descriptor " + descriptor.getPrefixedForm() + " and value" + descriptor.value + " from cache.");
                 }
             }
         });
@@ -2533,13 +2533,13 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
                 function(err, results) {
                     if(!err)
                     {
-                        callback(null, results);
+                        return callback(null, results);
                     }
                     else
                     {
                         const msg = "Error deleting all resources of type with descriptor " + descriptor.getPrefixedForm() + " and value" + descriptor.value + " and their outgoing triples. Error returned: " + JSON.stringify(results);
                         console.error(msg);
-                        callback(err, msg);
+                        return callback(err, msg);
                     }
                 });
         }
@@ -2547,7 +2547,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
         {
             var msg = "Error deleting all CACHED resources of type with descriptor "+ descriptor.getPrefixedForm() +  " and value" + descriptor.value +" and their outgoing triples. Error returned: " + JSON.stringify(results);
             console.error(msg);
-            callback(err, msg);
+            return callback(err, msg);
         }
     });
 
@@ -2582,7 +2582,7 @@ Resource.arrayToCSVFile = function(resourceArray, fileName, callback)
     const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
     File.createBlankTempFile(fileName, function(err, tempFileAbsPath){
-        callback(err, tempFileAbsPath);
+        return callback(err, tempFileAbsPath);
 
         /*var fs = require('fs');
 
@@ -2598,7 +2598,7 @@ Resource.arrayToCSVFile = function(resourceArray, fileName, callback)
          };
 
          async.map(resourceArray, writeCSVLineToFile, function(err, results){
-         callback(err, tempFileAbsPath);
+         return callback(err, tempFileAbsPath);
          });
          }); */
     });
@@ -2631,13 +2631,13 @@ Resource.exists = function(uri, callback, customGraphUri)
         function(err, result) {
             if(!err)
             {
-                callback(null, result);
+                return callback(null, result);
             }
             else
             {
                 const msg = "Error checking for the existence of resource with uri : " + uri;
                 console.error(msg);
-                callback(err, msg);
+                return callback(err, msg);
             }
         });
 };
@@ -2672,9 +2672,9 @@ Resource.getCount = function(callback) {
             if(!err && count instanceof Array)
             {
                 totalCount = parseInt(count[0].count);
-                callback(null, totalCount);
+                return callback(null, totalCount);
             } else{
-                callback(err, count[0]);
+                return callback(err, count[0]);
             }
         }
     );

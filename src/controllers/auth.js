@@ -222,7 +222,7 @@ module.exports.register = function(req, res){
                         {
                             if(!isNull(user))
                             {
-                                callback(1, "Username already exists");
+                                return callback(1, "Username already exists");
                             }
                             else
                             {
@@ -240,17 +240,17 @@ module.exports.register = function(req, res){
                                         }
                                     };
 
-                                    callback(null, userData);
+                                    return callback(null, userData);
                                 }
                                 else
                                 {
-                                    callback(1, "Passwords do not match");
+                                    return callback(1, "Passwords do not match");
                                 }
                             }
                         }
                         else
                         {
-                            callback(1, user);
+                            return callback(1, user);
                         }
                     });
                 };
@@ -262,7 +262,7 @@ module.exports.register = function(req, res){
                         {
                             if(!isNull(user))
                             {
-                                callback(1, "User with that ORCID already exists");
+                                return callback(1, "User with that ORCID already exists");
                             }
                             else
                             {
@@ -281,17 +281,17 @@ module.exports.register = function(req, res){
                                         }
                                     };
 
-                                    callback(null, userData);
+                                    return callback(null, userData);
                                 }
                                 else
                                 {
-                                    callback(1, "Passwords do not match");
+                                    return callback(1, "Passwords do not match");
                                 }
                             }
                         }
                         else
                         {
-                            callback(1, user);
+                            return callback(1, user);
                         }
                     });
                 };
@@ -301,11 +301,11 @@ module.exports.register = function(req, res){
                     User.createAndInsertFromObject(userData, function(err, newUser){
                         if(!err)
                         {
-                            callback(null, "New user " + userData.ddr.username +" created successfully. You can now login with the username and password you specified.");
+                            return callback(null, "New user " + userData.ddr.username +" created successfully. You can now login with the username and password you specified.");
                         }
                         else
                         {
-                            callback(1, newUser);
+                            return callback(1, newUser);
                         }
 
                     });

@@ -67,11 +67,11 @@ Upload.create = function(object, callback)
                 {
                     self.temp_dir = tmp_dir;
                     self.temp_file = path.join(tmp_dir, object.filename);
-                    callback(err, self);
+                    return callback(err, self);
                 }
                 else
                 {
-                    callback(err, "Unable to create a temporary directory for upload of file " + object.filename + "by " + object.username);
+                    return callback(err, "Unable to create a temporary directory for upload of file " + object.filename + "by " + object.username);
                 }
             });
     }
@@ -87,12 +87,12 @@ Upload.prototype.restart = function(callback)
         if(!err)
         {
             self.loaded = 0;
-            callback(null);
+            return callback(null);
         }
         else
         {
             const msg = "Unable to delete file " + self.temp_file + " when restarting the upload " + self.id;
-            callback(err, msg);
+            return callback(err, msg);
         }
     });
 };
@@ -108,7 +108,7 @@ Upload.prototype.destroy = function(callback)
         console.log(files);
         console.log('all files are removed');
 
-        callback(err, dirs, files);
+        return callback(err, dirs, files);
     });
 };
 
@@ -145,12 +145,12 @@ Upload.prototype.pipe = function(part, callback)
         if (!isNull(error))
         {
             fs.unlink(file.path);
-            callback(1, "There was an error writing to the temporary file on upload of file " + self.filename + " by username " + file.username, error);
+            return callback(1, "There was an error writing to the temporary file on upload of file " + self.filename + " by username " + file.username, error);
         }
         else
         {
             self.loaded += part.byteCount;
-            callback(null);
+            return callback(null);
         }
     });
 
@@ -170,7 +170,7 @@ Upload.prototype.get_temp_file_size = function(callback)
 
     const fs = require('fs');
     const stat = fs.statSync(self.temp_file);
-    callback(null, stat.size);
+    return callback(null, stat.size);
 };
 
 Upload = Class.extend(Upload, Class);

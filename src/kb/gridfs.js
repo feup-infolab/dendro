@@ -23,7 +23,7 @@ GridFSConnection.prototype.openConnection = function(callback) {
 
     if(!isNull(self.gfs))
     {
-        callback(1, "Database connection is already open");
+        return callback(1, "Database connection is already open");
     }
     else
     {
@@ -50,11 +50,11 @@ GridFSConnection.prototype.openConnection = function(callback) {
             {
                 self.db = db;
                 self.gfs = Grid(db, mongo);
-                callback(null, self);
+                return callback(null, self);
             }
             else
             {
-                callback(1, err);
+                return callback(1, err);
             }
         });
     }
@@ -81,7 +81,7 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
         uploadStream.on('error', function (err) {
             hasError = true;
             console.log('An error occurred saving the file to the database!', err);
-            callback(1, err);
+            return callback(1, err);
         });
 
         //callback on complete
@@ -98,14 +98,14 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
                 message = 'GridFS: Error saving file with uri :'+fileUri;
             }
 
-            callback(hasError, message, file);
+            return callback(hasError, message, file);
         });
 
         inputStream.pipe(uploadStream);
     }
     else
     {
-        callback(1, "Must open connection to database first!");
+        return callback(1, "Must open connection to database first!");
     }
 };
 
@@ -120,11 +120,11 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback, custo
         downloadStream.on('error', function(error) {
             if(error.code === "ENOENT" )
             {
-                callback(404, error);
+                return callback(404, error);
             }
             else
             {
-                callback(1, error);
+                return callback(1, error);
             }
 
         });
@@ -140,14 +140,14 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback, custo
         downloadStream.on('close', function() {
             const msg = "Finished reading the file";
             console.log(msg);
-            callback(0, msg);
+            return callback(0, msg);
         });
 
         downloadStream.pipe(outputStream);
     }
     else
     {
-        callback(1, "Must open connection to database first!");
+        return callback(1, "Must open connection to database first!");
     }
 
 };
@@ -167,23 +167,23 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
                 {
                     if (!err && !exists)
                     {
-                        callback(null, "File " + fileUri + "successfully deleted");
+                        return callback(null, "File " + fileUri + "successfully deleted");
                     }
                     else
                     {
-                        callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
+                        return callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
                     }
                 });
             }
             else
             {
-                callback(err, "Error deleting file " + fileUri + ". Error reported " + result);
+                return callback(err, "Error deleting file " + fileUri + ". Error reported " + result);
             }
         });
     }
     else
     {
-        callback(1, "Must open connection to database first!");
+        return callback(1, "Must open connection to database first!");
     }
 
 };

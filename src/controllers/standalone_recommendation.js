@@ -182,7 +182,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
      */
     const getMostUsedPublicDescriptors = function (callback) {
         Descriptor.mostUsedPublicDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, mostUsedDescriptors) {
-            callback(error, mostUsedDescriptors);
+            return callback(error, mostUsedDescriptors);
         }, allowedOntologies);
     };
 
@@ -194,13 +194,13 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
         User.findByUri(userUri, function (err, user) {
             if (!err) {
                 user.mostRecentlyFilledInDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, mostRecentlyFilledIn) {
-                    callback(error, mostRecentlyFilledIn);
+                    return callback(error, mostRecentlyFilledIn);
                 }, allowedOntologies);
             }
             else {
                 var error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -214,13 +214,13 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
         User.findByUri(userUri, function (err, user) {
             if (!err) {
                 user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
-                    callback(error, favorites);
+                    return callback(error, favorites);
                 }, allowedOntologies);
             }
             else {
                 var error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -233,13 +233,13 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
         User.findByUri(userUri, function (err, user) {
             if (!err) {
                 user.hiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
-                    callback(error, hidden);
+                    return callback(error, hidden);
                 }, allowedOntologies);
             }
             else {
                 var error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -255,19 +255,19 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
             if (!err) {
                 if (!isNull(project)) {
                     project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
-                        callback(error, favorites);
+                        return callback(error, favorites);
                     }, allowedOntologies);
                 }
                 else {
                     var error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
                     console.error(error);
-                    callback(1, error);
+                    return callback(1, error);
                 }
             }
             else {
                 var error = "Error fetching project : " + project + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -279,19 +279,19 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
             if (!err) {
                 if (!isNull(project)) {
                     project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
-                        callback(error, hidden);
+                        return callback(error, hidden);
                     }, allowedOntologies);
                 }
                 else {
                     var error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
                     console.error(error);
-                    callback(1, error);
+                    return callback(1, error);
                 }
             }
             else {
                 var error = "Error fetching project : " + project + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -319,18 +319,18 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                             }
                         }
 
-                        callback(err, resource); //null as 1st argument == no error
+                        return callback(err, resource); //null as 1st argument == no error
                     });
                 };
 
                 async.map(similarResources, getDescriptorsOfSimilarResources, function (err, similarResourcesWithDescriptors) {
-                    callback(err, similarResourcesWithDescriptors);
+                    return callback(err, similarResourcesWithDescriptors);
                 });
             }
             else {
                 const error = "Error fetching similar resources : " + similarResources + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -342,13 +342,13 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
         User.findByUri(userUri, function (err, user) {
             if (!err) {
                 user.mostAcceptedFavoriteDescriptorsInMetadataEditor(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
-                    callback(error, hidden);
+                    return callback(error, hidden);
                 }, allowedOntologies);
             }
             else {
                 var error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -360,13 +360,13 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
         User.findByUri(userUri, function (err, user) {
             if (!err) {
                 user.mostAcceptedSmartDescriptorsInMetadataEditor(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
-                    callback(error, hidden);
+                    return callback(error, hidden);
                 }, allowedOntologies);
             }
             else {
                 var error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -630,12 +630,12 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                     Descriptor.getRandomDescriptors(allowedOntologies, numberOfDescriptorsRequiredForPadding, function (err, randomDescriptors) {
                         if (!err && !isNull(randomDescriptors)) {
                             results = results.concat(randomDescriptors);
-                            callback(err, results);
+                            return callback(err, results);
                         }
                         else {
                             const msg = "Error occurred when padding recommended descriptors list with random descriptors: " + err + ". Error reported: " + JSON.stringify(randomDescriptors);
                             console.error(msg);
-                            callback(err, msg);
+                            return callback(err, msg);
                         }
                     });
                 };
@@ -681,18 +681,18 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                      * In case we only want favorites, no need to pad with random descriptors
                      */
 
-                    callback(null, results)
+                    return callback(null, results)
                 }
                 else if (results.length < Config.recommendation.recommendation_page_size && !includeOnlyFavorites && !includeOnlyHiddenDescriptors)
                 {
                     padWithRandomDescriptors(results, function(err, results){
                         results = removeDuplicates(results);
-                        callback(err, results);
+                        return callback(err, results);
                     });
                 }
                 else
                 {
-                    callback(null, results);
+                    return callback(null, results);
                 }
             }
             else
@@ -708,7 +708,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
 
                 var msg = "Error performing final ranking of descriptors. Error reported : " + err + ", Errors reported  " + JSON.stringify(error_messages);
                 console.log(msg);
-                callback(err, msg);
+                return callback(err, msg);
             }
         });
 };

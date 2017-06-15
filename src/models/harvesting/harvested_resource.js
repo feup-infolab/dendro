@@ -150,20 +150,20 @@ HarvestedResource.prototype.save = function(indexConnection, callback) {
                 {
                     if(!err)
                     {
-                        callback(null, "Metadata successfully inserted for resource : "+ self.uri + " Virtuoso error : " + result);
+                        return callback(null, "Metadata successfully inserted for resource : "+ self.uri + " Virtuoso error : " + result);
                     }
                     else
                     {
                         const error = "Error indexing harvested resource with uri " + self.uri + ". Error reported: " + result;
                         console.error(error);
-                        callback(1, error);
+                        return callback(1, error);
                     }
 
                 });
             }
             else
             {
-                callback(1, "Error inserting metadata for resource : "+ self.uri + " : Virtuoso error : "+ result);
+                return callback(1, "Error inserting metadata for resource : "+ self.uri + " : Virtuoso error : "+ result);
             }
         }
     );

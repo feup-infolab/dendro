@@ -16,7 +16,7 @@ DBPediaLoader.prototype.load_dbpedia = function(callback)
         path.dirname(module.parent.parent.filename) + '/kb/loaders/dbpedia/datasets/samples',
             function(err, messages)
             {
-                callback(err, messages);
+                return callback(err, messages);
             }
     );
 };

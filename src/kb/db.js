@@ -61,20 +61,22 @@ DbConnection.prototype.create = function(callback) {
                 self.q = queue();
                 self.q.timeout = Config.dbOperationTimeout;
 
-                self.q.on('timeout', function(next, job) {
-                    console.log('query timed out:', job.toString().replace(/\n/g, ''));
-                    next();
-                });
+                if(Config.debug.database.log_query_timeouts) {
+                    self.q.on('timeout', function (next, job) {
+                        console.log('query timed out:', job.toString().replace(/\n/g, ''));
+                        next();
+                    });
+                }
 
                 self.q.on('success', function(result, job) {
                     //console.log('query finished processing:', job.toString().replace(/\n/g, ''));
                 });
 
-                callback(self);
+                return callback(self);
             }
             else
             {
-                callback(false);
+                return callback(false);
             }
         }
     };
@@ -132,7 +134,7 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                     catch (e) {
                         const msg = "Unable to convert argument [" + i + "]: It is set as a bolean, but the value is not true or false, it is : " + currentArgument.value;
                         console.error(msg);
-                        callback(1, msg);
+                        return callback(1, msg);
                         break;
                     }
 
@@ -164,19 +166,19 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                                 else {
                                     var error = "Value of argument " + currentArgument.value + " is null. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                                     console.error(error);
-                                    callback(1, error);
+                                    return callback(1, error);
                                 }
                             }
                             else {
                                 var error = "Value of argument " + currentArgument.value + " is not valid for an argument of type Prefixed Resource... Did you mean to parametrize it as a string type in the elements.js file?. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                                 console.error(error);
-                                callback(1, error);
+                                return callback(1, error);
                             }
                         }
                         else {
                             var error = "Cannot Execute Query: Value of argument at index " + currentArgumentIndex + " is undefined. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                             console.error(error);
-                            callback(1, error);
+                            return callback(1, error);
                         }
                     }
 
@@ -193,7 +195,7 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                 default: {
                     var error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                     console.error(error);
-                    callback(1, error);
+                    return callback(1, error);
                     break;
                 }
             }
@@ -201,11 +203,11 @@ const queryObjectToString = function (query, argumentsArray, callback) {
         else {
             var error = "Error in query " + query + "; Unable to find argument with index " + i + " .";
             console.error(error);
-            callback(1, error);
+            return callback(1, error);
         }
     }
 
-    callback(null, transformedQuery);
+    return callback(null, transformedQuery);
 };
 
 DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows) {
@@ -270,7 +272,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                             if (!isNull(parsedBody.boolean))
                             {
                                 cb();
-                                callback(null, parsedBody.boolean);
+                                return callback(null, parsedBody.boolean);
                             }
                             else
                             {
@@ -279,7 +281,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                 if (numberOfRows === 0)
                                 {
                                     cb();
-                                    callback(null, []);
+                                    return callback(null, []);
                                 }
                                 else
                                 {
@@ -374,7 +376,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                     // util.debug("Transformed Results :\n" +
                                     // util.inspect(transformedResults, true, null));
 
-                                    callback(null, transformedResults);
+                                    return callback(null, transformedResults);
                                     cb();
                                 }
                             }
@@ -384,7 +386,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                             console.trace(err);
                             console.error(error);
 
-                            callback(1, err);
+                            return callback(1, err);
                             cb();
                         });
                 });
@@ -393,14 +395,14 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
             }
             else
             {
-                callback(1, "Database connection must be set first");
+                return callback(1, "Database connection must be set first");
             }
         }
         else
         {
             const msg = "Something went wrong with the query generation. Error reported: " + query;
             console.error(msg);
-            callback(1, msg);
+            return callback(1, msg);
         }
     });
 };
@@ -519,7 +521,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
     {
         var error =  "Attempted to insert an invalid triple, missing one of the three required elements ( subject-> " + triple.subject + " predicate ->" + triple.predicate + " object-> " + triple._object +" )";
         console.error(error);
-        callback(1, error);
+        return callback(1, error);
     }
     else
     {
@@ -527,13 +529,13 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
         {
             //http://answers.semanticweb.com/questions/17060/are-literals-allowed-as-subjects-or-predicates-in-rdf
             //literals should not be subjects nor properties, even though it is allowed by the RDF spec.
-            callback(1, "Subjects should not be literals");
+            return callback(1, "Subjects should not be literals");
         }
         else if(triple.predicate.substring(0, "\"".length) === "\"")
         {
             //http://answers.semanticweb.com/questions/17060/are-literals-allowed-as-subjects-or-predicates-in-rdf
             //literals should not be subjects, even though it is allowed by the RDF spec.
-            callback(1, "Predicates should not be literals");
+            return callback(1, "Predicates should not be literals");
         }
         else
         {
@@ -603,11 +605,11 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
                {
                    if(isNull(error))
                    {
-                       callback(null);
+                       return callback(null);
                    }
                    else
                    {
-                       callback(1, ("Error inserting triple " + triple.subject + " " + triple.predicate + " "  + triple.object +"\n").substr(0,200) +" . Server returned " + error);
+                       return callback(1, ("Error inserting triple " + triple.subject + " " + triple.predicate + " "  + triple.object +"\n").substr(0,200) +" . Server returned " + error);
                    }
                }
             );
@@ -706,12 +708,12 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
 
         self.execute(query, queryArguments, function(err, results)
         {
-            callback(err, results);
+            return callback(err, results);
         });
     }
     else
     {
-        callback(1, "Invalid or no triples sent for insertion / update");
+        return callback(1, "Invalid or no triples sent for insertion / update");
     }
 };
 
@@ -782,13 +784,13 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
 
         self.execute(query, queryArguments, function(err, results)
         {
-            callback(err, results);
+            return callback(err, results);
             //console.log(results);
         });
     }
     else
     {
-        callback(1, "Invalid or no triples sent for insertion / update");
+        return callback(1, "Invalid or no triples sent for insertion / update");
     }
 };
 
@@ -800,7 +802,7 @@ DbConnection.prototype.deleteGraph = function(graphUri, callback)
         [],
         function(err, resultsOrErrMessage)
         {
-            callback(err, resultsOrErrMessage);
+            return callback(err, resultsOrErrMessage);
         }
     );
 };
@@ -822,16 +824,16 @@ DbConnection.prototype.graphExists = function(graphUri, callback)
             {
                 if(result === true)
                 {
-                    callback(err, true);
+                    return callback(err, true);
                 }
                 else
                 {
-                    callback(err, false);
+                    return callback(err, false);
                 }
             }
             else
             {
-                callback(err, null);
+                return callback(err, null);
             }
         }
     );

@@ -31,16 +31,16 @@ B2Share.prototype.createDeposition = function(callback){
     }, function(error, result, deposition){
         if(error){
             console.log("[B2SHARE] Deposition Error: " + error);
-            callback(true);
+            return callback(true);
         }
         else{
             if(result.statusCode !== 201){
                 console.log("[B2SHARE] Deposition Error: " + JSON.stringify(result));
-                callback(true);
+                return callback(true);
             }
             else{
                 console.log("[B2SHARE] Deposition Created");
-                callback(false, deposition);
+                return callback(false, deposition);
             }
         }
     });
@@ -55,16 +55,16 @@ B2Share.prototype.uploadFileToDeposition = function(depositionID, file, callback
     }, function (error, result, data) {
         if (error) {
             console.log("[B2SHARE] File Upload error: " + error);
-            callback(true);
+            return callback(true);
         }
         else {
             if (result.statusCode !== 200) {
                 console.log("[B2SHARE] File Upload error:" + JSON.stringify(result));
-                callback(true);
+                return callback(true);
             }
             else {
                 console.log("[B2SHARE] Success Uploading File");
-                callback(false);
+                return callback(false);
             }
         }
     });
@@ -80,18 +80,18 @@ B2Share.prototype.uploadMultipleFilesToDeposition = function (depositionID, file
     async.each(files, function(file, callback){
         self.uploadFileToDeposition(depositionID, file, function(error){
             if(error){
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false);
+                return callback(false);
             }
         });
     }, function(error){
         if(error){
-            callback(true);
+            return callback(true);
         }
         else{
-            callback(false);
+            return callback(false);
         }
     });
 };
@@ -105,16 +105,16 @@ B2Share.prototype.depositionPublish = function(depositionID, metadata, callback)
     }, function(error, result, data){
         if(error){
             console.log("[B2SHARE] Error Publishing Dataset: " + error);
-            callback(true);
+            return callback(true);
         }
         else{
             if(result.statusCode !== 201){
                 console.log("[B2SHARE] Error Publishing Dataset:" + JSON.stringify(result));
-                callback(true);
+                return callback(true);
             }
             else{
                 console.log("[B2SHARE] Success Committing Deposit: " + JSON.stringify(result));
-                callback(false, result);
+                return callback(false, result);
             }
         }
     });

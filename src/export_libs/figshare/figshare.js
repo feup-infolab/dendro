@@ -39,10 +39,10 @@ FigShare.prototype.getArticles = function(callback){
         function (e, r, data) {
             if(e){
                 console.log(e);
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false);
+                return callback(false);
             }
         })
 };
@@ -61,10 +61,10 @@ FigShare.prototype.createArticle = function(article_data, callback){
         function (e, r, article) {
             if(e){
                 console.log(e);
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false,article);
+                return callback(false,article);
             }
         })
 };
@@ -77,10 +77,10 @@ FigShare.prototype.deleteArticle = function(articleID, callback){
         function (e, r, data) {
             if(e){
                 console.log(e);
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false);
+                return callback(false);
             }
         })
 };
@@ -95,10 +95,10 @@ FigShare.prototype.addFileToArticle = function(articleID, file,callback){
         function (e, r, data) {
             if (e) {
                 console.log(e);
-                callback(true);
+                return callback(true);
             }
             else {
-                callback(false);
+                return callback(false);
             }
         });
 
@@ -115,17 +115,17 @@ FigShare.prototype.addMultipleFilesToArticle = function(articleID, files, callba
             self.addFileToArticle(articleID, file,function(err){
                 if(err)
                 {
-                    callback(true);
+                    return callback(true);
                 }
-                else callback(false);
+                else return callback(false);
             })
         },
         function(err){
             if(err){
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false);
+                return callback(false);
             }
         })
 };

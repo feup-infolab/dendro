@@ -30,7 +30,7 @@ function parseFile(dbConnection, fileName, cb)
                             function (err, triple) {
                                 if (triple && !err)
                                 {
-                                    callback(null, triple);
+                                    return callback(null, triple);
                                 }
                                 else
                                 {
@@ -53,7 +53,7 @@ function parseFile(dbConnection, fileName, cb)
                                 // because the file will have many and some may have errors.
                                 // The Dendro admin will have to check the console logs to
                                 // see if the loading process went well!
-                                callback(null);
+                                return callback(null);
                             }
                         );
                     }

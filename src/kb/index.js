@@ -116,12 +116,12 @@ IndexConnection.prototype.open = function(host, port, index, callback)
         self.client.indices.getMapping()
             .then(function(mapping){
                 console.log(mapping);
-                callback(self);
+                return callback(self);
             });
     }
     else
     {
-	    callback(self);
+	    return callback(self);
     }
 };
 
@@ -142,12 +142,12 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
         {
             if(!err)
             {
-                callback(0, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
+                return callback(0, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             else
             {
                 console.error(err.stack);
-                callback(1, "Unable to RE index document " + JSON.stringify(document));
+                return callback(1, "Unable to RE index document " + JSON.stringify(document));
             }
         });
     }
@@ -166,12 +166,12 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
         {
             if(!err)
             {
-                callback(0, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
+                return callback(0, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             else
             {
                 console.error(err.stack);
-                callback(1, "Unable to index document " + JSON.stringify(document));
+                return callback(1, "Unable to index document " + JSON.stringify(document));
             }
         });
     }
@@ -182,7 +182,7 @@ IndexConnection.prototype.deleteDocument = function(documentID, type, callback)
     const self = this;
     if(isNull(documentID))
     {
-        callback(null, "No document to delete");
+        return callback(null, "No document to delete");
     }
 
     self.client.delete(self.index.short_name,
@@ -190,16 +190,16 @@ IndexConnection.prototype.deleteDocument = function(documentID, type, callback)
         documentID,
         {},
         function(err, result) {
-            callback(err, result);
+            return callback(err, result);
         })
         .on('data', function(data) {
             console.log("Deleting document... data received : " + data);
         })
         .on('done', function(data) {
-            callback(0, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(data));
+            return callback(0, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(data));
         })
         .on('error', function(data) {
-            callback(1, "Unable to delete document " + JSON.stringify(document) + ".  error reported : " + data);
+            return callback(1, "Unable to delete document " + JSON.stringify(document) + ".  error reported : " + data);
         })
 };
 
@@ -223,12 +223,12 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
                             {
                                 if(!err)
                                 {
-                                    callback();
+                                    return callback();
                                 }
                                 else
                                 {
                                     console.error("Unable do delete index " + self.index.short_name + " Error returned  : " + err);
-                                    callback(1);
+                                    return callback(1);
                                 }
                             });
                         }
@@ -239,7 +239,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
                     }
                     else
                     {
-                        callback(null);
+                        return callback(null);
                     }
 				});
 		},
@@ -296,13 +296,13 @@ IndexConnection.prototype.delete_index  = function (callback)
         {
             if(!err && !data.error)
             {
-                callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
+                return callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
             }
             else
             {
                 const error = "Error deleting index : " + data.error;
                 console.error(error);
-                callback(error, result);
+                return callback(error, result);
             }
         });
 };
@@ -337,11 +337,11 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 
                 if(response.indices.hasOwnProperty(self.index.short_name))
                 {
-                    callback(true);
+                    return callback(true);
                 }
                 else
                 {
-                    callback(false);
+                    return callback(false);
                 }
             }
 		}
@@ -380,11 +380,11 @@ IndexConnection.prototype.search = function(typeName,
             body : queryObject
         })
         .then(function(response) {
-            callback(null, response.hits.hits);
+            return callback(null, response.hits.hits);
         },function(error){
             error = "Error fetching documents for query : " + JSON.stringify(queryObject) + ". Reported error : " + JSON.stringify(error);
             console.error(error);
-            callback(1, error);
+            return callback(1, error);
         });
 };
 
@@ -414,18 +414,18 @@ IndexConnection.prototype.moreLikeThis = function(typeName,
             })
             .then(function(data)
             {
-                callback(null, data.hits.hits);
+                return callback(null, data.hits.hits);
             }, function(error){
                 error = "Error fetching documents similar to document with ID : " + documentId + ". Reported error : " + JSON.stringify(error);
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             });
     }
     else
     {
         const error = "No documentId Specified for similarity calculation";
         console.error(error);
-        callback(1, error);
+        return callback(1, error);
     }
 };
 

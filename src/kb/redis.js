@@ -25,7 +25,7 @@ RedisConnection.prototype.openConnection = function(callback) {
     {
         if(!isNull(self.redis))
         {
-            callback(1, "Redis connection is already open.");
+            return callback(1, "Redis connection is already open.");
         }
         else
         {
@@ -36,7 +36,7 @@ RedisConnection.prototype.openConnection = function(callback) {
                 /*self.redis.on('connect', function ()
                 {
                     console.log('Redis client connected');
-                    callback(null, self);
+                    return callback(null, self);
                 });*/
 
                 self.redis.on('ready', function ()
@@ -45,7 +45,7 @@ RedisConnection.prototype.openConnection = function(callback) {
                         .log
 
                         ('Redis client ready');
-                    callback(null, self);
+                    return callback(null, self);
                 });
 
                 self.redis.on('error', function (err)
@@ -53,7 +53,7 @@ RedisConnection.prototype.openConnection = function(callback) {
                     const msg =
                         'Error connecting to Redis client ' + JSON.stringify(err);
                     console.log();
-                    callback(err, msg);
+                    return callback(err, msg);
                 });
             };
 
@@ -73,7 +73,7 @@ RedisConnection.prototype.openConnection = function(callback) {
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 };
 
@@ -95,27 +95,27 @@ RedisConnection.prototype.put = function(resourceUri, object, callback) {
                             console.log("[DEBUG] Saved cache record for " + resourceUri);
                         }
 
-                        callback(null);
+                        return callback(null);
                     }
                     else
                     {
-                        callback(1, "Unable to set value of " + resourceUri + " as " + JSON.stringify(object) + " into redis cache");
+                        return callback(1, "Unable to set value of " + resourceUri + " as " + JSON.stringify(object) + " into redis cache");
                     }
                 })
             }
             else
             {
-                callback(1, "Tried to save a resource into cache providing a null object!");
+                return callback(1, "Tried to save a resource into cache providing a null object!");
             }
         }
         else
         {
-            callback(null, null);
+            return callback(null, null);
         }
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 };
 
@@ -145,27 +145,27 @@ RedisConnection.prototype.get = function(resourceUri, callback) {
                             }
                         }
 
-                        callback(null, JSON.parse(cachedJSON));
+                        return callback(null, JSON.parse(cachedJSON));
                     }
                     else
                     {
-                        callback(err, "Unable to retrieve value of " + resourceUri + " as " + JSON.stringify(object) + " from redis cache");
+                        return callback(err, "Unable to retrieve value of " + resourceUri + " as " + JSON.stringify(object) + " from redis cache");
                     }
                 });
             }
             else
             {
-                callback(1, "Tried to fetch a resource from cache providing a null resourceUri!");
+                return callback(1, "Tried to fetch a resource from cache providing a null resourceUri!");
             }
         }
         else
         {
-            callback(1, "Must open connection to Redis first!");
+            return callback(1, "Must open connection to Redis first!");
         }
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 };
 
@@ -187,29 +187,29 @@ RedisConnection.prototype.delete = function(resourceUriOrArrayOfResourceUris, ca
                             console.log("[DEBUG] Deleted cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
                         }
 
-                        callback(null, null);
+                        return callback(null, null);
                     }
                     else
                     {
                         const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from redis cache. " + err;
                         console.log(msg);
-                        callback(err, msg);
+                        return callback(err, msg);
                     }
                 });
             }
             else
             {
-                callback(1, "Tried to delete resources in cache with null uri array");
+                return callback(1, "Tried to delete resources in cache with null uri array");
             }
         }
         else
         {
-            callback(1, "Must open connection to Redis first!");
+            return callback(1, "Must open connection to Redis first!");
         }
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 };
 
@@ -230,24 +230,24 @@ RedisConnection.prototype.deleteAll = function(callback) {
                         console.log("[DEBUG] Deleted ALL cache records");
                     }
 
-                    callback(null);
+                    return callback(null);
                 }
                 else
                 {
                     const msg = "Unable to delete database number " + self.databaseNumber + " : " + JSON.stringify(err);
                     console.log(msg);
-                    callback(err, msg);
+                    return callback(err, msg);
                 }
             });
         }
         else
         {
-            callback(1, "Must open connection to Redis first!");
+            return callback(1, "Must open connection to Redis first!");
         }
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 
 };

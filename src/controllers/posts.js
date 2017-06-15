@@ -138,10 +138,10 @@ exports.all = function(req, res){
 
                         Post.findByUri(post.uri, function (err, loadedPost) {
                             if(err)
-                                callback(err, null);
+                                return callback(err, null);
                             else
                             {
-                                callback(null, loadedPost);
+                                return callback(null, loadedPost);
                             }
 
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri)
@@ -228,17 +228,17 @@ function pingNewPosts(sessionUser, cb) {
                                                     if (!err)
                                                     {
                                                         numPostsCreated++;
-                                                        callback(err, post);
+                                                        return callback(err, post);
                                                     }
                                                     else
                                                     {
-                                                        callback(err, post);
+                                                        return callback(err, post);
                                                     }
                                                 }, false, null, null, null, null, db_social.graphUri);
                                             }
                                             else
                                             {
-                                                callback(null,null);
+                                                return callback(null,null);
                                             }
                                         },
                                         function(err, fullDescriptors)
@@ -290,7 +290,7 @@ function pingNewPosts(sessionUser, cb) {
         else
         {
             var errorMsg = "Error finding projects by creator or contributor";
-            callback(err, errorMsg);
+            return callback(err, errorMsg);
         }
 
     });
@@ -836,11 +836,11 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
                 function(err, results) {
                     if(!err)
                     {
-                        callback(err,results[0].count);
+                        return callback(err,results[0].count);
                     }
                     else
                     {
-                        callback(true, "Error fetching numPosts in numPostsDatabaseAux");
+                        return callback(true, "Error fetching numPosts in numPostsDatabaseAux");
                     }
                 });
         });
@@ -849,7 +849,7 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
     {
         //User has no projects
         var results = 0;
-        callback(null, results);
+        return callback(null, results);
     }
 };
 
@@ -987,7 +987,7 @@ var getCommentsForAPost = function (postID, cb) {
                 async.map(results, function(commentUri, callback){
                     Comment.findByUri(commentUri.commentURI, function(err, comment)
                     {
-                        callback(false,comment);
+                        return callback(false,comment);
                     //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, comments) {
@@ -1027,7 +1027,7 @@ const getSharesForAPost = function (postID, cb) {
             if (!err) {
                 async.map(results, function (shareObject, callback) {
                     Share.findByUri(shareObject.shareURI, function (err, share) {
-                        callback(false, share);
+                        return callback(false, share);
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, shares) {
@@ -1250,11 +1250,11 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
                 function(err, results) {
                     if(!err)
                     {
-                        callback(err,results);
+                        return callback(err,results);
                     }
                     else
                     {
-                        callback(true, "Error fetching posts in getAllPosts");
+                        return callback(true, "Error fetching posts in getAllPosts");
                     }
                 });
         });
@@ -1263,7 +1263,7 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
     {
         //User has no projects
         var results = [];
-        callback(null, results);
+        return callback(null, results);
     }
 };
 

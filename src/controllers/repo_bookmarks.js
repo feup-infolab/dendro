@@ -279,10 +279,10 @@ exports.my = function(req, res) {
                             myRepositoryBookmark.ddr.hasPlatform = platform;
                         }
 
-                        callback(null, myRepositoryBookmark);
+                        return callback(null, myRepositoryBookmark);
                     }
                     else {
-                        callback(err, platform);
+                        return callback(err, platform);
                     }
                 });
             };

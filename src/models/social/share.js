@@ -68,7 +68,7 @@ function Share (object)
      value : "ddr:Administrator"
      });*/
     self.insertDescriptors([descriptor], function(err, result){
-        //callback(err, newShare);
+        //return callback(err, newShare);
         console.log('result:', result);
         console.log('self here is:', self);
         return self;
@@ -91,13 +91,13 @@ function Share (object)
  //self.insertDescriptors
  var descriptor = [new Descriptor ({prefixedForm : "rdf:type", value : "ddr:Post"})];
  self.insertDescriptors(descriptor, function(err, result){
- callback(err, newShare);
+ return callback(err, newShare);
  });
 
- //callback(err, newShare);
+ //return callback(err, newShare);
  }
  else {
- callback(err, newShare);
+ return callback(err, newShare);
  }
  });
  };*/

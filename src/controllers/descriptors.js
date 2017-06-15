@@ -76,13 +76,13 @@ exports.from_ontology = function(req, res)
                                                 User.findByUri(userUri, function (err, user) {
                                                     if (!err) {
                                                         user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
-                                                            callback(error, favorites);
+                                                            return callback(error, favorites);
                                                         }, [ontology]);
                                                     }
                                                     else {
                                                         var error = "Error fetching user : " + user + " : " + err;
                                                         console.error(error);
-                                                        callback(1, error);
+                                                        return callback(1, error);
                                                     }
                                                 });
                                             };
@@ -95,13 +95,13 @@ exports.from_ontology = function(req, res)
                                                 Project.findByHandle(projectHandle, function (err, project) {
                                                     if (!err && !isNull(project)) {
                                                         project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
-                                                            callback(error, favorites);
+                                                            return callback(error, favorites);
                                                         }, [ontology]);
                                                     }
                                                     else {
                                                         var error = "Error fetching project : " + project + " : " + err;
                                                         console.error(error);
-                                                        callback(1, error);
+                                                        return callback(1, error);
                                                     }
                                                 });
                                             };
@@ -114,13 +114,13 @@ exports.from_ontology = function(req, res)
                                                 User.findByUri(userUri, function (err, user) {
                                                     if (!err) {
                                                         user.hiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
-                                                            callback(error, favorites);
+                                                            return callback(error, favorites);
                                                         }, [ontology]);
                                                     }
                                                     else {
                                                         var error = "Error fetching user : " + user + " : " + err;
                                                         console.error(error);
-                                                        callback(1, error);
+                                                        return callback(1, error);
                                                     }
                                                 });
                                             };
@@ -129,13 +129,13 @@ exports.from_ontology = function(req, res)
                                                 Project.findByHandle(projectHandle, function (err, project) {
                                                     if (!err) {
                                                         project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
-                                                            callback(error, hidden);
+                                                            return callback(error, hidden);
                                                         }, [ontology]);
                                                     }
                                                     else {
                                                         var error = "Error fetching project : " + project + " : " + err;
                                                         console.error(error);
-                                                        callback(1, error);
+                                                        return callback(1, error);
                                                     }
                                                 });
                                             };
@@ -143,12 +143,12 @@ exports.from_ontology = function(req, res)
                                             const getDCTermsDescriptors = function (callback) {
                                                 Descriptor.DCElements(function (error, dcElementsDescriptors) {
                                                     if (!err) {
-                                                        callback(error, dcElementsDescriptors);
+                                                        return callback(error, dcElementsDescriptors);
                                                     }
                                                     else {
                                                         var error = "Error fetching DC Elements Descriptors : " + err;
                                                         console.error(error);
-                                                        callback(1, error);
+                                                        return callback(1, error);
                                                     }
                                                 });
                                             };
@@ -159,7 +159,7 @@ exports.from_ontology = function(req, res)
                                                     {
                                                         if (isNull(req.user))
                                                         {
-                                                            callback(null, []);
+                                                            return callback(null, []);
                                                         }
                                                         else
                                                         {
@@ -170,7 +170,7 @@ exports.from_ontology = function(req, res)
                                                     {
                                                         if (typeof project_handle === "undefined")
                                                         {
-                                                            callback(null, []);
+                                                            return callback(null, []);
                                                         }
                                                         else
                                                         {
@@ -181,7 +181,7 @@ exports.from_ontology = function(req, res)
                                                     {
                                                         if (isNull(req.user))
                                                         {
-                                                            callback(null, []);
+                                                            return callback(null, []);
                                                         }
                                                         else
                                                         {
@@ -192,7 +192,7 @@ exports.from_ontology = function(req, res)
                                                     {
                                                         if (typeof project_handle === "undefined")
                                                         {
-                                                            callback(null, []);
+                                                            return callback(null, []);
                                                         }
                                                         else
                                                         {

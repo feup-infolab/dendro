@@ -78,7 +78,7 @@ InformationElement.getType = function(resourceURI, callback)
 
                     if(types.length === 0)
                     {
-                        callback(1,"Unable to retrieve Information Element's type, error 1");
+                        return callback(1,"Unable to retrieve Information Element's type, error 1");
                     }
                     else
                     {
@@ -93,30 +93,30 @@ InformationElement.getType = function(resourceURI, callback)
 
                             if(type === Folder.rdfType)
                             {
-                                callback(null, Folder);
+                                return callback(null, Folder);
                                 return;
                             }
                             else if(type === File.rdfType)
                             {
-                                callback(null, File);
+                                return callback(null, File);
                                 return;
                             }
                         }
 
                         if(!hasCalledBack)
                         {
-                            callback(1,"Unable to retrieve Information Element's type, error 2");
+                            return callback(1,"Unable to retrieve Information Element's type, error 2");
                         }
                     }
                 }
                 else
                 {
-                    callback(1,"Unable to retrieve Information Element's type");
+                    return callback(1,"Unable to retrieve Information Element's type");
                 }
             }
             else
             {
-                callback(err, types);
+                return callback(err, types);
             }
         });
 };
@@ -165,37 +165,37 @@ InformationElement.prototype.getParent = function(callback)
                             result.uri = result.parent_folder;
                             const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
                             let parent = new Folder(result);
-                            callback(null,parent);
+                            return callback(null,parent);
                         }
                         else if(!isNull(result[0].parent_project))
                         {
                             result.uri = result.parent_project;
                             const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
                             let parent = new Project(result);
-                            callback(null,parent);
+                            return callback(null,parent);
                         }
                         else
                         {
-                            callback(1,"There was an error calculating the parent of resource " + self.uri);
+                            return callback(1,"There was an error calculating the parent of resource " + self.uri);
                         }
                     }
                     else if(results.length === 0)
                     {
-                        callback(0, "There is no parent of " + self.uri);
+                        return callback(0, "There is no parent of " + self.uri);
                     }
                     else
                     {
-                        callback(1, "ERROR : There is more than one parent to " + self.uri + " !");
+                        return callback(1, "ERROR : There is more than one parent to " + self.uri + " !");
                     }
                 }
                 else
                 {
-                    callback(1, "Invalid result set or no parent found when querying for the parent of" + self.uri);
+                    return callback(1, "Invalid result set or no parent found when querying for the parent of" + self.uri);
                 }
             }
             else
             {
-                callback(1, "Error reported when querying for the parent of" + self.uri + " . Error was ->" + result);
+                return callback(1, "Error reported when querying for the parent of" + self.uri + " . Error was ->" + result);
             }
         }
     );
@@ -254,16 +254,16 @@ InformationElement.prototype.getOwnerProject = function(callback)
                     var result = result[0];
                     const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
                     const parent = new Project(result);
-                    callback(null,parent);
+                    return callback(null,parent);
                 }
                 else
                 {
-                    callback(1, "Invalid result set or no parent PROJECT found when querying for the parent PROJECT of" + self.uri);
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent PROJECT of" + self.uri);
                 }
             }
             else
             {
-                callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
+                return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
             }
         }
     );
@@ -311,7 +311,7 @@ InformationElement.prototype.rename = function(newTitle, callback)
         ],
         function(err, result) {
             redis.connection.delete(self.uri, function(err, result){
-                callback(err, result);
+                return callback(err, result);
             });
         }
     );
@@ -344,17 +344,17 @@ InformationElement.prototype.unlinkFromParent = function(callback)
 
                 //Save modified parts, now with myself removed from them.
                 parent.save(function(err, result){
-                    callback(err, result);
+                    return callback(err, result);
                 });
             }
             else
             {
-                callback(0, self.uri +" already has no parent.");
+                return callback(0, self.uri +" already has no parent.");
             }
         }
         else
         {
-            callback(1, "Unable to retrieve the parent of "+ self.uri +" for unlinking it. Error reported by database : " + parent);
+            return callback(1, "Unable to retrieve the parent of "+ self.uri +" for unlinking it. Error reported by database : " + parent);
         }
     });
 };
@@ -481,33 +481,33 @@ InformationElement.prototype.findMetadata = function(callback){
                                                         metadataResult.hasLogicalParts.push({
                                                             'title':child.nie.title
                                                         });
-                                                        callback(null);
+                                                        return callback(null);
                                                     },
                                                     // 3rd parameter is the function call when everything is done
                                                     function(err){
                                                         if(!err) {
                                                             // All tasks are done now
-                                                            callback(false, metadataResult);
+                                                            return callback(false, metadataResult);
                                                         }
                                                         else{
-                                                            callback(true, null);
+                                                            return callback(true, null);
                                                         }
                                                     }
                                                 );
                                             }
                                             else {
-                                                callback(false, metadataResult);
+                                                return callback(false, metadataResult);
                                             }
                                         }
                                         else {
                                             console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
-                                            callback(true, null);
+                                            return callback(true, null);
                                         }
                                     });
                                 }
                                 else {
                                     console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
-                                    callback(false, metadataResult);
+                                    return callback(false, metadataResult);
                                 }
 
                             });
@@ -517,7 +517,7 @@ InformationElement.prototype.findMetadata = function(callback){
 
                             console.error("[findMetadataRecursive] error accessing properties from ontologies in " + self.uri);
 
-                            callback(true, [descriptors]);
+                            return callback(true, [descriptors]);
                         }
                     });
             }
@@ -526,7 +526,7 @@ InformationElement.prototype.findMetadata = function(callback){
                 var msg = self.uri + " does not exist in Dendro.";
                 console.error(msg);
 
-                callback(true, msg);
+                return callback(true, msg);
             }
         }
         else
@@ -534,7 +534,7 @@ InformationElement.prototype.findMetadata = function(callback){
             var msg = "Error fetching " + self.uri + " from the Dendro platform.";
             console.error(msg);
 
-            callback(true, msg);
+            return callback(true, msg);
         }
     });
 };

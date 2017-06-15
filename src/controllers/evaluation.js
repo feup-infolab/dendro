@@ -66,7 +66,7 @@ exports.shared.evaluate_metadata = function(req, callback)
 
     const getMetadataRecommendations = function (requestedResource, callback) {
         if (Config.recommendation.modes.none.active) {
-            callback(null, []);
+            return callback(null, []);
         }
         else {
             if (!isNull(req.session.recommendation) && !isNull(req.session.recommendation.ontologies.ontologies)) {
@@ -80,10 +80,10 @@ exports.shared.evaluate_metadata = function(req, callback)
                 recommendationOntologies,
                 req.index, function (err, descriptors) {
                     if (!err) {
-                        callback(null, descriptors);
+                        return callback(null, descriptors);
                     }
                     else {
-                        callback(1, "Unable to retrieve metadata recommendations for uri: " + requestedResource.uri + ". Error reported : " + err + " Full Error : " + JSON.stringify(descriptors));
+                        return callback(1, "Unable to retrieve metadata recommendations for uri: " + requestedResource.uri + ". Error reported : " + err + " Full Error : " + JSON.stringify(descriptors));
                     }
                 },
                 {
@@ -98,10 +98,10 @@ exports.shared.evaluate_metadata = function(req, callback)
     const getMetadata = function (requestedResource, callback) {
         requestedResource.findMetadata(function (err, metadata) {
             if (!err) {
-                callback(null, metadata);
+                return callback(null, metadata);
             }
             else {
-                callback(1, "Error finding metadata from " + requestedResource.uri + ". Error reported : " + metadata);
+                return callback(1, "Error finding metadata from " + requestedResource.uri + ". Error reported : " + metadata);
             }
         });
     };
@@ -168,7 +168,7 @@ exports.shared.evaluate_metadata = function(req, callback)
                         if (err) {
                             const error = results;
                             console.log(error);
-                            callback(1, error);
+                            return callback(1, error);
                         }
                         else {
                             const recommendations = results[0];
@@ -183,16 +183,16 @@ exports.shared.evaluate_metadata = function(req, callback)
 
 
                             const metadata_evaluation = evaluateMetadata(requestedResource, metadata, recommendations);
-                            callback(null, metadata_evaluation);
+                            return callback(null, metadata_evaluation);
                         }
                     });
             }
             else {
-                callback(1, "Unable to find resource with uri " + requestedResourceURI + " in this Dendro instance when retrieving metadata during metadata quality evaluation.");
+                return callback(1, "Unable to find resource with uri " + requestedResourceURI + " in this Dendro instance when retrieving metadata during metadata quality evaluation.");
             }
         }
         else {
-            callback(1, "Error " + err + " fetching metadata for resource " + requestedResourceURI + ": " + requestedResource);
+            return callback(1, "Error " + err + " fetching metadata for resource " + requestedResourceURI + ": " + requestedResource);
         }
     };
 

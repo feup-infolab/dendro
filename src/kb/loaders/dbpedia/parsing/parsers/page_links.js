@@ -32,7 +32,7 @@ function parseFile(fileName, callback)
 		//console.log('Subject is: ' + subject + ' predicate is : ' + predicate + ' object is : ' + object);
 	
 		if (last) {
-            callback(null);
+            return callback(null);
         }
     });
 }

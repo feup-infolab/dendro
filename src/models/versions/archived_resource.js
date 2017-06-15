@@ -66,12 +66,12 @@ ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionN
         }
         else
         {
-            callback(1, versionNumber + " is not a valid integer.");
+            return callback(1, versionNumber + " is not a valid integer.");
         }
     }
     catch(ex)
     {
-        callback(1, versionNumber + " is not a valid integer. Exception reported : "  + ex);
+        return callback(1, versionNumber + " is not a valid integer. Exception reported : "  + ex);
     }
 };
 
@@ -87,11 +87,11 @@ ArchivedResource.findByUri = function(uri, callback)
                 {
                     archivedResource = new ArchivedResource(JSON.parse(JSON.stringify(archivedResource)));
                     archivedResource.changes = changes;
-                    callback(null, archivedResource);
+                    return callback(null, archivedResource);
                 }
                 else
                 {
-                    callback(1, archivedResource);
+                    return callback(1, archivedResource);
                 }
             });
         }
@@ -99,7 +99,7 @@ ArchivedResource.findByUri = function(uri, callback)
         {
             const error = "Unable to find archived resource with uri : " + uri;
             console.error(error);
-            callback(1, null);
+            return callback(1, null);
         }
     });
 };
@@ -111,11 +111,11 @@ ArchivedResource.prototype.getChanges = function(callback)
     {
         if(!err)
         {
-            callback(null, changes);
+            return callback(null, changes);
         }
         else
         {
-            callback(1, changes);
+            return callback(1, changes);
         }
 
     })
@@ -135,10 +135,10 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
             if (!err) {
                 Descriptor.removeUnauthorizedFromObject(fullVersionCreator, [Config.types.private], [Config.types.api_readable]);
                 archivedResource.ddr.versionCreator = fullVersionCreator;
-                callback(null);
+                return callback(null);
             }
             else {
-                callback(1);
+                return callback(1);
             }
         });
     };
@@ -148,7 +148,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
         const humanReadableDate = moment(archivedResource.dcterms.created);
 
         archivedResource.dcterms.created = humanReadableDate.calendar();
-        callback(null);
+        return callback(null);
     };
 
     const getDescriptorInformation = function (callback) {
@@ -169,15 +169,15 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
                 if (!err) {
                     archivedResource.changes = fullChanges;
                     Descriptor.removeUnauthorizedFromObject(archivedResource, [Config.types.private], [Config.types.api_readable]);
-                    callback(0);
+                    return callback(0);
                 }
                 else {
-                    callback(1, "Unable to fetch descriptor information. Reported Error: " + fullChanges);
+                    return callback(1, "Unable to fetch descriptor information. Reported Error: " + fullChanges);
                 }
             });
         }
         else {
-            callback(0);
+            return callback(0);
         }
     };
 
@@ -185,10 +185,10 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
         Resource.findByUri(self.ddr.isVersionOf, function (err, versionedResource) {
             if (!err) {
                 archivedResource.ddr.isVersionOf = versionedResource;
-                callback(null);
+                return callback(null);
             }
             else {
-                callback(1);
+                return callback(1);
             }
         })
     };
@@ -201,7 +201,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
     ],
     function(err, result)
     {
-        callback(err, archivedResource);
+        return callback(err, archivedResource);
     });
 };
 

@@ -75,7 +75,7 @@ module.exports.reload = function(req, res)
                             deleteGraph("http://dbpedia.org",
                                 function(err, resultOrErrorMessage)
                                 {
-                                    callback(err, [resultOrErrorMessage]);
+                                    return callback(err, [resultOrErrorMessage]);
                                 });
                         },
                         function(callback, result)
@@ -180,13 +180,13 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
                     if(!err && result)
                     {
                         console.log("Index "+indexConnection.index.short_name+" recreated .");
-                        callback(null);
+                        return callback(null);
 
                     }
                     else
                     {
                         console.log("Error recreating index "+indexConnection.index.short_name+" . " + result);
-                        callback(1); //delete success, move on
+                        return callback(1); //delete success, move on
                     }
                 });
             },
@@ -209,11 +209,11 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
                             });
                         }
 
-                        callback(0, null);
+                        return callback(0, null);
                     }
                     else
                     {
-                        callback(1, "Error fetching all resources in the graph : " + results);
+                        return callback(1, "Error fetching all resources in the graph : " + results);
                     }
                 });
             }
@@ -222,17 +222,17 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
             {
                 if(!err)
                 {
-                    callback(null, results);
+                    return callback(null, results);
                 }
                 else
                 {
-                    callback(1, results);
+                    return callback(1, results);
                 }
             });
     }
     else
     {
-        callback(1, "Non-existent index : " + graphShortName);
+        return callback(1, "Non-existent index : " + graphShortName);
     }
 };
 

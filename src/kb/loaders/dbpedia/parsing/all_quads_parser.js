@@ -16,7 +16,7 @@ module.exports.parseAllFiles = function(dbConnection, rootFolder, cb) {
                         allMessages.push.apply(allMessages, messagesFromThisParser);
                     }
 
-                    callback(null); //continue with the other parsers
+                    return callback(null); //continue with the other parsers
                     console.log("Finished long abstracts.");
                 }
             );

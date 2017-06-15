@@ -80,18 +80,18 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
 
                     async.map(rows, getExternalRepository, function(err, externalRepositories)
                     {
-                        callback(err, externalRepositories);
+                        return callback(err, externalRepositories);
                     });
                 }
                 else
                 {
                     //external repository does not exist, return null
-                    callback(0, null);
+                    return callback(0, null);
                 }
             }
             else
             {
-                callback(err, [rows]);
+                return callback(err, [rows]);
             }
     });
 };

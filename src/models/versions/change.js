@@ -69,17 +69,17 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
                 async.map(results, fetchFullChange, function(err, fullChanges){
                     if(!err)
                     {
-                        callback(null, fullChanges);
+                        return callback(null, fullChanges);
                     }
                     else
                     {
-                        callback(1, "Error fetching full changes of the revision " + revisionUri);
+                        return callback(1, "Error fetching full changes of the revision " + revisionUri);
                     }
                 });
             }
             else
             {
-                callback(1, "Unable to fetch all changes for resource " + revisionUri);
+                return callback(1, "Unable to fetch all changes for resource " + revisionUri);
             }
         });
 };
@@ -100,7 +100,7 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
     else
     {
         console.error("Attempt to record a change on a locked descriptor. debug please. ");
-        callback(0, null);
+        return callback(0, null);
     }
 }*/
 

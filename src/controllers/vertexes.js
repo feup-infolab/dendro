@@ -90,7 +90,7 @@ exports.random = function(req, res) {
                             if(!err)
                             {
                                 const randomNumber = Math.floor(Math.random() * results[0].c + 1);
-                                callback(null, randomNumber);
+                                return callback(null, randomNumber);
                             }
                             else
                             {
@@ -114,7 +114,7 @@ exports.random = function(req, res) {
                         function(err, results) {
                             if(!err)
                             {
-                                callback(null, results[0].s, randomNumber);
+                                return callback(null, results[0].s, randomNumber);
                             }
                             else
                             {
@@ -126,7 +126,7 @@ exports.random = function(req, res) {
                                     error_messages: ["Unable to fetch random vertex"]
                                 });
 
-                                callback(true);
+                                return callback(true);
                             }
 
 						});
@@ -134,7 +134,7 @@ exports.random = function(req, res) {
 			function(selectedVertex, randomNumber, callback) {
 				getOutNeighbours(req, selectedVertex, function(neighbours)
 				{
-					callback(null, selectedVertex, randomNumber, neighbours);
+					return callback(null, selectedVertex, randomNumber, neighbours);
 				});
 			},
 			function(selectedVertex, randomNumber, neighbours, callback) {
@@ -202,7 +202,7 @@ exports.search = function(req, res)
                     resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function(err, similarResources)
                     {
                         resource.recommendations = similarResources;
-                        callback(err, resource); //null as 1st argument == no error
+                        return callback(err, resource); //null as 1st argument == no error
                     });
                 };
 
@@ -262,11 +262,11 @@ getOutNeighbours = function(req, vertexUri, callback)
             function(err, results) {
                 if(!err)
                 {
-                    callback(results);
+                    return callback(results);
                 }
                 else
                 {
-                    callback([]);
+                    return callback([]);
                 }
 			});
 };

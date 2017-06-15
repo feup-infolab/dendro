@@ -83,16 +83,16 @@ Ontology.findByUri = function(uri, callback)
                     domain: ontology.ddr.hasResearchDomain
                 });
                 
-                callback(null, newOntology);
+                return callback(null, newOntology);
             }
             else
             {
-                callback(null, null);
+                return callback(null, null);
             }
         }
         else
         {
-            callback(err, ontology);
+            return callback(err, ontology);
         }
     });
 };
@@ -122,7 +122,7 @@ Ontology.all = function(callback)
                 };
 
                 async.map(results, getOntology, function(err, allOntologies){
-                    callback(err, allOntologies);
+                    return callback(err, allOntologies);
                 });
             }
         });
@@ -143,7 +143,7 @@ Ontology.initAllFromDatabase = function(callback)
                     ontology.domain = results;
                 }
 
-                callback(err, ontology);
+                return callback(err, ontology);
             });
         }
         else if (typeof ontology.domain === "string") {
@@ -152,11 +152,11 @@ Ontology.initAllFromDatabase = function(callback)
                     ontology.domain = results;
                 }
 
-                callback(err, ontology);
+                return callback(err, ontology);
             });
         }
         else {
-            callback(null, ontology);
+            return callback(null, ontology);
         }
     };
 
@@ -182,7 +182,7 @@ Ontology.initAllFromDatabase = function(callback)
                 function (err, alternatives) {
                     if (!err) {
                         if (alternatives.length === 0) {
-                            callback(null, null);
+                            return callback(null, null);
                         }
                         else {
                             const results = [];
@@ -191,12 +191,12 @@ Ontology.initAllFromDatabase = function(callback)
                                 results.push(alternatives[i].alternative);
                             }
 
-                            callback(null, results);
+                            return callback(null, results);
                         }
                     }
                     else {
                         console.error("Error retrieving valid alternatives for descriptor " + elementUri + "! Error returned " + JSON.stringify(alternatives));
-                        callback(null, null);
+                        return callback(null, null);
                     }
 
                 }
@@ -225,20 +225,20 @@ Ontology.initAllFromDatabase = function(callback)
                     if (!err) {
                         if (regex.length > 1) {
                             console.error("There are two different Regular Expressions for validating element " + elementUri + "! Please review the ontology with URI " + ontologyUri + " and delete hasRegex annotation properties until there is only one.");
-                            callback(1, null);
+                            return callback(1, null);
                         }
                         else {
                             if (regex.length === 1) {
-                                callback(null, regex[0].regex);
+                                return callback(null, regex[0].regex);
                             }
                             else {
-                                callback(null, null);
+                                return callback(null, null);
                             }
                         }
                     }
                     else {
                         console.error("Error retrieving Regular Expression that validates " + elementUri + "! Error returned " + JSON.stringify(regex));
-                        callback(null, null);
+                        return callback(null, null);
                     }
 
                 }
@@ -262,7 +262,7 @@ Ontology.initAllFromDatabase = function(callback)
                                     }
                                 }
 
-                                callback(err, element);
+                                return callback(err, element);
                             });
                         }
                         ,
@@ -276,16 +276,16 @@ Ontology.initAllFromDatabase = function(callback)
                                     }
                                 }
 
-                                callback(err, element);
+                                return callback(err, element);
                             });
                         }
                     ],
                     function (err, results) {
-                        callback(err, results);
+                        return callback(err, results);
                     });
                 },
                 function (err, results) {
-                    callback(err, results);
+                    return callback(err, results);
                 });
         }
     };
@@ -296,7 +296,7 @@ Ontology.initAllFromDatabase = function(callback)
                 console.log("Error occurred when searching for ontology with URI : " + ontologyObject.uri + ". Error description : " + JSON.stringify(ontology));
             }
 
-            callback(err, ontology);
+            return callback(err, ontology);
         });
     };
 
@@ -304,7 +304,7 @@ Ontology.initAllFromDatabase = function(callback)
         const newOntology = new Ontology(ontologyObject);
 
         newOntology.save(function (err, result) {
-            callback(err, result);
+            return callback(err, result);
         });
     };
 
@@ -313,15 +313,15 @@ Ontology.initAllFromDatabase = function(callback)
             checkForOntology(ontologyObject, function (err, ontology) {
                 if (isNull(ontology)) {
                     createOntologyRecordInDatabase(ontologyObject, function (err, result) {
-                        callback(err, result);
+                        return callback(err, result);
                     });
                 }
                 else {
-                    callback(null, null);
+                    return callback(null, null);
                 }
             });
         }, function (err, results) {
-            callback(err, results);
+            return callback(err, results);
         });
     };
 
@@ -336,7 +336,7 @@ Ontology.initAllFromDatabase = function(callback)
                                     console.log("[INFO] Finished loading research domain configurations for descriptors from database");
                                 }
 
-                                callback(err, loadedOntologies);
+                                return callback(err, loadedOntologies);
                             });
                         },
                         function (loadedOntologies, callback) {
@@ -345,16 +345,16 @@ Ontology.initAllFromDatabase = function(callback)
                                     console.log("[INFO] Finished loading validation information (Regex + alternatives) for the descriptors in the database");
                                 }
 
-                                callback(err, loadedOntologies);
+                                return callback(err, loadedOntologies);
                             });
                         }
                     ],
                     function (err, loadedOntologies) {
                         if (!err) {
-                            callback(err, loadedOntologies);
+                            return callback(err, loadedOntologies);
                         }
                         else {
-                            callback(err, loadedOntologies);
+                            return callback(err, loadedOntologies);
                         }
                     }
                 )
@@ -362,7 +362,7 @@ Ontology.initAllFromDatabase = function(callback)
             else {
                 const msg = "[ERROR] Error loading ontology configurations from database: Unable to fetch all resources from the graph";
                 console.log(msg);
-                callback(1, msg);
+                return callback(1, msg);
             }
         });
     };
@@ -372,19 +372,19 @@ Ontology.initAllFromDatabase = function(callback)
         function(callback)
         {
             recreateOntologiesInDatabase(Ontology.getAllOntologiesArray(), function(err, result){
-                callback(err, result);
+                return callback(err, result);
             });
         },
         function(callback)
         {
             loadOntologyConfigurationsFromDatabase(function(err, result){
-                callback(err, result);
+                return callback(err, result);
             });
         }
     ],
     function(err, results)
     {
-        callback(err, results);
+        return callback(err, results);
     });
 };
 
@@ -617,7 +617,7 @@ Ontology.findByResearchDomainPrefixOrComment = function(query, maxNumberOfResult
         console.log(JSON.stringify(results));
     }
 
-    callback(null, results);
+    return callback(null, results);
 };
 
 Ontology.prototype.save = function(callback)
@@ -670,13 +670,13 @@ Ontology.prototype.save = function(callback)
     self.replaceDescriptorsInTripleStore(newDescriptorsArray, db.graphUri, function(err, result){
         if(!err)
         {
-            callback(err, result);
+            return callback(err, result);
         }
         else
         {
             const msg = "Unable to SAVE ontology with uri : " + uri + " because of error: " + result;
             console.error(msg);
-            callback(err, msg);
+            return callback(err, msg);
         }
     });
 };
@@ -715,7 +715,7 @@ Ontology.autocomplete_research_domains = function(query, callback)
                 }
             }
 
-            callback(err, domains);
+            return callback(err, domains);
         });
 };
 
@@ -763,16 +763,16 @@ Ontology.findByPrefix = function(prefix, callback)
                 {
                     const msg = "[FATAL ERROR] More than one ontology registered for the same prefix in Dendro! There must be only one ontology with a given prefix! Prefix that has more than one ontology associated is : " + prefix;
                     console.error(msg);
-                    callback(1, msg);
+                    return callback(1, msg);
                 }
                 else if (results.length === 1)
                 {
                     const newOntology = new Ontology(results[0]);
-                    callback(null, newOntology);
+                    return callback(null, newOntology);
                 }
                 else
                 {
-                    callback(1, null);
+                    return callback(1, null);
                 }
             }
         });

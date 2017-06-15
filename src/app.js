@@ -413,7 +413,7 @@ const init = function(callback)
                     //set default connection. If you want to add other connections, add them in succession.
                     GLOBAL.db.default.connection = db;
 
-                    callback(null);
+                    return callback(null);
                 }
             });
         },
@@ -429,7 +429,7 @@ const init = function(callback)
                     conn.deleteGraph(graphUri, function(err){
                         if(err)
                         {
-                            callback(err);
+                            return callback(err);
                         }
                         else
                         {
@@ -448,12 +448,12 @@ const init = function(callback)
                     });
                 }, function(err, res)
                 {
-                    callback(err);
+                    return callback(err);
                 });
             }
             else
             {
-                callback(null);
+                return callback(null);
             }
         },
         function(callback) {
@@ -485,7 +485,7 @@ const init = function(callback)
                                 if(!err)
                                 {
                                     console.log("[INFO] Deleted all cache records on Redis instance \""+ redisConn.id +"\" during bootup");
-                                    callback(null);
+                                    return callback(null);
                                 }
                                 else
                                 {
@@ -499,7 +499,7 @@ const init = function(callback)
                     if(!err)
                     {
                         console.log("[INFO] All Redis instances are up and running!");
-                        callback(null);
+                        return callback(null);
                     }
                     else
                     {
@@ -511,7 +511,7 @@ const init = function(callback)
             else
             {
                 console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to cache server.");
-                callback(null);
+                return callback(null);
             }
         },
         function(callback) {
@@ -527,7 +527,7 @@ const init = function(callback)
                     {
                         GLOBAL.allOntologies = ontologies;
                         console.log("[OK] Ontology information successfully loaded from database.");
-                        callback(null);
+                        return callback(null);
                     }
                     else
                     {
@@ -542,7 +542,7 @@ const init = function(callback)
                     if(!err)
                     {
                         GLOBAL.allOntologies = ontologies;
-                        callback(null);
+                        return callback(null);
                     }
                     else
                     {
@@ -562,7 +562,7 @@ const init = function(callback)
                 if(!err)
                 {
                     console.log("[OK] All ontologies and descriptors seem correctly set up.");
-                    callback(null);
+                    return callback(null);
                 }
                 else
                 {
@@ -585,7 +585,7 @@ const init = function(callback)
                     console.log("[ERROR] Unable to create connection to index " + IndexConnection.indexes.dendro.short_name);
                     process.exit(1);
                 }
-                callback(null);
+                return callback(null);
             });
         },
         function(callback) {
@@ -600,7 +600,7 @@ const init = function(callback)
                 else
                 {
                     console.log("[OK] Indexes are up and running on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort);
-                    callback(null);
+                    return callback(null);
                 }
             });
         },
@@ -623,7 +623,7 @@ const init = function(callback)
                 {
                     console.log("[OK] Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
                     GLOBAL.gfs.default.connection = gfs;
-                    callback(null);
+                    return callback(null);
                 }
             });
         },
@@ -640,7 +640,7 @@ const init = function(callback)
                     function (error, response) {
                         if (!error) {
                             console.log("[OK] Successfully connected to Dendro Recommender instance, version " + response.body.version + " at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " :-)");
-                            callback(null);
+                            return callback(null);
                         }
                         else {
                             console.log("[ERROR] Unable to connect to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "! Aborting startup.");
@@ -663,7 +663,7 @@ const init = function(callback)
                 const poolOK = function (pool) {
                     console.log("[OK] Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
                     GLOBAL.mysql.pool = pool;
-                    callback(null);
+                    return callback(null);
                 };
 
                 //connection.connect(function (err)
@@ -771,7 +771,7 @@ const init = function(callback)
                     {
                         if (!err)
                         {
-                            callback(null);
+                            return callback(null);
                         }
                     });
             }
@@ -837,7 +837,7 @@ const init = function(callback)
                 if(!err)
                 {
                     console.log("[OK] Temporary files directory successfully set up at " + Config.tempFilesDir);
-                    callback(null);
+                    return callback(null);
                 }
                 else
                 {
@@ -857,7 +857,7 @@ const init = function(callback)
             connectionsInitializedPromise.reject(results);
         }
 
-        callback(err, results);
+        return callback(err, results);
     });
 };
 
@@ -875,18 +875,18 @@ const loadData = function(callback)
                     if (!err) {
                         if (isNull(user)) {
                             //everything ok, user simply does not exist
-                            callback(null, null);
+                            return callback(null, null);
                         }
                         else {
                             console.log("[INFO] Demo user with username " + user.ddr.username + " found. Attempting to delete...");
                             user.deleteAllMyTriples(function (err, result) {
-                                callback(err, result);
+                                return callback(err, result);
                             });
                         }
                     }
                     else {
                         console.log("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
-                        callback(err, user);
+                        return callback(err, user);
                     }
                 });
             };
@@ -915,11 +915,11 @@ const loadData = function(callback)
                                     },
                                     function (err, newUser) {
                                         if (!err && !isNull(newUser)) {
-                                            callback(null, newUser);
+                                            return callback(null, newUser);
                                         }
                                         else {
                                             console.log("[ERROR] Error creating new demo User " + JSON.stringify(user));
-                                            callback(err, user);
+                                            return callback(err, user);
                                         }
                                     });
                             };
@@ -928,7 +928,7 @@ const loadData = function(callback)
                                 if(!err)
                                 {
                                     console.log("[INFO] Existing demo users recreated. ");
-                                    callback(err);
+                                    return callback(err);
                                 }
                                 else
                                 {
@@ -938,16 +938,16 @@ const loadData = function(callback)
                         }
                         else
                         {
-                            callback(null);
+                            return callback(null);
                         }
                     }
                     else
                     {
-                        callback(null);
+                        return callback(null);
                     }
                 }
                 else {
-                    callback(err);
+                    return callback(err);
                 }
             });
         },
@@ -976,7 +976,7 @@ const loadData = function(callback)
 
                                     if (!err && !isNull(user)) {
                                         user.makeGlobalAdmin(function (err, result) {
-                                            callback(err, result);
+                                            return callback(err, result);
                                         });
                                     }
                                     else {
@@ -996,13 +996,13 @@ const loadData = function(callback)
                                             function (err, newUser) {
                                                 if (!err && !isNull(newUser) && newUser instanceof User) {
                                                     newUser.makeGlobalAdmin(function (err, newUser) {
-                                                        callback(err, newUser);
+                                                        return callback(err, newUser);
                                                     });
                                                 }
                                                 else {
                                                     const msg = "Error creating new User" + JSON.stringify(newUser);
                                                     console.error(msg);
-                                                    callback(err, msg);
+                                                    return callback(err, msg);
                                                 }
                                             });
                                     }
@@ -1018,14 +1018,14 @@ const loadData = function(callback)
                                     console.log("[ERROR] Unable to load admins. Error : " + err);
                                 }
 
-                                callback(err);
+                                return callback(err);
                             });
                         }
                     ],
                     function(err, results){
                         if(!err)
                         {
-                            callback(null);
+                            return callback(null);
                         }
                         else
                         {
@@ -1035,12 +1035,12 @@ const loadData = function(callback)
             }
             else
             {
-                callback(null);
+                return callback(null);
             }
         }],
         function(err, results)
         {
-            callback(err, results);
+            return callback(err, results);
         }
     );
 };

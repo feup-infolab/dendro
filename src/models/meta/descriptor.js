@@ -235,7 +235,7 @@ Descriptor.DCElements = function(callback)
     },
     function(err, fullDescriptors)
     {
-        callback(err, fullDescriptors);
+        return callback(err, fullDescriptors);
     });
 };
 
@@ -287,7 +287,7 @@ Descriptor.findByUri = function(uri, callback)
                 {
                     if(descriptors.length === 0)
                     {
-                        callback(0, null);
+                        return callback(0, null);
                     }
                     else
                     {
@@ -297,20 +297,20 @@ Descriptor.findByUri = function(uri, callback)
                         }
 
                         const formattedDescriptor = new Descriptor(descriptors[0]);
-                        callback(0, formattedDescriptor);
+                        return callback(0, formattedDescriptor);
                     }
                 }
                 else
                 {
                     console.error("Error fetching descriptor with uri : " + uri + " : " + descriptors);
-                    callback(1, descriptors);
+                    return callback(1, descriptors);
                 }
             });
     }
     catch(e)
     {
         console.error("Exception finding descriptor by URI " + uri);
-        callback(null, null);
+        return callback(null, null);
     }
 };
 
@@ -418,12 +418,12 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
                     formattedResults.push(formattedDescriptor);
                 }
 
-                callback(0, formattedResults);
+                return callback(0, formattedResults);
             }
             else
             {
                 console.error("Error fetching descriptors from ontology : "+ontologyURI + " " + descriptors);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
@@ -462,11 +462,11 @@ Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number
                 flat = flat.slice(offset, offset + page_size);
             }
 
-            callback(err, flat);
+            return callback(err, flat);
         }
         else
         {
-            callback(err, results);
+            return callback(err, results);
         }
 
     });
@@ -747,7 +747,7 @@ Descriptor.mergeDescriptors = function(descriptorsArray, callback)
 
     async.map(formattedDescriptors, getFullDescriptor, function(err, fullDescriptors)
     {
-        callback(err, fullDescriptors);
+        return callback(err, fullDescriptors);
     });
 };
 
@@ -801,7 +801,7 @@ Descriptor.getRandomDescriptors = function(allowedOntologies, numberOfDescriptor
             if(isNull(randomOntology))
             {
                 console.error("Error fetching random ontology from among " + JSON.stringify(allowedOntologies));
-                callback(null);
+                return callback(null);
             }
             else
             {
@@ -861,7 +861,7 @@ Descriptor.getRandomDescriptors = function(allowedOntologies, numberOfDescriptor
         },
         function(err)
         {
-            callback(err, randomDescriptors);
+            return callback(err, randomDescriptors);
         }
     );
 };
@@ -945,10 +945,10 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
                     suggestion.overall_use_count = parseInt(result.overall_use_count);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        callback(0, suggestion);
+                        return callback(0, suggestion);
                     }
                     else {
-                        callback(0, null);
+                        return callback(0, null);
                     }
                 };
 
@@ -958,11 +958,11 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
                     {
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
-                        callback(null, fullDescriptors);
+                        return callback(null, fullDescriptors);
                     }
                     else
                     {
-                        callback(1, null);
+                        return callback(1, null);
                     }
                 });
             }
@@ -970,7 +970,7 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
             {
                 const util = require('util');
                 console.error("Error fetching most used public descriptors: " + descriptors);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
@@ -1025,7 +1025,7 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
             {
                 const createDescriptor = function (result, callback) {
                     Descriptor.findByUri(result.uri, function (err, descriptor) {
-                        callback(err, descriptor);
+                        return callback(err, descriptor);
                     });
                 };
 
@@ -1033,11 +1033,11 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
                 {
                     if(!err)
                     {
-                        callback(null, fullDescriptors);
+                        return callback(null, fullDescriptors);
                     }
                     else
                     {
-                        callback(1, null);
+                        return callback(1, null);
                     }
                 });
             }
@@ -1045,7 +1045,7 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
             {
                 const util = require('util');
                 console.error("Error fetching descriptors by label or comment ontology. Filter value: " + filterValue + ". error reported: " + descriptors);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
@@ -1089,11 +1089,11 @@ Descriptor.validateDescriptorParametrization = function(callback)
                         }
                     }
 
-                    callback(null, null);
+                    return callback(null, null);
                 }
                 else
                 {
-                    callback(1, "Unable to fetch all descriptors from ontology " + ontology);
+                    return callback(1, "Unable to fetch all descriptors from ontology " + ontology);
                 }
             });
         },
@@ -1101,11 +1101,11 @@ Descriptor.validateDescriptorParametrization = function(callback)
         {
             if(error)
             {
-                callback(1, "Some descriptors found to be not parametrized. Check your elements.js file and correct accordingly.")
+                return callback(1, "Some descriptors found to be not parametrized. Check your elements.js file and correct accordingly.")
             }
             else
             {
-                callback(null);
+                return callback(null);
             }
         }
     );

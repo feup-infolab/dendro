@@ -35,10 +35,10 @@ Zenodo.prototype.getDeposition = function(depositionID, callback){
         function (e, r, data) {
             if(e){
                 console.error(e);
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false, data);
+                return callback(false, data);
             }
         })
 };
@@ -51,10 +51,10 @@ Zenodo.prototype.getDepositionsList = function(callback){
         function (e, r, depositions) {
             if(e){
                 console.error(e);
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false, depositions);
+                return callback(false, depositions);
             }
         })
 };
@@ -80,11 +80,11 @@ Zenodo.prototype.createDeposition = function(data, callback){
             if(r.statusCode !=="201")
             {
                 console.error(depostition.message);
-                callback(true, depostition);
+                return callback(true, depostition);
             }
             else
             {
-                callback(false,depostition);
+                return callback(false,depostition);
             }
         })
 };
@@ -99,10 +99,10 @@ Zenodo.prototype.uploadFileToDeposition = function(depositionID, file,callback){
         function (e, r, data) {
             if (e) {
                 console.error(e);
-                callback(true);
+                return callback(true);
             }
             else {
-                callback(false);
+                return callback(false);
             }
         });
 
@@ -117,17 +117,17 @@ Zenodo.prototype.uploadMultipleFilesToDeposition = function(depositionID, files,
             self.uploadFileToDeposition(depositionID, file,function(err){
                 if(err)
                 {
-                    callback(true);
+                    return callback(true);
                 }
-                else callback(false);
+                else return callback(false);
             })
         },
         function(err){
             if(err){
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false);
+                return callback(false);
             }
         })
 };
@@ -139,10 +139,10 @@ Zenodo.prototype.depositionEdit = function(depositionID, callback){
         function (e, r, data) {
             if(e){
                 console.error(e);
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false,data);
+                return callback(false,data);
             }
         })
 };
@@ -154,10 +154,10 @@ Zenodo.prototype.depositionPublish = function(depositionID, callback){
         function (e, r, data) {
             if(e){
                 console.error(e);
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false,data);
+                return callback(false,data);
             }
         })
 };

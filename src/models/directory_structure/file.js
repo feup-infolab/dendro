@@ -101,12 +101,12 @@ File.prototype.save = function(callback)
                         {
                             if(isNull(err))
                             {
-                                callback(null, self);
+                                return callback(null, self);
                             }
                             else
                             {
                                 console.error("Error adding child file descriptors : " + result);
-                                callback(1, "Error adding child file descriptors : " + result);
+                                return callback(1, "Error adding child file descriptors : " + result);
                             }
                         }
                     );
@@ -114,7 +114,7 @@ File.prototype.save = function(callback)
                 else
                 {
                     console.error("Error adding parent file descriptors : " + result);
-                    callback(1, "Error adding parent file descriptors: " + result);
+                    return callback(1, "Error adding parent file descriptors: " + result);
                 }
             }
         );
@@ -156,18 +156,18 @@ File.prototype.delete = function(callback, uriOfUserDeletingTheFile, reallyDelet
                         gfs.connection.delete(self.uri, function(err, result)
                         {
                             self.deleteThumbnails();
-                            callback(err, result);
+                            return callback(err, result);
                         });
                     }
                     else
                     {
-                        callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
+                        return callback(err, "Error unlinking file " + self.uri + " from its parent. Error reported : " + result);
                     }
                 });
             }
             else
             {
-                callback(err, "Error clearing descriptors for deleting file " + self.uri + ". Error reported : " + result);
+                return callback(err, "Error clearing descriptors for deleting file " + self.uri + ". Error reported : " + result);
             }
         });
     }
@@ -176,7 +176,7 @@ File.prototype.delete = function(callback, uriOfUserDeletingTheFile, reallyDelet
         self.ddr.deleted = true;
 
         self.save(function(err, result){
-            callback(err, result);
+            return callback(err, result);
         }, true, uriOfUserDeletingTheFile);
     }
 };
@@ -196,11 +196,11 @@ File.prototype.undelete = function(callback, uriOfUserUnDeletingTheFile)
     self.save(function(err, result){
         if(!err)
         {
-            callback(null, self);
+            return callback(null, self);
         }
         else
         {
-            callback(err, result);
+            return callback(err, result);
         }
     }, true, uriOfUserUnDeletingTheFile);
 };
@@ -213,7 +213,7 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
     fs.exists(destinationFolderAbsPath, function(exists){
         if(!exists)
         {
-            callback(1, "Destination Folder :" + destinationFolderAbsPath + " does not exist .");
+            return callback(1, "Destination Folder :" + destinationFolderAbsPath + " does not exist .");
         }
         else
         {
@@ -224,11 +224,11 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
             gfs.connection.get(self.uri, writeStream, function(err, result){
                 if(!err)
                 {
-                    callback(0, tempFilePath);
+                    return callback(0, tempFilePath);
                 }
                 else
                 {
-                    callback(1, result);
+                    return callback(1, result);
                 }
             });
         }
@@ -254,11 +254,11 @@ File.prototype.writeToTempFile = function(callback)
                 gfs.connection.get(self.uri, writeStream, function(err, result){
                     if(!err)
                     {
-                        callback(null, tempFilePath);
+                        return callback(null, tempFilePath);
                     }
                     else
                     {
-                        callback(1, result);
+                        return callback(1, result);
                     }
                 });
             };
@@ -277,7 +277,7 @@ File.prototype.writeToTempFile = function(callback)
         }
         else
         {
-            callback(1, err);
+            return callback(1, err);
         }
     };
 
@@ -314,17 +314,17 @@ File.prototype.getThumbnail = function(size, callback)
                 {
                     //try to regenerate thumbnails, fire and forget
                     self.generateThumbnails(function(err, result){
-                        callback(0, Config.absPathInPublicFolder("images/icons/extensions/file_generating_thumbnail.png"));
+                        return callback(0, Config.absPathInPublicFolder("images/icons/extensions/file_generating_thumbnail.png"));
                     })
                 }
                 else if(!err)
                 {
                     console.log("Thumbnail temp file location: " + tempFilePath);
-                    callback(0, tempFilePath);
+                    return callback(0, tempFilePath);
                 }
                 else
                 {
-                    callback(1, result);
+                    return callback(1, result);
                 }
             });
         });
@@ -346,12 +346,12 @@ File.prototype.loadFromLocalFile = function(localFile, callback)
         {
             if(isNull(err))
             {
-                callback(null, self);
+                return callback(null, self);
             }
             else
             {
                 console.log("Error [" + err + "] saving file in GridFS :" + result);
-                callback(err, result);
+                return callback(err, result);
             }
 
         },
@@ -374,11 +374,11 @@ File.prototype.extract_text = function(callback)
             textract.fromFileWithPath(locationOfTempFile, function(err, textContent){
                 if(!err)
                 {
-                    callback(null, textContent);
+                    return callback(null, textContent);
                 }
                 else
                 {
-                    callback(1, err);
+                    return callback(1, err);
                 }
 
                 //delete temporary file, we are done with it
@@ -398,7 +398,7 @@ File.prototype.extract_text = function(callback)
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 };
 
@@ -420,12 +420,12 @@ File.estimateUnzippedSize = function(pathOfZipFile, callback)
             size = size.replace(/ /g, "");
             size = size.replace(/\n/g, "");
             console.log("Estimated unzipped file size is " + size);
-            callback(null, Number.parseInt(size));
+            return callback(null, Number.parseInt(size));
 
         } else {
             const errorMessage = "[INFO] There was an error estimating unzipped file size with command " + command + ". Code Returned by Zip Command " + JSON.stringify(error);
             console.error(errorMessage);
-            callback(1, errorMessage);
+            return callback(1, errorMessage);
         }
     });
 };
@@ -454,12 +454,12 @@ File.unzip = function(pathOfFile, callback) {
                 const unzip = exec(command, {cwd: tmpFolderPath}, function (error, stdout, stderr) {
                     if (!error) {
                         console.log("Contents are in folder " + tmpFolderPath);
-                        callback(null, tmpFolderPath);
+                        return callback(null, tmpFolderPath);
 
                     } else {
                         const errorMessage = "[INFO] There was an error unzipping file with command " + command + " on folder " + tmpFolderPath + ". Code Returned by Zip Command " + JSON.stringify(error);
                         console.error(errorMessage);
-                        callback(1, tmpFolderPath);
+                        return callback(1, tmpFolderPath);
                     }
                 });
             }
@@ -467,7 +467,7 @@ File.unzip = function(pathOfFile, callback) {
             {
                 var errorMessage = "Error unzipping the backup file with command "+ command +" on folder " + tmpFolderPath +". Code Returned by Zip Command " + JSON.stringify(tmpFolderPath);
                 console.error(errorMessage);
-                callback(1, errorMessage);
+                return callback(1, errorMessage);
             }
 
         }
@@ -481,12 +481,12 @@ File.prototype.connectToMongo = function (callback) {
         if(!err)
         {
             console.log("Connected successfully to MongoDB");
-            callback(null, db);
+            return callback(null, db);
         }
         else
         {
             const msg = 'Error connecting to MongoDB';
-            callback(true, msg);
+            return callback(true, msg);
         }
     });
 };
@@ -503,12 +503,12 @@ File.prototype.findFileInMongo = function (db, callback) {
 
         if(!err)
         {
-            callback(null, files);
+            return callback(null, files);
         }
         else
         {
             const msg = 'Error findind document with uri: ' + this.uri + ' in Mongo';
-            callback(true, msg);
+            return callback(true, msg);
         }
     });
 };
@@ -537,18 +537,18 @@ File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata,
         self.save(function(err, result){
             if(!err)
             {
-                callback(null, result);
+                return callback(null, result);
             }
             else
             {
-                callback(err, result);
+                return callback(err, result);
             }
 
         }, true, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
     }
     else
     {
-        callback(1, "Cannot load metadata from an empty node.");
+        return callback(1, "Cannot load metadata from an empty node.");
     }
 };
 
@@ -603,7 +603,7 @@ File.prototype.generateThumbnails = function(callback)
                 );
             })
             .catch(function(err){
-                callback(err,  + "Error saving thumbnail for file " + self.uri + " . \nCheck that you have the xpdf ghostscript-x tesseract-ocr dependencies installed in the server." + err);
+                return callback(err,  + "Error saving thumbnail for file " + self.uri + " . \nCheck that you have the xpdf ghostscript-x tesseract-ocr dependencies installed in the server." + err);
             });
     };
 
@@ -621,28 +621,28 @@ File.prototype.generateThumbnails = function(callback)
                             function(err, results){
                                 if(!err)
                                 {
-                                    callback(null, null);
+                                    return callback(null, null);
                                 }
                                 else
                                 {
-                                    callback(err, "Error generating thumbnail for file " + self.uri + ". Errors reported by generator : " + JSON.stringify(results));
+                                    return callback(err, "Error generating thumbnail for file " + self.uri + ". Errors reported by generator : " + JSON.stringify(results));
                                 }
                             });
                     }
                     else
                     {
-                        callback(1, "Error generating thumbnail for file " + self.uri + ". Errors reported by generator : " + tempFileAbsPath);
+                        return callback(1, "Error generating thumbnail for file " + self.uri + ". Errors reported by generator : " + tempFileAbsPath);
                     }
                 });
             }
             else
             {
-                callback(null, "Nothing to be done for this file, since " + self.ddr.fileExtension + " is not a thumbnailable extension.");
+                return callback(null, "Nothing to be done for this file, since " + self.ddr.fileExtension + " is not a thumbnailable extension.");
             }
         }
         else
         {
-            callback(null, "Unable to retrieve owner project of " + self.uri + " for thumbnail generation.");
+            return callback(null, "Unable to retrieve owner project of " + self.uri + " for thumbnail generation.");
         }
     });
 };
@@ -670,7 +670,7 @@ File.createBlankTempFile = function(fileName, callback)
                 console.error("Error creating temp file : " + tempFolderAbsPath);
             }
 
-            callback(err, tempFilePath);
+            return callback(err, tempFilePath);
         }
     );
 };
@@ -684,7 +684,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
 
     fs.stat(absPathToFile, function(err, stat) {
         if(isNull(err)) {
-            callback(0, absPathToFile, parentFolder);
+            return callback(0, absPathToFile, parentFolder);
         } else if(err.code === 'ENOENT') {
             // file does not exist
             const mkpath = require('mkpath');
@@ -692,7 +692,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
             mkpath(parentFolder, function (err) {
                 if (err)
                 {
-                    callback(1, "Error creating file " + err);
+                    return callback(1, "Error creating file " + err);
                 }
                 else
                 {
@@ -701,7 +701,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
                         // handle error
                         fs.close(fd, function (err) {
                             console.log('Directory structure ' + parentFolder + ' created. File ' + absPathToFile + " also created.");
-                            callback(0, absPathToFile, parentFolder);
+                            return callback(0, absPathToFile, parentFolder);
                         });
                     });
                 }
@@ -709,7 +709,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
         }
         else
         {
-            callback(1, "Error creating file " + err);
+            return callback(1, "Error creating file " + err);
         }
     });
 };
@@ -719,7 +719,7 @@ File.deleteOnLocalFileSystem = function(err, callback)
     const exec = require('child_process').exec;
     const command = "rm absPath";
     const rm = exec(command, {}, function (error, stdout, stderr) {
-        callback(error, stdout, stderr);
+        return callback(error, stdout, stderr);
     });
 };
 

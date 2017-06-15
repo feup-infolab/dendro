@@ -35,5 +35,5 @@ exports.shared.recommendation_options = {
 
 exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allowedOntologies, indexConnection, callback, options)
 {
-    callback(null, []);
+    return callback(null, []);
 };

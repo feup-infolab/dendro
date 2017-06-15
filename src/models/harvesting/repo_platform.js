@@ -64,7 +64,7 @@ RepositoryPlatform.findByUri = function(uri, callback)
 };
 
 RepositoryPlatform.all = function(callback){
-    callback(null, [
+    return callback(null, [
         {
             uri : Config.baseUri + "/repository_platform/ckan",
             dcterms :

@@ -273,29 +273,29 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                                                 });
                                             },
                                             function (err, results) {
-                                                callback(err, results);
+                                                return callback(err, results);
                                             });
                                     }
                                     else {
-                                        callback(1, "Unable to fetch recommendations from Dendro Recommender : no \"recommendations\" field at the root of JSON response from Dendro Recommender or it is not an array of object recommendations.");
+                                        return callback(1, "Unable to fetch recommendations from Dendro Recommender : no \"recommendations\" field at the root of JSON response from Dendro Recommender or it is not an array of object recommendations.");
                                     }
                                 }
                                 catch (exc) {
-                                    callback(1, "Unable to fetch recommendations from Dendro Recommender : invalid JSON response from recommender server.");
+                                    return callback(1, "Unable to fetch recommendations from Dendro Recommender : invalid JSON response from recommender server.");
                                 }
                             }
                             else {
-                                callback(1, "Unable to fetch recommendations from Dendro Recommender : Null Body on HTTP response from DR Server.");
+                                return callback(1, "Unable to fetch recommendations from Dendro Recommender : Null Body on HTTP response from DR Server.");
                             }
                         }
                         else {
-                            callback(1, "Unable to fetch recommendations from Dendro Recommender");
+                            return callback(1, "Unable to fetch recommendations from Dendro Recommender");
                         }
                     }
                 );
             }
             else {
-                callback(err, "Unable to fetch resource with uri " + resourceUri + " when retrieving current metadata to send to the dendro recommender.");
+                return callback(err, "Unable to fetch resource with uri " + resourceUri + " when retrieving current metadata to send to the dendro recommender.");
             }
         });
     };
@@ -316,11 +316,11 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 results[i].recommendationCallTimeStamp = recommendation_call_timestamp;
             }
 
-            callback(null, results);
+            return callback(null, results);
         }
         else
         {
-            callback(1, results);
+            return callback(1, results);
         }
     });
 };

@@ -107,17 +107,17 @@ Folder.prototype.getLogicalParts = function(final_callback)
                     async.map(children, getChildrenProperties, function(err, children){
                         if(!err)
                         {
-                            final_callback(null, children);
+                            return final_callback(null, children);
                         }
                         else
                         {
-                            final_callback(1, children)
+                            return final_callback(1, children)
                         }
                     });
                 }
                 else
                 {
-                    callback(1,"Unable to retrieve Information Element's metadata " + children);
+                    return callback(1,"Unable to retrieve Information Element's metadata " + children);
                 }
         }
     });
@@ -159,12 +159,12 @@ Folder.prototype.saveIntoFolder = function(
                     if (includeTempFilesLocations)
                         fileNode.temp_location = absPathOfFinishedFile;
 
-                    callback(0, absPathOfFinishedFile, fileNode);
+                    return callback(0, absPathOfFinishedFile, fileNode);
                 }
                 else {
                     const error = "Error saving a file node (leaf) at " + node.uri + " " + message;
                     console.log(error);
-                    callback(1, error);
+                    return callback(1, error);
                 }
             });
         }
@@ -184,16 +184,16 @@ Folder.prototype.saveIntoFolder = function(
                                     saveIntoFolder(child, destinationFolder, includeMetadata, includeTempFilesLocations, includeOriginalNodes, function (err, message, childNode) {
                                         if (!err) {
                                             if (includeMetadata) {
-                                                callback(null, childNode);
+                                                return callback(null, childNode);
                                             }
                                             else {
-                                                callback(null, null);
+                                                return callback(null, null);
                                             }
                                         }
                                         else {
                                             const error = "Unable to save a child with uri : " + child.uri + ". Message returned : " + message;
                                             console.error(error);
-                                            callback(1, error);
+                                            return callback(1, error);
 
                                         }
                                     });
@@ -222,16 +222,16 @@ Folder.prototype.saveIntoFolder = function(
                                             if (includeOriginalNodes)
                                                 folderNode.original_node = node;
 
-                                            callback(null, destinationFolder, folderNode);
+                                            return callback(null, destinationFolder, folderNode);
                                         }
                                         else {
-                                            callback(0, destinationFolder);
+                                            return callback(0, destinationFolder);
                                         }
                                     }
                                     else {
                                         const error = "Error saving a file node (leaf) at " + node.uri + " " + childrenNodes;
                                         console.log(error);
-                                        callback(1, error);
+                                        return callback(1, error);
                                     }
                                 });
                             }
@@ -249,24 +249,24 @@ Folder.prototype.saveIntoFolder = function(
                                     selfMetadata.original_node = node;
 
                                 if (includeMetadata) {
-                                    callback(0, destinationFolder, selfMetadata);
+                                    return callback(0, destinationFolder, selfMetadata);
                                 }
                                 else {
-                                    callback(0, destinationFolder);
+                                    return callback(0, destinationFolder);
                                 }
                             }
                         }
                         else {
                             var error = "Error getting children of node at " + node.uri + " " + err + ", when attempting to save the resource to " + destinationFolder;
                             console.error(error);
-                            callback(1, error);
+                            return callback(1, error);
                         }
                     });
                 }
                 else {
                     var error = "Error creating subfolder for saving node at " + node.uri + " " + err + ", when attempting to save the resource to " + destinationFolder;
                     console.error(error);
-                    callback(1, error);
+                    return callback(1, error);
                 }
             });
         }
@@ -308,12 +308,12 @@ Folder.prototype.createTempFolderWithContents = function(
                             includeOriginalNodes,
                             function(err, pathOfFinishedFolder, metadata)
                         {
-                            callback(0, tempFolderPath, pathOfFinishedFolder, metadata);
+                            return callback(0, tempFolderPath, pathOfFinishedFolder, metadata);
                         });
                     }
                     else
                     {
-                        callback(1, "Unable to create temporary folder",  "Unable to create temporary folder", "Unable to fetch metadata");
+                        return callback(1, "Unable to create temporary folder",  "Unable to create temporary folder", "Unable to fetch metadata");
                     }
                 });
             }
@@ -408,18 +408,18 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
             function(err, results){
                 if(!err)
                 {
-                    callback(err, results[1]);
+                    return callback(err, results[1]);
                 }
                 else
                 {
-                    callback(err, callback(err, results));
+                    return callback(err, callback(err, results));
                 }
 
             });
         }
         else
         {
-            callback(1, "Error producing folder structure for zipping" + absolutePathOfFinishedFolder);
+            return callback(1, "Error producing folder structure for zipping" + absolutePathOfFinishedFolder);
         }
     });
 };
@@ -493,7 +493,7 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
         }
     ],
     function(err, results){
-        callback(err, results.result, results.absolutePathOfFinishedFolder, results.parentFolderPath);
+        return callback(err, results.result, results.absolutePathOfFinishedFolder, results.parentFolderPath);
     });
 };
 
@@ -502,11 +502,11 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
     const path = require('path');
     if(!sourceFolderAbsPath.startsWith(path.sep))
     {
-        callback(1, "Invalid source folder absolute path specified. It does not start with " + path.sep);
+        return callback(1, "Invalid source folder absolute path specified. It does not start with " + path.sep);
     }
     else if(!destinationFolderForZipAbsPath.startsWith(path.sep))
     {
-        callback(1, "Invalid destination folder absolute path specified. It does not start with " + path.sep);
+        return callback(1, "Invalid destination folder absolute path specified. It does not start with " + path.sep);
     }
     else
     {
@@ -540,7 +540,7 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
             if (error) {
                 const errorMessage = "Error zipping file with command " + command + " on folder " + parentFolderAbsPath + ". Code Returned by Zip Command " + JSON.stringify(error);
                 console.error(errorMessage);
-                callback(1, errorMessage);
+                return callback(1, errorMessage);
             }
             else {
                 console.log(stdout);
@@ -553,7 +553,7 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
                 }
 
                 console.log("Folder is in zip file " + finishedZipFileAbsPath);
-                callback(null, finishedZipFileAbsPath);
+                return callback(null, finishedZipFileAbsPath);
             }
         });
     }
@@ -582,11 +582,11 @@ Folder.prototype.restoreFromLocalBackupZipFile = function(zipFileAbsLocation, us
                             if(!err)
                             {
                                 self.undelete(callback, userRestoringTheFolder.uri, true);
-                                //callback(null, result);
+                                //return callback(null, result);
                             }
                             else
                             {
-                                callback(err, "Unable to restore folder " + self.uri + " from local folder " + unzippedContentsLocation);
+                                return callback(err, "Unable to restore folder " + self.uri + " from local folder " + unzippedContentsLocation);
                             }
                         }, true);
                     }
@@ -594,14 +594,14 @@ Folder.prototype.restoreFromLocalBackupZipFile = function(zipFileAbsLocation, us
                     {
                         const util = require('util');
                         console.log('Error: There should only be one folder at the root of the contents. Is this a valid backup? ' + util.inspect(files));
-                        callback(1, "There should only be one folder at the root of the contents. Is this a valid backup?");
+                        return callback(1, "There should only be one folder at the root of the contents. Is this a valid backup?");
                     }
                 });
             }
             else
             {
                 console.log('Error: ' + unzippedContentsLocation);
-                callback(1, "Error unzipping backup zip file : " + unzippedContentsLocation);
+                return callback(1, "Error unzipping backup zip file : " + unzippedContentsLocation);
             }
         });
     });
@@ -732,11 +732,11 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
                         }
                         else {
                             console.err("File was loaded but was not returned " + childFile);
-                            callback(1, "File was loaded but was not returned " + childFile);
+                            return callback(1, "File was loaded but was not returned " + childFile);
                         }
                     }
                     else {
-                        callback(1, "Error loading file " + self.uri + " from local file " + localFilePath);
+                        return callback(1, "Error loading file " + self.uri + " from local file " + localFilePath);
                     }
                 });
             }
@@ -784,7 +784,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
 
                 addChildrenToMe(files, function(err, result){
                     console.log("All children of " + absolutePathOfLocalFolder + " loaded into " + self.uri);
-                    callback(null, self);
+                    return callback(null, self);
                 });
             }
         });
@@ -833,17 +833,17 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                                                 childNode,
                                                 function (err, result) {
                                                     if (!err) {
-                                                        callback(null, "Folder " + folder.uri + " successfully restored. ");
+                                                        return callback(null, "Folder " + folder.uri + " successfully restored. ");
                                                     }
                                                     else {
-                                                        callback(err, "Error restoring folder " + folder.uri + " : " + result);
+                                                        return callback(err, "Error restoring folder " + folder.uri + " : " + result);
                                                     }
                                                 },
                                                 entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
                                             );
                                         }
                                         else {
-                                            callback(null, "Folder " + childNode.resource + " does not exist or there was an error retrieving it. Error " + folder);
+                                            return callback(null, "Folder " + childNode.resource + " does not exist or there was an error retrieving it. Error " + folder);
                                         }
                                     });
                                 }
@@ -854,17 +854,17 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                                                 childNode,
                                                 function (err, result) {
                                                     if (!err) {
-                                                        callback(null, "File " + file.uri + " successfully restored. ");
+                                                        return callback(null, "File " + file.uri + " successfully restored. ");
                                                     }
                                                     else {
-                                                        callback(err, "Error restoring file " + file.uri + " : " + result);
+                                                        return callback(err, "Error restoring file " + file.uri + " : " + result);
                                                     }
                                                 },
                                                 entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
                                             );
                                         }
                                         else {
-                                            callback(null, "File " + childNode.resource + " does not exist or there was an error retrieving it. Error " + file);
+                                            return callback(null, "File " + childNode.resource + " does not exist or there was an error retrieving it. Error " + file);
                                         }
                                     });
                                 }
@@ -877,23 +877,23 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                                     currentFolder.save(function(err, result){
                                         if(!err)
                                         {
-                                            callback(null, result)
+                                            return callback(null, result)
                                         }
                                         else
                                         {
-                                            callback(err, result);
+                                            return callback(err, result);
                                         }
                                     }, true, entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes);
                                 }
                                 else
                                 {
-                                    callback(err, results);
+                                    return callback(err, results);
                                 }
                             });
                         }
                         else
                         {
-                            callback(null, "Folder " + currentFolder.uri +" does not exist ");
+                            return callback(null, "Folder " + currentFolder.uri +" does not exist ");
                         }
                     });
                 }
@@ -910,11 +910,11 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                                     function(err, result){
                                         if(!err)
                                         {
-                                            callback(null, "File " + currentFile.uri +" successfully restored. ");
+                                            return callback(null, "File " + currentFile.uri +" successfully restored. ");
                                         }
                                         else
                                         {
-                                            callback(err, "Error restoring file " + currentFile.uri + " : " + result);
+                                            return callback(err, "Error restoring file " + currentFile.uri + " : " + result);
                                         }
                                     },
                                     entityLoadingTheMetadata, excludedDescriptorTypes, exceptionedDescriptorTypes
@@ -922,12 +922,12 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                             }
                             else
                             {
-                                callback(null, "File " + currentFile.uri +" does not exist ");
+                                return callback(null, "File " + currentFile.uri +" does not exist ");
                             }
                         }
                         else
                         {
-                            callback(err, currentFile);
+                            return callback(err, currentFile);
                         }
                     });
                 }
@@ -935,12 +935,12 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
         }
         else
         {
-            callback(1, "Unable to match backup folder to the folder in Dendro. Is the uploaded metadata .json file a backup of this folder?");
+            return callback(1, "Unable to match backup folder to the folder in Dendro. Is the uploaded metadata .json file a backup of this folder?");
         }
     }
     else
     {
-        callback(1, "Cannot restore from a null metadata node");
+        return callback(1, "Cannot restore from a null metadata node");
     }
 };
 
@@ -987,29 +987,29 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
                             self.loadMetadata(node, function(err, result){
                                 if(!err)
                                 {
-                                    callback(null, "Data and metadata restored successfully. Result : " + result);
+                                    return callback(null, "Data and metadata restored successfully. Result : " + result);
                                 }
                                 else
                                 {
-                                    callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
+                                    return callback(1, "Error restoring metadata for node " + self.uri + " : " + result);
                                 }
                             }, entityLoadingTheMetadataUri, [Config.types.locked],[Config.types.restorable])
                         });
                     }
                     else
                     {
-                        callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
+                        return callback(null, "Since no metadata.json file was found at the root of the zip file, no metadata was restored. Result : " + result);
                     }
                 });
             }
             else
             {
-                callback(null, result);
+                return callback(null, result);
             }
         }
         else
         {
-            callback(err, result);
+            return callback(err, result);
         }
     }, runningOnRoot);
 };
@@ -1092,17 +1092,17 @@ Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecu
                     self.unlinkFromParent(function(err, result){
                         if(!err)
                         {
-                            callback(err, self);
+                            return callback(err, self);
                         }
                         else
                         {
-                            callback(err, "Error unlinking folder " + self.uri + " from its parent. Error reported : " + result);
+                            return callback(err, "Error unlinking folder " + self.uri + " from its parent. Error reported : " + result);
                         }
                     });
                 }
                 else
                 {
-                    callback(err, "Error clearing descriptors for deleting folder " + self.uri + ". Error reported : " + result);
+                    return callback(err, "Error clearing descriptors for deleting folder " + self.uri + ". Error reported : " + result);
                 }
             });
         }
@@ -1118,7 +1118,7 @@ Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecu
             );
 
             self.save(function(err, result){
-                callback(err, self);
+                return callback(err, self);
             }, true, uriOfUserDeletingTheFolder);
         }
     }
@@ -1141,23 +1141,23 @@ Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecu
                                 self.unlinkFromParent(function(err, result){
                                     if(!err)
                                     {
-                                        callback(null, self);
+                                        return callback(null, self);
                                     }
                                     else
                                     {
-                                        callback(err, "Error unlinking folder " + self.uri + " from its parent. Error reported : " + result);
+                                        return callback(err, "Error unlinking folder " + self.uri + " from its parent. Error reported : " + result);
                                     }
                                 });
                             }
                             else
                             {
-                                callback(err, "Error clearing descriptors for deleting folder " + self.uri + ". Error reported : " + result);
+                                return callback(err, "Error clearing descriptors for deleting folder " + self.uri + ". Error reported : " + result);
                             }
                         });
                     }
                     else
                     {
-                        callback(err, "Error deleting children of folder " + self.uri + " during recursive delete. Error reported : " + result);
+                        return callback(err, "Error deleting children of folder " + self.uri + " during recursive delete. Error reported : " + result);
                     }
                 });
             });
@@ -1176,7 +1176,7 @@ Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecu
                 function(err, result)
                 {
                     //console.log("Finished deleting " + self.uri + " with return " + err);
-                    callback(err, self);
+                    return callback(err, self);
                 },
 
                 uriOfUserDeletingTheFolder
@@ -1201,7 +1201,7 @@ Folder.prototype.undelete = function(callback, uriOfUserUnDeletingTheFolder, not
         );
 
         self.save(function(err, result){
-            callback(err, result);
+            return callback(err, result);
         }, true, uriOfUserUnDeletingTheFolder);
     }
     else
@@ -1217,7 +1217,7 @@ Folder.prototype.undelete = function(callback, uriOfUserUnDeletingTheFolder, not
             ],
             function(err, result)
             {
-                callback(err, result);
+                return callback(err, result);
             },
             uriOfUserUnDeletingTheFolder
         );
@@ -1229,7 +1229,7 @@ Folder.deleteOnLocalFileSystem = function(absPath, callback)
     const exec = require('child_process').exec;
     const command = "rm -rf absPath";
     const rm = exec(command, {}, function (error, stdout, stderr) {
-        callback(error, stdout, stderr);
+        return callback(error, stdout, stderr);
     });
 };
 

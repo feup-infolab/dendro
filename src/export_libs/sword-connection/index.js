@@ -23,7 +23,7 @@ exports.listCollections = function(options, callback){
     if(isNull(options.user) || isNull(options.password) || isNull(options.serviceDocRef))
     {
         var message = "[sword-connection] Wrong arguments for function listCollections";
-        callback(true,message,null);
+        return callback(true,message,null);
     }
     else{
         const sword = lib.SwordConnection(options.user, options.password, options.serviceDocRef);
@@ -33,10 +33,10 @@ exports.listCollections = function(options, callback){
                 if (isNull(message)) {
                     message ="[sword-connection] Error accessing collections";
                 }
-                callback(err, message, null);
+                return callback(err, message, null);
             }
             else{
-                callback(err,message, response);//response variable has list of available collections
+                return callback(err,message, response);//response variable has list of available collections
             }
         });
     }
@@ -49,14 +49,14 @@ exports.sendFiles = function(options, callback){
     {
 
         var message = "[sword-connection] Wrong arguments for function sendFile";
-        callback(true,message,null);
+        return callback(true,message,null);
         console.error(message);
     }
     else{
         if(options.files.length === 0)
         {
             var message = "[sword-connection] Is necessary to indicate files to send to repository";
-            callback(true,message,null);
+            return callback(true,message,null);
             console.error(message);
         }
 
@@ -93,10 +93,10 @@ exports.sendFiles = function(options, callback){
             function(err){
                 if(err) {
                     // All tasks are done now
-                    callback(true, "Error sending files to " + options.collectionRef);
+                    return callback(true, "Error sending files to " + options.collectionRef);
                 }
                 else{
-                    callback(false, "Files sent successfully");
+                    return callback(false, "Files sent successfully");
                 }
             }
         );

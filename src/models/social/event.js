@@ -41,7 +41,7 @@ function Event (object)
  var self = this;
 
  self.baseConstructor.save(function (err, newEvent) {
- callback(err, newEvent);
+ return callback(err, newEvent);
  });
  };*/
 

@@ -16,19 +16,19 @@ executeCommand = function(command,callback){
 
     const child = exec(command, function (error, stdout, stderr) {
         if (error) {
-            callback(true, stderr, null);
+            return callback(true, stderr, null);
         } else {
             const data = JSON.parse(stdout);
 
             if (data.success === 'true') {
-                callback(false, data.message, data.response);
+                return callback(false, data.message, data.response);
             }
             else {
                 if ('message' in data) {
-                    callback(true, data.message, null);
+                    return callback(true, data.message, null);
                 }
                 else {
-                    callback(true, null, null);
+                    return callback(true, null, null);
                 }
 
             }

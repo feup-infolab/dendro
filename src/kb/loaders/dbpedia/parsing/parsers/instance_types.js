@@ -34,7 +34,7 @@ function parseFile(fileName, callback)
 
 
 		if (last) {
-            callback(null);
+            return callback(null);
         }
     });
 }

@@ -50,7 +50,7 @@ function Interaction (object, callback)
         if(self.ddr.performedBy instanceof Object)
         {
             self.uri = db.baseURI+"/user/"+self.ddr.performedBy.ddr.username+"/interaction/"+self.dcterms.created;
-            callback(null, self);
+            return callback(null, self);
         }
         else if(typeof self.ddr.performedBy === "string")
         {
@@ -58,22 +58,22 @@ function Interaction (object, callback)
                if(!err && !isNull(user))
                {
                    self.uri = db.baseURI+"/user/"+user.ddr.username+"/interaction/"+self.dcterms.created;
-                   callback(null, self);
+                   return callback(null, self);
                }
                else
                {
-                    callback(1, "Unable to fetch user with uri " + self.ddr.performedBy);
+                    return callback(1, "Unable to fetch user with uri " + self.ddr.performedBy);
                }
             });
         }
         else
         {
-            callback(1, "no author user specified for interaction. " + self.ddr.performedBy);
+            return callback(1, "no author user specified for interaction. " + self.ddr.performedBy);
         }
     }
     else
     {
-        callback(0, self);
+        return callback(0, self);
     }
 }
 
@@ -90,10 +90,10 @@ Interaction.all = function(callback, streaming, customGraphUri) {
         // and return the array of interactions, complete with that info
         async.map(interactions, getInteractionInformation, function (err, interactionsToReturn) {
             if (!err) {
-                callback(null, interactionsToReturn);
+                return callback(null, interactionsToReturn);
             }
             else {
-                callback(err, "error fetching interaction information : " + err + "error reported: " + interactionsToReturn);
+                return callback(err, "error fetching interaction information : " + err + "error reported: " + interactionsToReturn);
             }
         });
     };
@@ -122,18 +122,18 @@ Interaction.all = function(callback, streaming, customGraphUri) {
                     getFullInteractions(interactions, function(err, interactions){
                         if(!err)
                         {
-                            callback(null, interactions);
+                            return callback(null, interactions);
                         }
                         else
                         {
-                            callback(err, interactions);
+                            return callback(err, interactions);
                         }
                     });
                 }
                 else
                 {
                     //interactions var will contain an error message instead of an array of results.
-                    callback(err, interactions);
+                    return callback(err, interactions);
                 }
             });
     }
@@ -223,13 +223,13 @@ Interaction.all = function(callback, streaming, customGraphUri) {
                                 if (!err && interactions instanceof Array)
                                 {
                                     getFullInteractions(interactions, function(err, interactions){
-                                        callback(err, interactions, cb);
+                                        return callback(err, interactions, cb);
                                     });
                                 }
                                 else
                                 {
                                     //interactions var will contain an error message instead of an array of results.
-                                    callback(err, interactions);
+                                    return callback(err, interactions);
                                 }
                             });
                     },
@@ -237,13 +237,13 @@ Interaction.all = function(callback, streaming, customGraphUri) {
                     {
                         if(err)
                         {
-                            callback(err, "Error occurred fetching interactions in streamed mode : " + results);
+                            return callback(err, "Error occurred fetching interactions in streamed mode : " + results);
                         }
                     });
                 }
                 else
                 {
-                    callback(1, "Unable to fetch interaction count. Reported Error : " + result);
+                    return callback(1, "Unable to fetch interaction count. Reported Error : " + result);
                 }
             });
     }
@@ -348,12 +348,12 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                     inserts,
                     function (err, rows, fields) {
                         if (!err) {
-                            callback(null, rows, fields);
+                            return callback(null, rows, fields);
                         }
                         else {
                             const msg = "Error saving interaction to MySQL database : " + err;
                             console.error(msg);
-                            callback(1, msg);
+                            return callback(1, msg);
                         }
 
                     });
@@ -362,7 +362,7 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                 var msg = "Unable to get MYSQL connection when registering new interaction";
                 console.error(msg);
                 console.error(err.stack);
-                callback(1, msg);
+                return callback(1, msg);
             }
         });
     };
@@ -370,7 +370,7 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
     if(overwrite)
     {
         insertNewInteraction(function(err, rows, fields){
-            callback(err);
+            return callback(err);
         });
     }
     else
@@ -385,24 +385,24 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                         if (!isNull(rows) && rows instanceof Array && rows.length > 0)
                         {
                             //an interaction with the same URI is already recorded, there must be some error!
-                            callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
+                            return callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
                         }
                         else
                         {
                             //insert the new interaction
                             insertNewInteraction(function (err, rows, fields) {
                                 if (err) {
-                                    callback(1, "Error inserting new interaction to MYSQL with URI " + self.uri);
+                                    return callback(1, "Error inserting new interaction to MYSQL with URI " + self.uri);
                                 }
                                 else {
-                                    callback(null, rows);
+                                    return callback(null, rows);
                                 }
                             });
                         }
                     }
                     else
                     {
-                        callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
+                        return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
                     }
                 });
             }
@@ -411,7 +411,7 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                 const msg = "Unable to get MYSQL connection when registering new interaction";
                 console.error(msg);
                 console.error(err.stack);
-                callback(1, msg);
+                return callback(1, msg);
             }
         });
     }

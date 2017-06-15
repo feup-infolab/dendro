@@ -119,7 +119,7 @@ exports.edit = function(req, res) {
                         console.error(msg);
                     }
 
-                    callback(err, result);
+                    return callback(err, result);
                 });
             });
         },

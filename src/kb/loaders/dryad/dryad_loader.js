@@ -102,7 +102,7 @@ DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
                                             if(err)
                                             {
                                                 i = descriptors.length;
-                                                callback(1, "Error loading Dryad Resources. Error reported :  " + results);
+                                                return callback(1, "Error loading Dryad Resources. Error reported :  " + results);
                                             }
                                         });
                                     }
@@ -129,7 +129,7 @@ DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
         }
         else
         {
-            callback(1, "Unable to register Dryad Repository in the harvesting section. Error returned " + result);
+            return callback(1, "Unable to register Dryad Repository in the harvesting section. Error returned " + result);
         }
     });
 
