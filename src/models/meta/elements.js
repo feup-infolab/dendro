@@ -2699,11 +2699,6 @@ Elements.tvu =
                 type : DbConnection.string,
                 control : Config.controls.input_box
             },
-        height :
-            {
-                type : DbConnection.string,
-                control : Config.controls.input_box
-            },
         samplingFormat :
             {
                 type : DbConnection.string,
