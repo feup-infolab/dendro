@@ -16,16 +16,16 @@ pipeline {
         stage('Test and calculate coverage') {
             steps {
                 retry(3) {
-                    sh "chmod +x $WORKSPACE/conf/scripts/calculate-coverage.sh"
-                    sh "$WORKSPACE/conf/scripts/calculate-coverage.sh JENKINSTESTSdendroVagrantDemo root r00t_p4ssw0rd"
+                    sh "chmod +x $WORKSPACE/conf/scripts/calculate_coverage.sh"
+                    sh "$WORKSPACE/conf/scripts/calculate_coverage.sh JENKINSTESTSdendroVagrantDemo root r00t_p4ssw0rd"
                 }
             }
         }
         stage('Report coverage') {
                     steps {
                         retry(3) {
-                            sh "chmod +x $WORKSPACE/conf/scripts/report-coverage.sh"
-                            sh "$WORKSPACE/conf/scripts/report-coverage.sh"
+                            sh "chmod +x $WORKSPACEs/conf/scripts/report_coverage.sh"
+                            sh "$WORKSPACE/conf/scripts/report_coverage.sh"
                         }
                     }
                 }
