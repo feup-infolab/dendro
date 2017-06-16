@@ -1594,7 +1594,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     };
 
 
-    if(Config.cache.active)
+    if(!skipCache)
     {
         async.waterfall([
             function(cb)
@@ -1626,7 +1626,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                         }
                         else
                         {
-                            var msg = "Unable to get resource with uri " + uri + " from triple store."
+                            var msg = "Unable to get resource with uri " + uri + " from triple store.";
                             console.error(msg);
                             console.error(err);
                         }

@@ -1,11 +1,38 @@
 <div class="panel panel-default" style="margin-left: 20%; margin-right: 20%">
-    <p> Contents at showPost.html : </p>
-    <p> {{postsContents[postUri].schema.sharedContent}} </p>
+    <!--<p> Contents at showPost.html : </p>-->
+
     <div class="panel-heading">
-        <h3 class="panel-title"> Descriptor <span class="label label-success">added</span></h3>
+        <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">
+            <h3 class="panel-title"> <span class="label label-success">Metadata Post</span> {{postsContents[postUri].dcterms.title}}</h3>
+        </div>
+        <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'">
+            <h3 class="panel-title"> <span class="label label-success">FileSystem Post</span> {{postsContents[postUri].dcterms.title}}</h3>
+        </div>
+
+        <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/ManualPost'">
+            <h3 class="panel-title"> <span class="label label-success">Manual Post</span> {{postsContents[postUri].dcterms.title}}</h3>
+        </div>
     </div>
 
-    <div class="panel-body">
+    <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost'">
+        <ng-include src="'/app/views/social/partial/showMetadataChangePost.html'" onload="postUri = postUri;"></ng-include>
+    </div>
+
+    <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'">
+        <p> É um fileSystemPost </p>
+        <ng-include src="'/app/views/social/partial/showFileSystemPost.html'" onload="postUri = postUri;"></ng-include>
+    </div>
+
+    <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/ManualPost'">
+        <p> É um manualpost </p>
+        <ng-include src="'/app/views/social/partial/showManualPost.html'" onload="postUri = postUri;"></ng-include>
+    </div>
+
+    <!--<div class="panel-heading">
+        <h3 class="panel-title"> Descriptor <span class="label label-success">added</span></h3>
+    </div>-->
+
+    <!--<div class="panel-body">
         <div class="media">
             <div class="media-left" style="padding-right: 20%">
                 <span style="font-size:7em;" class="glyphicon glyphicon-folder-close fa-5x" aria-hidden="true"></span>
@@ -18,7 +45,7 @@
                 <p> {{postsContents[postUri].ddr.changedDescriptor}} {{actionTypesDictionary[postsContents[postUri].ddr.changeType]}} :  "{{postsContents[postUri].ddr.newValue}}" </p>
             </div>
         </div>
-    </div>
+    </div>-->
 
     <div class="panel-footer">
         <a ng-model="checkModel.left" ng-class="postsContents[postUri].likesContent.usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn-sm btn-success' : 'btn-sm'" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="likePost(postsContents[postUri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</a> {{postsContents[postUri].likesContent.numLikes}},

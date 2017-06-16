@@ -1,6 +1,7 @@
 var Config = function() { return GLOBAL.Config; }();
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
+var Comment = require(Config.absPathInSrcFolder("/models/social/comment.js")).Comment;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var uuid = require('uuid');
 
@@ -200,179 +201,158 @@ Post.buildManualPost = function (project, creatorUri, postContent, callback) {
     callback(null, newPost);
 };
 
-Post.findByUri = function (uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval) {
+Post.prototype.getComments = function (cb) {
     var self = this;
-    var getFromCache = function (uri, callback)
-    {
-        redis(customGraphUri).connection.get(uri, function(err, result)
-        {
-            if (!err)
+
+    var query =
+        "SELECT ?commentURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?commentURI rdf:type ddr:Comment. \n" +
+        "?commentURI ddr:postURI [1]. \n" +
+        "?commentURI dcterms:modified ?date. \n " +
+        "} \n" +
+        "ORDER BY ASC(?date) \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
             {
-                if (result != null)
-                {
-                    var post = Object.create(self.prototype);
-
-                    post.uri = uri;
-
-                    //initialize all ontology namespaces in the new object as blank objects
-                    // if they are not already present
-                    post.copyOrInitDescriptors(result);
-
-                    if(descriptorTypesToRemove != null && descriptorTypesToRemove instanceof Array)
-                    {
-                        post.clearDescriptors(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
-                    }
-
-                    callback(err, post);
-                }
-                else
-                {
-                    callback(null, null);
-                }
-            }
-            else
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
             {
-                callback(err)
+                type : DbConnection.resource,
+                value : self.uri
             }
-        });
-    };
-
-
-    var saveToCache = function(uri, post, callback)
-    {
-        redis(customGraphUri).connection.put(uri, post, function (err) {
+        ]),
+        function(err, results) {
             if(!err)
             {
-                if(typeof callback === "function")
-                {
-                    callback(null, post);
-                }
+                async.map(results, function(commentInfo, callback){
+                    Comment.findByUri(commentInfo.commentURI, function(err, comment)
+                    {
+                        callback(false,comment);
+                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                    }, null, db_social.graphUri, null);
+                }, function (err, comments) {
+                    cb(false, comments);
+                });
             }
             else
             {
-                var msg = "Unable to set value of " + post.uri + " as " + JSON.stringify(post) + " in cache : " + JSON.stringify(err);
-                console.log(msg);
+                cb(true, "Error fetching children of project root folder");
             }
         });
-    };
+};
 
-    var getFromTripleStore = function(uri, callback, customGraphUri)
-    {
-        var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
-        if (uri instanceof Object && uri.uri != null)
+Post.prototype.getNumLikes = function (cb) {
+    var self = this;
+
+    var query =
+        "SELECT ?likeURI ?userURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : self.uri
+            }
+        ]),
+        function(err, results) {
+            if(!err)
+            {
+                cb(false, results);
+            }
+            else
+            {
+                cb(true, "Error fetching children of project root folder");
+            }
+        });
+};
+
+Post.prototype.getLikes = function (cb) {
+    var self = this;
+    let resultInfo;
+
+    self.getNumLikes(function (err, likesArray) {
+        if(!err)
         {
-            uri = uri.uri;
-        }
-
-        if (allowedGraphsArray != null && allowedGraphsArray instanceof Array)
-        {
-            var ontologiesArray = allowedGraphsArray;
+            if(likesArray.length)
+            {
+                resultInfo = {
+                    postURI: self.uri, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
+                };
+            }
+            else
+            {
+                resultInfo = {
+                    postURI: self.uri, numLikes : 0, usersWhoLiked : 'undefined'
+                };
+            }
+            cb(null, resultInfo);
         }
         else
         {
-            var ontologiesArray = Ontology.getAllOntologiesUris();
+            console.error("Error getting likesInfo from a post");
+            console.error(err);
+            cb(true, "Error getting likesInfo from a post");
         }
+    });
+};
 
-        Post.exists(uri, function(err, exists){
+Post.prototype.getShares = function (cb) {
+    var self = this;
+
+    var query =
+        "SELECT ?shareURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?shareURI rdf:type ddr:Share. \n" +
+        "?shareURI ddr:postURI [1]. \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : self.uri
+            }
+        ]),
+        function(err, results) {
             if(!err)
             {
-                if(exists)
-                {
-                    var post = Object.create(self.prototype);
-                    //initialize all ontology namespaces in the new object as blank objects
-                    // if they are not already present
-
-                    post.uri = uri;
-
-                    /**
-                     * TODO Handle the edge case where there is a post with the same uri in different graphs in Dendro
-                     */
-                    post.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject)
+                let Share = require(Config.absPathInSrcFolder("/models/social/share.js")).Share;
+                async.map(results, function(shareObject, callback){
+                    Share.findByUri(shareObject.shareURI, function(err, share)
                     {
-                        if (!err)
-                        {
-                            post.baseConstructor(loadedObject);
-                            callback(null, post);
-                        }
-                        else
-                        {
-                            var msg = "Error " + post + " while trying to retrieve post with uri " + uri + " from triple store.";
-                            console.error(msg);
-                            callback(1, msg);
-                        }
-                    }, customGraphUri);
-                }
-                else
-                {
-                    if(Config.debug.resources.log_missing_resources)
-                    {
-                        var msg = uri + " does not exist in Dendro.";
-                        console.log(msg);
-                    }
-
-                    callback(0, null);
-                }
+                        callback(false,share);
+                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                    //}, null, db_social.graphUri, null);
+                    }, null, db_social.graphUri, false, null, null);
+                }, function (err, shares) {
+                    cb(false, shares);
+                });
             }
             else
             {
-                var msg = "Error " + exists + " while trying to check existence of post with uri " + uri + " from triple store.";
-                console.error(msg);
-                callback(1, msg);
+                cb(true, "Error shares for a post");
             }
-        }, customGraphUri);
-    };
-
-
-    if(!skipCache)
-    {
-        async.waterfall([
-            function(cb)
-            {
-                getFromCache(uri, function(err, object)
-                {
-                    cb(err, object);
-                });
-            },
-            function(object, cb)
-            {
-                if(object != null)
-                {
-                    var post = Object.create(self.prototype);
-                    post.uri = uri;
-
-                    post.copyOrInitDescriptors(object);
-
-                    cb(null, post);
-                }
-                else
-                {
-                    getFromTripleStore(uri, function(err, object)
-                    {
-                        if(!err)
-                        {
-                            saveToCache(uri, object);
-                            cb(err, object);
-                        }
-                        else
-                        {
-                            var msg = "Unable to get post with uri " + uri + " from triple store.";
-                            console.error(msg);
-                            console.error(err);
-                        }
-                    }, customGraphUri);
-                }
-            }
-        ], function(err, result){
-            callback(err, result);
         });
-    }
-    else
-    {
-        getFromTripleStore(uri, function(err, result){
-            callback(err, result);
-        }, customGraphUri);
-    }
 };
 
 Post.prefixedRDFType = "ddr:Post";

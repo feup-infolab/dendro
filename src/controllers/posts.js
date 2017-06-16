@@ -1,4 +1,6 @@
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Post = require('../models/social/post.js').Post;
+var MetadataChangePost = require('../models/social/metadataChangePost').MetadataChangePost;
 var Like = require('../models/social/like.js').Like;
 var Notification = require('../models/notifications/notification.js').Notification;
 var Comment = require('../models/social/comment.js').Comment;
@@ -1578,6 +1580,30 @@ exports.post = function (req, res) {
     var currentUser = req.session.user;
     var postUri = "http://"+Config.host + req.url;
 
+    var getCommentsForAPost = function (post, cb) {
+        post.getComments(function (err, commentsData) {
+            cb(err, commentsData);
+        });
+    };
+
+    var getLikesForAPost = function (post, cb) {
+        post.getLikes(function (err, likesData) {
+            cb(err, likesData);
+        });
+    };
+
+    var getSharesForAPost = function (post, cb) {
+        post.getShares(function (err, sharesData) {
+            cb(err, sharesData);
+        });
+    };
+
+    var getChangesFromMetadataChangePost = function (metadataChangePost, cb) {
+        metadataChangePost.getChangesFromMetadataChangePost(function (err, changesData) {
+            cb(err, changesData);
+        });
+    };
+
     //uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval
     //TODO VERIFICAR AQUI QUE TIPO DE POST É e construir as 3 changes etc
     Post.findByUri(postUri, function(err, post)
@@ -1587,14 +1613,13 @@ exports.post = function (req, res) {
             if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
                 //TODO ARRANJAR MANEIRA AQUI para correr diferentes funções dependendo do type do post(mandar changes etc)
-                //TODO -> como está feito no users.js
                 //EXEMPLO
                 /*async.parallel(
                     [
                         getUserCount, getAllUsers
                     ], function(err, results)
                     {*/
-                async.parallel([
+                /*async.parallel([
                         function(callback) {
                             getCommentsForAPost(post.uri, function (err, commentsData) {
                                 callback(err, commentsData);
@@ -1616,6 +1641,61 @@ exports.post = function (req, res) {
                         post.commentsContent = results[0];
                         post.likesContent = results[1];
                         post.sharesContent = results[2];
+                        res.json(post);
+                    });*/
+
+                async.series([
+                        function(callback) {
+                            getCommentsForAPost(post, function (err, commentsData) {
+                                post.commentsContent = commentsData;
+                                callback(err);
+                            });
+                        },
+                        function(callback) {
+                            getLikesForAPost(post, function (err, likesData) {
+                                post.likesContent = likesData;
+                                callback(err);
+                            });
+                        },
+                        function (callback) {
+                            getSharesForAPost(post, function (err, sharesData) {
+                                post.sharesContent = sharesData;
+                                callback(err);
+                            });
+                        },
+                        function (callback) {
+                            //TODO HOW TO ACCESS THE FULL TYPE
+                            if(post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost")
+                            {
+                                MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost) {
+                                    if(!err)
+                                    {
+                                        getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo) {
+                                            //[editChanges, addChanges, deleteChanges]
+                                            post.changesInfo = changesInfo;
+                                            callback(err);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        console.error("Error getting a metadataChangePost");
+                                        console.error(err);
+                                        callback(err);
+                                    }
+                                }, null, db_social.graphUri, false, null, null);
+                            }
+                            else
+                            {
+                                cb(null);
+                            }
+                        }
+                        //TODO METER AQUI UM IF NO caso de ser METADATACHANGEPOST para correr a função buildChanges que mete as changes no post
+                    ],
+                    // optional callback
+                    function(err, results) {
+                        /*post.commentsContent = results[0];
+                        post.likesContent = results[1];
+                        post.sharesContent = results[2];*/
                         res.json(post);
                     });
             }
