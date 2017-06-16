@@ -123,8 +123,9 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                     transformedQuery = transformedQuery.replace(pattern, encodeURIComponent(currentArgument.value));
                     break;
                 case DbConnection.boolean:
+                    let booleanForm;
                     try {
-                        let booleanForm = JSON.parse(currentArgument.value);
+                        booleanForm = JSON.parse(currentArgument.value);
                         if (!(booleanForm === true || booleanForm === false)) {
                             throw new Error();
                         }

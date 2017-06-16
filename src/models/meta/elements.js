@@ -2,7 +2,6 @@ const Config = function () {
     return GLOBAL.Config;
 }();
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 function Elements (){}
@@ -1119,13 +1118,8 @@ Elements.rdf = {
     {
         type : DbConnection.boolean,
         control : Config.controls.input_box
-    },
-    type : {
-        type : DbConnection.prefixedResource,
-        control : Config.controls.input_box,
-        locked: true
     }
-}
+};
 
 /**
  * Nepomuk Information Element Ontology
@@ -1358,14 +1352,6 @@ Elements.nie = {
     {
         type : DbConnection.string,
         control : Config.controls.input_box
-    },
-    title :
-    {
-        type : DbConnection.date,
-        control : Config.controls.input_box,
-        private : true,
-        locked : true,
-        backuppable: true
     }
 };
 
@@ -2307,11 +2293,6 @@ Elements.biocn = {
         control : Config.controls.input_box
     },
     singleDateTime:
-    {
-        type : DbConnection.string,
-        control : Config.controls.input_box
-    },
-    individualsPerSpecies:
     {
         type : DbConnection.string,
         control : Config.controls.input_box
