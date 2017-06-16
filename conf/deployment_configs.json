@@ -116,7 +116,7 @@
     "debug" : {
       "active": true,
       "database" :{
-        "log_all_queries": false,
+        "log_all_queries": true,
         "destroy_all_graphs_on_startup" : false
       },
       "session": {
@@ -172,7 +172,7 @@
       "load_databases" : true,
       "reload_administrators_on_startup" : true,
       "reload_demo_users_on_startup" : true,
-      "reload_ontologies_on_startup": false
+      "reload_ontologies_on_startup": true
     },
     "baselines" : {
 
@@ -295,12 +295,7 @@
     },
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
 
-    "public_ontologies" : [
-      "foaf",
-      "dcterms",
-      "bdv",
-      "research"
-    ],
+    "public_ontologies" : [],
 
     "authentication" :
     {

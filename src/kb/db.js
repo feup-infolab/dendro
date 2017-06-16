@@ -284,95 +284,63 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                             }
                             else
                             {
-                                var numberOfRows = parsedBody.results.bindings.length;
+                                const rows = parsedBody.results.bindings;
+                                const numberOfRows = rows.length;
 
-                                if (numberOfRows == 0)
+                                if (numberOfRows === 0)
                                 {
                                     cb();
                                     callback(null, []);
                                 }
                                 else
                                 {
-                                    // initialize list of headers and matching datatypes
-                                    var datatypes = [];
-                                    var columnHeaders = [];
-
-                                    for (var i = 0; i < parsedBody.head.vars.length; i++)
+                                    for (let i = 0; i < numberOfRows; i++)
                                     {
-                                        var columnHeader = parsedBody.head.vars[i];
+                                        var datatypes = [];
+                                        var columnHeaders = [];
 
-                                        //handling OPTIONAL clauses, where a header will not have any value
-                                        if (parsedBody.results.bindings[0][columnHeader] != null)
+                                        var row = parsedBody.results.bindings[i];
+
+                                        if (row != null)
                                         {
-                                            columnHeaders.push(columnHeader);
-
-                                            if (parsedBody.results.bindings[0][columnHeader] == null)
+                                            transformedResults[i] = {};
+                                            for (let j = 0; j < parsedBody.head.vars.length; j++)
                                             {
-                                                console.log("invalid binding");
-                                            }
+                                                let cellHeader = parsedBody.head.vars[j];
+                                                const cell = row[cellHeader];
 
-                                            var type = parsedBody.results.bindings[0][columnHeader].type;
-                                            datatypes.push(type);
-                                        }
-                                    }
-
-                                    var numberOfHeaders = columnHeaders.length;
-
-                                    // util.debug("Headers:\n" + util.inspect(columnHeaders, true,
-                                    // null));
-                                    // util.debug("Datatypes:\n" + util.inspect(datatypes, true,
-                                    // null));
-
-                                    // build results table
-                                    for (i = 0; i < numberOfRows; i++)
-                                    {
-                                        // for each result header, create an empty object to push
-                                        // the results
-                                        transformedResults[i] = {};
-
-                                        // util.debug("Transformed Results A:\n" +
-                                        // util.inspect(transformedResults, true, null));
-
-                                        for (var j = 0; j < numberOfHeaders; j++)
-                                        {
-                                            var header = columnHeaders[j];
-
-                                            var binding = parsedBody.results.bindings[i];
-
-                                            if (binding != null)
-                                            {
-                                                if (binding[header] != null)
+                                                if (cell != null)
                                                 {
-                                                    var datatype;
-                                                    if (binding[header] != null)
+                                                    let datatype;
+                                                    if (cell != null)
                                                     {
-                                                        datatype = binding[header].type;
+                                                        datatype = cell.type;
                                                     }
                                                     else
                                                     {
                                                         datatype = datatypes[j];
                                                     }
 
-                                                    var value = binding[header].value;
+                                                    let value = cell.value;
 
                                                     switch (datatype)
                                                     {
                                                         case ("http://www.w3.org/2001/XMLSchema#integer"):
                                                         {
-                                                            var newInt = parseInt(value);
+                                                            const newInt = parseInt(value);
                                                             transformedResults[" + i + "].header = newInt;
                                                             break;
                                                         }
                                                         case ("uri"):
                                                         {
-                                                            transformedResults[i][header] = decodeURI(value);
+                                                            transformedResults[i][cellHeader] = decodeURI(value);
                                                             break;
                                                         }
                                                         // default is a string value
                                                         default:
                                                         {
-                                                            var valueWithQuotes = decodeURIComponent(value).replace(/\"/g, "\\\"");
-                                                            transformedResults[i][header] = valueWithQuotes;
+                                                            const valueWithQuotes = decodeURIComponent(value).replace(/\"/g, "\\\"");
+                                                            transformedResults[i][cellHeader] = valueWithQuotes;
                                                             break;
                                                         }
                                                     }
@@ -380,9 +348,6 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                             }
                                         }
                                     }
-
-                                    // util.debug("Transformed Results :\n" +
-                                    // util.inspect(transformedResults, true, null));
 
                                     callback(null, transformedResults);
                                     cb();

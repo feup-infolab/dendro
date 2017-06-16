@@ -12,7 +12,8 @@ angular.module('dendroApp.services')
                         descriptor_autocomplete : typed
                     },
                     url: current_resource_uri,
-                    responseType: 'json'
+                    responseType: 'json',
+                    headers: {'Accept': "application/json"}
                 })
                 .then(function (response)
                 {
@@ -41,7 +42,8 @@ angular.module('dendroApp.services')
                         project_handle : projectHandle
                     },
                     url: requestUri,
-                    responseType: 'json'
+                    responseType: 'json',
+                    headers: {'Accept': "application/json"}
                 }).then(function(response) {
                         return response.data.descriptors;
                     }
