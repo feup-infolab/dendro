@@ -202,8 +202,7 @@ exports.show = function(req, res){
                                                                 Progress.findByUserAndType(user.uri,"Signup",function (err, progressSignup){
                                                                     if(!err)
                                                                     {
-                                                                        console.log("Progesso no projecto para o utilizador:"+progressProject.gm.numActions);
-                                                                        console.log("Progesso nos descritore para o utilizador:"+progressDescriptor.gm.numActions);
+
 
                                                                         res.render('users/show',
                                                                             {
@@ -280,21 +279,27 @@ exports.show = function(req, res){
                                                                 Progress.findByUserAndType(user.uri,"Signup",function (err, progressSignup){
                                                                     if(!err)
                                                                     {
-                                                                        console.log("Progesso no projecto para o utilizador:"+progressProject.gm.numActions);
-                                                                        console.log("Progesso nos descritore para o utilizador:"+progressDescriptor.gm.numActions);
 
-                                                                        res.render('users/show',
-                                                                            {
-                                                                                title: "Viewing user " + username,
-                                                                                user: user,
-                                                                                medals: medals,
-                                                                                medaltypes: medaltypes,
-                                                                                progressProject:progressProject,
-                                                                                progressDescriptor:progressDescriptor,
-                                                                                progressRating:progressRating,
-                                                                                progressSignup:progressSignup
-                                                                            }
-                                                                        )
+                                                                       getAllProgressStats(user.uri,function(err,dates){
+
+
+                                                                               res.render('users/show',
+                                                                                   {
+                                                                                       title: "Viewing user " + username,
+                                                                                       user: user,
+                                                                                       medals: medals,
+                                                                                       medaltypes: medaltypes,
+                                                                                       progressProject:progressProject,
+                                                                                       progressDescriptor:progressDescriptor,
+                                                                                       progressRating:progressRating,
+                                                                                       progressSignup:progressSignup,
+                                                                                       dates:dates
+                                                                                   }
+                                                                               )
+
+                                                                       });
+
+
                                                                     }
                                                                     else
                                                                     {
@@ -665,4 +670,223 @@ exports.getLoggedUser = function (req, res) {
             );
         }
     }
+};
+
+var getAllProgressStats = function (user,callback){
+
+    var dates=[];
+
+    var today= new Date();
+    var oneWeekAgo= new Date();
+    var twoWeekAgo= new Date();
+    var threeWeekAgo= new Date();
+    var fourWeekAgo= new Date();
+    var oneDayAgo= new Date();
+    var twoDayAgo= new Date();
+    var threeDayAgo= new Date();
+    var fourDayAgo= new Date();
+    oneWeekAgo.setDate(today.getDate()-7);
+    twoWeekAgo.setDate(today.getDate()-14);
+    threeWeekAgo.setDate(today.getDate()-21);
+    fourWeekAgo.setDate(today.getDate()-28);
+    oneDayAgo.setDate(today.getDate()-1);
+    twoDayAgo.setDate(today.getDate()-2);
+    threeDayAgo.setDate(today.getDate()-3);
+    fourDayAgo.setDate(today.getDate()-4);
+
+    getProgressStats(user,oneWeekAgo,today,function (err,todayToOneWeek) {
+        if(!err)
+        {
+            dates.push(todayToOneWeek);
+            console.log("Esta semana houve "+todayToOneWeek);
+            getProgressStats(user,twoWeekAgo,oneWeekAgo,function (err,oneToTwoWeek) {
+                if(!err)
+                {
+                    dates.push(oneToTwoWeek);
+                    console.log("Na semana passada houve "+oneToTwoWeek);
+                    getProgressStats(user,threeWeekAgo,twoWeekAgo,function (err,twoToThreeWeek) {
+                        if(!err)
+                        {
+                            dates.push(twoToThreeWeek);
+                            console.log("Há duas semanas houve "+twoToThreeWeek);
+                            getProgressStats(user,fourWeekAgo,threeWeekAgo,function (err,threeToFourWeek) {
+                                if(!err)
+                                {
+                                    dates.push(threeToFourWeek);
+                                    console.log("Há três semanas houve " + threeToFourWeek);
+                                    getProgressStats(user,oneDayAgo,today,function (err,todayToOneDay) {
+                                        if(!err)
+                                        {
+                                            dates.push(todayToOneDay);
+                                            console.log("No último dia houve " + todayToOneDay);
+                                            getProgressStats(user,twoDayAgo,oneDayAgo,function (err,oneToTwoDay) {
+                                                if(!err)
+                                                {
+                                                    dates.push(oneToTwoDay);
+                                                    console.log("Há dois dias houve " + oneToTwoDay);
+                                                    getProgressStats(user,threeDayAgo,twoDayAgo,function (err,twoToThreeDay) {
+                                                        if(!err)
+                                                        {
+                                                            dates.push(twoToThreeDay);
+                                                            console.log("Há três dias houve " + twoToThreeDay);
+                                                            getProgressStats(user,fourDayAgo,threeDayAgo,function (err,threeToFourDay) {
+                                                                if(!err)
+                                                                {
+                                                                    dates.push(threeToFourDay);
+                                                                    console.log("Há quatro dias houve " + threeToFourDay);
+                                                                    callback(null,dates);
+                                                                }
+                                                                else
+                                                                {
+
+                                                                }});
+                                                        }
+                                                        else
+                                                        {
+
+                                                        }});
+                                                }
+                                                else
+                                                {
+
+                                                }});
+                                        }
+                                        else
+                                        {
+
+                                        }});
+                                }
+                                else
+                                {
+
+                                }});
+                        }
+                        else
+                        {
+
+                        }});
+                }
+                else
+                {
+
+                }
+            });
+        }
+        else
+        {
+
+        }
+
+    });
+};
+
+var getProgressStats = function (user, date1, date2, callback) {
+
+
+        var querydescriptor =
+            "SELECT COUNT(?descriptor) AS ?descriptor_count{ \n" +
+            "SELECT DISTINCT ?folder ?descriptor\n" +
+            "FROM [0] \n" +
+            "WHERE { \n" +
+            "?folder ?descriptor ?value.\n" +
+            "?versionchange ddr:changedDescriptor ?descriptor. \n" +
+            "?versionchange ddr:pertainsTo ?version. \n" +
+            "?version dcterms:modified ?date.\n" +
+            "?version ddr:versionCreator [1].\n" +
+            'FILTER (?date> [2]^^xsd:date && ?date <= [3]^^xsd:date).\n' +
+            " FILTER NOT EXISTS { \n" +
+            "?folder ddr:isVersionOf ?some_resource .\n" +
+            "}}}";
+
+    var queryproject =
+        "SELECT COUNT(?project) as ?project_count \n" +
+        "FROM [0] \n" +
+        "WHERE " +
+        "{ \n" +
+        "{ \n" +
+        "   ?project rdf:type ddr:Project . \n" +
+        "   ?project dcterms:contributor [1]. \n" +
+        "} \n" +
+        " UNION \n" +
+        "{ \n" +
+        "   ?project rdf:type ddr:Project . \n" +
+        "   ?project dcterms:creator [1]. \n" +
+        "} \n" +
+        "?project dcterms:modified ?date.\n" +
+        'FILTER (?date> [2]^^xsd:date && ?date <= [3]^^xsd:date).\n' +
+        "} \n";
+
+        db.connection.execute(querydescriptor,
+            DbConnection.pushLimitsArguments([{
+                    type: DbConnection.resourceNoEscape,
+                    value: db.graphUri
+                },
+                    {
+                        type: DbConnection.resource,
+                        value: user
+                    },
+                    {
+                        type: DbConnection.date,
+                        value: date1.toISOString()
+                    },
+                    {
+                        type: DbConnection.date,
+                        value: date2.toISOString()
+                    }]
+            ),
+            function (err, result) {
+                if (!err)
+                {
+                    if(result instanceof Array && result.length > 0)
+                    {
+                        db.connection.execute(queryproject,
+                            DbConnection.pushLimitsArguments([{
+                                    type: DbConnection.resourceNoEscape,
+                                    value: db.graphUri
+                                },
+                                    {
+                                        type: DbConnection.resource,
+                                        value: user
+                                    },
+                                    {
+                                        type: DbConnection.date,
+                                        value: date1.toISOString()
+                                    },
+                                    {
+                                        type: DbConnection.date,
+                                        value: date2.toISOString()
+                                    }]
+                            ),
+                            function (err, result2) {
+                                if (!err)
+                                {
+                                    if(result2 instanceof Array && result2.length > 0)
+                                    {
+                                        callback(null, [result[0].descriptor_count,result2[0].project_count]);
+                                    }
+                                    else
+                                    {
+                                        callback(1, "invalid result retrieved when querying for project descriptor count");
+                                    }
+
+                                }
+                                else
+                                {
+                                    callback(err, -1);
+                                }
+                            });
+                    }
+                    else
+                    {
+                        callback(1, "invalid result retrieved when querying for project descriptor count");
+                    }
+
+                }
+                else
+                {
+                    callback(err, -1);
+                }
+            });
+
+
 };

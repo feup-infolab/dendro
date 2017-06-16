@@ -435,6 +435,10 @@ exports.update = function(req, res) {
                                                                                     }
 
                                                                                 }
+                                                                                else
+                                                                                {
+                                                                                    messages.push("OKKKKKKKKKKKK");
+                                                                                }
                                                                                 cb(null);
                                                                             },function(err, result) {
                                                                                 console.log(messages);
@@ -464,7 +468,6 @@ exports.update = function(req, res) {
                                                                                                     res.json({
                                                                                                         result: "OK",
                                                                                                         message: "Updated successfully. ",
-                                                                                                        medalmessages: messages,
                                                                                                         new_metadata_quality_assessment: evaluation
                                                                                                     });
 
@@ -596,7 +599,10 @@ exports.update = function(req, res) {
                                                                 },
                                                                 function(user,progress,medaltypes,medals,callback){
                                                                     var messages= [];
+                                                                    var gomessages= [];
+                                                                    var  lowestdiff=9999;
                                                                     async.map(medaltypes,function(medaltype,cb){
+
                                                                         if(progress.gm.numActions>=medaltype.gm.numActions && medaltype.gm.objectType=="Descriptor")
                                                                         {
 
@@ -643,15 +649,34 @@ exports.update = function(req, res) {
                                                                             }
 
                                                                         }
+                                                                        else if(progress.gm.numActions<=medaltype.gm.numActions && medaltype.gm.objectType=="Descriptor")
+                                                                        {
+                                                                            var diff=medaltype.gm.numActions-progress.gm.numActions;
+                                                                            if(diff<=lowestdiff)
+                                                                            {
+                                                                                lowestdiff=diff;
+
+                                                                                var textArray = [
+                                                                                    'You can do it! ',
+                                                                                    "C'mon! ",
+                                                                                    'Go go go! '
+                                                                                ];
+                                                                                var randomNumber = Math.floor(Math.random()*textArray.length);
+
+                                                                                var incentive=textArray[randomNumber];
+                                                                                gomessages.push(incentive+"Only "+diff+" descriptors left to win a "+medaltype.dcterms.title+" medal!");
+                                                                            }
+
+                                                                        }
                                                                         cb(null);
                                                                     },function(err, result) {
                                                                         console.log(messages);
-                                                                        callback(null,messages);
+                                                                        callback(null,messages,gomessages);
                                                                     });
 
 
                                                                 },
-                                                                function(messages,callback)
+                                                                function(messages,gomessages,callback)
                                                                 {
 
                                                                     record.reindex(req.index, function(err, result)
@@ -673,6 +698,7 @@ exports.update = function(req, res) {
                                                                                                 result: "OK",
                                                                                                 message: "Updated successfully. ",
                                                                                                 medalmessages: messages,
+                                                                                                gomessages: gomessages,
                                                                                                 new_metadata_quality_assessment: evaluation
                                                                                             });
 
@@ -693,6 +719,7 @@ exports.update = function(req, res) {
                                                                                         result: "OK",
                                                                                         message: "Updated successfully. ",
                                                                                         medalmessages: messages,
+                                                                                        gomessages: gomessages,
                                                                                         new_metadata_quality_assessment: evaluation
                                                                                     });
                                                                                 }

@@ -201,10 +201,16 @@ angular.module('dendroApp.factories')
                         var data = response.data;
                         console.log(response.data.message)
                         var medalmessages =response.data.medalmessages;
+                        var gomessages=response.data.gomessages;
                         for(var i=0;i<medalmessages.length;i++)
                         {
                             windowService.show_popup("success","Congratulations", medalmessages[i]);
                         }
+                        for(var i=0;i<gomessages.length;i++)
+                        {
+                            windowService.show_popup("success","Keep going!", gomessages[i]);
+                        }
+
 
 
                         deferred.resolve(data);

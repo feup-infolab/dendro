@@ -12,7 +12,7 @@ var _ = require('underscore');
 exports.all = function(req, res){
 
     var viewVars = {
-        title : 'RMedaltypes'
+        title : 'Medaltypes'
     };
 
     viewVars = DbConnection.paginate(req,

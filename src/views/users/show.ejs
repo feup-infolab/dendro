@@ -103,6 +103,110 @@
             <%
             }
             %>
+            <div>
+                <span class="glyphicon glyphicon-stats" data-toggle="modal" data-target="#statsModal"></span>
+                <%
+                var summax = 0;
+                for (var i = 0; i < dates.length; i++) {
+                    var date = dates[i];
+                    var sum = parseInt(date[0]) + parseInt(date[1]);
+                    if (sum >= summax) {
+                        summax = sum;
+                    }
+                }
+                %>
+
+                <div id="statsModal" class="modal fade" role="dialog">
+                    <div class="modal-dialog">
+
+                        <!-- Modal content-->
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                <h4 class="modal-title">Stats</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div style="float:left;width: 5%; height: 20px; background-color: rebeccapurple"></div><div style="float:right;width: 92%; height: 20px">Descriptors</div>
+                                <div style="float:left;width: 5%; height: 20px; background-color: darkcyan"></div><div style="float:right;width: 92%; height: 20px">Projects</div>
+                                <div style="height: 20px;width: 100%;float: left"></div>
+                                <%
+                                var lastweekdesper = parseInt(dates[0][0]) / summax * 100;
+                                var lastweekproper = parseInt(dates[0][1]) / summax * 100;
+                                var twoweekdesper = parseInt(dates[1][0]) / summax * 100;
+                                var twoweekproper = parseInt(dates[1][1]) / summax * 100;
+                                var threeweekdesper = parseInt(dates[2][0]) / summax * 100;
+                                var threeweekproper = parseInt(dates[2][1]) / summax * 100;
+                                var fourweekdesper = parseInt(dates[3][0]) / summax * 100;
+                                var fourweekproper = parseInt(dates[3][1]) / summax * 100;
+                                var lastdaydesper = parseInt(dates[4][0]) / summax * 100;
+                                var lastdayproper = parseInt(dates[4][1]) / summax * 100;
+                                var twodaydesper = parseInt(dates[5][0]) / summax * 100;
+                                var twodayproper = parseInt(dates[5][1]) / summax * 100;
+                                var threedaydesper = parseInt(dates[6][0]) / summax * 100;
+                                var threedayproper = parseInt(dates[6][1]) / summax * 100;
+                                var fourdaydesper = parseInt(dates[7][0]) / summax * 100;
+                                var fourdayproper = parseInt(dates[7][1]) / summax * 100;
+                                %>
+
+                                <div id="percentage1d" style="width:80%; height:20px; float: left">
+                                    <div title="<%= dates[4][0] %>" style="background-color:rebeccapurple;width:<%= lastdaydesper %>%;height: 100%;float:left;"></div>
+                                    <div title="<%= dates[4][1] %>" style="background-color: darkcyan;width:<%= lastdayproper %>%;height: 100%;float:left;"></div>
+                                </div><div  style="width:15%; height:20px; float: right">1D</div>
+                                <div style="height: 5px;width: 100%;float: left"></div>
+                                <div id="percentage2d" style="width:80%; height:20px; float: left">
+                                    <div title="<%= dates[5][0] %>" style="background-color: rebeccapurple;width:<%= twodaydesper %>%;height: 100%;float:left;"></div>
+                                    <div title="<%= dates[5][1] %>" style="background-color: darkcyan;width:<%= twodayproper %>%;height: 100%;float:left;"></div>
+                                </div><div  style="width:15%; height:20px; float: right">2D</div>
+                                <div style="height: 5px;width: 100%;float: left"></div>
+                                <div id="percentage3d" style="width:80%; height:20px; float: left">
+                                    <div title="<%= dates[6][0] %>" style="background-color: rebeccapurple;width:<%= threedaydesper %>%;height: 100%;float:left;"></div>
+                                    <div title="<%= dates[6][1] %>" style="background-color: darkcyan;width:<%= threedayproper %>%;height: 100%;float:left;"></div>
+                                </div><div  style="width:15%; height:20px; float: right">3D</div>
+                                <div style="height: 5px;width: 100%;float: left"></div>
+                                <div id="percentage4d" style="width:80%; height:20px; float: left">
+                                    <div title="<%= dates[7][0] %>" style="background-color: rebeccapurple;width:<%= fourdaydesper %>%;height: 100%;float:left;"></div>
+                                    <div title="<%= dates[7][1] %>" style="background-color: darkcyan;width:<%= fourdayproper %>%;height: 100%;float:left;"></div>
+                                </div><div  style="width:15%; height:20px; float: right">4D</div>
+                                <div style="height: 5px;width: 100%;float: left"></div>
+
+
+                                <div id="percentage1w" style="width:80%; height:20px; float: left; ">
+                                    <div title="<%= dates[0][0] %>" style="background-color:rebeccapurple;width:<%= lastweekdesper %>%;height: 100%;float:left;"></div>
+                                    <div title="<%= dates[0][1] %>" style="background-color: darkcyan;width:<%= lastweekproper %>%;height: 100%;float:left;"></div>
+                                </div><div  style="width:15%; height:20px; float: right">1W</div>
+                                <div style="height: 5px;width: 100%;float: left"></div>
+
+                                <div id="percentage2w" style="width:80%; height:20px; float: left">
+                                    <div title="<%= dates[1][0] %>" style="background-color: rebeccapurple;width:<%= twoweekdesper %>%;height: 100%;float:left;"></div>
+                                    <div title="<%= dates[1][1] %>" style="background-color: darkcyan;width:<%= twoweekproper %>%;height: 100%;float:left;"></div>
+                                </div><div  style="width:15%; height:20px; float: right">2W</div>
+                                <div style="height: 5px;width: 100%;float: left"></div>
+
+                                <div id="percentage3w" style="width:80%; height:20px; float: left">
+                                    <div title="<%= dates[2][0] %>" style="background-color: rebeccapurple;width:<%= threeweekdesper %>%;height: 100%;float:left;"></div>
+                                    <div title="<%= dates[2][1] %>" style="background-color: darkcyan;width:<%= threeweekproper %>%;height: 100%;float:left;"></div>
+                                </div><div  style="width:15%; height:20px; float: right">3W</div>
+                                <div style="height: 5px;width: 100%;float: left"></div>
+
+                                <div id="percentage4w" style="width:80%; height:20px; float: left">
+                                    <div title="<%= dates[3][0] %>" style="background-color: rebeccapurple;width:<%= fourweekdesper %>%;height: 100%;float:left;"></div>
+                                    <div title="<%= dates[3][1] %>" style="background-color: darkcyan;width:<%= fourweekproper %>%;height: 100%;float:left;"></div>
+                                </div><div  style="width:15%; height:20px; float: right">4W</div>
+                                <div style="height: 5px;width: 100%;float: left"></div>
+ll
+
+
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </div>
         </div>
 
     </div>
