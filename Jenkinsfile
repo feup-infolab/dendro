@@ -22,13 +22,11 @@ pipeline {
             }
         }
         stage('Report coverage') {
-                    steps {
-                        retry(3) {
-                            sh "chmod +x $WORKSPACEs/conf/scripts/report_coverage.sh"
-                            sh "$WORKSPACE/conf/scripts/report_coverage.sh"
-                        }
-                    }
-                }
+            steps {
+                sh "chmod +x $WORKSPACEs/conf/scripts/report_coverage.sh"
+                sh "$WORKSPACE/conf/scripts/report_coverage.sh"
+            }
+        }
         stage('Deploy') {
             steps {
                 echo 'No deployments yet. Skipping.'
