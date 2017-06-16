@@ -174,7 +174,7 @@
       "load_databases" : true,
       "reload_administrators_on_startup" : true,
       "reload_demo_users_on_startup" : true,
-      "reload_ontologies_on_startup": false
+      "reload_ontologies_on_startup": true
     },
     "baselines" : {
 
@@ -297,7 +297,6 @@
 
       }
     },
-
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
 
     "public_ontologies" : [
@@ -1330,7 +1329,6 @@
 
       }
     },
-
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
 
     "public_ontologies" : [

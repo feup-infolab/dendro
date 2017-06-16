@@ -365,6 +365,33 @@ Config.initGlobals = function()
             description: "Computational Fluid Dynamics... Flow Case, Initial Condition, Temporal Discretization...",
             domain: "Computational Fluid Dynamics",
             domain_specific: true
+        },
+        tvu: {
+            prefix: "tvu",
+            uri: "http://dendro.fe.up.pt/ontology/tvu#",
+            elements: Elements.tvu,
+            label: "Audiovisual Content",
+            description: "Concepts for the description of datasets generated in the scope of audiovisual production",
+            domain: "Audiovisual",
+            domain_specific: true
+        },
+        po: {
+            prefix: "po",
+            uri: "http://purl.org/ontology/po/",
+            elements: Elements.po,
+            label: "Programmes Ontology",
+            description: "A vocabulary for programme data. It defines concepts such as brands, series, episodes, broadcasts, etc.",
+            domain: "Programmes",
+            domain_specific: true
+        },
+        schema : {
+            prefix: "schema",
+            uri: "http://schema.org/",
+            elements: Elements.schema,
+            label: "Schema.org",
+            description: "General Purpose schema",
+            domain: "Generic",
+            domain_specific: false
         }
     };
 

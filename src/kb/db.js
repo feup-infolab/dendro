@@ -8,8 +8,6 @@ const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const uuid = require('uuid');
 let queue = require('queue');
 
-
-
 function DbConnection (host, port, username, password, maxSimultaneousConnections)
 {
     let self = this;
@@ -126,7 +124,7 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                     break;
                 case DbConnection.boolean:
                     try {
-                        var booleanForm = JSON.parse(currentArgument.value);
+                        let booleanForm = JSON.parse(currentArgument.value);
                         if (!(booleanForm === true || booleanForm === false)) {
                             throw new Error();
                         }
@@ -219,12 +217,12 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
         {
             if (self.host && self.port)
             {
-                if (typeof resultsFormat === 'undefined') //by default, query format will be json
+                if (isNull(resultsFormat)) //by default, query format will be json
                 {
                     resultsFormat = "application/json";
                 }
 
-                if (typeof maxRows === 'undefined') //by default, query format will be json
+                if (isNull(maxRows)) //by default, query format will be json
                 {
                     maxRows = Config.limits.db.maxResults;
                 }
@@ -272,11 +270,12 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                             if (!isNull(parsedBody.boolean))
                             {
                                 cb();
-                                return callback(null, parsedBody.boolean);
+                                callback(null, parsedBody.boolean);
                             }
                             else
                             {
-                                const numberOfRows = parsedBody.results.bindings.length;
+                                const rows = parsedBody.results.bindings;
+                                const numberOfRows = rows.length;
 
                                 if (numberOfRows === 0)
                                 {
@@ -285,67 +284,34 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                 }
                                 else
                                 {
-                                    // initialize list of headers and matching datatypes
-                                    const datatypes = [];
-                                    const columnHeaders = [];
-
-                                    for (var i = 0; i < parsedBody.head.vars.length; i++)
+                                    for (let i = 0; i < numberOfRows; i++)
                                     {
-                                        const columnHeader = parsedBody.head.vars[i];
+                                        var datatypes = [];
+                                        var columnHeaders = [];
 
-                                        //handling OPTIONAL clauses, where a header will not have any value
-                                        if (!isNull(parsedBody.results.bindings[0][columnHeader]))
+                                        var row = parsedBody.results.bindings[i];
+
+                                        if (row != null)
                                         {
-                                            columnHeaders.push(columnHeader);
-
-                                            if (isNull(parsedBody.results.bindings[0][columnHeader]))
+                                            transformedResults[i] = {};
+                                            for (let j = 0; j < parsedBody.head.vars.length; j++)
                                             {
-                                                console.log("invalid binding");
-                                            }
+                                                let cellHeader = parsedBody.head.vars[j];
+                                                const cell = row[cellHeader];
 
-                                            const type = parsedBody.results.bindings[0][columnHeader].type;
-                                            datatypes.push(type);
-                                        }
-                                    }
-
-                                    const numberOfHeaders = columnHeaders.length;
-
-                                    // util.debug("Headers:\n" + util.inspect(columnHeaders, true,
-                                    // null));
-                                    // util.debug("Datatypes:\n" + util.inspect(datatypes, true,
-                                    // null));
-
-                                    // build results table
-                                    for (i = 0; i < numberOfRows; i++)
-                                    {
-                                        // for each result header, create an empty object to push
-                                        // the results
-                                        transformedResults[i] = {};
-
-                                        // util.debug("Transformed Results A:\n" +
-                                        // util.inspect(transformedResults, true, null));
-
-                                        for (let j = 0; j < numberOfHeaders; j++)
-                                        {
-                                            const header = columnHeaders[j];
-
-                                            const binding = parsedBody.results.bindings[i];
-
-                                            if (!isNull(binding))
-                                            {
-                                                if (!isNull(binding[header]))
+                                                if (cell != null)
                                                 {
                                                     let datatype;
-                                                    if (!isNull(binding[header]))
+                                                    if (cell != null)
                                                     {
-                                                        datatype = binding[header].type;
+                                                        datatype = cell.type;
                                                     }
                                                     else
                                                     {
                                                         datatype = datatypes[j];
                                                     }
 
-                                                    const value = binding[header].value;
+                                                    let value = cell.value;
 
                                                     switch (datatype)
                                                     {
@@ -357,14 +323,14 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                                         }
                                                         case ("uri"):
                                                         {
-                                                            transformedResults[i][header] = decodeURI(value);
+                                                            transformedResults[i][cellHeader] = decodeURI(value);
                                                             break;
                                                         }
                                                         // default is a string value
                                                         default:
                                                         {
                                                             const valueWithQuotes = decodeURIComponent(value).replace(/\"/g, "\\\"");
-                                                            transformedResults[i][header] = valueWithQuotes;
+                                                            transformedResults[i][cellHeader] = valueWithQuotes;
                                                             break;
                                                         }
                                                     }
@@ -373,10 +339,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                         }
                                     }
 
-                                    // util.debug("Transformed Results :\n" +
-                                    // util.inspect(transformedResults, true, null));
-
-                                    return callback(null, transformedResults);
+                                    callback(null, transformedResults);
                                     cb();
                                 }
                             }

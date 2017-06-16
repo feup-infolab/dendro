@@ -476,7 +476,7 @@ Ontology.getPublicOntologies = function()
     {
         Ontology.publicOntologies = [];
 
-        if(typeof Config.public_ontologies !== "undefined" && Config.public_ontologies !== [])
+        if(!isNull(Config.public_ontologies) && Config.public_ontologies instanceof Array && Config.public_ontologies.length > 0)
         {
             var ontologies = _.filter(Ontology.getAllOntologiesArray(), function(ontology){
                 return _.contains(Config.public_ontologies, ontology.prefix);
