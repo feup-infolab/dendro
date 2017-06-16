@@ -388,6 +388,15 @@ Config.initGlobals = function()
             description: "A vocabulary for programme data. It defines concepts such as brands, series, episodes, broadcasts, etc.",
             domain: "Programmes",
             domain_specific: true
+        },
+        schema : {
+            prefix: "schema",
+            uri: "http://schema.org/",
+            elements: Elements.schema,
+            label: "Schema.org",
+            description: "General Purpose schema",
+            domain: "Generic",
+            domain_specific: false
         }
     };
 
