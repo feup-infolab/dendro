@@ -338,10 +338,11 @@ Descriptor.prototype.setValue = function(value)
 Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesize) {
 
     var query =
-        " SELECT DISTINCT ?uri ?type ?label ?comment \n"+
+        " SELECT DISTINCT ?uri ?label ?comment \n"+
             " FROM [0] \n"+
             " WHERE \n" +
             " { \n"+
+            "    FILTER( STRSTARTS(str(?uri), str([0]) ) )    . \n" +
             "   {\n " +
             "      ?uri  rdf:type     rdf:Property    . \n"+
             "       OPTIONAL {  \n" +
@@ -354,6 +355,16 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
             "       } .\n" +
             "   } UNION {\n " +
             "      ?uri  rdf:type     owl:DatatypeProperty    . \n"+
+            "       OPTIONAL {  \n" +
+            "           ?uri    rdfs:label  ?label .\n" +
+            "           FILTER (lang(?label) = \"\" || lang(?label) = [1] )\n" +
+            "       } .\n" +
+            "       OPTIONAL {  \n" +
+            "           ?uri  rdfs:comment   ?comment .\n" +
+            "           FILTER (lang(?comment) = \"\" || lang(?comment) = [1] )\n" +
+            "       } .\n" +
+            "   } UNION {\n " +
+            "      ?uri  rdf:type     owl:ObjectProperty    . \n"+
             "       OPTIONAL {  \n" +
             "           ?uri    rdfs:label  ?label .\n" +
             "           FILTER (lang(?label) = \"\" || lang(?label) = [1] )\n" +

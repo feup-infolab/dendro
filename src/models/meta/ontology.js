@@ -522,7 +522,7 @@ Ontology.getPublicOntologies = function()
     {
         Ontology.publicOntologies = [];
 
-        if(Config.public_ontologies != null && Config.public_ontologies != [])
+        if(Config.public_ontologies != null && Config.public_ontologies instanceof Array && Config.public_ontologies.length > 0)
         {
             var ontologies = _.filter(Ontology.getAllOntologiesArray(), function(ontology){
                 return _.contains(Config.public_ontologies, ontology.prefix);
