@@ -13,7 +13,7 @@ pipeline {
                 sh "$WORKSPACE/conf/scripts/install.sh"
             }
         }
-        stage('Test') {
+        stage('Test and calculate coverage') {
             steps {
                 retry(3) {
                     sh "chmod +x $WORKSPACE/conf/scripts/test.sh"
@@ -21,6 +21,14 @@ pipeline {
                 }
             }
         }
+        stage('Report coverage') {
+                    steps {
+                        retry(3) {
+                            sh "chmod +x $WORKSPACE/conf/scripts/report-coverage.sh"
+                            sh "$WORKSPACE/conf/scripts/report-coverage.sh"
+                        }
+                    }
+                }
         stage('Deploy') {
             steps {
                 echo 'No deployments yet. Skipping.'
