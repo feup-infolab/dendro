@@ -23,7 +23,7 @@ pipeline {
         }
         stage('Report coverage') {
             steps {
-                sh "chmod +x $WORKSPACEs/conf/scripts/report_coverage.sh"
+                sh "chmod +x $WORKSPACE/conf/scripts/report_coverage.sh"
                 sh "$WORKSPACE/conf/scripts/report_coverage.sh"
             }
         }
