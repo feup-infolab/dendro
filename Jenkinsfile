@@ -33,10 +33,16 @@ pipeline {
                 //sh "chmod +x $WORKSPACE/conf/scripts/deploy.sh"
             }
         }
+        stage('Cleanup') {
+            steps {
+                echo "Cleaning workspace at $WORKSPACE"
+                sh "rm -rf $WORKSPACE/*"
+            }
+        }
     }
     post
     {
-        always {
+        failure {
             echo "Cleaning workspace at $WORKSPACE"
             sh "rm -rf $WORKSPACE/*"
         }
