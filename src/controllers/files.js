@@ -1,19 +1,26 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var UploadManager =  require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
-var FileVersion = require(Config.absPathInSrcFolder("/models/versions/file_version.js")).FileVersion;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+const FileVersion = require(Config.absPathInSrcFolder("/models/versions/file_version.js")).FileVersion;
 
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const db_social = function () {
+    return GLOBAL.db.social;
+}();
 
 exports.download = function(req, res){
-    var self = this;
+    const self = this;
     if(req.params.is_project_root)
     {
         var requestedResourceURI = req.params.requestedResource + "/data";
@@ -23,78 +30,65 @@ exports.download = function(req, res){
         var requestedResourceURI = req.params.requestedResource;
     }
 
-    var filePath = req.params.filepath;
+    const filePath = req.params.filepath;
 
-    var downloadFolder = function(requestedResourceURI, res)
-    {
-        Folder.findByUri(requestedResourceURI, function(err, folderToDownload)
-        {
-            if(!err)
-            {
-                var mimeType = Config.mimeType("zip");
-                var fileName = folderToDownload.nie.title + ".zip";
+    const downloadFolder = function (requestedResourceURI, res) {
+        Folder.findByUri(requestedResourceURI, function (err, folderToDownload) {
+            if (!err) {
+                const mimeType = Config.mimeType("zip");
+                const fileName = folderToDownload.nie.title + ".zip";
 
                 res.writeHead(200,
                     {
-                        'Content-disposition': 'attachment; filename="' + fileName+"\"",
+                        'Content-disposition': 'attachment; filename="' + fileName + "\"",
                         'Content-Type': mimeType
                     }
                 );
 
-                var includeMetadata = (req.query.backup != null);
-                var bagIt = (req.query.bagit != null);
+                const includeMetadata = (!isNull(req.query.backup));
+                const bagIt = (!isNull(req.query.bagit));
 
-                var async = require('async');
+                const async = require('async');
 
                 async.series([
-                    function(cb)
-                    {
-                        if(bagIt)
-                        {
-                            var bagitOptions = {
+                    function (cb) {
+                        if (bagIt) {
+                            const bagitOptions = {
                                 cryptoMethod: 'sha256'
                             };
 
-                            folderToDownload.bagit(bagitOptions, function(err, result, absolutePathOfFinishedFolder, parentFolderPath)
-                            {
-                                var path = require('path');
+                            folderToDownload.bagit(bagitOptions, function (err, result, absolutePathOfFinishedFolder, parentFolderPath) {
+                                const path = require('path');
 
-                                var finishedZipFileName = "bagit_backup.zip";
-                                var finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
+                                const finishedZipFileName = "bagit_backup.zip";
+                                const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
 
-                                Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function(err, zipFileFullPath){
+                                Folder.zip(absolutePathOfFinishedFolder, finishedZipFileAbsPath, function (err, zipFileFullPath) {
                                     cb(err, zipFileFullPath);
                                 }, finishedZipFileName, true);
                             });
                         }
-                        else
-                        {
-                            folderToDownload.zipAndDownload(includeMetadata, function(err, writtenFilePath)
-                            {
+                        else {
+                            folderToDownload.zipAndDownload(includeMetadata, function (err, writtenFilePath) {
                                 cb(err, writtenFilePath);
                             });
                         }
                     }
                 ],
-                function(err, results)
-                {
-                    if(!err)
-                    {
-                        if(results != null && results[0] != null)
-                        {
+                function (err, results) {
+                    if (!err) {
+                        if (!isNull(results) && !isNull(results[0])) {
                             var writtenFilePath = results[0];
 
-                            var fs = require('fs');
-                            var fileStream = fs.createReadStream(writtenFilePath);
+                            const fs = require('fs');
+                            const fileStream = fs.createReadStream(writtenFilePath);
 
                             res.on('end', function () {
-                                File.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
-                                    if(err)
-                                    {
+                                File.deleteOnLocalFileSystem(writtenFilePath, function (err, stdout, stderr) {
+                                    if (err) {
                                         console.error("Unable to delete " + writtenFilePath);
                                     }
-                                    else
-                                    {
+                                    else {
                                         console.log("Deleted " + writtenFilePath);
                                     }
                                 });
@@ -102,43 +96,38 @@ exports.download = function(req, res){
 
                             fileStream.pipe(res);
                         }
-                        else
-                        {
+                        else {
                             var error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
                             console.error(error);
-                            res.write("500 Error : "+ error +"\n");
+                            res.write("500 Error : " + error + "\n");
                             res.end();
                         }
                     }
-                    else
-                    {
-                        if(err == 404)
-                        {
+                    else {
+                        if (err === 404) {
                             var error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                             console.error(error);
                             res.writeHead(404, error);
                             res.end();
                         }
-                        else
-                        {
-                            console.error("Unable to produce temporary file to download "+self.uri + " Error returned : " + writtenFilePath);
+                        else {
+                            console.error("Unable to produce temporary file to download " + self.uri + " Error returned : " + writtenFilePath);
                         }
 
                     }
                 });
             }
-            else
-            {
+            else {
                 var error = "Non-existent folder : " + requestedResourceURI;
                 console.error(error);
                 res.writeHead(404, error);
                 res.end();
             }
         });
-    }
+    };
 
     //we are fetching the root folder of a project
-    if(filePath == null)
+    if(isNull(filePath))
     {
         downloadFolder(requestedResourceURI, res);
     }
@@ -148,22 +137,21 @@ exports.download = function(req, res){
             function(err, type){
                 if(!err)
                 {
-                    var path = require('path');
-                    if(type == File)
+                    const path = require('path');
+                    if(type === File)
                     {
                         File.findByUri(requestedResourceURI, function(err, file){
                             if(!err)
                             {
-                                var mimeType = Config.mimeType(file.ddr.fileExtension);;
-
+                                const mimeType = Config.mimeType(file.ddr.fileExtension);
                                 file.writeToTempFile(function(err, writtenFilePath)
                                 {
                                     if(!err)
                                     {
-                                        if(writtenFilePath != null)
+                                        if(!isNull(writtenFilePath))
                                         {
-                                            var fs = require('fs');
-                                            var fileStream = fs.createReadStream(writtenFilePath);
+                                            const fs = require('fs');
+                                            const fileStream = fs.createReadStream(writtenFilePath);
 
                                             res.writeHead(200,
                                                 {
@@ -196,7 +184,7 @@ exports.download = function(req, res){
                                     }
                                     else
                                     {
-                                        if(err == 404)
+                                        if(err === 404)
                                         {
                                             var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                                             console.error(error);
@@ -222,7 +210,7 @@ exports.download = function(req, res){
                             }
                         });
                     }
-                    else if(type == Folder)
+                    else if(type === Folder)
                     {
                         downloadFolder(requestedResourceURI, res);
                     }
@@ -248,45 +236,37 @@ exports.download = function(req, res){
 Used to serve some files in html like images, text files...
  */
 exports.serve = function(req, res){
-    var self = this;
-    var requestedResourceURI = req.params.requestedResource;
-    var filePath = req.params.filepath;
+    const self = this;
+    const requestedResourceURI = req.params.requestedResource;
+    const filePath = req.params.filepath;
 
-    var downloadFolder = function(requestedResourceURI, res)
-    {
-        Folder.findByUri(requestedResourceURI, function(err, folderToDownload)
-        {
-            if(!err)
-            {
-                var mimeType = Config.mimeType("zip");
-                var fileName = folderToDownload.nie.title + ".zip";
+    const downloadFolder = function (requestedResourceURI, res) {
+        Folder.findByUri(requestedResourceURI, function (err, folderToDownload) {
+            if (!err) {
+                const mimeType = Config.mimeType("zip");
+                const fileName = folderToDownload.nie.title + ".zip";
 
                 res.writeHead(200,
                     {
-                        'Content-disposition': 'attachment; filename="' + fileName+"\"",
+                        'Content-disposition': 'attachment; filename="' + fileName + "\"",
                         'Content-Type': mimeType
                     }
                 );
 
-                var includeMetadata = (req.query.backup != null);
+                const includeMetadata = (!isNull(req.query.backup));
 
-                folderToDownload.zipAndDownload(includeMetadata, function(err, writtenFilePath)
-                {
-                    if(!err)
-                    {
-                        if(writtenFilePath != null)
-                        {
-                            var fs = require('fs');
-                            var fileStream = fs.createReadStream(writtenFilePath);
+                folderToDownload.zipAndDownload(includeMetadata, function (err, writtenFilePath) {
+                    if (!err) {
+                        if (!isNull(writtenFilePath)) {
+                            const fs = require('fs');
+                            const fileStream = fs.createReadStream(writtenFilePath);
 
                             res.on('end', function () {
-                                Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
-                                    if(err)
-                                    {
+                                Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr) {
+                                    if (err) {
                                         console.error("Unable to delete " + writtenFilePath);
                                     }
-                                    else
-                                    {
+                                    else {
                                         console.log("Deleted " + writtenFilePath);
                                     }
                                 });
@@ -294,43 +274,38 @@ exports.serve = function(req, res){
 
                             fileStream.pipe(res);
                         }
-                        else
-                        {
+                        else {
                             var error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
                             console.error(error);
-                            res.write("500 Error : "+ error +"\n");
+                            res.write("500 Error : " + error + "\n");
                             res.end();
                         }
                     }
-                    else
-                    {
-                        if(err == 404)
-                        {
+                    else {
+                        if (err === 404) {
                             var error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                             console.error(error);
                             res.writeHead(404, error);
                             res.end();
                         }
-                        else
-                        {
-                            console.error("Unable to produce temporary file to download "+self.uri + " Error returned : " + writtenFilePath);
+                        else {
+                            console.error("Unable to produce temporary file to download " + self.uri + " Error returned : " + writtenFilePath);
                         }
 
                     }
                 });
             }
-            else
-            {
+            else {
                 var error = "Non-existent folder : " + requestedResourceURI;
                 console.error(error);
                 res.writeHead(404, error);
                 res.end();
             }
         });
-    }
+    };
 
     //we are fetching the root folder of a project
-    if(filePath == null)
+    if(isNull(filePath))
     {
         downloadFolder(requestedResourceURI, res);
     }
@@ -340,22 +315,22 @@ exports.serve = function(req, res){
             function(err, type){
                 if(!err)
                 {
-                    var path = require('path');
-                    if(type == File)
+                    const path = require('path');
+                    if(type === File)
                     {
                         File.findByUri(requestedResourceURI, function(err, file){
                             if(!err)
                             {
-                                var mimeType = Config.mimeType(file.ddr.fileExtension);
+                                const mimeType = Config.mimeType(file.ddr.fileExtension);
 
                                 file.writeToTempFile(function(err, writtenFilePath)
                                 {
                                     if(!err)
                                     {
-                                        if(writtenFilePath != null)
+                                        if(!isNull(writtenFilePath))
                                         {
-                                            var fs = require('fs');
-                                            var fileStream = fs.createReadStream(writtenFilePath);
+                                            const fs = require('fs');
+                                            const fileStream = fs.createReadStream(writtenFilePath);
 
                                             res.writeHead(200,
                                                 {
@@ -388,7 +363,7 @@ exports.serve = function(req, res){
                                     }
                                     else
                                     {
-                                        if(err == 404)
+                                        if(err === 404)
                                         {
                                             var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                                             console.error(error);
@@ -414,7 +389,7 @@ exports.serve = function(req, res){
                             }
                         });
                     }
-                    else if(type == Folder)
+                    else if(type === Folder)
                     {
                         downloadFolder(requestedResourceURI, res);
                     }
@@ -437,34 +412,34 @@ exports.serve = function(req, res){
     }
 };
 exports.serve_base64 = function(req, res){
-    var requestedResourceURI = req.params.requestedResource;
+    const requestedResourceURI = req.params.requestedResource;
 
     InformationElement.getType(requestedResourceURI,
         function(err, type){
             if(!err)
             {
-                var path = require('path');
-                if(type == File)
+                const path = require('path');
+                if(type === File)
                 {
                     File.findByUri(requestedResourceURI, function(err, file){
                         if(!err)
                         {
-                            var mimeType = Config.mimeType(file.ddr.fileExtension);
+                            const mimeType = Config.mimeType(file.ddr.fileExtension);
 
                             file.writeToTempFile(function(err, writtenFilePath)
                             {
                                 if(!err)
                                 {
-                                    if(writtenFilePath != null)
+                                    if(!isNull(writtenFilePath))
                                     {
-                                        var fs = require('fs');
-                                        var fileStream = fs.createReadStream(writtenFilePath);
+                                        const fs = require('fs');
+                                        const fileStream = fs.createReadStream(writtenFilePath);
 
                                         res.on('end', function(){
                                             console.log("close");
                                             deleteTempFile(writtenFilePath);
                                         });
-                                        var base64 = require('base64-stream');
+                                        const base64 = require('base64-stream');
 
                                         res.on('end', function () {
                                             Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
@@ -491,7 +466,7 @@ exports.serve_base64 = function(req, res){
                                 }
                                 else
                                 {
-                                    if(err == 404)
+                                    if(err === 404)
                                     {
                                         var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                                         console.error(error);
@@ -517,7 +492,7 @@ exports.serve_base64 = function(req, res){
                         }
                     });
                 }
-                else if(type == Folder)
+                else if(type === Folder)
                 {
                     var error = "Resource : " + requestedResourceURI + " is a folder and cannot be represented in Base64";
                     console.error(error);
@@ -543,23 +518,23 @@ exports.serve_base64 = function(req, res){
 
 };
 exports.get_thumbnail = function(req, res) {
-    var requestedResourceURI = req.params.requestedResource;
-    var size = req.query.size;
+    const requestedResourceURI = req.params.requestedResource;
+    const size = req.query.size;
 
     File.findByUri(requestedResourceURI, function(err, file){
         if(!err)
         {
-            if(file != null)
+            if(!isNull(file))
             {
-                var mimeType = Config.mimeType(file.ddr.fileExtension);
+                const mimeType = Config.mimeType(file.ddr.fileExtension);
 
-                if(Config.thumbnailableExtensions[file.ddr.fileExtension] != null)
+                if(!isNull(Config.thumbnailableExtensions[file.ddr.fileExtension]))
                 {
                     file.getThumbnail(size, function(err, writtenFilePath)
                     {
                         if(!err)
                         {
-                            if(writtenFilePath != null)
+                            if(!isNull(writtenFilePath))
                             {
                                 const fs = require('fs');
                                 const path = require('path');
@@ -584,7 +559,7 @@ exports.get_thumbnail = function(req, res) {
                         }
                         else
                         {
-                            if(err == 404)
+                            if(err === 404)
                             {
                                 var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                                 console.error(error);
@@ -596,7 +571,7 @@ exports.get_thumbnail = function(req, res) {
                                 //try to regenerate thumbnails
                                 file.generateThumbnails(function(err, result)
                                 {
-                                    var error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
+                                    const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
                                     console.error(error);
                                 });
 
@@ -637,27 +612,27 @@ exports.get_thumbnail = function(req, res) {
 
 exports.upload = function(req, res)
 {
-    var upload_id = req.query.upload_id;
-    var upload = UploadManager.get_upload_by_id(upload_id);
-    var username = req.query.username;
-    var file_md5 = req.query.md5_checksum;
-    var filename = req.query.filename;
-    var size = req.query.size;
-    var restart = req.query.restart;
+    const upload_id = req.query.upload_id;
+    const upload = UploadManager.get_upload_by_id(upload_id);
+    const username = req.query.username;
+    const file_md5 = req.query.md5_checksum;
+    const filename = req.query.filename;
+    const size = req.query.size;
+    const restart = req.query.restart;
 
-    if (req.originalMethod == "GET")
+    if (req.originalMethod === "GET")
     {
         if (
-            upload_id != null &&
-            upload_id != "" &&
-            username != null
+            !isNull(upload_id) &&
+            upload_id !== "" &&
+            !isNull(username)
         )
         {
-            if (req.session.upload_manager != null && req.user != null)
+            if (typeof req.session.upload_manager !== "undefined" && !isNull(req.user))
             {
-                if (upload != null)
+                if (!isNull(upload))
                 {
-                    if (upload.username === upload.username && req.user != null && req.user.ddr.username == username)
+                    if (upload.username === upload.username && !isNull(req.user) && typeof req.user.ddr.username === username)
                     {
                         if(restart)
                         {
@@ -708,17 +683,17 @@ exports.upload = function(req, res)
         }
         else
         {
-            if (username != null)
+            if (!isNull(username))
             {
                 if (
-                    filename != null &&
-                    filename != "" &&
+                    !isNull(filename) &&
+                    filename !== "" &&
 
-                    file_md5 != null &&
-                    file_md5 != "" &&
+                    typeof file_md5 !== "undefined" &&
+                    file_md5 !== "" &&
 
-                    req.params.requestedResource != null &&
-                    req.params.requestedResource != ""
+                    !isNull(req.params.requestedResource) &&
+                    req.params.requestedResource !== ""
                 )
                 {
                     UploadManager.add_upload(
@@ -764,103 +739,84 @@ exports.upload = function(req, res)
             }
         }
     }
-    else if (req.originalMethod == "POST")
+    else if (req.originalMethod === "POST")
     {
-        var requestedResourceURI = req.params.requestedResource;
-        var currentUserUri = req.user.uri;
+        const requestedResourceURI = req.params.requestedResource;
+        const currentUserUri = req.user.uri;
 
-        var processFiles = function (callback)
-        {
-            var fileNames = [];
+        const processFiles = function (callback) {
+            const fileNames = [];
 
-            var getFilesArray = function(req)
-            {
-                var files = [];
+            const getFilesArray = function (req) {
+                let files = [];
 
-                if (req.files instanceof Object)
-                {
-                    if (req.files.file instanceof Object)
-                    {
+                if (req.files instanceof Object) {
+                    if (req.files.file instanceof Object) {
                         files[0] = req.files.file
                     }
-                    else
-                    {
+                    else {
                         files[0] = req.files;
                     }
 
                     return files;
                 }
-                else if (req.files.files != null && req.files.files instanceof Array)
-                {
+                else if (!isNull(req.files.files) && req.files.files instanceof Array) {
                     files = req.files.files;
                     return files;
                 }
-                else
-                {
+                else {
                     return null;
                 }
-            }
+            };
 
             var files = getFilesArray(req);
 
-            if(files instanceof Array)
-            {
-                var async = require('async');
-                async.map(files, function (file, callback)
-                {
+            if (files instanceof Array) {
+                const async = require('async');
+                async.map(files, function (file, callback) {
                     fileNames.push({
                         name: file.name
                     });
 
-                    var newFile = new File({
+                    const newFile = new File({
                         nie: {
                             title: file.name,
                             isLogicalPartOf: requestedResourceURI
                         }
                     });
 
-                    var fs = require('fs');
+                    const fs = require('fs');
 
-                    const md5File = require('md5-file')
+                    const md5File = require('md5-file');
 
                     /* Async usage */
-                    md5File(file.path, function(err, hash)
-                    {
-                        if (!err)
-                        {
-                            if(hash != upload.md5_checksum)
-                            {
-                                callback(400, {
-                                    result : "error",
-                                    message : "File was corrupted during transfer. Please repeat.",
-                                    error : "invalid_checksum",
-                                    calculated_at_server : hash,
-                                    calculated_at_client : upload.md5_checksum
+                    md5File(file.path, function (err, hash) {
+                        if (!err) {
+                            if (typeof hash !== upload.md5_checksum) {
+                                return callback(400, {
+                                    result: "error",
+                                    message: "File was corrupted during transfer. Please repeat.",
+                                    error: "invalid_checksum",
+                                    calculated_at_server: hash,
+                                    calculated_at_client: upload.md5_checksum
                                 });
                             }
-                            else
-                            {
+                            else {
                                 newFile.loadFromLocalFile(file.path, function (err, result) {
-                                    if (err == null)
-                                    {
+                                    if (isNull(err)) {
                                         newFile.save(function (err, result) {
-                                            if (err == null)
-                                            {
+                                            if (isNull(err)) {
                                                 console.log("File " + newFile.uri + " is now saved in GridFS");
                                                 newFile.connectToMongo(function (err, db) {
-                                                    if (!err)
-                                                    {
+                                                    if (!err) {
                                                         newFile.findFileInMongo(db, function (error, fileVersionsInMongoDb) {
-                                                            if (!error)
-                                                            {
+                                                            if (!error) {
                                                                 async.map(fileVersionsInMongoDb, function (fileVersion, cb) {
-                                                                    FileVersion.findByUri(fileVersion.filename, function(err, fileVersion){
-                                                                        if(!err)
-                                                                        {
-                                                                            if(fileVersion == null)
-                                                                            {
+                                                                    FileVersion.findByUri(fileVersion.filename, function (err, fileVersion) {
+                                                                        if (!err) {
+                                                                            if (isNull(fileVersion)) {
                                                                                 console.log('FileinfoFromMongo: ', fileVersion);
-                                                                                var newFileVersion = new FileVersion({
+                                                                                const newFileVersion = new FileVersion({
                                                                                     nfo: {
                                                                                         fileName: fileVersion.filename,
                                                                                         hashValue: fileVersion.md5,
@@ -879,62 +835,52 @@ exports.upload = function(req, res)
                                                                                     }
                                                                                 });
 
-                                                                                newFileVersion.save(function (err, fileVersion)
-                                                                                {
-                                                                                    if (!err)
-                                                                                    {
+                                                                                newFileVersion.save(function (err, fileVersion) {
+                                                                                    if (!err) {
                                                                                         cb(null, fileVersion);
                                                                                     }
-                                                                                    else
-                                                                                    {
+                                                                                    else {
                                                                                         cb(true, fileVersion);
                                                                                     }
                                                                                 }, false, null, null, null, null, db_social.graphUri)
                                                                             }
-                                                                            else
-                                                                            {
+                                                                            else {
                                                                                 cb(null, fileVersion);
                                                                             }
                                                                         }
-                                                                        else
-                                                                        {
+                                                                        else {
                                                                             cb(1, "Error fetching file version with URI " + fileVersion.uri);
                                                                         }
                                                                     });
-                                                                }, function (err, results)
-                                                                {
-                                                                    if (!err)
-                                                                    {
-                                                                        callback(null, {
+                                                                }, function (err, results) {
+                                                                    if (!err) {
+                                                                        return callback(null, {
                                                                             result: "success",
                                                                             message: "File submitted successfully. Message returned : " + result,
                                                                             files: files
                                                                         });
                                                                     }
-                                                                    else
-                                                                    {
-                                                                        var msg = "Error saving file version";
-                                                                        callback(500, {
+                                                                    else {
+                                                                        const msg = "Error saving file version";
+                                                                        return callback(500, {
                                                                             result: "error",
                                                                             message: msg
                                                                         });
                                                                     }
                                                                 });
                                                             }
-                                                            else
-                                                            {
+                                                            else {
                                                                 var msg = "Database error";
-                                                                callback(500, {
+                                                                return callback(500, {
                                                                     result: "error",
                                                                     message: msg
                                                                 });
                                                             }
                                                         });
                                                     }
-                                                    else
-                                                    {
+                                                    else {
                                                         var msg = "Error submitting file : " + result;
-                                                        callback(500, {
+                                                        return callback(500, {
                                                             result: "error",
                                                             message: msg,
                                                             files: files
@@ -943,18 +889,15 @@ exports.upload = function(req, res)
                                                 });
 
                                                 //try to generate thumbnails
-                                                newFile.generateThumbnails(function (err, result)
-                                                {
-                                                    if(err != null)
-                                                    {
+                                                newFile.generateThumbnails(function (err, result) {
+                                                    if (!isNull(err)) {
                                                         console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
                                                     }
                                                 });
                                             }
-                                            else
-                                            {
+                                            else {
                                                 var msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                                callback(500, {
+                                                return callback(500, {
                                                     result: "error",
                                                     message: msg,
                                                     files: fileNames
@@ -962,10 +905,9 @@ exports.upload = function(req, res)
                                             }
                                         });
                                     }
-                                    else
-                                    {
+                                    else {
                                         console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
-                                        callback(500, {
+                                        return callback(500, {
                                             result: "error",
                                             message: "Error saving the file : " + result,
                                             files: files
@@ -975,33 +917,31 @@ exports.upload = function(req, res)
                             }
 
                         }
-                        else
-                        {
-                            callback(401, {
+                        else {
+                            return callback(401, {
                                 result: "error",
                                 message: "Unable to calculate the MD5 checksum of the uploaded file: " + newFile.filename,
                                 error: result
                             });
                         }
                     })
-                }, function(err, results){
-                    callback(err, results);
+                }, function (err, results) {
+                    return callback(err, results);
                 });
             }
-            else
-            {
-                callback(500, {
+            else {
+                return callback(500, {
                     result: "error",
                     message: "Unknown error submitting files. Malformed message?",
                     files: fileNames
                 });
             }
-        }
+        };
 
-        if (upload != null)
+        if (!isNull(upload))
         {
-            var multiparty = require('multiparty');
-            var form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
+            const multiparty = require('multiparty');
+            const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
 
             form.on('error', function (err)
             {
@@ -1054,7 +994,7 @@ exports.upload = function(req, res)
                                 };
 
                                 processFiles(function(status, responseObject){
-                                    if (status == null)
+                                    if (isNull(status))
                                     {
                                         res.json(responseObject);
                                     }
@@ -1099,30 +1039,30 @@ exports.upload = function(req, res)
                     message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
                 });
         }
-    };
+    }
 };
 
 exports.resume = function(req, res)
 {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
 
-    if (req.originalMethod == "GET")
+    if (req.originalMethod === "GET")
     {
-        var resume = req.query.resume;
-        var upload_id = req.query.upload_id;
-        var username = req.query.username;
+        const resume = req.query.resume;
+        const upload_id = req.query.upload_id;
+        const username = req.query.username;
 
-        if(resume != null)
+        if(!isNull(resume))
         {
-            if(req.session.upload_manager != null)
+            if(typeof req.session.upload_manager !== "undefined")
             {
-                if (upload_id != null)
+                if (typeof upload_id !== "undefined")
                 {
-                    var upload = UploadManager.get_upload_by_id(upload_id);
+                    const upload = UploadManager.get_upload_by_id(upload_id);
 
-                    if (upload.username == username)
+                    if (upload.username === username)
                     {
                         res.json({
                             size: upload.loaded
@@ -1130,7 +1070,7 @@ exports.resume = function(req, res)
                     }
                     else
                     {
-                        var msg = "The upload does not belong to the user currently trying to resume."
+                        var msg = "The upload does not belong to the user currently trying to resume.";
                         console.error(msg);
                         res.status(400).json({
                             result: "error",
@@ -1147,7 +1087,7 @@ exports.resume = function(req, res)
             }
             else
             {
-                var msg = "The user does not have a session initiated."
+                var msg = "The user does not have a session initiated.";
                 console.error(msg);
                 res.status(400).json({
                     result: "error",
@@ -1157,7 +1097,7 @@ exports.resume = function(req, res)
         }
         else
         {
-            var msg = "Invalid Request, does not contain the 'resume' query parameter."
+            var msg = "Invalid Request, does not contain the 'resume' query parameter.";
             console.error(msg);
             res.status(400).json({
                 result: "error",
@@ -1186,12 +1126,12 @@ exports.resume = function(req, res)
         }
 
     }
-}
+};
 
 
 exports.restore = function(req, res){
 
-    if (req.originalMethod == "GET")
+    if (req.originalMethod === "GET")
     {
         res.render('files/restore',
             {
@@ -1199,9 +1139,9 @@ exports.restore = function(req, res){
             }
         );
     }
-    else if (req.originalMethod == "POST")
+    else if (req.originalMethod === "POST")
     {
-        var requestedResourceUri = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+        const requestedResourceUri = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
 
         req.form.on('error', function(err) {
             res.status(500).json(
@@ -1221,16 +1161,16 @@ exports.restore = function(req, res){
 
         req.form.on('end', function() {
 
-            if(req.files != null && req.files.files instanceof Array && req.files.files.length == 1)
+            if(!isNull(req.files) && req.files.files instanceof Array && req.files.files.length === 1)
             {
-                var tempFilePath = req.files.files[0].path;
-                var file = new File({
-                    nie : {
-                        title : req.files.files[0].name
+                const tempFilePath = req.files.files[0].path;
+                const file = new File({
+                    nie: {
+                        title: req.files.files[0].name
                     }
                 });
 
-                if(file.ddr.fileExtension == "zip")
+                if(file.ddr.fileExtension === "zip")
                 {
                     //var restoringProjectRoot = (req.params.filepath == null || req.params.filepath.length == 0);
 
@@ -1238,7 +1178,7 @@ exports.restore = function(req, res){
                     {
                         if(!err)
                         {
-                            if(folder == null)
+                            if(isNull(folder))
                             {
                                 folder = new Folder({
                                     uri : requestedResourceUri
@@ -1322,8 +1262,8 @@ exports.restore = function(req, res){
 };
 
 exports.rm = function(req, res){
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
 
     if(!acceptsJSON && acceptsHTML){
         res.status(400).json({
@@ -1333,28 +1273,28 @@ exports.rm = function(req, res){
     }
     else
     {
-        var resourceToDelete = req.params.requestedResource;
+        const resourceToDelete = req.params.requestedResource;
 
         try{
-            var reallyDelete = JSON.parse(req.query.really_delete);
+            const reallyDelete = JSON.parse(req.query.really_delete);
         }
         catch(e)
         {
             var reallyDelete = false;
         }
 
-        if(resourceToDelete != null)
+        if(!isNull(resourceToDelete))
         {
             InformationElement.getType(resourceToDelete, function(err, type)
             {
                 if(!err)
                 {
-                    if(type == File)
+                    if(type === File)
                     {
                         File.findByUri(resourceToDelete, function(err, file){
                             if(!err)
                             {
-                                if(req.user != null)
+                                if(!isNull(req.user))
                                 {
                                     var userUri = req.user.uri;
                                 }
@@ -1373,9 +1313,9 @@ exports.rm = function(req, res){
                                     }
                                     else
                                     {
-                                        if(err == 404)
+                                        if(err === 404)
                                         {
-                                            var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceToDelete;
+                                            const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceToDelete;
                                             console.error(error);
                                             res.writeHead(404, error);
                                             res.end();
@@ -1403,12 +1343,12 @@ exports.rm = function(req, res){
                             }
                         });
                     }
-                    else if(type == Folder)
+                    else if(type === Folder)
                     {
                         Folder.findByUri(resourceToDelete, function(err, folder){
                             if(!err)
                             {
-                                if(req.user != null)
+                                if(!isNull(req.user))
                                 {
                                     var userUri = req.user.uri;
                                 }
@@ -1427,9 +1367,9 @@ exports.rm = function(req, res){
                                     }
                                     else
                                     {
-                                        if(err == 404)
+                                        if(err === 404)
                                         {
-                                            var error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. Error reported : " + result;
+                                            const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. Error reported : " + result;
                                             console.error(error);
                                             res.writeHead(404, error);
                                             res.end();
@@ -1473,20 +1413,20 @@ exports.rm = function(req, res){
 };
 
 exports.undelete = function(req, res){
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(acceptsJSON && !acceptsHTML)
     {
-        var resourceToUnDelete = req.params.requestedResource;
+        const resourceToUnDelete = req.params.requestedResource;
 
-        if(resourceToUnDelete != null)
+        if(!isNull(resourceToUnDelete))
         {
             InformationElement.getType(resourceToUnDelete, function(err, type)
             {
                 if(!err)
                 {
-                    if(type == File)
+                    if(type === File)
                     {
                         File.findByUri(resourceToUnDelete, function(err, file){
                             if(!err)
@@ -1521,7 +1461,7 @@ exports.undelete = function(req, res){
                             }
                         });
                     }
-                    else if(type == Folder)
+                    else if(type === Folder)
                     {
                         Folder.findByUri(resourceToUnDelete, function(err, folder){
                             if(!err)
@@ -1579,21 +1519,23 @@ exports.undelete = function(req, res){
 };
 
 exports.mkdir = function(req, res){
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(acceptsJSON && !acceptsHTML)
     {
+        let parentFolderURI;
+
         if(req.params.is_project_root)
         {
-            var parentFolderURI = req.params.requestedResource + "/data";
+            parentFolderURI = req.params.requestedResource + "/data";
         }
         else
         {
-            var parentFolderURI = req.params.requestedResource;
+            parentFolderURI = req.params.requestedResource;
         }
 
-        var newFolderTitle = req.query.mkdir;
+        const newFolderTitle = req.query.mkdir;
 
         if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
         {
@@ -1608,14 +1550,13 @@ exports.mkdir = function(req, res){
         {
             Folder.findByUri(parentFolderURI, function(err, parentFolder)
             {
-                if(!err && parentFolder!=null)
+                if(!err && !isNull(parentFolder))
                 {
-                    var newChildFolder = new Folder({
-                        nie :
-                            {
-                                title : newFolderTitle,
-                                isLogicalPartOf : parentFolderURI
-                            }
+                    const newChildFolder = new Folder({
+                        nie: {
+                            title: newFolderTitle,
+                            isLogicalPartOf: parentFolderURI
+                        }
                     });
 
                     //save parent folder
@@ -1636,7 +1577,8 @@ exports.mkdir = function(req, res){
                                             {
                                                 "status" : "1",
                                                 "id" : newChildFolder.uri,
-                                                "result" : "ok"
+                                                "result" : "ok",
+                                                "new_folder" : Descriptor.removeUnauthorizedFromObject(result, [Config.types.private], [Config.types.api_readable])
                                             }
                                         );
                                     }
@@ -1681,11 +1623,11 @@ exports.mkdir = function(req, res){
 };
 
 exports.ls = function(req, res){
-    var resourceURI = req.params.requestedResource;
-    var filepath = req.params.filepath;
-    var show_deleted = req.query.show_deleted;
+    const resourceURI = req.params.requestedResource;
+    const filepath = req.params.filepath;
+    let show_deleted = req.query.show_deleted;
 
-    if(filepath == null)
+    if(isNull(filepath))
     {
         Project.findByHandle(req.params.handle, function(err, project) {
             if(!err)
@@ -1695,7 +1637,7 @@ exports.ls = function(req, res){
                     {
                         if(!show_deleted)
                         {
-                            var _ = require('underscore');
+                            const _ = require('underscore');
                             files = _.reject(files, function(file) { return file.ddr.deleted; });
                         }
 
@@ -1723,7 +1665,7 @@ exports.ls = function(req, res){
     {
         Folder.findByUri(resourceURI, function(err, containingFolder)
         {
-            if(!err && containingFolder != null)
+            if(!err && !isNull(containingFolder))
             {
                 containingFolder.getLogicalParts(function(err, children)
                 {
@@ -1732,7 +1674,7 @@ exports.ls = function(req, res){
                     {
                         if(!show_deleted)
                         {
-                            var _ = require('underscore');
+                            const _ = require('underscore');
                             children = _.reject(children, function(child) { return child.ddr.deleted; });
                         }
 
@@ -1753,16 +1695,16 @@ exports.ls = function(req, res){
 
 exports.thumbnail = function(req, res)
 {
-    if(req.params.filepath != null)
+    if(!isNull(req.params.filepath))
     {
-        var path = require('path');
-        var requestedExtension = path.extname(req.params.filepath).replace(".", "");
+        const path = require('path');
+        const requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
-        if(requestedExtension == null)
+        if(isNull(requestedExtension))
         {
             exports.serve_static(req, res, "/images/icons/document_empty.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
         }
-        else if(requestedExtension != null && Config.thumbnailableExtensions[requestedExtension] != null)
+        else if(!isNull(requestedExtension) && !isNull(Config.thumbnailableExtensions[requestedExtension]))
         {
             exports.get_thumbnail(req, res);
         }
@@ -1789,16 +1731,14 @@ exports.thumbnail = function(req, res)
 };
 
 exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoot, pathOfFileToServeOnError, staticFileCaching, cachePeriodInSeconds){
-    var fs = require('fs');
-    var path = require('path');
+    const fs = require('fs');
+    const path = require('path');
         appDir = path.dirname(require.main.filename);
 
-    var pipeFile = function(absPathOfFileToServe, filename, res, lastModified, cachePeriodInSeconds)
-    {
+    const pipeFile = function (absPathOfFileToServe, filename, res, lastModified, cachePeriodInSeconds) {
         fs.createReadStream(absPathOfFileToServe);
 
-        if(staticFileCaching === true && (typeof cachePeriodInSeconds === "number"))
-        {
+        if (staticFileCaching === true && (typeof cachePeriodInSeconds === "number")) {
             res.setHeader('Last-Modified', lastModified);
             res.setHeader('Cache-Control', 'public, max-age=' + cachePeriodInSeconds);
             res.setHeader('Date', new Date().toString());
@@ -1806,18 +1746,18 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
 
         res.writeHead(200,
             {
-                'Content-disposition': 'filename="' + filename+"\"",
+                'Content-disposition': 'filename="' + filename + "\"",
                 'Content-type': mimeType
             });
 
-        var fileStream = fs.createReadStream(absPathOfFileToServe);
+        const fileStream = fs.createReadStream(absPathOfFileToServe);
         fileStream.pipe(res);
     };
 
     if(typeof pathOfIntendedFileRelativeToProjectRoot === "string")
     {
-        var fileName = path.basename(pathOfIntendedFileRelativeToProjectRoot);
-        var extension = path.extname(pathOfIntendedFileRelativeToProjectRoot).replace(".", "");
+        const fileName = path.basename(pathOfIntendedFileRelativeToProjectRoot);
+        const extension = path.extname(pathOfIntendedFileRelativeToProjectRoot).replace(".", "");
         var mimeType = Config.mimeType(extension);
         var absPathOfFileToServe = Config.absPathInPublicFolder(pathOfIntendedFileRelativeToProjectRoot);
 
@@ -1829,14 +1769,14 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
                     {
                         if(staticFileCaching)
                         {
-                            var clientLastModifiedTimestamp = req.get("If-Modified-Since");
+                            let clientLastModifiedTimestamp = req.get("If-Modified-Since");
 
-                            if(clientLastModifiedTimestamp != null)
+                            if(!isNull(clientLastModifiedTimestamp))
                             {
                                 clientLastModifiedTimestamp = new Date(clientLastModifiedTimestamp);
 
-                                var util = require('util');
-                                var mtime = new Date(util.inspect(stats.mtime));
+                                const util = require('util');
+                                const mtime = new Date(util.inspect(stats.mtime));
 
                                 if (mtime > clientLastModifiedTimestamp)
                                 {
@@ -1861,7 +1801,7 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
                         {
 
 
-                        };
+                        }
                     }
                     else
                     {
@@ -1872,7 +1812,7 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
             }
             else
             {
-                if(pathOfFileToServeOnError != null)
+                if(!isNull(pathOfFileToServeOnError))
                 {
                     exports.serve_static(req,res, pathOfFileToServeOnError);
                 }
@@ -1893,24 +1833,24 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
 
 exports.data = function(req, res){
     let path = require('path');
-    var requestedExtension = path.extname(req.params.filepath).replace(".", "");
+    const requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
-    if(exports.dataParsers[requestedExtension] != null)
+    if(!isNull(exports.dataParsers[requestedExtension]))
     {
-        var resourceURI = req.params.requestedResource;
+        const resourceURI = req.params.requestedResource;
 
         File.findByUri(resourceURI, function(err, file){
             if(!err)
             {
-                var mimeType = Config.mimeType(file.ddr.fileExtension);
+                const mimeType = Config.mimeType(file.ddr.fileExtension);
 
                 file.writeToTempFile(function(err, writtenFilePath)
                 {
                     if(!err)
                     {
-                        if(writtenFilePath != null)
+                        if(!isNull(writtenFilePath))
                         {
-                            if(exports.dataParsers[file.ddr.fileExtension] != null)
+                            if(!isNull(exports.dataParsers[file.ddr.fileExtension]))
                             {
                                 exports.dataParsers[file.ddr.fileExtension](req, res, writtenFilePath);
                             }
@@ -1934,7 +1874,7 @@ exports.data = function(req, res){
                     }
                     else
                     {
-                        if(err == 404)
+                        if(err === 404)
                         {
                             var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceURI;
                             console.error(error);
@@ -1962,14 +1902,14 @@ exports.data = function(req, res){
     }
     else
     {
-        var projects = require(Config.absPathInSrcFolder("/controllers/projects.js"));
+        const projects = require(Config.absPathInSrcFolder("/controllers/projects.js"));
         projects.show(req, res);
     }
 };
 
 
 xlsFileParser = function (req, res, filePath){
-    var excelParser = require('excel-parser');
+    const excelParser = require('excel-parser');
 
     excelParser.parse({
         inFile: filePath,
@@ -1978,7 +1918,7 @@ xlsFileParser = function (req, res, filePath){
     },function(err, records){
         deleteTempFile(filePath);
         if(err){
-        var error = "Unable to produce JSON representation of file :" + filePath + "Error reported: " + err + ".\n Cause : " + records + " \n ";
+        const error = "Unable to produce JSON representation of file :" + filePath + "Error reported: " + err + ".\n Cause : " + records + " \n ";
             console.error(err);
             res.writeHead(500, error);
             res.end();
@@ -1993,18 +1933,18 @@ xlsFileParser = function (req, res, filePath){
 csvFileParser = function (req,res,filePath){
 
 
-    var fs = require('fs');
+    const fs = require('fs');
     fs.readFile(filePath, 'utf8', function(err, data) {
         if (err) throw err;
         deleteTempFile(filePath);
-        var CSV = require('csv-string'),
-        arr = CSV.parse(data);
+        const CSV = require('csv-string'),
+            arr = CSV.parse(data);
         res.json(arr);
     });
 };
 
 textFileParser = function (req,res,filePath){
-    var fs = require('fs');
+    const fs = require('fs');
     fs.readFile(filePath, 'utf8', function(err, data) {
         if (err) throw err;
         deleteTempFile(filePath);
@@ -2020,13 +1960,13 @@ exports.dataParsers = {
     "log" : textFileParser,
     "xml" : textFileParser
 
-}
+};
 
 deleteTempFile = function(filePath){
-    var fs = require('fs');
+    const fs = require('fs');
 
     fs.unlink(filePath, function (err) {
         if (err) throw err;
         console.log('successfully deleted temporary file ' +filePath);
     });
-}
+};

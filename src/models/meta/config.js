@@ -4,8 +4,9 @@
 
 function Config (){}
 
-var fs = require('fs');
-var path = require('path');
+const fs = require('fs');
+const path = require('path');
+const isNull = require("../../utils/null.js").isNull;
 
 if(process.env.NODE_ENV === "test")
 {
@@ -28,13 +29,13 @@ Config.absPathInTestsFolder = function(relativePath)
     return path.join(Config.appDir, "test_new_structure", relativePath);
 };
 
-var configs_file_path = Config.absPathInApp("conf/deployment_configs.json");
-var active_config_file_path = Config.absPathInApp("conf/active_deployment_config.json");
+const configs_file_path = Config.absPathInApp("conf/deployment_configs.json");
+const active_config_file_path = Config.absPathInApp("conf/active_deployment_config.json");
 
-var configs = JSON.parse(fs.readFileSync(configs_file_path, 'utf8'));
+const configs = JSON.parse(fs.readFileSync(configs_file_path, 'utf8'));
 
-var active_config_key;
-if(process.env.NODE_ENV == 'test')
+let active_config_key;
+if(process.env.NODE_ENV === 'test')
 {
     if(process.env.RUNNING_IN_JENKINS === "1")
     {
@@ -52,23 +53,19 @@ else
     active_config_key = JSON.parse(fs.readFileSync(active_config_file_path, 'utf8')).key;
 }
 
-var active_config = configs[active_config_key];
+const active_config = configs[active_config_key];
 
-var getConfigParameter = function(parameter, defaultValue)
-{
-    if(active_config[parameter] == null)
-    {
-        if(defaultValue != null)
-        {
-            console.error("[WARNING] Using default value "+ JSON.stringify(defaultValue) + " for parameter " + parameter +" !");
+const getConfigParameter = function (parameter, defaultValue) {
+    if (isNull(active_config[parameter])) {
+        if (!isNull(defaultValue)) {
+            console.error("[WARNING] Using default value " + JSON.stringify(defaultValue) + " for parameter " + parameter + " !");
             Config[parameter] = defaultValue;
             return Config[parameter];
         }
-        console.error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from \'"+active_config_key + "\' configuration. Please review the deployment_configs.json file.");
+        console.error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from \'" + active_config_key + "\' configuration. Please review the deployment_configs.json file.");
         process.exit(1);
     }
-    else
-    {
+    else {
         return active_config[parameter];
     }
 };
@@ -155,14 +152,12 @@ Config.recommendation.getTargetTable = function()
 {
     if(Config.recommendation.modes.dendro_recommender.log_modes.phase_1.active)
     {
-        var targetTable = Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
+        return Config.recommendation.modes.dendro_recommender.log_modes.phase_1.table_to_write_interactions;
     }
     else if(Config.recommendation.modes.dendro_recommender.log_modes.phase_2.active)
     {
-        var targetTable = Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
+        return Config.recommendation.modes.dendro_recommender.log_modes.phase_2.table_to_write_interactions;
     }
-
-    return targetTable;
 };
 
 Config.exporting = getConfigParameter("exporting");
@@ -211,7 +206,7 @@ Config.initGlobals = function()
         notifications: {}
     };
 
-    var Elements = require('./elements.js').Elements;
+    const Elements = require('./elements.js').Elements;
 
     GLOBAL.allOntologies = {
         dcterms: {
@@ -401,11 +396,11 @@ Config.initGlobals = function()
     };
 
     Config.caches = {
-    }
+    };
 
-    for(var db in GLOBAL.db)
+    for(let db in GLOBAL.db)
     {
-        var dbParam = GLOBAL.db[db];
+        const dbParam = GLOBAL.db[db];
         if(dbParam.hasOwnProperty("graphUri") && dbParam.hasOwnProperty("redis_instance"))
         {
             Config.caches[dbParam.graphUri] = GLOBAL.redis[dbParam.redis_instance];
@@ -416,7 +411,7 @@ Config.initGlobals = function()
             process.exit(1);
         }
     }
-}
+};
 
 /**
  * ElasticSearch Indexing Configuration
@@ -513,7 +508,7 @@ Config.systemOrHiddenFilesRegexes = getConfigParameter("systemOrHiddenFilesRegex
 
 Config.getAbsolutePathToPluginsFolder = function()
 {
-    var path = require('path');
+    const path = require('path');
     return path.join(Config.appDir, "src", Config.plugins.folderName);
 };
 
@@ -542,22 +537,22 @@ Config.absPathInPublicFolder = function(relativePath)
  * Thumbnail Generation
  */
 
-if(Config.thumbnailableExtensions == null)
+if(isNull(Config.thumbnailableExtensions))
 {
     Config.thumbnailableExtensions = require(Config.absPathInPublicFolder("/shared/public_config.json"))["thumbnailable_file_extensions"];
 }
 
-if(Config.iconableFileExtensions == null)
+if(isNull(Config.iconableFileExtensions))
 {
     Config.iconableFileExtensions = {};
     let extensions = fs.readdirSync(Config.absPathInPublicFolder("/images/icons/extensions"));
 
     for(let i = 0; i < extensions.length; i++)
     {
-        if(extensions[i] != "." && extensions[i] != "..")
+        if(extensions[i] !== "." && extensions[i] !== "..")
         {
             let extensionOnly = extensions[i].match(/file_extension_(.+)\.png/)[1];
-            if(extensionOnly != null)
+            if(!isNull(extensionOnly))
                 Config.iconableFileExtensions[extensionOnly] = true;
         }
     }
@@ -598,7 +593,7 @@ MIME types
 
 Config.mimeType = function(extension) {
     var mime = require('mime-types');
-    if(mime.lookup(extension) == null)
+    if(typeof mime.lookup(extension) == null)
     {
         return "application/octet-stream";
     }
@@ -614,7 +609,7 @@ Config.swordConnection = {
     EprintsCollectionRef: "/id/contents"
 };
 
-var Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
+const Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
 
 Config.defaultMetadataSerializer = Serializers.dataToJSON;
 Config.defaultMetadataContentType = "text/json";
@@ -625,7 +620,7 @@ Config.metadataSerializers ={
     "application/rdf" : Serializers.metadataToRDF,
     "application/xml" : Serializers.metadataToRDF,
     "application/json" : Serializers.dataToJSON
-}
+};
 Config.metadataContentTypes ={
     "application/text" : "text/plain",
     "application/txt" : "text/plain",
@@ -650,7 +645,7 @@ if(Config.demo_mode.active)
             cwd: Config.appDir
         },
         function(error, stdout, stderr) {
-            if (error == null) {
+            if (isNull(error)) {
                 console.log("Active branch : " + JSON.stringify(stdout));
                 Config.demo_mode.git_info.active_branch = stdout;
             }
@@ -664,7 +659,7 @@ if(Config.demo_mode.active)
         {
             cwd: Config.appDir
         }, function (error, stdout, stderr) {
-        if (error == null) {
+        if (isNull(error)) {
             console.log("Last commit hash : " + JSON.stringify(stdout));
             Config.demo_mode.git_info.commit_hash = stdout;
         }
@@ -678,7 +673,7 @@ if(Config.demo_mode.active)
         {
             cwd: Config.appDir
         }, function (error, stdout, stderr) {
-        if (error == null) {
+        if (isNull(error)) {
             console.log("Last commit date : " + JSON.stringify(stdout));
             Config.demo_mode.git_info.last_commit_date = stdout;
         }
@@ -707,7 +702,7 @@ Config.regex_routes = {
         restore : "\/project\/([^\/]+)[\/data]?((?=(.*)\/restore\/?$).*)$",
         download : "\/project\/([^\/]+)[\/data]?((?=(.*)\/download\/?$).*)$"
     }
-}
+};
 
 Config.authentication = getConfigParameter("authentication");
 

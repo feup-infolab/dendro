@@ -1,5 +1,9 @@
 const util = require('util');
-const Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const uuid = require('uuid');
 let queue = require('queue');
@@ -14,7 +18,7 @@ function DbConnection (host, port, username, password, maxSimultaneousConnection
         self.username = username;
         self.password = password;
 
-        if(self.maxSimultaneousConnections === null)
+        if(isNull(self.maxSimultaneousConnections))
         {
             self.maxSimultaneousConnections = 50;
         }
@@ -43,8 +47,8 @@ DbConnection.long_string = 9;
 DbConnection.stringNoEscape = 10;
 
 DbConnection.prototype.create = function(callback) {
-    var self = this;
-    var xmlHttp = new XMLHttpRequest();
+    const self = this;
+    const xmlHttp = new XMLHttpRequest();
 
     // prepare callback
     xmlHttp.onreadystatechange = function() {
@@ -55,25 +59,27 @@ DbConnection.prototype.create = function(callback) {
                 self.q = queue();
                 self.q.timeout = Config.dbOperationTimeout;
 
-                self.q.on('timeout', function(next, job) {
-                    console.log('query timed out:', job.toString().replace(/\n/g, ''));
-                    next();
-                });
+                if(Config.debug.database.log_query_timeouts) {
+                    self.q.on('timeout', function (next, job) {
+                        console.log('query timed out:', job.toString().replace(/\n/g, ''));
+                        next();
+                    });
+                }
 
                 self.q.on('success', function(result, job) {
                     //console.log('query finished processing:', job.toString().replace(/\n/g, ''));
                 });
 
-                callback(self);
+                return callback(self);
             }
             else
             {
-                callback(false);
+                return callback(false);
             }
         }
     };
 
-    var fullUrl = "http://" + self.host;
+    let fullUrl = "http://" + self.host;
 
     if (self.port) {
         fullUrl = fullUrl + ":" + self.port;
@@ -84,24 +90,20 @@ DbConnection.prototype.create = function(callback) {
 };
 
 
-var queryObjectToString = function(query, argumentsArray, callback)
-{
-    var transformedQuery = query;
+const queryObjectToString = function (query, argumentsArray, callback) {
+    let transformedQuery = query;
 
-    for(var i = 0; i < argumentsArray.length; i++)
-    {
-        var currentArgumentIndex = "["+i+"]";
-        var currentArgument = argumentsArray[i];
+    for (let i = 0; i < argumentsArray.length; i++) {
+        const currentArgumentIndex = "[" + i + "]";
+        const currentArgument = argumentsArray[i];
 
         //check for the presence of the parameter placeholder
-        if(transformedQuery.indexOf(currentArgumentIndex) != -1)
-        {
+        if (transformedQuery.indexOf(currentArgumentIndex) !== -1) {
             //will allow people to use the same parameter several times in the query,
             // for example [0]....[0]...[0] by replacing all occurrences of [0] in the query string
-            var pattern = new RegExp("\\\["+i+"\\\]", "g"); // [] are reserved chars in regex!
+            const pattern = new RegExp("\\\[" + i + "\\\]", "g"); // [] are reserved chars in regex!
 
-            switch(currentArgument.type)
-            {
+            switch (currentArgument.type) {
                 case DbConnection.resourceNoEscape:
                     transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
                     break;
@@ -121,18 +123,17 @@ var queryObjectToString = function(query, argumentsArray, callback)
                     transformedQuery = transformedQuery.replace(pattern, encodeURIComponent(currentArgument.value));
                     break;
                 case DbConnection.boolean:
-                    try{
-                        var booleanForm = JSON.parse(currentArgument.value);
-                        if (!(booleanForm === true || booleanForm === false))
-                        {
+                    let booleanForm;
+                    try {
+                        booleanForm = JSON.parse(currentArgument.value);
+                        if (!(booleanForm === true || booleanForm === false)) {
                             throw new Error();
                         }
                     }
-                    catch(e)
-                    {
-                        var msg = "Unable to convert argument [" + i + "]: It is set as a bolean, but the value is not true or false, it is : " + currentArgument.value;
+                    catch (e) {
+                        const msg = "Unable to convert argument [" + i + "]: It is set as a bolean, but the value is not true or false, it is : " + currentArgument.value;
                         console.error(msg);
-                        callback(1, msg);
+                        return callback(1, msg);
                         break;
                     }
 
@@ -141,50 +142,42 @@ var queryObjectToString = function(query, argumentsArray, callback)
                     break;
                 case DbConnection.prefixedResource:
 
-                    var validator = require('validator');
+                    const validator = require('validator');
 
-                    if(validator.isURL(currentArgument.value))
-                    {
+                    if (validator.isURL(currentArgument.value)) {
                         transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
                     }
-                    else
-                    {
-                        var Ontology = require('../models/meta/ontology.js').Ontology;
+                    else {
+                        const Ontology = require('../models/meta/ontology.js').Ontology;
 
-                        if(currentArgument.value != null)
-                        {
-                            var indexOfColon = currentArgument.value.indexOf(":");
+                        if (!isNull(currentArgument.value)) {
+                            const indexOfColon = currentArgument.value.indexOf(":");
 
-                            if(indexOfColon > 0)
-                            {
-                                if(currentArgument.value != null)
-                                {
-                                    var prefix = currentArgument.value.substr(0, indexOfColon);
-                                    var element = currentArgument.value.substr(indexOfColon + 1);
-                                    var ontology = Ontology.allOntologies[prefix].uri;
-                                    var valueAsFullUri = ontology + element;
+                            if (indexOfColon > 0) {
+                                if (!isNull(currentArgument.value)) {
+                                    const prefix = currentArgument.value.substr(0, indexOfColon);
+                                    const element = currentArgument.value.substr(indexOfColon + 1);
+                                    const ontology = Ontology.allOntologies[prefix].uri;
+                                    const valueAsFullUri = ontology + element;
 
                                     transformedQuery = transformedQuery.replace(pattern, "<" + valueAsFullUri + ">");
                                 }
-                                else
-                                {
+                                else {
                                     var error = "Value of argument " + currentArgument.value + " is null. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                                     console.error(error);
-                                    callback(1, error);
+                                    return callback(1, error);
                                 }
                             }
-                            else
-                            {
+                            else {
                                 var error = "Value of argument " + currentArgument.value + " is not valid for an argument of type Prefixed Resource... Did you mean to parametrize it as a string type in the elements.js file?. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                                 console.error(error);
-                                callback(1, error);
+                                return callback(1, error);
                             }
                         }
-                        else
-                        {
+                        else {
                             var error = "Cannot Execute Query: Value of argument at index " + currentArgumentIndex + " is undefined. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                             console.error(error);
-                            callback(1, error);
+                            return callback(1, error);
                         }
                     }
 
@@ -193,51 +186,49 @@ var queryObjectToString = function(query, argumentsArray, callback)
                     transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
                     break;
                 case DbConnection.long_string:
-                    transformedQuery = transformedQuery.replace(pattern, "'''" + encodeURIComponent( currentArgument.value)+ "'''");
+                    transformedQuery = transformedQuery.replace(pattern, "'''" + encodeURIComponent(currentArgument.value) + "'''");
                     break;
                 case DbConnection.stringNoEscape:
                     transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
                     break;
-                default:
-                {
-                    var error = "Unknown argument type for argument in position "+ i + " with value "+currentArgument.value +". Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                default: {
+                    var error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                     console.error(error);
-                    callback(1, error);
+                    return callback(1, error);
                     break;
                 }
             }
         }
-        else
-        {
-            var error = "Error in query "+query+"; Unable to find argument with index "+ i +" .";
+        else {
+            var error = "Error in query " + query + "; Unable to find argument with index " + i + " .";
             console.error(error);
-            callback(1, error);
+            return callback(1, error);
         }
     }
 
-    callback(null, transformedQuery);
+    return callback(null, transformedQuery);
 };
 
 DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows) {
 
-    var self = this;
+    const self = this;
 
     queryObjectToString(queryStringWithArguments, argumentsArray, function(err, query){
         if (!err)
         {
             if (self.host && self.port)
             {
-                if (typeof resultsFormat == 'undefined') //by default, query format will be json
+                if (isNull(resultsFormat)) //by default, query format will be json
                 {
                     resultsFormat = "application/json";
                 }
 
-                if (typeof maxRows == 'undefined') //by default, query format will be json
+                if (isNull(maxRows)) //by default, query format will be json
                 {
                     maxRows = Config.limits.db.maxResults;
                 }
 
-                var fullUrl = null;
+                let fullUrl = null;
 
                 fullUrl = "http://" + self.host;
                 if (self.port)
@@ -274,10 +265,10 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                     let rp = require('request-promise');
                     rp(options)
                         .then(function (parsedBody) {
-                            var transformedResults = [];
+                            const transformedResults = [];
                             // iterate through all the rows in the result list
 
-                            if (parsedBody.boolean != null)
+                            if (!isNull(parsedBody.boolean))
                             {
                                 cb();
                                 callback(null, parsedBody.boolean);
@@ -290,7 +281,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                 if (numberOfRows === 0)
                                 {
                                     cb();
-                                    callback(null, []);
+                                    return callback(null, []);
                                 }
                                 else
                                 {
@@ -359,7 +350,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                             console.trace(err);
                             console.error(error);
 
-                            callback(1, err);
+                            return callback(1, err);
                             cb();
                         });
                 });
@@ -368,29 +359,29 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
             }
             else
             {
-                callback(1, "Database connection must be set first");
+                return callback(1, "Database connection must be set first");
             }
         }
         else
         {
             const msg = "Something went wrong with the query generation. Error reported: " + query;
             console.error(msg);
-            callback(1, msg);
+            return callback(1, msg);
         }
     });
 };
 
 DbConnection.addLimitsClauses = function(query, offset, maxResults)
 {
-    if(offset != null &&
-        typeof offset == "number" &&
+    if(!isNull(offset) &&
+        typeof offset === "number" &&
         offset > 0)
     {
         query = query + " OFFSET " + offset + "\n";
     }
 
-    if(maxResults != null &&
-        typeof maxResults == "number" &&
+    if(!isNull(maxResults) &&
+        typeof maxResults === "number" &&
         maxResults > 0)
     {
         query = query + " LIMIT "+ maxResults + " \n";
@@ -401,8 +392,8 @@ DbConnection.addLimitsClauses = function(query, offset, maxResults)
 
 DbConnection.pushLimitsArguments = function(unpaginatedArgumentsArray, maxResults, offset)
 {
-    if(offset != null &&
-        typeof offset == "int" &&
+    if(!isNull(offset) &&
+        typeof offset === "number" &&
         offset > 0)
     {
         unpaginatedArgumentsArray = unpaginatedArgumentsArray.push({
@@ -411,8 +402,8 @@ DbConnection.pushLimitsArguments = function(unpaginatedArgumentsArray, maxResult
         });
     }
 
-    if(maxResults != null &&
-        typeof maxResults == "int" &&
+    if(!isNull(maxResults) &&
+        typeof maxResults === "number" &&
         maxResults > 0)
     {
         unpaginatedArgumentsArray = unpaginatedArgumentsArray.push({
@@ -422,10 +413,10 @@ DbConnection.pushLimitsArguments = function(unpaginatedArgumentsArray, maxResult
     }
 
     return unpaginatedArgumentsArray;
-}
+};
 
 DbConnection.paginate = function(req, viewVars) {
-    if(req != null && req.query != null)
+    if(!isNull(req) && !isNull(req.query))
     {
         if(!req.query.currentPage)
         {
@@ -450,9 +441,9 @@ DbConnection.paginate = function(req, viewVars) {
 };
 
 DbConnection.paginateQuery = function (req, query) {
-    if(req != null && req.query != null)
+    if(!isNull(req) && !isNull(req.query))
     {
-        if(req.query.currentPage == null)
+        if(isNull(req.query.currentPage))
         {
             req.query.currentPage = 0;
         }
@@ -470,7 +461,7 @@ DbConnection.paginateQuery = function (req, query) {
             req.query.pageSize = parseInt(req.query.pageSize);              //avoid injections
         }
 
-        var skip = req.query.pageSize * req.query.currentPage;
+        const skip = req.query.pageSize * req.query.currentPage;
 
         if(req.query.pageSize > 0)
         {
@@ -488,13 +479,13 @@ DbConnection.paginateQuery = function (req, query) {
 
 DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 {
-    var self = this;
+    const self = this;
 
     if(!triple.subject  || !triple.predicate || !triple.object)
     {
-        var error =  "Attempted to insert an invalid triple, missing one of the three required elements ( subject-> " + triple.subject + " predicate ->" + triple.predicate + " object-> " + triple._object +" )"
+        var error =  "Attempted to insert an invalid triple, missing one of the three required elements ( subject-> " + triple.subject + " predicate ->" + triple.predicate + " object-> " + triple._object +" )";
         console.error(error);
-        callback(1, error);
+        return callback(1, error);
     }
     else
     {
@@ -502,17 +493,17 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
         {
             //http://answers.semanticweb.com/questions/17060/are-literals-allowed-as-subjects-or-predicates-in-rdf
             //literals should not be subjects nor properties, even though it is allowed by the RDF spec.
-            callback(1, "Subjects should not be literals");
+            return callback(1, "Subjects should not be literals");
         }
         else if(triple.predicate.substring(0, "\"".length) === "\"")
         {
             //http://answers.semanticweb.com/questions/17060/are-literals-allowed-as-subjects-or-predicates-in-rdf
             //literals should not be subjects, even though it is allowed by the RDF spec.
-            callback(1, "Predicates should not be literals");
+            return callback(1, "Predicates should not be literals");
         }
         else
         {
-            var query = " WITH GRAPH <" + graphUri + ">" +
+            let query = " WITH GRAPH <" + graphUri + ">" +
                 " INSERT { " +
                 "<" + triple.subject + "> " +
                 "<" + triple.predicate + "> ";
@@ -522,7 +513,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
             {
                 //remove first and last " symbols, escape remaining special characters inside the text and re-add the "" for the query.
 
-                var escapedObject = triple.object.substring(1);
+                let escapedObject = triple.object.substring(1);
                 escapedObject = escapedObject.substring(0, escapedObject.length - 4); //remove language and last quotes
 
                 //from http://stackoverflow.com/questions/7744912/making-a-javascript-string-sql-friendly
@@ -576,13 +567,13 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
             self.execute(query,
                function(error, results)
                {
-                   if(error == null)
+                   if(isNull(error))
                    {
-                       callback(null);
+                       return callback(null);
                    }
                    else
                    {
-                       callback(1, ("Error inserting triple " + triple.subject + " " + triple.predicate + " "  + triple.object +"\n").substr(0,200) +" . Server returned " + error);
+                       return callback(1, ("Error inserting triple " + triple.subject + " " + triple.predicate + " "  + triple.object +"\n").substr(0,200) +" . Server returned " + error);
                    }
                }
             );
@@ -592,27 +583,27 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 
 DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
 {
-    if(triples != null && triples instanceof Array && triples.length > 0)
+    if(!isNull(triples) && triples instanceof Array && triples.length > 0)
     {
-        var self = this;
+        const self = this;
 
-        var triplesToDeleteString = "";
-        var nullObjectCount = 0;
-        var i;
-        var argCount = 1;
+        let triplesToDeleteString = "";
+        let nullObjectCount = 0;
+        let i;
+        let argCount = 1;
 
-        var arguments = [
+        const queryArguments = [
             {
-                type : DbConnection.resourceNoEscape,
-                value : graphName
+                type: DbConnection.resourceNoEscape,
+                value: graphName
             }
         ];
 
-        var urisToDelete = [];
+        const urisToDelete = [];
 
         for(i=0; i < triples.length ; i++)
         {
-            var triple = triples[i];
+            const triple = triples[i];
 
             if(Config.cache.active)
             {
@@ -620,12 +611,12 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
                 urisToDelete.push(triple.object);
             }
 
-            if(triple.subject != null && triple.predicate != null)
+            if(!isNull(triple.subject) && !isNull(triple.predicate))
             {
                 //build the delete string
                 triplesToDeleteString = triplesToDeleteString + " [" + argCount++ + "]";
 
-                arguments.push({
+                queryArguments.push({
                     type : DbConnection.resource,
                     value : triple.subject
                 });
@@ -633,16 +624,16 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
 
                 triplesToDeleteString = triplesToDeleteString + " [" + argCount++ + "]";
 
-                arguments.push({
+                queryArguments.push({
                     type : DbConnection.resource,
                     value : triple.predicate
                 });
 
-                if(triple.object != null)
+                if(!isNull(triple.object))
                 {
                     triplesToDeleteString = triplesToDeleteString + " [" + argCount++ + "]";
 
-                    arguments.push({
+                    queryArguments.push({
                         type : triple.object.type,
                         value : triple.object.value
                     });
@@ -656,13 +647,13 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
             triplesToDeleteString = triplesToDeleteString + ".\n";
         }
 
-        var query = "WITH [0] \n" +
-                    "DELETE { "+
-                        triplesToDeleteString + " \n" +
-                    "} \n" +
-                    " WHERE { "+
-                        triplesToDeleteString + " \n" +
-                    "}\n";
+        const query = "WITH [0] \n" +
+            "DELETE { " +
+            triplesToDeleteString + " \n" +
+            "} \n" +
+            " WHERE { " +
+            triplesToDeleteString + " \n" +
+            "}\n";
 
         /**
          * Invalidate cached records because of the deletion
@@ -672,70 +663,70 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
             let redis = GLOBAL.redis.default;
             redis.connection.delete(urisToDelete, function(err, result)
             {
-                if (err != null)
+                if (!isNull(err))
                 {
                     console.log("[DEBUG] Deleted cache records for triples " + JSON.stringify(triples) + ". Error Reported: " + result);
                 }
             });
         }
 
-        self.execute(query, arguments, function(err, results)
+        self.execute(query, queryArguments, function(err, results)
         {
-            callback(err, results);
+            return callback(err, results);
         });
     }
     else
     {
-        callback(1, "Invalid or no triples sent for insertion / update");
+        return callback(1, "Invalid or no triples sent for insertion / update");
     }
 };
 
 DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescriptorsOfSubject, graphName, callback)
 {
-    var self = this;
+    const self = this;
 
-    if(newDescriptorsOfSubject != null && newDescriptorsOfSubject instanceof Object)
+    if(!isNull(newDescriptorsOfSubject) && newDescriptorsOfSubject instanceof Object)
     {
-        var insertString = "";
-        var argCount = 1;
+        let insertString = "";
+        let argCount = 1;
 
-        var arguments = [
+        const queryArguments = [
             {
-                type : DbConnection.resourceNoEscape,
-                value : graphName
+                type: DbConnection.resourceNoEscape,
+                value: graphName
             }
         ];
 
-        for(var i = 0; i < newDescriptorsOfSubject.length; i++)
+        for(let i = 0; i < newDescriptorsOfSubject.length; i++)
         {
-            var newDescriptor = newDescriptorsOfSubject[i];
-            var objects = newDescriptor.value;
+            const newDescriptor = newDescriptorsOfSubject[i];
+            let objects = newDescriptor.value;
 
             if(!(objects instanceof Array))
             {
                 objects = [objects];
             }
 
-            for(var j = 0; j < objects.length ; j++)
+            for(let j = 0; j < objects.length ; j++)
             {
 
                 insertString = insertString + " [" + argCount++ + "] ";
 
-                arguments.push({
+                queryArguments.push({
                     type : DbConnection.resource,
                     value : subject
                 });
 
                 insertString = insertString + " [" + argCount++ + "] ";
 
-                arguments.push({
+                queryArguments.push({
                     type : DbConnection.resource,
                     value : newDescriptor.uri
                 });
 
                 insertString = insertString + " [" + argCount++ + "] ";
 
-                arguments.push({
+                queryArguments.push({
                     type : newDescriptor.type,
                     value : objects[j]
                 });
@@ -744,45 +735,45 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
             }
         }
 
-        var query =
-            "WITH GRAPH [0] \n"+
-                "INSERT DATA\n" +
-                "{ \n"+
-                    insertString + " \n" +
-                "} \n";
+        const query =
+            "WITH GRAPH [0] \n" +
+            "INSERT DATA\n" +
+            "{ \n" +
+            insertString + " \n" +
+            "} \n";
 
         //Invalidate cache record for the updated resource
         let redis = GLOBAL.redis.default;
         redis.connection.delete(subject, function(err, result){});
 
-        self.execute(query, arguments, function(err, results)
+        self.execute(query, queryArguments, function(err, results)
         {
-            callback(err, results);
+            return callback(err, results);
             //console.log(results);
         });
     }
     else
     {
-        callback(1, "Invalid or no triples sent for insertion / update");
+        return callback(1, "Invalid or no triples sent for insertion / update");
     }
-}
+};
 
 DbConnection.prototype.deleteGraph = function(graphUri, callback)
 {
-    var self = this;
+    const self = this;
 
     self.execute("CLEAR GRAPH <"+graphUri+">",
         [],
         function(err, resultsOrErrMessage)
         {
-            callback(err, resultsOrErrMessage);
+            return callback(err, resultsOrErrMessage);
         }
     );
 };
 
 DbConnection.prototype.graphExists = function(graphUri, callback)
 {
-    var self = this;
+    const self = this;
 
     self.execute("ASK { GRAPH [0] { ?s ?p ?o . } }",
         [
@@ -793,20 +784,20 @@ DbConnection.prototype.graphExists = function(graphUri, callback)
         ],
         function(err, result)
         {
-            if(err == null)
+            if(isNull(err))
             {
-                if(result == true)
+                if(result === true)
                 {
-                    callback(err, true);
+                    return callback(err, true);
                 }
                 else
                 {
-                    callback(err, false);
+                    return callback(err, false);
                 }
             }
             else
             {
-                callback(err, null);
+                return callback(err, null);
             }
         }
     );
@@ -814,13 +805,13 @@ DbConnection.prototype.graphExists = function(graphUri, callback)
 
 DbConnection.buildFromStringAndArgumentsArrayForOntologies = function(ontologyURIsArray, startingArgumentCount)
 {
-    var i;
-    var fromString = "";
-    var argumentsArray = [];
+    let i;
+    let fromString = "";
+    const argumentsArray = [];
 
     for(i = 0; i < ontologyURIsArray.length; i++)
     {
-        var argIndex = i + startingArgumentCount; //arguments array starts with 2 fixed elements
+        const argIndex = i + startingArgumentCount; //arguments array starts with 2 fixed elements
 
         fromString = fromString + " FROM [" + argIndex +"] \n";
 
@@ -836,21 +827,21 @@ DbConnection.buildFromStringAndArgumentsArrayForOntologies = function(ontologyUR
         fromString : fromString,
         argumentsArray : argumentsArray
     };
-}
+};
 
 DbConnection.buildFilterStringForOntologies = function(ontologyURIsArray, filteredVariableName)
 {
-    var filterString = "";
+    let filterString = "";
 
-    if(ontologyURIsArray != null && ontologyURIsArray instanceof Array)
+    if(!isNull(ontologyURIsArray) && ontologyURIsArray instanceof Array)
     {
         if(ontologyURIsArray.length > 0)
         {
             filterString = filterString + "FILTER( ";
 
-            for(var i = 0; i < ontologyURIsArray.length; i++)
+            for(let i = 0; i < ontologyURIsArray.length; i++)
             {
-                var ontologyUri = ontologyURIsArray[i];
+                const ontologyUri = ontologyURIsArray[i];
                 filterString = filterString + " STRSTARTS(STR(?"+filteredVariableName+"), \""+ontologyUri + "\") ";
 
                 if(i < ontologyURIsArray.length - 1)
@@ -864,7 +855,7 @@ DbConnection.buildFilterStringForOntologies = function(ontologyURIsArray, filter
     }
 
     return filterString;
-}
+};
 
 
 DbConnection.default = {};

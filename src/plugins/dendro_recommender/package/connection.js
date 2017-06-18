@@ -1,6 +1,10 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 function Connection ()
 {

@@ -1,21 +1,31 @@
-var Notification = require('../models/notifications/notification.js').Notification;
-var DbConnection = require("../kb/db.js").DbConnection;
-var _ = require('underscore');
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var async = require('async');
-var db = function() { return GLOBAL.db.default; }();
-var db_notifications = function () { return GLOBAL.db.notifications;}();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var app = require('../app');
+const Notification = require('../models/notifications/notification.js').Notification;
+const DbConnection = require("../kb/db.js").DbConnection;
+const _ = require('underscore');
+
+const async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const db_notifications = function () {
+    return GLOBAL.db.notifications;
+}();
+
+const app = require('../app');
 
 //Get user notifications for a specific user, ordered by date
 exports.get_unread_user_notifications = function (req ,res) {
 
-    var userUri = req.user.uri;
+    const userUri = req.user.uri;
 
     if(userUri)
     {
-        var query =
+        let query =
             "WITH [0] \n" +
             "SELECT ?uri \n" +
             "WHERE {\n" +
@@ -46,7 +56,7 @@ exports.get_unread_user_notifications = function (req ,res) {
                 }
                 else
                 {
-                    var errorMsg = "Error fetching User's unread notifications ";
+                    const errorMsg = "Error fetching User's unread notifications ";
                     res.status(500).json({
                         result: "Error",
                         message: errorMsg + JSON.stringify(notifications)
@@ -65,21 +75,21 @@ exports.get_unread_user_notifications = function (req ,res) {
 };
 
 exports.get_notification_info = function (req, res) {
-    var userUri = req.user.uri;
-    var notificationUri = req.query.notificationUri;
+    const userUri = req.user.uri;
+    const notificationUri = req.query.notificationUri;
 
     if(userUri && notificationUri)
     {
-        var query =
+        let query =
             "WITH [0] \n" +
             "SELECT ?actionType ?userWhoActed ?resourceTargetUri ?modified ?shareURI\n" +
             "WHERE { \n" +
             "[1] ddr:actionType ?actionType. \n" +
             "[1] ddr:userWhoActed ?userWhoActed. \n" +
             "[1] ddr:resourceTargetUri ?resourceTargetUri. \n" +
-            "[1] ddr:resourceAuthorUri [2]. \n"+
-            "[1] dcterms:modified ?modified. \n"+
-            "OPTIONAL { [1] ddr:shareURI ?shareURI. } \n"+
+            "[1] ddr:resourceAuthorUri [2]. \n" +
+            "[1] dcterms:modified ?modified. \n" +
+            "OPTIONAL { [1] ddr:shareURI ?shareURI. } \n" +
             "} \n";
 
         query = DbConnection.addLimitsClauses(query, null, null);
@@ -106,7 +116,7 @@ exports.get_notification_info = function (req, res) {
                 }
                 else
                 {
-                    var errorMsg = "Error getting info from a User's notification";
+                    const errorMsg = "Error getting info from a User's notification";
                     res.status(500).json({
                         result: "Error",
                         message: errorMsg
@@ -126,14 +136,14 @@ exports.get_notification_info = function (req, res) {
 
 //Deletes a user's notification
 exports.delete = function (req, res) {
-    var userUri = req.user.uri;
-    var notificationUri = req.query.notificationUri;
+    const userUri = req.user.uri;
+    const notificationUri = req.query.notificationUri;
     
     if(userUri && notificationUri)
     {
-        var query =
+        let query =
             "WITH [0] \n" +
-            "DELETE { [1] ?p ?v} \n"+
+            "DELETE { [1] ?p ?v} \n" +
             "WHERE { \n" +
             "[1] ?p ?v. \n" +
             "[1] ddr:resourceAuthorUri [2]. \n" +
@@ -166,7 +176,7 @@ exports.delete = function (req, res) {
                 }
                 else
                 {
-                    var errorMsg = "Error deleting a User's notification";
+                    const errorMsg = "Error deleting a User's notification";
                     res.status(500).json({
                         result: "Error",
                         message: errorMsg

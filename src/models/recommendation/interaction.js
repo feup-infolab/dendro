@@ -1,26 +1,32 @@
-var Config = function() { return GLOBAL.Config; }();
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var moment = require('moment');
-var async = require('async');
-var db = function() { return GLOBAL.db.default; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
-var mysql = function() {
+const moment = require('moment');
+const async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+
+const mysql = function () {
     return GLOBAL.mysql.pool;
 };
 
 function Interaction (object, callback)
 {
     Interaction.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
     self.rdf.type = "ddr:Interaction";
 
-    var now = new Date();
+    const now = new Date();
 
-    if(object.dcterms == null)
+    if(isNull(object.dcterms))
     {
         self.dcterms = {
             created : now.toISOString()
@@ -28,7 +34,7 @@ function Interaction (object, callback)
     }
     else
     {
-        if(object.dcterms.created == null)
+        if(isNull(object.dcterms.created))
         {
             self.dcterms.created = now.toISOString();
         }
@@ -38,66 +44,61 @@ function Interaction (object, callback)
         }
     }
 
-    if(self.uri == null)
+    if(isNull(self.uri))
     {
-        var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+        const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
         if(self.ddr.performedBy instanceof Object)
         {
             self.uri = db.baseURI+"/user/"+self.ddr.performedBy.ddr.username+"/interaction/"+self.dcterms.created;
-            callback(null, self);
+            return callback(null, self);
         }
         else if(typeof self.ddr.performedBy === "string")
         {
             User.findByUri(self.ddr.performedBy, function(err, user){
-               if(!err && user != null)
+               if(!err && !isNull(user))
                {
                    self.uri = db.baseURI+"/user/"+user.ddr.username+"/interaction/"+self.dcterms.created;
-                   callback(null, self);
+                   return callback(null, self);
                }
                else
                {
-                    callback(1, "Unable to fetch user with uri " + self.ddr.performedBy);
+                    return callback(1, "Unable to fetch user with uri " + self.ddr.performedBy);
                }
             });
         }
         else
         {
-            callback(1, "no author user specified for interaction. " + self.ddr.performedBy);
+            return callback(1, "no author user specified for interaction. " + self.ddr.performedBy);
         }
     }
     else
     {
-        callback(0, self);
+        return callback(0, self);
     }
 }
 
 Interaction.all = function(callback, streaming, customGraphUri) {
 
-    var graphUri = (customGraphUri != null && typeof customGraphUri == "string")? customGraphUri : db.graphUri;
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
-    var getFullInteractions = function(interactions, callback)
-    {
-        var getInteractionInformation = function(interaction, callback)
-        {
+    const getFullInteractions = function (interactions, callback) {
+        const getInteractionInformation = function (interaction, callback) {
             Interaction.findByUri(interaction.uri, callback, null, customGraphUri);
         };
 
         // get all the information about all the interaction
         // and return the array of interactions, complete with that info
-        async.map(interactions, getInteractionInformation, function(err, interactionsToReturn)
-        {
-            if(!err)
-            {
-                callback(null, interactionsToReturn);
+        async.map(interactions, getInteractionInformation, function (err, interactionsToReturn) {
+            if (!err) {
+                return callback(null, interactionsToReturn);
             }
-            else
-            {
-                callback(err, "error fetching interaction information : " + err  + "error reported: " + interactionsToReturn);
+            else {
+                return callback(err, "error fetching interaction information : " + err + "error reported: " + interactionsToReturn);
             }
         });
     };
 
-    if(streaming == null || !streaming)
+    if(isNull(streaming) || !streaming)
     {
         var query =
             "SELECT * " +
@@ -121,18 +122,18 @@ Interaction.all = function(callback, streaming, customGraphUri) {
                     getFullInteractions(interactions, function(err, interactions){
                         if(!err)
                         {
-                            callback(null, interactions);
+                            return callback(null, interactions);
                         }
                         else
                         {
-                            callback(err, interactions);
+                            return callback(err, interactions);
                         }
                     });
                 }
                 else
                 {
                     //interactions var will contain an error message instead of an array of results.
-                    callback(err, interactions);
+                    return callback(err, interactions);
                 }
             });
     }
@@ -156,13 +157,13 @@ Interaction.all = function(callback, streaming, customGraphUri) {
 
             function (err, result)
             {
-                if (!err && result instanceof Array && result.length == 1)
+                if (!err && result instanceof Array && result.length === 1)
                 {
-                    var count = result[0].n_interactions;
-                    var n_pages = Math.ceil(count / Config.streaming.db.page_size);
-                    var pageNumbersArray = [];
+                    const count = result[0].n_interactions;
+                    const n_pages = Math.ceil(count / Config.streaming.db.page_size);
+                    const pageNumbersArray = [];
 
-                    for (var i = 0; i <= n_pages; i++)
+                    for (let i = 0; i <= n_pages; i++)
                     {
                         pageNumbersArray.push(i);
                     }
@@ -171,34 +172,33 @@ Interaction.all = function(callback, streaming, customGraphUri) {
                     {
                         console.log("Sending page " + pageNumber + " of " + n_pages);
 
-                        var pageOffset = pageNumber * Config.streaming.db.page_size;
+                        const pageOffset = pageNumber * Config.streaming.db.page_size;
 
                         /**
-                         * TODO Replace with this?
-                         *
-                         * DECLARE cr KEYSET CURSOR FOR
-                         SELECT *
-                         FROM
-                         (
-                         SPARQL SELECT * WHERE { ?s ?p ?o } LIMIT 10
-                         ) x
+                     * TODO Replace with this?
+                     *
+                     * DECLARE cr KEYSET CURSOR FOR
+                     SELECT *
+                     FROM
+                     (
+                     SPARQL SELECT * WHERE { ?s ?p ?o } LIMIT 10
+                     ) x
 
-                         * @type {string}
-                         */
-
-                        var query =
+                     * @type {string}
+                     */
+                        const query =
                             "SELECT ?uri\n" +
                             "WHERE \n" +
                             "{ \n" +
-                                "{\n" +
-                                    "SELECT ?uri \n" +
-                                    "FROM [0] \n" +
-                                    "WHERE \n" +
-                                    "{ \n" +
-                                    " ?uri rdf:type ddr:Interaction \n" +
-                                    "} \n" +
-                                    " ORDER BY ?uri \n" +
-                                "}\n" +
+                            "{\n" +
+                            "SELECT ?uri \n" +
+                            "FROM [0] \n" +
+                            "WHERE \n" +
+                            "{ \n" +
+                            " ?uri rdf:type ddr:Interaction \n" +
+                            "} \n" +
+                            " ORDER BY ?uri \n" +
+                            "}\n" +
                             "} \n" +
                             " OFFSET [1] \n" +
                             " LIMIT [2] \n";
@@ -223,13 +223,13 @@ Interaction.all = function(callback, streaming, customGraphUri) {
                                 if (!err && interactions instanceof Array)
                                 {
                                     getFullInteractions(interactions, function(err, interactions){
-                                        callback(err, interactions, cb);
+                                        return callback(err, interactions, cb);
                                     });
                                 }
                                 else
                                 {
                                     //interactions var will contain an error message instead of an array of results.
-                                    callback(err, interactions);
+                                    return callback(err, interactions);
                                 }
                             });
                     },
@@ -237,13 +237,13 @@ Interaction.all = function(callback, streaming, customGraphUri) {
                     {
                         if(err)
                         {
-                            callback(err, "Error occurred fetching interactions in streamed mode : " + results);
+                            return callback(err, "Error occurred fetching interactions in streamed mode : " + results);
                         }
                     });
                 }
                 else
                 {
-                    callback(1, "Unable to fetch interaction count. Reported Error : " + result);
+                    return callback(1, "Unable to fetch interaction count. Reported Error : " + result);
                 }
             });
     }
@@ -251,19 +251,19 @@ Interaction.all = function(callback, streaming, customGraphUri) {
 
 Interaction.getRandomType = function(restrictions)
 {
-    var filteredTypes = {};
+    let filteredTypes = {};
     if(restrictions instanceof Object)
     {
-        for(var restriction in restrictions)
+        for(let restriction in restrictions)
         {
             if(restrictions.hasOwnProperty(restriction))
             {
-                for (var key in Interaction.types)
+                for (let key in Interaction.types)
                 {
                     if (Interaction.types.hasOwnProperty(key))
                     {
-                        var type = Interaction.types[key];
-                        if (type[restriction] != null && type[restriction] == true && restrictions[restriction])
+                        const type = Interaction.types[key];
+                        if (!isNull(type[restriction]) && type[restriction] === true && restrictions[restriction])
                         {
                             filteredTypes[key] = Interaction.types[key];
                         }
@@ -277,22 +277,21 @@ Interaction.getRandomType = function(restrictions)
         filteredTypes = Interaction.types;
     }
 
-    var propertyIndex = Math.round((Object.keys(filteredTypes).length - 1) * Math.random());
+    const propertyIndex = Math.round((Object.keys(filteredTypes).length - 1) * Math.random());
 
-    var interactionType = filteredTypes[Object.keys(filteredTypes)[propertyIndex]];
+    const interactionType = filteredTypes[Object.keys(filteredTypes)[propertyIndex]];
 
     return interactionType;
 };
 
 Interaction.prototype.saveToMySQL = function(callback, overwrite)
 {
-    var self = this;
+    const self = this;
 
-    var targetTable = Config.recommendation.getTargetTable();
+    const targetTable = Config.recommendation.getTargetTable();
 
-    var insertNewInteraction = function(callback)
-    {
-        var insertNewInteractionQuery = "INSERT INTO ?? " +
+    const insertNewInteraction = function (callback) {
+        const insertNewInteractionQuery = "INSERT INTO ?? " +
             "(" +
             "   uri," +
             "   created," +
@@ -321,7 +320,7 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
             "   ?" +
             ");";
 
-        var inserts =
+        const inserts =
             [
                 targetTable,
                 self.uri,
@@ -336,40 +335,34 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                 self.ddr.recommendationCallId
             ];
 
-        if(self.ddr.recommendationCallTimeStamp != null && self.ddr.recommendationCallTimeStamp.slice(0, 19) != null)
-        {
+        if (!isNull(self.ddr.recommendationCallTimeStamp) && typeof self.ddr.recommendationCallTimeStamp.slice(0, 19) !== "undefined") {
             inserts.push(moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"));
         }
 
         console.log(insertNewInteractionQuery);
 
-        mysql().getConnection(function(err, connection){
-            if(!err)
-            {
+        mysql().getConnection(function (err, connection) {
+            if (!err) {
                 connection.query(
                     insertNewInteractionQuery,
                     inserts,
-                    function(err, rows, fields)
-                    {
-                        if(!err)
-                        {
-                            callback(null, rows, fields);
+                    function (err, rows, fields) {
+                        if (!err) {
+                            return callback(null, rows, fields);
                         }
-                        else
-                        {
-                            var msg = "Error saving interaction to MySQL database : " + err;
+                        else {
+                            const msg = "Error saving interaction to MySQL database : " + err;
                             console.error(msg);
-                            callback(1, msg);
+                            return callback(1, msg);
                         }
 
                     });
             }
-            else
-            {
+            else {
                 var msg = "Unable to get MYSQL connection when registering new interaction";
                 console.error(msg);
                 console.error(err.stack);
-                callback(1, msg);
+                return callback(1, msg);
             }
         });
     };
@@ -377,7 +370,7 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
     if(overwrite)
     {
         insertNewInteraction(function(err, rows, fields){
-            callback(err);
+            return callback(err);
         });
     }
     else
@@ -389,36 +382,36 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                 {
                     if (!err)
                     {
-                        if (rows != null && rows instanceof Array && rows.length > 0)
+                        if (!isNull(rows) && rows instanceof Array && rows.length > 0)
                         {
                             //an interaction with the same URI is already recorded, there must be some error!
-                            callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
+                            return callback(1, "Interaction with URI " + self.uri + " already recorded in MYSQL.");
                         }
                         else
                         {
                             //insert the new interaction
                             insertNewInteraction(function (err, rows, fields) {
                                 if (err) {
-                                    callback(1, "Error inserting new interaction to MYSQL with URI " + self.uri);
+                                    return callback(1, "Error inserting new interaction to MYSQL with URI " + self.uri);
                                 }
                                 else {
-                                    callback(null, rows);
+                                    return callback(null, rows);
                                 }
                             });
                         }
                     }
                     else
                     {
-                        callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
+                        return callback(1, "Error seeing if interaction with URI " + self.uri + " already existed in the MySQL database.");
                     }
                 });
             }
             else
             {
-                var msg = "Unable to get MYSQL connection when registering new interaction";
+                const msg = "Unable to get MYSQL connection when registering new interaction";
                 console.error(msg);
                 console.error(err.stack);
-                callback(1, msg);
+                return callback(1, msg);
             }
         });
     }

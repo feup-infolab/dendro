@@ -1,4 +1,8 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 exports.recommend_descriptors = function(req, res) {
     res.json(
@@ -31,5 +35,5 @@ exports.shared.recommendation_options = {
 
 exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allowedOntologies, indexConnection, callback, options)
 {
-    callback(null, []);
+    return callback(null, []);
 };

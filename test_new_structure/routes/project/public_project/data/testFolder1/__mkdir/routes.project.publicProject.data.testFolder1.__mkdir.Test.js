@@ -66,6 +66,9 @@ describe("Public project testFolder1 level ?mkdir", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.createFolder(true, agent, publicProject.handle, testFolder1.name, folder.name, function (err, res) {
                     res.statusCode.should.equal(200);
+                    res.body.result.should.equal("ok");
+                    res.body.new_folder.nie.title.should.equal(folder.name);
+                    res.body.new_folder.nie.isLogicalPartOf.should.contain(publicProject.handle);
                     done();
                 });
             });
@@ -75,6 +78,9 @@ describe("Public project testFolder1 level ?mkdir", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 itemUtils.createFolder(true, agent, publicProject.handle, testFolder1.name, folderForDemouser2.name, function (err, res) {
                     res.statusCode.should.equal(200);
+                    res.body.result.should.equal("ok");
+                    res.body.new_folder.nie.title.should.equal(folderForDemouser2.name);
+                    res.body.new_folder.nie.isLogicalPartOf.should.contain(publicProject.handle);
                     done();
                 });
             });

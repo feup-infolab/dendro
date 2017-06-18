@@ -2,7 +2,8 @@ process.env.NODE_ENV = 'test';
 
 GLOBAL.tests = {};
 
-let Config = GLOBAL.Config = Object.create(require("../src/models/meta/config.js").Config);
+let Config = Object.create(require("../src/models/meta/config.js").Config);
+GLOBAL.Config = Config;
 Config.initGlobals();
 
 //Config.cache.active = false;
@@ -320,7 +321,7 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/
  require("./controllers/folders.Test.js");
  */
 //test users
-//require("./controllers/users.Test.js");
+ require(Config.absPathInTestsFolder("/routes/users/demouser1/route.users.demouser1.Test.js"));
 /*
  //test descriptors
  require("./controllers/descriptors.Test.js");

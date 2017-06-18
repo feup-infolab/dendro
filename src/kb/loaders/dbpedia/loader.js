@@ -1,14 +1,14 @@
 DBPediaLoader = function(db)
 {
-    var self = this;
+    const self = this;
     this.db = db;
-}
+};
 
 DBPediaLoader.prototype.load_dbpedia = function(callback)
 {
-	var allQuadsParser = require('./parsing/all_quads_parser.js');
-    var path = require('path');
-    var self = this;
+	const allQuadsParser = require('./parsing/all_quads_parser.js');
+    const path = require('path');
+    const self = this;
 
     allQuadsParser.parseAllFiles(
         self.db,
@@ -16,10 +16,10 @@ DBPediaLoader.prototype.load_dbpedia = function(callback)
         path.dirname(module.parent.parent.filename) + '/kb/loaders/dbpedia/datasets/samples',
             function(err, messages)
             {
-                callback(err, messages);
+                return callback(err, messages);
             }
     );
-}
+};
 
 module.exports.DBPediaLoader = DBPediaLoader;
 

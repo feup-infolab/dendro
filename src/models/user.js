@@ -1,34 +1,42 @@
-var Config = function() { return GLOBAL.Config; }();
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var util = require('util');
-var async = require('async');
-var _ = require('underscore');
-var path = require('path');
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
+const util = require('util');
+const async = require('async');
+const _ = require('underscore');
+const path = require('path');
+
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
 
 function User (object)
 {
     User.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
-    if(self.uri == null)
+    if(isNull(self.uri))
     {
         self.uri = db.baseURI+"/user/"+self.ddr.username;
     }
 
-    if(self.ddr.salt == null)
+    if(isNull(self.ddr.salt))
     {
-        var bcrypt = require('bcryptjs');
+        const bcrypt = require('bcryptjs');
 
-        if(process.env.NODE_ENV != "test")
+        if(process.env.NODE_ENV !== "test")
         {
             self.ddr.salt = bcrypt.genSaltSync(10);
         }
@@ -46,21 +54,21 @@ function User (object)
 User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 {
     User.findByPropertyValue(orcid, "ddr:orcid", function(err, user){
-        if(!err && user != null && user instanceof User)
+        if(!err && typeof user != null && user instanceof User)
         {
             if(removePrivateDescriptors)
             {
                 user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
-                callback(err, user);
+                return callback(err, user);
             }
             else
             {
-                callback(err, user);
+                return callback(err, user);
             }
         }
         else
         {
-            callback(err, user);
+            return callback(err, user);
         }
     });
 };
@@ -68,21 +76,21 @@ User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 User.findByUsername = function(username, callback, removePrivateDescriptors)
 {
     User.findByPropertyValue(username, "ddr:username", function(err, user){
-        if(!err && user != null && user instanceof User)
+        if(!err && !isNull(user) && user instanceof User)
         {
             if(removePrivateDescriptors)
             {
                 user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
-                callback(err, user);
+                return callback(err, user);
             }
             else
             {
-                callback(err, user);
+                return callback(err, user);
             }
         }
         else
         {
-            callback(err, user);
+            return callback(err, user);
         }
     });
 };
@@ -99,7 +107,7 @@ User.autocomplete_search = function(value, maxResults, callback) {
         console.log("finding by username " + username);
     }
 
-    var query =
+    const query =
         "SELECT * \n" +
         "FROM [0] \n" +
         "WHERE \n" +
@@ -140,21 +148,19 @@ User.autocomplete_search = function(value, maxResults, callback) {
         function(err, users) {
             if(!err && users instanceof Array)
             {
-                var getUserProperties = function(resultRow, cb)
-                {
-                    User.findByUri(resultRow.uri, function(err, user)
-                    {
+                const getUserProperties = function (resultRow, cb) {
+                    User.findByUri(resultRow.uri, function (err, user) {
                         cb(err, user);
                     });
                 };
 
                 async.map(users, getUserProperties, function(err, results){
-                    callback(err, results);
+                    return callback(err, results);
                 })
             }
             else
             {
-                callback(err, user);
+                return callback(err, user);
             }
         });
 };
@@ -166,13 +172,13 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
         console.log("finding by username " + username);
     }
 
-    var query =
-            "SELECT * \n" +
-            "FROM [0] \n" +
-            "WHERE \n" +
-            "{ \n" +
-                " ?uri [1] [2] . \n" +
-            "} \n";
+    const query =
+        "SELECT * \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        " ?uri [1] [2] . \n" +
+        "} \n";
 
 
     db.connection.execute(query,
@@ -199,16 +205,16 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                     console.log("Duplicate username "+username+" found!!!!")
                 }
 
-                else if(user.length == 1)
+                else if(user.length === 1)
                 {
-                    var uri = user[0].uri;
+                    const uri = user[0].uri;
                     User.findByUri(uri, function(err, fetchedUser)
                     {
                         if(!err)
                         {
-                            var userToReturn = new User(fetchedUser);
+                            const userToReturn = new User(fetchedUser);
 
-                            callback(err, fetchedUser);
+                            return callback(err, fetchedUser);
 
                             /*userToReturn.loadOntologyRecommendations(function(err, user){
 
@@ -216,25 +222,25 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                         }
                         else
                         {
-                            callback(1, "Unable to fetch user with uri :" + uri + ". Error reported : " + fetchedUser);
+                            return callback(1, "Unable to fetch user with uri :" + uri + ". Error reported : " + fetchedUser);
                         }
                     });
                 }
                 else
                 {
-                    callback(0,null);
+                    return callback(0,null);
                 }
             }
             else
             {
-                callback(err, user);
+                return callback(err, user);
             }
         });
 };
 
 User.createAndInsertFromObject = function(object, callback) {
 
-    var self = new User(object);
+    const self = new User(object);
 
     console.log("creating user from object" + util.inspect(object));
 
@@ -250,22 +256,22 @@ User.createAndInsertFromObject = function(object, callback) {
                 {
                     if(newUser instanceof User)
                     {
-                        callback(null, newUser);
+                        return callback(null, newUser);
                     }
                     else
                     {
-                        callback(null, false);
+                        return callback(null, false);
                     }
                 }
                 else
                 {
-                    callback(err, newUser);
+                    return callback(err, newUser);
                 }
             });
         }
         else
         {
-            callback(err, password);
+            return callback(err, password);
         }
     });
 };
@@ -273,27 +279,27 @@ User.createAndInsertFromObject = function(object, callback) {
 
 User.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
 {
-    var self = this;
+    const self = this;
     User.baseConstructor.all.call(self, function(err, users) {
 
-        callback(err, users);
+        return callback(err, users);
 
     }, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
 };
 
 User.allInPage = function(page, pageSize, callback) {
-    var query =
-            "SELECT ?uri ?firstName ?surname ?username ?email\n" +
-            "WHERE \n" +
-            "{ \n" +
-            " ?uri rdf:type ddr:User . \n" +
-            " ?uri foaf:surname ?surname .\n" +
-            " ?uri foaf:firstName ?firstName .\n" +
-            " ?uri foaf:mbox ?email .\n" +
-            " ?uri ddr:username ?username .\n" +
-            "} ";
+    let query =
+        "SELECT ?uri ?firstName ?surname ?username ?email\n" +
+        "WHERE \n" +
+        "{ \n" +
+        " ?uri rdf:type ddr:User . \n" +
+        " ?uri foaf:surname ?surname .\n" +
+        " ?uri foaf:firstName ?firstName .\n" +
+        " ?uri foaf:mbox ?email .\n" +
+        " ?uri ddr:username ?username .\n" +
+        "} ";
 
-    var skip = pageSize * page;
+    const skip = pageSize * page;
 
     if(req.query.pageSize > 0)
     {
@@ -318,18 +324,18 @@ User.allInPage = function(page, pageSize, callback) {
                     {
                         if(!err)
                         {
-                            callback(null, usersToReturn);
+                            return callback(null, usersToReturn);
                         }
                         else
                         {
-                            callback("error fetching user information : " + err, usersToReturn);
+                            return callback("error fetching user information : " + err, usersToReturn);
                         }
                     });
                 }
             }
             else
             {
-                callback(1, users);
+                return callback(1, users);
             }
         });
 };
@@ -340,8 +346,8 @@ User.allInPage = function(page, pageSize, callback) {
  */
 User.prototype.loadOntologyRecommendations = function(callback)
 {
-    var self = this;
-    if(self.recommendations == null)
+    const self = this;
+    if(isNull(self.recommendations))
     {
         self.recommendations = {
             ontologies : {
@@ -351,8 +357,8 @@ User.prototype.loadOntologyRecommendations = function(callback)
         };
     }
 
-    callback(null, self);
-}
+    return callback(null, self);
+};
 
 /**
  * Save ontology recommendations for this user
@@ -360,7 +366,7 @@ User.prototype.loadOntologyRecommendations = function(callback)
  */
 User.prototype.saveOntologyRecommendations = function(callback)
 {
-    callback(null,
+    return callback(null,
         {
             accepted : {},
             rejected : {}
@@ -369,18 +375,18 @@ User.prototype.saveOntologyRecommendations = function(callback)
 
 User.prototype.getInteractions = function(callback)
 {
-    var self = this;
-    var query =
-            "SELECT ?interaction ?user ?type ?object ?created\n" +
-            "FROM [0] \n" +
-            "WHERE \n" +
-            "{ \n" +
-            " ?interaction rdf:type ddr:Interaction . \n" +
-            " ?interaction ddr:performedBy [1] .\n" +
-            " ?interaction ddr:interactionType ?type. \n" +
-            " ?interaction ddr:executedOver ?object .\n" +
-            " ?interaction dcterms:created ?created. \n" +
-            "} \n";
+    const self = this;
+    const query =
+        "SELECT ?interaction ?user ?type ?object ?created\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        " ?interaction rdf:type ddr:Interaction . \n" +
+        " ?interaction ddr:performedBy [1] .\n" +
+        " ?interaction ddr:interactionType ?type. \n" +
+        " ?interaction ddr:executedOver ?object .\n" +
+        " ?interaction dcterms:created ?created. \n" +
+        "} \n";
 
     db.connection.execute(query, [
         {
@@ -394,53 +400,49 @@ User.prototype.getInteractions = function(callback)
     ], function(err, results) {
         if(!err)
         {
-            if(results != null && results instanceof Array)
+            if(!isNull(results) && results instanceof Array)
             {
-                var createInteraction = function(result, callback)
-                {
+                const createInteraction = function (result, callback) {
                     new Interaction({
-                        uri : result.interaction,
-                        ddr :
-                        {
-                            performedBy : self.uri,
-                            interactionType : result.type,
-                            executedOver : result.object
+                        uri: result.interaction,
+                        ddr: {
+                            performedBy: self.uri,
+                            interactionType: result.type,
+                            executedOver: result.object
                         },
-                        dcterms :
-                        {
-                            created : result.created
+                        dcterms: {
+                            created: result.created
                         }
-                    },function(err, fullInteraction){
-                        callback(err, fullInteraction);
+                    }, function (err, fullInteraction) {
+                        return callback(err, fullInteraction);
                     });
                 };
 
                 async.map(results, createInteraction, function(err, fullInteractions)
                 {
-                    callback(err, fullInteractions);
+                    return callback(err, fullInteractions);
                 });
             }
         }
         else
         {
-            callback(err, results);
+            return callback(err, results);
         }
     });
 };
 
 User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntologies)
 {
-    var self = this;
+    const self = this;
 
     //TODO FIXME JROCHA necessary to make two queries because something is wrong with virtuoso. making an UNION of both and projecting with SELECT * mixes up the descriptors!
 
-    var createDescriptorsList = function(descriptors, callback)
-    {
-        var createDescriptor = function(result, callback){
-            var suggestion = new Descriptor({
-                uri : result.descriptor,
-                label : result.label,
-                comment : result.comment
+    const createDescriptorsList = function (descriptors, callback) {
+        const createDescriptor = function (result, callback) {
+            const suggestion = new Descriptor({
+                uri: result.descriptor,
+                label: result.label,
+                comment: result.comment
             });
 
 
@@ -448,62 +450,56 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
             suggestion.recommendation_types = {};
 
             //TODO JROCHA Figure out under which circumstances this is null
-            if(Descriptor.recommendation_types != null)
-            {
+            if (typeof Descriptor.recommendation_types !== "undefined") {
                 suggestion.recommendation_types[Descriptor.recommendation_types.user_hidden.key] = true;
             }
 
             suggestion.last_hidden = result.last_hidden;
             suggestion.last_unhidden = Date.parse(result.last_unhidden);
 
-            if(suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private,Config.types.locked]))
-            {
-                callback(0, suggestion);
+            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+                return callback(0, suggestion);
             }
-            else
-            {
-                callback(0, null);
+            else {
+                return callback(0, null);
             }
         };
 
-        async.map(descriptors, createDescriptor, function(err, fullDescriptors)
-        {
-            if(!err)
-            {
+        async.map(descriptors, createDescriptor, function (err, fullDescriptors) {
+            if (!err) {
                 /**remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
 
-                callback(null, fullDescriptors);
+                return callback(null, fullDescriptors);
             }
-            else
-            {
-                callback(1, null);
+            else {
+                return callback(1, null);
             }
         });
     };
 
-    var argumentsArray =
+    let argumentsArray =
         [
             {
-                value : db.graphUri,
-                type : DbConnection.resourceNoEscape
+                value: db.graphUri,
+                type: DbConnection.resourceNoEscape
             },
             {
-                value : self.uri,
-                type : DbConnection.resourceNoEscape
+                value: self.uri,
+                type: DbConnection.resourceNoEscape
             },
             {
-                value : Interaction.types.hide_descriptor_from_quick_list_for_user.key,
-                type : DbConnection.string
+                value: Interaction.types.hide_descriptor_from_quick_list_for_user.key,
+                type: DbConnection.string
             },
             {
-                value : Interaction.types.unhide_descriptor_from_quick_list_for_user.key,
-                type : DbConnection.string
+                value: Interaction.types.unhide_descriptor_from_quick_list_for_user.key,
+                type: DbConnection.string
             }
         ];
 
-    var publicOntologies = Ontology.getPublicOntologiesUris();
-    if(allowedOntologies != null && allowedOntologies instanceof Array)
+    const publicOntologies = Ontology.getPublicOntologiesUris();
+    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -512,48 +508,48 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         allowedOntologies = publicOntologies;
     }
 
-    var fromString = "";
+    let fromString = "";
 
-    var fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
+    const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
     argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
     fromString = fromString + fromElements.fromString;
 
-    var filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "hidden_descriptor");
+    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "hidden_descriptor");
 
-    var query =
-        "SELECT * \n"+
-        "{ \n"+
-        "	{ \n"+
-        "		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden \n"+
-                fromString + "\n" +
-        "		WHERE \n"+
-        "		{ \n"+
-        "			?hidden_descriptor rdfs:label ?label.  \n"+
-        "			?hidden_descriptor rdfs:comment ?comment.  \n"+
-        "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n"+
-        "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n"+
-        "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n"+
-                    filterString + "\n" +
-        "			 \n"+
-        "			{ \n"+
-        "				SELECT ?hidden_descriptor MAX(?date_hidden) as ?last_hidden \n"+
-        "				FROM [0]  \n"+
-        "				WHERE  \n"+
-        "				{  \n"+
-        "				   	?hide_interaction rdf:type ddr:Interaction. \n"+
-        "				   	?hide_interaction ddr:executedOver ?hidden_descriptor. \n"+
-        "				   	?hide_interaction ddr:interactionType [2]. \n"+
-        "				   	?hide_interaction ddr:performedBy [1] .  \n"+
-        "				   	?hide_interaction dcterms:created ?date_hidden. \n"+
-        "					FILTER NOT EXISTS \n"+
-        "					{ \n"+
-        "						SELECT ?unhidden_descriptor MAX(?date_unhidden) as ?last_unhidden \n"+
-        "						FROM [0]  \n"+
-        "						WHERE  \n"+
-        "						{  \n"+
-        "				   			?unhide_interaction rdf:type ddr:Interaction. \n"+
-        "				   			?unhide_interaction ddr:executedOver ?hidden_descriptor. \n"+
-        "				   			?unhide_interaction ddr:executedOver ?unhidden_descriptor. \n"+
+    const query =
+        "SELECT * \n" +
+        "{ \n" +
+        "	{ \n" +
+        "		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden \n" +
+        fromString + "\n" +
+        "		WHERE \n" +
+        "		{ \n" +
+        "			?hidden_descriptor rdfs:label ?label.  \n" +
+        "			?hidden_descriptor rdfs:comment ?comment.  \n" +
+        "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
+        "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
+        "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
+        filterString + "\n" +
+        "			 \n" +
+        "			{ \n" +
+        "				SELECT ?hidden_descriptor MAX(?date_hidden) as ?last_hidden \n" +
+        "				FROM [0]  \n" +
+        "				WHERE  \n" +
+        "				{  \n" +
+        "				   	?hide_interaction rdf:type ddr:Interaction. \n" +
+        "				   	?hide_interaction ddr:executedOver ?hidden_descriptor. \n" +
+        "				   	?hide_interaction ddr:interactionType [2]. \n" +
+        "				   	?hide_interaction ddr:performedBy [1] .  \n" +
+        "				   	?hide_interaction dcterms:created ?date_hidden. \n" +
+        "					FILTER NOT EXISTS \n" +
+        "					{ \n" +
+        "						SELECT ?unhidden_descriptor MAX(?date_unhidden) as ?last_unhidden \n" +
+        "						FROM [0]  \n" +
+        "						WHERE  \n" +
+        "						{  \n" +
+        "				   			?unhide_interaction rdf:type ddr:Interaction. \n" +
+        "				   			?unhide_interaction ddr:executedOver ?hidden_descriptor. \n" +
+        "				   			?unhide_interaction ddr:executedOver ?unhidden_descriptor. \n" +
         "				   			?unhide_interaction ddr:interactionType [3]. \n" +
         "				   			?unhide_interaction ddr:performedBy [1] .  \n" +
         "				   			?unhide_interaction dcterms:created ?date_unhidden. \n" +
@@ -566,7 +562,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "	UNION \n" +
         "	{ \n" +
         "		SELECT ?hidden_descriptor as ?descriptor ?label ?comment ?last_hidden ?last_unhidden \n" +
-                fromString + "\n" +
+        fromString + "\n" +
         "		WHERE \n" +
         "		{ \n" +
         "			?hidden_descriptor rdfs:label ?label.  \n" +
@@ -574,7 +570,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
         "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
         "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
-                    filterString + "\n" +
+        filterString + "\n" +
         "			 \n" +
         "			{ \n" +
         "				SELECT ?hidden_descriptor MAX(?date_hidden) as ?last_hidden \n" +
@@ -613,14 +609,14 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
             if(!err)
             {
                 createDescriptorsList(hidden, function(err, fullDescriptors){
-                    callback(err, fullDescriptors);
+                    return callback(err, fullDescriptors);
                 });
             }
             else
             {
-                var msg = "Unable to fetch hidden descriptors of the user " + self.uri + ". Error reported: " + hidden;
+                const msg = "Unable to fetch hidden descriptors of the user " + self.uri + ". Error reported: " + hidden;
                 console.log(msg);
-                callback(err, hidden);
+                return callback(err, hidden);
             }
         }
     );
@@ -628,17 +624,16 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
 
 User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntologies)
 {
-    var self = this;
+    const self = this;
 
     //TODO FIXME JROCHA necessary to make two queries because something is wrong with virtuoso. making an UNION of both and projecting with SELECT * mixes up the descriptors!
 
-    var createDescriptorsList = function(descriptors, callback)
-    {
-        var createDescriptor = function(result, callback){
-            var suggestion = new Descriptor({
-                uri : result.descriptor,
-                label : result.label,
-                comment : result.comment
+    const createDescriptorsList = function (descriptors, callback) {
+        const createDescriptor = function (result, callback) {
+            const suggestion = new Descriptor({
+                uri: result.descriptor,
+                label: result.label,
+                comment: result.comment
             });
 
 
@@ -646,62 +641,56 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
             suggestion.recommendation_types = {};
 
             //TODO JROCHA Figure out under which circumstances this is null
-            if(Descriptor.recommendation_types != null)
-            {
+            if (typeof Descriptor.recommendation_types !== "undefined") {
                 suggestion.recommendation_types[Descriptor.recommendation_types.user_favorite.key] = true;
             }
 
             suggestion.last_favorited = result.last_favorited;
             suggestion.last_unfavorited = Date.parse(result.last_unfavorited);
 
-            if(suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private,Config.types.locked]))
-            {
-                callback(0, suggestion);
+            if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+                return callback(0, suggestion);
             }
-            else
-            {
-                callback(0, null);
+            else {
+                return callback(0, null);
             }
         };
 
-        async.map(descriptors, createDescriptor, function(err, fullDescriptors)
-        {
-            if(!err)
-            {
+        async.map(descriptors, createDescriptor, function (err, fullDescriptors) {
+            if (!err) {
                 /**remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
 
-                callback(null, fullDescriptors);
+                return callback(null, fullDescriptors);
             }
-            else
-            {
-                callback(1, null);
+            else {
+                return callback(1, null);
             }
         });
     };
 
-    var argumentsArray =
+    let argumentsArray =
         [
             {
-                value : db.graphUri,
-                type : DbConnection.resourceNoEscape
+                value: db.graphUri,
+                type: DbConnection.resourceNoEscape
             },
             {
-                value : self.uri,
-                type : DbConnection.resourceNoEscape
+                value: self.uri,
+                type: DbConnection.resourceNoEscape
             },
             {
-                value : Interaction.types.favorite_descriptor_from_quick_list_for_user.key,
-                type : DbConnection.string
+                value: Interaction.types.favorite_descriptor_from_quick_list_for_user.key,
+                type: DbConnection.string
             },
             {
-                value : Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key,
-                type : DbConnection.string
+                value: Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key,
+                type: DbConnection.string
             }
     ];
 
-    var publicOntologies = Ontology.getPublicOntologiesUris();
-    if(allowedOntologies != null && allowedOntologies instanceof Array)
+    const publicOntologies = Ontology.getPublicOntologiesUris();
+    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -710,48 +699,48 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         allowedOntologies = publicOntologies;
     }
 
-    var fromString = "";
+    let fromString = "";
 
-    var fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
+    const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
     argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
     fromString = fromString + fromElements.fromString;
 
-    var filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "favorited_descriptor");
+    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "favorited_descriptor");
 
-    var query =
-        "SELECT * \n"+
-        "{ \n"+
-        "	{ \n"+
-        "		SELECT ?favorited_descriptor as ?descriptor ?label ?comment ?last_favorited ?last_unfavorited \n"+
-                fromString + "\n" +
-        "		WHERE \n"+
-        "		{ \n"+
-        "			?favorited_descriptor rdfs:label ?label.  \n"+
-        "			?favorited_descriptor rdfs:comment ?comment.  \n"+
-        "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n"+
-        "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n"+
-        "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n"+
-                    filterString + "\n" +
-        "			 \n"+
-        "			{ \n"+
-        "				SELECT ?favorited_descriptor MAX(?date_favorited) as ?last_favorited \n"+
-        "				FROM [0]  \n"+
-        "				WHERE  \n"+
-        "				{  \n"+
-        "				   	?favorite_interaction rdf:type ddr:Interaction. \n"+
-        "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n"+
-        "				   	?favorite_interaction ddr:interactionType [2]. \n"+
-        "				   	?favorite_interaction ddr:performedBy [1] .  \n"+
-        "				   	?favorite_interaction dcterms:created ?date_favorited. \n"+
-        "					FILTER NOT EXISTS \n"+
-        "					{ \n"+
-        "						SELECT ?unfavorited_descriptor MAX(?date_unfavorited) as ?last_unfavorited \n"+
-        "						FROM [0]  \n"+
-        "						WHERE  \n"+
-        "						{  \n"+
-        "				   			?unfavorite_interaction rdf:type ddr:Interaction. \n"+
-        "				   			?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n"+
-        "				   			?unfavorite_interaction ddr:executedOver ?unfavorited_descriptor. \n"+
+    const query =
+        "SELECT * \n" +
+        "{ \n" +
+        "	{ \n" +
+        "		SELECT ?favorited_descriptor as ?descriptor ?label ?comment ?last_favorited ?last_unfavorited \n" +
+        fromString + "\n" +
+        "		WHERE \n" +
+        "		{ \n" +
+        "			?favorited_descriptor rdfs:label ?label.  \n" +
+        "			?favorited_descriptor rdfs:comment ?comment.  \n" +
+        "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
+        "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
+        "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
+        filterString + "\n" +
+        "			 \n" +
+        "			{ \n" +
+        "				SELECT ?favorited_descriptor MAX(?date_favorited) as ?last_favorited \n" +
+        "				FROM [0]  \n" +
+        "				WHERE  \n" +
+        "				{  \n" +
+        "				   	?favorite_interaction rdf:type ddr:Interaction. \n" +
+        "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
+        "				   	?favorite_interaction ddr:interactionType [2]. \n" +
+        "				   	?favorite_interaction ddr:performedBy [1] .  \n" +
+        "				   	?favorite_interaction dcterms:created ?date_favorited. \n" +
+        "					FILTER NOT EXISTS \n" +
+        "					{ \n" +
+        "						SELECT ?unfavorited_descriptor MAX(?date_unfavorited) as ?last_unfavorited \n" +
+        "						FROM [0]  \n" +
+        "						WHERE  \n" +
+        "						{  \n" +
+        "				   			?unfavorite_interaction rdf:type ddr:Interaction. \n" +
+        "				   			?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
+        "				   			?unfavorite_interaction ddr:executedOver ?unfavorited_descriptor. \n" +
         "				   			?unfavorite_interaction ddr:interactionType [3]. \n" +
         "				   			?unfavorite_interaction ddr:performedBy [1] .  \n" +
         "				   			?unfavorite_interaction dcterms:created ?date_unfavorited. \n" +
@@ -764,7 +753,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "	UNION \n" +
         "	{ \n" +
         "		SELECT ?favorited_descriptor as ?descriptor ?label ?comment ?last_favorited ?last_unfavorited \n" +
-                fromString + "\n" +
+        fromString + "\n" +
         "		WHERE \n" +
         "		{ \n" +
         "			?favorited_descriptor rdfs:label ?label.  \n" +
@@ -772,7 +761,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "			FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ).  \n" +
         "			FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") .  \n" +
         "			FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")   \n" +
-                    filterString + "\n" +
+        filterString + "\n" +
         "			 \n" +
         "			{ \n" +
         "				SELECT ?favorited_descriptor MAX(?date_favorited) as ?last_favorited \n" +
@@ -811,14 +800,14 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
             if(!err)
             {
                 createDescriptorsList(favorites, function(err, fullDescriptors){
-                    callback(err, fullDescriptors);
+                    return callback(err, fullDescriptors);
                 });
             }
             else
             {
-                var msg = "Unable to fetch favorite descriptors of the user " + self.uri + ". Error reported: " + favorites;
+                const msg = "Unable to fetch favorite descriptors of the user " + self.uri + ". Error reported: " + favorites;
                 console.log(msg);
-                callback(err, favorites);
+                return callback(err, favorites);
             }
         }
     );
@@ -826,24 +815,24 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
 
 User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxResults, callback, allowedOntologies)
 {
-    var self = this;
-    var argumentsArray = [
+    const self = this;
+    let argumentsArray = [
         {
-            value : db.graphUri,
-            type : DbConnection.resourceNoEscape
+            value: db.graphUri,
+            type: DbConnection.resourceNoEscape
         },
         {
-            value : Interaction.types.accept_favorite_descriptor_in_metadata_editor.key,
-            type : DbConnection.string
+            value: Interaction.types.accept_favorite_descriptor_in_metadata_editor.key,
+            type: DbConnection.string
         },
         {
-            value : self.uri,
-            type : DbConnection.resourceNoEscape
+            value: self.uri,
+            type: DbConnection.resourceNoEscape
         }
     ];
 
-    var publicOntologies = Ontology.getPublicOntologiesUris();
-    if(allowedOntologies != null && allowedOntologies instanceof Array)
+    const publicOntologies = Ontology.getPublicOntologiesUris();
+    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -852,19 +841,19 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
         allowedOntologies = publicOntologies;
     }
 
-    var fromString = "";
+    let fromString = "";
 
-    var fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
+    const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
     argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
     fromString = fromString + fromElements.fromString;
 
-    var filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "accepted_descriptor");
+    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "accepted_descriptor");
 
-    var query =
+    const query =
 
-        "SELECT ?accepted_descriptor ?times_favorite_accepted_in_md_editor ?label ?comment \n"+
+        "SELECT ?accepted_descriptor ?times_favorite_accepted_in_md_editor ?label ?comment \n" +
         fromString + "\n" +
-        "WHERE \n"+
+        "WHERE \n" +
         "{ \n" +
         "    { \n" +
         "        SELECT ?accepted_descriptor COUNT(?accept_interaction) as ?times_favorite_accepted_in_md_editor \n" +
@@ -875,7 +864,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
         "            ?accept_interaction rdf:type ddr:Interaction. \n" +
         "            ?accept_interaction ddr:interactionType [1]. \n" +
         "            ?accept_interaction ddr:performedBy [2]. \n" +
-        "            "+filterString +"\n" +
+        "            " + filterString + "\n" +
         "        } \n" +
         "    }. \n" +
 
@@ -894,37 +883,33 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
         function(err, descriptors) {
             if(!err)
             {
-                var createDescriptor = function(result, callback){
+                const createDescriptor = function (result, callback) {
 
-                    var suggestion = new Descriptor({
-                        uri : result.accepted_descriptor,
-                        label : result.label,
-                        comment : result.comment
+                    const suggestion = new Descriptor({
+                        uri: result.accepted_descriptor,
+                        label: result.label,
+                        comment: result.comment
                     });
 
                     //set recommendation type
                     suggestion.recommendation_types = {};
 
                     //TODO JROCHA Figure out under which circumstances this is null
-                    if(Descriptor.recommendation_types != null)
-                    {
+                    if (typeof Descriptor.recommendation_types !== "undefined") {
                         suggestion.recommendation_types[Descriptor.recommendation_types.favorite_accepted_in_metadata_editor.key] = true;
                     }
 
-                    if(result.times_favorite_accepted_in_md_editor <= 0)
-                    {
-                        console.error("Descriptor "+ suggestion.uri + " recommended for acceptance in metadata editor (SMART) with invalid number of usages : " + result.times_favorite_accepted_in_md_editor);
+                    if (result.times_favorite_accepted_in_md_editor <= 0) {
+                        console.error("Descriptor " + suggestion.uri + " recommended for acceptance in metadata editor (SMART) with invalid number of usages : " + result.times_favorite_accepted_in_md_editor);
                     }
 
                     suggestion.times_favorite_accepted_in_md_editor = parseInt(result.times_favorite_accepted_in_md_editor);
 
-                    if(suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private,Config.types.locked]))
-                    {
-                        callback(0, suggestion);
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+                        return callback(0, suggestion);
                     }
-                    else
-                    {
-                        callback(0, null);
+                    else {
+                        return callback(0, null);
                     }
                 };
 
@@ -935,43 +920,43 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
 
-                        callback(null, fullDescriptors);
+                        return callback(null, fullDescriptors);
                     }
                     else
                     {
-                        callback(1, null);
+                        return callback(1, null);
                     }
                 });
             }
             else
             {
-                var util = require('util');
+                const util = require('util');
                 console.error("Error fetching most accepted favorite descriptors for user " + self.uri + " : " + descriptors);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
 
 User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResults, callback, allowedOntologies)
 {
-    var self = this;
-    var argumentsArray = [
+    const self = this;
+    let argumentsArray = [
         {
-            value : db.graphUri,
-            type : DbConnection.resourceNoEscape
+            value: db.graphUri,
+            type: DbConnection.resourceNoEscape
         },
         {
-            value : Interaction.types.accept_smart_descriptor_in_metadata_editor.key,
-            type : DbConnection.string
+            value: Interaction.types.accept_smart_descriptor_in_metadata_editor.key,
+            type: DbConnection.string
         },
         {
-            value : self.uri,
-            type : DbConnection.resourceNoEscape
+            value: self.uri,
+            type: DbConnection.resourceNoEscape
         }
     ];
 
-    var publicOntologies = Ontology.getPublicOntologiesUris();
-    if(allowedOntologies != null && allowedOntologies instanceof Array)
+    const publicOntologies = Ontology.getPublicOntologiesUris();
+    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -980,19 +965,19 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
         allowedOntologies = publicOntologies;
     }
 
-    var fromString = "";
+    let fromString = "";
 
-    var fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
+    const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
     argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
     fromString = fromString + fromElements.fromString;
 
-    var filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "accepted_descriptor");
+    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "accepted_descriptor");
 
-    var query =
+    const query =
 
-        "SELECT ?accepted_descriptor ?times_smart_accepted_in_md_editor ?label ?comment \n"+
+        "SELECT ?accepted_descriptor ?times_smart_accepted_in_md_editor ?label ?comment \n" +
         fromString + "\n" +
-        "WHERE \n"+
+        "WHERE \n" +
         "{ \n" +
         "    { \n" +
         "        SELECT ?accepted_descriptor COUNT(?accept_interaction) as ?times_smart_accepted_in_md_editor \n" +
@@ -1003,7 +988,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
         "            ?accept_interaction rdf:type ddr:Interaction. \n" +
         "            ?accept_interaction ddr:interactionType [1]. \n" +
         "            ?accept_interaction ddr:performedBy [2]. \n" +
-        "            "+filterString +"\n" +
+        "            " + filterString + "\n" +
         "        } \n" +
         "    }. \n" +
 
@@ -1022,37 +1007,33 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
         function(err, descriptors) {
             if(!err)
             {
-                var createDescriptor = function(result, callback){
+                const createDescriptor = function (result, callback) {
 
-                    var suggestion = new Descriptor({
-                        uri : result.accepted_descriptor,
-                        label : result.label,
-                        comment : result.comment
+                    const suggestion = new Descriptor({
+                        uri: result.accepted_descriptor,
+                        label: result.label,
+                        comment: result.comment
                     });
 
                     //set recommendation type
                     suggestion.recommendation_types = {};
 
                     //TODO JROCHA Figure out under which circumstances this is null
-                    if(Descriptor.recommendation_types != null)
-                    {
+                    if (typeof Descriptor.recommendation_types !== "undefined") {
                         suggestion.recommendation_types[Descriptor.recommendation_types.smart_accepted_in_metadata_editor.key] = true;
                     }
 
-                    if(result.times_smart_accepted_in_md_editor <= 0)
-                    {
-                        console.error("Descriptor "+ suggestion.uri + " recommended for acceptance in metadata editor (SMART) with invalid number of usages : " + result.times_smart_accepted_in_md_editor);
+                    if (result.times_smart_accepted_in_md_editor <= 0) {
+                        console.error("Descriptor " + suggestion.uri + " recommended for acceptance in metadata editor (SMART) with invalid number of usages : " + result.times_smart_accepted_in_md_editor);
                     }
 
                     suggestion.times_smart_accepted_in_md_editor = parseInt(result.times_smart_accepted_in_md_editor);
 
-                    if(suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private,Config.types.locked]))
-                    {
-                        callback(0, suggestion);
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+                        return callback(0, suggestion);
                     }
-                    else
-                    {
-                        callback(0, null);
+                    else {
+                        return callback(0, null);
                     }
                 };
 
@@ -1063,35 +1044,35 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
 
-                        callback(null, fullDescriptors);
+                        return callback(null, fullDescriptors);
                     }
                     else
                     {
-                        callback(1, null);
+                        return callback(1, null);
                     }
                 });
             }
             else
             {
-                var util = require('util');
+                const util = require('util');
                 console.error("Error fetching most accepted smart descriptors for user " + self.uri + " : " + descriptors);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
 
 User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, allowedOntologies)
 {
-    var self = this;
-    var argumentsArray = [
+    const self = this;
+    let argumentsArray = [
         {
-            value : db.graphUri,
-            type : DbConnection.resourceNoEscape
+            value: db.graphUri,
+            type: DbConnection.resourceNoEscape
         }
     ];
 
-    var publicOntologies = Ontology.getPublicOntologiesUris();
-    if(allowedOntologies != null && allowedOntologies instanceof Array)
+    const publicOntologies = Ontology.getPublicOntologiesUris();
+    if(!isNull(allowedOntologies) && allowedOntologies instanceof Array)
     {
         allowedOntologies = _.intersection(publicOntologies, allowedOntologies);
     }
@@ -1100,43 +1081,43 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
         allowedOntologies = publicOntologies;
     }
 
-    var fromString = "";
+    let fromString = "";
 
-    var fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
+    const fromElements = DbConnection.buildFromStringAndArgumentsArrayForOntologies(allowedOntologies, argumentsArray.length);
     argumentsArray = argumentsArray.concat(fromElements.argumentsArray);
     fromString = fromString + fromElements.fromString;
 
-    var filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "descriptor");
+    const filterString = DbConnection.buildFilterStringForOntologies(allowedOntologies, "descriptor");
 
-    var query =
-    "SELECT ?descriptor ?recent_use_count ?last_use ?label ?comment "+
+    const query =
+    "SELECT ?descriptor ?recent_use_count ?last_use ?label ?comment " +
     fromString + "\n" +
     "WHERE \n" +
     "{ \n" +
-        "{ \n"+
-            "SELECT ?descriptor COUNT(?descriptor) as ?recent_use_count MAX(?used_date) as ?last_use \n" +
-            "FROM [0] \n" +
-            "WHERE \n" +
-            "{ \n" +
-                "?change rdf:type ddr:Change. \n" +
-                "?change ddr:changedDescriptor ?descriptor. \n" +
-                "?change ddr:pertainsTo ?version. \n" +
-                "?version rdf:type ddr:ArchivedResource .\n" +
-                "?version ddr:versionCreator ["+argumentsArray.length+"] .\n" +
+    "{ \n" +
+    "SELECT ?descriptor COUNT(?descriptor) as ?recent_use_count MAX(?used_date) as ?last_use \n" +
+    "FROM [0] \n" +
+    "WHERE \n" +
+    "{ \n" +
+    "?change rdf:type ddr:Change. \n" +
+    "?change ddr:changedDescriptor ?descriptor. \n" +
+    "?change ddr:pertainsTo ?version. \n" +
+    "?version rdf:type ddr:ArchivedResource .\n" +
+    "?version ddr:versionCreator [" + argumentsArray.length + "] .\n" +
 
-                "OPTIONAL { ?descriptor rdfs:label ?label. }\n" +
-                "OPTIONAL { ?descriptor rdfs:comment ?comment. }\n" +
-                "?version dcterms:created ?used_date. \n" +
-                filterString + "\n" +
-            "} " +
-            "ORDER BY DESC(?last_use) \n"+
-            " LIMIT "+ maxResults + "\n" +
-        "}. \n" +
-        "?descriptor rdfs:label ?label. \n" +
-        "?descriptor rdfs:comment ?comment. \n" +
-        "FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ). \n"+
-        "FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") . \n" +
-        "FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")  \n" +
+    "OPTIONAL { ?descriptor rdfs:label ?label. }\n" +
+    "OPTIONAL { ?descriptor rdfs:comment ?comment. }\n" +
+    "?version dcterms:created ?used_date. \n" +
+    filterString + "\n" +
+    "} " +
+    "ORDER BY DESC(?last_use) \n" +
+    " LIMIT " + maxResults + "\n" +
+    "}. \n" +
+    "?descriptor rdfs:label ?label. \n" +
+    "?descriptor rdfs:comment ?comment. \n" +
+    "FILTER(    (str(?label) != \"\") && ( str(?comment) != \"\") ). \n" +
+    "FILTER(   lang(?label) = \"\" || lang(?label) = \"en\") . \n" +
+    "FILTER(   lang(?comment) = \"\" || lang(?comment) = \"en\")  \n" +
     "} \n";
 
     argumentsArray = argumentsArray.concat([{
@@ -1151,38 +1132,34 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
         function(err, descriptors) {
             if(!err)
             {
-                var createDescriptor = function(result, callback){
+                const createDescriptor = function (result, callback) {
 
-                    var suggestion = new Descriptor({
-                        uri : result.descriptor,
-                        label : result.label,
-                        comment : result.comment
+                    const suggestion = new Descriptor({
+                        uri: result.descriptor,
+                        label: result.label,
+                        comment: result.comment
                     });
 
                     //set recommendation type
                     suggestion.recommendation_types = {};
 
                     //TODO JROCHA Figure out under which circumstances this is null
-                    if(Descriptor.recommendation_types != null)
-                    {
+                    if (typeof Descriptor.recommendation_types !== "undefined") {
                         suggestion.recommendation_types[Descriptor.recommendation_types.recently_used.key] = true;
                     }
 
-                    if(result.recent_use_count <= 0)
-                    {
-                        console.error("Descriptor "+ suggestion.uri + " recommended for recent use with invalid number of usages : " + result.recent_use_count);
+                    if (result.recent_use_count <= 0) {
+                        console.error("Descriptor " + suggestion.uri + " recommended for recent use with invalid number of usages : " + result.recent_use_count);
                     }
 
                     suggestion.recent_use_count = parseInt(result.recent_use_count);
                     suggestion.last_use = Date.parse(result.last_use);
 
-                    if(suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private,Config.types.locked]))
-                    {
-                        callback(0, suggestion);
+                    if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
+                        return callback(0, suggestion);
                     }
-                    else
-                    {
-                        callback(0, null);
+                    else {
+                        return callback(0, null);
                     }
                 };
 
@@ -1193,32 +1170,32 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
 
-                        callback(null, fullDescriptors);
+                        return callback(null, fullDescriptors);
                     }
                     else
                     {
-                        callback(1, null);
+                        return callback(1, null);
                     }
                 });
             }
             else
             {
-                var util = require('util');
+                const util = require('util');
                 console.error("Error fetching most recently filled in descriptors for user " + self.uri);
-                callback(1, descriptors);
+                return callback(1, descriptors);
             }
         });
 };
 
 User.prototype.isAdmin = function(callback)
 {
-    var self = this;
+    const self = this;
 
-    if(typeof callback == "function")
+    if(typeof callback === "function")
     {
         self.checkIfHasPredicateValue("rdf:type", "ddr:Administrator", function(err, isAdmin)
         {
-            callback(err, isAdmin);
+            return callback(err, isAdmin);
         });
     }
     else
@@ -1237,29 +1214,29 @@ User.prototype.isAdmin = function(callback)
 
 User.prototype.makeGlobalAdmin = function(callback)
 {
-    var self = this;
+    const self = this;
 
     self.isAdmin(function(err, isAdmin){
         if(!err)
         {
             if(!isAdmin)
             {
-                var newAdminDescriptor = new Descriptor({
-                    prefixedForm : "rdf:type",
-                    type : DbConnection.prefixedResource,
-                    value : "ddr:Administrator"
+                const newAdminDescriptor = new Descriptor({
+                    prefixedForm: "rdf:type",
+                    type: DbConnection.prefixedResource,
+                    value: "ddr:Administrator"
                 });
 
                 self.insertDescriptors([newAdminDescriptor], function(err, result){
                     if(!err)
                     {
-                        callback(null, self);
+                        return callback(null, self);
                     }
                     else
                     {
-                        var msg = "Error setting "+ self.uri + " as global admin : " + result;
+                        const msg = "Error setting " + self.uri + " as global admin : " + result;
                         console.error(msg);
-                        callback(1, msg);
+                        return callback(1, msg);
                     }
 
                 });
@@ -1268,21 +1245,21 @@ User.prototype.makeGlobalAdmin = function(callback)
             {
                 var msg = "User " + self.uri + " is already an admin, nothing to be done.";
                 console.error(msg);
-                callback(0, msg);
+                return callback(0, msg);
             }
         }
         else
         {
             var msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
             console.error(msg);
-            callback(1, msg);
+            return callback(1, msg);
         }
     });
 };
 
 User.prototype.undoGlobalAdmin = function(callback)
 {
-    var self = this;
+    const self = this;
 
     self.checkIfHasPredicateValue("rdf:type", "ddr:Administrator", function(err, isAdmin){
         if(!err)
@@ -1290,28 +1267,28 @@ User.prototype.undoGlobalAdmin = function(callback)
             if (isAdmin)
             {
                 self.deleteDescriptorTriples("rdf:type", function(err, result){
-                    callback(err, result);
+                    return callback(err, result);
                 }, "ddr:Administrator");
             }
             else
             {
                 var msg = "User " + self.uri + " is not admin, no need to remove the triples.";
                 console.error(msg);
-                callback(0, msg);
+                return callback(0, msg);
             }
         }
         else
         {
             var msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
             console.error(msg);
-            callback(1, msg);
+            return callback(1, msg);
         }
     })
 };
 
 User.prototype.finishPasswordReset = function(newPassword, token, callback)
 {
-    var self = this;
+    const self = this;
 
     self.checkIfHasPredicateValue("ddr:password_reset_token", token, function(err, tokenIsCorrect)
     {
@@ -1319,8 +1296,7 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
         {
             if(tokenIsCorrect)
             {
-                var crypto = require('crypto')
-                    , shasum = crypto.createHash('sha1');
+                const crypto = require('crypto'), shasum = crypto.createHash('sha1');
 
                 shasum.update(newPassword);
                 self.ddr.password = shasum.digest('hex');
@@ -1330,90 +1306,102 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
                     if(!err)
                     {
                         console.log("Successfully set new password for user : " + self.uri + ".");
-                        callback(err, result);
+                        return callback(err, result);
                     }
                     else
                     {
                         console.error("Error setting new password for user : " + self.uri + ". Error reported: " + result);
-                        callback(err, result);
+                        return callback(err, result);
                     }
                 });
             }
             else
             {
-                callback(1, "Incorrect password reset token");
+                return callback(1, "Incorrect password reset token");
             }
         }
         else
         {
-            callback(1, "Error checking password reset token: " + tokenIsCorrect);
+            return callback(1, "Error checking password reset token: " + tokenIsCorrect);
         }
     });
 };
 
 User.prototype.startPasswordReset = function(callback)
 {
-    var self = this;
-    var uuid = require('uuid');
+    const self = this;
+    const uuid = require('uuid');
 
-    var token = uuid.v4();
+    const token = uuid.v4();
 
     self.ddr.password_reset_token = token;
 
-    var sendConfirmationEmail = function(callback)
-    {
-        var nodemailer = require('nodemailer');
+    const sendConfirmationEmail = function (callback) {
+        const nodemailer = require('nodemailer');
 
         // create reusable transporter object using the default SMTP transport
 
-        var gmailUsername = Config.email.gmail.username;
-        var gmailPassword = Config.email.gmail.password;
+        const gmailUsername = Config.email.gmail.username;
+        const gmailPassword = Config.email.gmail.password;
 
-        var ejs = require('ejs');
-        var fs = require('fs');
+        const ejs = require('ejs');
+        const fs = require('fs');
 
 
-        var appDir = path.dirname(require.main.filename);
+        const appDir = path.dirname(require.main.filename);
 
-        var emailHTMLFilePath = Config.absPathInSrcFolder('views/users/password_reset_email.ejs');
-        var emailTXTFilePath = path.join(appDir, 'views/users/password_reset_email_txt.ejs');
+        const emailHTMLFilePath = Config.absPathInSrcFolder('views/users/password_reset_email.ejs');
+        const emailTXTFilePath = path.join(appDir, 'views/users/password_reset_email_txt.ejs');
 
-        var file = fs.readFileSync(emailHTMLFilePath, 'ascii');
-        var fileTXT = fs.readFileSync(emailTXTFilePath, 'ascii');
+        const file = fs.readFileSync(emailHTMLFilePath, 'ascii');
+        const fileTXT = fs.readFileSync(emailTXTFilePath, 'ascii');
 
-        var rendered = ejs.render(file, { locals: { 'user': self, 'url' : Config.baseUri , token: token, email : self.foaf.mbox} });
-        var renderedTXT = ejs.render(fileTXT, { locals: { 'user': self, 'url' : Config.baseUri , token : token, email : self.foaf.mbox} });
+        const rendered = ejs.render(file, {
+            locals: {
+                'user': self,
+                'url': Config.baseUri,
+                token: token,
+                email: self.foaf.mbox
+            }
+        });
+        const renderedTXT = ejs.render(fileTXT, {
+            locals: {
+                'user': self,
+                'url': Config.baseUri,
+                token: token,
+                email: self.foaf.mbox
+            }
+        });
 
-        var mailer = require("nodemailer");
+        const mailer = require("nodemailer");
 
         // Use Smtp Protocol to send Email
-        var smtpTransport = mailer.createTransport("SMTP",{
+        const smtpTransport = mailer.createTransport("SMTP", {
             service: "Gmail",
             auth: {
-                user: gmailUsername+"@gmail.com",
+                user: gmailUsername + "@gmail.com",
                 pass: gmailPassword
             }
         });
 
-        var mail = {
+        const mail = {
             from: "Dendro RDM Platform <from@gmail.com>",
-            to: self.foaf.mbox+"@gmail.com",
+            to: self.foaf.mbox + "@gmail.com",
             subject: "Dendro Website password reset instructions",
             text: renderedTXT,
             html: rendered
         };
 
-        smtpTransport.sendMail(mail, function(error, response){
-            if(error){
+        smtpTransport.sendMail(mail, function (error, response) {
+            if (error) {
                 console.err(error);
             }
-            else
-            {
-                console.log('Password reset sent to '+self.foaf.mbox+'Message sent: ' + JSON.stringify(response));
+            else {
+                console.log('Password reset sent to ' + self.foaf.mbox + 'Message sent: ' + JSON.stringify(response));
             }
 
             smtpTransport.close();
-            callback(error, response);
+            return callback(error, response);
         });
     };
 
@@ -1425,29 +1413,29 @@ User.prototype.startPasswordReset = function(callback)
         else
         {
             console.error("Unable to set password reset token for user " + self.uri);
-            callback(err, updatedUser);
+            return callback(err, updatedUser);
         }
     });
 };
 
 User.removeAllAdmins = function(callback)
 {
-    var adminDescriptor = new Descriptor({
+    const adminDescriptor = new Descriptor({
         prefixedForm: "rdf:type",
-        value : "ddr:Administrator"
+        value: "ddr:Administrator"
     });
 
     Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples(adminDescriptor, function(err, results)
     {
         if (!err)
         {
-            callback(0, results);
+            return callback(0, results);
         }
         else
         {
-            var msg = "Error deleting all administrators: " + results;
+            const msg = "Error deleting all administrators: " + results;
             console.error(msg);
-            callback(1, msg);
+            return callback(1, msg);
         }
     });
 };

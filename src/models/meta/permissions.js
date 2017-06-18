@@ -1,14 +1,18 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var async = require('async');
-var _ = require('underscore');
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+
+const async = require('async');
+const _ = require('underscore');
 
 function Permissions (){}
 
@@ -17,7 +21,7 @@ Permissions.messages = {
         api : "Action not permitted. You are not logged into the system.",
         user : "Please log into the system."
     }
-}
+};
 
 Permissions.types = {
     system : "system",
@@ -71,7 +75,7 @@ Permissions.role = {
             error_message_api : "Unauthorized access. Must be signed on as a contributor of this project or as a contributor of the project it belongs to."
         }
     }
-}
+};
 
 Permissions.project_privacy_status = {
     public : {
@@ -95,12 +99,12 @@ Permissions.project_privacy_status = {
         error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
         error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
     }
-}
+};
 
 Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllowingOrDenying, errorMessage)
 {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(allow_access)
     {
@@ -119,8 +123,8 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
     }
     else
     {
-        var messageAPI = errorMessage;
-        var messageUser = errorMessage;
+        let messageAPI = errorMessage;
+        let messageUser = errorMessage;
 
         req.permissions_management = {
             reasons_for_denying : reasonsForAllowingOrDenying
@@ -139,7 +143,7 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
 
         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
         {
-            if(messageAPI == "" || messageAPI == null)
+            if(messageAPI === "" || isNull(messageAPI))
             {
                 messageAPI = Permissions.messages.generic.api;
             }
@@ -153,7 +157,7 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
         }
         else
         {
-            if(messageUser == "" || messageUser == null)
+            if(messageUser === "" || isNull(messageUser))
             {
                 messageUser = Permissions.messages.generic.user;
             }
@@ -172,120 +176,100 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
     }
 };
 
-var getOwnerProject = function(requestedResource, callback)
-{
-    Project.getOwnerProjectBasedOnUri(requestedResource, function(err, project){
-        callback(err, project);
+const getOwnerProject = function (requestedResource, callback) {
+    Project.getOwnerProjectBasedOnUri(requestedResource, function (err, project) {
+        return callback(err, project);
     });
 };
 
-var checkUsersRoleInSystem = function(req, user, role, callback)
-{
-    user.checkIfHasPredicateValue(role.predicate, role.object, function(err, result){
-        callback(err, result);
+const checkUsersRoleInSystem = function (req, user, role, callback) {
+    user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result) {
+        return callback(err, result);
     });
 };
 
-var checkUsersRoleInProject = function(req, user, role, project, callback)
-{
-    project.checkIfHasPredicateValue(role.predicate, user.uri, function(err, result){
-        callback(err, result);
+const checkUsersRoleInProject = function (req, user, role, project, callback) {
+    project.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result) {
+        return callback(err, result);
     });
 };
 
-var checkUsersRoleInResource = function(req, user, role, resource, callback)
-{
-    resource.checkIfHasPredicateValue(role.predicate, user.uri, function(err, result){
-        callback(err, result);
+const checkUsersRoleInResource = function (req, user, role, resource, callback) {
+    resource.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result) {
+        return callback(err, result);
     });
 };
 
-var checkPermissionsForRole = function(req, user, resource, role, callback)
-{
-    if(!(user instanceof User) && user instanceof Object)
+const checkPermissionsForRole = function (req, user, resource, role, callback) {
+    if (!(user instanceof User) && user instanceof Object)
         user = new User(user);
 
-    if(role.type == Permissions.types.system)
-    {
-        checkUsersRoleInSystem(req, user, role, function(err, hasRole){
-            callback(err, {authorized : hasRole, role : role});
+    if (role.type === Permissions.types.system) {
+        checkUsersRoleInSystem(req, user, role, function (err, hasRole) {
+            return callback(err, {authorized: hasRole, role: role});
         });
     }
-    else if(role.type == Permissions.types.project)
-    {
-        getOwnerProject(resource, function(err, project){
-            if(!err)
-            {
-                if(project instanceof Project)
-                {
-                    checkUsersRoleInProject(req, user, role, project, function(err, hasRole){
-                        callback(err, {authorized : hasRole, role : role});
+    else if (role.type === Permissions.types.project) {
+        getOwnerProject(resource, function (err, project) {
+            if (!err) {
+                if (project instanceof Project) {
+                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
+                        return callback(err, {authorized: hasRole, role: role});
                     });
                 }
-                else
-                {
-                    callback(null, null);
+                else {
+                    return callback(null, null);
                 }
             }
-            else
-            {
-                callback(err, null);
+            else {
+                return callback(err, null);
             }
         });
     }
-    else if(role.type == Permissions.types.resource)
-    {
-        checkUsersRoleInResource(req, user, role, resource, function(err, hasRole){
-            callback(err, {authorized : hasRole, role : role});
+    else if (role.type === Permissions.types.resource) {
+        checkUsersRoleInResource(req, user, role, resource, function (err, hasRole) {
+            return callback(err, {authorized: hasRole, role: role});
         });
     }
 };
 
-var checkPermissionsForProject = function(req, permission, callback)
-{
-    var projectHandle = req.params[0];                      //project handle
-    var requestedProjectURI = Config.baseUri + "/project/" + projectHandle;
+const checkPermissionsForProject = function (req, permission, callback) {
+    const projectHandle = req.params[0];                      //project handle
+    const requestedProjectURI = Config.baseUri + "/project/" + projectHandle;
 
-    Project.findByUri(requestedProjectURI, function(err, project){
-        if(!err)
-        {
-            if(project != null)
-            {
-                var privacy = project.ddr.privacyStatus;
+    Project.findByUri(requestedProjectURI, function (err, project) {
+        if (!err) {
+            if (!isNull(project)) {
+                const privacy = project.ddr.privacyStatus;
 
-                if(permission.object != null && privacy === permission.object)
-                {
-                    callback(null,
+                if (!isNull(permission.object) && privacy === permission.object) {
+                    return callback(null,
                         {
-                            authorized : true,
-                            role : Permissions.project_privacy_status[permission.object]
+                            authorized: true,
+                            role: Permissions.project_privacy_status[permission.object]
                         }
                     );
                 }
-                else
-                {
-                    callback(null,
+                else {
+                    return callback(null,
                         {
-                            authorized : false,
-                            role : permission
+                            authorized: false,
+                            role: permission
                         }
                     );
                 }
             }
-            else
-            {
-                callback(null,
+            else {
+                return callback(null,
                     {
-                        authorized : true,
-                        role : ["Project with uri" + requestedProjectURI + " does not exist."]
+                        authorized: true,
+                        role: ["Project with uri" + requestedProjectURI + " does not exist."]
                     }
-
                 );
             }
         }
-        else
-        {
-            callback(null,
+        else {
+            return callback(null,
                 {
                     authorized: true,
                     role: ["Error accessing project: " + project]
@@ -293,12 +277,12 @@ var checkPermissionsForProject = function(req, permission, callback)
             );
         }
     });
-}
+};
 
 
 Permissions.addToReasons = function(req, reason, authorizing)
 {
-    if(req.permissions_management == null)
+    if(typeof req.permissions_management === "undefined")
     {
         req.permissions_management = {};
     }
@@ -313,73 +297,59 @@ Permissions.addToReasons = function(req, reason, authorizing)
     }
 
     return req;
-}
+};
 
 Permissions.check = function(permissionsRequired, req, callback)
 {
     //Global Administrators are God, so they dont go through any checks
     if(!req.session.isAdmin)
     {
-        var resource = Config.baseUri + require('url').parse(req.url).pathname;
-        var user = req.user;
+        const resource = Config.baseUri + require('url').parse(req.url).pathname;
+        const user = req.user;
 
-        var checkPermissions = function(req, user, resource, permission, cb){
-            if(permission.type == Permissions.types.system)
-            {
-                if(user != null)
-                {
-                    checkPermissionsForRole(req, user, resource, permission, function(err, results){
+        const checkPermissions = function (req, user, resource, permission, cb) {
+            if (permission.type === Permissions.types.system) {
+                if (!isNull(user)) {
+                    checkPermissionsForRole(req, user, resource, permission, function (err, results) {
                         cb(err, results);
                     });
                 }
-                else
-                {
-                    cb(null, {authorized : false, role : permission});
+                else {
+                    cb(null, {authorized: false, role: permission});
                 }
 
             }
-            else if(permission.type == Permissions.types.project)
-            {
-                if(user != null)
-                {
-                    checkPermissionsForRole(req, user, resource, permission, function (err, results)
-                    {
+            else if (permission.type === Permissions.types.project) {
+                if (!isNull(user)) {
+                    checkPermissionsForRole(req, user, resource, permission, function (err, results) {
                         cb(err, results);
                     });
                 }
-                else
-                {
-                    cb(null, {authorized : false, role : permission});
+                else {
+                    cb(null, {authorized: false, role: permission});
                 }
 
             }
-            else if(permission.type == Permissions.types.resource)
-            {
-                if(user != null)
-                {
-                    checkPermissionsForRole(req, user, resource, permission, function (err, results)
-                    {
+            else if (permission.type === Permissions.types.resource) {
+                if (!isNull(user)) {
+                    checkPermissionsForRole(req, user, resource, permission, function (err, results) {
                         cb(err, results);
                     });
                 }
-                else
-                {
-                    cb(null, {authorized : hasRole, role : permission});
+                else {
+                    cb(null, {authorized: hasRole, role: permission});
                 }
             }
-            else if (permission.type == Permissions.types.project_privacy_status)
-            {
-                checkPermissionsForProject(req, permission, function (err, results)
-                {
+            else if (permission.type === Permissions.types.project_privacy_status) {
+                checkPermissionsForProject(req, permission, function (err, results) {
                     cb(err, results);
                 });
             }
-            else
-            {
+            else {
                 cb(null,
                     {
-                        authorized : false,
-                        role : "Permission required is badly configured. Ask your administrator to review your Dendro server's configuration"
+                        authorized: false,
+                        role: "Permission required is badly configured. Ask your administrator to review your Dendro server's configuration"
                     }
                 );
             }
@@ -389,48 +359,44 @@ Permissions.check = function(permissionsRequired, req, callback)
             async.apply(checkPermissions, req, user, resource),
             function(err, results)
             {
-                var reasonsForDenying = _.filter(results, function(result){
-                    if(result != null)
-                    {
+                const reasonsForDenying = _.filter(results, function (result) {
+                    if (!isNull(result)) {
                         return !result.authorized
                     }
-                    else
-                    {
+                    else {
                         return false;
                     }
                 });
 
                 req = Permissions.addToReasons(req, reasonsForDenying, false);
 
-                var reasonsForAuthorizing = _.filter(results, function(result){
-                    if(result != null)
-                    {
+                const reasonsForAuthorizing = _.filter(results, function (result) {
+                    if (!isNull(result)) {
                         return result.authorized
                     }
-                    else
-                    {
+                    else {
                         return false;
                     }
                 });
 
                 req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
 
-                callback(err, req, results);
+                return callback(err, req, results);
             }
         );
     }
     else
     {
-        var reasonsForAllowing = [{
+        const reasonsForAllowing = [{
             authorized: true,
             role: Permissions.role.system.admin
         }];
 
         req = Permissions.addToReasons(req, reasonsForAllowing, true);
 
-        callback(null, req , reasonsForAllowing);
+        return callback(null, req , reasonsForAllowing);
     }
-}
+};
 
 Permissions.require = function(permissionsRequired, req, res, next)
 {
@@ -443,7 +409,7 @@ Permissions.require = function(permissionsRequired, req, res, next)
 
         }
 
-        var async = require('async');
+        const async = require('async');
 
         //Global Administrators are God, so they dont go through any checks
         if(!req.session.isAdmin)

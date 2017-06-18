@@ -8,11 +8,11 @@
     "post-install": "grunt",
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test_new_structure/index.Test.js -t 60000 --ui bdd",
     "watch": "npm test -w",
-    "coverage": "nyc --temp-directory=coverage --reporter=lcov --reporter=text --reporter=text-lcov npm test",
-    "report-coverage": "npm run coverage && node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info && node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js < ./coverage/lcov.info && rm -rf coverage",
-    "everything": "rm -rf node_modules && npm cache clean && npm install && npm run test && npm run report-coverage",
+    "calculate-coverage": "nyc --temp-directory=coverage --reporter=lcov --reporter=text --reporter=text-lcov npm test",
+    "report-coverage": "node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info && node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js < ./coverage/lcov.info && rm -rf coverage",
+    "everything": "rm -rf node_modules && npm cache clean && npm install && npm run test && npm run calculate-coverage && npm run report-coverage",
     "remote_debug": "node app.js --debug=5858",
-    "profile": "node --prof node_modules/.bin/_mocha ./test_new_structure/index.Test.js-t 10000"
+    "profile": "cross-env NODE_ENV=test node --prof node_modules/.bin/_mocha ./test_new_structure/index.Test.js -t 60000 --ui bdd"
   },
   "dependencies": {
     "archiver": "*",
@@ -51,6 +51,7 @@
     "fs-extra": "^3.0.1",
     "gladstone": "git+https://github.com/little9/gladstone.git",
     "gridfs-stream": "^1.1.1",
+    "hash-sum": "^1.0.2",
     "humanize": "0.0.9",
     "jsdom": "^11.0.0",
     "jsonpath": "^0.2.7",

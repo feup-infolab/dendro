@@ -2,27 +2,26 @@ const Config = function() { return GLOBAL.Config; }();
 
 const db = function() { return GLOBAL.db.default; }();
 
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 const UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
 const async = require('async');
-
-
 
 module.exports.login = function(req, res, next){
 
     const acceptsHTML = req.accepts('html');
     const acceptsJSON = req.accepts('json');
 
-    if(req.originalMethod == "GET")
+    if(req.originalMethod === "GET")
     {
         res.render('auth/login');
     }
-    else if (req.originalMethod == "POST")
+    else if (req.originalMethod === "POST")
     {
         //prevent injections, test for alphanumeric and _ characters only in the username
-        var alphaNumericTest = new RegExp(/^[a-zA-Z0-9_]+$/);
-        if(req.body.username != null && alphaNumericTest.test(req.body.username))
+        const alphaNumericTest = new RegExp(/^[a-zA-Z0-9_]+$/);
+        if(!isNull(req.body.username) && alphaNumericTest.test(req.body.username))
         {
             req.passport.authenticate(
                 'local',
@@ -107,7 +106,7 @@ module.exports.login = function(req, res, next){
 
 module.exports.logout = function(req, res){
 
-    if(req.user != null)
+    if(!isNull(req.user))
     {
         req.logOut();
         delete req.user;
@@ -141,7 +140,7 @@ module.exports.register = function(req, res){
     }
     else
     {
-        if(req.originalMethod == "GET")
+        if(req.originalMethod === "GET")
         {
             res.render('auth/register',
                 {
@@ -149,9 +148,9 @@ module.exports.register = function(req, res){
                 }
             );
         }
-        else if (req.originalMethod == "POST")
+        else if (req.originalMethod === "POST")
         {
-            if(req.body.username == null)
+            if(isNull(req.body.username))
             {
                 res.render('auth/register',
                     {
@@ -160,7 +159,7 @@ module.exports.register = function(req, res){
                     }
                 );
             }
-            else if(req.body.email == null)
+            else if(isNull(req.body.email))
             {
                 res.render('auth/register',
                     {
@@ -169,7 +168,7 @@ module.exports.register = function(req, res){
                     }
                 );
             }
-            else if(req.body.password == null)
+            else if(isNull(req.body.password))
             {
                 res.render('auth/register',
                     {
@@ -178,7 +177,7 @@ module.exports.register = function(req, res){
                     }
                 );
             }
-            else if(req.body.repeat_password == null)
+            else if(typeof req.body.repeat_password === "undefined")
             {
                 res.render('auth/register',
                     {
@@ -187,7 +186,7 @@ module.exports.register = function(req, res){
                     }
                 );
             }
-            else if(req.body.firstname == null)
+            else if(isNull(req.body.firstname))
             {
                 res.render('auth/register',
                     {
@@ -196,7 +195,7 @@ module.exports.register = function(req, res){
                     }
                 );
             }
-            else if(req.body.surname == null)
+            else if(isNull(req.body.surname))
             {
                 res.render('auth/register',
                     {
@@ -205,7 +204,7 @@ module.exports.register = function(req, res){
                     }
                 );
             }
-            else if(req.body.username != null && !req.body.username.match(/^[0-9a-zA-Z]+$/))
+            else if(!isNull(req.body.username) && !req.body.username.mat0ch(/^[0-9a-zA-Z]+$/))
             {
                 res.render('auth/register',
                     {
@@ -221,13 +220,13 @@ module.exports.register = function(req, res){
                     User.findByUsername(req.body.username, function(err, user){
                         if(!err)
                         {
-                            if(user != null)
+                            if(!isNull(user))
                             {
-                                callback(1, "Username already exists");
+                                return callback(1, "Username already exists");
                             }
                             else
                             {
-                                if(req.body.password == req.body.repeat_password)
+                                if(typeof req.body.password === req.body.repeat_password)
                                 {
                                     const userData = {
                                         ddr : {
@@ -241,17 +240,17 @@ module.exports.register = function(req, res){
                                         }
                                     };
 
-                                    callback(null, userData);
+                                    return callback(null, userData);
                                 }
                                 else
                                 {
-                                    callback(1, "Passwords do not match");
+                                    return callback(1, "Passwords do not match");
                                 }
                             }
                         }
                         else
                         {
-                            callback(1, user);
+                            return callback(1, user);
                         }
                     });
                 };
@@ -261,13 +260,13 @@ module.exports.register = function(req, res){
                     User.findByORCID(req.body.orcid, function(err, user){
                         if(!err)
                         {
-                            if(user != null)
+                            if(!isNull(user))
                             {
-                                callback(1, "User with that ORCID already exists");
+                                return callback(1, "User with that ORCID already exists");
                             }
                             else
                             {
-                                if(req.body.password == req.body.repeat_password)
+                                if(req.body.password === req.body.repeat_password)
                                 {
                                     const userData = {
                                         ddr : {
@@ -282,17 +281,17 @@ module.exports.register = function(req, res){
                                         }
                                     };
 
-                                    callback(null, userData);
+                                    return callback(null, userData);
                                 }
                                 else
                                 {
-                                    callback(1, "Passwords do not match");
+                                    return callback(1, "Passwords do not match");
                                 }
                             }
                         }
                         else
                         {
-                            callback(1, user);
+                            return callback(1, user);
                         }
                     });
                 };
@@ -302,11 +301,11 @@ module.exports.register = function(req, res){
                     User.createAndInsertFromObject(userData, function(err, newUser){
                         if(!err)
                         {
-                            callback(null, "New user " + userData.ddr.username +" created successfully. You can now login with the username and password you specified.");
+                            return callback(null, "New user " + userData.ddr.username +" created successfully. You can now login with the username and password you specified.");
                         }
                         else
                         {
-                            callback(1, newUser);
+                            return callback(1, newUser);
                         }
 
                     });
@@ -315,7 +314,7 @@ module.exports.register = function(req, res){
                 async.waterfall([
                     function(cb)
                     {
-                        if(req.body.orcid != null)
+                        if(!isNull(req.body.orcid))
                         {
                             findByORCID(cb);
                         }
@@ -326,7 +325,7 @@ module.exports.register = function(req, res){
                     },
                     function(user, cb)
                     {
-                        if(user != null)
+                        if(!isNull(user))
                         {
                             insertUserRecord(user, cb);
                         }

@@ -1,17 +1,25 @@
-var Config = require("../meta/config.js").Config;
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
-var _ = require('underscore');
-var async = require('async');
-var uuid = require('uuid');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
+
+const _ = require('underscore');
+const async = require('async');
+const uuid = require('uuid');
 
 //NFO ontology or NIE ontology
 /*
@@ -33,9 +41,9 @@ var uuid = require('uuid');
 function FileVersion (object)
 {
     FileVersion.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
-    if(object.uri != null)
+    if(!isNull(object.uri))
     {
         self.uri = object.uri;
     }
