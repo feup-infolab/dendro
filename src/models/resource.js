@@ -22,7 +22,7 @@ const redis = function (graphUri) {
             return GLOBAL.redis.default;
         }
         else {
-            console.error("DEU ASNEIRA");
+            console.error("Something wrong happened when getting the connection to the Redis cache.");
             process.exit(1);
         }
 
