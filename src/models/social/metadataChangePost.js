@@ -149,21 +149,21 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb) {
             let editChanges, addChanges, deleteChanges;
 
             try {
-                editChanges = hasNumberOfDescriptorsAdded + hasNumberOfDescriptorsDeleted  > 1 ? changesSortedByType.edit.splice(0, 1) : changesSortedByType.edit.splice(0, 3);
+                editChanges = hasNumberOfDescriptorsAdded + hasNumberOfDescriptorsDeleted  > 0 ? changesSortedByType.edit.splice(0, 1) : changesSortedByType.edit.splice(0, 3);
             }
             catch(err) {
                 editChanges = null;
             }
 
             try {
-                addChanges = hasNumberOfDescriptorsEdited + hasNumberOfDescriptorsDeleted  > 1 ? changesSortedByType.add.splice(0, 1) : changesSortedByType.add.splice(0, 3);
+                addChanges = hasNumberOfDescriptorsEdited + hasNumberOfDescriptorsDeleted  > 0 ? changesSortedByType.add.splice(0, 1) : changesSortedByType.add.splice(0, 3);
             }
             catch(err) {
                 addChanges = null;
             }
 
             try {
-                deleteChanges = hasNumberOfDescriptorsAdded + hasNumberOfDescriptorsEdited  > 1 ? changesSortedByType.delete.splice(0,1) : changesSortedByType.delete.splice(0,3)
+                deleteChanges = hasNumberOfDescriptorsAdded + hasNumberOfDescriptorsEdited  > 0 ? changesSortedByType.delete.splice(0,1) : changesSortedByType.delete.splice(0,3)
             }
             catch(err) {
                 deleteChanges = null;
@@ -180,7 +180,7 @@ MetadataChangePost.prototype.getChangesFromMetadataChangePost = function (cb) {
                 hasNumberOfDescriptorsAdded: hasNumberOfDescriptorsAdded,
                 hasNumberOfDescriptorsEdited: hasNumberOfDescriptorsEdited,
                 hasNumberOfDescriptorsDeleted: hasNumberOfDescriptorsDeleted
-            }
+            };
 
             cb(err, changesInfo);
         }

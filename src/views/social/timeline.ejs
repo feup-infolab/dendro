@@ -19,7 +19,7 @@
                         <ng-include src="'/app/views/social/showShare.html'" onload="initSingleShare(post.uri); shareUri = post.uri;"></ng-include>
                     </div>
 
-                    <div ng-if="!postsContents[post.uri].rdf.isShare">
+                    <div style="margin-left: 20%; margin-right: 20%" ng-if="!postsContents[post.uri].rdf.isShare">
                         <ng-include src="'/app/views/social/showPost.html'" onload="initSinglePost(post.uri); postUri = post.uri;"></ng-include>
                     </div>
                     <hr>
