@@ -57,7 +57,7 @@ function Post (object)
     return self;
 }
 
-//TODO This should be in a separate model(MetadataChangesPost) extending the post class
+/*//TODO This should be in a separate model(MetadataChangesPost) extending the post class
 Post.buildFromArchivedVersion = function (archivedVersion, project, callback) {
     //CREATE A POST FOR EACH ARCHIVED VERSION CHANGE
     //DON'T SAVE IT HERE
@@ -99,77 +99,7 @@ Post.buildFromArchivedVersion = function (archivedVersion, project, callback) {
         });
         callback(null, newPost);
     });
-};
-
-//TODO This and the build from rmdir changeType should be in another model(FileSystemPost) that extends the post class
-Post.buildFromMkdirOperation = function (creatorUri, project, folder, callback) {
-    //CREATE A POST FOR EACH MKDIR OPERATION
-    //DONT SAVE IT HERE
-
-    //create subclasses for the different post(types)
-
-    //TODO PROPERTIES NEEDED
-    //changeType(mkdir)
-    //hasContent-> content of the post(name,path etc)
-    //the resource it points to???
-    //the user who did the work
-    //the project
-
-    var title = creatorUri.split("/").pop() + " created folder " + folder.nie.title;
-
-    var newPost = new Post({
-        ddr: {
-            //hasContent: JSON.stringify(folder),//substituir por sharedContent da SocialMediaPosting http://schema.org/SocialMediaPosting -> fazer JSON.parse depois para aceder
-            numLikes: 0,//isto não é necessário aqui
-            projectUri: project.uri,
-            refersTo : folder.uri,//Já existe -> http://onto.dm2e.eu/schemas/dm2e#refersTo,
-            changeType: "mkdir"
-        },
-        dcterms: {
-            creator: creatorUri,
-            title: title
-        },
-        schema: {
-            sharedContent: JSON.stringify(folder)
-        }
-    });
-
-    console.log(JSON.stringify(newPost));
-    callback(null, newPost);
-};
-
-Post.buildFromRmdirOperation = function (creatorUri, project, folder, callback) {
-    //CREATE A POST FOR EACH RMDIR OPERATION
-    //DONT SAVE IT HERE
-
-    //changeType(rmdir)
-    //hasContent-> content of the post(name,path etc)
-    //the resource it points to???
-    //the user who did the work
-    //the project
-
-    var title = creatorUri.split("/").pop() + " deleted folder " + folder.nie.title;
-
-    var newPost = new Post({
-        ddr: {
-            //hasContent: JSON.stringify(folder),//substituir por sharedContent da SocialMediaPosting http://schema.org/SocialMediaPosting -> fazer JSON.parse depois para aceder
-            numLikes: 0,//isto não é necessário aqui
-            projectUri: project.uri,
-            refersTo : folder.uri,//Já existe -> http://onto.dm2e.eu/schemas/dm2e#refersTo,
-            changeType: "rmdir"
-        },
-        dcterms: {
-            creator: creatorUri,
-            title: title
-        },
-        schema: {
-            sharedContent: JSON.stringify(folder)
-        }
-    });
-
-    console.log(JSON.stringify(newPost));
-    callback(null, newPost);
-};
+};*/
 
 //TODO This should be in another model(ManualPost) that extends the post class
 Post.buildManualPost = function (project, creatorUri, postContent, callback) {

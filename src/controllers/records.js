@@ -303,15 +303,16 @@ exports.update = function(req, res) {
                                                                 if(!err && latestArchivedVersion!=null)
                                                                 {
                                                                     MetadataChangePost.buildFromArchivedVersion(latestArchivedVersion, project, function (err, post) {
-                                                                        //console.log(post);
                                                                         post.save(function(err, post)
                                                                         {
                                                                             if (!err)
                                                                             {
-                                                                                if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
+                                                                                //if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
+                                                                                if (evaluation.evaluation != resource.ddr.metadataQuality)
                                                                                 {
 
-                                                                                    resource.ddr.metadataQuality = evaluation.metadata_evaluation;
+                                                                                    //resource.ddr.metadataQuality = evaluation.metadata_evaluation;
+                                                                                    resource.ddr.metadataQuality = evaluation.evaluation;
                                                                                     resource.save(function (err, result)
                                                                                     {
                                                                                         if (!err)
@@ -348,37 +349,6 @@ exports.update = function(req, res) {
                                                                                 });
                                                                             }
                                                                         }, false, null, null, null, null, db_social.graphUri);
-                                                                        /*if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
-                                                                        {
-
-                                                                            resource.ddr.metadataQuality = evaluation.metadata_evaluation;
-                                                                            resource.save(function (err, result)
-                                                                            {
-                                                                                if (!err)
-                                                                                {
-                                                                                    res.json({
-                                                                                        result: "OK",
-                                                                                        message: "Updated successfully.",
-                                                                                        new_metadata_quality_assessment: evaluation
-                                                                                    });
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    res.status(500).json({
-                                                                                        result: "Error",
-                                                                                        message: "Unable to retrieve metadata recommendations for uri: " + requestedResourceURI + ". Error reported : " + error + " Response : " + JSON.stringify(response) + " Body : " + JSON.stringify(body)
-                                                                                    });
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            res.json({
-                                                                                result: "OK",
-                                                                                message: "Updated successfully.",
-                                                                                new_metadata_quality_assessment: evaluation
-                                                                            });
-                                                                        }*/
                                                                     });
                                                                 }
                                                                 else

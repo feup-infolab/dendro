@@ -9,6 +9,7 @@ var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var UploadManager =  require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 var FileVersion = require(Config.absPathInSrcFolder("/models/versions/file_version.js")).FileVersion;
 var Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
+let FileSystemPost = require(Config.absPathInSrcFolder("/models/social/fileSystemPost.js")).FileSystemPost;
 
 var db = function() { return GLOBAL.db.default; }();
 var db_social = function() { return GLOBAL.db.social; }();
@@ -1414,12 +1415,46 @@ exports.rm = function(req, res){
                                     {
                                         //TODO HERE CREATE A SOCIAL DENDRO POST
                                         Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
-                                            Post.buildFromRmdirOperation(req.session.user.uri, project, result, function(err, post){
-                                                res.status(200).json({
-                                                    "result" : "success",
-                                                    "message" : "Successfully deleted " + resourceToDelete
+                                            if(!err)
+                                            {
+                                                FileSystemPost.buildFromRmdirOperation(req.session.user.uri, project, result, function(err, post){
+                                                    if(!err)
+                                                    {
+                                                        post.save(function (err, post) {
+                                                            if(!err)
+                                                            {
+                                                                res.status(200).json({
+                                                                    "result" : "success",
+                                                                    "message" : "Successfully deleted " + resourceToDelete
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+                                                                res.status(500).json({
+                                                                    result: "Error",
+                                                                    message: "Unable to save Social Dendro post from file system change to resource uri: " + folder.uri + ". Error reported : " + err
+                                                                });
+                                                            }
+                                                        }, false, null, null, null, null, db_social.graphUri);
+                                                    }
+                                                    else
+                                                    {
+                                                        res.status(500).json({
+                                                            result: "Error",
+                                                            message: "Unable to create Social Dendro post from file system change to resource uri: " + folder.uri + ". Error reported : " + err
+                                                        });
+                                                    }
                                                 });
-                                            });
+                                            }
+                                            else
+                                            {
+                                                let error =  "Unable to find the project where the resource " + folder.uri + " is located";
+                                                console.error(error);
+                                                res.status(404).json({
+                                                    result : "Error",
+                                                    message : error
+                                                });
+                                            }
                                         });
                                         /*res.status(200).json({
                                             "result" : "success",
@@ -1635,23 +1670,58 @@ exports.mkdir = function(req, res){
                                     {
                                         //TODO here create a SocialDendro Post
                                         Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
-                                            Post.buildFromMkdirOperation(req.session.user.uri, project, result, function(err, post){
-                                                res.json(
-                                                    {
-                                                        "status" : "1",
-                                                        "id" : newChildFolder.uri,
-                                                        "result" : "ok"
-                                                    }
-                                                );
-                                            });
-                                        });
-                                        /*res.json(
+                                            if(!err)
                                             {
-                                                "status" : "1",
-                                                "id" : newChildFolder.uri,
-                                                "result" : "ok"
+                                                FileSystemPost.buildFromMkdirOperation(req.session.user.uri, project, result, function(err, post){
+                                                    if(!err)
+                                                    {
+                                                        post.save(function(err, post)
+                                                        {
+                                                            if (!err)
+                                                            {
+                                                                res.json(
+                                                                    {
+                                                                        "status" : "1",
+                                                                        "id" : newChildFolder.uri,
+                                                                        "result" : "ok"
+                                                                    }
+                                                                );
+                                                            }
+                                                            else
+                                                            {
+                                                                res.status(500).json({
+                                                                    result: "Error",
+                                                                    message: "Unable to save Social Dendro post from file system change to resource uri: " + newChildFolder.uri + ". Error reported : " + err
+                                                                });
+                                                            }
+                                                        }, false, null, null, null, null, db_social.graphUri);
+                                                    }
+                                                    else
+                                                    {
+                                                        res.status(500).json({
+                                                            result: "Error",
+                                                            message: "Unable to create Social Dendro post from file system change to resource uri: " + newChildFolder.uri + ". Error reported : " + err
+                                                        });
+                                                    }
+                                                    /*res.json(
+                                                     {
+                                                     "status" : "1",
+                                                     "id" : newChildFolder.uri,
+                                                     "result" : "ok"
+                                                     }
+                                                     );*/
+                                                });
                                             }
-                                        );*/
+                                            else
+                                            {
+                                                var error =  "Unable to find the project where the resource " + newChildFolder.uri + " is located";
+                                                console.error(error);
+                                                res.status(404).json({
+                                                    result : "Error",
+                                                    message : error
+                                                });
+                                            }
+                                        });
                                     }
                                     else
                                     {

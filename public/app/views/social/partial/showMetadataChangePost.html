@@ -5,17 +5,11 @@
             <p style="margin-bottom: 0%; font-style: italic;">{{postsContents[postUri].dcterms.modified | date : "dd/MMM/yyyy"}}</p>
             <p style="margin-bottom: 0%"><em><img width="20%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a> </em></p>
             <span style="font-size:7em;margin-bottom: 0%" class="glyphicon glyphicon-folder-close fa-5x" aria-hidden="true"></span>
-            <!--<p class="text-center"> Folder 1</p>-->
             <a class="text-center" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>
         </div>
 
         <div class="media-body">
-            <!--<h4> From the Project: <a ng-href="{{postsContents[postUri].ddr.projectUri}}"> {{postsContents[postUri].ddr.projectUri.split("/").pop()}} </a></h4>
-            <p><em>By <img width="5%" height="5%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a> in {{postsContents[postUri].dcterms.modified | date : "dd/MMM/yyyy"}} </em></p>-->
-            <!--<p> {{postsContents[postUri].ddr.changedDescriptor}} {{actionTypesDictionary[postsContents[postUri].ddr.changeType]}} :  "{{postsContents[postUri].ddr.newValue}}" </p>-->
-
             <div class="text-center" id="postNumChanges" style="padding-left: 5%; padding-right: 5%">
-                <!--<p> <span class="label label-info">Edited </span> {{postsContents[postUri].changesInfo.hasNumberOfDescriptorsEdited}}, <span class="label label-success">Added </span> {{postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded}}, <span class="label label-danger">Deleted </span> {{postsContents[postUri].changesInfo.hasNumberOfDescriptorsDeleted}}</p>-->
                 <div class="progress" style="height: 10px;">
                     <div data-toggle="tooltip" data-placement="top" title="{{postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded}}" class="progress-bar progress-bar-success" style="width: {{100 * (postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded / postsContents[postUri].changesInfo.numberOfChanges)}}%">
                         <!--<span class="sr-only">35% Complete (success)</span>-->
@@ -46,7 +40,6 @@
                 </div>
 
                 <div ng-if="postsContents[postUri].changesInfo.deleteChanges">
-                    <!--<p><span class="label label-danger">DELETED </span> {{postsContents[postUri].changesInfo.deleteChanges[0].ddr.changedDescriptor}}</p>-->
                     <div ng-repeat="deleteChange in postsContents[postUri].changesInfo.deleteChanges | orderBy: 'dcterms.created' track by $index">
                         <p><span class="label label-danger">DELETED </span> {{deleteChange.ddr.changedDescriptor}}</p>
                     </div>

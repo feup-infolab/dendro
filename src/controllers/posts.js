@@ -1,6 +1,7 @@
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Post = require('../models/social/post.js').Post;
 var MetadataChangePost = require('../models/social/metadataChangePost').MetadataChangePost;
+var FileSystemPost = require('../models/social/fileSystemPost').FileSystemPost;
 var Like = require('../models/social/like.js').Like;
 var Notification = require('../models/notifications/notification.js').Notification;
 var Comment = require('../models/social/comment.js').Comment;
@@ -36,8 +37,7 @@ exports.numPostsDatabase = function (req, res) {
                 }, function (err, projectsUris) {
                     if(!err)
                     {
-                        //numPostsDatabaseAux(projectsUris,function (err, count) {
-                        numPostsDatabaseAuxNew(projectsUris,function (err, count) {
+                        numPostsDatabaseAux(projectsUris,function (err, count) {
                             if(!err)
                             {
                                 res.json(count);
@@ -100,8 +100,7 @@ exports.all = function(req, res){
                 async.map(projects, function (project, cb1) {
                     cb1(null, project.uri);
                 }, function (err, fullProjectsUris) {
-                    //getAllPosts(fullProjectsUris,function (err, results) {
-                    getAllPostsNew(fullProjectsUris,function (err, results) {
+                    getAllPosts(fullProjectsUris,function (err, results) {
                         if(!err)
                         {
                             res.json(results);
@@ -960,7 +959,7 @@ exports.like = function (req, res) {
 };*/
 
 
-var numPostsDatabaseAuxNew = function (projectUrisArray, callback) {
+var numPostsDatabaseAux = function (projectUrisArray, callback) {
     /*WITH <http://127.0.0.1:3001/social_dendro>
      SELECT (COUNT(DISTINCT ?postURI) AS ?count)
      WHERE {
@@ -980,60 +979,9 @@ var numPostsDatabaseAuxNew = function (projectUrisArray, callback) {
                 projectsUris +
                 "} \n" +
                 "VALUES ?postTypes { \n" +
-                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" +
+                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
                 "} \n" +
                 "?uri rdf:type ?postTypes. \n" +
-                "?uri ddr:projectUri ?project. \n" +
-                "} \n ";
-
-            db.connection.execute(query,
-                DbConnection.pushLimitsArguments([
-                    {
-                        type : DbConnection.resourceNoEscape,
-                        value: db_social.graphUri
-                    }
-                ]),
-                function(err, results) {
-                    if(!err)
-                    {
-                        callback(err,results[0].count);
-                    }
-                    else
-                    {
-                        callback(true, "Error fetching numPosts in numPostsDatabaseAux");
-                    }
-                });
-        });
-    }
-    else
-    {
-        //User has no projects
-        var results = 0;
-        callback(null, results);
-    }
-};
-
-
-var numPostsDatabaseAux = function (projectUrisArray, callback) {
-    /*WITH <http://127.0.0.1:3001/social_dendro>
-    SELECT (COUNT(DISTINCT ?postURI) AS ?count)
-    WHERE {
-        ?postURI rdf:type ddr:Post.
-    }*/
-    if(projectUrisArray && projectUrisArray.length > 0)
-    {
-        async.map(projectUrisArray, function (uri, cb1) {
-            cb1(null, '<'+uri+ '>');
-        }, function (err, fullProjectsUris) {
-            var projectsUris = fullProjectsUris.join(" ");
-            var query =
-                "WITH [0] \n" +
-                "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
-                "WHERE { \n" +
-                "VALUES ?project { \n" +
-                projectsUris +
-                "} \n" +
-                "?uri rdf:type ddr:Post. \n" +
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n ";
 
@@ -1459,9 +1407,8 @@ var getNumLikesForAPost = function(postID, cb)
  * @param startingResultPosition the starting position to start the query
  * @param maxResults the limit for the query
  */
-var getAllPostsNew = function (projectUrisArray, callback, startingResultPosition, maxResults) {
+var getAllPosts = function (projectUrisArray, callback, startingResultPosition, maxResults) {
     //based on getRecentProjectWideChangesSocial
-    //TODO ALTERAR ESTA FUNCAO PARA TER TODOS OS TIPOS DE SHARES (E TB FILEVERSIOS?????)
     var self = this;
 
     if(projectUrisArray && projectUrisArray.length > 0)
@@ -1478,69 +1425,10 @@ var getAllPostsNew = function (projectUrisArray, callback, startingResultPositio
                 projectsUris +
                 "} \n" +
                 "VALUES ?postTypes { \n" +
-                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" +
+                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost"  + " ddr:FileSystemPost" + " ddr:ManualPost"+
                 "} \n" +
                 "?uri dcterms:modified ?date. \n" +
                 "?uri rdf:type ?postTypes. \n" +
-                "?uri ddr:projectUri ?project. \n" +
-                "} \n "+
-                "ORDER BY DESC(?date) \n";
-
-            query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
-
-            db.connection.execute(query,
-                DbConnection.pushLimitsArguments([
-                    {
-                        type : DbConnection.resourceNoEscape,
-                        value: db_social.graphUri
-                    }
-                ]),
-                function(err, results) {
-                    if(!err)
-                    {
-                        callback(err,results);
-                    }
-                    else
-                    {
-                        callback(true, "Error fetching posts in getAllPosts");
-                    }
-                });
-        });
-    }
-    else
-    {
-        //User has no projects
-        var results = [];
-        callback(null, results);
-    }
-};
-
-/**
- * Gets all the posts ordered by modified date and using pagination
- * @param callback the function callback
- * @param startingResultPosition the starting position to start the query
- * @param maxResults the limit for the query
- */
-var getAllPosts = function (projectUrisArray, callback, startingResultPosition, maxResults) {
-    //based on getRecentProjectWideChangesSocial
-    //TODO ALTERAR ESTA FUNCAO PARA TER TODOS OS TIPOS DE SHARES (E TB FILEVERSIOS?????)
-    var self = this;
-
-    if(projectUrisArray && projectUrisArray.length > 0)
-    {
-        async.map(projectUrisArray, function (uri, cb1) {
-            cb1(null, '<'+uri+ '>');
-        }, function (err, fullProjects) {
-            var projectsUris = fullProjects.join(" ");
-            var query =
-                "WITH [0] \n" +
-                "SELECT DISTINCT ?uri \n" +
-                "WHERE { \n" +
-                "VALUES ?project { \n" +
-                projectsUris +
-                "} \n" +
-                "?uri dcterms:modified ?date. \n" +
-                "?uri rdf:type ddr:Post. \n" +
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n "+
                 "ORDER BY DESC(?date) \n";
@@ -1604,6 +1492,12 @@ exports.post = function (req, res) {
         });
     };
 
+    var getResourceInfoFromFileSystemPost = function (fileSystemPost, cb) {
+        fileSystemPost.getResourceInfo(function (err, resourceInfo) {
+           cb(err, resourceInfo);
+        });
+    };
+
     //uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval
     //TODO VERIFICAR AQUI QUE TIPO DE POST É e construir as 3 changes etc
     Post.findByUri(postUri, function(err, post)
@@ -1612,38 +1506,6 @@ exports.post = function (req, res) {
         {
             if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
-                //TODO ARRANJAR MANEIRA AQUI para correr diferentes funções dependendo do type do post(mandar changes etc)
-                //EXEMPLO
-                /*async.parallel(
-                    [
-                        getUserCount, getAllUsers
-                    ], function(err, results)
-                    {*/
-                /*async.parallel([
-                        function(callback) {
-                            getCommentsForAPost(post.uri, function (err, commentsData) {
-                                callback(err, commentsData);
-                            });
-                        },
-                        function(callback) {
-                            getLikesForAPost(post.uri, function (err, likesData) {
-                                callback(err, likesData);
-                            });
-                        },
-                        function (callback) {
-                            getSharesForAPost(post.uri, function (err, sharesData) {
-                                callback(err, sharesData);
-                            });
-                        }
-                    ],
-                    // optional callback
-                    function(err, results) {
-                        post.commentsContent = results[0];
-                        post.likesContent = results[1];
-                        post.sharesContent = results[2];
-                        res.json(post);
-                    });*/
-
                 async.series([
                         function(callback) {
                             getCommentsForAPost(post, function (err, commentsData) {
@@ -1684,18 +1546,33 @@ exports.post = function (req, res) {
                                     }
                                 }, null, db_social.graphUri, false, null, null);
                             }
+                            else if(post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/FileSystemPost")
+                            {
+                                FileSystemPost.findByUri(post.uri, function (err, fileSystemPost) {
+                                    if(!err)
+                                    {
+                                        getResourceInfoFromFileSystemPost(fileSystemPost, function (err, resourceInfo) {
+                                            post.resourceInfo = resourceInfo;
+                                            callback(err);
+                                        });
+                                    }
+                                    else
+                                    {
+                                        console.error("Error getting a metadataChangePost");
+                                        console.error(err);
+                                        callback(err);
+                                    }
+                                }, null, db_social.graphUri, false, null, null);
+                            }
                             else
                             {
-                                cb(null);
+                                callback(null);
                             }
                         }
                         //TODO METER AQUI UM IF NO caso de ser METADATACHANGEPOST para correr a função buildChanges que mete as changes no post
                     ],
                     // optional callback
                     function(err, results) {
-                        /*post.commentsContent = results[0];
-                        post.likesContent = results[1];
-                        post.sharesContent = results[2];*/
                         res.json(post);
                     });
             }
