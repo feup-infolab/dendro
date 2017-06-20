@@ -12,9 +12,6 @@ const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resou
 const db = function () {
     return GLOBAL.db.default;
 }();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
 
 const async = require('async');
 
@@ -27,11 +24,17 @@ function ExternalRepository (object, creatorUsername)
 
     const slug = require('slug');
 
-    if(isNull(object.uri))
+    if(isNull(self.uri))
+    {
+        const uuid = require('uuid');
+        self.uri = "/r/external_repository/" + uuid.v4();
+    }
+
+    if(isNull(self.ddr.humanReadableUri))
     {
         if(!isNull(creatorUsername) && !isNull(self.dcterms.title))
         {
-            self.uri = Config.baseUri + "/external_repository/" + creatorUsername + "/" + slug(self.dcterms.title);
+            self.humanReadableURI = Config.baseUri + "/external_repository/" + creatorUsername + "/" + slug(self.dcterms.title);
         }
         else
         {

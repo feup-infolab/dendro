@@ -6,15 +6,7 @@ const Config = function () {
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
 
 const async = require('async');
 
@@ -25,21 +17,32 @@ function RepositoryPlatform(object)
 
     self.rdf.type = "ddr:RepositoryPlatform";
 
-    const slug = require('slug');
-
-    if(isNull(object.uri))
+    if(isNull(self.uri))
     {
-        if(!isNull(self.ddr.handle) && !isNull(self.dcterms.title))
+        const uuid = require('uuid');
+        self.uri = "/r/repository_platform/" + uuid.v4();
+    }
+
+    if(isNull(self.ddr.humanReadableURI))
+    {
+        const slug = require('slug');
+
+        if(isNull(object.ddr.humanReadableURI))
         {
-            self.uri = Config.baseUri + "/repository_platform/" + object.ddr.handle;
-        }
-        else
-        {
-            const error = "Unable to create an external repository resource without specifying its ddr:handle and its dcterms:title";
-            console.error(error);
-            return {error : error};
+            if(!isNull(self.ddr.handle) && !isNull(self.dcterms.title))
+            {
+                self.ddr.humanReadableURI = Config.baseUri + "/repository_platform/" + object.ddr.handle;
+            }
+            else
+            {
+                const error = "Unable to create an external repository resource without specifying its ddr:handle and its dcterms:title";
+                console.error(error);
+                return {error : error};
+            }
         }
     }
+
+
 
     return self;
 }

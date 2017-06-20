@@ -16,13 +16,15 @@ function Notification (object)
 
     self.rdf.type = "ddr:Notification";
 
-    if(!isNull(object.uri))
+
+    if(isNull(self.uri))
     {
-        self.uri = object.uri;
+        self.uri = "/r/notifications/" + uuid.v4();
     }
-    else
+
+    if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = Config.baseUri + "/notifications/" + uuid.v4();
+        self.ddr.humanReadableURI = Config.baseUri + "/notifications/" + uuid.v4();
     }
 
     return self;

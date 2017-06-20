@@ -42,22 +42,39 @@ function ResearchDomain (object, callback)
 
     if(isNull(self.uri))
     {
-        if(typeof self.dcterms.title === "string")
+        if(!isNull(object.uri))
         {
-            const slug = require('slug');
-            const slugified_title = slug(self.dcterms.title);
-            self.uri = db.baseURI+"/research_domains/"+slugified_title;
-            return callback(null, self);
+            self.uri = object.uri;
         }
         else
         {
-            return callback(1, "No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: " + JSON.stringify(object));
+            const uuid = require('uuid');
+            self.uri = "/r/research_domains/" + uuid.v4();
         }
     }
-    else
+
+    if(!isNull(self.ddr) && isNull(self.ddr.humanReadableName))
     {
-        return callback(0, self);
+        if(!isNull(object.ddr) && !isNull(object.ddr.humanReadableURI))
+        {
+            self.ddr.humanReadableURI = object.ddr.humanReadableURI;
+        }
+        else
+        {
+            if(typeof self.dcterms.title === "string")
+            {
+                const slug = require('slug');
+                const slugified_title = slug(self.dcterms.title);
+                self.ddr.humanReadableURI = Config.baseUri +"/research_domains/"+slugified_title;
+            }
+            else
+            {
+                return callback(1, "No URI *nor dcterms:title* specified for research domain. Object sent for research domain creation: " + JSON.stringify(object));
+            }
+        }
     }
+
+    return callback(0, self);
 }
 ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results)
 {

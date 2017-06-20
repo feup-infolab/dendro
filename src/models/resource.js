@@ -18,7 +18,6 @@ const db = function () {
 const redis = function (graphUri) {
     if (isNull(graphUri) || isNull(graphUri) || !graphUri) {
         if (!isNull(GLOBAL.redis.default)) {
-            //console.log('ENTRAR DEFAULT REDIS:');
             return GLOBAL.redis.default;
         }
         else {
@@ -42,11 +41,11 @@ function Resource (object)
         self.uri = object.uri;
     }
 
-    if(!isNull(object.id)) {
-        self.id = object.id;
-    }
-
     self.copyOrInitDescriptors(object);
+
+    if(!isNull(object.ddr) && !isNull(object.ddr.humanReadableUri)) {
+        self.ddr.humanReadableUri = object.ddr.humanReadable;
+    }
 
     return self;
 }
@@ -1733,30 +1732,21 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
     {
         if(!err)
         {
+            let newVersionNumber;
             if(isNull(latestArchivedVersion))
             {
-                var newVersionNumber = 0;
+                newVersionNumber = 0;
             }
             else
             {
-                var newVersionNumber = latestArchivedVersion.ddr.versionNumber + 1;
+                newVersionNumber = latestArchivedVersion.ddr.versionNumber + 1;
             }
-
-            const ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
 
             //create a clone of the object parameter (note that all functions of the original object are not cloned,
             // but we dont care in this case
             // (http://stackoverflow.com/questions/122102/most-efficient-way-to-clone-an-object)
             const objectValues = JSON.parse(JSON.stringify(self));
-            const archivedResource = new ArchivedResource(objectValues);
 
-            if(!isNull(self.uri))
-            {
-                archivedResource.uri = self.uri + "/version/" + newVersionNumber;
-                archivedResource.ddr.isVersionOf = self.uri;
-            }
-
-            //TODO for testing only, in production should require authentication (an user in the current session) to perform an update.
             let versionCreator;
             if(!isNull(entitySavingTheResource))
             {
@@ -1768,10 +1758,13 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
                 versionCreator = User.anonymous.uri;
             }
 
-            archivedResource.ddr.versionCreator = versionCreator;
-            archivedResource.ddr.isVersionOf = self.uri;
-            archivedResource.ddr.versionNumber = newVersionNumber;
+            objectValues.ddr.versionCreator = versionCreator;
+            objectValues.ddr.isVersionOf = self.uri;
+            objectValues.ddr.versionNumber = newVersionNumber;
 
+            const ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+            const archivedResource = new ArchivedResource(objectValues);
+            
             return callback(null, archivedResource);
         }
         else

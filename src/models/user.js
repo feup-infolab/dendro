@@ -24,14 +24,6 @@ function User (object)
     User.baseConstructor.call(this, object);
     const self = this;
 
-    if(
-        !isNull(self.ddr) &&
-        !isNull(self.ddr.username)
-    )
-    {
-        self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.username;
-    }
-
     if(isNull(self.uri))
     {
         if(isNull(object.uri))
@@ -43,6 +35,14 @@ function User (object)
         {
             self.uri = object.uri;
         }
+    }
+
+    self.copyOrInitDescriptors(object);
+
+
+    if(isNull(self.ddr.humanReadableURI))
+    {
+        self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.username;
     }
 
     if(isNull(self.ddr.salt))

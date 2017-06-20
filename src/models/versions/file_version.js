@@ -43,16 +43,19 @@ function FileVersion (object)
     FileVersion.baseConstructor.call(this, object);
     const self = this;
 
-    if(!isNull(object.uri))
+    const newId = uuid.v4();
+
+    if(isNull(self.uri))
     {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/fileVersion/" + uuid.v4();
+       self.uri = "/r/file_versions/" + newId;
     }
 
     self.copyOrInitDescriptors(object);
+
+    if(isNull(self.ddr.humanReadableURI))
+    {
+        self.uri = Config.baseUri + "/fileVersion/" + newId;
+    }
 
     self.rdf.type = "ddr:FileVersion";
 

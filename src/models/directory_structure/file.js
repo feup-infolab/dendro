@@ -26,20 +26,19 @@ function File (object)
 
     if(isNull(self.uri))
     {
-        if(isNull(object.uri) && !isNull(object.nie))
-        {
-            self.uri = object.nie.isLogicalPartOf +  "/" + object.nie.title;
-        }
-        else
-        {
-            self.uri = object.uri;
-        }
+        const uuid = require('uuid');
+        self.uri = "/r/file/" + uuid.v4();
     }
 
     if(!isNull(object.nie))
     {
         self.nie.isLogicalPartOf = object.nie.isLogicalPartOf;
         self.nie.title = object.nie.title;
+
+        if(isNull(self.ddr.humanReadableURI))
+        {
+            self.ddr.humanReadableURI = object.nie.isLogicalPartOf +  "/" + object.nie.title;
+        }
     }
 
     self.rdf.type = File.prefixedRDFType;

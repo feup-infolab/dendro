@@ -592,8 +592,8 @@ MIME types
  */
 
 Config.mimeType = function(extension) {
-    var mime = require('mime-types');
-    if(typeof mime.lookup(extension) == null)
+    const mime = require('mime-types');
+    if(isNull(mime.lookup(extension)))
     {
         return "application/octet-stream";
     }

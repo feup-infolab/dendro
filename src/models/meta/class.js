@@ -42,8 +42,7 @@ const copyPrototypeFromParent = function (parentClass, childClass) {
 };
 
 const getParentConstructor = function (parentClass) {
-    const parentConstructor = parentClass;
-    return parentConstructor;
+    return parentClass;
 };
 
 Class.extend = function(childClass, parentClass)
@@ -57,11 +56,11 @@ Class.extend = function(childClass, parentClass)
 };
 
 Class.prototype.isA = function (prototype) {
-    var object = this;
+    let object = this;
 
     do {
         if (object === prototype) return true;
-        var object = Object.getPrototypeOf(object);  //for debugging
+        object = Object.getPrototypeOf(object);  //for debugging
     }
     while (object);
 

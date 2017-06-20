@@ -23,9 +23,10 @@ function InformationElement (object)
 
     if(isNull(self.uri))
     {
-        self.uri = object.nie.isLogicalPartOf + "/" + object.nie.title;
+        const uuid = require('uuid');
+        self.uri = "/r/information_element/" + uuid.v4();
     }
-
+    
     if(!isNull(object.nie))
     {
         if(!isNull(object.nie.isLogicalPartOf))
@@ -37,8 +38,13 @@ function InformationElement (object)
         {
             self.nie.title = object.nie.title;
         }
-    }
 
+        if(isNull(self.ddr.humanReadableURI))
+        {
+            self.uri = object.nie.isLogicalPartOf + "/" + object.nie.title;
+        }
+    }
+    
     self.rdf.type = "nie:InformationElement";
 
     return self;

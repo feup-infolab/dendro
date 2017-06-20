@@ -15,7 +15,6 @@ const File = require(Config.absPathInSrcFolder("/models/directory_structure/file
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
 const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
@@ -36,30 +35,15 @@ function Project(object)
     Project.baseConstructor.call(this, object);
     const self = this;
 
-    if(
-        !isNull(self.ddr) &&
-        !isNull(self.ddr.username)
-    )
-    {
-        self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.username;
-    }
-
     if(isNull(self.uri))
     {
-        if(isNull(object.uri))
-        {
-            const uuid = require('uuid');
-            self.uri = "/r/user/" + uuid.v4();
-        }
-        else
-        {
-            self.uri = object.uri;
-        }
+        const uuid = require('uuid');
+        self.uri = "/r/project/" + uuid.v4();
     }
 
-    if(isNull(self.uri))
+    if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = Config.baseUri + "/project/" + self.ddr.handle;
+        self.ddr.humanReadableURI = Config.baseUri + "/project/" + self.ddr.handle;
     }
 
     self.rdf.type = "ddr:Project";

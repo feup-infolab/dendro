@@ -4,22 +4,8 @@ const Config = function () {
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const uuid = require('uuid');
-
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const db_social = function () {
-    return GLOBAL.db.social;
-}();
-
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-const async = require('async');
 
 function Notification (object)
 {
@@ -30,13 +16,16 @@ function Notification (object)
 
     self.rdf.type = "ddr:Notification";
 
-    if(!isNull(object.uri))
+    const newId = uuid.v4();
+
+    if(isNull(self.uri))
     {
-        self.uri = object.uri;
+        self.uri = "/r/notification" + newId;
     }
-    else
+
+    if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = Config.baseUri + "/notifications/" + uuid.v4();
+        self.ddr.humanReadableURI = Config.baseUri + "/notifications/" + newId;
     }
 
     return self;

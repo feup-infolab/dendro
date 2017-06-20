@@ -4,23 +4,8 @@ const Config = function () {
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 const Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const uuid = require('uuid');
-
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const db_social = function () {
-    return GLOBAL.db.social;
-}();
-
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-const async = require('async');
 
 function Like (object)
 {
@@ -33,13 +18,16 @@ function Like (object)
 
     //self.dcterms.postURI = "";
 
-    if(!isNull(object.uri))
+    const newId = uuid.v4();
+    
+    if(isNull(self.uri))
     {
-        self.uri = object.uri;
+        self.uri = "/r/like/" + newId;
     }
-    else
+
+    if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = Config.baseUri + "/likes/" + uuid.v4();
+        self.uri = Config.baseUri + "/likes/" + newId;
     }
 
     return self;

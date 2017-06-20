@@ -46,10 +46,16 @@ function Interaction (object, callback)
 
     if(isNull(self.uri))
     {
+        const uuid = require('uuid');
+        self.uri = "/r/interaction/" + uuid.v4();
+    }
+
+    if(isNull(self.ddr.humanReadableURI))
+    {
         const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
         if(self.ddr.performedBy instanceof Object)
         {
-            self.uri = db.baseURI+"/user/"+self.ddr.performedBy.ddr.username+"/interaction/"+self.dcterms.created;
+            self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.performedBy.ddr.username+"/interaction/"+self.dcterms.created;
             return callback(null, self);
         }
         else if(typeof self.ddr.performedBy === "string")
@@ -57,8 +63,7 @@ function Interaction (object, callback)
             User.findByUri(self.ddr.performedBy, function(err, user){
                if(!err && !isNull(user))
                {
-                   self.uri = db.baseURI+"/user/"+user.ddr.username+"/interaction/"+self.dcterms.created;
-                   return callback(null, self);
+                   self.ddr.humanReadableURI = db.baseURI+"/user/"+user.ddr.username+"/interaction/"+self.dcterms.created;
                }
                else
                {
@@ -71,10 +76,8 @@ function Interaction (object, callback)
             return callback(1, "no author user specified for interaction. " + self.ddr.performedBy);
         }
     }
-    else
-    {
-        return callback(0, self);
-    }
+    
+    return callback(null, self);
 }
 
 Interaction.all = function(callback, streaming, customGraphUri) {

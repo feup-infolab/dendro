@@ -5,38 +5,31 @@ const Config = function () {
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const uuid = require('uuid');
-
-const db = function () {
-    return GLOBAL.db.default;
-}();
-const db_social = function () {
-    return GLOBAL.db.social;
-}();
-
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-const async = require('async');
 
 function Post (object)
 {
     Post.baseConstructor.call(this, object);
     const self = this;
 
-    if(!isNull(object.uri))
-    {
-        self.uri = object.uri;
-    }
-    else
-    {
-        self.uri = Config.baseUri + "/posts/" + uuid.v4();
-    }
-
     self.copyOrInitDescriptors(object);
 
     self.rdf.type = "ddr:Post";
+
+    const newId = uuid.v4();
+
+    if(isNull(self.uri))
+    {
+        self.uri = "/r/post/" + newId;
+    }
+
+    if(isNull(self.ddr.humanReadableURI))
+    {
+        self.ddr.humanReadableURI = Config.baseUri + "/posts/" + newId;
+    }
+
+
+
 
     self.ddr.numLikes = 0;
 

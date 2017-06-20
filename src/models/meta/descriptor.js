@@ -105,11 +105,14 @@ function Descriptor(object)
                     self.hasRegex = Elements[self.prefix][self.shortName].hasRegex;
                 }
 
-                for(var descriptorType in Config.types)
+                for(let descriptorType in Config.types)
                 {
-                    if(!isNull(Elements[self.prefix][self.shortName]))
+                    if(Config.types.hasOwnProperty(descriptorType))
                     {
-                        self[descriptorType] = Elements[self.prefix][self.shortName][descriptorType];
+                        if (!isNull(Elements[self.prefix][self.shortName]))
+                        {
+                            self[descriptorType] = Elements[self.prefix][self.shortName][descriptorType];
+                        }
                     }
                 }
             }
@@ -135,13 +138,16 @@ function Descriptor(object)
             self.setValue(object.value);
 
             //try to get parametrization from ontology level
-            for(var descriptorType in Config.types)
+            for(let descriptorType in Config.types)
             {
-                if(isNull(self[descriptorType]) &&
-                    !isNull(Ontology.allOntologies[self.prefix]) &&
-                    !isNull(Ontology.allOntologies[self.prefix][descriptorType]))
+                if(Config.types.hasOwnProperty(descriptorType))
                 {
-                    self[descriptorType] = Ontology.allOntologies[self.prefix][descriptorType];
+                    if(isNull(self[descriptorType]) &&
+                        !isNull(Ontology.allOntologies[self.prefix]) &&
+                        !isNull(Ontology.allOntologies[self.prefix][descriptorType]))
+                    {
+                        self[descriptorType] = Ontology.allOntologies[self.prefix][descriptorType];
+                    }
                 }
             }
             return self;

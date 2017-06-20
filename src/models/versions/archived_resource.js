@@ -4,7 +4,6 @@ const Config = function () {
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 const Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
 const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
@@ -12,9 +11,6 @@ const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
 const db = function () {
     return GLOBAL.db.default;
-}();
-const gfs = function () {
-    return GLOBAL.gfs.default;
 }();
 
 const _ = require('underscore');
@@ -26,6 +22,19 @@ function ArchivedResource (object)
     const self = this;
 
     self.copyOrInitDescriptors(object);
+
+    archivedResource.ddr.isVersionOf = object.ddr.isVersionOf;
+
+    if(isNull(self.uri))
+    {
+        const uuid = require('uuid');
+        archivedResource.uri = "/r/archived_resource/" + uuid.v4();
+    }
+
+    if(isNull(self.ddr.humanReadableURI))
+    {
+        archivedResource.humanReadableURI = self.uri + "/version/" + newVersionNumber;
+    }
 
     if(!isNull(object.rdf.type))
     {

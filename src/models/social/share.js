@@ -32,9 +32,7 @@ function Share (object)
 
     self.rdf.type = "ddr:Share";
     self.rdf.isShare = true;
-
-
-
+    
     let objectType;
     if(object.ddr.postURI)
     {
@@ -46,13 +44,17 @@ function Share (object)
         objectType = "ddr:FileVersion";
     }
 
-    if(!isNull(object.uri))
+
+    const newId = uuid.v4();
+    
+    if(isNull(self.uri))
     {
-        self.uri = object.uri;
+        self.uri = "/r/shares/" + newId;
     }
-    else
+
+    if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = Config.baseUri + "/shares/" + uuid.v4();
+        self.ddr.humanReadableURI = Config.baseUri + "/shares/" + newId;
     }
 
     const descriptor = new Descriptor({
