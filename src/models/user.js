@@ -18,18 +18,31 @@ const path = require('path');
 const db = function () {
     return GLOBAL.db.default;
 }();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
 
 function User (object)
 {
     User.baseConstructor.call(this, object);
     const self = this;
 
+    if(
+        !isNull(self.ddr) &&
+        !isNull(self.ddr.username)
+    )
+    {
+        self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.username;
+    }
+
     if(isNull(self.uri))
     {
-        self.uri = db.baseURI+"/user/"+self.ddr.username;
+        if(isNull(object.uri))
+        {
+            const uuid = require('uuid');
+            self.uri = "/r/user/" + uuid.v4();
+        }
+        else
+        {
+            self.uri = object.uri;
+        }
     }
 
     if(isNull(self.ddr.salt))
@@ -54,7 +67,7 @@ function User (object)
 User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 {
     User.findByPropertyValue(orcid, "ddr:orcid", function(err, user){
-        if(!err && typeof user != null && user instanceof User)
+        if(!err && !isNull(user) && user instanceof User)
         {
             if(removePrivateDescriptors)
             {

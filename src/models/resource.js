@@ -1698,7 +1698,7 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
             }
             else
             {
-                var error = "Error occurred fetching versions of resource " + self.uri + ". Error returned : " + versions;
+                const error = "Error occurred fetching versions of resource " + self.uri + ". Error returned : " + versions;
                 console.error(error);
                 return callback(1, error);
             }

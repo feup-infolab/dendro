@@ -36,6 +36,27 @@ function Project(object)
     Project.baseConstructor.call(this, object);
     const self = this;
 
+    if(
+        !isNull(self.ddr) &&
+        !isNull(self.ddr.username)
+    )
+    {
+        self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.username;
+    }
+
+    if(isNull(self.uri))
+    {
+        if(isNull(object.uri))
+        {
+            const uuid = require('uuid');
+            self.uri = "/r/user/" + uuid.v4();
+        }
+        else
+        {
+            self.uri = object.uri;
+        }
+    }
+
     if(isNull(self.uri))
     {
         self.uri = Config.baseUri + "/project/" + self.ddr.handle;

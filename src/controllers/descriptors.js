@@ -80,7 +80,7 @@ exports.from_ontology = function(req, res)
                                                         }, [ontology]);
                                                     }
                                                     else {
-                                                        var error = "Error fetching user : " + user + " : " + err;
+                                                        const error = "Error fetching user : " + user + " : " + err;
                                                         console.error(error);
                                                         return callback(1, error);
                                                     }
@@ -99,7 +99,7 @@ exports.from_ontology = function(req, res)
                                                         }, [ontology]);
                                                     }
                                                     else {
-                                                        var error = "Error fetching project : " + project + " : " + err;
+                                                        const error = "Error fetching project : " + project + " : " + err;
                                                         console.error(error);
                                                         return callback(1, error);
                                                     }
@@ -118,7 +118,7 @@ exports.from_ontology = function(req, res)
                                                         }, [ontology]);
                                                     }
                                                     else {
-                                                        var error = "Error fetching user : " + user + " : " + err;
+                                                        const error = "Error fetching user : " + user + " : " + err;
                                                         console.error(error);
                                                         return callback(1, error);
                                                     }
@@ -133,7 +133,7 @@ exports.from_ontology = function(req, res)
                                                         }, [ontology]);
                                                     }
                                                     else {
-                                                        var error = "Error fetching project : " + project + " : " + err;
+                                                        const error = "Error fetching project : " + project + " : " + err;
                                                         console.error(error);
                                                         return callback(1, error);
                                                     }
@@ -146,7 +146,7 @@ exports.from_ontology = function(req, res)
                                                         return callback(error, dcElementsDescriptors);
                                                     }
                                                     else {
-                                                        var error = "Error fetching DC Elements Descriptors : " + err;
+                                                        const error = "Error fetching DC Elements Descriptors : " + err;
                                                         console.error(error);
                                                         return callback(1, error);
                                                     }

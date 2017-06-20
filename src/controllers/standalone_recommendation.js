@@ -198,7 +198,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 }, allowedOntologies);
             }
             else {
-                var error = "Error fetching user : " + user + " : " + err;
+                const error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
                 return callback(1, error);
             }
@@ -218,7 +218,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 }, allowedOntologies);
             }
             else {
-                var error = "Error fetching user : " + user + " : " + err;
+                const error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
                 return callback(1, error);
             }
@@ -237,7 +237,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 }, allowedOntologies);
             }
             else {
-                var error = "Error fetching user : " + user + " : " + err;
+                const error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
                 return callback(1, error);
             }
@@ -259,13 +259,13 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                     }, allowedOntologies);
                 }
                 else {
-                    var error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
+                    const error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
                     console.error(error);
                     return callback(1, error);
                 }
             }
             else {
-                var error = "Error fetching project : " + project + " : " + err;
+                const error = "Error fetching project : " + project + " : " + err;
                 console.error(error);
                 return callback(1, error);
             }
@@ -283,13 +283,13 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                     }, allowedOntologies);
                 }
                 else {
-                    var error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
+                    const error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
                     console.error(error);
                     return callback(1, error);
                 }
             }
             else {
-                var error = "Error fetching project : " + project + " : " + err;
+                const error = "Error fetching project : " + project + " : " + err;
                 console.error(error);
                 return callback(1, error);
             }
@@ -346,7 +346,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 }, allowedOntologies);
             }
             else {
-                var error = "Error fetching user : " + user + " : " + err;
+                const error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
                 return callback(1, error);
             }
@@ -364,7 +364,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 }, allowedOntologies);
             }
             else {
-                var error = "Error fetching user : " + user + " : " + err;
+                const error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
                 return callback(1, error);
             }

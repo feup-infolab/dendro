@@ -163,19 +163,19 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                                     transformedQuery = transformedQuery.replace(pattern, "<" + valueAsFullUri + ">");
                                 }
                                 else {
-                                    var error = "Value of argument " + currentArgument.value + " is null. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                                    const error = "Value of argument " + currentArgument.value + " is null. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                                     console.error(error);
                                     return callback(1, error);
                                 }
                             }
                             else {
-                                var error = "Value of argument " + currentArgument.value + " is not valid for an argument of type Prefixed Resource... Did you mean to parametrize it as a string type in the elements.js file?. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                                const error = "Value of argument " + currentArgument.value + " is not valid for an argument of type Prefixed Resource... Did you mean to parametrize it as a string type in the elements.js file?. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                                 console.error(error);
                                 return callback(1, error);
                             }
                         }
                         else {
-                            var error = "Cannot Execute Query: Value of argument at index " + currentArgumentIndex + " is undefined. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                            const error = "Cannot Execute Query: Value of argument at index " + currentArgumentIndex + " is undefined. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                             console.error(error);
                             return callback(1, error);
                         }
@@ -192,7 +192,7 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                     transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
                     break;
                 default: {
-                    var error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                    const error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                     console.error(error);
                     return callback(1, error);
                     break;
@@ -200,7 +200,7 @@ const queryObjectToString = function (query, argumentsArray, callback) {
             }
         }
         else {
-            var error = "Error in query " + query + "; Unable to find argument with index " + i + " .";
+            const error = "Error in query " + query + "; Unable to find argument with index " + i + " .";
             console.error(error);
             return callback(1, error);
         }
@@ -483,7 +483,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 
     if(!triple.subject  || !triple.predicate || !triple.object)
     {
-        var error =  "Attempted to insert an invalid triple, missing one of the three required elements ( subject-> " + triple.subject + " predicate ->" + triple.predicate + " object-> " + triple._object +" )";
+        const error =  "Attempted to insert an invalid triple, missing one of the three required elements ( subject-> " + triple.subject + " predicate ->" + triple.predicate + " object-> " + triple._object +" )";
         console.error(error);
         return callback(1, error);
     }

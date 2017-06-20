@@ -276,7 +276,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
                 }
                 else
                 {
-                    var error = "Error creating index : " + data;
+                    const error = "Error creating index : " + data;
                     console.error(error);
                     endCallback(1, error);
                 }

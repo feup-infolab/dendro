@@ -41,7 +41,7 @@ function Descriptor(object)
             const indexOfColon = object.prefixedForm.indexOf(":");
             if(indexOfColon < 0)
             {
-                var error = "Invalid prefixed form for descriptor " + object.prefixedForm;
+                const error = "Invalid prefixed form for descriptor " + object.prefixedForm;
                 console.error(error);
                 throw error;
             }
@@ -63,7 +63,7 @@ function Descriptor(object)
         }
         else
         {
-            var error = "Invalid Descriptor." + JSON.stringify(object) +". " +
+            const error = "Invalid Descriptor." + JSON.stringify(object) +". " +
                 "Check that you have included one of the following: an uri; an ontology uri and shortName; a prefixed form; a prefix and a shortName. " +
                 "Also, does that descriptor really belong to that ontology?";
 
@@ -73,7 +73,7 @@ function Descriptor(object)
 
         if(isNull(Elements[self.prefix]))
         {
-            var error = "Unknown ontology for -> " + object.uri +". The owning ontology of the descriptor is not parametrized in this Dendro instance.";
+            const error = "Unknown ontology for -> " + object.uri +". The owning ontology of the descriptor is not parametrized in this Dendro instance.";
 
             if(Config.debug.log_missing_unknown_descriptors)
             {
@@ -84,7 +84,7 @@ function Descriptor(object)
         }
         else if(isNull(Elements[self.prefix][self.shortName]) && Config.debug.active && Config.debug.descriptors.log_missing_unknown_descriptors)
         {
-            var error = "Unknown descriptor -> " + object.uri+". This descriptor is not parametrized in this Dendro instance; however, the ontology uri matches an ontology in this instance. Are you sure that descriptor belongs to that ontology? Check the final part of the URI, or parametrize the element in the elements.js file.";
+            const error = "Unknown descriptor -> " + object.uri+". This descriptor is not parametrized in this Dendro instance; however, the ontology uri matches an ontology in this instance. Are you sure that descriptor belongs to that ontology? Check the final part of the URI, or parametrize the element in the elements.js file.";
             console.error(error);
             return {error : error};
         }
@@ -149,7 +149,7 @@ function Descriptor(object)
     }
     else
     {
-        var error = "No object supplied for descriptor creation";
+        const error = "No object supplied for descriptor creation";
         console.error(error);
         return {error : error};
     }

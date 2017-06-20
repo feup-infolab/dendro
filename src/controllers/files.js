@@ -97,7 +97,7 @@ exports.download = function(req, res){
                             fileStream.pipe(res);
                         }
                         else {
-                            var error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
+                            const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
                             console.error(error);
                             res.write("500 Error : " + error + "\n");
                             res.end();
@@ -105,7 +105,7 @@ exports.download = function(req, res){
                     }
                     else {
                         if (err === 404) {
-                            var error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                            const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                             console.error(error);
                             res.writeHead(404, error);
                             res.end();
@@ -118,7 +118,7 @@ exports.download = function(req, res){
                 });
             }
             else {
-                var error = "Non-existent folder : " + requestedResourceURI;
+                const error = "Non-existent folder : " + requestedResourceURI;
                 console.error(error);
                 res.writeHead(404, error);
                 res.end();
@@ -176,7 +176,7 @@ exports.download = function(req, res){
                                         }
                                         else
                                         {
-                                            var error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                                            const error = "There was an error streaming the requested resource : " + requestedResourceURI;
                                             console.error(error);
                                             res.writeHead(500, error);
                                             res.end();
@@ -186,14 +186,14 @@ exports.download = function(req, res){
                                     {
                                         if(err === 404)
                                         {
-                                            var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                            const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                                             console.error(error);
                                             res.writeHead(404, error);
                                             res.end();
                                         }
                                         else
                                         {
-                                            var error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
+                                            const error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
                                             console.error(error);
                                             res.writeHead(500, error);
                                             res.end();
@@ -203,7 +203,7 @@ exports.download = function(req, res){
                             }
                             else
                             {
-                                var error = "Non-existent file : " + requestedResourceURI;
+                                const error = "Non-existent file : " + requestedResourceURI;
                                 console.error(error);
                                 res.writeHead(404, error);
                                 res.end();
@@ -216,7 +216,7 @@ exports.download = function(req, res){
                     }
                     else
                     {
-                        var error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
+                        const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
                         console.error(error);
                         res.write("500 Error : "+ error +"\n");
                         res.end();
@@ -224,7 +224,7 @@ exports.download = function(req, res){
                 }
                 else
                 {
-                    var error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
+                    const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
                     console.error(error);
                     res.write("500 Error : "+ error +"\n");
                     res.end();
@@ -275,7 +275,7 @@ exports.serve = function(req, res){
                             fileStream.pipe(res);
                         }
                         else {
-                            var error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
+                            const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
                             console.error(error);
                             res.write("500 Error : " + error + "\n");
                             res.end();
@@ -283,7 +283,7 @@ exports.serve = function(req, res){
                     }
                     else {
                         if (err === 404) {
-                            var error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                            const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                             console.error(error);
                             res.writeHead(404, error);
                             res.end();
@@ -296,7 +296,7 @@ exports.serve = function(req, res){
                 });
             }
             else {
-                var error = "Non-existent folder : " + requestedResourceURI;
+                const error = "Non-existent folder : " + requestedResourceURI;
                 console.error(error);
                 res.writeHead(404, error);
                 res.end();
@@ -355,7 +355,7 @@ exports.serve = function(req, res){
                                         }
                                         else
                                         {
-                                            var error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                                            const error = "There was an error streaming the requested resource : " + requestedResourceURI;
                                             console.error(error);
                                             res.writeHead(500, error);
                                             res.end();
@@ -365,14 +365,14 @@ exports.serve = function(req, res){
                                     {
                                         if(err === 404)
                                         {
-                                            var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                            const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                                             console.error(error);
                                             res.writeHead(404, error);
                                             res.end();
                                         }
                                         else
                                         {
-                                            var error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
+                                            const error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
                                             console.error(error);
                                             res.writeHead(500, error);
                                             res.end();
@@ -382,7 +382,7 @@ exports.serve = function(req, res){
                             }
                             else
                             {
-                                var error = "Non-existent file : " + requestedResourceURI;
+                                const error = "Non-existent file : " + requestedResourceURI;
                                 console.error(error);
                                 res.writeHead(404, error);
                                 res.end();
@@ -395,7 +395,7 @@ exports.serve = function(req, res){
                     }
                     else
                     {
-                        var error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
+                        const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
                         console.error(error);
                         res.write("500 Error : "+ error +"\n");
                         res.end();
@@ -403,7 +403,7 @@ exports.serve = function(req, res){
                 }
                 else
                 {
-                    var error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
+                    const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
                     console.error(error);
                     res.write("500 Error : "+ error +"\n");
                     res.end();
@@ -458,7 +458,7 @@ exports.serve_base64 = function(req, res){
                                     }
                                     else
                                     {
-                                        var error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                                        const error = "There was an error streaming the requested resource : " + requestedResourceURI;
                                         console.error(error);
                                         res.writeHead(500, error);
                                         res.end();
@@ -468,14 +468,14 @@ exports.serve_base64 = function(req, res){
                                 {
                                     if(err === 404)
                                     {
-                                        var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                        const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                                         console.error(error);
                                         res.writeHead(404, error);
                                         res.end();
                                     }
                                     else
                                     {
-                                        var error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
+                                        const error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
                                         console.error(error);
                                         res.writeHead(500, error);
                                         res.end();
@@ -485,7 +485,7 @@ exports.serve_base64 = function(req, res){
                         }
                         else
                         {
-                            var error = "Non-existent file : " + requestedResourceURI;
+                            const error = "Non-existent file : " + requestedResourceURI;
                             console.error(error);
                             res.writeHead(404, error);
                             res.end();
@@ -494,14 +494,14 @@ exports.serve_base64 = function(req, res){
                 }
                 else if(type === Folder)
                 {
-                    var error = "Resource : " + requestedResourceURI + " is a folder and cannot be represented in Base64";
+                    const error = "Resource : " + requestedResourceURI + " is a folder and cannot be represented in Base64";
                     console.error(error);
                     res.write("500 Error : "+ error +"\n");
                     res.end();
                 }
                 else
                 {
-                    var error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
+                    const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
                     console.error(error);
                     res.write("500 Error : "+ error +"\n");
                     res.end();
@@ -509,7 +509,7 @@ exports.serve_base64 = function(req, res){
             }
             else
             {
-                var error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
+                const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
                 console.error(error);
                 res.write("500 Error : "+ error +"\n");
                 res.end();
@@ -561,7 +561,7 @@ exports.get_thumbnail = function(req, res) {
                         {
                             if(err === 404)
                             {
-                                var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
                                 console.error(error);
                                 res.writeHead(404, error);
                                 res.end();
@@ -594,7 +594,7 @@ exports.get_thumbnail = function(req, res) {
             }
             else
             {
-                var error = "Non-existent file : " + requestedResourceURI;
+                const error = "Non-existent file : " + requestedResourceURI;
                 console.error(error);
                 res.writeHead(404, error);
                 res.end();
@@ -602,7 +602,7 @@ exports.get_thumbnail = function(req, res) {
         }
         else
         {
-            var error = "Error fetching thumbnail for file " + requestedResourceURI;
+            const error = "Error fetching thumbnail for file " + requestedResourceURI;
             console.error(error);
             res.writeHead(500, error);
             res.end();
@@ -1856,7 +1856,7 @@ exports.data = function(req, res){
                             }
                             else
                             {
-                                var error = "Doesn't exist data parser for this format file : " + resourceURI;
+                                const error = "Doesn't exist data parser for this format file : " + resourceURI;
                                 console.error(error);
                                 res.writeHead(500, error);
                                 res.end();
@@ -1866,7 +1866,7 @@ exports.data = function(req, res){
                         }
                         else
                         {
-                            var error = "There was an error streaming the requested resource : " + resourceURI;
+                            const error = "There was an error streaming the requested resource : " + resourceURI;
                             console.error(error);
                             res.writeHead(500, error);
                             res.end();
@@ -1876,14 +1876,14 @@ exports.data = function(req, res){
                     {
                         if(err === 404)
                         {
-                            var error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceURI;
+                            const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceURI;
                             console.error(error);
                             res.writeHead(404, error);
                             res.end();
                         }
                         else
                         {
-                            var error = "Unable to produce temporary file to download "+resourceURI +". Error reported :" + writtenFilePath;
+                            const error = "Unable to produce temporary file to download "+resourceURI +". Error reported :" + writtenFilePath;
                             console.error(error);
                             res.writeHead(500, error);
                             res.end();
@@ -1893,7 +1893,7 @@ exports.data = function(req, res){
             }
             else
             {
-                var error = "Non-existent file : " + resourceURI;
+                const error = "Non-existent file : " + resourceURI;
                 console.error(error);
                 res.writeHead(404, error);
                 res.end();

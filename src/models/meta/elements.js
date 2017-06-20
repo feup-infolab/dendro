@@ -642,7 +642,7 @@ Elements.foaf =
  */
 
 Elements.ddr = {
-    id :  {
+    humanReadableURI :  {
         type : DbConnection.string,
         control : Config.controls.input_box,
         private : true,

@@ -31,10 +31,27 @@ function Folder (object)
     Folder.baseConstructor.call(this, object);
 
     const self = this;
-
-    if(isNull(self.uri) && !isNull(object.nie))
+    
+    if(
+        isNull(self.ddr) &&
+        isNull(self.ddr.humanReadableURI) &&
+        !isNull(object.nie)
+    )
     {
-        self.uri = object.nie.isLogicalPartOf + "/" + object.nie.title;
+        self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
+    }
+
+    if(isNull(self.uri))
+    {
+        if(isNull(object.uri))
+        {
+            const uuid = require('uuid');
+            self.uri = "/r/folder/" + uuid.v4();
+        }
+        else
+        {
+            self.uri = object.uri;
+        }
     }
 
     self.rdf.type = Folder.prefixedRDFType;
@@ -257,14 +274,14 @@ Folder.prototype.saveIntoFolder = function(
                             }
                         }
                         else {
-                            var error = "Error getting children of node at " + node.uri + " " + err + ", when attempting to save the resource to " + destinationFolder;
+                            const error = "Error getting children of node at " + node.uri + " " + err + ", when attempting to save the resource to " + destinationFolder;
                             console.error(error);
                             return callback(1, error);
                         }
                     });
                 }
                 else {
-                    var error = "Error creating subfolder for saving node at " + node.uri + " " + err + ", when attempting to save the resource to " + destinationFolder;
+                    const error = "Error creating subfolder for saving node at " + node.uri + " " + err + ", when attempting to save the resource to " + destinationFolder;
                     console.error(error);
                     return callback(1, error);
                 }
@@ -1056,7 +1073,7 @@ Folder.prototype.setDescriptorsRecursively = function(descriptors, callback, uri
                         }
                         else
                         {
-                            var error = "Error getting children of node at " + node.uri + " " + err + ", when attempting to save descriptors : " + JSON.stringify(descriptors);
+                            const error = "Error getting children of node at " + node.uri + " " + err + ", when attempting to save descriptors : " + JSON.stringify(descriptors);
                             console.error(error);
                             cb(1, error);
                         }
