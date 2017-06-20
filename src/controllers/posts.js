@@ -1,22 +1,34 @@
-var Post = require('../models/social/post.js').Post;
-var Like = require('../models/social/like.js').Like;
-var Notification = require('../models/notifications/notification.js').Notification;
-var Comment = require('../models/social/comment.js').Comment;
-var Share = require('../models/social/share.js').Share;
-var Ontology = require('../models/meta/ontology.js').Ontology;
-var Project = require('../models/project.js').Project;
-var DbConnection = require("../kb/db.js").DbConnection;
-var _ = require('underscore');
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var async = require('async');
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
-var db_notifications = function () { return GLOBAL.db.notifications;}();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var app = require('../app');
+const Post = require('../models/social/post.js').Post;
+const Like = require('../models/social/like.js').Like;
+const Notification = require('../models/notifications/notification.js').Notification;
+const Comment = require('../models/social/comment.js').Comment;
+const Share = require('../models/social/share.js').Share;
+const Ontology = require('../models/meta/ontology.js').Ontology;
+const Project = require('../models/project.js').Project;
+const DbConnection = require("../kb/db.js").DbConnection;
+const _ = require('underscore');
+
+const async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const db_social = function () {
+    return GLOBAL.db.social;
+}();
+const db_notifications = function () {
+    return GLOBAL.db.notifications;
+}();
+
+const app = require('../app');
 
 exports.numPostsDatabase = function (req, res) {
-    var currentUserUri = req.session.user.uri;
+    const currentUserUri = req.user.uri;
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
         if(!err)
         {
@@ -48,15 +60,15 @@ exports.numPostsDatabase = function (req, res) {
 };
 
 exports.all = function(req, res){
-    var currentUser = req.session.user;
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
-    var username = currentUser.uri;
+    const currentUser = req.user;
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
+    const username = currentUser.uri;
 
-    var pingForNewPosts = true;
-    var currentPage = req.query.currentPage;
-    var index = currentPage == 1? 0 : (currentPage*5) - 5;
-    var maxResults = 5;
+    const pingForNewPosts = true;
+    const currentPage = req.query.currentPage;
+    const index = currentPage === 1 ? 0 : (currentPage * 5) - 5;
+    const maxResults = 5;
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
@@ -126,10 +138,10 @@ exports.all = function(req, res){
 
                         Post.findByUri(post.uri, function (err, loadedPost) {
                             if(err)
-                                callback(err, null);
+                                return callback(err, null);
                             else
                             {
-                                callback(null, loadedPost);
+                                return callback(null, loadedPost);
                             }
 
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri)
@@ -162,7 +174,7 @@ exports.all = function(req, res){
     }
     else
     {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
             result : "Error",
@@ -172,22 +184,22 @@ exports.all = function(req, res){
 };
 
 function sortPostsByModifiedDate(postA, postB) {
-    var a = new Date(postA.dcterms.modified),
+    const a = new Date(postA.dcterms.modified),
         b = new Date(postB.dcterms.modified);
     return (a.getTime() - b.getTime());
 }
 
 //function that pings metadata changes from dendro_graph to build the posts in social_dendro graph
 function pingNewPosts(sessionUser, cb) {
-    var currentUserUri = sessionUser.uri;
-    var numPostsCreated = 0;
+    const currentUserUri = sessionUser.uri;
+    let numPostsCreated = 0;
     Project.findByCreatorOrContributor(currentUserUri, function(err, projects) {
         if(!err)
         {
             if(projects.length > 0)
             {
                 async.map(projects, function (project, cb1) {
-                        var socialUpdatedAt = project.dcterms.socialUpdatedAt ? project.dcterms.socialUpdatedAt : '1970-09-21T19:27:46.578Z';
+                        const socialUpdatedAt = project.dcterms.socialUpdatedAt ? project.dcterms.socialUpdatedAt : '1970-09-21T19:27:46.578Z';
                         project.getRecentProjectWideChangesSocial(function(err, changes){
                             if(!err)
                             {
@@ -196,17 +208,17 @@ function pingNewPosts(sessionUser, cb) {
                                     async.map(changes, function(change, callback){
                                             if(change.changes && change.changes[0])// change.changes[0])
                                             {
-                                                var newPost = new Post({
+                                                const newPost = new Post({
                                                     ddr: {
                                                         changeType: change.changes[0].ddr.changeType,
                                                         newValue: change.changes[0].ddr.newValue,
-                                                        changedDescriptor: change.changes[0].ddr.changedDescriptor? change.changes[0].ddr.changedDescriptor.label : 'undefined',
+                                                        changedDescriptor: change.changes[0].ddr.changedDescriptor ? change.changes[0].ddr.changedDescriptor.label : 'undefined',
                                                         hasContent: change.changes[0].uri,
                                                         numLikes: 0,
                                                         projectUri: project.uri
                                                     },
                                                     dcterms: {
-                                                        creator : currentUserUri,
+                                                        creator: currentUserUri,
                                                         title: project.dcterms.title
                                                     }
                                                 });
@@ -216,24 +228,24 @@ function pingNewPosts(sessionUser, cb) {
                                                     if (!err)
                                                     {
                                                         numPostsCreated++;
-                                                        callback(err, post);
+                                                        return callback(err, post);
                                                     }
                                                     else
                                                     {
-                                                        callback(err, post);
+                                                        return callback(err, post);
                                                     }
                                                 }, false, null, null, null, null, db_social.graphUri);
                                             }
                                             else
                                             {
-                                                callback(null,null);
+                                                return callback(null,null);
                                             }
                                         },
                                         function(err, fullDescriptors)
                                         {
                                             if(!err)
                                             {
-                                                var updatedProject = project;
+                                                const updatedProject = project;
                                                 updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
                                                 updateResource(project, updatedProject, db.graphUri, function (error, data) {
                                                     cb1(error, fullDescriptors);
@@ -241,7 +253,7 @@ function pingNewPosts(sessionUser, cb) {
                                             }
                                             else
                                             {
-                                                var errorMsg = "Error at project changes";
+                                                const errorMsg = "Error at project changes";
                                                 console.log(errorMsg);
                                                 cb1(err, errorMsg);
                                             }
@@ -278,7 +290,7 @@ function pingNewPosts(sessionUser, cb) {
         else
         {
             var errorMsg = "Error finding projects by creator or contributor";
-            callback(err, errorMsg);
+            return callback(err, errorMsg);
         }
 
     });
@@ -287,7 +299,7 @@ function pingNewPosts(sessionUser, cb) {
 
 exports.new = function(req, res){
     /*
-     var currentUser = req.session.user;
+     var currentUser = req.user;
 
      if(req.body.new_post_content != null)
      {
@@ -325,7 +337,7 @@ exports.new = function(req, res){
      message: "Error saving post. The request body does not contain the content of the new post (new_body_content field missing)"
      });
      }*/
-    var cenas = 'http://127.0.0.1:3001/posts/34240860-82bd-47c9-95fe-5b872451844d';
+    const cenas = 'http://127.0.0.1:3001/posts/34240860-82bd-47c9-95fe-5b872451844d';
     getNumLikesForAPost(cenas, function (err, data) {
         /*
          res.json({
@@ -337,15 +349,15 @@ exports.new = function(req, res){
 
 
 exports.getPost_controller = function (req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
-        var postURI = req.body.postID;
+        const currentUser = req.user;
+        const postURI = req.body.postID;
 
-        var debugGraph = db_social.graphUri;
+        const debugGraph = db_social.graphUri;
         Post.findByUri(req.body.postID, function(err, post)
         {
             if(!err)
@@ -353,7 +365,7 @@ exports.getPost_controller = function (req, res) {
 
                 if(!post)
                 {
-                    var errorMsg = "Invalid post uri";
+                    const errorMsg = "Invalid post uri";
                     res.status(404).json({
                         result: "Error",
                         message: errorMsg
@@ -362,7 +374,7 @@ exports.getPost_controller = function (req, res) {
                 else
                 {
                     //app.io.emit('chat message', post);
-                    var eventMsg = 'postURI:' + postURI.uri;
+                    const eventMsg = 'postURI:' + postURI.uri;
                     //var eventMsg = 'postURI:';
                     //app.io.emit(eventMsg, post);
                     res.json(post);
@@ -379,7 +391,7 @@ exports.getPost_controller = function (req, res) {
     }
     else
     {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
             result : "Error",
@@ -389,13 +401,13 @@ exports.getPost_controller = function (req, res) {
 };
 
 exports.share = function (req, res) {
-    var currentUser = req.session.user;
-    var shareMsg = req.body.shareMsg;
+    const currentUser = req.user;
+    const shareMsg = req.body.shareMsg;
     Post.findByUri(req.body.postID, function(err, post)
     {
-        var newShare = new Share({
+        const newShare = new Share({
             ddr: {
-                userWhoShared : currentUser.uri,
+                userWhoShared: currentUser.uri,
                 postURI: post.uri,
                 shareMsg: shareMsg,
                 projectUri: post.ddr.projectUri
@@ -405,17 +417,16 @@ exports.share = function (req, res) {
             }
         });
 
-        var newNotification = new Notification({
+        const newNotification = new Notification({
             ddr: {
-                userWhoActed : currentUser.uri,
+                userWhoActed: currentUser.uri,
                 resourceTargetUri: post.uri,
                 actionType: "Share",
                 resourceAuthorUri: post.dcterms.creator,
-                shareURI : newShare.uri
+                shareURI: newShare.uri
             },
-            foaf :
-            {
-                status : "unread"
+            foaf: {
+                status: "unread"
             }
         });
 
@@ -459,8 +470,8 @@ exports.share = function (req, res) {
 };
 
 exports.getPostComments = function (req, res) {
-    var currentUser = req.session.user;
-    var postUri = req.body.postID;
+    const currentUser = req.user;
+    const postUri = req.body.postID;
     getCommentsForAPost(postUri, function (err, comments) {
         if(err)
         {
@@ -478,37 +489,36 @@ exports.getPostComments = function (req, res) {
 };
 
 exports.comment = function (req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
-        var commentMsg = req.body.commentMsg;
+        const currentUser = req.user;
+        const commentMsg = req.body.commentMsg;
 
         Post.findByUri(req.body.postID, function(err, post)
         {
-            if(!err && post != null)
+            if(!err && !isNull(post))
             {
-                var newComment = new Comment({
+                const newComment = new Comment({
                     ddr: {
-                        userWhoCommented : currentUser.uri,
+                        userWhoCommented: currentUser.uri,
                         postURI: post.uri,
                         commentMsg: commentMsg
                     }
                 });
 
-                var newNotification = new Notification({
+                const newNotification = new Notification({
                     ddr: {
-                        userWhoActed : currentUser.uri,
+                        userWhoActed: currentUser.uri,
                         resourceTargetUri: post.uri,
                         actionType: "Comment",
                         resourceAuthorUri: post.dcterms.creator
                     },
-                    foaf :
-                        {
-                            status : "unread"
-                        }
+                    foaf: {
+                        status: "unread"
+                    }
                 });
 
                 newComment.save(function(err, resultComment)
@@ -549,7 +559,7 @@ exports.comment = function (req, res) {
             }
             else
             {
-                var errorMsg = "Invalid post uri";
+                const errorMsg = "Invalid post uri";
                 res.status(404).json({
                     result: "Error",
                     message: errorMsg
@@ -559,7 +569,7 @@ exports.comment = function (req, res) {
     }
     else
     {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
             result : "Error",
@@ -630,17 +640,17 @@ exports.comment = function (req, res) {
 };
 
 exports.checkIfPostIsLikedByUser = function (req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var postID = req.body.postID;
-        var currentUser = req.session.user;
+        const postID = req.body.postID;
+        const currentUser = req.user;
 
         Post.findByUri(postID, function(err, post)
         {
-            if(!err && post != null)
+            if(!err && !isNull(post))
             {
                 userLikedAPost(post.uri, currentUser.uri, function (err, isLiked) {
                     if(!err)
@@ -654,7 +664,7 @@ exports.checkIfPostIsLikedByUser = function (req, res) {
             }
             else
             {
-                var errorMsg = "Invalid post uri";
+                const errorMsg = "Invalid post uri";
                 res.status(404).json({
                     result: "Error",
                     message: errorMsg
@@ -664,7 +674,7 @@ exports.checkIfPostIsLikedByUser = function (req, res) {
     }
     else
     {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
             result : "Error",
@@ -674,12 +684,12 @@ exports.checkIfPostIsLikedByUser = function (req, res) {
 };
 
 exports.like = function (req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        const currentUser = req.user;
         removeOrAdLike(req.body.postID, currentUser.uri, function (err, likeExists) {
             if(!err)
             {
@@ -695,12 +705,12 @@ exports.like = function (req, res) {
                 {
                     Post.findByUri(req.body.postID, function(err, post)
                     {
-                        if(!err && post != null)
+                        if(!err && !isNull(post))
                         {
-                            var updatedPost = post;
-                            var newLike = new Like({
+                            const updatedPost = post;
+                            const newLike = new Like({
                                 ddr: {
-                                    userWhoLiked : currentUser.uri,
+                                    userWhoLiked: currentUser.uri,
                                     postURI: post.uri
                                 }
                             });
@@ -711,17 +721,16 @@ exports.like = function (req, res) {
                             //actionType -> comment/like/share
                             //status-> read/unread
 
-                            var newNotification = new Notification({
+                            const newNotification = new Notification({
                                 ddr: {
-                                    userWhoActed : currentUser.uri,
+                                    userWhoActed: currentUser.uri,
                                     resourceTargetUri: post.uri,
                                     actionType: "Like",
                                     resourceAuthorUri: post.dcterms.creator
                                 },
-                                foaf :
-                                    {
-                                        status : "unread"
-                                    }
+                                foaf: {
+                                    status: "unread"
+                                }
                             });
 
                             newLike.save(function(err, resultLike)
@@ -757,7 +766,7 @@ exports.like = function (req, res) {
                         }
                         else
                         {
-                            var errorMsg = "Invalid post uri";
+                            const errorMsg = "Invalid post uri";
                             res.status(404).json({
                                 result: "Error",
                                 message: errorMsg
@@ -770,7 +779,7 @@ exports.like = function (req, res) {
     }
     else
     {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
             result : "Error",
@@ -805,8 +814,8 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
         async.map(projectUrisArray, function (uri, cb1) {
             cb1(null, '<'+uri+ '>');
         }, function (err, fullProjectsUris) {
-            var projectsUris = fullProjectsUris.join(" ");
-            var query =
+            const projectsUris = fullProjectsUris.join(" ");
+            const query =
                 "WITH [0] \n" +
                 "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
                 "WHERE { \n" +
@@ -827,11 +836,11 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
                 function(err, results) {
                     if(!err)
                     {
-                        callback(err,results[0].count);
+                        return callback(err,results[0].count);
                     }
                     else
                     {
-                        callback(true, "Error fetching numPosts in numPostsDatabaseAux");
+                        return callback(true, "Error fetching numPosts in numPostsDatabaseAux");
                     }
                 });
         });
@@ -840,13 +849,13 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
     {
         //User has no projects
         var results = 0;
-        callback(null, results);
+        return callback(null, results);
     }
 };
 
 var updateResource = function(currentResource, newResource, graphUri, cb)
 {
-    var newDescriptors= newResource.getDescriptors();
+    const newDescriptors = newResource.getDescriptors();
 
     currentResource.replaceDescriptorsInTripleStore(
         newDescriptors,
@@ -858,10 +867,10 @@ var updateResource = function(currentResource, newResource, graphUri, cb)
     );
 };
 
-var removeLike = function (likeID, userUri, cb) {
-    var self = this;
+const removeLike = function (likeID, userUri, cb) {
+    const self = this;
 
-    var query =
+    const query =
         "WITH [0] \n" +
         //"DELETE {?likeURI ?p ?v}\n" +
         "DELETE {[1] ?p ?v}\n" +
@@ -877,35 +886,32 @@ var removeLike = function (likeID, userUri, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type: DbConnection.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : likeID
+                type: DbConnection.resource,
+                value: likeID
             }
         ]),
-        function(err, results) {
-            if(!err)
-            {
-                var likeExists = false;
-                if(results.length > 0)
-                {
+        function (err, results) {
+            if (!err) {
+                let likeExists = false;
+                if (results.length > 0) {
                     likeExists = true;
                 }
                 cb(false, likeExists);
             }
-            else
-            {
+            else {
                 cb(true, "Error fetching children of project root folder");
             }
         });
 };
 
 var removeOrAdLike = function (postID, userUri, cb) {
-    var self = this;
+    const self = this;
 
-    var query =
+    const query =
         "SELECT ?likeURI \n" +
         "FROM [0] \n" +
         "WHERE { \n" +
@@ -932,7 +938,7 @@ var removeOrAdLike = function (postID, userUri, cb) {
         function(err, results) {
             if(!err)
             {
-                var likeExists = false;
+                let likeExists = false;
                 if(results.length > 0)
                 {
                     removeLike(results[0].likeURI, userUri, function (err, data) {
@@ -952,9 +958,9 @@ var removeOrAdLike = function (postID, userUri, cb) {
 
 
 var getCommentsForAPost = function (postID, cb) {
-    var self = this;
+    const self = this;
 
-    var query =
+    const query =
         "SELECT ?commentURI \n" +
         "FROM [0] \n" +
         "WHERE { \n" +
@@ -981,7 +987,7 @@ var getCommentsForAPost = function (postID, cb) {
                 async.map(results, function(commentUri, callback){
                     Comment.findByUri(commentUri.commentURI, function(err, comment)
                     {
-                        callback(false,comment);
+                        return callback(false,comment);
                     //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, comments) {
@@ -995,10 +1001,10 @@ var getCommentsForAPost = function (postID, cb) {
         });
 };
 
-var getSharesForAPost = function (postID, cb) {
-    var self = this;
+const getSharesForAPost = function (postID, cb) {
+    const self = this;
 
-    var query =
+    const query =
         "SELECT ?shareURI \n" +
         "FROM [0] \n" +
         "WHERE { \n" +
@@ -1009,44 +1015,41 @@ var getSharesForAPost = function (postID, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type: DbConnection.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : postID
+                type: DbConnection.resource,
+                value: postID
             }
         ]),
-        function(err, results) {
-            if(!err)
-            {
-                async.map(results, function(shareObject, callback){
-                    Share.findByUri(shareObject.shareURI, function(err, share)
-                    {
-                        callback(false,share);
-                    //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+        function (err, results) {
+            if (!err) {
+                async.map(results, function (shareObject, callback) {
+                    Share.findByUri(shareObject.shareURI, function (err, share) {
+                        return callback(false, share);
+                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, shares) {
                     cb(false, shares);
                 });
             }
-            else
-            {
+            else {
                 cb(true, "Error shares for a post");
             }
         });
 };
 
 function saveCurrentUserInRedis(req, res) {
-    var redis = require("redis");
+    const redis = require("redis");
     client = redis.createClient();
 
 }
 
 exports.getPostShares = function (req, res) {
-    var currentUser = req.session.user;
+    const currentUser = req.user;
 
-    var postUri = req.body.postID;
+    const postUri = req.body.postID;
 
 
     getSharesForAPost(postUri, function (err, shares) {
@@ -1066,18 +1069,18 @@ exports.getPostShares = function (req, res) {
 };
 
 exports.postLikesInfo = function (req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
-        var postURI = req.body.postURI;
-        var resultInfo;
+        const currentUser = req.user;
+        const postURI = req.body.postURI;
+        let resultInfo;
 
         Post.findByUri(postURI, function(err, post)
         {
-            if(!err && post != null)
+            if(!err && !isNull(post))
             {
                 getNumLikesForAPost(post.uri, function (err, likesArray) {
                     if(!err)
@@ -1108,7 +1111,7 @@ exports.postLikesInfo = function (req, res) {
             }
             else
             {
-                var errorMsg = "Invalid post uri";
+                const errorMsg = "Invalid post uri";
                 res.status(404).json({
                     result: "Error",
                     message: errorMsg
@@ -1118,7 +1121,7 @@ exports.postLikesInfo = function (req, res) {
     }
     else
     {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
             result : "Error",
@@ -1129,9 +1132,9 @@ exports.postLikesInfo = function (req, res) {
 
 var userLikedAPost = function(postID, userUri, cb )
 {
-    var self = this;
+    const self = this;
 
-    var query =
+    const query =
         "SELECT ?likeURI \n" +
         "FROM [0] \n" +
         "WHERE { \n" +
@@ -1172,9 +1175,9 @@ var userLikedAPost = function(postID, userUri, cb )
 
 var getNumLikesForAPost = function(postID, cb)
 {
-    var self = this;
+    const self = this;
 
-    var query =
+    const query =
         "SELECT ?likeURI ?userURI \n" +
         "FROM [0] \n" +
         "WHERE { \n" +
@@ -1214,15 +1217,15 @@ var getNumLikesForAPost = function(postID, cb)
  */
 var getAllPosts = function (projectUrisArray, callback, startingResultPosition, maxResults) {
     //based on getRecentProjectWideChangesSocial
-    var self = this;
+    const self = this;
 
     if(projectUrisArray && projectUrisArray.length > 0)
     {
         async.map(projectUrisArray, function (uri, cb1) {
             cb1(null, '<'+uri+ '>');
         }, function (err, fullProjects) {
-            var projectsUris = fullProjects.join(" ");
-            var query =
+            const projectsUris = fullProjects.join(" ");
+            let query =
                 "WITH [0] \n" +
                 "SELECT DISTINCT ?uri \n" +
                 "WHERE { \n" +
@@ -1232,7 +1235,7 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
                 "?uri dcterms:modified ?date. \n" +
                 "?uri rdf:type ddr:Post. \n" +
                 "?uri ddr:projectUri ?project. \n" +
-                "} \n "+
+                "} \n " +
                 "ORDER BY DESC(?date) \n";
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
@@ -1247,11 +1250,11 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
                 function(err, results) {
                     if(!err)
                     {
-                        callback(err,results);
+                        return callback(err,results);
                     }
                     else
                     {
-                        callback(true, "Error fetching posts in getAllPosts");
+                        return callback(true, "Error fetching posts in getAllPosts");
                     }
                 });
         });
@@ -1260,13 +1263,13 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
     {
         //User has no projects
         var results = [];
-        callback(null, results);
+        return callback(null, results);
     }
 };
 
 exports.post = function (req, res) {
-    var currentUser = req.session.user;
-    var postUri = "http://"+req.headers.host + req.url;
+    const currentUser = req.user;
+    const postUri = "http://" + req.headers.host + req.url;
     res.render('social/showPost',
         {
             postUri : postUri
@@ -1275,15 +1278,15 @@ exports.post = function (req, res) {
 };
 
 exports.getShare = function (req, res) {
-    var currentUser = req.session.user;
-    var shareUri = "http://"+req.headers.host + req.url;
-    var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersion";
+    const currentUser = req.user;
+    const shareUri = "http://" + req.headers.host + req.url;
+    const fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersion";
 
     //TODO find the share in database
     //TODO see if it has ddr:postURI or ddr:fileVersionUri
     //TODO redirect to social/showPost or social/showFileVersion
 
-    var query =
+    let query =
         "WITH [0] \n" +
         "SELECT ?type \n" +
         "WHERE { \n" +
@@ -1343,7 +1346,7 @@ exports.getShare = function (req, res) {
             }
             else
             {
-                var errorMsg = "Error fetching share";
+                const errorMsg = "Error fetching share";
                 res.send(500, errorMsg);
             }
         });

@@ -84,7 +84,7 @@ describe("Metadata only project testFolder1 level ?version", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(5);
+                    res.body.descriptors.length.should.equal(7);
                     done();
                 });
             });
@@ -94,7 +94,7 @@ describe("Metadata only project testFolder1 level ?version", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, metadataProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(5);
+                    res.body.descriptors.length.should.equal(7);
                     done();
                 });
             });

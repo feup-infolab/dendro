@@ -140,4 +140,9 @@ angular.module('dendroApp.controllers')
                 }
             });
         };
+
+        $scope.init = function(publicOntologiesOnly)
+        {
+            $scope.get_ontologies(publicOntologiesOnly);
+        }
     });

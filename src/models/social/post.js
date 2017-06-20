@@ -1,21 +1,31 @@
-var Config = function() { return GLOBAL.Config; }();
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var uuid = require('uuid');
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const uuid = require('uuid');
 
-var gfs = function() { return GLOBAL.gfs.default; }();
-var async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const db_social = function () {
+    return GLOBAL.db.social;
+}();
+
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
+const async = require('async');
 
 function Post (object)
 {
     Post.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
-    if(object.uri != null)
+    if(!isNull(object.uri))
     {
         self.uri = object.uri;
     }

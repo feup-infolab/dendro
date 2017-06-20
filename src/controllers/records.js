@@ -1,23 +1,31 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
-var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
 
-var _ = require('underscore');
-var request = require('request');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
 
-var self = this;
+const _ = require('underscore');
+const request = require('request');
+
+const self = this;
 
 exports.show_deep = function(req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -28,19 +36,19 @@ exports.show_deep = function(req, res) {
     }
     else
     {
-        if(req.params.filepath != null)
+        if(!isNull(req.params.filepath))
         {
-            var requestedResource = new Resource({
-                uri : req.params.requestedResource
+            const requestedResource = new Resource({
+                uri: req.params.requestedResource
             });
 
             requestedResource.findMetadataRecursive(function(err, result){
                 if(!err){
 
-                    var accept = req.header('Accept');
-                    var serializer = null;
-                    var contentType = null;
-                    if(accept == null || accept in Config.metadataSerializers == false)
+                    const accept = req.header('Accept');
+                    let serializer = null;
+                    let contentType = null;
+                    if(isNull(accept) || accept in Config.metadataSerializers === false)
                     {
                         serializer = Config.defaultMetadataSerializer;
                         contentType = Config.defaultMetadataContentType;
@@ -72,8 +80,8 @@ exports.show_deep = function(req, res) {
 };
 
 exports.show = function(req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -84,19 +92,19 @@ exports.show = function(req, res) {
     }
     else
     {
-        var requestedResourceURI = req.params.requestedResource;
+        const requestedResourceURI = req.params.requestedResource;
 
-        var requestedResource = new InformationElement({
-            uri : requestedResourceURI
+        const requestedResource = new InformationElement({
+            uri: requestedResourceURI
         });
 
         requestedResource.findMetadata(function(err, result){
             if(!err){
 
-                var accept = req.header('Accept');
-                var serializer = null;
-                var contentType = null;
-                if(accept == null || accept in Config.metadataSerializers == false)
+                const accept = req.header('Accept');
+                let serializer = null;
+                let contentType = null;
+                if(isNull(accept) || accept in Config.metadataSerializers === false)
                 {
                     serializer = Config.defaultMetadataSerializer;
                     contentType = Config.defaultMetadataContentType;
@@ -120,8 +128,8 @@ exports.show = function(req, res) {
 };
 
 exports.show_parent = function(req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -132,19 +140,19 @@ exports.show_parent = function(req, res) {
     }
     else
     {
-        if(req.params.filepath != null)
+        if(!isNull(req.params.filepath))
         {
-            var requestedResourceURI = req.params.requestedResource;
+            const requestedResourceURI = req.params.requestedResource;
 
             InformationElement.findByUri(requestedResourceURI, function(err, ie){
                 if(!err)
                 {
-                    if(ie != null)
+                    if(!isNull(ie))
                     {
                         ie.getParent(function(err, parent){
                             if(!err)
                             {
-                                if(parent != null)
+                                if(!isNull(parent) && parent instanceof Object)
                                 {
                                     parent.getPropertiesFromOntologies(
                                         Ontology.getPublicOntologiesUris(),
@@ -152,8 +160,8 @@ exports.show_parent = function(req, res) {
                                         {
                                             if(!err)
                                             {
-                                                //remove locked descriptors
-                                                for(var i = 0 ; i < descriptors.length ; i++)
+                                                //remove sensitive descriptors
+                                                for(let i = 0 ; i < descriptors.length ; i++)
                                                 {
                                                     if(descriptors[i].locked)
                                                     {
@@ -178,7 +186,8 @@ exports.show_parent = function(req, res) {
                                 {
                                     res.status(404).json({
                                         result : "error",
-                                        message : "Unable to retrieve parent of " + requestedResourceURI + " ."
+                                        message : "Unable to retrieve parent of " + requestedResourceURI + " .",
+                                        error : parent
                                     });
                                 }
                             }
@@ -212,8 +221,8 @@ exports.show_parent = function(req, res) {
 };
 
 exports.update = function(req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -230,25 +239,25 @@ exports.update = function(req, res) {
         {
             if(!err)
             {
-                if(resource != null)
+                if(!isNull(resource))
                 {
-                    var descriptors = [];
+                    const descriptors = [];
 
                     if(req.body instanceof Array)
                     {
-                        for(var i = 0; i < req.body.length; i++)
+                        for(let i = 0; i < req.body.length; i++)
                         {
-                            var rawDescriptor = req.body[i];
+                            const rawDescriptor = req.body[i];
 
-                            var descriptor = new Descriptor({
-                                prefix : rawDescriptor.prefix,
+                            const descriptor = new Descriptor({
+                                prefix: rawDescriptor.prefix,
                                 shortName: rawDescriptor.shortName,
-                                value : rawDescriptor.value,
-                                uri : rawDescriptor.uri,
-                                prefixedForm : rawDescriptor.prefixedForm
+                                value: rawDescriptor.value,
+                                uri: rawDescriptor.uri,
+                                prefixedForm: rawDescriptor.prefixedForm
                             });
 
-                            if(!(descriptor instanceof Descriptor) && descriptor.error != null)
+                            if(!(descriptor instanceof Descriptor) && !isNull(descriptor.error))
                             {
                                 res.status(400).json({
                                     result : "Error",
@@ -271,9 +280,9 @@ exports.update = function(req, res) {
                         {
                             if(!err)
                             {
-                                if(req.session.user != null)
+                                if(!isNull(req.user))
                                 {
-                                    var changeAuthor = req.session.user.uri;
+                                    var changeAuthor = req.user.uri;
                                 }
                                 else
                                 {
@@ -293,7 +302,7 @@ exports.update = function(req, res) {
                                                 //Refresh metadata evaluation
                                                 require(Config.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
                                                 {
-                                                    if (evaluation.metadata_evaluation != resource.ddr.metadataQuality)
+                                                    if (evaluation.metadata_evaluation !== resource.ddr.metadataQuality)
                                                     {
 
                                                         resource.ddr.metadataQuality = evaluation.metadata_evaluation;
@@ -342,7 +351,7 @@ exports.update = function(req, res) {
                                             message : record
                                         })
                                     }
-                                }, true, changeAuthor, [Config.types.locked], null, [Config.types.audit]);
+                                }, true, changeAuthor, [Config.types.locked], [], [Config.types.audit]);
                             }
                             else
                             {
@@ -386,8 +395,8 @@ exports.update = function(req, res) {
 };
 
 exports.show_version = function(req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -398,60 +407,69 @@ exports.show_version = function(req, res) {
     }
     else
     {
-        var requestedResourceURI = req.params.requestedResource;
-        var requestedVersion = req.query.version;
+        const requestedResourceURI = req.params.requestedResource;
+        const requestedVersion = req.query.version;
 
-        Resource.findByUri(requestedResourceURI, function(err, resource)
-        {
-            if(!err)
+        if(!isNull(req.query.version) && typeof req.query.version === "string") {
+            Resource.findByUri(requestedResourceURI, function(err, resource)
             {
-                if(resource != null)
+                if(!err)
                 {
-                    ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
-                        if(err)
-                        {
-                            var error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI + ". Error retrieved : " + version;
-                            console.error(error);
-                            res.status(500).json({
-                                result : "Error",
-                                message : error
-                            });
-                        }
-                        else
-                        {
-                            var descriptors = version.getDescriptors([Config.types.locked], [Config.types.api_readable]);
-                            res.json({
-                                descriptors : descriptors
-                            });
-                        }
-                    });
+                    if(!isNull(resource))
+                    {
+                        ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
+                            if(err)
+                            {
+                                const error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI + ". Error retrieved : " + version;
+                                console.error(error);
+                                res.status(500).json({
+                                    result : "Error",
+                                    message : error
+                                });
+                            }
+                            else
+                            {
+                                let descriptors = version.getPublicDescriptorsForAPICalls();
+                                res.json({
+                                    descriptors : descriptors
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        var error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI;
+                        console.error(error);
+                        res.status(500).json({
+                            result : "Error",
+                            message : error
+                        });
+                    }
                 }
                 else
                 {
-                    var error = "Unable to retrieve Archived resource with uri : " + requestedResourceURI;
+                    var error = "Unable to retrieve resource with uri : " + req.params.requestedResource + ". Error retrieved : " + resource;
                     console.error(error);
                     res.status(500).json({
                         result : "Error",
                         message : error
                     });
                 }
-            }
-            else
-            {
-                var error = "Unable to retrieve resource with uri : " + req.params.requestedResource + ". Error retrieved : " + resource;
-                console.error(error);
-                res.status(500).json({
-                    result : "Error",
-                    message : error
-                });
-            }
-        });
+            });
+        }
+        else
+        {
+            res.status(405).json({
+                result: "error",
+                message : "Revision must be an integer"
+            });
+        }
     }
 };
 
 exports.restore_metadata_version = function(req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -462,23 +480,23 @@ exports.restore_metadata_version = function(req, res) {
     }
     else
     {
-        var requestedResourceURI = req.params.requestedResource;
-        var requestedVersion = req.body.version;
+        const requestedResourceURI = req.params.requestedResource;
+        const requestedVersion = req.body.version;
 
         Resource.findByUri(requestedResourceURI, function(err, resource)
         {
             if(!err)
             {
                 //if resource exists
-                if(resource != null)
+                if(!isNull(resource))
                 {
 
                     ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
                         if(!err)
                         {
-                            if(version != null)
+                            if(!isNull(version))
                             {
-                                var user = req.session.user;
+                                const user = req.user;
 
                                 if(user)
                                 {
@@ -499,7 +517,7 @@ exports.restore_metadata_version = function(req, res) {
                                     }
                                     else
                                     {
-                                        var error = "Error restoring version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(result);
+                                        const error = "Error restoring version  " + requestedVersion + "  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(result);
                                         console.error(error);
                                         res.status(500).json({
                                             result : "Error",

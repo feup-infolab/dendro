@@ -2,7 +2,11 @@ var path = require('path');
 var async = require('async');
 
 var PluginConfig = require("./config.json");
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 var DendroRecommender = require(Config.absPathInPluginsFolder(path.join(PluginConfig.plugin_folder_name, "dendro_recommender.js"))).DendroRecommender;
 
 function Setup ()

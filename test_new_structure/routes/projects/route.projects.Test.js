@@ -22,8 +22,8 @@ const metadataOnlyProject = require(Config.absPathInTestsFolder("mockdata/projec
 const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 //LIST ALL PROJECTS
 describe("List all projects tests", function (done) {

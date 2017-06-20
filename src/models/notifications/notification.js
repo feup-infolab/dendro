@@ -1,18 +1,22 @@
-var Config = require("../meta/config.js").Config;
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var uuid = require('uuid');
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const uuid = require('uuid');
 
 function Notification (object)
 {
     Notification.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
     self.copyOrInitDescriptors(object);
 
     self.rdf.type = "ddr:Notification";
 
-    if(object.uri != null)
+    if(!isNull(object.uri))
     {
         self.uri = object.uri;
     }

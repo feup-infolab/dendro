@@ -1,4 +1,8 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;

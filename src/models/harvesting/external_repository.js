@@ -1,33 +1,41 @@
 //DCTerms ontology : "http://purl.org/dc/elements/1.1/"
 
-var Config = function() { return GLOBAL.Config; }();
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
-var async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
+
+const async = require('async');
 
 function ExternalRepository (object, creatorUsername)
 {
     ExternalRepository.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
     self.rdf.type = "ddr:ExternalRepository";
 
-    var slug = require('slug');
+    const slug = require('slug');
 
-    if(object.uri == null)
+    if(isNull(object.uri))
     {
-        if(creatorUsername != null && self.dcterms.title != null)
+        if(!isNull(creatorUsername) && !isNull(self.dcterms.title))
         {
             self.uri = Config.baseUri + "/external_repository/" + creatorUsername + "/" + slug(self.dcterms.title);
         }
         else
         {
-            var error = "Unable to create an external repository resource without specifying its creator and its dcterms:title";
+            const error = "Unable to create an external repository resource without specifying its creator and its dcterms:title";
             console.error(error);
             return {error : error};
         }
@@ -38,15 +46,15 @@ function ExternalRepository (object, creatorUsername)
 
 ExternalRepository.findByCreator = function(creatorUri, callback)
 {
-    var query =
+    const query =
         "SELECT ?uri \n" +
-            "FROM [0] \n" +
-            "WHERE { \n" +
-                "{ \n" +
-                " ?uri rdf:type ddr:ExternalRepository . "+
-                " ?uri dcterms:creator [1] \n"+
-                "} \n" +
-            "} \n";
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "{ \n" +
+        " ?uri rdf:type ddr:ExternalRepository . " +
+        " ?uri dcterms:creator [1] \n" +
+        "} \n" +
+        "} \n";
 
     db.connection.execute(query,
         [
@@ -64,28 +72,26 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
             {
                 if(rows instanceof Array)
                 {
-                    var getExternalRepository = function(resultRow, cb)
-                    {
-                        ExternalRepository.findByUri(resultRow.uri, function(err, externalRepository)
-                        {
+                    const getExternalRepository = function (resultRow, cb) {
+                        ExternalRepository.findByUri(resultRow.uri, function (err, externalRepository) {
                             cb(err, externalRepository);
                         });
                     };
 
                     async.map(rows, getExternalRepository, function(err, externalRepositories)
                     {
-                        callback(err, externalRepositories);
+                        return callback(err, externalRepositories);
                     });
                 }
                 else
                 {
                     //external repository does not exist, return null
-                    callback(0, null);
+                    return callback(0, null);
                 }
             }
             else
             {
-                callback(err, [rows]);
+                return callback(err, [rows]);
             }
     });
 };

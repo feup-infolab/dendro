@@ -1,10 +1,15 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var DryadLoader = require(Config.absPathInSrcFolder("/kb/loaders/dryad/dryad_loader.js")).DryadLoader;
-var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const DryadLoader = require(Config.absPathInSrcFolder("/kb/loaders/dryad/dryad_loader.js")).DryadLoader;
+const IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
-var db = function() { return GLOBAL.db.default; }();
+const db = function () {
+    return GLOBAL.db.default;
+}();
 
 module.exports.home = function(req, res) {
     res.render('admin/home',
@@ -16,23 +21,20 @@ module.exports.home = function(req, res) {
 
 module.exports.reload = function(req, res)
 {
-    var graphNames = req.query.graphs;
-    var graphsToDelete = req.query.graphs_to_delete;
-    var async = require("async");
+    const graphNames = req.query.graphs;
+    const graphsToDelete = req.query.graphs_to_delete;
+    const async = require("async");
 
-    var renderResponse = function(err, messages)
-    {
-        if(!err)
-        {
-            var util = require('util');
+    const renderResponse = function (err, messages) {
+        if (!err) {
+            const util = require('util');
+            //noinspection ES6ConvertVarToLetConst
             var messages = "All resources successfully loaded in graph(s) : ";
 
-            for(var i = 0; i < graphNames.length; i++)
-            {
+            for (let i = 0; i < graphNames.length; i++) {
                 messages = messages + " " + graphNames[i];
 
-                if(i < graphNames.length  - 1)
-                {
+                if (i < graphNames.length - 1) {
                     messages = messages + ", ";
                 }
             }
@@ -40,29 +42,27 @@ module.exports.reload = function(req, res)
             res.render('admin/home',
                 {
                     title: 'List of available administration operations',
-                    info_messages : [messages]
+                    info_messages: [messages]
                 }
             );
         }
-        else
-        {
+        else {
             res.render('admin/home',
                 {
                     title: 'List of available administration operations',
-                    error_messages : messages
+                    error_messages: messages
                 }
             );
         }
 
     };
 
-    var deleteGraph = function(graphUri, callback)
-    {
+    const deleteGraph = function (graphUri, callback) {
         db.deleteGraph(graphUri, callback);
-    }
+    };
 
 
-    for(var graph in graphNames)
+    for(let graph in graphNames)
     {
         /*if(graphNames[i] == "dbpedia")
         {
@@ -75,7 +75,7 @@ module.exports.reload = function(req, res)
                             deleteGraph("http://dbpedia.org",
                                 function(err, resultOrErrorMessage)
                                 {
-                                    callback(err, [resultOrErrorMessage]);
+                                    return callback(err, [resultOrErrorMessage]);
                                 });
                         },
                         function(callback, result)
@@ -97,9 +97,9 @@ module.exports.reload = function(req, res)
                 dbpediaLoader.load_dbpedia(renderResponse);
             }
         }*/
-        if(graph == "dryad")
+        if(graph === "dryad")
         {
-            var dryadLoader = new DryadLoader();
+            const dryadLoader = new DryadLoader();
             dryadLoader.loadFromDownloadedFiles(req.index);
         }
     }
@@ -110,24 +110,24 @@ module.exports.reload = function(req, res)
             info_messages : [JSON.stringify(graphNames) + " loading in the background"]
         }
     );
-}
+};
 
 module.exports.reindex = function(req, res)
 {
-    var self = this;
+    const self = this;
 
-    var indexConnection = req.index;
-    var graphsToBeIndexed = req.query.graphs;
-    var graphsToDelete = req.query.graphs_to_delete;
+    const indexConnection = req.index;
+    const graphsToBeIndexed = req.query.graphs;
+    const graphsToDelete = req.query.graphs_to_delete;
 
-    var async = require('async');
+    const async = require('async');
 
     for(graph in graphsToBeIndexed)
     {
         if(graphsToBeIndexed.hasOwnProperty(graph))
         {
-            var graphShortName = graphsToBeIndexed[graph];
-            var deleteTheIndex = (graphsToDelete[graph] != null);
+            const graphShortName = graphsToBeIndexed[graph];
+            const deleteTheIndex = !isNull(graphsToDelete[graph]);
 
             rebuildIndex(indexConnection, graphShortName, deleteTheIndex, function(err, result)
             {
@@ -156,21 +156,21 @@ module.exports.reindex = function(req, res)
 
 var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindexing, callback)
 {
-    var self = this;
-    var index = null;
+    const self = this;
+    let index = null;
 
-    for(var graph in IndexConnection.indexes)
+    for(let graph in IndexConnection.indexes)
     {
-        if(IndexConnection.indexes.hasOwnProperty(graph) && IndexConnection.indexes[graph].short_name == graphShortName)
+        if(IndexConnection.indexes.hasOwnProperty(graph) && IndexConnection.indexes[graph].short_name === graphShortName)
         {
             index = IndexConnection.indexes[graph];
             break;
         }
     }
 
-    if(index != null)
+    if(!isNull(index))
     {
-        var async = require('async');
+        const async = require('async');
 
         async.waterfall([
             function(callback) //delete current index if requested
@@ -180,13 +180,13 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
                     if(!err && result)
                     {
                         console.log("Index "+indexConnection.index.short_name+" recreated .");
-                        callback(null);
+                        return callback(null);
 
                     }
                     else
                     {
                         console.log("Error recreating index "+indexConnection.index.short_name+" . " + result);
-                        callback(1); //delete success, move on
+                        return callback(1); //delete success, move on
                     }
                 });
             },
@@ -195,9 +195,9 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
                 Resource.all(null, function(err, resources) {
                     if(!err)
                     {
-                        for(var i = 0; i < resources.length; i++)
+                        for(let i = 0; i < resources.length; i++)
                         {
-                            var resource = resources[i];
+                            const resource = resources[i];
                             console.log("Resource " + resource.uri + " now being reindexed.");
 
                             resource.reindex(indexConnection, function(err, results)
@@ -209,11 +209,11 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
                             });
                         }
 
-                        callback(0, null);
+                        return callback(0, null);
                     }
                     else
                     {
-                        callback(1, "Error fetching all resources in the graph : " + results);
+                        return callback(1, "Error fetching all resources in the graph : " + results);
                     }
                 });
             }
@@ -222,18 +222,18 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
             {
                 if(!err)
                 {
-                    callback(null, results);
+                    return callback(null, results);
                 }
                 else
                 {
-                    callback(1, results);
+                    return callback(1, results);
                 }
             });
     }
     else
     {
-        callback(1, "Non-existent index : " + graphShortName);
+        return callback(1, "Non-existent index : " + graphShortName);
     }
-}
+};
 
 

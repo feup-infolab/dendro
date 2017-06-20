@@ -117,7 +117,8 @@
       "active": true,
       "database" :{
         "log_all_queries": false,
-        "destroy_all_graphs_on_startup" : false
+        "destroy_all_graphs_on_startup" : false,
+        "log_query_timeouts" : false
       },
       "session": {
         "auto_login": false,
@@ -145,7 +146,8 @@
       },
       "descriptors": {
         "log_missing_unknown_descriptors": false,
-        "log_unknown_types": false
+        "log_unknown_types": false,
+        "log_descriptor_filtering_operations" : false
       },
       "ontologies" : {
         "log_autocomplete_requests" : false
@@ -172,7 +174,7 @@
       "load_databases" : true,
       "reload_administrators_on_startup" : true,
       "reload_demo_users_on_startup" : true,
-      "reload_ontologies_on_startup": false
+      "reload_ontologies_on_startup": true
     },
     "baselines" : {
 
@@ -185,7 +187,11 @@
       "log_request_times" : true,
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
-      "requests_in_apache_format_log_folder" : "logs/requests_apache_format"
+      "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
+      "suppress_all_logs" : false,
+      "suppress_all_errors" : false,
+      "log_all_requests" : false,
+      "log_emailing" : false
     },
     "version" :
     {
@@ -298,7 +304,27 @@
       "dcterms",
       "bdv",
       "research"
-    ]
+    ],
+
+    "authentication" :
+    {
+      "default" : {
+        "enabled" : true
+      },
+      "orcid" : {
+        "enabled" : true,
+        "client_id" : "ORCID_CLIENT_ID",
+        "client_secret" : "ORCID_CLIENT_SECRET",
+        "callback_url" : "/auth/orcid/callback"
+      },
+      "saml" : {
+        "enabled" : true,
+        "path": "/auth/saml/callback",
+        "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
+        "issuer": "passport-saml",
+        "button_text" : "Sign-in with SIGARRA"
+      }
+    }
   },
   "prd" : {
     "port" : 3001,
@@ -425,7 +451,8 @@
       "active": true,
       "database" :{
         "log_all_queries": false,
-        "destroy_all_graphs_on_startup" : false
+                "destroy_all_graphs_on_startup" : false,
+        "log_query_timeouts" : false
       },
       "session": {
         "auto_login": false,
@@ -452,7 +479,8 @@
       },
       "descriptors": {
         "log_missing_unknown_descriptors": false,
-        "log_unknown_types": false
+        "log_unknown_types": false,
+        "log_descriptor_filtering_operations" : false
       },
       "ontologies" : {
         "log_autocomplete_requests" : false
@@ -491,7 +519,11 @@
       "log_request_times" : true,
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : true,
-      "requests_in_apache_format_log_folder" : "logs/requests_apache_format"
+      "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
+      "suppress_all_logs" : true,
+      "suppress_all_errors" : true,
+      "log_all_requests" : false,
+      "log_emailing" : false
     },
     "version" :
     {
@@ -595,16 +627,39 @@
       "ckan" :
       {
 
+      }
+    },
+
+    "public_ontologies" : [
+      "foaf",
+      "dcterms",
+      "bdv",
+      "research"
+    ],
+
+    "authentication" :
+    {
+      "default" : {
+        "enabled" : true
       },
-      "public_ontologies" : [
-        "foaf",
-        "dcterms",
-        "bdv",
-        "research"
-      ]
+      "orcid" : {
+        "enabled" : true,
+        "client_id" : "ORCID_CLIENT_ID",
+        "client_secret" : "ORCID_CLIENT_SECRET",
+        "callback_url" : "/auth/orcid/callback"
+      },
+      "saml" : {
+        "enabled" : true,
+        "path": "/auth/saml/callback",
+        "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
+        "issuer": "passport-saml",
+        "button_text" : "Sign-in with SIGARRA"
+      }
     },
+
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_PRODUCTION_ANALYTICS_TRACKING_CODE"
-    },
+  },
+
   "test" : {
     "port" : 3001,
     "host" : "127.0.0.1:3001",
@@ -779,7 +834,9 @@
       },
       "descriptors": {
         "log_missing_unknown_descriptors": false,
-        "log_unknown_types": false
+        "log_unknown_types": false,
+        "log_descriptor_filtering_operations" : false
+
       },
       "ontologies" : {
         "log_autocomplete_requests" : false
@@ -816,10 +873,15 @@
       "pipe_console_to_logfile" : false,
       "format" : "combined",
       "app_logs_folder" : "logs/app",
-      "log_request_times" : true,
+      "log_request_times" : false,
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
-      "requests_in_apache_format_log_folder" : "logs/requests_apache_format"
+      "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
+      "suppress_all_logs" : false,
+      "suppress_all_errors" : false,
+      "log_all_requests" : false,
+      "log_emailing" : false,
+      "custom_exception_logging" : false
     },
     "version" :
     {
@@ -925,6 +987,7 @@
 
       }
     },
+
     "analytics_tracking_code" : "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE",
 
     "public_ontologies" : [
@@ -932,7 +995,27 @@
       "dcterms",
       "bdv",
       "research"
-    ]
+    ],
+
+    "authentication" :
+    {
+      "default" : {
+        "enabled" : true
+      },
+      "orcid" : {
+        "enabled" : true,
+        "client_id" : "CLIENT_ID",
+        "client_secret" : "CLIENT_SECRET",
+        "callback_url" : "/auth/orcid/callback"
+      },
+      "saml" : {
+        "enabled" : true,
+        "path": "/auth/saml/callback",
+        "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
+        "issuer": "passport-saml",
+        "button_text" : "Sign-in with SIGARRA"
+      }
+    }
   },
   "jenkins_buildserver_test" : {
     "port" : 3001,
@@ -1095,7 +1178,8 @@
       },
       "descriptors": {
         "log_missing_unknown_descriptors": false,
-        "log_unknown_types": false
+        "log_unknown_types": false,
+        "log_descriptor_filtering_operations" : false
       },
       "ontologies" : {
         "log_autocomplete_requests" : false
@@ -1132,10 +1216,14 @@
       "pipe_console_to_logfile" : false,
       "format" : "combined",
       "app_logs_folder" : "logs/app",
-      "log_request_times" : true,
+      "log_request_times" : false,
       "request_times_log_folder" : "logs/request_times",
       "log_requests_in_apache_format" : false,
-      "requests_in_apache_format_log_folder" : "logs/requests_apache_format"
+      "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
+      "suppress_all_logs" : false,
+      "suppress_all_errors" : false,
+      "log_all_requests" : false,
+      "log_emailing" : false
     },
     "version" :
     {
@@ -1248,6 +1336,25 @@
       "dcterms",
       "bdv",
       "research"
-    ]
+    ],
+
+    "authentication" :
+    {
+      "default" : {
+        "enabled" : true
+      },
+      "orcid" : {
+        "enabled" : true,
+        "client_id" : "CLIENT_ID",
+        "client_secret" : "CLIENT_SECRET",
+        "callback_url" : "/auth/orcid/callback"
+      },
+      "saml" : {
+        "enabled" : true,
+        "path": "/auth/saml/callback",
+        "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
+        "issuer": "passport-saml"
+      }
+    }
   }
 }

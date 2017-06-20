@@ -18,22 +18,22 @@ const publicProjectUrl = publicProject.handle;
 const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 
-var demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
-var demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
-var demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3"));
-var demouser4 = require(Config.absPathInTestsFolder("mockdata/users/demouser4"));
-var demouser5 = require(Config.absPathInTestsFolder("mockdata/users/demouser5"));
+const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
+const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3"));
+const demouser4 = require(Config.absPathInTestsFolder("mockdata/users/demouser4"));
+const demouser5 = require(Config.absPathInTestsFolder("mockdata/users/demouser5"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-var createFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const createFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 
 let Project;
 let User;
 
 function requireUncached(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
+    delete require.cache[require.resolve(module)];
+    return require(module);
 }
 
 describe("public project descriptors autocomplete", function (done) {
@@ -60,6 +60,7 @@ describe("public project descriptors autocomplete", function (done) {
         it('[JSON] should forbid descriptor autocomplete requests for ontologies in project '+ publicProjectUrl +' if no user is authenticated.', function (done)
         {
             //TODO permissions are default for project root so this won't give an error
+            //TODO this is returning descriptors
             projectUtils.descriptors_autocomplete(true, publicProject.handle, "", "abstract", function(err, res){
                 res.statusCode.should.equal(500);
 
@@ -86,7 +87,7 @@ describe("public project descriptors autocomplete", function (done) {
             //TODO permissions are default for project root so this won't give an error
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 projectUtils.descriptors_autocomplete(true, publicProject.handle, "", "abstract", function(err, res){
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(401);
                     done();
 
                 });

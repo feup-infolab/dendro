@@ -1,109 +1,94 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
-var async = require('async');
-var path = require('path');
-var needle = require('needle');
-var _ = require('underscore');
+const async = require('async');
+const path = require('path');
+const needle = require('needle');
+const _ = require('underscore');
 
-var addOntologyToListOfActiveOntologiesInSession = function(ontology, req)
-{
-    if(req.session.user.recommendations == null)
-    {
-        req.session.user.recommendations = {};
+const addOntologyToListOfActiveOntologiesInSession = function (ontology, req) {
+    if (isNull(req.user.recommendations)) {
+        req.user.recommendations = {};
     }
 
-    if(req.session.user.recommendations.ontologies == null)
-    {
-        req.session.user.recommendations.ontologies = {};
+    if (isNull(req.user.recommendations.ontologies)) {
+        req.user.recommendations.ontologies = {};
     }
 
-    if(req.session.user.recommendations.ontologies.accepted == null)
-    {
-        req.session.user.recommendations.ontologies.accepted = {};
+    if (isNull(req.user.recommendations.ontologies.accepted)) {
+        req.user.recommendations.ontologies.accepted = {};
     }
 
-    req.session.user.recommendations.ontologies.accepted[ontology.prefix] = ontology;
+    req.user.recommendations.ontologies.accepted[ontology.prefix] = ontology;
 
     return req;
 };
 
-var recordInteractionOverAResource = function(user, resource, req, res)
-{
-    if(user != null && resource.uri != null)
-    {
-        if(resource.recommendedFor != null && typeof resource.recommendedFor === "string")
-        {
-            var ie = new InformationElement({
-                uri : resource.recommendedFor
+const recordInteractionOverAResource = function (user, resource, req, res) {
+    if (!isNull(user) && !isNull(resource.uri)) {
+        if (!isNull(resource.recommendedFor) && typeof resource.recommendedFor === "string") {
+            const ie = new InformationElement({
+                uri: resource.recommendedFor
             });
 
-            var projectUri = ie.getOwnerProjectFromUri();
+            const projectUri = ie.getOwnerProjectFromUri();
 
-            Project.findByUri(projectUri, function(err, project){
-                if(!err)
-                {
-                    if(project != null)
-                    {
-                        project.getCreatorsAndContributors(function(err, contributors){
-                            if(!err && contributors != null && contributors instanceof Array)
-                            {
-                                for(var i = 0 ; i < contributors.length; i++)
-                                {
-                                    if(contributors[i].uri == user.uri)
-                                    {
+            Project.findByUri(projectUri, function (err, project) {
+                if (!err) {
+                    if (!isNull(project)) {
+                        project.getCreatorsAndContributors(function (err, contributors) {
+                            if (!err && !isNull(contributors) && contributors instanceof Array) {
+                                for (let i = 0; i < contributors.length; i++) {
+                                    if (contributors[i].uri === user.uri) {
                                         const interaction = new Interaction({
-                                            ddr : {
-                                                performedBy : user.uri,
-                                                interactionType : req.body.interactionType,
-                                                executedOver : resource.uri,
-                                                originallyRecommendedFor : req.body.recommendedFor,
-                                                rankingPosition : req.body.rankingPosition,
-                                                pageNumber : req.body.pageNumber,
-                                                recommendationCallId : req.body.recommendationCallId,
-                                                recommendationCallTimeStamp : req.body.recommendationCallTimeStamp
+                                            ddr: {
+                                                performedBy: user.uri,
+                                                interactionType: req.body.interactionType,
+                                                executedOver: resource.uri,
+                                                originallyRecommendedFor: req.body.recommendedFor,
+                                                rankingPosition: req.body.rankingPosition,
+                                                pageNumber: req.body.pageNumber,
+                                                recommendationCallId: req.body.recommendationCallId,
+                                                recommendationCallTimeStamp: req.body.recommendationCallTimeStamp
                                             }
-                                        }, function(err, interaction){
+                                        }, function (err, interaction) {
                                             interaction.save(
-                                                function(err, result)
-                                                {
-                                                    if(!err)
-                                                    {
-                                                        interaction.saveToMySQL(function(err, result)
-                                                        {
-                                                            if(!err)
-                                                            {
-                                                                var msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource "+ req.body.recommendedFor + " recorded successfully";
+                                                function (err, result) {
+                                                    if (!err) {
+                                                        interaction.saveToMySQL(function (err, result) {
+                                                            if (!err) {
+                                                                var msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
                                                                 console.log(msg);
                                                                 res.json({
-                                                                    result : "OK",
-                                                                    message : msg
+                                                                    result: "OK",
+                                                                    message: msg
                                                                 });
                                                             }
-                                                            else
-                                                            {
-                                                                var msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource "+ req.body.recommendedFor + " to MYSQL. Error reported: " + result;
+                                                            else {
+                                                                var msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
                                                                 console.log(msg);
                                                                 res.json({
-                                                                    result : "OK",
-                                                                    message : msg
+                                                                    result: "OK",
+                                                                    message: msg
                                                                 });
                                                             }
                                                         });
                                                     }
-                                                    else
-                                                    {
-                                                        var msg = "Error recording interaction over resource " + resource.uri + " in the context of resource "+ req.body.recommendedFor + " : " + result;
+                                                    else {
+                                                        var msg = "Error recording interaction over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " : " + result;
                                                         console.error(msg);
                                                         res.status(500).json({
-                                                            result : "Error",
-                                                            message : msg
+                                                            result: "Error",
+                                                            message: msg
                                                         });
                                                     }
                                                 });
@@ -113,54 +98,50 @@ var recordInteractionOverAResource = function(user, resource, req, res)
                                     }
                                 }
 
-                                var msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  "+ user.uri +". Resource in question" + resource.uri + ". Owner project " + projectUri;
+                                var msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  " + user.uri + ". Resource in question" + resource.uri + ". Owner project " + projectUri;
                                 console.error(msg);
                                 res.status(400).json({
-                                    result : "Error",
-                                    message : msg
+                                    result: "Error",
+                                    message: msg
                                 });
                             }
-                            else
-                            {
-                                var msg = "Unable to retrieve creators and contributors of parent project "+ projectUri +" of resource " + resource.uri;
+                            else {
+                                var msg = "Unable to retrieve creators and contributors of parent project " + projectUri + " of resource " + resource.uri;
                                 console.error(msg);
                                 res.status(500).json({
-                                    result : "Error",
-                                    message : msg
+                                    result: "Error",
+                                    message: msg
                                 });
                             }
                         });
                     }
                 }
-                else
-                {
+                else {
                     var msg = "Unable to retrieve parent project of resource " + resource.uri;
                     console.error(msg);
                     res.status(404).json({
-                        result : "Error",
-                        message : msg
+                        result: "Error",
+                        message: msg
                     });
                 }
             });
         }
-        else
-        {
+        else {
             var msg = "Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.";
             console.error(JSON.stringify(resource));
             console.error(msg);
             res.status(400).json({
-                result : "Error",
-                message : msg
+                result: "Error",
+                message: msg
             });
         }
     }
-    else
-    {
+    else {
         var msg = "Error recording interaction over resource " + resource.uri + " : No user is currently authenticated!";
         console.error(msg);
         res.status(500).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
         });
     }
 };
@@ -168,21 +149,21 @@ var recordInteractionOverAResource = function(user, resource, req, res)
 exports.accept_descriptor_from_quick_list = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_descriptor_from_quick_list.key)
+        if(req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -212,21 +193,21 @@ exports.accept_descriptor_from_quick_list = function(req, res) {
 exports.accept_descriptor_from_manual_list = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_descriptor_from_manual_list.key)
+        if(req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -256,21 +237,21 @@ exports.accept_descriptor_from_manual_list = function(req, res) {
 exports.accept_descriptor_from_manual_list_while_it_was_a_project_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_project_favorite.key)
+        if(req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_project_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -300,21 +281,21 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_project_favorite = fun
 exports.accept_descriptor_from_manual_list_while_it_was_a_user_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_user_favorite.key)
+        if(req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_user_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -344,21 +325,21 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_user_favorite = functi
 exports.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite.key)
+        if(req.body.interactionType === Interaction.types.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -388,21 +369,21 @@ exports.accept_descriptor_from_manual_list_while_it_was_a_user_and_project_favor
 exports.accept_descriptor_from_quick_list_while_it_was_a_project_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_project_favorite.key)
+        if(req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_project_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -432,21 +413,21 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_project_favorite = func
 exports.accept_descriptor_from_quick_list_while_it_was_a_user_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_user_favorite.key)
+        if(req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_user_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -476,21 +457,21 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_user_favorite = functio
 exports.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite.key)
+        if(req.body.interactionType === Interaction.types.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -520,16 +501,16 @@ exports.accept_descriptor_from_quick_list_while_it_was_a_user_and_project_favori
 exports.hide_descriptor_from_quick_list_for_project = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.hide_descriptor_from_quick_list_for_project.key)
+        if(req.body.interactionType === Interaction.types.hide_descriptor_from_quick_list_for_project.key)
         {
 
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -559,16 +540,16 @@ exports.hide_descriptor_from_quick_list_for_project = function(req, res) {
 exports.unhide_descriptor_from_quick_list_for_project = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.unhide_descriptor_from_quick_list_for_project.key)
+        if(req.body.interactionType === Interaction.types.unhide_descriptor_from_quick_list_for_project.key)
         {
 
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -598,16 +579,16 @@ exports.unhide_descriptor_from_quick_list_for_project = function(req, res) {
 exports.hide_descriptor_from_quick_list_for_user = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.hide_descriptor_from_quick_list_for_user.key)
+        if(req.body.interactionType === Interaction.types.hide_descriptor_from_quick_list_for_user.key)
         {
 
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -637,16 +618,16 @@ exports.hide_descriptor_from_quick_list_for_user = function(req, res) {
 exports.unhide_descriptor_from_quick_list_for_user = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.unhide_descriptor_from_quick_list_for_user.key)
+        if(req.body.interactionType === Interaction.types.unhide_descriptor_from_quick_list_for_user.key)
         {
 
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -676,15 +657,15 @@ exports.unhide_descriptor_from_quick_list_for_user = function(req, res) {
 exports.favorite_descriptor_from_quick_list_for_project = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.favorite_descriptor_from_quick_list_for_project.key)
+        if(req.body.interactionType === Interaction.types.favorite_descriptor_from_quick_list_for_project.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -714,15 +695,15 @@ exports.favorite_descriptor_from_quick_list_for_project = function(req, res) {
 exports.favorite_descriptor_from_quick_list_for_user = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.favorite_descriptor_from_quick_list_for_user.key)
+        if(req.body.interactionType === Interaction.types.favorite_descriptor_from_quick_list_for_user.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -752,15 +733,15 @@ exports.favorite_descriptor_from_quick_list_for_user = function(req, res) {
 exports.unfavorite_descriptor_from_quick_list_for_project = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key)
+        if(req.body.interactionType === Interaction.types.unfavorite_descriptor_from_quick_list_for_project.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -790,15 +771,15 @@ exports.unfavorite_descriptor_from_quick_list_for_project = function(req, res) {
 exports.unfavorite_descriptor_from_quick_list_for_user = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key)
+        if(req.body.interactionType === Interaction.types.unfavorite_descriptor_from_quick_list_for_user.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -828,21 +809,21 @@ exports.unfavorite_descriptor_from_quick_list_for_user = function(req, res) {
 exports.accept_descriptor_from_autocomplete = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_descriptor_from_autocomplete.key)
+        if(req.body.interactionType === Interaction.types.accept_descriptor_from_autocomplete.key)
         {
-            var descriptor = new Descriptor({
+            const descriptor = new Descriptor({
                 uri: req.body.uri
             });
 
             if (descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
+                const ontology = new Ontology({
                     uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -873,21 +854,21 @@ exports.accept_smart_descriptor_in_metadata_editor = function(req, res)
 {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_smart_descriptor_in_metadata_editor.key)
+        if(req.body.interactionType === Interaction.types.accept_smart_descriptor_in_metadata_editor.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -918,21 +899,21 @@ exports.accept_favorite_descriptor_in_metadata_editor = function(req, res)
 {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.accept_favorite_descriptor_in_metadata_editor.key)
+        if(req.body.interactionType === Interaction.types.accept_favorite_descriptor_in_metadata_editor.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -963,21 +944,21 @@ exports.delete_descriptor_in_metadata_editor = function(req, res)
 {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.delete_descriptor_in_metadata_editor.key)
+        if(req.body.interactionType === Interaction.types.delete_descriptor_in_metadata_editor.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1008,21 +989,21 @@ exports.fill_in_descriptor_from_manual_list_in_metadata_editor = function(req, r
 {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.fill_in_descriptor_from_manual_list_in_metadata_editor.key)
+        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_in_metadata_editor.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1052,21 +1033,21 @@ exports.fill_in_descriptor_from_manual_list_in_metadata_editor = function(req, r
 exports.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite.key)
+        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1096,21 +1077,21 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_project_favorite = fu
 exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite.key)
+        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1140,21 +1121,21 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_favorite = funct
 exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite.key)
+        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1184,21 +1165,21 @@ exports.fill_in_descriptor_from_manual_list_while_it_was_a_user_and_project_favo
 exports.fill_in_descriptor_from_quick_list_in_metadata_editor = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.fill_in_descriptor_from_quick_list_in_metadata_editor.key)
+        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_in_metadata_editor.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 //req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1228,21 +1209,21 @@ exports.fill_in_descriptor_from_quick_list_in_metadata_editor = function(req, re
 exports.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite.key)
+        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1272,21 +1253,21 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_project_favorite = fun
 exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite.key)
+        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1316,21 +1297,21 @@ exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_favorite = functi
 exports.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite = function(req, res) {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite.key)
+        if(req.body.interactionType === Interaction.types.fill_in_descriptor_from_quick_list_while_it_was_a_user_and_project_favorite.key)
         {
-            var descriptor = new Descriptor({
-                uri : req.body.uri
+            const descriptor = new Descriptor({
+                uri: req.body.uri
             });
 
             if(descriptor instanceof Descriptor)
             {
-                var ontology = new Ontology({
-                    uri : descriptor.ontology
+                const ontology = new Ontology({
+                    uri: descriptor.ontology
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
             else
             {
@@ -1361,17 +1342,17 @@ exports.select_ontology_manually = function(req, res)
 {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.select_ontology_manually.key)
+        if(req.body.interactionType === Interaction.types.select_ontology_manually.key)
         {
-            if(req.session.user != null)
+            if(!isNull(req.user))
             {
-                var ontology = new Ontology({
-                    uri : req.body.uri
+                const ontology = new Ontology({
+                    uri: req.body.uri
                 });
 
                 req = addOntologyToListOfActiveOntologiesInSession(ontology, req);
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
         }
         else
@@ -1395,15 +1376,15 @@ exports.select_descriptor_manually = function(req, res)
 {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.select_descriptor_from_manual_list.key)
+        if(typeof req.body.interactionType === Interaction.types.select_descriptor_from_manual_list.key)
         {
-            if (req.session.user != null)
+            if (!isNull(req.user))
             {
-                var descriptor = new Descriptor({
+                const descriptor = new Descriptor({
                     uri: req.body.uri
                 });
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
         }
         else
@@ -1427,19 +1408,19 @@ exports.reject_ontology_from_quick_list = function(req, res)
 {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.reject_ontology_from_quick_list.key)
+        if(req.body.interactionType === Interaction.types.reject_ontology_from_quick_list.key)
         {
-            if(req.session.user != null)
+            if(!isNull(req.user))
             {
-                var ontology = new Ontology({
-                    uri : req.body.uri
+                const ontology = new Ontology({
+                    uri: req.body.uri
                 });
 
-                if(req.session.user.recommendations.ontologies.accepted != null)
+                if(!isNull(req.user.recommendations.ontologies.accepted))
                 {
-                    delete req.session.user.recommendations.ontologies.accepted[ontology.prefix];
+                    delete req.user.recommendations.ontologies.accepted[ontology.prefix];
 
-                    recordInteractionOverAResource(req.session.user, req.body, req, res);
+                    recordInteractionOverAResource(req.user, req.body, req, res);
 
                     res.json({
                         result : "OK",
@@ -1469,15 +1450,15 @@ exports.fill_in_inherited_descriptor = function(req, res)
 {
     if(req.body instanceof Object)
     {
-        if(req.body.interactionType == Interaction.types.fill_in_inherited_descriptor.key)
+        if(req.body.interactionType === Interaction.types.fill_in_inherited_descriptor.key)
         {
-            if (req.session.user != null)
+            if (!isNull(req.user))
             {
-                var descriptor = new Descriptor({
+                const descriptor = new Descriptor({
                     uri: req.body.uri
                 });
 
-                recordInteractionOverAResource(req.session.user, req.body, req, res);
+                recordInteractionOverAResource(req.user, req.body, req, res);
             }
         }
         else

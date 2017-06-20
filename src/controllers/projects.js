@@ -1,22 +1,28 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-var Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Permissions = require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var nodemailer = require('nodemailer');
-var db = function() { return GLOBAL.db.default; }();
-var flash = require('connect-flash');
-var async = require('async');
+const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Permissions = require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+
+const nodemailer = require('nodemailer');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const flash = require('connect-flash');
+const async = require('async');
 
 exports.all = function(req, res) {
 
-    var viewVars = {
+    let viewVars = {
         title: "All projects"
     };
 
@@ -24,57 +30,47 @@ exports.all = function(req, res) {
         viewVars
     );
 
-    var validateRequestType = function (cb) {
-        var acceptsHTML = req.accepts('html');
-        var acceptsJSON = req.accepts('json');
+    const validateRequestType = function (cb) {
+        let acceptsHTML = req.accepts('html');
+        const acceptsJSON = req.accepts('json');
 
-        if(acceptsJSON && !acceptsHTML){
+        if (acceptsJSON && !acceptsHTML) {
             res.status(400).json({
                 result: "error",
-                message : "API Request not valid for this route."
+                message: "API Request not valid for this route."
             })
         }
-        else
-        {
+        else {
             cb(null, null);
         }
 
     };
 
-    var getProjectCount = function (cb)
-    {
-        Project.getCount(function (err, count)
-        {
+    const getProjectCount = function (cb) {
+        Project.getCount(function (err, count) {
             cb(err, count);
         });
-    }
+    };
 
-    var getAllProjects = function (cb)
-    {
-        if(req.session.isAdmin)
-        {
-            Project.all(function(err, projects)
-            {
+    const getAllProjects = function (cb) {
+        if (req.session.isAdmin) {
+            Project.all(function (err, projects) {
                 cb(err, projects);
             }, req);
         }
-        else if( req.session.user != null && req.session.user.uri != null )
-        {
+        else if (!isNull(req.user) && !isNull(req.user.uri)) {
 
-            Project.allNonPrivateUnlessTheyBelongToMe(req.session.user, function(err, projects)
-            {
+            Project.allNonPrivateUnlessTheyBelongToMe(req.user, function (err, projects) {
                 cb(err, projects);
             }, req);
         }
-        else
-        {
-            Project.allNonPrivate(req.session.user, function(err, projects)
-            {
+        else {
+            Project.allNonPrivate(req.user, function (err, projects) {
                 cb(err, projects);
             }, req);
         }
 
-    }
+    };
 
     async.series(
         [
@@ -104,15 +100,15 @@ exports.all = function(req, res) {
 
 exports.my = function(req, res) {
 
-    var viewVars = {
+    let viewVars = {
         //title: "My projects"
     };
 
-    Project.findByCreatorOrContributor(req.session.user.uri, function(err, projects) {
-        if(!err && projects != null)
+    Project.findByCreatorOrContributor(req.user.uri, function(err, projects) {
+        if(!err && typeof projects != null)
         {
-            var acceptsHTML = req.accepts('html');
-            var acceptsJSON = req.accepts('json');
+            let acceptsHTML = req.accepts('html');
+            const acceptsJSON = req.accepts('json');
 
             if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
@@ -146,10 +142,8 @@ exports.my = function(req, res) {
 };
 exports.change_log = function(req, res){
 
-    var fetchVersionsInformation = function(archivedResource, cb)
-    {
-        archivedResource.getDetailedInformation(function(err, result)
-        {
+    const fetchVersionsInformation = function (archivedResource, cb) {
+        archivedResource.getDetailedInformation(function (err, result) {
             cb(err, result);
         });
     };
@@ -157,12 +151,12 @@ exports.change_log = function(req, res){
     //TODO make this an InformationElement instead of only a folder
     Folder.findByUri(req.params.requestedResource, function(err, containingFolder)
     {
-        if(!err && containingFolder != null && containingFolder instanceof Folder)
+        if(!err && containingFolder !== "undefined" && containingFolder instanceof Folder)
         {
             Project.findByHandle(req.params.handle, function(err, project) {
-                if(!err && project != null)
+                if(!err && !isNull(project))
                 {
-                    var offset;
+                    let offset;
 
                     try{
                         offset = req.params.page * Config.change_log.default_page_length;
@@ -183,7 +177,7 @@ exports.change_log = function(req, res){
                                 }
                                 else
                                 {
-                                    var flash = require('connect-flash');
+                                    const flash = require('connect-flash');
                                     flash('error', "Unable to fetch descriptors. Reported Error: " + fullVersions);
                                     res.redirect('back');
                                 }
@@ -219,9 +213,9 @@ exports.change_log = function(req, res){
 };
 
 exports.show = function(req, res) {
-    var userIsLoggedIn = req.session.user ? true : false;
+    const userIsLoggedIn = req.user ? true : false;
 
-    if(req.params.requestedResource != null)
+    if(!isNull(req.params.requestedResource))
     {
         var resourceURI	= req.params.requestedResource;
     }
@@ -241,47 +235,37 @@ exports.show = function(req, res) {
 
     function sendResponse(viewVars, requestedResource)
     {
-        var askedForHtml = function(req, res)
-        {
-            var accept = req.header('Accept');
-            var serializer = null;
-            var contentType = null;
-            if (accept in Config.metadataSerializers)
-            {
+        const askedForHtml = function (req, res) {
+            const accept = req.header('Accept');
+            let serializer = null;
+            let contentType = null;
+            if (accept in Config.metadataSerializers) {
                 serializer = Config.metadataSerializers[accept];
                 contentType = Config.metadataContentTypes[accept];
 
-                if (req.query.deep != null)
-                {
-                    requestedResource.findMetadataRecursive(function (err, result)
-                    {
-                        if (!err)
-                        {
+                if (!isNull(req.query.deep)) {
+                    requestedResource.findMetadataRecursive(function (err, result) {
+                        if (!err) {
                             res.set('Content-Type', contentType);
                             res.send(serializer(result));
 
                         }
-                        else
-                        {
+                        else {
                             res.status(500).json({
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
                     });
                 }
-                else
-                {
-                    requestedResource.findMetadata(function (err, result)
-                    {
-                        if (!err)
-                        {
+                else {
+                    requestedResource.findMetadata(function (err, result) {
+                        if (!err) {
 
                             res.set('Content-Type', contentType);
                             res.send(serializer(result));
 
                         }
-                        else
-                        {
+                        else {
                             res.status(500).json({
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
@@ -291,15 +275,14 @@ exports.show = function(req, res) {
 
                 return false;
             }
-            else
-            {
+            else {
                 return true;
             }
-        }
+        };
 
-        var _ = require('underscore');
-        var isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
-            var reason = authorization.role;
+        const _ = require('underscore');
+        const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
+            const reason = authorization.role;
             return _.isEqual(reason, Permissions.role.project.creator) || _.isEqual(reason, Permissions.role.project.contributor) || _.isEqual(reason, Permissions.role.system.admin);
         });
 
@@ -314,18 +297,18 @@ exports.show = function(req, res) {
         }
         else
         {
-            var isPublicOrMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
-                var reason = authorization.role;
+            const isPublicOrMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
+                const reason = authorization.role;
                 return _.isEqual(reason, Permissions.project_privacy_status.metadata_only) || _.isEqual(reason, Permissions.project_privacy_status.public) || _.isEqual(reason, Permissions.role.system.admin);
             });
 
-            var isPublicProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
-                var reason = authorization.role;
+            const isPublicProject = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
+                const reason = authorization.role;
                 return _.isEqual(reason, Permissions.project_privacy_status.public) || _.isEqual(reason, Permissions.role.system.admin);
             });
 
-            var isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function(authorization){
-                var reason = authorization.role;
+            const isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
+                const reason = authorization.role;
                 return _.isEqual(reason, Permissions.project_privacy_status.metadata_only) || _.isEqual(reason, Permissions.role.system.admin);
             });
 
@@ -360,7 +343,7 @@ exports.show = function(req, res) {
         }
     }
 
-    if(req.query.show_history != null)
+    if(typeof req.query.show_history !== "undefined")
     {
         var showing_history = 1;
     }
@@ -369,26 +352,24 @@ exports.show = function(req, res) {
         var showing_history = 0;
     }
 
-    var fetchVersionsInformation = function(archivedResource, cb)
-    {
-        archivedResource.getDetailedInformation(function(err, result)
-        {
+    const fetchVersionsInformation = function (archivedResource, cb) {
+        archivedResource.getDetailedInformation(function (err, result) {
             cb(err, result);
         });
-    }
+    };
 
     var viewVars = {
         showing_history : showing_history,
         Descriptor : Descriptor
     };
 
-    if(req.params.filepath == null)
+    if(isNull(req.params.filepath))
     {
         viewVars.read_only = true;
         viewVars.showing_project_root = 1;
 
         Project.findByHandle(req.params.handle, function(err, project) {
-            if(!err && project != null)
+            if(!err && !isNull(project))
             {
                 viewVars.project = project;
                 viewVars.title = project.dcterms.title;
@@ -437,7 +418,7 @@ exports.show = function(req, res) {
                                 }
                                 else
                                 {
-                                    var flash = require('connect-flash');
+                                    const flash = require('connect-flash');
                                     flash('error', "Unable to fetch information of the change authors. Reported Error: " + archivedResourcesWithFullAuthorInformation);
                                     res.redirect('back');
                                 }
@@ -464,7 +445,7 @@ exports.show = function(req, res) {
                             }
                             else
                             {
-                                var flash = require('connect-flash');
+                                const flash = require('connect-flash');
                                 flash('error', "Unable to fetch descriptors. Reported Error: " + descriptors);
                                 res.redirect('back');
                             }
@@ -488,12 +469,12 @@ exports.show = function(req, res) {
     {
         Folder.findByUri(resourceURI, function(err, containingFolder)
         {
-            if(!err && containingFolder != null && containingFolder instanceof Folder)
+            if(!err && !isNull(containingFolder) && containingFolder instanceof Folder)
             {
-                var breadcrumbSections = req.params.filepath.split("/");
-                var currentBreadCrumb = res.locals.baseURI + "/project/" + req.params.handle + "/" + breadcrumbSections[1]; //ignore leading "/data" section
+                const breadcrumbSections = req.params.filepath.split("/");
+                let currentBreadCrumb = res.locals.baseURI + "/project/" + req.params.handle + "/" + breadcrumbSections[1]; //ignore leading "/data" section
 
-                var breadcrumbs = [];
+                const breadcrumbs = [];
 
                 if(userIsLoggedIn){
                     breadcrumbs.push(
@@ -523,7 +504,7 @@ exports.show = function(req, res) {
                     }
                 );
 
-                for(var i = 2; i < breadcrumbSections.length; i++)
+                for(let i = 2; i < breadcrumbSections.length; i++)
                 {
                     currentBreadCrumb = currentBreadCrumb + "/" + breadcrumbSections[i];
                     breadcrumbs.push(
@@ -544,7 +525,7 @@ exports.show = function(req, res) {
                 viewVars.showing_project_root = false;
 
                 Project.findByHandle(req.params.handle, function(err, project) {
-                    if(!err && project != null)
+                    if(!err && !isNull(project))
                     {
                         viewVars.project = project;
                         viewVars.title = project.dcterms.title;
@@ -564,7 +545,7 @@ exports.show = function(req, res) {
                                         }
                                         else
                                         {
-                                            var flash = require('connect-flash');
+                                            const flash = require('connect-flash');
                                             flash('error', "Unable to fetch descriptors. Reported Error: " + fullVersions);
                                             res.redirect('back');
                                         }
@@ -591,7 +572,7 @@ exports.show = function(req, res) {
                                     }
                                     else
                                     {
-                                        var flash = require('connect-flash');
+                                        const flash = require('connect-flash');
                                         flash('error', "Unable to fetch folder descriptors. Reported Error: " + descriptors);
                                         res.redirect('back');
                                     }
@@ -621,10 +602,10 @@ exports.show = function(req, res) {
 };
 
 exports.new = function(req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
 
-    if(req.originalMethod == "GET")
+    if(req.originalMethod === "GET")
     {
         if(acceptsJSON && !acceptsHTML){
             res.status(400).json({
@@ -641,12 +622,12 @@ exports.new = function(req, res) {
             );
         }
     }
-    else if (req.originalMethod == "POST")
+    else if (req.originalMethod === "POST")
     {
         acceptsHTML = req.accepts('html');
         acceptsJSON = req.accepts('json');
 
-        if(req.body.handle == null || req.body.handle == "")
+        if(isNull(req.body.handle) || req.body.handle === "")
         {
             if(acceptsJSON && !acceptsHTML){
                 res.status(400).json({
@@ -661,7 +642,7 @@ exports.new = function(req, res) {
                 )
             }
         }
-        else if (req.body.handle != null && !req.body.handle.match(/^[0-9a-z]+$/))
+        else if (!isNull(req.body.handle) && !req.body.handle.match(/^[0-9a-z]+$/))
         {
             if(acceptsJSON && !acceptsHTML){
                 res.status(400).json({
@@ -676,7 +657,7 @@ exports.new = function(req, res) {
                 )
             }
         }
-        else if(!req.body.title || req.body.title == ""){
+        else if(!req.body.title || req.body.title === ""){
             if(acceptsJSON && !acceptsHTML){
                 res.status(400).json({
                     result: "error",
@@ -690,7 +671,7 @@ exports.new = function(req, res) {
                 )
             }
         }
-        else if(!req.body.description || req.body.description == ""){
+        else if(!req.body.description || req.body.description === ""){
             if(acceptsJSON && !acceptsHTML){
                 res.status(400).json({
                     result: "error",
@@ -704,7 +685,7 @@ exports.new = function(req, res) {
                 )
             }
         }
-        else if(!req.body.privacy || req.body.privacy == "")
+        else if(!req.body.privacy || req.body.privacy === "")
         {
             if(acceptsJSON && !acceptsHTML){
                 res.status(400).json({
@@ -725,7 +706,7 @@ exports.new = function(req, res) {
 
                 if(!err)
                 {
-                    if((project != null) && project instanceof Project)
+                    if((!isNull(project)) && project instanceof Project)
                     {
                         if(acceptsJSON && !acceptsHTML){
                             res.status(400).json({
@@ -745,17 +726,17 @@ exports.new = function(req, res) {
                     {
                         //creator will be the currently logged in user
 
-                        var projectData = {
-                            dcterms : {
-                                creator : req.session.user.uri,
-                                title : req.body.title,
-                                description : req.body.description,
+                        const projectData = {
+                            dcterms: {
+                                creator: req.user.uri,
+                                title: req.body.title,
+                                description: req.body.description,
                                 publisher: req.body.publisher,
                                 language: req.body.language,
                                 coverage: req.body.coverage
                             },
-                            ddr : {
-                                handle : req.body.handle,
+                            ddr: {
+                                handle: req.body.handle,
                                 privacyStatus: req.body.privacy
                             }
                         };
@@ -768,11 +749,8 @@ exports.new = function(req, res) {
                             }
                             else
                             {
-                                res.render('index',
-                                    {
-                                        error_messages: [result]
-                                    }
-                                );
+                                req.flash('error', "Error creating project " + projectData.dcterms.title +" with handle "+ projectData.ddr.handle +"!");
+                                throw err;
                             }
 
                         });
@@ -793,9 +771,9 @@ exports.new = function(req, res) {
 
 exports.administer = function(req, res) {
 
-    var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
-    var viewVars = {
+    const viewVars = {
         title: "Administration Area"
     };
 
@@ -803,32 +781,32 @@ exports.administer = function(req, res) {
     {
         if (!err)
         {
-            if(project != null)
+            if(!isNull(project))
             {
                 viewVars.project = project;
 
-                if (project.ddr.privacyStatus == null)
+                if (isNull(project.ddr.privacyStatus))
                 {
                     project.ddr.privacyStatus = 'private';
                 }
 
                 viewVars.privacy = project.ddr.privacyStatus;
 
-                if (req.originalMethod == "POST")
+                if (req.originalMethod === "POST")
                 {
                     let updateProjectMetadata = function(callback)
                     {
-                        if (req.body.description != null)
+                        if (!isNull(req.body.description))
                         {
                             project.dcterms.description = req.body.description;
                         }
-                        if (req.body.title != null)
+                        if (!isNull(req.body.title))
                         {
                             project.dcterms.title = req.body.title;
                         }
 
 
-                        if (req.body.privacy != null)
+                        if (!isNull(req.body.privacy))
                         {
                             viewVars.privacy = req.body.privacy;
                             switch (req.body.privacy)
@@ -845,7 +823,7 @@ exports.administer = function(req, res) {
                             }
                         }
 
-                        callback(null, project);
+                        return callback(null, project);
                     };
 
                     let notifyContributor = function(user){
@@ -862,12 +840,16 @@ exports.administer = function(req, res) {
                             from: 'support@dendro.fe.up.pt',
                             to: user.foaf.mbox,
                             subject: 'Added as contributor for project "' + req.params.handle + '"',
-                            text: 'User ' + req.session.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
+                            text: 'User ' + req.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
                         };
 
                         client.sendMail(email, function (err, info) {
                             if (err) {
-                                console.log("[NODEMAILER] " + err);
+                                if(Config.logging.log_emails)
+                                {
+                                    console.log("[NODEMAILER] " + err);
+                                }
+
                                 flash('error', "Error sending request to user. Please try again later");
                             }
                             else {
@@ -883,7 +865,7 @@ exports.administer = function(req, res) {
                         const regexpUri = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
                         const regexpUsername = /(\w+)?/;
 
-                        if (req.body.contributors != null && req.body.contributors instanceof Array)
+                        if (!isNull(req.body.contributors) && req.body.contributors instanceof Array)
                         {
                             async.map(req.body.contributors, function (contributor, callback) {
 
@@ -895,9 +877,9 @@ exports.administer = function(req, res) {
                                         if (!err && user && user.foaf.mbox) {
                                             //TODO Check if user already is a contributor so as to not send a notification
                                             notifyContributor(user);
-                                            callback(false, user.uri);
+                                            return callback(false, user.uri);
                                         } else {
-                                            callback(true, contributor);
+                                            return callback(true, contributor);
                                         }
                                     });
                                 } else if(regexpUsername.test(contributor)){
@@ -905,27 +887,27 @@ exports.administer = function(req, res) {
 
                                         if (!err && user && user.foaf.mbox) {
                                             notifyContributor(user);
-                                            callback(false, user.uri);
+                                            return callback(false, user.uri);
                                         } else {
-                                            callback(true, contributor);
+                                            return callback(true, contributor);
                                         }
                                     });
                                 } else{
-                                    callback(true, contributor)
+                                    return callback(true, contributor)
                                 }
 
                             }, function(err, contributors){
                                if(!err){
                                     project.dcterms.contributor = contributors;
-                                    callback(null, project);
+                                    return callback(null, project);
                                 }
                                 else
                                 {
-                                    callback(err, contributors);
+                                    return callback(err, contributors);
                                 }
                             });
                         }else{
-                            callback(null, project);
+                            return callback(null, project);
                         }
                     };
 
@@ -933,7 +915,7 @@ exports.administer = function(req, res) {
                     {
                         project.save(function (err, result)
                         {
-                            callback(err, project);
+                            return callback(err, project);
                         });
                     };
 
@@ -960,7 +942,7 @@ exports.administer = function(req, res) {
                         }
                     })
                 }
-                else if (req.originalMethod == "GET")
+                else if (req.originalMethod === "GET")
                 {
                     viewVars.project = project;
                     res.render('projects/administration/administer',
@@ -987,15 +969,15 @@ exports.administer = function(req, res) {
 };
 
 exports.get_contributors = function(req, res){
-    var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
     Project.findByUri(requestedProjectURI, function(err, project) {
         if (!err) {
-            if (project != null) {
+            if (!isNull(project)) {
                 //from http://www.dzone.com/snippets/validate-url-regexp
-                var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-                var contributorsUri = [];
-                if (project.dcterms.contributor != null){
+                const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+                let contributorsUri = [];
+                if (!isNull(project.dcterms.contributor)){
 
                     if(project.dcterms.contributor instanceof Array){
                         contributorsUri = project.dcterms.contributor;
@@ -1003,20 +985,20 @@ exports.get_contributors = function(req, res){
                         contributorsUri.push(project.dcterms.contributor);
                     }
 
-                    var contributors = [];
+                    const contributors = [];
                     async.each(contributorsUri, function (contributor, callback) {
 
                         if (regexp.test(contributor)) {
                             User.findByUri(contributor, function (err, user) {
                                 if (!err && user) {
                                     contributors.push(user);
-                                    callback(null);
+                                    return callback(null);
                                 } else {
-                                    callback(true, contributor);
+                                    return callback(true, contributor);
                                 }
                             }, true);
                         } else {
-                            callback(true, contributor)
+                            return callback(true, contributor)
                         }
 
                     }, function (err, contributor) {
@@ -1039,20 +1021,20 @@ exports.get_contributors = function(req, res){
 
 exports.bagit = function(req,res)
 {
-    var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
     Project.findByUri(requestedProjectURI, function(err, project){
         if(!err)
         {
-            if(project != null && project instanceof Project)
+            if(!isNull(project) && project instanceof Project)
             {
                 project.backup(function(err, baggedContentsZipFileAbsPath, parentFolderPath){
                     if(!err)
                     {
-                        if(baggedContentsZipFileAbsPath != null)
+                        if(!isNull(baggedContentsZipFileAbsPath))
                         {
-                            var fs = require('fs');
-                            var fileStream = fs.createReadStream(baggedContentsZipFileAbsPath);
+                            const fs = require('fs');
+                            const fileStream = fs.createReadStream(baggedContentsZipFileAbsPath);
 
                             res.on('end', function () {
                                 Folder.deleteOnLocalFileSystem(parentFolderPath, function(err, stdout, stderr){
@@ -1071,7 +1053,7 @@ exports.bagit = function(req,res)
                         }
                         else
                         {
-                            var error = "There was an error attempting to backup project : " + requestedProjectURI;
+                            const error = "There was an error attempting to backup project : " + requestedProjectURI;
                             console.error(error);
                             res.write("500 Error : "+ error +"\n");
                             res.end();
@@ -1106,27 +1088,27 @@ exports.bagit = function(req,res)
 
 exports.delete = function(req,res)
 {
-    var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
-    var viewVars = {
+    const viewVars = {
         title: "Administration Area"
     };
 
     Project.findByUri(requestedProjectURI, function(err, project){
         if(!err)
         {
-            if(project != null)
+            if(!isNull(project))
             {
                 project.delete(function(err, result){
                     if(!err)
                     {
-                        var success_messages = ["Project " + req.params.handle + " successfully marked as deleted"];
+                        const success_messages = ["Project " + req.params.handle + " successfully marked as deleted"];
 
-                        var acceptsHTML = req.accepts('html');
-                        var acceptsJSON = req.accepts('json');
+                        let acceptsHTML = req.accepts('html');
+                        const acceptsJSON = req.accepts('json');
 
                         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                         {
@@ -1171,24 +1153,24 @@ exports.delete = function(req,res)
 
 exports.undelete = function(req,res)
 {
-    var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
-    var viewVars = {
+    const viewVars = {
         title: "Administration Area"
     };
 
     Project.findByUri(requestedProjectURI, function(err, project){
         if(!err)
         {
-            if(project != null)
+            if(!isNull(project))
             {
                 project.undelete(function(err, result){
                     if(!err)
                     {
-                        var success_messages = ["Project " + req.params.handle + " successfully recovered"];
+                        const success_messages = ["Project " + req.params.handle + " successfully recovered"];
 
-                        var acceptsHTML = req.accepts('html');
-                        var acceptsJSON = req.accepts('json');
+                        let acceptsHTML = req.accepts('html');
+                        const acceptsJSON = req.accepts('json');
 
                         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                         {
@@ -1232,8 +1214,8 @@ exports.undelete = function(req,res)
 };
 
 exports.recent_changes = function(req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -1244,16 +1226,16 @@ exports.recent_changes = function(req, res) {
     }
     else
     {
-        var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+        const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
 
         Project.findByUri(req.params.requestedResource, function(err, project){
             if(!err)
             {
-                if(project != null)
+                if(!isNull(project))
                 {
-                    var offset = parseInt(req.query.offset);
-                    var limit = parseInt(req.query.limit);
+                    const offset = parseInt(req.query.offset);
+                    const limit = parseInt(req.query.limit);
 
                     project.getRecentProjectWideChanges(function(err, changes){
                         if(!err)
@@ -1290,13 +1272,13 @@ exports.recent_changes = function(req, res) {
 
 exports.stats = function(req, res) {
 
-    var requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
     Project.findByUri(requestedProjectURI, function(err, project){
         if(!err)
         {
-            var offset = parseInt(req.query.offset);
-            var limit = parseInt(req.query.limit);
+            const offset = parseInt(req.query.offset);
+            const limit = parseInt(req.query.limit);
 
             async.waterfall([
                     function(callback)
@@ -1305,11 +1287,11 @@ exports.stats = function(req, res) {
                         {
                             if(!err)
                             {
-                                callback(err, revisionsCount)
+                                return callback(err, revisionsCount)
                             }
                             else
                             {
-                                callback(1,
+                                return callback(1,
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of revisions in project . Error reported : " + JSON.stringify(err) + "."
@@ -1323,11 +1305,11 @@ exports.stats = function(req, res) {
                         {
                             if(!err)
                             {
-                                callback(err, revisionsCount, foldersCount)
+                                return callback(err, revisionsCount, foldersCount)
                             }
                             else
                             {
-                                callback(1,
+                                return callback(1,
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of folders in project . Error reported : " + JSON.stringify(err) + "."
@@ -1341,11 +1323,11 @@ exports.stats = function(req, res) {
                         {
                             if(!err)
                             {
-                                callback(err, revisionsCount, foldersCount, filesCount);
+                                return callback(err, revisionsCount, foldersCount, filesCount);
                             }
                             else
                             {
-                                callback(1,
+                                return callback(1,
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of files in project . Error reported : " + JSON.stringify(err) + "."
@@ -1359,11 +1341,11 @@ exports.stats = function(req, res) {
                         {
                             if(!err)
                             {
-                                callback(err, revisionsCount, foldersCount, filesCount, membersCount);
+                                return callback(err, revisionsCount, foldersCount, filesCount, membersCount);
                             }
                             else
                             {
-                                callback(1,
+                                return callback(1,
                                     {
                                         result : "error",
                                         message : "Error calculating calculating number of members of the project . Error reported : " + JSON.stringify(err) + "."
@@ -1376,11 +1358,11 @@ exports.stats = function(req, res) {
                         project.getStorageSize(function(err, storageSize){
                             if(!err)
                             {
-                                callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize)
+                                return callback(err, revisionsCount, foldersCount, filesCount, membersCount, storageSize)
                             }
                             else
                             {
-                                callback(1,
+                                return callback(1,
                                     {
                                         result : "error",
                                         message : "Error calculating size of project : " + requestedProjectURI + " . Error reported : " + JSON.stringify(err) + ".",
@@ -1391,7 +1373,7 @@ exports.stats = function(req, res) {
                     },
                     function(revisionsCount, foldersCount, filesCount, membersCount, storageSize)
                     {
-                        var humanize = require('humanize');
+                        const humanize = require('humanize');
 
                         res.json({
                             size : humanize.filesize(storageSize),
@@ -1423,10 +1405,10 @@ exports.stats = function(req, res) {
 };
 
 exports.interactions = function(req, res) {
-    var username = req.params["username"];
-    var currentUser = req.session.user;
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let username = req.params["username"];
+    const currentUser = req.user;
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(!username)
     {
@@ -1467,7 +1449,7 @@ exports.interactions = function(req, res) {
     }
     else
     {
-        var msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         console.log(msg);
         res.status(400).render('',
@@ -1478,10 +1460,10 @@ exports.interactions = function(req, res) {
 };
 
 exports.requestAccess = function(req, res){
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
-    if(req.originalMethod == "GET")
+    if(req.originalMethod === "GET")
     {
         if(acceptsJSON && !acceptsHTML){
             res.status(400).json({
@@ -1497,21 +1479,21 @@ exports.requestAccess = function(req, res){
             });
         }
     }
-    else if(req.originalMethod == "POST")
+    else if(req.originalMethod === "POST")
     {
-        var flash = require('connect-flash');
-        console.log(req.session.user);
+        const flash = require('connect-flash');
+        console.log(req.user);
         Project.findByHandle(req.params.handle, function (err, project) {
             if (!err && project instanceof Project) {
-                var lastSlash = project.dcterms.creator.lastIndexOf("\/");
-                var creatorUsername = project.dcterms.creator.substring(lastSlash + 1);
+                const lastSlash = project.dcterms.creator.lastIndexOf("\/");
+                const creatorUsername = project.dcterms.creator.substring(lastSlash + 1);
 
                 User.findByUsername(creatorUsername, function (err, user) {
                     if (!err && user instanceof User)
                     {
-                        var userMail = user.foaf.mbox;
+                        const userMail = user.foaf.mbox;
 
-                        var client = nodemailer.createTransport("SMTP", {
+                        const client = nodemailer.createTransport("SMTP", {
                             service: 'SendGrid',
                             auth: {
                                 user: Config.sendGridUser,
@@ -1519,11 +1501,11 @@ exports.requestAccess = function(req, res){
                             }
                         });
 
-                        var email = {
+                        const email = {
                             from: 'support@dendro.fe.up.pt',
                             to: 'ffjs1993@gmail.com',
                             subject: 'Request for project "' + req.params.handle + '"',
-                            text: 'User ' + req.session.user.uri +' requested access for project "' + req.params.handle + '".\ ' +
+                            text: 'User ' + req.user.uri + ' requested access for project "' + req.params.handle + '".\ ' +
                             'To accept this, please add him as a contributor.'
                         };
 
@@ -1559,10 +1541,10 @@ exports.requestAccess = function(req, res){
 };
 
 exports.import = function(req, res) {
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
-    if(req.originalMethod == "GET")
+    if(req.originalMethod === "GET")
     {
         if(acceptsJSON && !acceptsHTML){
             res.status(400).json({
@@ -1572,7 +1554,7 @@ exports.import = function(req, res) {
         }
         else
         {
-            var filesize = require('file-size');
+            const filesize = require('file-size');
 
             res.render('projects/import/import',
                 {
@@ -1583,21 +1565,21 @@ exports.import = function(req, res) {
             );
         }
     }
-    else if (req.originalMethod == "POST")
+    else if (req.originalMethod === "POST")
     {
-        if(req.files != null && req.files.file instanceof Object)
+        if(!isNull(req.files) && req.files.file instanceof Object)
         {
-            var uploadedFile = req.files.file;
-            var path = require('path');
+            const uploadedFile = req.files.file;
+            const path = require('path');
 
-            var tempFilePath = uploadedFile.path;
+            const tempFilePath = uploadedFile.path;
 
-            if(path.extname(tempFilePath) == ".zip")
+            if(path.extname(tempFilePath) === ".zip")
             {
                 Project.getStructureFromBagItZipFolder(tempFilePath, Config.maxProjectSize, function(err, result, structure){
                     if(!err)
                     {
-                        var rebased_structure = JSON.parse(JSON.stringify(structure));
+                        const rebased_structure = JSON.parse(JSON.stringify(structure));
                         Project.rebaseAllUris(rebased_structure, Config.baseUri);
 
                         res.status(200).json(
@@ -1610,7 +1592,7 @@ exports.import = function(req, res) {
                     }
                     else
                     {
-                        var msg = "Error restoring zip file to folder : " + result;
+                        const msg = "Error restoring zip file to folder : " + result;
                         console.log(msg);
 
                         res.status(500).json(

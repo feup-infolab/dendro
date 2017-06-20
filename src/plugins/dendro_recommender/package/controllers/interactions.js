@@ -4,9 +4,13 @@ var needle = require('needle');
 var _ = require('underscore');
 
 
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+
+var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 var Folder= require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
@@ -389,7 +393,7 @@ exports.refresh_interactions = function(req, res)
 exports.by_user = function(req, res)
 {
     var username = req.params["username"];
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
@@ -488,7 +492,7 @@ exports.by_user = function(req, res)
             var ejs = require('ejs');
 
             DendroRecommender.renderView(res, "interactions", {
-                user : req.session.user,
+                user : req.user,
                 title : "Interactions recorded in the system"
             });
         }

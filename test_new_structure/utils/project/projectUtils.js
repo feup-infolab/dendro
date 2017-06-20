@@ -583,6 +583,15 @@ var serve = function(agent, projectHandle, filepath, cb){
         });
 };
 
+var serve_base64 = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?serve_base64')
+        .end(function (err, res) {
+            cb(err, res);
+        });
+};
+
+
 var descriptors_autocomplete = function(jsonOnly, projectHandle, folderPath, descriptor, cb){
     ///project/:handle?descriptors_autocomplete
     var projectFolder = projectHandle;
@@ -671,6 +680,7 @@ module.exports = {
     bagit : bagit,
     download : download,
     serve : serve,
+    serve_base64 : serve_base64,
     thumbnail : thumbnail,
     upload : upload,
     descriptors_autocomplete : descriptors_autocomplete,

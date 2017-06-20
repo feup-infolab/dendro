@@ -1,11 +1,15 @@
-var util = require('util');
-var redis = require('redis');
-var Config = function() { return GLOBAL.Config; }();
-var colors = require('colors');
+const util = require('util');
+const redis = require('redis');
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const colors = require('colors');
 
 function RedisConnection (options, databaseNumber, id)
 {
-    var self = this;
+    const self = this;
     self.options = options;
     self.databaseNumber = databaseNumber;
 
@@ -15,41 +19,45 @@ function RedisConnection (options, databaseNumber, id)
 }
 
 RedisConnection.prototype.openConnection = function(callback) {
-    var self = this;
+    const self = this;
 
     if(Config.cache.active)
     {
-        if(self.redis != null)
+        if(!isNull(self.redis))
         {
-            callback(1, "Redis connection is already open.");
+            return callback(1, "Redis connection is already open.");
         }
         else
         {
             self.redis = redis.createClient(self.options);
 
-            var registerConnectionCallbacks = function (err)
-            {
+            const registerConnectionCallbacks = function (err) {
+
                 /*self.redis.on('connect', function ()
                 {
                     console.log('Redis client connected');
-                    callback(null, self);
+                    return callback(null, self);
                 });*/
 
                 self.redis.on('ready', function ()
                 {
-                    console.log('Redis client ready');
-                    callback(null, self);
+                    console
+                        .log
+
+                        ('Redis client ready');
+                    return callback(null, self);
                 });
 
                 self.redis.on('error', function (err)
                 {
-                    var msg = 'Error connecting to Redis client ' + JSON.stringify(err);
+                    const msg =
+                        'Error connecting to Redis client ' + JSON.stringify(err);
                     console.log();
-                    callback(err, msg);
+                    return callback(err, msg);
                 });
             };
 
-            if (self.databaseNumber != null)
+            if (!isNull(self.databaseNumber))
             {
                 registerConnectionCallbacks();
                 self.redis.select(self.databaseNumber, function ()
@@ -65,133 +73,153 @@ RedisConnection.prototype.openConnection = function(callback) {
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 };
 
 RedisConnection.prototype.put = function(resourceUri, object, callback) {
-    var self = this;
+    const self = this;
 
     if(Config.cache.active)
     {
-
-        if(self.redis != null)
+        if(!isNull(object))
         {
-            self.redis.set(resourceUri, JSON.stringify(object), function(err, reply)
+            if(!isNull(self.redis))
             {
-                if(!err)
+                self.redis.set(resourceUri, JSON.stringify(object), function(err, reply)
                 {
-                    if (Config.debug.active && Config.debug.cache.log_cache_writes)
+                    if(!err)
                     {
-                        console.log("[DEBUG] Saved cache record for " + resourceUri);
-                    }
+                        if (Config.debug.active && Config.debug.cache.log_cache_writes)
+                        {
+                            console.log("[DEBUG] Saved cache record for " + resourceUri);
+                        }
 
-                    callback(null);
-                }
-                else
-                {
-                    callback(1, "Unable to set value of " + resourceUri + " as " + JSON.stringify(object) + " into redis cache");
-                }
-            })
+                        return callback(null);
+                    }
+                    else
+                    {
+                        return callback(1, "Unable to set value of " + resourceUri + " as " + JSON.stringify(object) + " into redis cache");
+                    }
+                })
+            }
+            else
+            {
+                return callback(1, "Tried to save a resource into cache providing a null object!");
+            }
         }
         else
         {
-            callback(1, "Must open connection to Redis first!");
+            return callback(null, null);
         }
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 };
 
 RedisConnection.prototype.get = function(resourceUri, callback) {
-    var self = this;
+    const self = this;
 
     if(Config.cache.active)
     {
 
-        if(self.redis != null)
+        if(!isNull(self.redis))
         {
-            self.redis.get(resourceUri, function(err, cachedJSON)
+            if(!isNull(resourceUri))
             {
-                if(!err)
+                self.redis.get(resourceUri, function(err, cachedJSON)
                 {
-                    if(Config.cache.active && Config.debug.cache.log_cache_hits)
+                    if(!err)
                     {
-                        if(cachedJSON != null)
+                        if(Config.cache.active && Config.debug.cache.log_cache_hits)
                         {
-                            console.log("Cache HIT on " + resourceUri);
+                            if(!isNull(cachedJSON))
+                            {
+                                console.log("Cache HIT on " + resourceUri);
+                            }
+                            else
+                            {
+                                console.log("Cache MISS on " + resourceUri);
+                            }
                         }
-                        else
-                        {
-                            console.log("Cache MISS on " + resourceUri);
-                        }
-                    }
 
-                    callback(null, JSON.parse(cachedJSON));
-                }
-                else
-                {
-                    callback(err, "Unable to retrieve value of " + resourceUri + " as " + JSON.stringify(object) + " from redis cache");
-                }
-            });
+                        return callback(null, JSON.parse(cachedJSON));
+                    }
+                    else
+                    {
+                        return callback(err, "Unable to retrieve value of " + resourceUri + " as " + JSON.stringify(object) + " from redis cache");
+                    }
+                });
+            }
+            else
+            {
+                return callback(1, "Tried to fetch a resource from cache providing a null resourceUri!");
+            }
         }
         else
         {
-            callback(1, "Must open connection to Redis first!");
+            return callback(1, "Must open connection to Redis first!");
         }
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 };
 
 RedisConnection.prototype.delete = function(resourceUriOrArrayOfResourceUris, callback) {
-    var self = this;
+    const self = this;
 
     if(Config.cache.active)
     {
-        if(self.redis != null)
+        if(!isNull(self.redis))
         {
-            self.redis.del(resourceUriOrArrayOfResourceUris, function (err)
+            if(!isNull(resourceUriOrArrayOfResourceUris))
             {
-                if(!err)
+                self.redis.del(resourceUriOrArrayOfResourceUris, function (err)
                 {
-                    if (Config.debug.active && Config.debug.cache.log_cache_deletes)
+                    if(!err)
                     {
-                        console.log("[DEBUG] Deleted cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
-                    }
+                        if (Config.debug.active && Config.debug.cache.log_cache_deletes)
+                        {
+                            console.log("[DEBUG] Deleted cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                        }
 
-                    callback(null, null);
-                }
-                else
-                {
-                    var msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris  + " from redis cache. " + err;
-                    console.log(msg);
-                    callback(err, msg);
-                }
-            });
+                        return callback(null, null);
+                    }
+                    else
+                    {
+                        const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from redis cache. " + err;
+                        console.log(msg);
+                        return callback(err, msg);
+                    }
+                });
+            }
+            else
+            {
+                return callback(1, "Tried to delete resources in cache with null uri array");
+            }
         }
         else
         {
-            callback(1, "Must open connection to Redis first!");
+            return callback(1, "Must open connection to Redis first!");
         }
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 };
 
 RedisConnection.prototype.deleteAll = function(callback) {
-    var self = this;
+    const self = this;
 
     if(Config.cache.active)
     {
 
-        if(self.redis != null)
+        if(!isNull(self.redis))
         {
             self.redis.flushdb(function (err)
             {
@@ -202,24 +230,24 @@ RedisConnection.prototype.deleteAll = function(callback) {
                         console.log("[DEBUG] Deleted ALL cache records");
                     }
 
-                    callback(null);
+                    return callback(null);
                 }
                 else
                 {
-                    var msg = "Unable to delete database number " + self.databaseNumber + " : " + JSON.stringify(err);
+                    const msg = "Unable to delete database number " + self.databaseNumber + " : " + JSON.stringify(err);
                     console.log(msg);
-                    callback(err, msg);
+                    return callback(err, msg);
                 }
             });
         }
         else
         {
-            callback(1, "Must open connection to Redis first!");
+            return callback(1, "Must open connection to Redis first!");
         }
     }
     else
     {
-        callback(null, null);
+        return callback(null, null);
     }
 
 };

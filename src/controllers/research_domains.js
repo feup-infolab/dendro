@@ -1,15 +1,19 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var ResearchDomain = require(Config.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var async = require('async');
-var _ = require('underscore');
+const ResearchDomain = require(Config.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
+
+const async = require('async');
+const _ = require('underscore');
 
 exports.autocomplete = function(req, res) {
 
-    var query = req.query.query;
+    const query = req.query.query;
 
-    if(query != null)
+    if(!isNull(query))
     {
         ResearchDomain.findByTitleOrDescription(
             query,
@@ -17,13 +21,13 @@ exports.autocomplete = function(req, res) {
             {
                 if(!err)
                 {
-                    for(var i = 0; i < research_domains.length; i++)
+                    for(let i = 0; i < research_domains.length; i++)
                     {
-                        if(research_domains[i].id == null)
+                        if(typeof research_domains[i].id === "undefined")
                         {
                             research_domains[i].id = i;
                         }
-                        if(research_domains[i].dcterms.title != null)
+                        if(typeof research_domains[i].dcterms.title !== "undefined")
                         {
                             research_domains[i].tag_face = research_domains[i].dcterms.title;
                         }
@@ -61,10 +65,8 @@ exports.all = function(req, res) {
         {
             if(!err)
             {
-                var getResearchDomainProperties = function(resultRow, cb)
-                {
-                    ResearchDomain.findByUri(resultRow.uri, function(err, project)
-                    {
+                const getResearchDomainProperties = function (resultRow, cb) {
+                    ResearchDomain.findByUri(resultRow.uri, function (err, project) {
                         cb(err, project);
                     });
                 };
@@ -80,7 +82,7 @@ exports.all = function(req, res) {
                     }
                     else
                     {
-                        var msg = "error fetching research domain information : " + err;
+                        const msg = "error fetching research domain information : " + err;
                         console.error(msg);
 
                         res.json({
@@ -103,7 +105,7 @@ exports.all = function(req, res) {
 };
 
 exports.edit = function(req, res) {
-    var newResearchDomains = req.body;
+    const newResearchDomains = req.body;
 
     if(newResearchDomains instanceof Array)
     {
@@ -113,11 +115,11 @@ exports.edit = function(req, res) {
                 rd.save(function(err, result){
                     if(err)
                     {
-                        var msg = "Error saving research domain " + JSON.stringify(domain) + " because of error " + JSON.stringify(result);
+                        const msg = "Error saving research domain " + JSON.stringify(domain) + " because of error " + JSON.stringify(result);
                         console.error(msg);
                     }
 
-                    callback(err, result);
+                    return callback(err, result);
                 });
             });
         },
@@ -144,14 +146,14 @@ exports.edit = function(req, res) {
 
 exports.delete = function(req, res) {
 
-    var uriOfResearchDomainToDelete = decodeURI(req.params.uri);
+    const uriOfResearchDomainToDelete = decodeURI(req.params.uri);
 
-    if(uriOfResearchDomainToDelete != null)
+    if(!isNull(uriOfResearchDomainToDelete))
     {
         ResearchDomain.findByUri(uriOfResearchDomainToDelete, function(err, research_domain){
             if(!err)
             {
-                if(research_domain != null)
+                if(typeof research_domain !== "undefined")
                 {
                     research_domain.deleteAllMyTriples(function(err, result){
                         if(!err)

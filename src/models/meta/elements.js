@@ -1,7 +1,24 @@
-var Config = function() { return GLOBAL.Config; }();
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 function Elements (){}
+
+
+/**
+ * Elements of the schema.org Ontology
+ */
+
+Elements.schema = {
+    sharedContent :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box
+
+    }
+};
 
 /**
  * Elements of the DC Ontology
@@ -625,6 +642,13 @@ Elements.foaf =
  */
 
 Elements.ddr = {
+    id :  {
+        type : DbConnection.string,
+        control : Config.controls.input_box,
+        private : true,
+        locked : true,
+        api_readable : true
+    },
     handle :  {
         type : DbConnection.string,
         control : Config.controls.input_box,
@@ -1038,6 +1062,13 @@ Elements.ddr = {
     {
         type : DbConnection.string,
         control : Config.controls.input_box
+    },
+    orcid :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box,
+        private : true,
+        locked : true,
     }
 };
 
@@ -1087,13 +1118,8 @@ Elements.rdf = {
     {
         type : DbConnection.boolean,
         control : Config.controls.input_box
-    },
-    type : {
-        type : DbConnection.prefixedResource,
-        control : Config.controls.input_box,
-        locked: true
     }
-}
+};
 
 /**
  * Nepomuk Information Element Ontology
@@ -1279,9 +1305,12 @@ Elements.nie = {
     title :
     {
         type : DbConnection.string,
+        control : Config.controls.input_box,
         backuppable : true,
         restorable : true,
-        locked_for_projects : true
+        locked_for_projects : true,
+        api_readable : true,
+        locked : true
     },
     version :
     {
@@ -1323,14 +1352,6 @@ Elements.nie = {
     {
         type : DbConnection.string,
         control : Config.controls.input_box
-    },
-    title :
-    {
-        type : DbConnection.date,
-        control : Config.controls.input_box,
-        private : true,
-        locked : true,
-        backuppable: true
     }
 };
 
@@ -2275,11 +2296,6 @@ Elements.biocn = {
     {
         type : DbConnection.string,
         control : Config.controls.input_box
-    },
-    individualsPerSpecies:
-    {
-        type : DbConnection.string,
-        control : Config.controls.input_box
     }
 };
 
@@ -2567,10 +2583,225 @@ Elements.cfd = {
         control : Config.controls.input_box
     },
     underrelaxation :
-    {
-        type : DbConnection.string,
-        control : Config.controls.input_box
-    }
+        {
+            type : DbConnection.string,
+            control : Config.controls.input_box
+        }
 };
+
+/**
+ * Elements of the TVU
+ */
+Elements.tvu =
+{
+        comment :
+            {
+                type : DbConnection.string,
+                control : Config.controls.markdown_box
+            },
+        dateLastUpdated :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        endDateTime :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        startDateTime :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        episodeNumber :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        publicationDate :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        quotation :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        aspectRatio :
+            {
+                type : DbConnection.string,
+                control : Config.controls.markdown_box
+            },
+        averageBitRate :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        codecName :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        duration :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        eventEndDate :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        eventStartDate :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        fileName :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        fileSize :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        frameRate :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        height :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        homepageOffice :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        locationDescription :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        officeMailAddress :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        playbackSpeed :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        relatedResources :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        sampleRate :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        samplingFormat :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        telephoneOffice :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        width :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        attachments :
+            {
+                type : DbConnection.string,
+                control : Config.controls.markdown_box
+            },
+        chapters :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        curator :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        numberOfFavourites :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        numberOfVisualizations :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        typeOfUpdate :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        videoMakers :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+        dataRate :
+            {
+                type : DbConnection.string,
+                control : Config.controls.markdown_box
+            },
+        soundField :
+            {
+                type : DbConnection.string,
+                control : Config.controls.input_box
+            },
+    };
+
+/**
+ * Elements of the Programmes Ontology
+ */
+Elements.po =
+{
+        actor :
+        {
+            type : DbConnection.string,
+            control : Config.controls.markdown_box
+        },
+        channel :
+        {
+            type : DbConnection.string,
+            control : Config.controls.input_box
+
+        },
+        commentator :
+        {
+            type : DbConnection.string,
+            control : Config.controls.input_box
+        },
+        genre :
+        {
+            type : DbConnection.string,
+            control : Config.controls.input_box
+        },
+        location :
+        {
+            type : DbConnection.string,
+            control : Config.controls.input_box
+        },
+    };
 
 module.exports.Elements = Elements;

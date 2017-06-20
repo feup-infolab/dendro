@@ -1,8 +1,13 @@
 /**
  * Created by Filipe on 09/07/2014.
  */
+const request = require('request');
 
-var request = require('request');
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 FigShare.apiURL = 'http://api.figshare.com';
 FigShare.requestTokenURL = FigShare.apiURL + '/v1/pbl/oauth/request_token';
@@ -14,7 +19,7 @@ FigShare.filesURL = '/files';
 
 function FigShare(accessCodes){
     this.oauth = {};
-    if(accessCodes.consumer_key == null ||accessCodes.consumer_secret  == null || accessCodes.access_token == null || accessCodes.access_token_secret == null ){
+    if(typeof accessCodes.consumer_key === "undefined" ||typeof accessCodes.consumer_secret  === "undefined" || typeof accessCodes.access_token === "undefined" || typeof accessCodes.access_token_secret === "undefined" ){
         throw "Invalid oauth access codes";
     }
     else{
@@ -23,7 +28,7 @@ function FigShare(accessCodes){
         this.oauth.token = accessCodes.access_token;
         this.oauth.token_secret = accessCodes.access_token_secret;
     }
-};
+}
 FigShare.prototype.getArticles = function(callback){
 
     request.get({
@@ -34,10 +39,10 @@ FigShare.prototype.getArticles = function(callback){
         function (e, r, data) {
             if(e){
                 console.log(e);
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false);
+                return callback(false);
             }
         })
 };
@@ -56,10 +61,10 @@ FigShare.prototype.createArticle = function(article_data, callback){
         function (e, r, article) {
             if(e){
                 console.log(e);
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false,article);
+                return callback(false,article);
             }
         })
 };
@@ -72,55 +77,55 @@ FigShare.prototype.deleteArticle = function(articleID, callback){
         function (e, r, data) {
             if(e){
                 console.log(e);
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false);
+                return callback(false);
             }
         })
 };
 FigShare.prototype.addFileToArticle = function(articleID, file,callback){
 
-    var fs = require('fs');
-    var r = request.put({
-            url :FigShare.articlesURL + '/' + articleID + FigShare.filesURL,
-            oauth:this.oauth,
-            json:true
+    const fs = require('fs');
+    const r = request.put({
+            url: FigShare.articlesURL + '/' + articleID + FigShare.filesURL,
+            oauth: this.oauth,
+            json: true
         },
         function (e, r, data) {
-            if(e){
+            if (e) {
                 console.log(e);
-                callback(true);
+                return callback(true);
             }
-            else{
-                callback(false);
+            else {
+                return callback(false);
             }
         });
 
-    var form = r.form();
+    const form = r.form();
     form.append('filedata',fs.createReadStream(file));
 };
 
 FigShare.prototype.addMultipleFilesToArticle = function(articleID, files, callback){
 
-    var self = this;
-    var async = require('async');
+    const self = this;
+    const async = require('async');
 
     async.each(files, function(file, callback){
             self.addFileToArticle(articleID, file,function(err){
                 if(err)
                 {
-                    callback(true);
+                    return callback(true);
                 }
-                else callback(false);
+                else return callback(false);
             })
         },
         function(err){
             if(err){
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false);
+                return callback(false);
             }
         })
 };
