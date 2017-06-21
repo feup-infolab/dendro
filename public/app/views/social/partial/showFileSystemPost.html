@@ -1,56 +1,49 @@
 <div class="panel-body">
     <div class="media">
-        <div class="media-left text-justify" style="font-size: 90%; margin-bottom: 0%">
-            <p style="margin-bottom: 0%"> <span> In <a ng-href="{{postsContents[postUri].ddr.projectUri}}"> {{postsContents[postUri].ddr.projectUri.split("/").pop()}} </a> </span></p>
+        <div class="media-left" style="font-size: 90%; margin-bottom: 0%; padding-right: 5%">
+            <div> <p style="margin-bottom: 0%"> In <a ng-href="{{postsContents[postUri].ddr.projectUri}}"> {{postsContents[postUri].ddr.projectUri.split("/").pop()}} </a> </p> </div>
             <p style="margin-bottom: 0%; font-style: italic;">{{postsContents[postUri].dcterms.modified | date : "dd/MMM/yyyy"}}</p>
-            <p style="margin-bottom: 0%"><em><img width="20%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a> </em></p>
-            <span style="font-size:7em;margin-bottom: 0%" class="glyphicon glyphicon-folder-close fa-5x" aria-hidden="true"></span>
+            <div><p style="margin-bottom: 0%"><em><img width="15%" height="15%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a> </em></p></div>
+            <!--<span style="font-size:7em;margin-bottom: 0%" class="glyphicon glyphicon-folder-close fa-5x" aria-hidden="true"></span>-->
+            <img style="padding-left: 25%; margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">
+            <!--<span style="font-size:7em;margin: 0%"> <img width="100%" height="100%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail&size=image"> </span>-->
+            <!--/project/testproject/data/backup_cenas.txt?thumbnail&size=icon-->
             <a class="text-center" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>
         </div>
 
 
-        <p> {{postsContents[postUri]}}</p>
+        <!--<p> {{postsContents[postUri]}}</p>-->
 
-        <div class="media-body">
-            <div class="text-center" id="postNumChanges" style="padding-left: 5%; padding-right: 5%">
-                <div class="progress" style="height: 10px;">
-                    <div data-toggle="tooltip" data-placement="top" title="{{postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded}}" class="progress-bar progress-bar-success" style="width: {{100 * (postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded / postsContents[postUri].changesInfo.numberOfChanges)}}%">
-                        <!--<span class="sr-only">35% Complete (success)</span>-->
-                        <!--<p> {{postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded}} </p>-->
-                    </div>
-                    <div  data-toggle="tooltip" data-placement="top" title="{{postsContents[postUri].changesInfo.hasNumberOfDescriptorsEdited}}" class="progress-bar progress-bar-info progress-bar-striped" style="width: {{100 * (postsContents[postUri].changesInfo.hasNumberOfDescriptorsEdited / postsContents[postUri].changesInfo.numberOfChanges)}}%">
-                        <!--<span class="sr-only">20% Complete (info)</span>-->
-                        <!--<p> {{postsContents[postUri].changesInfo.hasNumberOfDescriptorsEdited}} </p>-->
-                    </div>
-                    <div data-toggle="tooltip" data-placement="top" title="{{postsContents[postUri].changesInfo.hasNumberOfDescriptorsDeleted}}" class="progress-bar progress-bar-danger" style="width: {{100 * (postsContents[postUri].changesInfo.hasNumberOfDescriptorsDeleted / postsContents[postUri].changesInfo.numberOfChanges)}}%">
-                        <!--<span class="sr-only">10% Complete (danger)</span>-->
-                        <!--<p> {{postsContents[postUri].changesInfo.hasNumberOfDescriptorsDeleted}} </p>-->
+        <div class="media-body text-center" style="padding: 5%">
+            <!--{{postsContents[postUri]}}-->
+            <div ng-if="postsContents[postUri].ddr.changeType == 'mkdir'">
+                <!--<p>Folder was created</p>-->
+                <!--<div class="alert alert-success" role="alert">Folder was created</div>-->
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success" style="width: 100%">
+                        <p>Folder was created</p>
                     </div>
                 </div>
             </div>
 
-            <div id="postContent" style="padding: 5%">
-                <div ng-if="postsContents[postUri].changesInfo.editChanges">
-                    <div ng-repeat="editChange in postsContents[postUri].changesInfo.editChanges | orderBy: 'dcterms.created' track by $index">
-                        <p><span class="label label-info">EDITED </span> {{editChange.ddr.changedDescriptor}} : {{editChange.ddr.newValue}}</p>
-                    </div>
-                </div>
-
-                <div ng-if="postsContents[postUri].changesInfo.addChanges">
-                    <div ng-repeat="addChange in postsContents[postUri].changesInfo.addChanges | orderBy: 'dcterms.created' track by $index">
-                        <p><span class="label label-success">ADDED </span> {{addChange.ddr.changedDescriptor}} : {{addChange.ddr.newValue}}</p>
-                    </div>
-                </div>
-
-                <div ng-if="postsContents[postUri].changesInfo.deleteChanges">
-                    <div ng-repeat="deleteChange in postsContents[postUri].changesInfo.deleteChanges | orderBy: 'dcterms.created' track by $index">
-                        <p><span class="label label-danger">DELETED </span> {{deleteChange.ddr.changedDescriptor}}</p>
+            <div ng-if="postsContents[postUri].ddr.changeType == 'rmdir'">
+                <!--<p>Folder was deleted</p>-->
+                <!--<div class="alert alert-danger" role="alert">Folder was deleted</div>-->
+                <div class="progress">
+                    <div class="progress-bar progress-bar-danger" style="width: 100%">
+                        <p>Folder was deleted</p>
                     </div>
                 </div>
             </div>
 
-            <div class="text-right" id="seeDetails">
-                <a ng-href="{{postsContents[postUri].schema.sharedContent}}"> <span class="label label-info">See all changes </span>  </a>
+            <div ng-if="postsContents[postUri].ddr.changeType == 'upload'">
+                <!--<p>A file was uploaded</p>-->
+                <!--<div class="alert alert-success" role="alert">File was uploaded</div>-->
+                <div class="progress">
+                    <div class="progress-bar progress-bar-success" style="width: 100%">
+                        <p>File was uploaded</p>
+                    </div>
+                </div>
             </div>
 
         </div>

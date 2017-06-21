@@ -1,10 +1,12 @@
 <div class="panel-body">
     <div class="media">
-        <div class="media-left text-justify" style="font-size: 90%; margin-bottom: 0%">
-            <p style="margin-bottom: 0%"> <span> In <a ng-href="{{postsContents[postUri].ddr.projectUri}}"> {{postsContents[postUri].ddr.projectUri.split("/").pop()}} </a> </span></p>
+        <div class="media-left" style="font-size: 90%; margin-bottom: 0%; padding-right: 5%">
+            <div><p style="margin-bottom: 0%"> In <a ng-href="{{postsContents[postUri].ddr.projectUri}}"> {{postsContents[postUri].ddr.projectUri.split("/").pop()}} </a> </p></div>
             <p style="margin-bottom: 0%; font-style: italic;">{{postsContents[postUri].dcterms.modified | date : "dd/MMM/yyyy"}}</p>
-            <p style="margin-bottom: 0%"><em><img width="20%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a> </em></p>
-            <span style="font-size:7em;margin-bottom: 0%" class="glyphicon glyphicon-folder-close fa-5x" aria-hidden="true"></span>
+            <div><p style="margin-bottom: 0%"><em><img width="20%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a> </em></p></div>
+            <!--<span style="font-size:7em;margin-bottom: 0%" class="glyphicon glyphicon-folder-close fa-5x" aria-hidden="true"></span>-->
+            <img style="padding-left: 25%; margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">
+            <!--<span style="font-size:7em;margin: 0%"> <img width="100%" height="100%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail&size=image"> </span>-->
             <a class="text-center" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>
         </div>
 

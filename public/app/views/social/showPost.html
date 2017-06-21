@@ -20,7 +20,6 @@
     </div>
 
     <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/FileSystemPost'">
-        <p> É um fileSystemPost </p>
         <ng-include src="'/app/views/social/partial/showFileSystemPost.html'" onload="postUri = postUri;"></ng-include>
     </div>
 

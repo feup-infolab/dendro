@@ -7,7 +7,6 @@ var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.j
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var UploadManager =  require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
-var FileVersion = require(Config.absPathInSrcFolder("/models/versions/file_version.js")).FileVersion;
 var Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
 let FileSystemPost = require(Config.absPathInSrcFolder("/models/social/fileSystemPost.js")).FileSystemPost;
 
@@ -859,7 +858,31 @@ exports.upload = function(req, res)
                                                                     if(fileVersion != null)
                                                                     {
                                                                         console.log('FileinfoFromMongo: ', fileVersion);
-                                                                        var newFileVersion = new FileVersion({
+                                                                        FileSystemPost.buildFromUpload(currentUserUri, fileVersion.metadata.project, fileVersion, function (err, newfileSystemPost) {
+                                                                            if(!err)
+                                                                            {
+                                                                                newfileSystemPost.save(function (err, fileSystemPost)
+                                                                                {
+                                                                                    if (!err)
+                                                                                    {
+                                                                                        cb(null, fileSystemPost);
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        console.error("Error when saving a FileSystemPost from a file upload");
+                                                                                        console.error(err);
+                                                                                        cb(true, fileSystemPost);
+                                                                                    }
+                                                                                }, false, null, null, null, null, db_social.graphUri)
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                console.error("Error when building a FileSystemPost from a file upload");
+                                                                                console.error(err);
+                                                                                cb(true, newfileSystemPost);
+                                                                            }
+                                                                        });
+                                                                        /*var newFileSystemPost = new FileVersion({
                                                                             nfo: {
                                                                                 fileName: fileVersion.filename,
                                                                                 hashValue: fileVersion.md5,
@@ -876,19 +899,19 @@ exports.upload = function(req, res)
                                                                                 itemType: fileVersion.metadata.type,
                                                                                 creatorUri: currentUserUri
                                                                             }
-                                                                        });
+                                                                        });*/
 
-                                                                        newFileVersion.save(function (err, fileVersion)
+                                                                        /*newFileSystemPost.save(function (err, fileSystemPost)
                                                                         {
                                                                             if (!err)
                                                                             {
-                                                                                cb(null, fileVersion);
+                                                                                cb(null, fileSystemPost);
                                                                             }
                                                                             else
                                                                             {
-                                                                                cb(true, fileVersion);
+                                                                                cb(true, fileSystemPost);
                                                                             }
-                                                                        }, false, null, null, null, null, db_social.graphUri)
+                                                                        }, false, null, null, null, null, db_social.graphUri)*/
                                                                     }
                                                                     else
                                                                     {

@@ -71,8 +71,22 @@ FileSystemPost.buildFromMkdirOperation = function (userUri, project, folder, cal
     callback(null, newPost);
 };
 
-FileSystemPost.buildFromUpload = function (userUri, project, file, callback) {
-
+FileSystemPost.buildFromUpload = function (userUri, projectUri, file, callback) {
+    let title = userUri.split("/").pop() + " uploaded file " + file.filename.split("/").pop();
+    let newPost = new FileSystemPost({
+        ddr: {
+            projectUri: projectUri,
+            changeType: "upload"
+        },
+        dcterms: {
+            creator: userUri,
+            title: title
+        },
+        schema: {
+            sharedContent: file.filename
+        }
+    });
+    callback(null, newPost);
 };
 
 

@@ -2,6 +2,10 @@
     <div class="container">
         <h3>Social Dendro</h3>
         <hr>
+
+        <ng-include src="'/app/views/social/partial/createManualPost.html'"></ng-include>
+
+        <hr>
         <ul class="list-group">
             <div ng-if="posts.length==0" style="text-align: center">
                 <h4>There are no Posts</h4>
