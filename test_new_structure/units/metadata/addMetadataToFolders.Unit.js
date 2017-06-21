@@ -5,7 +5,6 @@ const Config = GLOBAL.Config;
 const chai = require('chai');
 chai.use(require('chai-http'));
 const async = require('async');
-const should = chai.should();
 
 const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));

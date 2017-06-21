@@ -63,7 +63,7 @@ if(!isNull(Config.logging))
     async.series([
         function(cb)
         {
-            if (!isNull(Config.logging.app_logs_folder) && (Config.logging.pipe_console_to_logfile || Config.logging.suppress_all_logs || Config.logging.suppress_all_logs))
+            if (!isNull(Config.logging.app_logs_folder) && (Config.logging.pipe_console_to_logfile || Config.logging.suppress_all_logs || Config.logging.suppress_all_errors))
             {
                 const absPath = Config.absPathInApp(Config.logging.app_logs_folder);
 
@@ -1194,7 +1194,7 @@ async.series([
 
         const loadRoutes = require(Config.absPathInSrcFolder("bootup/routes/load_routes.js")).loadRoutes;
         
-        loadRoutes(app, passport, function(err, result){
+        loadRoutes(app, passport, recommendation, function(err, result){
             PluginManager.registerPlugins(app, function(err, app){
                 //The 404 Route (ALWAYS Keep this as the last route)
                 // ERRO! Isto entra em conflito com as rotas dos plugins, porque esta é registada antes do registo das rotas dos

@@ -771,13 +771,13 @@ exports.new = function(req, res) {
 
 exports.administer = function(req, res) {
 
-    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    ////const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
     const viewVars = {
         title: "Administration Area"
     };
 
-    Project.findByUri(requestedProjectURI, function(err, project)
+    Project.findByUri(req.params.requestedResourceUri, function(err, project)
     {
         if (!err)
         {
@@ -837,9 +837,9 @@ exports.administer = function(req, res) {
                         });
 
                         const email = {
-                            from: 'support@dendro.fe.up.pt',
+                            from: Config.email.gmail.address,
                             to: user.foaf.mbox,
-                            subject: 'Added as contributor for project "' + req.params.handle + '"',
+                            subject: req.user.ddr.username +  ' added you as a contributor of project "' + req.params.handle + '"',
                             text: 'User ' + req.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
                         };
 
@@ -861,20 +861,18 @@ exports.administer = function(req, res) {
 
                     let updateProjectContributors = function(project, callback)
                     {
-                        //from http://www.dzone.com/snippets/validate-url-regexp
-                        const regexpUri = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
-                        const regexpUsername = /(\w+)?/;
-
                         if (!isNull(req.body.contributors) && req.body.contributors instanceof Array)
                         {
                             async.map(req.body.contributors, function (contributor, callback) {
-
-                                if (regexpUri.test(contributor))
+                                //from http://www.dzone.com/snippets/validate-url-regexp
+                                const regexpUsername = /(\w+)?/;
+                                
+                                if (regexpUsername.test(contributor))
                                 {
 
-                                    User.findByUri(contributor, function (err, user) {
+                                    User.findByUsername(contributor, function (err, user) {
 
-                                        if (!err && user && user.foaf.mbox) {
+                                        if (!err && !isNull(user) && user.foaf.mbox) {
                                             //TODO Check if user already is a contributor so as to not send a notification
                                             notifyContributor(user);
                                             return callback(false, user.uri);
@@ -882,17 +880,9 @@ exports.administer = function(req, res) {
                                             return callback(true, contributor);
                                         }
                                     });
-                                } else if(regexpUsername.test(contributor)){
-                                    User.findByUsername(contributor, function (err, user) {
-
-                                        if (!err && user && user.foaf.mbox) {
-                                            notifyContributor(user);
-                                            return callback(false, user.uri);
-                                        } else {
-                                            return callback(true, contributor);
-                                        }
-                                    });
-                                } else{
+                                }
+                                else
+                                {
                                     return callback(true, contributor)
                                 }
 
@@ -969,9 +959,9 @@ exports.administer = function(req, res) {
 };
 
 exports.get_contributors = function(req, res){
-    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    ////const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
-    Project.findByUri(requestedProjectURI, function(err, project) {
+    Project.findByUri(req.params.handle, function(err, project) {
         if (!err) {
             if (!isNull(project)) {
                 //from http://www.dzone.com/snippets/validate-url-regexp
@@ -1021,9 +1011,9 @@ exports.get_contributors = function(req, res){
 
 exports.bagit = function(req,res)
 {
-    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    ////const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
-    Project.findByUri(requestedProjectURI, function(err, project){
+    Project.findByHandle(req.params.handle, function(err, project){
         if(!err)
         {
             if(!isNull(project) && project instanceof Project)
@@ -1088,7 +1078,7 @@ exports.bagit = function(req,res)
 
 exports.delete = function(req,res)
 {
-    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    //const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
     let acceptsHTML = req.accepts('html');
     const acceptsJSON = req.accepts('json');
@@ -1097,7 +1087,7 @@ exports.delete = function(req,res)
         title: "Administration Area"
     };
 
-    Project.findByUri(requestedProjectURI, function(err, project){
+    Project.findByHandle(req.params.handle, function(err, project){
         if(!err)
         {
             if(!isNull(project))
@@ -1153,13 +1143,13 @@ exports.delete = function(req,res)
 
 exports.undelete = function(req,res)
 {
-    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    //const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
     const viewVars = {
         title: "Administration Area"
     };
 
-    Project.findByUri(requestedProjectURI, function(err, project){
+    Project.findByHandle(req.params.handle, function(err, project){
         if(!err)
         {
             if(!isNull(project))
@@ -1226,7 +1216,7 @@ exports.recent_changes = function(req, res) {
     }
     else
     {
-        const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+        //const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
 
         Project.findByUri(req.params.requestedResource, function(err, project){
@@ -1272,9 +1262,9 @@ exports.recent_changes = function(req, res) {
 
 exports.stats = function(req, res) {
 
-    const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+    //const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
-    Project.findByUri(requestedProjectURI, function(err, project){
+    Project.findByHandle(req.params.handle, function(err, project){
         if(!err)
         {
             const offset = parseInt(req.query.offset);

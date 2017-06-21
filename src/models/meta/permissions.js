@@ -235,9 +235,9 @@ const checkPermissionsForRole = function (req, user, resource, role, callback) {
 
 const checkPermissionsForProject = function (req, permission, callback) {
     const projectHandle = req.params[0];                      //project handle
-    const requestedProjectURI = Config.baseUri + "/project/" + projectHandle;
+    //const requestedProjectURI = Config.baseUri + "/project/" + projectHandle;
 
-    Project.findByUri(requestedProjectURI, function (err, project) {
+    Project.findByHandle(req.params.handle, function (err, project) {
         if (!err) {
             if (!isNull(project)) {
                 const privacy = project.ddr.privacyStatus;

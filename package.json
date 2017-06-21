@@ -116,7 +116,7 @@
     "chai": "^4.0.0",
     "chai-http": "^3.0.0",
     "codeclimate-test-reporter": "^0.4.1",
-    "coveralls": "^2.13.0",
+    "coveralls": "^2.13.1",
     "cross-env": "^5.0.0",
     "grunt": "^1.0.1",
     "grunt-auto-install": "^0.3.1",

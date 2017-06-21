@@ -225,13 +225,16 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                     {
                         if(!err)
                         {
-                            const userToReturn = new User(fetchedUser);
+                            if(!isNull(fetchedUser))
+                            {
+                                let userToReturn = new User(fetchedUser);
+                                return callback(err, userToReturn);
+                            }
+                            else 
+                            {
+                                callback(err, null, "Unable to fetch user with uri " + uri);
+                            }
 
-                            return callback(err, fetchedUser);
-
-                            /*userToReturn.loadOntologyRecommendations(function(err, user){
-
-                            });*/
                         }
                         else
                         {

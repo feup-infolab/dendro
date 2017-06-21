@@ -239,6 +239,7 @@
     {
       "gmail":
       {
+        "address" : "noreply@email.com",
         "username" : "__FIXME",
         "password" : "__FIXME"
       }
@@ -571,6 +572,7 @@
     {
       "gmail":
       {
+        "address" : "noreply@email.com",
         "username" : "__FIXME",
         "password" : "__FIXME"
       }
@@ -879,7 +881,7 @@
       "requests_in_apache_format_log_folder" : "logs/requests_apache_format",
       "suppress_all_logs" : false,
       "suppress_all_errors" : false,
-      "log_all_requests" : false,
+      "log_all_requests" : true,
       "log_emailing" : false,
       "custom_exception_logging" : false
     },
@@ -929,6 +931,7 @@
     {
       "gmail":
       {
+        "address" : "noreply@email.com",
         "username" : "__FIXME",
         "password" : "__FIXME"
       }
@@ -1271,6 +1274,7 @@
     {
       "gmail":
       {
+        "address" : "noreply@email.com",
         "username" : "__FIXME",
         "password" : "__FIXME"
       }

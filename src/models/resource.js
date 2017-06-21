@@ -1441,6 +1441,86 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
     );
 };
 
+Resource.getUriFromHumanReadableUri = function(humanReadableUri, callback, customGraphUri, skipCache)
+{
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const getFromCache = function(callback)
+    {
+        //TODO
+        return callback(null, null);
+    };
+
+    const getFromTripleStore = function(callback)
+    {
+        db.connection.execute(
+            "SELECT ?uri \n" +
+            "FROM [0] \n" +
+            "WHERE \n" +
+            "{ \n" +
+            "   ?uri ddr:humanReadableURI [1] \n" +
+            "}\n",
+            [
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value : graphUri
+                },
+                {
+                    type : Elements.ddr.humanReadableURI.type,
+                    value : humanReadableUri
+                }
+            ],
+            function(err, results) {
+                if(!err)
+                {
+                    if(!isNull(results) && results instanceof Array)
+                    {
+                        if(results.length === 1)
+                        {
+                            return callback(null, results[0].uri);
+                        }
+                        else if(results.length > 1)
+                        {
+                            return callback(1, "[ERROR] There are more than one internal URIs for the human readable URI " + humanReadableUri + " ! They are : " + JSON.stringify(results));
+                        }
+                        else
+                        {
+                            return callback(2, "Resource with human-readable uri " + humanReadableUri + " does not have an internal URI!");
+                        }
+                    }
+                }
+                else
+                {
+                    return callback(err, results);
+                }
+            });
+    };
+
+    if(skipCache)
+    {
+        getFromTripleStore(function (err, resourceUri)
+        {
+            callback(err, resourceUri);
+        });
+    }
+    else
+    {
+        getFromCache(function(err, resourceUri){
+            if(!err && !isNull(resourceUri))
+            {
+                callback(null, resourceUri);
+            }
+            else
+            {
+                getFromTripleStore(function(err, resourceUri){
+                    callback(err, resourceUri);
+                });
+            }
+        });
+    }
+
+};
+
 /**
  * Will fetch all the data pertaining a resource from the last saved information
  * @param uri Uri of the resource to fetch
