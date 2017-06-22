@@ -869,7 +869,7 @@ exports.upload = function(req, res)
                                                                 });
                                                             }
                                                             else {
-                                                                var msg = "Database error";
+                                                                const msg = "Database error";
                                                                 return callback(500, {
                                                                     result: "error",
                                                                     message: msg
@@ -878,7 +878,7 @@ exports.upload = function(req, res)
                                                         });
                                                     }
                                                     else {
-                                                        var msg = "Error submitting file : " + result;
+                                                        const msg = "Error submitting file : " + result;
                                                         return callback(500, {
                                                             result: "error",
                                                             message: msg,
@@ -895,7 +895,7 @@ exports.upload = function(req, res)
                                                 });
                                             }
                                             else {
-                                                var msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
+                                                const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
                                                 return callback(500, {
                                                     result: "error",
                                                     message: msg,
@@ -1069,7 +1069,7 @@ exports.resume = function(req, res)
                     }
                     else
                     {
-                        var msg = "The upload does not belong to the user currently trying to resume.";
+                        const msg = "The upload does not belong to the user currently trying to resume.";
                         console.error(msg);
                         res.status(400).json({
                             result: "error",
@@ -1086,7 +1086,7 @@ exports.resume = function(req, res)
             }
             else
             {
-                var msg = "The user does not have a session initiated.";
+                const msg = "The user does not have a session initiated.";
                 console.error(msg);
                 res.status(400).json({
                     result: "error",
@@ -1096,7 +1096,7 @@ exports.resume = function(req, res)
         }
         else
         {
-            var msg = "Invalid Request, does not contain the 'resume' query parameter.";
+            const msg = "Invalid Request, does not contain the 'resume' query parameter.";
             console.error(msg);
             res.status(400).json({
                 result: "error",
@@ -1108,7 +1108,7 @@ exports.resume = function(req, res)
     {
         if(acceptsJSON && !acceptsHTML)
         {
-            var msg = "This is only accessible via GET method";
+            const msg = "This is only accessible via GET method";
             req.flash('error', "Invalid Request");
             console.log(msg);
             res.status(400).render('',
@@ -1190,7 +1190,7 @@ exports.restore = function(req, res){
                                     folder.restoreFromLocalBackupZipFile(tempFilePath, user, function(err, result){
                                         if(!err)
                                         {
-                                            var msg = "Successfully restored zip file to folder " + requestedResourceUri + " : " + result;
+                                            const msg = "Successfully restored zip file to folder " + requestedResourceUri + " : " + result;
                                             console.log(msg);
 
                                             res.status(200).json(
@@ -1202,7 +1202,7 @@ exports.restore = function(req, res){
                                         }
                                         else
                                         {
-                                            var msg = "Error restoring zip file to folder " + requestedResourceUri + " : " + result;
+                                            const msg = "Error restoring zip file to folder " + requestedResourceUri + " : " + result;
                                             console.log(msg);
 
                                             res.status(500).json(
@@ -1216,7 +1216,7 @@ exports.restore = function(req, res){
                                 }
                                 else
                                 {
-                                    var msg = "Error fetching currently logged in user during restore operation of zip file to folder " + requestedResourceUri + " : " + result;
+                                    const msg = "Error fetching currently logged in user during restore operation of zip file to folder " + requestedResourceUri + " : " + result;
                                     res.status(500).json(
                                         {
                                             "result" : "error",

@@ -66,7 +66,7 @@ exports.get_unread_user_notifications = function (req ,res) {
     }
     else
     {
-        var errorMsg = "Invalid user when searching for notifications";
+        const errorMsg = "Invalid user when searching for notifications";
         res.status(500).json({
             result: "Error",
             message: errorMsg
@@ -126,7 +126,7 @@ exports.get_notification_info = function (req, res) {
     }
     else
     {
-        var errorMsg = "Invalid user and notification Uri";
+        const errorMsg = "Invalid user and notification Uri";
         res.status(500).json({
             result: "Error",
             message: errorMsg
@@ -186,7 +186,7 @@ exports.delete = function (req, res) {
     }
     else
     {
-        var errorMsg = "Invalid user and notification Uri";
+        const errorMsg = "Invalid user and notification Uri";
         res.status(500).json({
             result: "Error",
             message: errorMsg

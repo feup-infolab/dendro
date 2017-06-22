@@ -1259,14 +1259,14 @@ User.prototype.makeGlobalAdmin = function(callback)
             }
             else
             {
-                var msg = "User " + self.uri + " is already an admin, nothing to be done.";
+                const msg = "User " + self.uri + " is already an admin, nothing to be done.";
                 console.error(msg);
                 return callback(0, msg);
             }
         }
         else
         {
-            var msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
+            const msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
             console.error(msg);
             return callback(1, msg);
         }
@@ -1288,14 +1288,14 @@ User.prototype.undoGlobalAdmin = function(callback)
             }
             else
             {
-                var msg = "User " + self.uri + " is not admin, no need to remove the triples.";
+                const msg = "User " + self.uri + " is not admin, no need to remove the triples.";
                 console.error(msg);
                 return callback(0, msg);
             }
         }
         else
         {
-            var msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
+            const msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
             console.error(msg);
             return callback(1, msg);
         }

@@ -100,12 +100,10 @@ InformationElement.getType = function(resourceURI, callback)
                             if(type === Folder.rdfType)
                             {
                                 return callback(null, Folder);
-                                return;
                             }
                             else if(type === File.rdfType)
                             {
                                 return callback(null, File);
-                                return;
                             }
                         }
 
@@ -529,7 +527,7 @@ InformationElement.prototype.findMetadata = function(callback){
             }
             else
             {
-                var msg = self.uri + " does not exist in Dendro.";
+                const msg = self.uri + " does not exist in Dendro.";
                 console.error(msg);
 
                 return callback(true, msg);
@@ -537,7 +535,7 @@ InformationElement.prototype.findMetadata = function(callback){
         }
         else
         {
-            var msg = "Error fetching " + self.uri + " from the Dendro platform.";
+            const msg = "Error fetching " + self.uri + " from the Dendro platform.";
             console.error(msg);
 
             return callback(true, msg);

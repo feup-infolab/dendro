@@ -362,7 +362,7 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                     });
             }
             else {
-                var msg = "Unable to get MYSQL connection when registering new interaction";
+                const msg = "Unable to get MYSQL connection when registering new interaction";
                 console.error(msg);
                 console.error(err.stack);
                 return callback(1, msg);

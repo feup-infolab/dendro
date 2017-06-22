@@ -134,7 +134,6 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                         const msg = "Unable to convert argument [" + i + "]: It is set as a bolean, but the value is not true or false, it is : " + currentArgument.value;
                         console.error(msg);
                         return callback(1, msg);
-                        break;
                     }
 
                     transformedQuery = transformedQuery.replace(pattern, "\"" + encodeURIComponent(booleanForm.toString()) + "\"");
@@ -195,7 +194,6 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                     const error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                     console.error(error);
                     return callback(1, error);
-                    break;
                 }
             }
         }
@@ -350,8 +348,8 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                             console.trace(err);
                             console.error(error);
 
-                            return callback(1, err);
                             cb();
+                            return callback(1, err);
                         });
                 });
 

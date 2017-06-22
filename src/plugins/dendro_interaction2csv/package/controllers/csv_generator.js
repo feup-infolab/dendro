@@ -176,7 +176,7 @@ exports.average_metadata_sheet_size_per_interaction = function(req, res)
 {
     streamingExportToCSVFile(InteractionAnalyser.average_metadata_sheet_size_per_interaction,
         function(result){
-            var msg = "Average at : " + result.interaction_uri + " : " + result.avg_num_descriptors + ". Type: " + result.interaction_type;
+            const msg = "Average at : " + result.interaction_uri + " : " + result.avg_num_descriptors + ". Type: " + result.interaction_type;
             console.log(msg);
 
             var csvLine = result.interaction_uri+","+result.avg_num_descriptors+"\n";
@@ -375,7 +375,7 @@ exports.total_number_of_descriptors_per_interaction = function(req, res)
 {
     streamingExportToCSVFile(InteractionAnalyser.total_number_of_descriptors_per_interaction,
         function(result){
-            var msg = "Total at : " + result.interaction_uri + " : " + result.total_num_descriptors + ". Type: " + result.interaction_type;
+            const msg = "Total at : " + result.interaction_uri + " : " + result.total_num_descriptors + ". Type: " + result.interaction_type;
             console.log(msg);
 
             var csvLine = result.interaction_uri+","+result.date_created+","+result.total_num_descriptors+"\n";

@@ -706,7 +706,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                     }
                 }
 
-                var msg = "Error performing final ranking of descriptors. Error reported : " + err + ", Errors reported  " + JSON.stringify(error_messages);
+                const msg = "Error performing final ranking of descriptors. Error reported : " + err + ", Errors reported  " + JSON.stringify(error_messages);
                 console.log(msg);
                 return callback(err, msg);
             }

@@ -271,7 +271,7 @@ function pingNewPosts(sessionUser, cb) {
                             }
                             else
                             {
-                                var errorMsg = "Error getting recent project wide social changes";
+                                const errorMsg = "Error getting recent project wide social changes";
                                 cb1(err,errorMsg);
                             }
                         },null,null,socialUpdatedAt);
@@ -289,7 +289,7 @@ function pingNewPosts(sessionUser, cb) {
         }
         else
         {
-            var errorMsg = "Error finding projects by creator or contributor";
+            const errorMsg = "Error finding projects by creator or contributor";
             return callback(err, errorMsg);
         }
 

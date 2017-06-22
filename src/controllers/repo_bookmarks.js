@@ -305,7 +305,7 @@ exports.my = function(req, res) {
         }
         else
         {
-            var msg = "Unable to find repository bookmarks created by " + req.user.uri + " . Error returned : " + myRepositoryBookmarks;
+            const msg = "Unable to find repository bookmarks created by " + req.user.uri + " . Error returned : " + myRepositoryBookmarks;
 
             res.status(500).json({
                 result : "error",
@@ -361,7 +361,7 @@ exports.delete = function(req, res){
             {
                 if(!bookmark)
                 {
-                    var msg = "Unable to retrieve the requested bookmark for deletion.";
+                    const msg = "Unable to retrieve the requested bookmark for deletion.";
                     res.status(400).json({
                         result : "error",
                         message : msg
@@ -372,7 +372,7 @@ exports.delete = function(req, res){
                     bookmark.deleteAllMyTriples(function(err, result){
                         if(!err)
                         {
-                            var msg = "Bookmark " + bookmark.dcterms.title + " successfully deleted. ";
+                            const msg = "Bookmark " + bookmark.dcterms.title + " successfully deleted. ";
                             res.json({
                                 result : "ok",
                                 message : msg
@@ -380,7 +380,7 @@ exports.delete = function(req, res){
                         }
                         else
                         {
-                            var msg = "Error deleting bookmark " + requestedResourceUri + ". Error reported: " + result;
+                            const msg = "Error deleting bookmark " + requestedResourceUri + ". Error reported: " + result;
                             res.status(500).json({
                                 result : "error",
                                 message : msg
@@ -391,7 +391,7 @@ exports.delete = function(req, res){
             }
             else
             {
-                var msg = "Unable to retrieve types of external repository platforms for this Dendro instance.";
+                const msg = "Unable to retrieve types of external repository platforms for this Dendro instance.";
                 res.status(500).json({
                     result : "error",
                     message : msg

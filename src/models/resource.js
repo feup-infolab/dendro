@@ -591,8 +591,6 @@ Resource.prototype.validateDescriptorValues = function(callback)
 
             for (let i = 0; i < alternatives.length; i++) {
                 if (descriptor.value === alternatives[i]) {
-
-                    return callback(null, null);
                     detectedAlternative = true;
                     break;
                 }
@@ -603,6 +601,10 @@ Resource.prototype.validateDescriptorValues = function(callback)
                     "This error occurred when checking the validity of the descriptors of resource " + self.uri;
                 console.error(error);
                 return callback(1, error);
+            }
+            else
+            {
+                return callback(null, null);
             }
         }
         else {
@@ -1613,7 +1615,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                 }
                 else {
                     if (Config.debug.resources.log_missing_resources) {
-                        var msg = uri + " does not exist in Dendro.";
+                        const msg = uri + " does not exist in Dendro.";
                         console.log(msg);
                     }
 
@@ -1621,7 +1623,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                 }
             }
             else {
-                var msg = "Error " + exists + " while trying to check existence of resource with uri " + uri + " from triple store.";
+                const msg = "Error " + exists + " while trying to check existence of resource with uri " + uri + " from triple store.";
                 console.error(msg);
                 return callback(1, msg);
             }
@@ -2307,7 +2309,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
             }
             else
             {
-                var msg = self.uri + " does not exist in Dendro.";
+                const msg = self.uri + " does not exist in Dendro.";
                 console.error(msg);
 
                 return callback(true, msg);
@@ -2315,7 +2317,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
         }
         else
         {
-            var msg = "Error fetching " + self.uri + " from the Dendro platform.";
+            const msg = "Error fetching " + self.uri + " from the Dendro platform.";
             console.error(msg);
 
             return callback(true, msg);
@@ -2618,7 +2620,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
         }
         else
         {
-            var msg = "Error deleting all CACHED resources of type with descriptor "+ descriptor.getPrefixedForm() +  " and value" + descriptor.value +" and their outgoing triples. Error returned: " + JSON.stringify(results);
+            const msg = "Error deleting all CACHED resources of type with descriptor "+ descriptor.getPrefixedForm() +  " and value" + descriptor.value +" and their outgoing triples. Error returned: " + JSON.stringify(results);
             console.error(msg);
             return callback(err, msg);
         }

@@ -404,7 +404,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 
     if(typeof page_number === "number")
     {
-        query = query  +
+        const query = query  +
             " OFFSET [2] \n" +
             " LIMIT [3] \n";
 

@@ -720,7 +720,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             }
             else
             {
-                var msg = "Error fetching file/folder change data";
+                const msg = "Error fetching file/folder change data";
                 console.log(msg);
                 return callback(1, msg);
             }
@@ -1579,14 +1579,14 @@ Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSi
                 const humanZipFileSize = filesize(size).human('jedec');
                 const humanMaxStorageSize = filesize(maxStorageSize).human('jedec');
 
-                var msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
+                const msg = "Estimated storage size of the project after unzipping ( " + humanZipFileSize + " ) exceeds the maximum storage allowed for a project ( "+ humanMaxStorageSize +" ) by " + humanSizeDifference;
                 return callback(err, msg);
             }
 
         }
         else
         {
-            var msg = "Unable to estimate size of the zip file sent in as the project backup. Error reported: " + absPathToZipFile;
+            const msg = "Unable to estimate size of the zip file sent in as the project backup. Error reported: " + absPathToZipFile;
             return callback(err, msg);
         }
     });

@@ -371,14 +371,6 @@ File.prototype.extract_text = function(callback)
         {
             const textract = require('textract');
             textract.fromFileWithPath(locationOfTempFile, function(err, textContent){
-                if(!err)
-                {
-                    return callback(null, textContent);
-                }
-                else
-                {
-                    return callback(1, err);
-                }
 
                 //delete temporary file, we are done with it
                 const fs = require('fs');
@@ -392,6 +384,15 @@ File.prototype.extract_text = function(callback)
                         console.log("successfully deleted " + locationOfTempFile);
                     }
                 });
+                
+                if(!err)
+                {
+                    return callback(null, textContent);
+                }
+                else
+                {
+                    return callback(1, err);
+                }
             });
         });
     }
@@ -464,7 +465,7 @@ File.unzip = function(pathOfFile, callback) {
             }
             else
             {
-                var errorMessage = "Error unzipping the backup file with command "+ command +" on folder " + tmpFolderPath +". Code Returned by Zip Command " + JSON.stringify(tmpFolderPath);
+                const errorMessage = "Error unzipping the backup file with command "+ command +" on folder " + tmpFolderPath +". Code Returned by Zip Command " + JSON.stringify(tmpFolderPath);
                 console.error(errorMessage);
                 return callback(1, errorMessage);
             }
