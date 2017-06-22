@@ -104,4 +104,15 @@ angular.module('dendroApp.services')
 
                     return deferred.promise;
                 };
+
+                this.getUserProjects = function () {
+                    var requestUri = "/projects/my";
+
+                    return $http({
+                        method: 'GET',
+                        url: requestUri,
+                        contentType: "application/json",
+                        headers: {'Accept': "application/json"}
+                    });
+                };
         }]);

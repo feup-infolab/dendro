@@ -2,7 +2,7 @@ angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
      */
-    .controller('timelineCtrl', function ($scope, $http, $filter, timelineService, $window, $element)
+    .controller('timelineCtrl', function ($scope, $http, $filter, timelineService, projectsService, $window, $element)
     {
         $scope.myTab = $element;
         $scope.posts = [];
@@ -13,6 +13,16 @@ angular.module('dendroApp.controllers')
         $scope.postsContents = [];
         $scope.loggedUser = "";
 
+        $scope.newPostTitlePlaceholder = "The title of your post";
+        $scope.newPostContentPlaceholder = "Write your post here";
+
+        $scope.userProjects = [
+            {
+                name: 'Select the Project',//name of the project
+                value: 'selectTheProject-value'//the uri of the project
+            }
+        ];
+
         $scope.pagination = {
             current: 1
         };
@@ -21,6 +31,34 @@ angular.module('dendroApp.controllers')
             "add": "added",
             "edit": "edited",
             "delete": "deleted"
+        };
+
+
+        var cleanUserProjectsList = function () {
+            //$scope.userProjects = [];
+            //$scope.userProjects.push({name: 'Select the Project', value: 'selectTheProject-value'});
+            $scope.userProjects.splice(1);
+            console.log("yay");
+        };
+
+        $scope.getUserProjects = function () {
+            projectsService.getUserProjects()
+                .then(function (response) {
+                    cleanUserProjectsList();
+                    var projectsData = response.data.projects;
+                    var projects = _.map(projectsData, function (project) {
+                        var newProject = {
+                            name: project.ddr.handle,
+                            value: project.uri
+                        };
+                        $scope.userProjects.push(newProject);
+                        return newProject;
+                    });
+                    console.log("yay");
+                })
+                .catch(function (error) {
+                    console.error("Error getting User Projects " + JSON.stringify(error));
+                });
         };
 
         //THIS IS THE FUNCTION THAT GETS THE postsURIs for the timeline
@@ -227,6 +265,7 @@ angular.module('dendroApp.controllers')
                 $scope.posts = [];
                 $scope.likesPostInfo = [];
                 $scope.postsContents = [];
+                $scope.getUserProjects();
                 $scope.pageChangeHandler($scope.pagination.current);
             }
         };
@@ -328,6 +367,10 @@ angular.module('dendroApp.controllers')
                 $scope.get_all_posts(num);
                 $window.scrollTo(0, 0);//to scroll up to the top on page change
             }
+        };
+
+        $scope.createNewManualPost = function (newPostTitle, newPostContent, projectUri) {
+            console.log("AT createNewManualPost");
         };
 
         $scope.$on('tab_changed:timeline', function(event, args) {

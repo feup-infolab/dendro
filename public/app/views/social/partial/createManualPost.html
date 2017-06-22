@@ -6,28 +6,28 @@
 
         <div class="panel-body">
             <div class="media">
-                <div class="media-left" style="padding-right: 20%">
-                    <img width="5%" height="5%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
-
-                </div>
-
                 <div class="media-body" style="padding-right: 0%">
 
-                    <div>
-                        <p> Title : </p>
-                        <input type="text" class="form-control" aria-label="postTitle">
+                    <div id="chooseProject" class="input-group-btn form-inline">
+                        <select class="form-control" ng-init="projectChosen = userProjects[0]"
+                                ng-model="projectChosen"
+                                ng-options="userProject.name for userProject in userProjects">
+                        </select>
                     </div>
 
-                    <div class="input-group">
-                        <div class="input-group-btn">
-                            <!-- Button and dropdown menu -->
-                            <!--Aqui é escolhido o project para o qual o post é criado-->
-                        </div>
-                        <input type="text" class="form-control" aria-label="postContent">
+                    <div id="newPostTitleID">
+                        <input type="text" class="form-control" aria-label="postTitle" id="newPostTitle" ng-model="newPostTitle" placeholder="The title of your post">
+                    </div>
+
+                    <div id="newPostContentID">
+                        <textarea class="form-control" rows="5" id="newPostContent" ng-model="newPostContent" placeholder="Write your post here"></textarea>
+                    </div>
+
+                    <div id="submitNewPost" class="text-right">
+                        <a ng-click="createNewManualPost(newPostTitle,newPostContent,projectChosen.value);" class="btn btn-default btn-primary">Create</a>
                     </div>
                 </div>
             </div>
         </div>
-
     </div>
 </div>
