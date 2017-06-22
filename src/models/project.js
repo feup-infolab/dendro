@@ -51,7 +51,7 @@ function Project(object)
     return self;
 }
 
-Project.prototype.rootFolder = function()
+Project.prototype.rootFolder = function(callback)
 {
     const self = this;
     return db.baseURI + "/project/" + self.ddr.handle + "/data";
@@ -569,17 +569,12 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
 Project.createAndInsertFromObject = function(object, callback) {
 
     const newProject = new Project(object);
-    const projectRootFolderURI = newProject.rootFolder();
-
-    console.log("creating project from object\n" + util.inspect(object));
-
     newProject.save(function(err, newProject) {
         if(!err)
         {
             if(newProject instanceof Project)
             {
                 const rootFolder = new Folder({
-                    uri: projectRootFolderURI,
                     nie: {
                         title: object.ddr.handle,
                         isLogicalPartOf: newProject.uri
@@ -612,7 +607,7 @@ Project.prototype.getFirstLevelDirectoryContents = function(callback)
 {
     const self = this;
 
-    Folder.findByUri(self.rootFolder(), function(err, folder){
+    self.rootFolder(function(err, folder){
         if(!err && !isNull(folder))
         {
             folder.getLogicalParts(function(err, children){
@@ -1388,10 +1383,9 @@ Project.prototype.findMetadata = function(callback)
 Project.prototype.findMetadataOfRootFolder = function(callback)
 {
     const self = this;
-    var rootFolder = self.ddr.rootFolder;
 
-    var rootFolder = new Folder({
-        uri : rootFolder
+    const rootFolder = new Folder({
+        uri : self.ddr.rootFolder
     });
 
     rootFolder.findMetadata(callback);

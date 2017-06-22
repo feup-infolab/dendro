@@ -12,9 +12,8 @@ const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 const UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 const FileVersion = require(Config.absPathInSrcFolder("/models/versions/file_version.js")).FileVersion;
 
-const db = function () {
-    return GLOBAL.db.default;
-}();
+const async = require('async');
+
 const db_social = function () {
     return GLOBAL.db.social;
 }();
@@ -23,11 +22,11 @@ exports.download = function(req, res){
     const self = this;
     if(req.params.is_project_root)
     {
-        var requestedResourceURI = req.params.requestedResource + "/data";
+        const requestedResourceURI = req.params.requestedResource + "/data";
     }
     else
     {
-        var requestedResourceURI = req.params.requestedResource;
+        const requestedResourceURI = req.params.requestedResource;
     }
 
     const filePath = req.params.filepath;
@@ -1524,29 +1523,56 @@ exports.mkdir = function(req, res){
 
     if(acceptsJSON && !acceptsHTML)
     {
-        let parentFolderURI;
 
-        if(req.params.is_project_root)
-        {
-            parentFolderURI = req.params.requestedResource + "/data";
-        }
-        else
-        {
-            parentFolderURI = req.params.requestedResource;
-        }
+        let validateFolderName = function(callback) {
+            const newFolderTitle = req.query.mkdir;
 
-        const newFolderTitle = req.query.mkdir;
+            if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
+            {
+                res.status(500).json(
+                    {
+                        "result" : "error",
+                        "message" : "invalid file name specified"
+                    }
+                );
+                
+                callback(1);
+            }
+            else
+            {
+                callback(null);
+            }
+        };
 
-        if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
+        let getProjectRootFolder = function(projectUri, callback)
         {
-            res.status(500).json(
+            Project.findByUri(projectUri, function(err, project){
+                if(!err)
                 {
-                    "result" : "error",
-                    "message" : "invalid file name specified"
+                    if(!isNull(project) || !(project instanceof Project))
+                    {
+                        if(!isNull(project.ddr.rootFolder))
+                        {
+                            callback(null, project.ddr.rootFolder);
+                        }
+                        else
+                        {
+                            callback(1, "Unable to determine root folder of project " + projectUri);
+                        }
+                    }
+                    else
+                    {
+                        callback(1, "There is no project with uri " + projectUri + ".");
+                    }
                 }
-            );
-        }
-        else
+                else
+                {
+                    callback(err, project);
+                }
+            });
+        };
+
+        let processRequest = function(parentFolderURI, callback)
         {
             Folder.findByUri(parentFolderURI, function(err, parentFolder)
             {
@@ -1554,7 +1580,7 @@ exports.mkdir = function(req, res){
                 {
                     const newChildFolder = new Folder({
                         nie: {
-                            title: newFolderTitle,
+                            title: req.query.mkdir,
                             isLogicalPartOf: parentFolderURI
                         }
                     });
@@ -1581,6 +1607,8 @@ exports.mkdir = function(req, res){
                                                 "new_folder" : Descriptor.removeUnauthorizedFromObject(result, [Config.types.private], [Config.types.api_readable])
                                             }
                                         );
+
+                                        callback(null);
                                     }
                                     else
                                     {
@@ -1590,6 +1618,8 @@ exports.mkdir = function(req, res){
                                                 "message" : "error 1 saving new folder :" + result
                                             }
                                         );
+                                        
+                                        callback(1);
                                     }
                                 });
                             }
@@ -1601,6 +1631,8 @@ exports.mkdir = function(req, res){
                                         "message" : "error 2 saving new folder :" + result
                                     }
                                 );
+                                
+                                callback(1);
                             }
                         });
                 }
@@ -1612,9 +1644,42 @@ exports.mkdir = function(req, res){
                             "message" : "error 3 saving new folder :" + parentFolder
                         }
                     );
+                    
+                    callback(1);
                 }
             });
-        }
+        };
+
+        async.waterfall(
+            [
+                validateFolderName,
+                function(callback)
+                {
+                    if (req.params.is_project_root)
+                    {
+                        getProjectRootFolder(req.params.requestedResourceUri, function (err, projectUri)
+                        {
+                            if (err)
+                            {
+                                callback(err, projectUri);
+                            }
+                            else
+                            {
+                                callback(null, projectUri);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        callback(null, req.params.requestedResourceUri);
+                    }
+                },
+                function (parentFolderUri, callback)
+                {
+                    processRequest(parentFolderUri, callback);
+                }
+            ]
+        );
     }
     else
     {
