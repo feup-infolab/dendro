@@ -13,7 +13,7 @@ const _ = require('underscore');
 
 exports.descriptors_autocomplete = function(req, res) {
 
-    if(!isNull(req.params.requestedResource))
+    if(!isNull(req.params.requestedResourceUri))
     {
         Descriptor.findByLabelOrComment(
             req.query.descriptor_autocomplete,

@@ -1259,7 +1259,7 @@ async.series([
                 else
                 {
                     console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
-                    var appInfo = {server: server, app: app};
+                    const appInfo = {server: server, app: app};
                     bootupPromise.resolve(appInfo);
                 }
 

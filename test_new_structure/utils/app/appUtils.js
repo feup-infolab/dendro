@@ -92,3 +92,11 @@ exports.clearAppState = function (cb) {
         });
     });
 };
+
+exports.resource_id_uuid_regex = function(resource_type)
+{
+    const regex = "^/r/"+resource_type+"/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$";
+    return new RegExp(regex);
+};
+
+module.exports = exports;

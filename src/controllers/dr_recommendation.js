@@ -13,7 +13,7 @@ const async = require('async');
 const _ = require('underscore');
 
 exports.recommend_descriptors = function(req, res) {
-    if(!isNull(req.params.requestedResource))
+    if(!isNull(req.params.requestedResourceUri))
     {
         if(!isNull(req.user))
         {
@@ -69,7 +69,7 @@ exports.recommend_descriptors = function(req, res) {
                                     performedBy: req.user.uri,
                                     interactionType: interactionType,
                                     lastDescriptorRecommendationsList: lastRecommendationList,
-                                    originallyRecommendedFor: req.params.requestedResource
+                                    originallyRecommendedFor: req.params.requestedResourceUri
                                 }
                             },
                             function (err, interaction) {
@@ -79,7 +79,7 @@ exports.recommend_descriptors = function(req, res) {
                                             console.err("Unable to record interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list. ");
                                         }
                                         else {
-                                            console.log("Successfully recorded interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list in resource with uri " + req.params.requestedResource);
+                                            console.log("Successfully recorded interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list in resource with uri " + req.params.requestedResourceUri);
                                         }
                                     });
                                 }
@@ -90,7 +90,7 @@ exports.recommend_descriptors = function(req, res) {
 
             const allowedOntologies = getAllowedOntologies();
 
-            exports.shared.recommend_descriptors(req.params.requestedResource, req.user.uri, req.query.page, allowedOntologies, req.index, function(err, descriptors){
+            exports.shared.recommend_descriptors(req.params.requestedResourceUri, req.user.uri, req.query.page, allowedOntologies, req.index, function(err, descriptors){
                 if(!err)
                 {
                     registerRecommendationRequestInteraction();
@@ -108,7 +108,7 @@ exports.recommend_descriptors = function(req, res) {
                     res.status(500).json(
                         {
                             result : "error",
-                            error_messages : ["Error producing metadata recommendations for resource " + req.params.requestedResource + " . Error reported : " + descriptors]
+                            error_messages : ["Error producing metadata recommendations for resource " + req.params.requestedResourceUri + " . Error reported : " + descriptors]
                         }
                     );
                 }
@@ -135,7 +135,7 @@ exports.recommend_descriptors = function(req, res) {
         res.status(404).json(
             {
                 result : "error",
-                error_messages : ["Resource with uri ." + req.params.requestedResource + " does not exist in this Dendro instance."]
+                error_messages : ["Resource with uri ." + req.params.requestedResourceUri + " does not exist in this Dendro instance."]
             }
         );
     }

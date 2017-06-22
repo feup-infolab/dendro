@@ -234,9 +234,6 @@ const checkPermissionsForRole = function (req, user, resource, role, callback) {
 };
 
 const checkPermissionsForProject = function (req, permission, callback) {
-    const projectHandle = req.params[0];                      //project handle
-    //const requestedProjectURI = Config.baseUri + "/project/" + projectHandle;
-
     Project.findByHandle(req.params.handle, function (err, project) {
         if (!err) {
             if (!isNull(project)) {
@@ -263,7 +260,7 @@ const checkPermissionsForProject = function (req, permission, callback) {
                 return callback(null,
                     {
                         authorized: true,
-                        role: ["Project with uri" + requestedProjectURI + " does not exist."]
+                        role: ["Project with uri" + req.requestedResourceUri + " does not exist."]
                     }
                 );
             }

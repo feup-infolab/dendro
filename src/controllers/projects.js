@@ -149,7 +149,7 @@ exports.change_log = function(req, res){
     };
 
     //TODO make this an InformationElement instead of only a folder
-    Folder.findByUri(req.params.requestedResource, function(err, containingFolder)
+    Folder.findByUri(req.params.requestedResourceUri, function(err, containingFolder)
     {
         if(!err && containingFolder !== "undefined" && containingFolder instanceof Folder)
         {
@@ -215,9 +215,9 @@ exports.change_log = function(req, res){
 exports.show = function(req, res) {
     const userIsLoggedIn = req.user ? true : false;
 
-    if(!isNull(req.params.requestedResource))
+    if(!isNull(req.params.requestedResourceUri))
     {
-        var resourceURI	= req.params.requestedResource;
+        var resourceURI	= req.params.requestedResourceUri;
     }
     else if(req.params.handle)
     {
@@ -1219,7 +1219,7 @@ exports.recent_changes = function(req, res) {
         //const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
 
 
-        Project.findByUri(req.params.requestedResource, function(err, project){
+        Project.findByUri(req.params.requestedResourceUri, function(err, project){
             if(!err)
             {
                 if(!isNull(project))

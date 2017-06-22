@@ -68,7 +68,7 @@ describe("Public project testFolder1 level ?mkdir", function () {
                     res.statusCode.should.equal(200);
                     res.body.result.should.equal("ok");
                     res.body.new_folder.nie.title.should.equal(folder.name);
-                    res.body.new_folder.nie.isLogicalPartOf.should.contain(publicProject.handle);
+                    res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
                     done();
                 });
             });
@@ -80,7 +80,7 @@ describe("Public project testFolder1 level ?mkdir", function () {
                     res.statusCode.should.equal(200);
                     res.body.result.should.equal("ok");
                     res.body.new_folder.nie.title.should.equal(folderForDemouser2.name);
-                    res.body.new_folder.nie.isLogicalPartOf.should.contain(publicProject.handle);
+                    res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
                     done();
                 });
             });

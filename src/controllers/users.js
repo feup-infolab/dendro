@@ -18,7 +18,7 @@ const _ = require('underscore');
  */
 exports.users_autocomplete = function(req, res){
 
-    if(!isNull(req.params.requestedResource))
+    if(!isNull(req.params.requestedResourceUri))
     {
 
         User.autocomplete_search(

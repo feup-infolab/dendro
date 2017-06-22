@@ -52,7 +52,7 @@ exports.shared = {};
 
 exports.shared.evaluate_metadata = function(req, callback)
 {
-    const requestedResourceURI = req.params.requestedResource;
+    const requestedResourceURI = req.params.requestedResourceUri;
     const recommendationsMode = req.query.recommendations_mode;
     let includeOnlyFavorites = false;
     let smartRecommendationMode = false;

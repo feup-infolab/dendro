@@ -43,12 +43,12 @@ GLOBAL.tests = {};
 // require(Config.absPathInTestsFolder("/routes/projects/private_project/undelete/route.projects.privateProject.undelete.Test.js"));
 
 
-//PROJECT CHANGES PUBLIC PROJECT
-require(Config.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
-//PROJECT CHANGES PRIVATE PROJECT
-require(Config.absPathInTestsFolder("/routes/project/private_project/__recent_changes/routes.project.privateProject.__recent_changes.Test.js"));
-//PROJECT CHANGES METADADATA ONlY PROJECT
-require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recent_changes/routes.project.metadataonlyProject.__recent_changes.Test.js"));
+// //PROJECT CHANGES PUBLIC PROJECT
+// require(Config.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
+// //PROJECT CHANGES PRIVATE PROJECT
+// require(Config.absPathInTestsFolder("/routes/project/private_project/__recent_changes/routes.project.privateProject.__recent_changes.Test.js"));
+// //PROJECT CHANGES METADADATA ONlY PROJECT
+// require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/__recent_changes/routes.project.metadataonlyProject.__recent_changes.Test.js"));
 
 //PROJECT VERSION PUBLIC PROJECT THIS TEST SHOULD BE DELETED BECAUSE THE FEATURE DOES NOT EXIST
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/__version/routes.project.publicProject.__version.Test.js"));*/

@@ -10,7 +10,7 @@ const async = require('async');
 
 exports.recommend = function(req, res) {
 
-    if(!isNull(req.params.requestedResource))
+    if(!isNull(req.params.requestedResourceUri))
     {
         Ontology.previouslyUsed(req.user, function(error, previouslyUsedOntologies){
             if(!err)
@@ -38,7 +38,7 @@ exports.get_recommendation_ontologies = function(req, res) {
     }
     else
     {
-        if(!isNull(req.params.requestedResource))
+        if(!isNull(req.params.requestedResourceUri))
         {
             if(!isNull(req.user))
             {

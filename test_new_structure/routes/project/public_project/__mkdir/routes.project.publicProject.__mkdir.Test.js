@@ -34,10 +34,11 @@ describe("Public Project mkdir", function (done) {
 
     describe("[POST] /project/:handle?mkdir " + publicProject.handle, function () {
 
-        it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        it("Should give an error if an invalid project is specified", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.createFolderInProjectRoot(true, agent, "invalidProjectHandle", folder.name, function (err, res) {
-                    res.statusCode.should.equal(401);
+                    res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
                     done();
                 });
             });

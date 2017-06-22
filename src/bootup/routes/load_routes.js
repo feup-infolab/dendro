@@ -8,6 +8,11 @@ const Resource = Object.create(require(Config.absPathInSrcFolder("/models/resour
 const QueryBasedRouter = Object.create(require(Config.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
 let RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
+//middlewares
+
+const parseRequest = require(Config.absPathInSrcFolder("/bootup/middleware/parse_request.js")).parseRequest;
+const sendResponse = require(Config.absPathInSrcFolder("/bootup/middleware/send_response.js")).sendResponse;
+
 //app's own requires
 const index = require(Config.absPathInSrcFolder("/controllers/index"));
 const users = require(Config.absPathInSrcFolder("/controllers/users"));
@@ -170,29 +175,51 @@ const loadRoutes = function(app, passport, recommendation, callback)
      * in case APIs are called with the human readable URI of a resource
      * TODO should this validate if a request is JSON and if so, refuse the request if calling an API over a resource identified by a human-readable URI?
      * @param humanReadableUri
+     * @param errorMessage
+     * @param viewToRenderOnError
      * @param req
      * @param res
      * @param next
+     * @param callback
      */
 
-    const getRequestedResourceUriFromHumanReadableUri = function(humanReadableUri, req, res, callback)
+    const getRequestedResourceUriFromHumanReadableUri = function(humanReadableUri, errorMessage, viewToRenderOnError, req, res, next, callback)
     {
         Resource.getUriFromHumanReadableUri(humanReadableUri, function(err, resourceUri){
             if(isNull(err))
             {
                 if(!isNull(resourceUri))
                 {
-                    req.params.requestedResourceUri = resourceUri;
-                    callback();
+                    callback(null, resourceUri);
                 }
                 else
                 {
-                    throw new Exception(resourceUri);
+                    return sendResponse.notFound(
+                        null,
+                        {
+                            view : viewToRenderOnError,
+                            messages : ["Resource not found at uri " + humanReadableUri],
+                            error : resourceUri
+                        },
+                        req,
+                        res,
+                        next,
+                    );
                 }
             }
             else
             {
-                throw new Exception("Error occurred while translating the human readable uri " + humanReadableUri  + " into the internal uri of a resource." + JSON.stringify(resourceUri));
+                return sendResponse.error(
+                    null,
+                    {
+                        view: viewToRenderOnError,
+                        messages: ["Error occurred while translating the human readable uri " + humanReadableUri  + " into the internal uri of a resource." + JSON.stringify(resourceUri)],
+                        error : resourceUri
+                    },
+                    req,
+                    res,
+                    next
+                );
             }
         });
     };
@@ -308,13 +335,25 @@ const loadRoutes = function(app, passport, recommendation, callback)
     //view a project's root
     app.all(/\/project\/([^\/]+)(\/data)?\/?$/, function(req,res, next)
     {
-        getRequestedResourceUriFromHumanReadableUri(Config.baseUri + "/project/" + req.params[0], req, res, function(){
+        const requestedProjectUrl = Config.baseUri + "/project/" + req.params[0];
+        getRequestedResourceUriFromHumanReadableUri(
+            requestedProjectUrl,
+            "Cannot fetch project " + requestedProjectUrl,
+            "index",
+            req,
+            res,
+            next,
+            function(err, resourceUri){
+            req.params.requestedResourceUri = resourceUri;
+
             const defaultPermissionsInProjectRoot = [
                 Permissions.project_privacy_status.public,
                 Permissions.project_privacy_status.metadata_only,
                 Permissions.role.project.contributor,
                 Permissions.role.project.creator
             ];
+
+            req.params.handle = req.params[0];
 
             const modificationPermissions = [
                 Permissions.role.project.contributor,
@@ -494,258 +533,266 @@ const loadRoutes = function(app, passport, recommendation, callback)
     app.all(/\/project\/([^\/]+)(\/data\/.+\/?)$/,
         function(req,res, next)
         {
-            const defaultPermissionsInProjectBranch = [
-                Permissions.project_privacy_status.public,
-                Permissions.role.project.contributor,
-                Permissions.role.project.creator
-            ];
+            const requestedResource = Config.baseUri + "/project/" + req.params[0] + req.params[1];
+            getRequestedResourceUriFromHumanReadableUri(
+                requestedResource,
+                "Cannot fetch resource " + requestedResource,
+                "index",
+                req,
+                res,
+                next,
+                function(err, resourceUri){
+                    req.params.requestedResourceUri = resourceUri;
+                    const defaultPermissionsInProjectBranch = [
+                        Permissions.project_privacy_status.public,
+                        Permissions.role.project.contributor,
+                        Permissions.role.project.creator
+                    ];
 
-            const modificationPermissionsBranch = [
-                Permissions.role.project.contributor,
-                Permissions.role.project.creator
-            ];
+                    const modificationPermissionsBranch = [
+                        Permissions.role.project.contributor,
+                        Permissions.role.project.creator
+                    ];
 
-            req.params.handle = req.params[0];                      //project handle
-            req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
+                    req.params.handle = req.params[0];                      //project handle
+                    req.params.filepath = req.params[1];
 
-            req.params.filepath = req.params[1];   //relative path encodeuri needed because of spaces in filenames
-            req.params.requestedResource = req.params.requestedResource + req.params.filepath;
+                    req.params.is_project_root = false;
 
-            req.params.is_project_root = false;
+                    const queryBasedRoutes = {
+                        get: [
+                            //downloads
+                            {
+                                queryKeys: ['download'],
+                                handler: files.download,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot download this resource because you do not have permissions to access its project."
+                            },
+                            //backups
+                            {
+                                queryKeys: ['backup'],
+                                handler: files.serve,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot backup this resource because you do not have permissions to access its project."
+                            },
+                            //bagits
+                            //{
+                            //    queryKeys : ['bagit'],
+                            //    handler : projects.download,
+                            //    permissions : defaultPermissionsInProjectBranch,
+                            //    authentication_error : "Permission denied : cannot bagit this resource because you do not have permissions to access its project."
+                            //},
+                            //list contents
+                            {
+                                queryKeys: ['ls'],
+                                handler: files.ls,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
+                            },
+                            //descriptor recommendations
+                            {
+                                queryKeys: ['metadata_recommendations'],
+                                handler: recommendation.recommend_descriptors,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get descriptor recommendations for this resource because you do not have permissions to access its project."
+                            },
+                            //recent changes
+                            {
+                                queryKeys: ['recent_changes'],
+                                handler: projects.recent_changes,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get recent changes for this resource because you do not have permissions to access its project."
+                            },
+                            //project stats
+                            {
+                                queryKeys: ['stats'],
+                                handler: projects.stats,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get project stats because you do not have permissions to access this project."
+                            },
+                            //recommendation ontologies
+                            {
+                                queryKeys: ['recommendation_ontologies'],
+                                handler: ontologies.get_recommendation_ontologies,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
+                            },
+                            //show versions of resources
+                            {
+                                queryKeys: ['version'],
+                                handler: records.show_version,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get versions of this resource because you do not have permissions to access this project."
+                            },
+                            //auto completing descriptors
+                            {
+                                queryKeys: ['descriptor_autocomplete'],
+                                handler: descriptors.descriptors_autocomplete,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get descriptor autocompletions in this resource because you do not have permissions to access this project."
+                            },
+                            //auto completing ontologies
+                            {
+                                queryKeys: ['ontology_autocomplete'],
+                                handler: ontologies.ontologies_autocomplete,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
+                            },
+                            //thumb nails
+                            {
+                                queryKeys: ['thumbnail'],
+                                handler: files.thumbnail,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get thumbnail for this resource because you do not have permissions to access this project."
+                            },
+                            //metadata
+                            {
+                                queryKeys: ['metadata'],
+                                handler: records.show,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get metadata for this resource because you do not have permissions to access this project."
+                            },
+                            //metadata deep
+                            {
+                                queryKeys: ['metadata', 'deep'],
+                                handler: records.show_deep,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get metadata (recursive) for this resource because you do not have permissions to access this project."
+                            },
+                            //parent metadata
+                            {
+                                queryKeys: ['parent_metadata'],
+                                handler: records.show_parent,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get parent metadata for this resource because you do not have permissions to access this project."
+                            },
+                            //change_log
+                            {
+                                queryKeys: ['change_log'],
+                                handler: projects.change_log,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get the change log of this resource because you do not have permissions to access this project."
+                            },
+                            //recommendation_ontologies
+                            {
+                                queryKeys: ['recommendation_ontologies'],
+                                handler: ontologies.get_recommendation_ontologies,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot get the recommended ontologies for this resource because you do not have permissions to access this project."
+                            },
+                            //serve files
+                            {
+                                queryKeys: ['serve'],
+                                handler: files.serve,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot serve this file because you do not have permissions to access this project."
+                            },
+                            //serve files in base64
+                            {
+                                queryKeys: ['serve_base64'],
+                                handler: files.serve_base64,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot serve this file (base64) because you do not have permissions to access this project."
+                            },
+                            //serve files serialized
+                            {
+                                queryKeys: ['data'],
+                                handler: files.data,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot serve serialized data for this resource because you do not have permissions to access this project."
+                            },
+                            //metadata_evaluation
+                            {
+                                queryKeys: ['metadata_evaluation'],
+                                handler: evaluation.metadata_evaluation,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot calculate metadata evaluation for this resource because you do not have permissions to access this project."
+                            },
+                            //default case
+                            {
+                                queryKeys: [],
+                                handler: projects.show,
+                                permissions: defaultPermissionsInProjectBranch,
+                                authentication_error: "Permission denied : cannot show the resource because you do not have permissions to access this project."
+                            }
+                        ],
+                        post: [
+                            {
+                                queryKeys: ['update_metadata'],
+                                handler: records.update,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot update the resource metadata because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys: ['restore_metadata_version'],
+                                handler: records.restore_metadata_version,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot restore the resource metadata because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys: ['register_interaction'],
+                                handler: interactions.register,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot register the interaction because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys: ['remove_recommendation_ontology'],
+                                handler: interactions.reject_ontology_from_quick_list,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot remove the recommendation ontology interaction because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys: ['mkdir'],
+                                handler: files.mkdir,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot create new folder because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys: ['restore'],
+                                handler: files.restore,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot restore previous version of resource because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys: ['undelete'],
+                                handler: files.undelete,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot undelete resource because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys: ['export_to_repository'],
+                                handler: datasets.export_to_repository,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot export resource because you do not have permissions to edit this project."
+                            }
+                        ],
+                        delete: [
+                            {
+                                queryKeys: ['really_delete'],
+                                handler: files.rm,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit this project."
+                            },
+                            {
+                                queryKeys: [],
+                                handler: files.rm,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit this project."
+                            }
+                        ],
+                        all: [
+                            //uploads
+                            {
+                                queryKeys: ['upload'],
+                                handler: files.upload,
+                                permissions: modificationPermissionsBranch,
+                                authentication_error: "Permission denied : cannot upload resource because you do not have permissions to edit this project."
+                            }
+                        ]
+                    };
 
-            const queryBasedRoutes = {
-                get: [
-                    //downloads
-                    {
-                        queryKeys: ['download'],
-                        handler: files.download,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot download this resource because you do not have permissions to access its project."
-                    },
-                    //backups
-                    {
-                        queryKeys: ['backup'],
-                        handler: files.serve,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot backup this resource because you do not have permissions to access its project."
-                    },
-                    //bagits
-                    //{
-                    //    queryKeys : ['bagit'],
-                    //    handler : projects.download,
-                    //    permissions : defaultPermissionsInProjectBranch,
-                    //    authentication_error : "Permission denied : cannot bagit this resource because you do not have permissions to access its project."
-                    //},
-                    //list contents
-                    {
-                        queryKeys: ['ls'],
-                        handler: files.ls,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
-                    },
-                    //descriptor recommendations
-                    {
-                        queryKeys: ['metadata_recommendations'],
-                        handler: recommendation.recommend_descriptors,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get descriptor recommendations for this resource because you do not have permissions to access its project."
-                    },
-                    //recent changes
-                    {
-                        queryKeys: ['recent_changes'],
-                        handler: projects.recent_changes,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get recent changes for this resource because you do not have permissions to access its project."
-                    },
-                    //project stats
-                    {
-                        queryKeys: ['stats'],
-                        handler: projects.stats,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get project stats because you do not have permissions to access this project."
-                    },
-                    //recommendation ontologies
-                    {
-                        queryKeys: ['recommendation_ontologies'],
-                        handler: ontologies.get_recommendation_ontologies,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
-                    },
-                    //show versions of resources
-                    {
-                        queryKeys: ['version'],
-                        handler: records.show_version,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get versions of this resource because you do not have permissions to access this project."
-                    },
-                    //auto completing descriptors
-                    {
-                        queryKeys: ['descriptor_autocomplete'],
-                        handler: descriptors.descriptors_autocomplete,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get descriptor autocompletions in this resource because you do not have permissions to access this project."
-                    },
-                    //auto completing ontologies
-                    {
-                        queryKeys: ['ontology_autocomplete'],
-                        handler: ontologies.ontologies_autocomplete,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
-                    },
-                    //thumb nails
-                    {
-                        queryKeys: ['thumbnail'],
-                        handler: files.thumbnail,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get thumbnail for this resource because you do not have permissions to access this project."
-                    },
-                    //metadata
-                    {
-                        queryKeys: ['metadata'],
-                        handler: records.show,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get metadata for this resource because you do not have permissions to access this project."
-                    },
-                    //metadata deep
-                    {
-                        queryKeys: ['metadata', 'deep'],
-                        handler: records.show_deep,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get metadata (recursive) for this resource because you do not have permissions to access this project."
-                    },
-                    //parent metadata
-                    {
-                        queryKeys: ['parent_metadata'],
-                        handler: records.show_parent,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get parent metadata for this resource because you do not have permissions to access this project."
-                    },
-                    //change_log
-                    {
-                        queryKeys: ['change_log'],
-                        handler: projects.change_log,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get the change log of this resource because you do not have permissions to access this project."
-                    },
-                    //recommendation_ontologies
-                    {
-                        queryKeys: ['recommendation_ontologies'],
-                        handler: ontologies.get_recommendation_ontologies,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot get the recommended ontologies for this resource because you do not have permissions to access this project."
-                    },
-                    //serve files
-                    {
-                        queryKeys: ['serve'],
-                        handler: files.serve,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot serve this file because you do not have permissions to access this project."
-                    },
-                    //serve files in base64
-                    {
-                        queryKeys: ['serve_base64'],
-                        handler: files.serve_base64,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot serve this file (base64) because you do not have permissions to access this project."
-                    },
-                    //serve files serialized
-                    {
-                        queryKeys: ['data'],
-                        handler: files.data,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot serve serialized data for this resource because you do not have permissions to access this project."
-                    },
-                    //metadata_evaluation
-                    {
-                        queryKeys: ['metadata_evaluation'],
-                        handler: evaluation.metadata_evaluation,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot calculate metadata evaluation for this resource because you do not have permissions to access this project."
-                    },
-                    //default case
-                    {
-                        queryKeys: [],
-                        handler: projects.show,
-                        permissions: defaultPermissionsInProjectBranch,
-                        authentication_error: "Permission denied : cannot show the resource because you do not have permissions to access this project."
-                    }
-                ],
-                post: [
-                    {
-                        queryKeys: ['update_metadata'],
-                        handler: records.update,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot update the resource metadata because you do not have permissions to edit this project."
-                    },
-                    {
-                        queryKeys: ['restore_metadata_version'],
-                        handler: records.restore_metadata_version,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot restore the resource metadata because you do not have permissions to edit this project."
-                    },
-                    {
-                        queryKeys: ['register_interaction'],
-                        handler: interactions.register,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot register the interaction because you do not have permissions to edit this project."
-                    },
-                    {
-                        queryKeys: ['remove_recommendation_ontology'],
-                        handler: interactions.reject_ontology_from_quick_list,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot remove the recommendation ontology interaction because you do not have permissions to edit this project."
-                    },
-                    {
-                        queryKeys: ['mkdir'],
-                        handler: files.mkdir,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot create new folder because you do not have permissions to edit this project."
-                    },
-                    {
-                        queryKeys: ['restore'],
-                        handler: files.restore,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot restore previous version of resource because you do not have permissions to edit this project."
-                    },
-                    {
-                        queryKeys: ['undelete'],
-                        handler: files.undelete,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot undelete resource because you do not have permissions to edit this project."
-                    },
-                    {
-                        queryKeys: ['export_to_repository'],
-                        handler: datasets.export_to_repository,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot export resource because you do not have permissions to edit this project."
-                    }
-                ],
-                delete: [
-                    {
-                        queryKeys: ['really_delete'],
-                        handler: files.rm,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit this project."
-                    },
-                    {
-                        queryKeys: [],
-                        handler: files.rm,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit this project."
-                    }
-                ],
-                all: [
-                    //uploads
-                    {
-                        queryKeys: ['upload'],
-                        handler: files.upload,
-                        permissions: modificationPermissionsBranch,
-                        authentication_error: "Permission denied : cannot upload resource because you do not have permissions to edit this project."
-                    }
-                ]
-            };
-
-            QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+                    QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+            });
         }
     );
 

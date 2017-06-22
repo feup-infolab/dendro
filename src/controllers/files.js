@@ -22,11 +22,11 @@ exports.download = function(req, res){
     const self = this;
     if(req.params.is_project_root)
     {
-        const requestedResourceURI = req.params.requestedResource + "/data";
+        const requestedResourceURI = req.params.requestedResourceUri + "/data";
     }
     else
     {
-        const requestedResourceURI = req.params.requestedResource;
+        const requestedResourceURI = req.params.requestedResourceUri;
     }
 
     const filePath = req.params.filepath;
@@ -236,7 +236,7 @@ Used to serve some files in html like images, text files...
  */
 exports.serve = function(req, res){
     const self = this;
-    const requestedResourceURI = req.params.requestedResource;
+    const requestedResourceURI = req.params.requestedResourceUri;
     const filePath = req.params.filepath;
 
     const downloadFolder = function (requestedResourceURI, res) {
@@ -411,7 +411,7 @@ exports.serve = function(req, res){
     }
 };
 exports.serve_base64 = function(req, res){
-    const requestedResourceURI = req.params.requestedResource;
+    const requestedResourceURI = req.params.requestedResourceUri;
 
     InformationElement.getType(requestedResourceURI,
         function(err, type){
@@ -517,7 +517,7 @@ exports.serve_base64 = function(req, res){
 
 };
 exports.get_thumbnail = function(req, res) {
-    const requestedResourceURI = req.params.requestedResource;
+    const requestedResourceURI = req.params.requestedResourceUri;
     const size = req.query.size;
 
     File.findByUri(requestedResourceURI, function(err, file){
@@ -691,8 +691,8 @@ exports.upload = function(req, res)
                     typeof file_md5 !== "undefined" &&
                     file_md5 !== "" &&
 
-                    !isNull(req.params.requestedResource) &&
-                    req.params.requestedResource !== ""
+                    !isNull(req.params.requestedResourceUri) &&
+                    req.params.requestedResourceUri !== ""
                 )
                 {
                     UploadManager.add_upload(
@@ -700,7 +700,7 @@ exports.upload = function(req, res)
                         filename,
                         size,
                         file_md5,
-                        req.params.requestedResource,
+                        req.params.requestedResourceUri,
                         function (err, newUpload)
                         {
                             if (!err)
@@ -740,7 +740,7 @@ exports.upload = function(req, res)
     }
     else if (req.originalMethod === "POST")
     {
-        const requestedResourceURI = req.params.requestedResource;
+        const requestedResourceURI = req.params.requestedResourceUri;
         const currentUserUri = req.user.uri;
 
         const processFiles = function (callback) {
@@ -1140,7 +1140,7 @@ exports.restore = function(req, res){
     }
     else if (req.originalMethod === "POST")
     {
-        const requestedResourceUri = req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle + "/data";
+        const requestedResourceUri = req.params.requestedResourceUri = Config.baseUri + "/project/" + req.params.handle + "/data";
 
         req.form.on('error', function(err) {
             res.status(500).json(
@@ -1272,7 +1272,7 @@ exports.rm = function(req, res){
     }
     else
     {
-        const resourceToDelete = req.params.requestedResource;
+        const resourceToDelete = req.params.requestedResourceUri;
 
         try{
             const reallyDelete = JSON.parse(req.query.really_delete);
@@ -1417,7 +1417,7 @@ exports.undelete = function(req, res){
 
     if(acceptsJSON && !acceptsHTML)
     {
-        const resourceToUnDelete = req.params.requestedResource;
+        const resourceToUnDelete = req.params.requestedResourceUri;
 
         if(!isNull(resourceToUnDelete))
         {
@@ -1582,6 +1582,9 @@ exports.mkdir = function(req, res){
                         nie: {
                             title: req.query.mkdir,
                             isLogicalPartOf: parentFolderURI
+                        },
+                        ddr : {
+                            humanReadableURI : parentFolder.ddr.humanReadableURI + "/" + req.query.mkdir
                         }
                     });
 
@@ -1688,7 +1691,7 @@ exports.mkdir = function(req, res){
 };
 
 exports.ls = function(req, res){
-    const resourceURI = req.params.requestedResource;
+    const resourceURI = req.params.requestedResourceUri;
     const filepath = req.params.filepath;
     let show_deleted = req.query.show_deleted;
 
@@ -1902,7 +1905,7 @@ exports.data = function(req, res){
 
     if(!isNull(exports.dataParsers[requestedExtension]))
     {
-        const resourceURI = req.params.requestedResource;
+        const resourceURI = req.params.requestedResourceUri;
 
         File.findByUri(resourceURI, function(err, file){
             if(!err)

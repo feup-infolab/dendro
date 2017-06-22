@@ -148,7 +148,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
 };
 
 export_to_repository_sword = function(req, res){
-    const requestedResourceUri = req.params.requestedResource;
+    const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
 
     if (isNull(targetRepository.ddr.hasExternalUri)) {
@@ -279,7 +279,7 @@ export_to_repository_ckan = function(req, res){
     try{
         const CKAN = require('ckan');
 
-        const requestedResourceUri = req.params.requestedResource;
+        const requestedResourceUri = req.params.requestedResourceUri;
         const targetRepository = req.body.repository;
 
         let overwrite = false;
@@ -739,7 +739,7 @@ export_to_repository_ckan = function(req, res){
 
 
 export_to_repository_figshare = function(req, res){
-    const requestedResourceUri = req.params.requestedResource;
+    const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
 
     if (isNull(targetRepository.ddr.hasExternalUri)) {
@@ -910,7 +910,7 @@ export_to_repository_figshare = function(req, res){
 };
 
 export_to_repository_zenodo = function(req, res){
-    const requestedResourceUri = req.params.requestedResource;
+    const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
 
     if (isNull(targetRepository.ddr.hasExternalUri)) {
@@ -1092,7 +1092,7 @@ export_to_repository_zenodo = function(req, res){
 };
 
 export_to_repository_b2share = function(req, res){
-    const requestedResourceUri = req.params.requestedResource;
+    const requestedResourceUri = req.params.requestedResourceUri;
     const targetRepository = req.body.repository;
     //targetRepository.ddr.hasExternalUri -> the b2share host url
 

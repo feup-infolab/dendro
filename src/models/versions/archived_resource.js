@@ -23,17 +23,17 @@ function ArchivedResource (object)
 
     self.copyOrInitDescriptors(object);
 
-    archivedResource.ddr.isVersionOf = object.ddr.isVersionOf;
+    self.ddr.isVersionOf = object.ddr.isVersionOf;
 
     if(isNull(self.uri))
     {
         const uuid = require('uuid');
-        archivedResource.uri = "/r/archived_resource/" + uuid.v4();
+        self.uri = "/r/archived_resource/" + uuid.v4();
     }
 
     if(isNull(self.ddr.humanReadableURI))
     {
-        archivedResource.humanReadableURI = self.uri + "/version/" + newVersionNumber;
+        self.humanReadableURI = object.ddr.isVersionOf + "/version/" + object.ddr.newVersionNumber;
     }
 
     if(!isNull(object.rdf.type))

@@ -578,17 +578,29 @@ Project.createAndInsertFromObject = function(object, callback) {
                     nie: {
                         title: object.ddr.handle,
                         isLogicalPartOf: newProject.uri
+                    },
+                    ddr :
+                    {
+                        humanReadableURI : newProject.ddr.humanReadableURI + "/data"
                     }
                 });
 
                 rootFolder.save(function(err, result)
                 {
-                    newProject.ddr.rootFolder = rootFolder.uri;
-                    newProject.nie.hasLogicalPart = rootFolder.uri;
+                    if(!err)
+                    {
+                        newProject.ddr.rootFolder = rootFolder.uri;
+                        newProject.nie.hasLogicalPart = rootFolder.uri;
 
-                    newProject.save(function(err, result){
+                        newProject.save(function(err, result){
+                            return callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        console.error("There was an error saving the root folder of project " + newProject.ddr.humanReadableURI + ": " + JSON.stringify(result));
                         return callback(err, result);
-                    });
+                    }
                 });
             }
             else
@@ -796,16 +808,16 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
     const self = this;
 
     let query =
-        "WITH [0] \n" +
-        "SELECT ?version \n" +
-        "WHERE { \n" +
-        "?version dcterms:created ?date. \n" +
-        "?version rdf:type ddr:ArchivedResource . \n" +
-        " filter ( \n" +
-        "STRSTARTS(STR(?version), [1]) \n" +
-        " ) \n" +
-        "} \n" +
-        "ORDER BY DESC(?date) \n";
+        "WITH [0]\n" +
+        "SELECT ?version\n" +
+        "WHERE {\n" +
+        "   ?version dcterms:created ?date.\n" +
+        "   ?version rdf:type ddr:ArchivedResource .\n" +
+        "   ?version ddr:isVersionOf ?resource.\n" +
+        "   ?resource nie:isLogicalPartOf+ ?parent.\n" +
+        "   [1] ddr:rootFolder ?parent.\n" +
+        "}\n" +
+        "ORDER BY DESC(?date)\n";
 
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
@@ -816,7 +828,7 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
                 value : db.graphUri
             },
             {
-                type : DbConnection.stringNoEscape,
+                type : DbConnection.resourceNoEscape,
                 value : self.uri
             }
         ], startingResultPosition, maxResults),

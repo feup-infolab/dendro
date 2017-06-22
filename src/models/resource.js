@@ -1487,7 +1487,7 @@ Resource.getUriFromHumanReadableUri = function(humanReadableUri, callback, custo
                         }
                         else
                         {
-                            return callback(2, "Resource with human-readable uri " + humanReadableUri + " does not have an internal URI!");
+                            return callback(null, null);
                         }
                     }
                 }
@@ -1840,9 +1840,11 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
                 versionCreator = User.anonymous.uri;
             }
 
+            delete objectValues.uri;
             objectValues.ddr.versionCreator = versionCreator;
             objectValues.ddr.isVersionOf = self.uri;
             objectValues.ddr.versionNumber = newVersionNumber;
+            objectValues.ddr.humanReadableURI = self.ddr.humanReadableURI + "/version/" + newVersionNumber;
 
             const ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
             const archivedResource = new ArchivedResource(objectValues);

@@ -24,7 +24,7 @@ exports.recommend_descriptors = function(req, res) {
     }
     else
     {
-        const resourceUri = req.params.requestedResource;
+        const resourceUri = req.params.requestedResourceUri;
 
         if(!isNull(req.user))
         {

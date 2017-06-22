@@ -34,10 +34,10 @@ describe("Metadata Project mkdir", function (done) {
 
     describe("[POST] /project/:handle?mkdir " + metadataProject.handle, function () {
 
-        it("Should give an error if an invalid project is specified, even if the user is logged in as a creator or collaborator on the project", function (done) {
+        it("Should give an error if an invalid project is specified", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.createFolderInProjectRoot(true, agent, "invalidProjectHandle", folder.name, function (err, res) {
-                    res.statusCode.should.equal(401);
+                    res.statusCode.should.equal(404);
                     done();
                 });
             });
@@ -78,7 +78,7 @@ describe("Metadata Project mkdir", function (done) {
                     res.statusCode.should.equal(200);
                     res.body.result.should.equal("ok");
                     res.body.new_folder.nie.title.should.equal(folder.name);
-                    res.body.new_folder.nie.isLogicalPartOf.should.contain(metadataProject.handle);
+                    res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
                     done();
                 });
             });
@@ -90,7 +90,7 @@ describe("Metadata Project mkdir", function (done) {
                     res.statusCode.should.equal(200);
                     res.body.result.should.equal("ok");
                     res.body.new_folder.nie.title.should.equal(folderForDemouser2.name);
-                    res.body.new_folder.nie.isLogicalPartOf.should.contain(metadataProject.handle);
+                    res.body.new_folder.nie.isLogicalPartOf.should.match(appUtils.resource_id_uuid_regex("folder"));
                     done();
                 });
             });

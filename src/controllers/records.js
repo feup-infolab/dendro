@@ -39,7 +39,7 @@ exports.show_deep = function(req, res) {
         if(!isNull(req.params.filepath))
         {
             const requestedResource = new Resource({
-                uri: req.params.requestedResource
+                uri: req.params.requestedResourceUri
             });
 
             requestedResource.findMetadataRecursive(function(err, result){
@@ -92,7 +92,7 @@ exports.show = function(req, res) {
     }
     else
     {
-        const requestedResourceURI = req.params.requestedResource;
+        const requestedResourceURI = req.params.requestedResourceUri;
 
         const requestedResource = new InformationElement({
             uri: requestedResourceURI
@@ -142,7 +142,7 @@ exports.show_parent = function(req, res) {
     {
         if(!isNull(req.params.filepath))
         {
-            const requestedResourceURI = req.params.requestedResource;
+            const requestedResourceURI = req.params.requestedResourceUri;
 
             InformationElement.findByUri(requestedResourceURI, function(err, ie){
                 if(!err)
@@ -233,7 +233,7 @@ exports.update = function(req, res) {
     }
     else
     {
-        const requestedResourceURI = req.params.requestedResource;
+        const requestedResourceURI = req.params.requestedResourceUri;
 
         InformationElement.findByUri(requestedResourceURI, function(err, resource)
         {
@@ -364,7 +364,7 @@ exports.update = function(req, res) {
                     }
                     else
                     {
-                        const error = "Unable to update metadata for : " + req.params.requestedResource + ". JSON metadata must be sent in the body of the POST request and the Content-Type header should be set to 'application/json'";
+                        const error = "Unable to update metadata for : " + req.params.requestedResourceUri + ". JSON metadata must be sent in the body of the POST request and the Content-Type header should be set to 'application/json'";
                         console.error(error);
                         res.status(400).json({
                             result : "Error",
@@ -374,7 +374,7 @@ exports.update = function(req, res) {
                 }
                 else
                 {
-                    const error = "Resource with uri : " + req.params.requestedResource + " is not present in the system. Error retrieved : " + resource;
+                    const error = "Resource with uri : " + req.params.requestedResourceUri + " is not present in the system. Error retrieved : " + resource;
                     res.status(404).json({
                         result : "Error",
                         message : error
@@ -383,7 +383,7 @@ exports.update = function(req, res) {
             }
             else
             {
-                const error = "Unable to retrieve resource with uri : " + req.params.requestedResource + ". Error retrieved : " + resource;
+                const error = "Unable to retrieve resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + resource;
                 console.error(error);
                 res.status(500).json({
                     result : "Error",
@@ -407,7 +407,7 @@ exports.show_version = function(req, res) {
     }
     else
     {
-        const requestedResourceURI = req.params.requestedResource;
+        const requestedResourceURI = req.params.requestedResourceUri;
         const requestedVersion = req.query.version;
 
         if(!isNull(req.query.version) && typeof req.query.version === "string") {
@@ -448,7 +448,7 @@ exports.show_version = function(req, res) {
                 }
                 else
                 {
-                    const error = "Unable to retrieve resource with uri : " + req.params.requestedResource + ". Error retrieved : " + resource;
+                    const error = "Unable to retrieve resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + resource;
                     console.error(error);
                     res.status(500).json({
                         result : "Error",
@@ -480,7 +480,7 @@ exports.restore_metadata_version = function(req, res) {
     }
     else
     {
-        const requestedResourceURI = req.params.requestedResource;
+        const requestedResourceURI = req.params.requestedResourceUri;
         const requestedVersion = req.body.version;
 
         Resource.findByUri(requestedResourceURI, function(err, resource)
@@ -559,7 +559,7 @@ exports.restore_metadata_version = function(req, res) {
             }
             else
             {
-                const error = "Unable to retrieve resource with uri : " + req.params.requestedResource + ". Error retrieved : " + resource;
+                const error = "Unable to retrieve resource with uri : " + req.params.requestedResourceUri + ". Error retrieved : " + resource;
                 console.error(error);
                 res.status(500).json({
                     result : "Error",
