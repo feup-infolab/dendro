@@ -31,7 +31,7 @@ describe("/users/loggedUser ", function () {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         userUtils.getCurrentLoggedUser(true, agent, function (err, res) {
-            res.should.have.status(200);
+            res.should.have.status(403);
             res.text.should.contain("no user authenticated in the system");
             done();
         })
@@ -41,7 +41,7 @@ describe("/users/loggedUser ", function () {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         userUtils.getCurrentLoggedUser(false, agent, function (err, res) {
-            res.should.have.status(405);
+            res.should.have.status(403);
             done();
         })
     });

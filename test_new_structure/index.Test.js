@@ -16,6 +16,12 @@ GLOBAL.tests = {};
 
 require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
 
+
+//MINE
+require(Config.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
+
+
+
 require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
 
 require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
@@ -320,8 +326,6 @@ require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/
  //test folders
  require("./controllers/folders.Test.js");
  */
-//test users
- require(Config.absPathInTestsFolder("/routes/users/demouser1/route.users.demouser1.Test.js"));
 /*
  //test descriptors
  require("./controllers/descriptors.Test.js");
