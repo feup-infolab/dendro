@@ -62,7 +62,7 @@ const sendAnyResponse  = function(data, options, req, res, next)
 
         if(!isNull(options.messages))
         {
-            jsonResponse.error_messages = options.messages;
+            locals.error_messages = options.messages;
         }
         
         res.status(options.code).render(viewToRender, locals);

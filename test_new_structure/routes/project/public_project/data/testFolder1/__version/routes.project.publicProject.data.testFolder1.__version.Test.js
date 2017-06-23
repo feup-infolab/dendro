@@ -43,13 +43,13 @@ describe("Public project testFolder1 level ?version", function () {
             });
         });
 
-        it("Should show the version information if the user is unauthenticated", function (done) {
+        it("Should show the version information even if the user is unauthenticated", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
 
             itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
                 res.statusCode.should.equal(200);//because it is a public project
-                res.body.descriptors.length.should.equal(7);
+                res.body.descriptors.length.should.equal(8);
                 done();
             });
         });
@@ -57,7 +57,13 @@ describe("Public project testFolder1 level ?version", function () {
         it("Should give an error if the project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, invalidProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(testFolder1.name);
+                    res.body.message[0].should.contain(invalidProject.handle);
                     done();
                 });
             });
@@ -66,7 +72,13 @@ describe("Public project testFolder1 level ?version", function () {
         it("Should give an error if the folder identified by foldername does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, notFoundFolder.name, notFoundFolder.version, function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(notFoundFolder.name);
+                    res.body.message[0].should.contain(publicProject.handle);
                     done();
                 });
             });
@@ -76,7 +88,7 @@ describe("Public project testFolder1 level ?version", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(7);
+                    res.body.descriptors.length.should.equal(8);
                     done();
                 });
             });
@@ -86,7 +98,7 @@ describe("Public project testFolder1 level ?version", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(7);
+                    res.body.descriptors.length.should.equal(8);
                     done();
                 });
             });
@@ -96,7 +108,7 @@ describe("Public project testFolder1 level ?version", function () {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, testFolder1.version, function (err, res) {
                     res.statusCode.should.equal(200);//because this is a public project
-                    res.body.descriptors.length.should.equal(7);
+                    res.body.descriptors.length.should.equal(8);
                     done();
                 });
             });
@@ -105,7 +117,7 @@ describe("Public project testFolder1 level ?version", function () {
         it("Should give an error if no version is specified", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, publicProject.handle, testFolder1.name, null, function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(405);
                     done();
                 });
             });

@@ -91,12 +91,12 @@ describe("Metadata only project testFolder1 level recommendation_ontologies test
         });
     });
 
-    describe(invalidProject.handle + "/data/" + testFolder1.name + "?recommendation_ontologies", function ()
+    describe(metadataProject.handle + "/data/" + testFolder1.name + "?recommendation_ontologies", function ()
     {
         it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemRecommendationOntologies(false, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemRecommendationOntologies(false, agent, metadataProject.handle, testFolder1.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     res.body.should.not.be.instanceof(Array);
                     done();

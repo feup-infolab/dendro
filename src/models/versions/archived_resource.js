@@ -8,6 +8,8 @@ const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resou
 const Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
 const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = function () {
     return GLOBAL.db.default;
@@ -33,7 +35,7 @@ function ArchivedResource (object)
 
     if(isNull(self.ddr.humanReadableURI))
     {
-        self.humanReadableURI = object.ddr.isVersionOf + "/version/" + object.ddr.newVersionNumber;
+        self.humanReadableURI = object.ddr.humanReadableURI + "/version/" + object.ddr.newVersionNumber;
     }
 
     if(!isNull(object.rdf.type))
@@ -61,17 +63,56 @@ function ArchivedResource (object)
     return self;
 }
 
-ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionNumber, callback)
+ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionNumber, callback, customGraphUri)
 {
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
     try
     {
-        versionNumber = parseInt(versionNumber);
-
         if(!isNull(versionNumber) && typeof versionNumber === 'number' && versionNumber%1 === 0)
         {
-            const archivedVersionUri = resourceUri + "/version/" + versionNumber;
+            db.connection.execute(
+                "SELECT ?archived_resource\n" +
+                "FROM [0]\n"+
+                "WHERE \n" +
+                "{ \n" +
+                "   ?archived_resource ddr:isVersionOf [1]. \n" +
+                "   ?archived_resource ddr:versionNumber [2]. \n" +
+                "} \n",
 
-            ArchivedResource.findByUri(archivedVersionUri, callback);
+                [
+                    {
+                        type : DbConnection.resourceNoEscape,
+                        value : graphUri
+                    },
+                    {
+                        type : Elements.ddr.isVersionOf.type,
+                        value : resourceUri
+                    },
+                    {
+                        type : Elements.ddr.versionNumber.type,
+                        value : versionNumber
+                    }
+                ],
+                function(err, results) {
+                    if(!err)
+                    {
+                        if(results instanceof Array && results.length === 1)
+                        {
+                            ArchivedResource.findByUri(results[0].archived_resource, callback);
+                        }
+                        else
+                        {
+                            return callback(1, "Unable to determine the URI of the archived resource version " + versionNumber + " of " + resourceUri);
+                        }
+                    }
+                    else
+                    {
+                        const msg = "Error finding archived version " + versionNumber + " of resource " + resourceUri + " . Error returned: " + JSON.stringify(results);
+                        console.error(msg);
+                        return callback(err, msg);
+                    }
+                });
         }
         else
         {

@@ -525,10 +525,13 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
 {
     if(isNull(excludedDescriptorTypes))
         return true;
-    else if(isNull(exceptionedDescriptorTypes))
-        return true;
     else
     {
+        if(isNull(exceptionedDescriptorTypes))
+        {
+            exceptionedDescriptorTypes = [];
+        }
+        
         const _ = require('underscore');
         const sortedExcluded = excludedDescriptorTypes.sort();
         const sortedExceptioned = exceptionedDescriptorTypes.sort();

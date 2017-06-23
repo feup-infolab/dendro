@@ -60,7 +60,12 @@ describe("Public project recent changes", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, agent, projectHandle, cb
                 projectUtils.getProjectRecentChanges(true, agent, "ARandomProjectHandle", function (err, res) {
-                    res.should.have.status(404);
+                    res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain("ARandomProjectHandle");
                     done();
                 });
             });

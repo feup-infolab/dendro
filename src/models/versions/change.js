@@ -11,9 +11,7 @@ const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js
 const db = function () {
     return GLOBAL.db.default;
 }();
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
+
 const async = require('async');
 
 function Change (object)
@@ -27,6 +25,12 @@ function Change (object)
 
     const now = new Date();
     self.dcterms.created = now.toISOString();
+
+    if(isNull(self.uri))
+    {
+        const uuid = require('uuid');
+        self.uri = "/r/change/" + uuid.v4();
+    }
 
     return self;
 }

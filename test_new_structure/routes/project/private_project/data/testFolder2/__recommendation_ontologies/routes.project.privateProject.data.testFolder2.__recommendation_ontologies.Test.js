@@ -91,12 +91,12 @@ describe("Private project testFolder2 level recommendation_ontologies tests", fu
         });
     });
 
-    describe(invalidProject.handle + "/data/" + testFolder2.name + "?recommendation_ontologies", function ()
+    describe(privateProject.handle + "/data/" + testFolder2.name + "?recommendation_ontologies", function ()
     {
         it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemRecommendationOntologies(false, agent, invalidProject.handle, testFolder2.name, function (err, res) {
+                itemUtils.getItemRecommendationOntologies(false, agent, privateProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     res.body.should.not.be.instanceof(Array);
                     done();

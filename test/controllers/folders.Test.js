@@ -166,7 +166,7 @@ describe("[POST] [FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicProject.hand
     it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.createFolder(true, agent, "unKnownProjectHandle", folder.name, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -233,7 +233,7 @@ describe("[POST] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataOnl
     it("Should give an error if an invalid folder parent is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.createFolder(true, agent, metadataOnlyProject.handle, "*invalidFolder", folder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal();
                 done();
             });
         });
@@ -242,7 +242,7 @@ describe("[POST] [FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + metadataOnl
     it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.createFolder(true, agent, "unKnownProjectHandle", folder.name, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -309,7 +309,7 @@ describe("[POST] [FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.ha
     it("Should give an error if an invalid folder parent is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -318,7 +318,7 @@ describe("[POST] [FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateProject.ha
     it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.createFolder(true, agent, "unKnownProjectHandle", folder.name, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -342,7 +342,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicPro
     it("Should give an error message when the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.deleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -351,7 +351,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PUBLIC PROJECT] /project/" + publicPro
     it("Should give an error message when the folder does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.deleteItem(true, agent, publicProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.contain("Unable to retrieve resource");
                 done();
             });
@@ -411,7 +411,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + me
     it("Should give an error message when the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.deleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -420,7 +420,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [METADATA ONLY PROJECT] /project/" + me
     it("Should give an error message when the folder does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.contain("Unable to retrieve resource");
                 done();
             });
@@ -480,7 +480,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateP
     it("Should give an error message when the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.deleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -489,7 +489,7 @@ describe("[DELETE] [DELETE FOLDER LEVEL] [PRIVATE PROJECT] /project/" + privateP
     it("Should give an error message when the folder does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.deleteItem(true, agent, privateProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.contain("Unable to retrieve resource");
                 done();
             });
@@ -548,7 +548,7 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle+ "/data/:fol
     it("Should give an error message when a project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.undeleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -557,7 +557,7 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle+ "/data/:fol
     it("Should give an error message when the folder does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.undeleteItem(true, agent, publicProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.contain("Unable to retrieve resource with uri");
                 done();
             });
@@ -628,7 +628,7 @@ describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle
     it("Should give an error message when a project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.undeleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -637,7 +637,7 @@ describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle
     it("Should give an error message when the folder does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.undeleteItem(true, agent, metadataOnlyProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.contain("Unable to retrieve resource with uri");
                 done();
             });
@@ -708,7 +708,7 @@ describe("[POST] [Private PROJECT] /project/" + privateProject.handle + "/data/:
     it("Should give an error message when a project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.undeleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -717,7 +717,7 @@ describe("[POST] [Private PROJECT] /project/" + privateProject.handle + "/data/:
     it("Should give an error message when the folder does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.undeleteItem(true, agent, privateProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.contain("Unable to retrieve resource with uri");
                 done();
             });
@@ -790,10 +790,10 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:fo
     it("Should give an error message when a project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.updateItemMetadata(true, agent, invalidProject.handle, folder.name, folder.metadata, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 //jsonOnly, agent, projectHandle, itemPath, cb
                 itemUtils.getItemMetadata(true, agent, invalidProject.handle, folder.name, function (error, response) {
-                    response.statusCode.should.equal(500);
+                    response.statusCode.should.equal(404);
                     done();
                 });
             });
@@ -806,7 +806,7 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/:fo
                 res.statusCode.should.equal(404);
                 //jsonOnly, agent, projectHandle, itemPath, cb
                 itemUtils.getItemMetadata(true, agent, publicProject.handle, notFoundFolder.name, function (error, response) {
-                    response.statusCode.should.equal(500);
+                    response.statusCode.should.equal(404);
                     done();
                 });
             });
@@ -897,10 +897,10 @@ describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle
     it("Should give an error message when a project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.updateItemMetadata(true, agent, invalidProject.handle, folder.name, folder.metadata, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 //jsonOnly, agent, projectHandle, itemPath, cb
                 itemUtils.getItemMetadata(true, agent, invalidProject.handle, folder.name, function (error, response) {
-                    response.statusCode.should.equal(500);
+                    response.statusCode.should.equal(404);
                     done();
                 });
             });
@@ -913,7 +913,7 @@ describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle
                 res.statusCode.should.equal(404);
                 //jsonOnly, agent, projectHandle, itemPath, cb
                 itemUtils.getItemMetadata(true, agent, metadataOnlyProject.handle, notFoundFolder.name, function (error, response) {
-                    response.statusCode.should.equal(500);
+                    response.statusCode.should.equal(404);
                     done();
                 });
             });
@@ -1001,10 +1001,10 @@ describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:
     it("Should give an error message when a project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.updateItemMetadata(true, agent, invalidProject.handle, folder.name, folder.metadata, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 //jsonOnly, agent, projectHandle, itemPath, cb
                 itemUtils.getItemMetadata(true, agent, invalidProject.handle, folder.name, function (error, response) {
-                    response.statusCode.should.equal(500);
+                    response.statusCode.should.equal(404);
                     done();
                 });
             });
@@ -1017,7 +1017,7 @@ describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:
                 res.statusCode.should.equal(404);
                 //jsonOnly, agent, projectHandle, itemPath, cb
                 itemUtils.getItemMetadata(true, agent, privateProject.handle, notFoundFolder.name, function (error, response) {
-                    response.statusCode.should.equal(500);
+                    response.statusCode.should.equal(404);
                     done();
                 });
             });
@@ -1337,7 +1337,7 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/fol
     it("Should give an error if the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, invalidProject.handle, folder.name, folder.version, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -1346,7 +1346,13 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/fol
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, publicProject.handle, notFoundFolder.name, notFoundFolder.version, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
+                res.body.result.should.equal("not_found");
+                res.body.message.should.be.an('array');
+                res.body.message.length.should.equal(1);
+                res.body.message[0].should.contain("Resource not found at uri ");
+                res.body.message[0].should.contain(notFoundFolder.name);
+                res.body.message[0].should.contain(publicProject.handle);
                 done();
             });
         });
@@ -1385,7 +1391,7 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle  + "/data/fol
     it("Should give an error if no version is specified", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, publicProject.handle, folder.name, null, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(405);
                 done();
             });
         });
@@ -1416,7 +1422,7 @@ describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle 
     it("Should give an error if the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, invalidProject.handle, folder.name, folder.version, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -1425,8 +1431,13 @@ describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle 
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, metadataOnlyProject.handle, notFoundFolder.name, notFoundFolder.version, function (err, res) {
-                res.statusCode.should.equal(500);
-                done();
+                res.statusCode.should.equal(404);
+                res.body.result.should.equal("not_found");
+                res.body.message.should.be.an('array');
+                res.body.message.length.should.equal(1);
+                res.body.message[0].should.contain("Resource not found at uri ");
+                res.body.message[0].should.contain(notFoundFolder.name);
+                res.body.message[0].should.contain(metadataOnlyProject.handle);
             });
         });
     });
@@ -1463,7 +1474,7 @@ describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle 
     it("Should give an error if no version is specified", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, metadataOnlyProject.handle, folder.name, null, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(405);
                 done();
             });
         });
@@ -1494,7 +1505,7 @@ describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle  + "/data/f
     it("Should give an error if the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, invalidProject.handle, folder.name, folder.version, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -1503,8 +1514,13 @@ describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle  + "/data/f
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, privateProject.handle, notFoundFolder.name, notFoundFolder.version, function (err, res) {
-                res.statusCode.should.equal(500);
-                done();
+                res.statusCode.should.equal(404);
+                res.body.result.should.equal("not_found");
+                res.body.message.should.be.an('array');
+                res.body.message.length.should.equal(1);
+                res.body.message[0].should.contain("Resource not found at uri ");
+                res.body.message[0].should.contain(notFoundFolder.name);
+                res.body.message[0].should.contain(privateProject.handle);
             });
         });
     });
@@ -1541,7 +1557,7 @@ describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle  + "/data/f
     it("Should give an error if no version is specified", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemVersion(true, agent, privateProject.handle, folder.name, null, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(405);
                 done();
             });
         });
@@ -1564,7 +1580,7 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/fold
     it("Should give an error if the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemChangeLog(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(200);
+                res.statusCode.should.equal(404);
                 res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
                 done();
             });
@@ -1574,9 +1590,13 @@ describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/fold
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemChangeLog(true, agent, publicProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
-                done();
+                res.statusCode.should.equal(404);
+                res.body.result.should.equal("not_found");
+                res.body.message.should.be.an('array');
+                res.body.message.length.should.equal(1);
+                res.body.message[0].should.contain("Resource not found at uri ");
+                res.body.message[0].should.contain(notFoundFolder.name);
+                res.body.message[0].should.contain(publicProject.handle);
             });
         });
     });
@@ -1627,7 +1647,7 @@ describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle 
     it("Should give an error if the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemChangeLog(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(200);
+                res.statusCode.should.equal(404);
                 res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
                 done();
             });
@@ -1637,9 +1657,13 @@ describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle 
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemChangeLog(true, agent, metadataOnlyProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
-                done();
+                res.statusCode.should.equal(404);
+                res.body.result.should.equal("not_found");
+                res.body.message.should.be.an('array');
+                res.body.message.length.should.equal(1);
+                res.body.message[0].should.contain("Resource not found at uri ");
+                res.body.message[0].should.contain(notFoundFolder.name);
+                res.body.message[0].should.contain(metadataOnlyProject.handle);
             });
         });
     });
@@ -1689,7 +1713,7 @@ describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/fo
     it("Should give an error if the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemChangeLog(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(200);
+                res.statusCode.should.equal(404);
                 res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
                 done();
             });
@@ -1699,9 +1723,13 @@ describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/fo
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.getItemChangeLog(true, agent, privateProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
-                done();
+                res.statusCode.should.equal(404);
+                res.body.result.should.equal("not_found");
+                res.body.message.should.be.an('array');
+                res.body.message.length.should.equal(1);
+                res.body.message[0].should.contain("Resource not found at uri ");
+                res.body.message[0].should.contain(notFoundFolder.name);
+                res.body.message[0].should.contain(privateProject.handle);
             });
         });
     });
@@ -1762,7 +1790,7 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/fol
     it("Should give an error if the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.itemRestoreMetadataVersion(true, agent, invalidProject.handle, folder.name, 0, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -1771,9 +1799,13 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/fol
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.itemRestoreMetadataVersion(true, agent, publicProject.handle, notFoundFolder.name, 0, function (err, res) {
-                res.statusCode.should.equal(500);
-                res.body.message.should.contain("Unable to retrieve version");
-                done();
+                res.statusCode.should.equal(404);
+                res.body.result.should.equal("not_found");
+                res.body.message.should.be.an('array');
+                res.body.message.length.should.equal(1);
+                res.body.message[0].should.contain("Resource not found at uri ");
+                res.body.message[0].should.contain(notFoundFolder.name);
+                res.body.message[0].should.contain(publicProject.handle);
             });
         });
     });
@@ -1842,7 +1874,7 @@ describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle
     it("Should give an error if the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.itemRestoreMetadataVersion(true, agent, invalidProject.handle, folder.name, 0, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -1851,9 +1883,13 @@ describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.itemRestoreMetadataVersion(true, agent, metadataOnlyProject.handle, notFoundFolder.name, 0, function (err, res) {
-                res.statusCode.should.equal(500);
-                res.body.message.should.contain("Unable to retrieve version");
-                done();
+                res.statusCode.should.equal(404);
+                res.body.result.should.equal("not_found");
+                res.body.message.should.be.an('array');
+                res.body.message.length.should.equal(1);
+                res.body.message[0].should.contain("Resource not found at uri ");
+                res.body.message[0].should.contain(notFoundFolder.name);
+                res.body.message[0].should.contain(metadataOnlyProject.handle);
             });
         });
     });
@@ -1922,7 +1958,7 @@ describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/f
     it("Should give an error if the project does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.itemRestoreMetadataVersion(true, agent, invalidProject.handle, folder.name, 0, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             });
         });
@@ -1931,9 +1967,13 @@ describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/f
     it("Should give an error if the folder identified by foldername does not exist", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.itemRestoreMetadataVersion(true, agent, privateProject.handle, notFoundFolder.name, 0, function (err, res) {
-                res.statusCode.should.equal(500);
-                res.body.message.should.contain("Unable to retrieve version");
-                done();
+                res.statusCode.should.equal(404);
+                res.body.result.should.equal("not_found");
+                res.body.message.should.be.an('array');
+                res.body.message.length.should.equal(1);
+                res.body.message[0].should.contain("Resource not found at uri ");
+                res.body.message[0].should.contain(notFoundFolder.name);
+                res.body.message[0].should.contain(privateProject.handle);
             });
         });
     });
@@ -1994,7 +2034,7 @@ describe("[DELETE] [PUBLIC PROJECT] HARD DELETE /project/" + publicProject.handl
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             //jsonOnly, agent, projectHandle, itemPath, cb
             itemUtils.deleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             }, true);
         });
@@ -2004,7 +2044,7 @@ describe("[DELETE] [PUBLIC PROJECT] HARD DELETE /project/" + publicProject.handl
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             //jsonOnly, agent, projectHandle, itemPath, cb
             itemUtils.deleteItem(true, agent, publicProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.contain("Unable to retrieve resource");
                 done();
             }, true);
@@ -2077,7 +2117,7 @@ describe("[DELETE] [METADATA ONLY PROJECT] HARD DELETE /project/" + metadataOnly
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             //jsonOnly, agent, projectHandle, itemPath, cb
             itemUtils.deleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             }, true);
         });
@@ -2087,7 +2127,7 @@ describe("[DELETE] [METADATA ONLY PROJECT] HARD DELETE /project/" + metadataOnly
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             //jsonOnly, agent, projectHandle, itemPath, cb
             itemUtils.deleteItem(true, agent, metadataOnlyProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.contain("Unable to retrieve resource");
                 done();
             }, true);
@@ -2160,7 +2200,7 @@ describe("[DELETE] [PRIVATE PROJECT] HARD DELETE /project/" + privateProject.han
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             //jsonOnly, agent, projectHandle, itemPath, cb
             itemUtils.deleteItem(true, agent, invalidProject.handle, folder.name, function (err, res) {
-                res.statusCode.should.equal(401);
+                res.statusCode.should.equal(404);
                 done();
             }, true);
         });
@@ -2170,7 +2210,7 @@ describe("[DELETE] [PRIVATE PROJECT] HARD DELETE /project/" + privateProject.han
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             //jsonOnly, agent, projectHandle, itemPath, cb
             itemUtils.deleteItem(true, agent, privateProject.handle, notFoundFolder.name, function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.contain("Unable to retrieve resource");
                 done();
             }, true);

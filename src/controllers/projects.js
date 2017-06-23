@@ -7,7 +7,7 @@ const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
 const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Permissions = require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
@@ -1217,29 +1217,41 @@ exports.recent_changes = function(req, res) {
     else
     {
         //const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
-
-
-        Project.findByUri(req.params.requestedResourceUri, function(err, project){
+        InformationElement.findByUri(req.params.requestedResourceUri, function(err, fileOrFolder){
             if(!err)
             {
-                if(!isNull(project))
+                if(!isNull(fileOrFolder) && fileOrFolder instanceof InformationElement)
                 {
                     const offset = parseInt(req.query.offset);
                     const limit = parseInt(req.query.limit);
 
-                    project.getRecentProjectWideChanges(function(err, changes){
-                        if(!err)
+                    fileOrFolder.getOwnerProject(function(err, project){
+                        if(isNull(err) && !isNull(project) && project instanceof Project)
                         {
-                            res.json(changes);
+                            project.getRecentProjectWideChanges(function(err, changes){
+                                if(!err)
+                                {
+                                    res.json(changes);
+                                }
+                                else
+                                {
+                                    res.status(500).json({
+                                        result : "error",
+                                        message : "Error getting recent changes from project : " + project.ddr.humanReadableURI + " : " + changes
+                                    });
+                                }
+                            },offset , limit);
                         }
                         else
                         {
                             res.status(500).json({
                                 result : "error",
-                                message : "Invalid project : " + requestedProjectURI + " : " + project
+                                message : "Error occurred while trying to get the owner project of resource : " + requestedProjectURI + " : " + project
                             });
                         }
-                    },offset , limit);
+                    });
+
+
                 }
                 else
                 {

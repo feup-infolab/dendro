@@ -60,6 +60,12 @@ describe("Public project testFolder1 level recent changes", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemRecentChanges(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
                     res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(testFolder1.name);
+                    res.body.message[0].should.contain(invalidProject.handle);
                     done();
                 });
             });
@@ -100,7 +106,7 @@ describe("Public project testFolder1 level recent changes", function () {
                 //jsonOnly, agent, projectHandle, itemPath, cb
                 itemUtils.getItemRecentChanges(true, agent, publicProject.handle, folderForDemouser2.name, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body[0].changes.length.should.equal(1);//The abstract descriptor
+                    res.body[0].changes.length.should.equal(3);//The abstract, title and creator descriptors
                     done();
                 });
             });

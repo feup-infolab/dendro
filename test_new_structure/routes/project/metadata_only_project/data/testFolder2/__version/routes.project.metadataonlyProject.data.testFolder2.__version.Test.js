@@ -56,7 +56,13 @@ describe("Metadata only project testFolder2 level ?version", function () {
         it("Should give an error if the project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, invalidProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(testFolder2.name);
+                    res.body.message[0].should.contain(invalidProject.handle);
                     done();
                 });
             });
@@ -65,7 +71,13 @@ describe("Metadata only project testFolder2 level ?version", function () {
         it("Should give an error if the folder identified by foldername does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, metadataProject.handle, notFoundFolder.name, notFoundFolder.version, function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(notFoundFolder.name);
+                    res.body.message[0].should.contain(metadataProject.handle);
                     done();
                 });
             });
@@ -84,7 +96,7 @@ describe("Metadata only project testFolder2 level ?version", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder2.name, testFolder2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(7);
+                    res.body.descriptors.length.should.equal(8);
                     done();
                 });
             });
@@ -94,7 +106,7 @@ describe("Metadata only project testFolder2 level ?version", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, metadataProject.handle, folderForDemouser2.name, folderForDemouser2.version, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.body.descriptors.length.should.equal(7);
+                    res.body.descriptors.length.should.equal(8);
                     done();
                 });
             });
@@ -103,7 +115,7 @@ describe("Metadata only project testFolder2 level ?version", function () {
         it("Should give an error if no version is specified", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemVersion(true, agent, metadataProject.handle, testFolder2.name, null, function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(405);
                     done();
                 });
             });

@@ -47,10 +47,10 @@ describe("Public project testFolder1 level update_metadata", function () {
         it("Should give an error message when a project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.updateItemMetadata(true, agent, invalidProject.handle, testFolder1.name, testFolder1.metadata, function (err, res) {
-                    res.statusCode.should.equal(401);
+                    res.statusCode.should.equal(404);
                     //jsonOnly, agent, projectHandle, itemPath, cb
                     itemUtils.getItemMetadata(true, agent, invalidProject.handle, testFolder1.name, function (error, response) {
-                        response.statusCode.should.equal(500);
+                        response.statusCode.should.equal(404);
                         done();
                     });
                 });
@@ -63,7 +63,7 @@ describe("Public project testFolder1 level update_metadata", function () {
                     res.statusCode.should.equal(404);
                     //jsonOnly, agent, projectHandle, itemPath, cb
                     itemUtils.getItemMetadata(true, agent, publicProject.handle, notFoundFolder.name, function (error, response) {
-                        response.statusCode.should.equal(500);
+                        response.statusCode.should.equal(404);
                         done();
                     });
                 });

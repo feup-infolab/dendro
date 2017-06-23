@@ -125,6 +125,8 @@ InformationElement.getType = function(resourceURI, callback)
         });
 };
 
+
+
 InformationElement.prototype.getParent = function(callback)
 {
     const self = this;
@@ -226,17 +228,18 @@ InformationElement.prototype.getOwnerProject = function(callback)
     const self = this;
 
     /**
-* Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
-* (Recursive querying through inference).
-* @type {string}
-*/
+    *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+    *    (Recursive querying through inference).
+    *   @type {string}
+    */
     const query =
         "SELECT ?uri \n" +
         "FROM [0] \n" +
         "WHERE \n" +
-        "{ " +
-        "[1] nie:isLogicalPartOf+ ?uri. " +
-        "?uri rdf:type ddr:Project. " +
+        "{ \n" +
+        "   [1] nie:isLogicalPartOf+ ?rootFolder. \n" +
+        "   ?uri ddr:rootFolder ?rootFolder. \n" +
+        "   ?uri rdf:type ddr:Project \n" +
         "} ";
 
     db.connection.execute(query,
@@ -255,9 +258,8 @@ InformationElement.prototype.getOwnerProject = function(callback)
             {
                 if(result instanceof Array && result.length === 1)
                 {
-                    var result = result[0];
                     const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-                    const parent = new Project(result);
+                    const parent = new Project(result[0]);
                     return callback(null,parent);
                 }
                 else

@@ -787,7 +787,7 @@ Resource.prototype.save = function
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const now = new Date();
-    self.dcterms.modified = now.toISOString();
+    self.ddr.modified = now.toISOString();
 
     const validateValues = function (cb) {
         if (isNull(self.uri)) {
@@ -836,16 +836,17 @@ Resource.prototype.save = function
                      * audit information, produced automatically, so they are
                      * changed without record**/
 
+                    let excludeAuditDescriptorsArray;
                     if (descriptorsToExcludeFromChangeLog instanceof Array) {
-                        var excludeAuditDescriptorsArray = descriptorsToExcludeFromChangeLog.concat([Config.types.audit]);
+                        excludeAuditDescriptorsArray = descriptorsToExcludeFromChangeLog.concat([Config.types.audit]);
                     }
                     else {
-                        var excludeAuditDescriptorsArray = [Config.types.audit];
+                        excludeAuditDescriptorsArray = [Config.types.audit];
                     }
 
                     if (changedDescriptor.isAuthorized(excludeAuditDescriptorsArray, descriptorsToExceptionFromChangeLog)) {
                         change.ddr.pertainsTo = archivedResource.uri;
-                        change.uri = archivedResource.uri + "/change/" + change.ddr.changeIndex;
+                        change.ddr.humanReadableURI = archivedResource.uri + "/change/" + change.ddr.changeIndex;
                         change.save(function (err, result) {
                             cb(err, result);
                         });
@@ -1726,9 +1727,9 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
         "SELECT ?uri ?version_number\n" +
         "WHERE \n" +
         "{ \n" +
-        "?uri rdf:type ddr:ArchivedResource. \n" +
-        "?uri ddr:isVersionOf [1]. \n" +
-        "?uri ddr:versionNumber ?version_number. \n" +
+        "   ?uri rdf:type ddr:ArchivedResource. \n" +
+        "   ?uri ddr:isVersionOf [1]. \n" +
+        "   ?uri ddr:versionNumber ?version_number. \n" +
         "}\n" +
         "ORDER BY DESC(?version_number)\n";
 
@@ -1860,7 +1861,7 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
     });
 };
 
-var groupPropertiesArrayIntoObject = function(results)
+const groupPropertiesArrayIntoObject = function(results)
 {
     let properties = null;
 
@@ -1941,7 +1942,7 @@ Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptor
 };
 
 /**
- * Calculates the differences between the data objects in this resource and the one supplied as an argument
+ * Calculates the differences between the descriptors in this resource and the one supplied as an argument
  * @param anotherResource
  */
 Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptorsToExclude)
@@ -1967,22 +1968,31 @@ Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptors
             }
         );
 
-        if (!isNull(descriptorsToExclude)) {
-            for (let i = 0; i < descriptorsToExclude.length; i++) {
-                const descriptorType = descriptorsToExclude[i];
-                if (d[descriptorType]) {
-                    return deltas;
-                }
+        if (!isNull(descriptorsToExclude))
+        {
+            if (!Descriptor.isAuthorized(prefix, shortName, descriptorsToExclude))
+            {
+                return deltas;
             }
         }
+
+        // if (!isNull(descriptorsToExclude))
+        // {
+        //     for (let i = 0; i < descriptorsToExclude.length; i++) {
+        //         const descriptorType = descriptorsToExclude[i];
+        //         if (d[descriptorType]) {
+        //              return deltas;
+        //         }
+        //     }
+        // }
 
         const Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
 
         const newChange = new Change({
             ddr: {
                 changedDescriptor: d.uri,
-                oldValue: left,
-                newValue: right,
+                oldValue: oldValue,
+                newValue: newValue,
                 changeType: changeType,
                 changeIndex: changeIndex
             }
@@ -1992,99 +2002,102 @@ Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptors
         return deltas;
     };
 
-    for(var i = 0; i < ontologies.length; i++)
+    for(let i = 0; i < ontologies.length; i++)
     {
-        var prefix = ontologies[i];
+        let prefix = ontologies[i];
         const descriptors = Elements[prefix];
 
         for(let descriptor in descriptors)
         {
-            /*
-            left = current
-            right = new
-             */
-            var left = self[prefix][descriptor];
-            var right = newResource[prefix][descriptor];
-
-            if(isNull(left) && !isNull(right))
+            if(descriptors.hasOwnProperty(descriptor) && Descriptor.isAuthorized(prefix, descriptor, descriptorsToExclude))
             {
-                deltas = pushDelta(deltas, prefix, descriptor, left, right, "add", changeIndex++);
-            }
-            else if(!isNull(left) && isNull(right))
-            {
-                deltas = pushDelta(deltas, prefix, descriptor, left, right, "delete", changeIndex++);
-            }
-            else if(!isNull(left) && !isNull(right))
-            {
-                if(instanceOfBaseType(right) && left instanceof Array)
-                {
-                    var intersection = _.intersection([right], left);
+                /*
+                 oldValue = current
+                 newValue = new
+                 */
+                let oldValue = self[prefix][descriptor];
+                let newValue = newResource[prefix][descriptor];
 
-                    if(intersection.length === 0)
-                    {
-                        deltas = pushDelta(deltas, prefix, descriptor, left, right, "delete_edit", changeIndex++);
-                    }
-                    else
-                    {
-                        deltas = pushDelta(deltas, prefix, descriptor, left, right, "delete", changeIndex++);
-                    }
+                if(isNull(oldValue) && !isNull(newValue))
+                {
+                    deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "add", changeIndex++);
                 }
-                else if(right instanceof Array && instanceOfBaseType(left))
+                else if(!isNull(oldValue) && isNull(newValue))
                 {
-                    var intersection = _.intersection([left], right);
-
-                    if(intersection.length === 0)
-                    {
-                        deltas = pushDelta(deltas, prefix, descriptor, left, right, "add_edit", changeIndex++);
-                    }
-                    else
-                    {
-                        deltas = pushDelta(deltas, prefix, descriptor, left, right, "add", changeIndex++);
-                    }
-
+                    deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "delete", changeIndex++);
                 }
-                else if(instanceOfBaseType(left) && instanceOfBaseType(right))
+                else if(!isNull(oldValue) && !isNull(newValue))
                 {
-                    if(!(left === right))
+                    if(instanceOfBaseType(newValue) && oldValue instanceof Array)
                     {
-                        deltas = pushDelta(deltas, prefix, descriptor, left, right, "edit", changeIndex++);
-                    }
-                }
-                else if(left instanceof Array && right instanceof Array)
-                {
-                    if(left.length === right.length)
-                    {
-                        var intersection = _.intersection(right, left);
+                        let intersection = _.intersection([newValue], oldValue);
 
-                        if(intersection.length !== left.length || intersection.length !== right.length)
+                        if(intersection.length === 0)
                         {
-                            deltas = pushDelta(deltas, prefix, descriptor, left, right, "edit", changeIndex++);
-                        }
-                    }
-                    else if(left.length < right.length)
-                    {
-                        var intersection = _.intersection(right, left);
-
-                        if(intersection.length < left.length)
-                        {
-                            deltas = pushDelta(deltas, prefix, descriptor, left, right, "add_edit", changeIndex++);
+                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "delete_edit", changeIndex++);
                         }
                         else
                         {
-                            deltas = pushDelta(deltas, prefix, descriptor, left, right, "add", changeIndex++);
+                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "delete", changeIndex++);
                         }
                     }
-                    else if(left.length > right.length)
+                    else if(newValue instanceof Array && instanceOfBaseType(oldValue))
                     {
-                        var intersection = _.intersection(right, left);
+                        let intersection = _.intersection([oldValue], newValue);
 
-                        if(intersection.length < right.length)
+                        if(intersection.length === 0)
                         {
-                            deltas = pushDelta(deltas, prefix, descriptor, left, right, "delete_edit", changeIndex++);
+                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "add_edit", changeIndex++);
                         }
                         else
                         {
-                            deltas = pushDelta(deltas, prefix, descriptor, left, right, "delete", changeIndex++);
+                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "add", changeIndex++);
+                        }
+
+                    }
+                    else if(instanceOfBaseType(oldValue) && instanceOfBaseType(newValue))
+                    {
+                        if(!(oldValue === newValue))
+                        {
+                            deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "edit", changeIndex++);
+                        }
+                    }
+                    else if(oldValue instanceof Array && newValue instanceof Array)
+                    {
+                        if(oldValue.length === newValue.length)
+                        {
+                            let intersection = _.intersection(newValue, oldValue);
+
+                            if(intersection.length !== oldValue.length || intersection.length !== newValue.length)
+                            {
+                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "edit", changeIndex++);
+                            }
+                        }
+                        else if(oldValue.length < newValue.length)
+                        {
+                            let intersection = _.intersection(newValue, oldValue);
+
+                            if(intersection.length < oldValue.length)
+                            {
+                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "add_edit", changeIndex++);
+                            }
+                            else
+                            {
+                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "add", changeIndex++);
+                            }
+                        }
+                        else if(oldValue.length > newValue.length)
+                        {
+                            let intersection = _.intersection(newValue, oldValue);
+
+                            if(intersection.length < newValue.length)
+                            {
+                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "delete_edit", changeIndex++);
+                            }
+                            else
+                            {
+                                deltas = pushDelta(deltas, prefix, descriptor, oldValue, newValue, "delete", changeIndex++);
+                            }
                         }
                     }
                 }

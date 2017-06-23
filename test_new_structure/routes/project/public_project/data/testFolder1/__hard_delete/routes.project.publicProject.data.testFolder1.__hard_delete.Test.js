@@ -48,7 +48,7 @@ describe("Public project testFolder1 level hard delete tests", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, agent, projectHandle, itemPath, cb
                 itemUtils.deleteItem(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
-                    res.statusCode.should.equal(401);
+                    res.statusCode.should.equal(404);
                     done();
                 }, true);
             });
@@ -58,8 +58,13 @@ describe("Public project testFolder1 level hard delete tests", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 //jsonOnly, agent, projectHandle, itemPath, cb
                 itemUtils.deleteItem(true, agent, publicProject.handle, notFoundFolder.name, function (err, res) {
-                    res.statusCode.should.equal(500);
-                    res.body.message.should.contain("Unable to retrieve resource");
+                    res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(notFoundFolder.name);
+                    res.body.message[0].should.contain(publicProject.handle);
                     done();
                 }, true);
             });

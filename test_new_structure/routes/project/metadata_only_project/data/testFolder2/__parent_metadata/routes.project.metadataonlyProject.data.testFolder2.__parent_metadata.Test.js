@@ -98,12 +98,12 @@ describe("Metadata only project testFolder2 level parent_metadata tests", functi
         });
     });
 
-    describe(invalidProject.handle + "/data/" + testFolder2.name +"?parent_metadata (non-existant project)", function ()
+    describe(metadataProject.handle + "/data/" + testFolder2.name +"?parent_metadata (non-existant project)", function ()
     {
         it('[HTML] should refuse request if Accept application/json was not specified', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemParentMetadata(false, agent, invalidProject.handle, testFolder2.name, function (err, res) {
+                itemUtils.getItemParentMetadata(false, agent, metadataProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
                     done();
@@ -117,7 +117,14 @@ describe("Metadata only project testFolder2 level parent_metadata tests", functi
                 itemUtils.getItemParentMetadata(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
-                    res.body.message.should.contain("Unable to retrieve resource");
+                    should.not.exist(res.body.hasLogicalParts);
+
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(testFolder2.name);
+                    res.body.message[0].should.contain(invalidProject.handle);
                     done();
                 });
             });

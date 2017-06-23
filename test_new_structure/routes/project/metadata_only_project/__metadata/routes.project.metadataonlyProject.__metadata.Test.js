@@ -123,6 +123,12 @@ describe("Metadata only project level metadata tests", function () {
                     res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
                     should.not.exist(res.body.hasLogicalParts);//The hasLogicalParts array in the body response should only be present in the metadata&deep request
+
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(invalidProject.handle);
                     done();
                 });
             });

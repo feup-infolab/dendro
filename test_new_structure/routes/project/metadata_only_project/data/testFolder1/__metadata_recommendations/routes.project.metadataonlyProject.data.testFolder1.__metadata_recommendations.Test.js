@@ -102,12 +102,12 @@ describe("Metadata only project testFolder1 level metadata_recommendations tests
         });
     });
 
-    describe(invalidProject.handle + "/data/" + testFolder1.name +"?metadata_recommendations", function ()
+    describe(metadataProject.handle + "/data/" + testFolder1.name +"?metadata_recommendations", function ()
     {
         it('[HTML] should refuse the request if "application/json" Accept header is absent', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemMetadataRecommendations(false, agent, invalidProject.handle, testFolder1.name, function (err, res) {
+                itemUtils.getItemMetadataRecommendations(false, agent, metadataProject.handle, testFolder1.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     should.not.exist(res.body.descriptors);
                     done();

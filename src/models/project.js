@@ -51,12 +51,6 @@ function Project(object)
     return self;
 }
 
-Project.prototype.rootFolder = function(callback)
-{
-    const self = this;
-    return db.baseURI + "/project/" + self.ddr.handle + "/data";
-};
-
 Project.prototype.delete = function(callback)
 {
     const self = this;
@@ -615,11 +609,19 @@ Project.createAndInsertFromObject = function(object, callback) {
     });
 };
 
+Project.prototype.getRootFolder = function(callback)
+{
+    const self = this;
+    const folderUri = self.ddr.rootFolder;
+
+    Folder.findByUri(folderUri, callback);
+};
+
 Project.prototype.getFirstLevelDirectoryContents = function(callback)
 {
     const self = this;
 
-    self.rootFolder(function(err, folder){
+    self.getRootFolder(function(err, folder){
         if(!err && !isNull(folder))
         {
             folder.getLogicalParts(function(err, children){

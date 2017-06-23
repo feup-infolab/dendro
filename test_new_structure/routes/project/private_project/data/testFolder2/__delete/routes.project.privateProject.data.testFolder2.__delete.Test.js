@@ -47,7 +47,7 @@ describe("Private project testFolder2 level delete tests", function () {
         it("Should give an error message when the project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.deleteItem(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
-                    res.statusCode.should.equal(401);
+                    res.statusCode.should.equal(404);
                     done();
                 });
             });
@@ -56,8 +56,13 @@ describe("Private project testFolder2 level delete tests", function () {
         it("Should give an error message when the folder does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.deleteItem(true, agent, privateProject.handle, notFoundFolder.name, function (err, res) {
-                    res.statusCode.should.equal(500);
-                    res.body.message.should.contain("Unable to retrieve resource");
+                    res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(notFoundFolder.name);
+                    res.body.message[0].should.contain(privateProject.handle);
                     done();
                 });
             });

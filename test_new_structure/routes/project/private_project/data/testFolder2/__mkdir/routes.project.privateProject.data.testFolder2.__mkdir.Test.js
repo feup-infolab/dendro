@@ -93,7 +93,7 @@ describe("Private project testFolder2 level ?mkdir", function () {
         it("Should give an error if an invalid folder parent is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.createFolder(true, agent, privateProject.handle, "*invalidFolder", folder.name, function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(404);
                     done();
                 });
             });
@@ -102,7 +102,7 @@ describe("Private project testFolder2 level ?mkdir", function () {
         it("Should give an error if an invalid project is specified for the folder, even if the user is logged in as a creator or collaborator on the project", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.createFolder(true, agent, "unKnownProjectHandle", testFolder2.name, folder.name, function (err, res) {
-                    res.statusCode.should.equal(401);
+                    res.statusCode.should.equal(404);
                     done();
                 });
             });

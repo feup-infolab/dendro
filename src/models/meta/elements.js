@@ -181,9 +181,6 @@ Elements.dcterms =
     {
         type : DbConnection.date,
         control : Config.controls.date_picker,
-        locked : true,
-        api_readable : true,
-        audit : true
     },
     provenance :
     {
@@ -642,6 +639,15 @@ Elements.foaf =
  */
 
 Elements.ddr = {
+    modified :
+    {
+        type : DbConnection.string,
+        control : Config.controls.input_box,
+        private : true,
+        locked : true,
+        api_readable : true,
+        audit : true
+    },
     humanReadableURI :  {
         type : DbConnection.string,
         control : Config.controls.input_box,

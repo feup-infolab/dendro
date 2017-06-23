@@ -98,12 +98,12 @@ describe("Private project testFolder2 level metadata tests", function () {
         });
     });
 
-    describe("/project/NON_EXISTENT_PROJECT" + "/data/" + testFolder2.name + "?metadata (non-existant project)", function ()
+    describe("/project/"+  privateProject.handle + "/data/" + testFolder2.name + "?metadata (non-existant project)", function ()
     {
         it('[HTML] should refuse request if Accept application/json was not specified', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                itemUtils.getItemMetadata(false, agent, invalidProject.handle, testFolder2.name, function (err, res) {
+                itemUtils.getItemMetadata(false, agent, privateProject.handle, testFolder2.name, function (err, res) {
                     res.statusCode.should.equal(400);
                     res.body.message.should.equal("HTML Request not valid for this route.");
                     should.not.exist(res.body.descriptors);
@@ -112,12 +112,20 @@ describe("Private project testFolder2 level metadata tests", function () {
             });
         });
 
-        it('[JSON] should give a 500 because the project NON_EXISTENT_PROJECT does not exist', function (done)
+        it('[JSON] should give a 404 because the project NON_EXISTENT_PROJECT does not exist', function (done)
         {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemMetadata(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(404);
                     should.not.exist(res.body.descriptors);
+                    should.not.exist(res.body.hasLogicalParts);
+
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(testFolder2.name);
+                    res.body.message[0].should.contain(invalidProject.handle);
                     done();
                 });
             });

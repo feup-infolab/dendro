@@ -219,7 +219,7 @@ describe("[POST] [B2SHARE] /project/:handle/data/:foldername?export_to_repositor
             //jsonOnly, projectHandle, folderPath, agent, exportData, cb
             datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, createdUnknownRepo, function (err, res) {
                 console.log(res);
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.equal("Invalid target repository");
                 done();
             });
@@ -317,7 +317,7 @@ describe("[POST] [ZENODO] /project/:handle/data/:foldername?export_to_repository
             //jsonOnly, projectHandle, folderPath, agent, exportData, cb
             datasetUtils.exportFolderToRepository(true, publicProject.handle, mockFolder.pathInProject + mockFolder.name, agent, createdUnknownRepo, function (err, res) {
                 console.log(res);
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(404);
                 res.body.message.should.equal("Invalid target repository");
                 done();
             });

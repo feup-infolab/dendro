@@ -46,8 +46,13 @@ describe("Metadata only project testFolder1 level ?change_log", function () {
         it("Should give an error if the project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemChangeLog(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
+                    res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(testFolder1.name);
+                    res.body.message[0].should.contain(invalidProject.handle);
                     done();
                 });
             });
@@ -56,8 +61,13 @@ describe("Metadata only project testFolder1 level ?change_log", function () {
         it("Should give an error if the folder identified by foldername does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.getItemChangeLog(true, agent, metadataProject.handle, notFoundFolder.name, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.redirects.length.should.equal(1);//this is an error case but the error response is sent as an html as a redirect with the flash message which is not accessible by the html response
+                    res.statusCode.should.equal(404);
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri ");
+                    res.body.message[0].should.contain(notFoundFolder.name);
+                    res.body.message[0].should.contain(metadataProject.handle);
                     done();
                 });
             });

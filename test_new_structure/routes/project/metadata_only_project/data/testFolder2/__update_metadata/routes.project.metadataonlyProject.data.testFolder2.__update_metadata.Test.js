@@ -46,10 +46,10 @@ describe("Metadata only project testFolder2 level update_metadata", function () 
         it("Should give an error message when a project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.updateItemMetadata(true, agent, invalidProject.handle, testFolder2.name, testFolder2.metadata, function (err, res) {
-                    res.statusCode.should.equal(401);
+                    res.statusCode.should.equal(404);
                     //jsonOnly, agent, projectHandle, itemPath, cb
                     itemUtils.getItemMetadata(true, agent, invalidProject.handle, testFolder2.name, function (error, response) {
-                        response.statusCode.should.equal(500);
+                        response.statusCode.should.equal(404);
                         done();
                     });
                 });
@@ -62,7 +62,7 @@ describe("Metadata only project testFolder2 level update_metadata", function () 
                     res.statusCode.should.equal(404);
                     //jsonOnly, agent, projectHandle, itemPath, cb
                     itemUtils.getItemMetadata(true, agent, metadataProject.handle, notFoundFolder.name, function (error, response) {
-                        response.statusCode.should.equal(500);
+                        response.statusCode.should.equal(404);
                         done();
                     });
                 });
