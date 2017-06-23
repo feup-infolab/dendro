@@ -1,18 +1,28 @@
 <div class="panel-body">
     <div class="media">
-        <div class="media-left" style="font-size: 90%; margin-bottom: 0%; padding-right: 5%">
+        <!--<div class="media-left" style="font-size: 90%; margin-bottom: 0%; padding-right: 5%">
             <div> <p style="margin-bottom: 0%"> In <a ng-href="{{postsContents[postUri].ddr.projectUri}}"> {{postsContents[postUri].ddr.projectUri.split("/").pop()}} </a> </p> </div>
             <p style="margin-bottom: 0%; font-style: italic;">{{postsContents[postUri].dcterms.modified | date : "dd/MMM/yyyy"}}</p>
             <div><p style="margin-bottom: 0%"><em><img width="15%" height="15%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a> </em></p></div>
-            <!--<span style="font-size:7em;margin-bottom: 0%" class="glyphicon glyphicon-folder-close fa-5x" aria-hidden="true"></span>-->
+            &lt;!&ndash;<span style="font-size:7em;margin-bottom: 0%" class="glyphicon glyphicon-folder-close fa-5x" aria-hidden="true"></span>&ndash;&gt;
             <img style="padding-left: 25%; margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">
-            <!--<span style="font-size:7em;margin: 0%"> <img width="100%" height="100%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail&size=image"> </span>-->
-            <!--/project/testproject/data/backup_cenas.txt?thumbnail&size=icon-->
+            &lt;!&ndash;<span style="font-size:7em;margin: 0%"> <img width="100%" height="100%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail&size=image"> </span>&ndash;&gt;
+            &lt;!&ndash;/project/testproject/data/backup_cenas.txt?thumbnail&size=icon&ndash;&gt;
             <a class="text-center" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>
+        </div>-->
+
+        <div class="media-left">
+            <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>
         </div>
 
 
         <!--<p> {{postsContents[postUri]}}</p>-->
+
+        <div class="media-left text-center" style="padding: 2%">
+            <!--<img style="padding-left: 25%; margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">-->
+            <img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">
+            <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>
+        </div>
 
         <div class="media-body text-center" style="padding: 5%">
             <!--{{postsContents[postUri]}}-->

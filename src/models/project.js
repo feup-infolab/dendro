@@ -602,6 +602,42 @@ Project.createAndInsertFromObject = function(object, callback) {
     });
 };
 
+Project.prototype.isUserACreatorOrContributor = function (userUri, callback) {
+    var self = this;
+    var query =
+        "SELECT ?property \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        " [1] rdf:type ddr:Project . "+
+        " [1] ?property [2] \n"+
+        "} \n";
+
+    db.connection.execute(query,
+        [
+            {
+                type : DbConnection.resourceNoEscape,
+                value : db.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : self.uri
+            },
+            {
+                type : DbConnection.resource,
+                value : userUri
+            }
+        ],
+        function(err, properties) {
+            if(err)
+            {
+                var errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(properties);
+                console.error(errorMsg);
+
+            }
+            callback(err, properties);
+        });
+};
+
 Project.prototype.getFirstLevelDirectoryContents = function(callback)
 {
     var self = this;

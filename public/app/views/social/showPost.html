@@ -24,7 +24,6 @@
     </div>
 
     <div ng-if="postsContents[postUri].rdf.type == 'http://dendro.fe.up.pt/ontology/0.1/ManualPost'">
-        <p> É um manualpost </p>
         <ng-include src="'/app/views/social/partial/showManualPost.html'" onload="postUri = postUri;"></ng-include>
     </div>
 

@@ -1,6 +1,7 @@
 var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 var Post = require('../models/social/post.js').Post;
 var MetadataChangePost = require('../models/social/metadataChangePost').MetadataChangePost;
+var ManualPost = require("../models/social/manualPost").ManualPost;
 var FileSystemPost = require('../models/social/fileSystemPost').FileSystemPost;
 var Like = require('../models/social/like.js').Like;
 var Notification = require('../models/notifications/notification.js').Notification;
@@ -351,53 +352,97 @@ function pingNewPosts(sessionUser, cb) {
 }
 
 exports.new = function(req, res){
-    /*
-     var currentUser = req.session.user;
+    let currentUserUri = req.session.user.uri;
+    if(req.body.newPostContent !==null && req.body.newPostTitle !==null && req.body.newPostProjectUri !==null)
+    {
+        Project.findByUri(req.body.newPostProjectUri, function (err, project) {
+            if(!err && project)
+            {
+                project.isUserACreatorOrContributor(currentUserUri, function (err, results) {
+                    if(!err)
+                    {
+                        if(Array.isArray(results) && results.length > 0)
+                        {
+                            //is a creator or contributor
+                            //HERE BRO
+                            let postInfo = {
+                                title : req.body.newPostTitle,
+                                body : req.body.newPostContent
+                            };
 
-     if(req.body.new_post_content != null)
-     {
-     var newPost = new Post({
-     ddr: {
-     hasContent: req.body.new_post_content
-     },
-     dcterms: {
-     creator : currentUser.uri
-     }
-     });
-
-     newPost.save(function(err, post)
-     {
-     if (!err)
-     {
-     res.json({
-     result : "OK",
-     message : "Post saved successfully"
-     });
-     }
-     else
-     {
-     res.status(500).json({
-     result: "Error",
-     message: "Error saving post. " + JSON.stringify(post)
-     });
-     }
-     }, false, null, null, null, null, db_social.graphUri);
-     }
-     else
-     {
-     res.status(400).json({
-     result: "Error",
-     message: "Error saving post. The request body does not contain the content of the new post (new_body_content field missing)"
-     });
-     }*/
-    var cenas = 'http://127.0.0.1:3001/posts/34240860-82bd-47c9-95fe-5b872451844d';
-    getNumLikesForAPost(cenas, function (err, data) {
-        /*
-         res.json({
-         result : "OK",
-         message : "Post liked successfully"
-         });*/
-    });
+                            ManualPost.buildManualPost(currentUserUri, project, postInfo, function (err, manualPost) {
+                                if(!err && manualPost!==null)
+                                {
+                                    manualPost.save(function (err, result) {
+                                        if(!err)
+                                        {
+                                            res.status(200).json({
+                                                result : "OK",
+                                                message : "Manual Post " + manualPost.uri + " successfully created"
+                                            });
+                                        }
+                                        else
+                                        {
+                                            let errorMsg = "[Error] When saving a new manual post" + JSON.stringify(result);
+                                            console.error(errorMsg);
+                                            res.status(500).json({
+                                                result: "Error",
+                                                message: errorMsg
+                                            });
+                                        }
+                                    }, false, null, null, null, null, db_social.graphUri);
+                                }
+                                else
+                                {
+                                    let errorMsg = "[Error] When creating a new manual post" + JSON.stringify(manualPost);
+                                    console.error(errorMsg);
+                                    res.status(500).json({
+                                        result: "Error",
+                                        message: errorMsg
+                                    });
+                                }
+                            });
+                        }
+                        else
+                        {
+                            //is not a creator or contributor -> reject post creation
+                            let errorMsg = "You are not creator or contributor of this Project";
+                            res.status(401).json({
+                                result: "Error",
+                                message: errorMsg
+                            });
+                        }
+                    }
+                    else
+                    {
+                        let errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(results);
+                        res.status(500).json({
+                            result: "Error",
+                            message: errorMsg
+                        });
+                    }
+                });
+            }
+            else
+            {
+                let errorMsg = "[Error]: This project does not exist: " + JSON.stringify(project);
+                console.error(errorMsg);
+                res.status(404).json({
+                    result: "Error",
+                    message: errorMsg
+                });
+            }
+        }, null, db.graphUri, false, null, null);
+    }
+    else
+    {
+        let errorMsg = "Error saving post. The request body is missing a parameter(REQUIRED 'newPostContent'; 'newPostTitle', 'newPostProjectUri')";
+        console.error(errorMsg);
+        res.status(400).json({
+            result: "Error",
+            message: errorMsg
+        });
+    }
 };
 
 

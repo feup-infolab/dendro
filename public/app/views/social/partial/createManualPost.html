@@ -1,13 +1,14 @@
 <div id="createManualPost">
     <div class="panel panel-default">
         <div class="panel-heading text-center">
-                <h3 class="panel-title"> <span class="label label-success">Create a new Manual Post</span> </h3>
+            <!--<h3 class="panel-title"> <span class="label label-success">Create a new Manual Post</span> </h3>-->
+            <!--<h3 class="panel-title"> <button class="label label-success" ng-click="showCreateNewManualPost = !showCreateNewManualPost;">What are you thinking ?</button> </h3>-->
+            <h3 class="panel-title"> <button type="button" class="btn label-inverse" ng-click="showCreateNewManualPost = !showCreateNewManualPost;">What are you thinking ?</button> </h3>
         </div>
 
-        <div class="panel-body">
+        <div class="panel-body" ng-show="showCreateNewManualPost">
             <div class="media">
                 <div class="media-body" style="padding-right: 0%">
-
                     <div id="chooseProject" class="input-group-btn form-inline">
                         <select class="form-control" ng-init="projectChosen = userProjects[0]"
                                 ng-model="projectChosen"

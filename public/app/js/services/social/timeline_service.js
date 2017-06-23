@@ -60,12 +60,14 @@ angular.module('dendroApp.services')
             });
         };
 
-        this.new_post = function(new_post_content)
+        this.newPost = function(newPostTitle, newPostContent, newPostProjectUri)
         {
             var requestUri = "/posts/new";
 
             var params = {
-                new_post_content : new_post_content
+                newPostContent : newPostContent,
+                newPostTitle: newPostTitle,
+                newPostProjectUri: newPostProjectUri
             };
 
             return $http({

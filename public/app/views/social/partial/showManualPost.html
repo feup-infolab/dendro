@@ -1,10 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<!--
+<div>
+    <p> É um manualpost </p>
+    {{postsContents[postUri]}}
+</div>-->
 
-</body>
-</html>
+<div class="media">
+    <!--<div class="media-left">
+        <div class="text-center" style="display: inline-block;  border-color: #f5f5f5; border-right-style: solid">
+            <p style="margin-bottom: 0%; font-style: italic;">{{postsContents[postUri].dcterms.modified | date : "dd/MMM/yyyy"}}</p>
+            <p style="margin-bottom: 0%"> In {{postsContents[postUri].ddr.projectUri.split("/").pop()}}</p>
+            <img width="50%" height="50%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+            <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a>
+        </div>
+    </div>-->
+    <div class="media-left">
+        <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>
+    </div>
+    <div class="media-body text-justify" style="padding-left: 10%">
+        <p>{{postsContents[postUri].schema.sharedContent}}</p>
+    </div>
+</div>

@@ -15,6 +15,7 @@ angular.module('dendroApp.controllers')
 
         $scope.newPostTitlePlaceholder = "The title of your post";
         $scope.newPostContentPlaceholder = "Write your post here";
+        $scope.showCreateNewManualPost = false;
 
         $scope.userProjects = [
             {
@@ -35,10 +36,7 @@ angular.module('dendroApp.controllers')
 
 
         var cleanUserProjectsList = function () {
-            //$scope.userProjects = [];
-            //$scope.userProjects.push({name: 'Select the Project', value: 'selectTheProject-value'});
             $scope.userProjects.splice(1);
-            console.log("yay");
         };
 
         $scope.getUserProjects = function () {
@@ -54,7 +52,7 @@ angular.module('dendroApp.controllers')
                         $scope.userProjects.push(newProject);
                         return newProject;
                     });
-                    console.log("yay");
+                    return projects;
                 })
                 .catch(function (error) {
                     console.error("Error getting User Projects " + JSON.stringify(error));
@@ -257,6 +255,7 @@ angular.module('dendroApp.controllers')
         {
             if($scope.renderPosts)
             {
+                $scope.showCreateNewManualPost = false;
                 $scope.new_post_content = "";
                 $scope.commentList = [];
                 $scope.shareList = [];
@@ -265,8 +264,8 @@ angular.module('dendroApp.controllers')
                 $scope.posts = [];
                 $scope.likesPostInfo = [];
                 $scope.postsContents = [];
-                $scope.getUserProjects();
                 $scope.pageChangeHandler($scope.pagination.current);
+                $scope.getUserProjects();
             }
         };
 
@@ -370,7 +369,19 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.createNewManualPost = function (newPostTitle, newPostContent, projectUri) {
-            console.log("AT createNewManualPost");
+            $scope.doing_createNewPost = true;
+            timelineService.newPost(newPostTitle, newPostContent, projectUri)
+                .then(function (response) {
+                    $scope.show_popup(response.data.message);
+                    $scope.get_all_posts($scope.pagination.current);//TODO remove this function call???
+                    //$scope.initTimeline();
+                    $scope.doing_createNewPost = false;
+                })
+                .catch(function (error) {
+                    console.error("Error createNewManualPost" + JSON.stringify(error));
+                    $scope.show_popup(error);
+                    $scope.doing_createNewPost = false;
+                });
         };
 
         $scope.$on('tab_changed:timeline', function(event, args) {
@@ -384,4 +395,8 @@ angular.module('dendroApp.controllers')
             $scope.totalPosts = 0;
             $scope.renderPosts = false;
         });
+
+        $scope.cleanNewManualPostInterface = function () {
+
+        };
     });
