@@ -1226,27 +1226,37 @@ exports.recent_changes = function(req, res) {
                     const limit = parseInt(req.query.limit);
 
                     fileOrFolder.getOwnerProject(function(err, project){
-                        if(isNull(err) && !isNull(project) && project instanceof Project)
+                        if(isNull(err))
                         {
-                            project.getRecentProjectWideChanges(function(err, changes){
-                                if(!err)
-                                {
-                                    res.json(changes);
-                                }
-                                else
-                                {
-                                    res.status(500).json({
-                                        result : "error",
-                                        message : "Error getting recent changes from project : " + project.ddr.humanReadableURI + " : " + changes
-                                    });
-                                }
-                            },offset , limit);
+                            if(!isNull(project) && project instanceof Project)
+                            {
+                                project.getRecentProjectWideChanges(function(err, changes){
+                                    if(!err)
+                                    {
+                                        res.json(changes);
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json({
+                                            result : "error",
+                                            message : "Error getting recent changes from project : " + project.ddr.humanReadableURI + " : " + changes
+                                        });
+                                    }
+                                },offset , limit);
+                            }
+                            else
+                            {
+                                res.status(404).json({
+                                    result : "error",
+                                    message : "Unable to find owner project of : " + fileOrFolder.ddr.humanReadableURI
+                                });
+                            }
                         }
                         else
                         {
                             res.status(500).json({
                                 result : "error",
-                                message : "Error occurred while trying to get the owner project of resource : " + requestedProjectURI + " : " + project
+                                message : "Error occurred while trying to get the owner project of resource : " + req.params.requestedResourceUri + " : " + project
                             });
                         }
                     });
