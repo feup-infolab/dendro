@@ -1382,10 +1382,53 @@ exports.rm = function(req, res){
                                 file.delete(function(err, result){
                                     if(!err)
                                     {
-                                        res.status(200).json({
+                                        //TODO HERE CREATE A SOCIAL DENDRO POST
+                                        Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
+                                            if(!err)
+                                            {
+                                                FileSystemPost.buildFromDeleteFile(userUri, project.uri,file, function (error, fileSystemPost) {
+                                                    if(!error)
+                                                    {
+                                                        fileSystemPost.save(function (error, post) {
+                                                            if(!error)
+                                                            {
+                                                                res.status(200).json({
+                                                                    "result" : "success",
+                                                                    "message" : "Successfully deleted " + resourceToDelete
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+                                                                res.status(500).json({
+                                                                    result: "Error",
+                                                                    message: "Unable to save Social Dendro post from file system change to resource uri: " + file.uri + ". Error reported : " + error
+                                                                });
+                                                            }
+                                                        }, false, null, null, null, null, db_social.graphUri);
+                                                    }
+                                                    else
+                                                    {
+                                                        res.status(500).json({
+                                                            result: "Error",
+                                                            message: "Unable to create Social Dendro post from file system change to resource uri: " + file.uri + ". Error reported : " + error
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                            else
+                                            {
+                                                let error =  "Unable to find the project where the resource " + file.uri + " is located";
+                                                console.error(error);
+                                                res.status(404).json({
+                                                    result : "Error",
+                                                    message : error
+                                                });
+                                            }
+                                        });
+                                        /*res.status(200).json({
                                             "result" : "success",
                                             "message" : "Successfully deleted " + resourceToDelete
-                                        });
+                                        });*/
                                     }
                                     else
                                     {
@@ -1440,7 +1483,7 @@ exports.rm = function(req, res){
                                         Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
                                             if(!err)
                                             {
-                                                FileSystemPost.buildFromRmdirOperation(req.session.user.uri, project, result, function(err, post){
+                                                FileSystemPost.buildFromRmdirOperation(req.session.user.uri, project, result, reallyDelete, function(err, post){
                                                     if(!err)
                                                     {
                                                         post.save(function (err, post) {

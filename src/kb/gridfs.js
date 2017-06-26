@@ -172,7 +172,7 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
             }
             else
             {
-                callback(err, "Error deleting file " + fileUri + ". Error reported " + result);
+                callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
             }
         });
     }

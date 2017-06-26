@@ -1603,7 +1603,7 @@ exports.post = function (req, res) {
                                     }
                                     else
                                     {
-                                        console.error("Error getting a metadataChangePost");
+                                        console.error("Error getting a File System Post");
                                         console.error(err);
                                         callback(err);
                                     }

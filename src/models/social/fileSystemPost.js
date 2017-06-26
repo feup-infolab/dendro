@@ -4,6 +4,7 @@ var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")
 var Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
 var ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
 var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 var uuid = require('uuid');
 
@@ -35,12 +36,13 @@ function FileSystemPost (object)
     return self;
 }
 
-FileSystemPost.buildFromRmdirOperation = function (userUri, project, folder, callback) {
+FileSystemPost.buildFromRmdirOperation = function (userUri, project, folder, reallyDelete, callback) {
     let title = userUri.split("/").pop() + " deleted folder " + folder.nie.title;
     let newPost = new FileSystemPost({
         ddr: {
             projectUri: project.uri,
-            changeType: "rmdir"
+            changeType: "rmdir",
+            deleted: reallyDelete
         },
         dcterms: {
             creator: userUri,
@@ -90,12 +92,34 @@ FileSystemPost.buildFromUpload = function (userUri, projectUri, file, callback) 
 };
 
 
+FileSystemPost.buildFromDeleteFile = function (userUri, projectUri, file, callback) {
+    //introduzir really delete
+    let title = userUri.split("/").pop() + " deleted file " + file.nie.title;
+    let newPost = new FileSystemPost({
+        ddr: {
+            projectUri: projectUri,
+            changeType: "delete"
+        },
+        dcterms: {
+            creator: userUri,
+            title: title
+        },
+        schema: {
+            sharedContent: file.uri
+        }
+    });
+    callback(null, newPost);
+};
+
+
 FileSystemPost.prototype.getResourceInfo = function (callback) {
     var self = this;
     let resourceUri = self.schema.sharedContent;
 
+    //InformationElement.findByUri(resourceUri, function (err, resource) {
+    //TODO para alguns casos, os ficheiros não estão a ser encontrados, só estão a ser encontrados txts
     InformationElement.findByUri(resourceUri, function (err, resource) {
-        if(!err)
+        if(!err && resource)
         {
             if(!resource.metadataQuality)
             {
@@ -106,7 +130,7 @@ FileSystemPost.prototype.getResourceInfo = function (callback) {
         else
         {
             console.error("Error getting resource info from a FileSystemPost");
-            console.error(err);
+            console.error(resource);
             callback(err, resource);
         }
     }, null, db.graphUri, false, null, null);
