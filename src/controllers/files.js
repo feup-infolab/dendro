@@ -1899,6 +1899,85 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
     }
 };
 
+exports.recent_changes = function(req, res) {
+    const acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
+
+    if(!acceptsJSON && acceptsHTML)
+    {
+        res.status(400).json({
+            result: "error",
+            message : "HTML Request not valid for this route."
+        });
+    }
+    else
+    {
+        //const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
+        InformationElement.findByUri(req.params.requestedResourceUri, function(err, fileOrFolder){
+            if(!err)
+            {
+                if(!isNull(fileOrFolder) && fileOrFolder instanceof InformationElement)
+                {
+                    const offset = parseInt(req.query.offset);
+                    const limit = parseInt(req.query.limit);
+
+                    fileOrFolder.getOwnerProject(function(err, project){
+                        if(isNull(err))
+                        {
+                            if(!isNull(project) && project instanceof Project)
+                            {
+                                project.getRecentProjectWideChanges(function(err, changes){
+                                    if(!err)
+                                    {
+                                        res.json(changes);
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json({
+                                            result : "error",
+                                            message : "Error getting recent changes from project : " + project.ddr.humanReadableURI + " : " + changes
+                                        });
+                                    }
+                                },offset , limit);
+                            }
+                            else
+                            {
+                                res.status(404).json({
+                                    result : "error",
+                                    message : "Unable to find owner project of : " + fileOrFolder.ddr.humanReadableURI
+                                });
+                            }
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result : "error",
+                                message : "Error occurred while trying to get the owner project of resource : " + req.params.requestedResourceUri + " : " + project
+                            });
+                        }
+                    });
+
+
+                }
+                else
+                {
+                    res.status(404).json({
+                        result : "error",
+                        message : "Unable to find project with handle : " + req.params.handle
+                    });
+                }
+            }
+            else
+            {
+                res.status(500).json({
+                    result : "error",
+                    message : "Invalid project : " + requestedProjectURI + " : " + project
+                });
+            }
+        });
+    }
+};
+
 exports.data = function(req, res){
     let path = require('path');
     const requestedExtension = path.extname(req.params.filepath).replace(".", "");

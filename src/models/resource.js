@@ -1583,11 +1583,12 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
             uri = uri.uri;
         }
 
+        let ontologiesArray; 
         if (!isNull(allowedGraphsArray) && allowedGraphsArray instanceof Array) {
-            var ontologiesArray = allowedGraphsArray;
+            ontologiesArray = allowedGraphsArray;
         }
         else {
-            var ontologiesArray = Ontology.getAllOntologiesUris();
+            ontologiesArray = Ontology.getAllOntologiesUris();
         }
 
         Resource.exists(uri, function (err, exists) {

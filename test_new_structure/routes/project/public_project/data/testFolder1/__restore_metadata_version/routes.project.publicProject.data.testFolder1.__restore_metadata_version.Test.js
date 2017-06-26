@@ -86,7 +86,7 @@ describe("Public project testFolder1 level restore_metadata_version", function (
         it("Should give an error if the metadata_version sent in the body is in an invalid format", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 itemUtils.itemRestoreMetadataVersion(true, agent, publicProject.handle, testFolder1.name, "thisisaninvalidversion", function (err, res) {
-                    res.statusCode.should.equal(500);
+                    res.statusCode.should.equal(405);
                     res.body.message.should.contain("Unable to retrieve version");
                     done();
                 });

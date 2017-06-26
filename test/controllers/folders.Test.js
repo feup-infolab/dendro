@@ -1813,7 +1813,7 @@ describe("[POST] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/fol
     it("Should give an error if the metadata_version sent in the body is in an invalid format", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.itemRestoreMetadataVersion(true, agent, publicProject.handle, folder.name, "thisisaninvalidversion", function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(405);
                 res.body.message.should.contain("Unable to retrieve version");
                 done();
             });
@@ -1897,7 +1897,7 @@ describe("[POST] [METADATA ONLY PROJECT] /project/" + metadataOnlyProject.handle
     it("Should give an error if the metadata_version sent in the body is in an invalid format", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.itemRestoreMetadataVersion(true, agent, metadataOnlyProject.handle, folder.name, "thisisaninvalidversion", function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(405);
                 res.body.message.should.contain("Unable to retrieve version");
                 done();
             });
@@ -1981,7 +1981,7 @@ describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/f
     it("Should give an error if the metadata_version sent in the body is in an invalid format", function (done) {
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             itemUtils.itemRestoreMetadataVersion(true, agent, privateProject.handle, folder.name, "thisisaninvalidversion", function (err, res) {
-                res.statusCode.should.equal(500);
+                res.statusCode.should.equal(405);
                 res.body.message.should.contain("Unable to retrieve version");
                 done();
             });

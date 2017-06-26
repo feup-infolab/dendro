@@ -807,7 +807,7 @@
     "debug" : {
       "active": true,
       "database" :{
-        "log_all_queries": true,
+        "log_all_queries": false,
         "destroy_all_graphs_on_startup": true
       },
       "session": {

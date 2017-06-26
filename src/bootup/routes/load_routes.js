@@ -599,7 +599,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
                             //recent changes
                             {
                                 queryKeys: ['recent_changes'],
-                                handler: projects.recent_changes,
+                                handler: files.recent_changes,
                                 permissions: defaultPermissionsInProjectBranch,
                                 authentication_error: "Permission denied : cannot get recent changes for this resource because you do not have permissions to access its project."
                             },
