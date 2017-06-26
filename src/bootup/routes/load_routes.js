@@ -203,7 +203,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
                         },
                         req,
                         res,
-                        next,
+                        next
                     );
                 }
             }

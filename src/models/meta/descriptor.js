@@ -603,7 +603,7 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
         {
             if(!isNull(map) &&  !isNull(map[prefix]))
             {
-                if(map[prefix][shortName])
+                if(map[prefix] && map[prefix][shortName])
                 {
                     return true;
                 }

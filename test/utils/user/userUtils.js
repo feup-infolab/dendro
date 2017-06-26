@@ -102,7 +102,7 @@ exports.getCurrentLoggedUser= function (jsonOnly, agent, cb)
 };
 
 exports.addUserAscontributorToProject = function (jsonOnly, agent, username, projectHandle, cb) {
-    var contributors = {contributors:["http://" + Config.host + "/user/" + username]};
+    var contributors = {contributors:[username]};
     var path = "/project/" + projectHandle + "?administer";
     if(jsonOnly)
     {
@@ -170,12 +170,12 @@ exports.sendingNewPassword = function (email, token, pass, passConfirm, cb) {
     var app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
 
-        agent
-            .post('/set_new_password')
-            .send({'email': email, 'token': token, 'new_password': pass, 'new_password_confirm': passConfirm})
-            .end(function (err, res) {
-                cb(err, res);
-            });
+    agent
+        .post('/set_new_password')
+        .send({'email': email, 'token': token, 'new_password': pass, 'new_password_confirm': passConfirm})
+        .end(function (err, res) {
+            cb(err, res);
+        });
 };
 
 module.exports = exports;

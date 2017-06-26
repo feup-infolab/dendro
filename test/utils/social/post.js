@@ -20,6 +20,7 @@ var getAllPostsFromUserProjects = function (jsonOnly, agent, cb) {
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -45,6 +46,7 @@ var getAPostInfo = function (jsonOnly, agent, postID, cb) {
     {
         agent
             .post(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .send({postID : postID})
             .end(function (err, res) {

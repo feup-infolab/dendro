@@ -75,6 +75,57 @@ var getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata&deep
+    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?metadata&deep';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    //http://127.0.0.1:3001/project/testproject1/data/folder1?parent_metadata
+    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?parent_metadata';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -109,7 +160,7 @@ var getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, c
 
 var getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVersion, cb) {
     // /project/:handle/data/foldername?version
-    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?version';
+    var path = '/project/' + projectHandle +'/data/'+ itemPath;
     if(jsonOnly)
     {
         agent
@@ -236,6 +287,74 @@ var getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     }
 };
 
+var getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    var path = '/project/' + projectHandle + "/data/" + itemPath + '?metadata_recommendations';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    //recommendation_ontologies
+    var path = '/project/' + projectHandle + "/data/" + itemPath + '?recommendation_ontologies';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    var path = '/project/' + projectHandle +"/data/" + itemPath;
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = {
     updateItemMetadata: updateItemMetadata,
     getItemMetadata: getItemMetadata,
@@ -245,5 +364,10 @@ module.exports = {
     undeleteItem: undeleteItem,
     itemRestoreMetadataVersion: itemRestoreMetadataVersion,
     getItemChangeLog: getItemChangeLog,
-    createFolder: createFolder
+    createFolder: createFolder,
+    getItemMetadataRecommendations: getItemMetadataRecommendations,
+    getItemRecommendationOntologies: getItemRecommendationOntologies,
+    getItemMetadataDeep: getItemMetadataDeep,
+    getItemParentMetadata: getItemParentMetadata,
+    viewItem: viewItem
 };

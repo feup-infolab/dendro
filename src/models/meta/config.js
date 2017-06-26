@@ -26,7 +26,7 @@ Config.absPathInApp = function(relativePath)
 
 Config.absPathInTestsFolder = function(relativePath)
 {
-    return path.join(Config.appDir, "test_new_structure", relativePath);
+    return path.join(Config.appDir, "test", relativePath);
 };
 
 const configs_file_path = Config.absPathInApp("conf/deployment_configs.json");

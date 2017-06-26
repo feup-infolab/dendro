@@ -1,6 +1,6 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const _ = require('underscore');
+var chai = require('chai');
+var chaiHttp = require('chai-http');
+var _ = require('underscore');
 chai.use(chaiHttp);
 
 
@@ -74,8 +74,7 @@ var createNewProject = function (jsonOnly, agent, projectData, cb) {
             .post('/projects/new')
             .set('Accept', 'application/json')
             .send(projectData)
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -84,8 +83,7 @@ var createNewProject = function (jsonOnly, agent, projectData, cb) {
         agent
             .post('/projects/new')
             .send(projectData)
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -97,8 +95,7 @@ var viewProject = function (jsonOnly, agent, projectHandle, cb) {
         agent
             .get('/project/' + projectHandle)
             .set('Accept', 'application/json')
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -106,33 +103,31 @@ var viewProject = function (jsonOnly, agent, projectHandle, cb) {
     {
         agent
             .get('/project/' + projectHandle)
-            .end(function (err, res)
-            {
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb)
-{
-    if (jsonOnly)
+var updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb) {
+    if(jsonOnly)
     {
         agent
-            .post('/project/' + projectHandle + '?update_metadata')
+            .post('/project/' + projectHandle +'?update_metadata')
             .set('Accept', 'application/json')
             .send(metadata)
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
     else
     {
         agent
-            .post('/project/' + projectHandle + '?update_metadata')
+            .post('/project/' + projectHandle +'?update_metadata')
             .send(metadata)
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -141,16 +136,15 @@ var updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadat
 
 var updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb) {
     ///project/:handle/data/folderpath?update_metadata
-    const path = '/project/' + projectHandle + '/data/' + folderPath + '?update_metadata';
-    if (jsonOnly)
+    var path = '/project/' + projectHandle +'/data/'+ folderPath + '?update_metadata';
+    if(jsonOnly)
     {
         agent
             .post(path)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
             .send(metadata)
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -160,8 +154,7 @@ var updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folde
             .post(path)
             .set('Content-Type', 'application/json')
             .send(metadata)
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -173,8 +166,7 @@ var getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHand
         agent
             .get('/project/' + projectHandle + '?metadata_recommendations')
             .set('Accept', 'application/json')
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -182,8 +174,31 @@ var getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHand
     {
         agent
             .get('/project/' + projectHandle + '?metadata_recommendations')
-            .end(function (err, res)
-            {
+            .set('Accept', 'text/html')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb) {
+    //recommendation_ontologies
+    var path = '/project/' + projectHandle + '?recommendation_ontologies';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -196,8 +211,7 @@ var getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
         agent
             .get('/project/' + projectHandle + '?ls')
             .set('Accept', 'application/json')
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -205,8 +219,7 @@ var getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
     {
         agent
             .get('/project/' + projectHandle + '?ls')
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -215,15 +228,14 @@ var getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
 
 var getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
-    const path = '/project/' + projectHandle + '/data/' + folderPath + '?metadata';
-    if (jsonOnly)
+    var path = '/project/' + projectHandle +'/data/'+ folderPath + '?metadata';
+    if(jsonOnly)
     {
         agent
             .get(path)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -232,8 +244,55 @@ var getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, 
         agent
             .get(path)
             .set('Content-Type', 'application/json')
-            .end(function (err, res)
-            {
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
+    var path = '/project/' + projectHandle + '?metadata';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+var getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb) {
+    var path = '/project/' + projectHandle + '?metadata&deep';
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            .set('Accept', 'application/json')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            .set('Accept', 'text/html')
+            .set('Content-Type', 'application/json')
+            .end(function (err, res) {
                 cb(err, res);
             });
     }
@@ -245,13 +304,11 @@ var removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folde
         var newDescriptors = _.reject(descriptors, function (descriptor) {
             return descriptor.prefixedForm == prefixedForm;
         });
-        updateMetadataCorrectRoute(jsonOnly, agent, projectHandle, folderPath, newDescriptors, function (error, response)
-        {
+        updateMetadataCorrectRoute(jsonOnly, agent, projectHandle, folderPath, newDescriptors, function (error, response) {
             cb(error, response);
         });
     });
 };
-
 
 var getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb) {
     //project/:handle?version
@@ -310,9 +367,9 @@ var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
     {
         agent
             .post(path)
-            .attach('file', projectBackupPath)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
+            .attach('file', projectBackupPath)
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -469,13 +526,13 @@ var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
     {
         agent
             .get(path)
+            .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
-
 
 var administer = function (agent, modify, projectData, projectHandle, cb) {
     if(modify) {
@@ -502,34 +559,12 @@ var backup = function(agent, projectHandle, filepath, cb){
         });
 };
 
-
-function binaryParser(res, callback) {
-    res.setEncoding('binary');
-    res.data = '';
-    res.on('data', function (chunk) {
-        res.data += chunk;
-    });
-    res.on('end', function () {
-        callback(null, new Buffer(res.data, 'binary'));
-    });
-}
-
-var bagit = function(agent, projectHandle, filepath, binary, cb) {
-    if(binary) {
-        agent
-            .get('/project/' + projectHandle + filepath + '?bagit')
-            .buffer()
-            .parse(binaryParser)
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    } else{
-        agent
-            .get('/project/' + projectHandle + filepath + '?bagit')
-            .end(function (err, res) {
-                cb(err, res);
-            });
-    }
+var bagit = function(agent, projectHandle, filepath, cb){
+    agent
+        .get('/project/' + projectHandle + filepath + '?bagit')
+        .end(function (err, res) {
+            cb(err, res);
+        });
 };
 
 var download = function (agent, projectHandle, filepath, cb) {
@@ -548,13 +583,6 @@ var serve = function(agent, projectHandle, filepath, cb){
         });
 };
 
-var serve_base64 = function(agent, projectHandle, filepath, cb){
-    agent
-        .get('/project/' + projectHandle + filepath + '?serve_base64')
-        .end(function (err, res) {
-            cb(err, res);
-        });
-};
 
 
 var thumbnail = function(agent, filepath, projectHandle, cb){
@@ -565,22 +593,15 @@ var thumbnail = function(agent, filepath, projectHandle, cb){
         })
 };
 
-var upload = function(agent, modify, filepath, projectHandle, query,  cb){
-    if(modify){
-        agent
-            .post('/project/' + projectHandle + filepath + '?upload' + query)
-            .end(function(err, res){
-                cb(err, res);
-            });
-    }else {
-        agent
-            .get('/project/' + projectHandle + filepath + '?upload')
-            .end(function(err, res){
-                cb(err, res);
-            });
-    }
+var getProjectContributors = function (agent, projectHandle, cb) {
+    //project/proj1?get_contributors
+    var path = "/project/" + projectHandle + "?get_contributors";
+    agent
+        .get(path)
+        .end(function (err, res) {
+            cb(err, res);
+        });
 };
-
 
 module.exports = {
     updateMetadataCorrectRoute : updateMetadataCorrectRoute,
@@ -594,7 +615,6 @@ module.exports = {
     getProjectRootContent : getProjectRootContent,
     getResourceMetadata : getResourceMetadata,
     removeDescriptorFromFolder : removeDescriptorFromFolder,
-
     getProjectRecentChanges : getProjectRecentChanges,
     getProjectVersion : getProjectVersion,
     importProjectHTMLPage: importProjectHTMLPage,
@@ -609,8 +629,9 @@ module.exports = {
     bagit : bagit,
     download : download,
     serve : serve,
-    serve_base64 : serve_base64,
     thumbnail : thumbnail,
-    upload : upload
-
+    getProjectContributors: getProjectContributors,
+    getRecommendationOntologiesForProject: getRecommendationOntologiesForProject,
+    getProjectMetadata: getProjectMetadata,
+    getProjectMetadataDeep: getProjectMetadataDeep
 };

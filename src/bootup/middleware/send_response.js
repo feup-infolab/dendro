@@ -69,14 +69,14 @@ const sendAnyResponse  = function(data, options, req, res, next)
     }
 };
 
-const sendNotFoundResponse = function(data, options, req, res, next, )
+const sendNotFoundResponse = function(data, options, req, res, next)
 {
     options.code = 404;
     options.error_messages = [options.messages];
     sendAnyResponse(data, options, req, res, next);
 };
 
-const sendForbiddenResponse = function(data, options, req, res, next, )
+const sendForbiddenResponse = function(data, options, req, res, next)
 {
     options.code = 403;
     options.error_messages = [options.messages];
