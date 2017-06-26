@@ -36,7 +36,7 @@ describe("/users", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 userUtils.listAllUsers(false, agent, function (err, res){
                     res.should.have.status(200);
-                    res.text.should.contain("demouser1");
+                    res.text.should.contain("Demo User 1");
                     done();
                 })
             })
@@ -61,8 +61,8 @@ describe("/users", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 userUtils.listAllUsers(false, agent, function (err, res){
                     res.should.have.status(200);
-                    res.text.should.contain("demouser1");
-                    res.text.should.contain("demouser2");
+                    res.text.should.contain("Demo User 1");
+                    res.text.should.contain("Demo User 2");
                     res.text.should.not.contain("idontexist123");
                     done();
                 })
@@ -89,8 +89,8 @@ describe("/users", function () {
             var agent = chai.request.agent(app);
             userUtils.listAllUsers(false, agent, function (err, res){
                 res.should.have.status(200);
-                res.text.should.contain("demouser1");
-                res.text.should.contain("demouser2");
+                res.text.should.contain("Demo User 1");
+                res.text.should.contain("Demo User 2");
                 res.text.should.not.contain("idontexist123");
                 done();
             })

@@ -41,7 +41,7 @@ describe("/users/loggedUser ", function () {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
         userUtils.getCurrentLoggedUser(false, agent, function (err, res) {
-            res.should.have.status(403);
+            res.text.should.contain("specified a wrong URL");
             done();
         })
     });

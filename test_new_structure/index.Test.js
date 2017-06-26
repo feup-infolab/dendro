@@ -19,7 +19,13 @@ require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
 
 //MINE
 require(Config.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
+require(Config.absPathInTestsFolder("/routes/users/route.users.Test.js"));
 
+require(Config.absPathInTestsFolder("/routes/user/demouser1/route.user.demouser1.Test.js"));
+require(Config.absPathInTestsFolder("/routes/user/demouser2/route.user.demouser2.Test.js"));
+require(Config.absPathInTestsFolder("/routes/user/demouser3/route.user.demouser3.Test.js"));
+
+require(Config.absPathInTestsFolder("/routes/ontologies/all/route.ontologies.all.Test.js"));
 
 
 require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
