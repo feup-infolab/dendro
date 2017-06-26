@@ -237,8 +237,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
-        "   [1] nie:isLogicalPartOf+ ?rootFolder. \n" +
-        "   ?uri ddr:rootFolder ?rootFolder. \n" +
+        "   [1] nie:isLogicalPartOf+ ?uri. \n" +
         "   ?uri rdf:type ddr:Project \n" +
         "} ";
 

@@ -61,7 +61,7 @@ describe("Private project testFolder1 level ?version", function () {
                     res.body.message.should.be.an('array');
                     res.body.message.length.should.equal(1);
                     res.body.message[0].should.contain("Resource not found at uri ");
-                    res.body.message[0].should.contain(notFoundFolder.name);
+                    res.body.message[0].should.contain(testFolder1.name);
                     res.body.message[0].should.contain(invalidProject.handle);
                     done();
                 });

@@ -480,62 +480,74 @@ exports.restore_metadata_version = function(req, res) {
                 //if resource exists
                 if(!isNull(resource))
                 {
-
-                    ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
-                        if(!err)
-                        {
-                            if(!isNull(version))
+                    if(!isNull(requestedVersion) && typeof requestedVersion === 'number' && requestedVersion%1 === 0)
+                    {
+                        ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
+                            if(!err)
                             {
-                                const user = req.user;
-
-                                if(user)
+                                if(!isNull(version))
                                 {
-                                    var userUri = user.uri;
-                                }
-                                else
-                                {
-                                    var userUri = null;
-                                }
+                                    const user = req.user;
+                                    let userUri;
 
-                                resource.restoreFromArchivedVersion(version, function(err, result){
-                                    if(!err)
+                                    if(user)
                                     {
-                                        res.status(200).json({
-                                            result : "OK",
-                                            message : "Resource " + requestedResourceURI + " succesfully restored to version " + requestedVersion
-                                        });
+                                        userUri = user.uri;
                                     }
                                     else
                                     {
-                                        const error = "Error restoring version  " + requestedVersion + "  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(result);
-                                        console.error(error);
-                                        res.status(500).json({
-                                            result : "Error",
-                                            message : error
-                                        });
+                                        userUri = null;
                                     }
-                                }, userUri);
+
+                                    resource.restoreFromArchivedVersion(version, function(err, result){
+                                        if(!err)
+                                        {
+                                            res.status(200).json({
+                                                result : "OK",
+                                                message : "Resource " + requestedResourceURI + " succesfully restored to version " + requestedVersion
+                                            });
+                                        }
+                                        else
+                                        {
+                                            const error = "Error restoring version  " + requestedVersion + "  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(result);
+                                            console.error(error);
+                                            res.status(500).json({
+                                                result : "Error",
+                                                message : error
+                                            });
+                                        }
+                                    }, userUri);
+                                }
+                                else
+                                {
+                                    const error = "Version  " + requestedVersion +"  of resource : " + requestedResourceURI + " does not exist.";
+                                    console.error(error);
+                                    res.status(404).json({
+                                        result : "Not Found",
+                                        message : error
+                                    });
+                                }
                             }
                             else
                             {
-                                const error = "Version  " + requestedVersion +"  of resource : " + requestedResourceURI + " does not exist.";
+                                const error = "Unable to retrieve version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(resource);
                                 console.error(error);
-                                res.status(404).json({
-                                    result : "Not Found",
+                                res.status(500).json({
+                                    result : "Error",
                                     message : error
                                 });
                             }
-                        }
-                        else
-                        {
-                            const error = "Unable to retrieve version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". Error retrieved : " + JSON.stringify(resource);
-                            console.error(error);
-                            res.status(500).json({
-                                result : "Error",
-                                message : error
-                            });
-                        }
-                    });
+                        });
+                    }
+                    else
+                    {
+                        const error = "Unable to retrieve version  " + requestedVersion +"  of resource : " + requestedResourceURI + ". " + requestedVersion + " is not a valid integer and version number, which ranges from 0 to +inf";
+                        console.error(error);
+                        res.status(405).json({
+                            result : "Error",
+                            message : error
+                        });
+                    }
                 }
                 else
                 {
