@@ -22,7 +22,6 @@
                 <p> postsPerPage : {{postsPerPage}}</p>
                 <p> paginationCurrent : {{pagination.current}}</p>
 
-                <!--<div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">-->
                 <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">
                     <p> The post URI is : {{post.uri}}</p>
                     <div ng-init="getPost(post.uri, null);">

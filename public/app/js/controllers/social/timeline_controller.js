@@ -76,24 +76,6 @@ angular.module('dendroApp.controllers')
                 });
         };
 
-        $scope.new_post = function()
-        {
-            $scope.posting_new_post = true;
-
-            timelineService.new_post($scope.new_post_content)
-                .then(function(response)
-                {
-                    $scope.show_popup(response.data.message);
-
-                    $scope.get_all_posts();
-                    $scope.posting_new_post = false;
-                })
-                .catch(function(error){
-                    console.error("Error creating new post" + JSON.stringify(error));
-                    $scope.posting_new_post = false;
-                });
-        };
-
         $scope.likePost = function (postID) {
             $scope.doing_likePost = true;
 
@@ -210,7 +192,10 @@ angular.module('dendroApp.controllers')
                 {
                     $scope.show_popup(response.data.message);
                     $scope.getSharesFromPost(postID);
-                    $scope.get_all_posts($scope.pagination.current);//TODO remove this function call???
+                    //$scope.get_all_posts($scope.pagination.current);//TODO remove this function call???
+                    $scope.pagination.current = 1;
+                    $scope.pageChangeHandler($scope.pagination.current);
+                    $window.scrollTo(0, 0);//to scroll up to the top on page change
                     $scope.doing_sharePost = false;
                 })
                 .catch(function(error){
@@ -253,22 +238,6 @@ angular.module('dendroApp.controllers')
 
         $scope.initTimeline = function()
         {
-            /*if($scope.renderPosts)
-            {
-                $scope.showCreateNewManualPost = false;
-                $scope.new_post_content = "";
-                $scope.commentList = [];
-                $scope.shareList = [];
-                $scope.likedPosts = [];
-                $scope.postList = [];
-                $scope.posts = [];
-                $scope.likesPostInfo = [];
-                $scope.postsContents = [];
-                $scope.pageChangeHandler($scope.pagination.current);
-                $scope.getUserProjects();
-            }*/
-
-
             $scope.countNumPosts();
             $scope.get_all_posts($scope.pagination.current);
             $scope.showCreateNewManualPost = false;
@@ -374,14 +343,6 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.pageChangeHandler = function(num) {
-            /*if($scope.renderPosts)
-            {
-                console.log("Im here going to page: ", num);
-                $scope.countNumPosts();
-                $scope.get_all_posts(num);
-                $window.scrollTo(0, 0);//to scroll up to the top on page change
-            }*/
-
             console.log("Im here going to page: ", num);
             $scope.countNumPosts();
             $scope.get_all_posts(num);
@@ -393,8 +354,11 @@ angular.module('dendroApp.controllers')
             timelineService.newPost(newPostTitle, newPostContent, projectUri)
                 .then(function (response) {
                     $scope.show_popup(response.data.message);
-                    $scope.get_all_posts($scope.pagination.current);//TODO remove this function call???
+                    //$scope.get_all_posts($scope.pagination.current);//TODO remove this function call???
+                    $scope.pagination.current = 1;
+                    $scope.pageChangeHandler($scope.pagination.current);
                     //$scope.initTimeline();
+                    $window.scrollTo(0, 0);//to scroll up to the top on page change
                     $scope.doing_createNewPost = false;
                 })
                 .catch(function (error) {
@@ -402,21 +366,5 @@ angular.module('dendroApp.controllers')
                     $scope.show_popup(error);
                     $scope.doing_createNewPost = false;
                 });
-        };
-
-        $scope.$on('tab_changed:timeline', function(event, args) {
-            $scope.renderPosts = true;
-            $scope.pagination.current = 1;
-            $scope.initTimeline();
-        });
-
-        $scope.$on('tab_changed:fileVersions', function(event, args) {
-            $scope.pagination.current = 1;
-            $scope.totalPosts = 0;
-            $scope.renderPosts = false;
-        });
-
-        $scope.cleanNewManualPostInterface = function () {
-
         };
     });
