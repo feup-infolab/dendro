@@ -1100,6 +1100,7 @@ async.series([
         var datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
         var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
         var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
+        var timeline = require(Config.absPathInSrcFolder("/controllers/timeline"));
         var fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
         var notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
 
@@ -1780,6 +1781,7 @@ async.series([
         );
 
         //      social
+        app.get('/socialDendro/my', async.apply(Permissions.require, [Permissions.role.system.user]), timeline.my);
         app.get('/posts/all', async.apply(Permissions.require, [Permissions.role.system.user]), posts.all);
         app.post('/posts/post', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPost_controller);
         app.post('/posts/new', async.apply(Permissions.require, [Permissions.role.system.user]), posts.new);

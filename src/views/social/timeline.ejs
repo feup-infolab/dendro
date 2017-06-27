@@ -1,41 +1,57 @@
-<div ng-cloak>
-    <div class="container">
-        <h3>Social Dendro</h3>
-        <hr>
+<%- include ../layout/header.ejs %>
 
-        <ng-include src="'/app/views/social/partial/createManualPost.html'"></ng-include>
+<div ng-controller="timelineCtrl" ng-init="initTimeline();get_logged_user();">
 
-        <hr>
-        <ul class="list-group">
-            <div ng-if="posts.length==0" style="text-align: center">
-                <h4>There are no Posts</h4>
-                <i class="fa fa-file-o fa-5x" aria-hidden="true"></i>
-            </div>
+    <div ng-cloak>
+        <div class="container">
+            <h3>Social Dendro</h3>
+            <hr>
 
-            <p>posts.length : {{posts.length}}</p>
-            <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">
+            <ng-include src="'/app/views/social/partial/createManualPost.html'"></ng-include>
 
-                <p> The post URI is : {{post.uri}}</p>
-                <div ng-init="getPost(post.uri, null);">
-                    {{postsContents[post.uri].rdf.type}}
-                    <div ng-if="postsContents[post.uri].rdf.isShare">
-                        <p> IS A SHARE </p>
-                        <ng-include src="'/app/views/social/showShare.html'" onload="initSingleShare(post.uri); shareUri = post.uri;"></ng-include>
-                    </div>
-
-                    <div style="margin-left: 20%; margin-right: 20%" ng-if="!postsContents[post.uri].rdf.isShare">
-                        <ng-include src="'/app/views/social/showPost.html'" onload="initSinglePost(post.uri); postUri = post.uri;"></ng-include>
-                    </div>
-                    <hr>
+            <hr>
+            <ul class="list-group">
+                <div ng-if="posts.length==0" style="text-align: center">
+                    <h4>There are no Posts</h4>
+                    <i class="fa fa-file-o fa-5x" aria-hidden="true"></i>
                 </div>
-            </div>
-            </li>
-        </ul>
-    </div>
 
-    <div>
-        <div class="text-center">
-            <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/bower_components/angular-utils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
+                <p>posts : <%=posts%></p>
+                <p>posts.length : <%=posts.length%></p>
+                <p> totalPosts : {{totalPosts}}</p>
+                <p> postsPerPage : {{postsPerPage}}</p>
+                <p> paginationCurrent : {{pagination.current}}</p>
+
+                <!--<div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">-->
+                <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">
+                    <p> The post URI is : {{post.uri}}</p>
+                    <div ng-init="getPost(post.uri, null);">
+                        {{postsContents[post.uri].rdf.type}}
+                        <div ng-if="postsContents[post.uri].rdf.isShare">
+                            <p> IS A SHARE </p>
+                            <ng-include src="'/app/views/social/showShare.html'" onload="initSingleShare(post.uri); shareUri = post.uri;"></ng-include>
+                        </div>
+
+                        <div style="margin-left: 20%; margin-right: 20%" ng-if="!postsContents[post.uri].rdf.isShare">
+                            <ng-include src="'/app/views/social/showPost.html'" onload="initSinglePost(post.uri); postUri = post.uri;"></ng-include>
+                        </div>
+                        <hr>
+                    </div>
+                </div>
+                </li>
+            </ul>
+        </div>
+
+        <div>
+            <div class="text-center">
+                <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/bower_components/angular-utils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
+            </div>
         </div>
     </div>
+
+</div>
+
+</div>
+<%- include ../layout/footer.ejs %>
+
 </div>

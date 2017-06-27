@@ -253,7 +253,7 @@ angular.module('dendroApp.controllers')
 
         $scope.initTimeline = function()
         {
-            if($scope.renderPosts)
+            /*if($scope.renderPosts)
             {
                 $scope.showCreateNewManualPost = false;
                 $scope.new_post_content = "";
@@ -266,7 +266,22 @@ angular.module('dendroApp.controllers')
                 $scope.postsContents = [];
                 $scope.pageChangeHandler($scope.pagination.current);
                 $scope.getUserProjects();
-            }
+            }*/
+
+
+            $scope.countNumPosts();
+            $scope.get_all_posts($scope.pagination.current);
+            $scope.showCreateNewManualPost = false;
+            $scope.new_post_content = "";
+            $scope.commentList = [];
+            $scope.shareList = [];
+            $scope.likedPosts = [];
+            $scope.postList = [];
+            $scope.posts = [];
+            $scope.likesPostInfo = [];
+            $scope.postsContents = [];
+            $scope.pageChangeHandler($scope.pagination.current);
+            $scope.getUserProjects();
         };
 
         $scope.initSinglePost = function (postUri) {
@@ -359,13 +374,18 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.pageChangeHandler = function(num) {
-            if($scope.renderPosts)
+            /*if($scope.renderPosts)
             {
                 console.log("Im here going to page: ", num);
                 $scope.countNumPosts();
                 $scope.get_all_posts(num);
                 $window.scrollTo(0, 0);//to scroll up to the top on page change
-            }
+            }*/
+
+            console.log("Im here going to page: ", num);
+            $scope.countNumPosts();
+            $scope.get_all_posts(num);
+            $window.scrollTo(0, 0);//to scroll up to the top on page change
         };
 
         $scope.createNewManualPost = function (newPostTitle, newPostContent, projectUri) {
