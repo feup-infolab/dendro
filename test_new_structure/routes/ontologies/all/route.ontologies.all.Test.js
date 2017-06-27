@@ -13,7 +13,8 @@ const ontologiesUtils = require(Config.absPathInTestsFolder("utils/ontologies/on
 const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 
-describe('/ontologies/public', function () {
+
+describe('/ontologies/all', function () {
 
     const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
     const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -27,103 +28,99 @@ describe('/ontologies/public', function () {
         });
     });
 
-    it('[JSON] should return public ontologies logged in as demouser1.username', function (done) {
+    it('[JSON] should return all ontologies logged in as demouser1.username', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            ontologiesUtils.publicDisplay(true, agent, function(err, res){
+            ontologiesUtils.allDisplay(true, agent, function(err, res){
                 res.body[0].prefix.should.contain('dcterms');
-                res.body[0].prefix.should.not.contain('nie');
+                res.body[3].prefix.should.contain('rdf');
                 res.should.have.status(200);
                 done();
             });
         });
     });
-
-    it('[HTML] should return public ontologies logged in as demouser1.username', function (done) {
+    it('[HTML] should return all ontologies logged in as demouser1.username', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            ontologiesUtils.publicDisplay(false, agent, function(err, res){
-                res.text.should.contain('Public Descriptor Sets'); //Temporary test since page is not functional yet
+            ontologiesUtils.allDisplay(false, agent, function(err, res){
+                res.text.should.contain('All Descriptor Sets'); //Temporary test since page is not functional yet
                 res.should.have.status(200);
                 done();
             });
         });
     });
-    it('[JSON] should return public ontologies logged in as demouser2.username', function (done) {
+    it('[JSON] should return all ontologies logged in as demouser2.username', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            ontologiesUtils.publicDisplay(true, agent, function(err, res){
+            ontologiesUtils.allDisplay(true, agent, function(err, res){
                 res.body[0].prefix.should.contain('dcterms');
-                res.body[0].prefix.should.not.contain('nie');
+                res.body[3].prefix.should.contain('rdf');
                 res.should.have.status(200);
                 done();
             });
         });
     });
-    it('[HTML] should return public ontologies logged in as demouser2.username', function (done) {
+    it('[HTML] should return all ontologies logged in as demouser2.username', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-            ontologiesUtils.publicDisplay(false, agent, function(err, res){
-                res.text.should.contain('Public Descriptor Sets'); //Temporary test since page is not functional yet
+            ontologiesUtils.allDisplay(false, agent, function(err, res){
+                res.text.should.contain('All Descriptor Sets'); //Temporary test since page is not functional yet
                 res.should.have.status(200);
                 done();
             });
         });
     });
-
-    it('[JSON] should return public ontologies logged in as demouser3.username', function (done) {
+    it('[JSON] should return all ontologies logged in as demouser3.username', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            ontologiesUtils.publicDisplay(true, agent, function(err, res){
+            ontologiesUtils.allDisplay(true, agent, function(err, res){
                 res.body[0].prefix.should.contain('dcterms');
-                res.body[0].prefix.should.not.contain('nie');
+                res.body[3].prefix.should.contain('rdf');
                 res.should.have.status(200);
                 done();
             });
         });
     });
-    it('[HTML] should return public ontologies logged in as demouser3.username', function (done) {
+    it('[HTML] should return all ontologies logged in as demouser3.username', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
-            ontologiesUtils.publicDisplay(false, agent, function(err, res){
-                res.text.should.contain('Public Descriptor Sets'); //Temporary test since page is not functional yet
+            ontologiesUtils.allDisplay(false, agent, function(err, res){
+                res.text.should.contain('All Descriptor Sets'); //Temporary test since page is not functional yet
                 res.should.have.status(200);
                 done();
             });
         });
     });
 
-
-    it('[JSON] should return public ontologies not logged in', function (done) {
+    it('[JSON] should return all ontologies not logged in', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
-        ontologiesUtils.publicDisplay(true, agent, function(err, res){
+        ontologiesUtils.allDisplay(true, agent, function(err, res){
             res.body[0].prefix.should.contain('dcterms');
-            res.body[0].prefix.should.not.contain('nie');
+            res.body[3].prefix.should.contain('rdf');
             res.should.have.status(200);
             done();
         });
     });
-
-    it('[HTML] should return public ontologies not logged in', function (done) {
+    it('[HTML] should return all ontologies not logged in', function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
 
-        ontologiesUtils.publicDisplay(false, agent, function(err, res){
-            res.text.should.contain('Public Descriptor Sets'); //Temporary test since page is not functional yet
+        ontologiesUtils.allDisplay(false, agent, function(err, res){
+            res.text.should.contain('All Descriptor Sets'); //Temporary test since page is not functional yet
             res.should.have.status(200);
             done();
         });

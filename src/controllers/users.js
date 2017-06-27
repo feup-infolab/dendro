@@ -493,6 +493,7 @@ exports.getLoggedUser = function (req, res) {
     {
         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
         {
+            res.status(403);
             res.json(
                 {
                     result : "error",
@@ -502,11 +503,8 @@ exports.getLoggedUser = function (req, res) {
         }
         else
         {
-            viewVars.projects = [];
-            viewVars.info_messages = ["There is no user authenticated in the system."];
-            res.render('index',
-                viewVars
-            );
+            viewVars.error_messages = ["There is no user authenticated in the system."];
+            res.status(403).render('index');
         }
     }
 };
