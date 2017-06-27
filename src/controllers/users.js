@@ -497,7 +497,7 @@ exports.getLoggedUser = function (req, res) {
             res.json(
                 {
                     result : "error",
-                    message : "There is no user authenticated in the system.",
+                    message : "There is no user authenticated in the system."
                 }
             );
         }
