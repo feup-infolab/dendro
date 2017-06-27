@@ -1,12 +1,51 @@
 <div id="createManualPost">
     <div class="panel panel-default">
         <div class="panel-heading text-center">
-            <!--<h3 class="panel-title"> <span class="label label-success">Create a new Manual Post</span> </h3>-->
-            <!--<h3 class="panel-title"> <button class="label label-success" ng-click="showCreateNewManualPost = !showCreateNewManualPost;">What are you thinking ?</button> </h3>-->
-            <h3 class="panel-title"> <button type="button" class="btn label-inverse" ng-click="showCreateNewManualPost = !showCreateNewManualPost;">What are you thinking ?</button> </h3>
+            <!--<h3 class="panel-title"> <button type="button" class="btn label-inverse" ng-click="showCreateNewManualPost = !showCreateNewManualPost;">What are you thinking ?</button> </h3>-->
+            <!--<h3 class="panel-title"> <button type="button" class="btn label-inverse" data-toggle="modal" data-target="#myModal">What are you thinking ?</button> </h3>-->
+            <!--<h3 class="panel-title" data-toggle="modal" data-target="#myModal"> What are you thinking ? </h3>-->
+            <input class="panel-title" data-toggle="modal" data-target="#myModal" placeholder="What are you thinking ?">
         </div>
 
-        <div class="panel-body" ng-show="showCreateNewManualPost">
+        <!-- Modal -->
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="myModalLabel">Creating a new Post</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div class="panel-body">
+                            <div class="media">
+                                <div class="media-body" style="padding-right: 0%">
+                                    <div id="chooseProject" class="input-group-btn form-inline">
+                                        <select class="form-control" id="choosingProject" ng-init="projectChosen = userProjects[0]"
+                                                ng-model="projectChosen"
+                                                ng-options="userProject.name for userProject in userProjects">
+                                        </select>
+                                    </div>
+
+                                    <div id="newPostTitleID">
+                                        <input type="text" class="form-control" aria-label="postTitle" id="newPostTitle" ng-model="newPostTitle">
+                                    </div>
+
+                                    <div id="newPostContentID">
+                                        <textarea class="form-control" rows="5" id="newPostContent" ng-model="newPostContent"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" ng-click="createNewManualPost(newPostTitle,newPostContent,projectChosen.value);">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--<div class="panel-body" ng-show="showCreateNewManualPost">
             <div class="media">
                 <div class="media-body" style="padding-right: 0%">
                     <div id="chooseProject" class="input-group-btn form-inline">
@@ -29,6 +68,6 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
     </div>
 </div>

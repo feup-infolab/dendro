@@ -15,6 +15,8 @@ angular.module('dendroApp.controllers')
 
         $scope.newPostTitlePlaceholder = "The title of your post";
         $scope.newPostContentPlaceholder = "Write your post here";
+        $scope.newPostTitle = "The title of your post";
+        $scope.newPostContent = "Write your post here";
         $scope.showCreateNewManualPost = false;
 
         $scope.userProjects = [
@@ -360,6 +362,9 @@ angular.module('dendroApp.controllers')
                     //$scope.initTimeline();
                     $window.scrollTo(0, 0);//to scroll up to the top on page change
                     $scope.doing_createNewPost = false;
+                    $('#myModal').modal('toggle');
+                    $scope.newPostTitle = JSON.parse(JSON.stringify($scope.newPostTitlePlaceholder));
+                    $scope.newPostContent = JSON.parse(JSON.stringify($scope.newPostContentPlaceholder));
                 })
                 .catch(function (error) {
                     console.error("Error createNewManualPost" + JSON.stringify(error));
