@@ -1147,6 +1147,26 @@ export_to_repository_b2share = function(req, res){
                                                    "creators": [{"creator_name": folder.dcterms.creator}]
                                                };
 
+                                               if(folder.dcterms.contributor){
+                                                   if(Array.isArray(folder.dcterms.contributor))
+                                                   {
+                                                       _.map(folder.dcterms.contributor, function(contributor){
+                                                           let newCreator = {
+                                                               creator_name : contributor
+                                                           };
+                                                           draftData["creators"].push(newCreator);
+                                                           return draftData;
+                                                       });
+                                                   }
+                                                   else
+                                                   {
+                                                       let newCreator = {
+                                                           creator_name : folder.dcterms.contributor
+                                                       };
+                                                       draftData["creators"].push(newCreator);
+                                                   }
+                                               }
+
                                                if(folder.dcterms.publisher)
                                                {
                                                    draftData["publisher"] = folder.dcterms.publisher;
@@ -1161,20 +1181,16 @@ export_to_repository_b2share = function(req, res){
                                                }
 
                                                if(folder.dcterms.subject){
-                                                   let subject = '';
-                                                   if(Array.isArray(folder.dcterms.subject)){
-                                                       for(var i = 0; i < folder.dcterms.subject.length; i++){
-                                                           subject += folder.dcterms.subject[i];
-                                                           if(i !== folder.dcterms.subject.length - 1){
-                                                               subject += ',';
-                                                           }
-                                                       }
+                                                   if(Array.isArray(folder.dcterms.subject))
+                                                   {
+                                                       draftData["keywords"] = folder.dcterms.subject
                                                    }
-                                                   else{
-                                                       subject = folder.dcterms.subject;
+                                                   else
+                                                   {
+                                                       let keywords = [];
+                                                       keywords.push(folder.dcterms.subject);
+                                                       draftData["keywords"] = keywords;
                                                    }
-
-                                                   draftData["keywords"] = subject;
                                                }
 
                                                if(folder.dcterms.language){
@@ -1187,23 +1203,6 @@ export_to_repository_b2share = function(req, res){
                                                else
                                                {
                                                    draftData["language"] = "en";
-                                               }
-
-                                               if(folder.dcterms.contributor){
-                                                   let contributors = '';
-                                                   if(Array.isArray(folder.dcterms.contributor)){
-                                                       for(var i = 0; i < folder.dcterms.contributor.length; i++){
-                                                           contributors += folder.dcterms.contributor[i];
-                                                           if(i !== folder.dcterms.contributor.length - 1){
-                                                               contributors += ';';
-                                                           }
-                                                       }
-                                                   }
-                                                   else{
-                                                       contributors = folder.dcterms.contributor;
-                                                   }
-
-                                                   draftData["contributors"] = contributors;
                                                }
 
                                                const b2shareClient = new B2ShareClient(targetRepository.ddr.hasExternalUri, accessToken);

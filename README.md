@@ -1,6 +1,6 @@
 [![Build Status](http://buildserver-rdm.up.pt:8111/job/FEUP%20Information%20Systems%20Laboratory/job/dendro/job/master/badge/icon)](http://buildserver-rdm.up.pt:8111/job/FEUP%20Information%20Systems%20Laboratory/job/dendro/job/master/)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/28789e8562c4460280710d730bd65ca0)](https://www.codacy.com/app/silvae86/dendro?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=feup-infolab/dendro&amp;utm_campaign=Badge_Grade)
-[![Coverage Status](https://codeclimate.com/github/feup-infolab/dendro/coverage.png)](https://codeclimate.com/github/feup-infolab/dendro/trends)
+[![Test Coverage](https://codeclimate.com/github/feup-infolab/dendro/badges/coverage.svg)](https://codeclimate.com/github/feup-infolab/dendro/coverage)
 [![dependencies](https://david-dm.org/feup-infolab/dendro.svg)](https://david-dm.org/feup-infolab/dendro)
 [![Code Climate](https://codeclimate.com/github/feup-infolab/dendro/badges/gpa.svg)](https://codeclimate.com/github/feup-infolab/dendro)
 [![Issue Count](https://codeclimate.com/github/feup-infolab/dendro/badges/issue_count.svg)](https://codeclimate.com/github/feup-infolab/dendro)
