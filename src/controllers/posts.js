@@ -7,11 +7,9 @@ var Like = require('../models/social/like.js').Like;
 var Notification = require('../models/notifications/notification.js').Notification;
 var Comment = require('../models/social/comment.js').Comment;
 var Share = require('../models/social/share.js').Share;
-var FileVersion = require('../models/versions/file_version.js').FileVersion;
 var Ontology = require('../models/meta/ontology.js').Ontology;
 var Project = require('../models/project.js').Project;
 var DbConnection = require("../kb/db.js").DbConnection;
-var fileVersionController = require("./file_versions");
 
 var _ = require('underscore');
 
@@ -118,9 +116,6 @@ exports.all = function(req, res){
     var currentUser = req.session.user;
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
-    var username = currentUser.uri;
-
-    var pingForNewPosts = true;
     var currentPage = req.query.currentPage;
     var index = currentPage == 1? 0 : (currentPage*5) - 5;
     var maxResults = 5;
@@ -155,107 +150,6 @@ exports.all = function(req, res){
                 });
             }
         });
-
-        /*if(pingForNewPosts)
-        {
-            pingNewPosts(currentUser, function (error, newposts) {
-                if(error)
-                {
-                    res.status(500).json({
-                        result : "Error",
-                        message : "Error pinging posts. " + JSON.stringify(error)
-                    });
-                }
-                else
-                {
-                    Project.findByCreatorOrContributor(currentUser.uri, function (err, projects) {
-                        if(!err)
-                        {
-                            async.map(projects, function (project, cb1) {
-                                cb1(null, project.uri);
-                            }, function (err, fullProjectsUris) {
-                                //getAllPosts(fullProjectsUris,function (err, results) {
-                                getAllPostsNew(fullProjectsUris,function (err, results) {
-                                    if(!err)
-                                    {
-                                        res.json(results);
-                                    }
-                                    else{
-                                        res.status(500).json({
-                                            result : "Error",
-                                            message : "Error getting posts. " + JSON.stringify(err)
-                                        });
-                                    }
-                                }, index, maxResults);
-                            })
-                        }
-                        else
-                        {
-                            res.status(500).json({
-                                result : "Error",
-                                message : "Error finding user projects"
-                            });
-                        }
-                    });
-                    /!*
-                    getAllPosts(function (err, results) {
-                        if(!err)
-                        {
-                            res.json(results);
-                        }
-                        else{
-                            res.status(500).json({
-                                result : "Error",
-                                message : "Error getting posts. " + JSON.stringify(err)
-                            });
-                        }
-                    }, index, maxResults);*!/
-                }
-            });
-        }
-        else
-        {
-            Post.all(req, function (err, posts)
-            {
-                if (!err)
-                {
-                    async.map(posts, function(post, callback){
-
-                        Post.findByUri(post.uri, function (err, loadedPost) {
-                            if(err)
-                                callback(err, null);
-                            else
-                            {
-                                callback(null, loadedPost);
-                            }
-
-                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri)
-                        }, null, db_social.graphUri, null)
-                    }, function(err, loadedPosts){
-                        if(!err)
-                        {
-                            loadedPosts.sort(sortPostsByModifiedDate);//sort posts by modified date
-                            res.json(loadedPosts);
-                        }
-                        else
-                        {
-                            res.status(500).json({
-                                result : "Error",
-                                message : "Error retrieving post contents. " + JSON.stringify(err)
-                            });
-                        }
-                    });
-
-                }
-                else
-                {
-                    res.status(500).json({
-                        result : "Error",
-                        message : "Error retrieving post URIs. " + JSON.stringify(err)
-                    });
-                }
-            }, db_social.graphUri, false);
-        }*/
     }
     else
     {
@@ -267,121 +161,6 @@ exports.all = function(req, res){
         });
     }
 };
-
-function sortPostsByModifiedDate(postA, postB) {
-    var a = new Date(postA.dcterms.modified),
-        b = new Date(postB.dcterms.modified);
-    return (a.getTime() - b.getTime());
-}
-
-//function that pings metadata changes from dendro_graph to build the posts in social_dendro graph
-function pingNewPosts(sessionUser, cb) {
-    var currentUserUri = sessionUser.uri;
-    var numPostsCreated = 0;
-    Project.findByCreatorOrContributor(currentUserUri, function(err, projects) {
-        if(!err)
-        {
-            if(projects.length > 0)
-            {
-                async.map(projects, function (project, cb1) {
-                        var socialUpdatedAt = project.dcterms.socialUpdatedAt ? project.dcterms.socialUpdatedAt : '1970-09-21T19:27:46.578Z';
-                        project.getRecentProjectWideChangesSocial(function(err, changes){
-                            if(!err)
-                            {
-                                if(changes.length > 0)
-                                {
-                                    async.map(changes, function(change, callback){
-                                            if(change.changes && change.changes[0])// change.changes[0])
-                                            {
-                                                var newPost = new Post({
-                                                    ddr: {
-                                                        changeType: change.changes[0].ddr.changeType,
-                                                        newValue: change.changes[0].ddr.newValue,
-                                                        changedDescriptor: change.changes[0].ddr.changedDescriptor? change.changes[0].ddr.changedDescriptor.label : 'undefined',
-                                                        hasContent: change.changes[0].uri,
-                                                        numLikes: 0,
-                                                        projectUri: project.uri
-                                                    },
-                                                    dcterms: {
-                                                        //creator : currentUserUri,
-                                                        creator : change.ddr.versionCreator.uri,
-                                                        title: project.dcterms.title
-                                                    }
-                                                });
-
-                                                newPost.save(function(err, post)
-                                                {
-                                                    if (!err)
-                                                    {
-                                                        numPostsCreated++;
-                                                        callback(err, post);
-                                                    }
-                                                    else
-                                                    {
-                                                        callback(err, post);
-                                                    }
-                                                }, false, null, null, null, null, db_social.graphUri);
-                                            }
-                                            else
-                                            {
-                                                callback(null,null);
-                                            }
-                                        },
-                                        function(err, fullDescriptors)
-                                        {
-                                            if(!err)
-                                            {
-                                                var updatedProject = project;
-                                                updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
-                                                updateResource(project, updatedProject, db.graphUri, function (error, data) {
-                                                    cb1(error, fullDescriptors);
-                                                });
-                                            }
-                                            else
-                                            {
-                                                var errorMsg = "Error at project changes";
-                                                console.log(errorMsg);
-                                                cb1(err, errorMsg);
-                                            }
-                                        });
-                                }
-                                else
-                                {
-                                    //no changes detected
-                                    var updatedProject = project;
-                                    updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
-                                    updateResource(project, updatedProject, db.graphUri, function (error, data) {
-                                        cb1(error,data);
-                                    });
-                                }
-                            }
-                            else
-                            {
-                                var errorMsg = "Error getting recent project wide social changes";
-                                cb1(err,errorMsg);
-                            }
-                        },null,null,socialUpdatedAt);
-                    },
-                    function (err, fullProjects) {
-                        //fullProjects.length is fullProjects.length
-                        //numPostCreated is numPostsCreated
-                        cb(err, fullProjects);
-                    });
-            }
-            else
-            {
-                cb(null,null);
-            }
-        }
-        else
-        {
-            var errorMsg = "Error finding projects by creator or contributor";
-            callback(err, errorMsg);
-        }
-
-    });
-
-}
 
 exports.new = function(req, res){
     let currentUserUri = req.session.user.uri;
@@ -635,19 +414,6 @@ exports.share = function (req, res) {
 
                         }, false, null, null, null, null, db_social.graphUri);
                     });
-
-                    /*var newShare = new Share({
-                        ddr: {
-                            userWhoShared : currentUser.uri,
-                            fileVersionUri: fileVersion.uri,
-                            shareMsg: shareMsg,
-                            projectUri: fileVersion.ddr.projectUri,
-                            creatorUri: currentUser.uri
-                        },
-                        rdf: {
-                            isShare : true
-                        }
-                    });*/
                 }
             }
             else
@@ -938,7 +704,6 @@ exports.like = function (req, res) {
                     {
                         if(!err && post != null)
                         {
-                            var updatedPost = post;
                             var newLike = new Like({
                                 ddr: {
                                     userWhoLiked : currentUser.uri,
@@ -946,7 +711,7 @@ exports.like = function (req, res) {
                                 }
                             });
 
-                            //resourceTargetUri -> a post, fileVersion etc
+                            //resourceTargetUri -> a post etc
                             //resourceAuthorUri -> the author of the post etc
                             //userWhoActed -> user who commmented/etc
                             //actionType -> comment/like/share
@@ -1020,22 +785,6 @@ exports.like = function (req, res) {
     }
 };
 
-/*var updateResource = function(currentResource, newResource, graphUri, cb)
-{
-    var descriptors = newResource.getDescriptors();
-
-    db.connection.replaceDescriptorsOfSubject(
-        currentResource.uri,
-        descriptors,
-        graphUri,
-        function(err, result)
-        {
-            cb(err, result);
-        }
-    );
-};*/
-
-
 var numPostsDatabaseAux = function (projectUrisArray, callback) {
     /*WITH <http://127.0.0.1:3001/social_dendro>
      SELECT (COUNT(DISTINCT ?postURI) AS ?count)
@@ -1087,20 +836,6 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
         var results = 0;
         callback(null, results);
     }
-};
-
-var updateResource = function(currentResource, newResource, graphUri, cb)
-{
-    var newDescriptors= newResource.getDescriptors();
-
-    currentResource.replaceDescriptorsInTripleStore(
-        newDescriptors,
-        graphUri,
-        function(err, result)
-        {
-            cb(err, result);
-        }
-    );
 };
 
 var removeLike = function (likeID, userUri, cb) {
@@ -1281,12 +1016,6 @@ var getSharesForAPost = function (postID, cb) {
             }
         });
 };
-
-function saveCurrentUserInRedis(req, res) {
-    var redis = require("redis");
-    client = redis.createClient();
-
-}
 
 exports.getPostShares = function (req, res) {
     var acceptsHTML = req.accepts('html');
@@ -1575,8 +1304,6 @@ exports.post = function (req, res) {
         });
     };
 
-    //uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval
-    //TODO VERIFICAR AQUI QUE TIPO DE POST É e construir as 3 changes etc
     Post.findByUri(postUri, function(err, post)
     {
         if(!err && post != null)
@@ -1646,9 +1373,7 @@ exports.post = function (req, res) {
                                 callback(null);
                             }
                         }
-                        //TODO METER AQUI UM IF NO caso de ser METADATACHANGEPOST para correr a função buildChanges que mete as changes no post
                     ],
-                    // optional callback
                     function(err, results) {
                         res.json(post);
                     });
@@ -1690,114 +1415,46 @@ exports.getShare = function (req, res) {
 
     var currentUser = req.session.user;
     var shareUri = "http://"+req.headers.host + req.url;
-    var fileVersionType = "http://dendro.fe.up.pt/ontology/0.1/FileVersion";
-    var shareOfAPost;
 
     Share.findByUri(shareUri, function(err, share)
     {
         if(!err && share != null)
         {
-            shareOfAPost = share.ddr.fileVersionUri == null ? true : false;
             if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
-                if(shareOfAPost)
-                {
-                    async.parallel([
-                            function(callback) {
-                                getCommentsForAPost(share.uri, function (err, commentsData) {
-                                    callback(err, commentsData);
-                                });
-                            },
-                            function(callback) {
-                                getLikesForAPost(share.uri, function (err, likesData) {
-                                    callback(err, likesData);
-                                });
-                            },
-                            function (callback) {
-                                getSharesForAPost(share.uri, function (err, sharesData) {
-                                    callback(err, sharesData);
-                                });
-                            }
-                        ],
-                        // optional callback
-                        function(err, results) {
-                            share.commentsContent = results[0];
-                            share.likesContent = results[1];
-                            share.sharesContent = results[2];
-                            res.json(share);
-                        });
-                }
-                else
-                {
-                    //Is a share of a fileVersion
-                    FileVersion.findByUri(share.uri, function(err, fileVersion)
-                    {
-                        if(!err && fileVersion != null)
-                        {
-                            async.parallel([
-                                    function(callback) {
-                                        fileVersion.getComments(function (err, commentsData) {
-                                            callback(err, commentsData);
-                                        });
-                                        /*getCommentsForAPost(share.uri, function (err, commentsData) {
-                                         callback(err, commentsData);
-                                         });*/
-                                    },
-                                    function(callback) {
-                                        fileVersion.getLikes(function (err, likesData) {
-                                            callback(err, likesData);
-                                        });
-                                        /*getLikesForAPost(share.uri, function (err, likesData) {
-                                         callback(err, likesData);
-                                         });*/
-                                    },
-                                    function (callback) {
-                                        fileVersion.getShares(function (err, sharesData) {
-                                            callback(err, sharesData);
-                                        });
-                                        /*getSharesForAPost(share.uri, function (err, sharesData) {
-                                         callback(err, sharesData);
-                                         });*/
-                                    }
-                                ],
-                                // optional callback
-                                function(err, results) {
-                                    fileVersion.commentsContent = results[0];
-                                    fileVersion.likesContent = results[1];
-                                    fileVersion.sharesContent = results[2];
-                                    res.json(fileVersion);
-                                });
-                        }
-                        else
-                        {
-                            var errorMsg = "Error looking for a shared fileVersion with uri " + share.uri;
-                            res.status(404).json({
-                                result: "Error",
-                                message: errorMsg
+
+                async.parallel([
+                        function(callback) {
+                            getCommentsForAPost(share.uri, function (err, commentsData) {
+                                callback(err, commentsData);
+                            });
+                        },
+                        function(callback) {
+                            getLikesForAPost(share.uri, function (err, likesData) {
+                                callback(err, likesData);
+                            });
+                        },
+                        function (callback) {
+                            getSharesForAPost(share.uri, function (err, sharesData) {
+                                callback(err, sharesData);
                             });
                         }
-                    }, null, db_social.graphUri, null);
-                }
+                    ],
+                    // optional callback
+                    function(err, results) {
+                        share.commentsContent = results[0];
+                        share.likesContent = results[1];
+                        share.sharesContent = results[2];
+                        res.json(share);
+                    });
             }
             else
             {
-                //TODO AQUI UM IF verificar se é um share de um post ou fileversion
-                if(shareOfAPost)
-                {
-                    res.render('social/showShare',
-                        {
-                            shareUri : shareUri
-                        }
-                    );
-                }
-                else
-                {
-                    res.render('social/showShareFileVersion',
-                        {
-                            shareUri : shareUri
-                        }
-                    );
-                }
+                res.render('social/showShare',
+                    {
+                        shareUri : shareUri
+                    }
+                );
             }
         }
         else
@@ -1820,97 +1477,10 @@ exports.getShare = function (req, res) {
             }
         }
     }, null, db_social.graphUri, null);
-
-    return;
-    /*
-    if(acceptsHTML && !acceptsJSON)  //will be null if the client does not accept html
-    {*/
-
-
-        //TODO find the share in database
-        //TODO see if it has ddr:postURI or ddr:fileVersionUri
-        //TODO redirect to social/showPost or social/showFileVersion
-
-        var query =
-            "WITH [0] \n" +
-            "SELECT ?type \n" +
-            "WHERE { \n" +
-            "[1] ddr:fileVersionUri ?fileVersionUri \n" +
-            "}";
-
-        query = DbConnection.addLimitsClauses(query, null, null);
-
-        db.connection.execute(query,
-            DbConnection.pushLimitsArguments([
-                {
-                    type : DbConnection.resourceNoEscape,
-                    value: db_social.graphUri
-                },
-                {
-                    type : DbConnection.resourceNoEscape,
-                    value: shareUri
-                }
-            ]),
-            function(err, results) {
-                if(!err)
-                {
-                    //var types =_.pluck(results, 'type');
-
-                    /*if(types.indexOf(fileVersionType) > -1)
-                     {
-                     res.render('social/showFileVersion',
-                     {
-                     fileVersionUri : shareUri
-                     }
-                     );
-                     }
-                     else
-                     {
-                     res.render('social/showPost',
-                     {
-                     postUri : shareUri
-                     }
-                     );
-                     }*/
-                    if(results.length > 0)
-                    {
-                        res.render('social/showFileVersion',
-                            {
-                                fileVersionUri : shareUri
-                            }
-                        );
-                    }
-                    else
-                    {
-                        res.render('social/showPost',
-                            {
-                                postUri : shareUri
-                            }
-                        );
-                    }
-                }
-                else
-                {
-                    var errorMsg = "Error fetching share";
-                    res.send(500, errorMsg);
-                }
-            });
-   /* }
-    else
-    {
-        var msg = "This method is only accessible via HTML. Accept:\"text/html\" header is missing or is not the only Accept type";
-        req.flash('error', "Invalid Request");
-        res.status(400).json({
-            result : "Error",
-            message : msg
-        });
-    }*/
 };
 
 
 //AUX FUNCTIONS
-
-//Já existe o getCommentsForAPost e o getSharesForAPost
 var getLikesForAPost = function (postUri, callback) {
     let resultInfo;
     Post.findByUri(postUri, function(err, post)

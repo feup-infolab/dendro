@@ -42,9 +42,6 @@ require("./controllers/ontologies.Test");
 /*
 require("./controllers/social/posts.Test.js");
 
-//test social Dendro File Versions
-require("./controllers/social/fileVersions.Test.js");
-
 //test social Dendro Notifications
 require("./controllers/social/notifications.Test.js");
 */

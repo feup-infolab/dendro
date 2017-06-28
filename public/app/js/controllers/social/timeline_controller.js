@@ -26,6 +26,8 @@ angular.module('dendroApp.controllers')
             }
         ];
 
+        $scope.projectChosen = $scope.userProjects[0];
+
         $scope.pagination = {
             current: 1
         };
@@ -356,15 +358,14 @@ angular.module('dendroApp.controllers')
             timelineService.newPost(newPostTitle, newPostContent, projectUri)
                 .then(function (response) {
                     $scope.show_popup(response.data.message);
-                    //$scope.get_all_posts($scope.pagination.current);//TODO remove this function call???
+                    $('#myModal').modal('hide');
                     $scope.pagination.current = 1;
+                    $scope.newPostTitle = $scope.newPostTitlePlaceholder;
+                    $scope.newPostContent = $scope.newPostContentPlaceholder;
+                    $scope.projectChosen = $scope.userProjects[0];
                     $scope.pageChangeHandler($scope.pagination.current);
-                    //$scope.initTimeline();
                     $window.scrollTo(0, 0);//to scroll up to the top on page change
                     $scope.doing_createNewPost = false;
-                    $('#myModal').modal('toggle');
-                    $scope.newPostTitle = JSON.parse(JSON.stringify($scope.newPostTitlePlaceholder));
-                    $scope.newPostContent = JSON.parse(JSON.stringify($scope.newPostContentPlaceholder));
                 })
                 .catch(function (error) {
                     console.error("Error createNewManualPost" + JSON.stringify(error));

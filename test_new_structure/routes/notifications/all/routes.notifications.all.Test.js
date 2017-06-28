@@ -54,7 +54,7 @@ describe("Social Dendro, get user notifications tests", function () {
             });
         });
 
-        it("Should only give notifications related to interactions with posts and fileVersions created by demouser1(The current authenticated user)", function (done) {
+        it("Should only give notifications related to interactions with posts created by demouser1(The current authenticated user)", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 notificationUtils.getUserNotifications(true, agent, function (err, res) {
                     res.statusCode.should.equal(200);//TODO Check if the notifications are for this user(check the target)

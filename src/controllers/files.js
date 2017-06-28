@@ -882,36 +882,6 @@ exports.upload = function(req, res)
                                                                                 cb(true, newfileSystemPost);
                                                                             }
                                                                         });
-                                                                        /*var newFileSystemPost = new FileVersion({
-                                                                            nfo: {
-                                                                                fileName: fileVersion.filename,
-                                                                                hashValue: fileVersion.md5,
-                                                                                hashAlgorithm: 'md5'
-                                                                            },
-                                                                            nie: {
-                                                                                contentLastModified: fileVersion.uploadDate,
-                                                                                byteSize: fileVersion.length
-                                                                            },
-                                                                            ddr: {
-                                                                                contentType: fileVersion.contentType,
-                                                                                chunkSize: fileVersion.chunkSize,
-                                                                                projectUri: fileVersion.metadata.project,
-                                                                                itemType: fileVersion.metadata.type,
-                                                                                creatorUri: currentUserUri
-                                                                            }
-                                                                        });*/
-
-                                                                        /*newFileSystemPost.save(function (err, fileSystemPost)
-                                                                        {
-                                                                            if (!err)
-                                                                            {
-                                                                                cb(null, fileSystemPost);
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                cb(true, fileSystemPost);
-                                                                            }
-                                                                        }, false, null, null, null, null, db_social.graphUri)*/
                                                                     }
                                                                     else
                                                                     {

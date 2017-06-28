@@ -1101,7 +1101,6 @@ async.series([
         var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
         var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
         var timeline = require(Config.absPathInSrcFolder("/controllers/timeline"));
-        var fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
         var notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
 
         var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
@@ -1794,18 +1793,6 @@ async.series([
         app.post('/posts/shares', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPostShares);
         app.get('/posts/countNum', async.apply(Permissions.require, [Permissions.role.system.user]), posts.numPostsDatabase);
         app.get('/posts/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), posts.post);
-
-        //file versions
-        app.get('/fileVersions/all', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.all);
-        app.get('/fileVersions/countNum', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.numFileVersionsInDatabase);
-        app.post('/fileVersions/fileVersion', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersion);
-        app.get('/fileVersions/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.fileVersion);
-        app.post('/fileVersions/like', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.like);
-        app.post('/fileVersions/comment', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.comment);
-        app.post('/fileVersions/share', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.share);
-        app.post('/fileVersions/fileVersion/likesInfo', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.fileVersionLikesInfo);
-        app.post('/fileVersions/shares', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersionShares);
-        app.post('/fileVersions/comments', async.apply(Permissions.require, [Permissions.role.system.user]), fileVersions.getFileVersionComments);
 
         //shares
         app.get('/shares/:uri', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getShare);
