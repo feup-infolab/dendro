@@ -344,7 +344,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
                 callback);
         };
         
-        const processRequest = function(err, resourceUri)
+        const processRequest = function(resourceUri)
         {
             req.params.requestedResourceUri = resourceUri;
 
@@ -567,7 +567,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
                     callback);
             };
 
-            const processRequest = function(err, resourceUri){
+            const processRequest = function(resourceUri){
                 req.params.requestedResourceUri = resourceUri;
                 const defaultPermissionsInProjectBranch = [
                     Permissions.project_privacy_status.public,
