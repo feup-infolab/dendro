@@ -15,8 +15,8 @@ angular.module('dendroApp.controllers')
 
         $scope.newPostTitlePlaceholder = "The title of your post";
         $scope.newPostContentPlaceholder = "Write your post here";
-        $scope.newPostTitle = "The title of your post";
-        $scope.newPostContent = "Write your post here";
+        $scope.newPostTitle = "";
+        $scope.newPostContent = "";
         $scope.showCreateNewManualPost = false;
 
         $scope.userProjects = [
@@ -43,6 +43,14 @@ angular.module('dendroApp.controllers')
             $scope.userProjects.splice(1);
         };
 
+
+        /*$('#myModal').on('hidden.bs.modal', function (e) {
+            console.log("Modal hidden");
+            $("#choosingProject").html("projects");
+            $("#newPostTitle").html("titleLindo");
+            $("#newPostContent").html("contentLindo");
+        });
+*/
         $scope.getUserProjects = function () {
             projectsService.getUserProjects()
                 .then(function (response) {
@@ -360,9 +368,13 @@ angular.module('dendroApp.controllers')
                     $scope.show_popup(response.data.message);
                     $('#myModal').modal('hide');
                     $scope.pagination.current = 1;
-                    $scope.newPostTitle = $scope.newPostTitlePlaceholder;
-                    $scope.newPostContent = $scope.newPostContentPlaceholder;
-                    $scope.projectChosen = $scope.userProjects[0];
+
+                    /*$scope.newPostTitle = "Shit title";
+                    $scope.newPostContent = "Shit content";
+                    $scope.projectChosen = "Shit project";*/
+                    //angular.copy($scope.newPostTitlePlaceholder, $scope.newPostTitle);
+                    //angular.copy($scope.newPostContentPlaceholder, $scope.newPostContent);
+
                     $scope.pageChangeHandler($scope.pagination.current);
                     $window.scrollTo(0, 0);//to scroll up to the top on page change
                     $scope.doing_createNewPost = false;
