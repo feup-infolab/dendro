@@ -33,7 +33,7 @@ describe("Request access to public project", function (done) {
         });
     });
 
-    describe("[GET] /project/:handle/request_access " + "[" + publicProject.handle + "]", function () {
+    describe("[GET] /project/:handle?request_access " + "[" + publicProject.handle + "]", function () {
         it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
@@ -75,7 +75,7 @@ describe("Request access to public project", function (done) {
         })
     });
 
-    describe("[POST] /project/:handle/request_access" + "[" + publicProject.handle + "]", function () {
+    describe("[POST] /project/:handle?request_access" + "[" + publicProject.handle + "]", function () {
         //TODO HTML ONLY -> also sends flash messages with success or error responses
         //TODO make a request to JSON API, should return invalid request
         //TODO TEST for all project types

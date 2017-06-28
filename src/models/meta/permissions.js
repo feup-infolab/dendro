@@ -133,7 +133,7 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
         if(Config.debug.permissions.log_authorizations)
         {
             var user = "-> NO USER AUTHENTICATED <-";
-            if(req.user)
+            if(!isNull(req.user))
             {
                 user = req.user.uri;
             }
@@ -166,19 +166,54 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
 
             if(req.user)
             {
-                return res.status(401).redirect('/');
+                return res.status(401).render('index',
+                {
+                    error_messages : [messageUser]
+                });
             }
             else
             {
-                return res.status(401).redirect('/login');
+                return res.status(401).render('auth/login', {
+                    error_messages : [messageUser]
+                });
             }
         }
     }
 };
 
 const getOwnerProject = function (requestedResource, callback) {
-    Project.getOwnerProjectBasedOnUri(requestedResource, function (err, project) {
-        return callback(err, project);
+
+    async.tryEach([
+        function(callback)
+        {
+            Project.findByUri(requestedResource, function(err, project){
+                if(isNull(err) && project instanceof Project)
+                {
+                    callback(null, project);
+                }
+                else
+                {
+                    callback(true, err);
+                }
+            });
+        },
+        function(callback)
+        {
+            InformationElement.findByUri(requestedResource, function(err, resource){
+                if(isNull(err) && resource instanceof InformationElement)
+                {
+                    resource.getOwnerProject(function(err, project){
+                        callback(null, project);
+                    });
+                }
+                else
+                {
+                    callback(true, err);
+                }
+            });
+        }
+    ], function(err, result){
+        callback(err, result);
     });
 };
 
@@ -234,9 +269,9 @@ const checkPermissionsForRole = function (req, user, resource, role, callback) {
 };
 
 const checkPermissionsForProject = function (req, permission, callback) {
-    Project.findByHandle(req.params.handle, function (err, project) {
+    Project.findByUri(req.params.requestedResourceUri, function (err, project) {
         if (!err) {
-            if (!isNull(project)) {
+            if (!isNull(project) && project instanceof Project) {
                 const privacy = project.ddr.privacyStatus;
 
                 if (!isNull(permission.object) && privacy === permission.object) {
@@ -301,7 +336,7 @@ Permissions.check = function(permissionsRequired, req, callback)
     //Global Administrators are God, so they dont go through any checks
     if(!req.session.isAdmin)
     {
-        const resource = Config.baseUri + require('url').parse(req.url).pathname;
+        const resource = req.params.requestedResourceUri;
         const user = req.user;
 
         const checkPermissions = function (req, user, resource, permission, cb) {

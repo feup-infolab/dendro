@@ -153,7 +153,7 @@ exports.change_log = function(req, res){
     {
         if(!err && containingFolder !== "undefined" && containingFolder instanceof Folder)
         {
-            Project.findByHandle(req.params.handle, function(err, project) {
+            folder.getOwnerProject(function(err, project){
                 if(!err && !isNull(project))
                 {
                     let offset;
@@ -185,7 +185,7 @@ exports.change_log = function(req, res){
                         }
                         else
                         {
-                            var flash = require('connect-flash');
+                            const flash = require('connect-flash');
                             flash('error', "Unable to fetch project revisions. Reported Error: " + archivedResources);
                             res.redirect('back');
                         }
@@ -194,15 +194,15 @@ exports.change_log = function(req, res){
                 }
                 else
                 {
-                    var flash = require('connect-flash');
-                    flash('error', "Unable to fetch contents of folder");
+                    const flash = require('connect-flash');
+                    flash('error', "Unable to fetch owner project of folder " + folder.uri);
                     res.redirect('back');
                 }
             });
         }
         else
         {
-            var flash = require('connect-flash');
+            const flash = require('connect-flash');
             flash('error', "Unable to fetch project");
             if(!res._headerSent)
             {
@@ -215,23 +215,7 @@ exports.change_log = function(req, res){
 exports.show = function(req, res) {
     const userIsLoggedIn = req.user ? true : false;
 
-    if(!isNull(req.params.requestedResourceUri))
-    {
-        var resourceURI	= req.params.requestedResourceUri;
-    }
-    else if(req.params.handle)
-    {
-        var project = new Project(
-            {
-                ddr:
-                    {
-                        handle: req.params
-                    }
-            }
-        );
-
-        var resourceURI = project.uri;
-    }
+    let resourceURI = req.params.requestedResourceUri;
 
     function sendResponse(viewVars, requestedResource)
     {
@@ -426,7 +410,7 @@ exports.show = function(req, res) {
                         }
                         else
                         {
-                            var flash = require('connect-flash');
+                            const flash = require('connect-flash');
                             flash('error', "Unable to fetch project revisions. Reported Error: " + archivedResources);
                             res.redirect('back');
                         }
@@ -455,7 +439,7 @@ exports.show = function(req, res) {
             }
             else
             {
-                var flash = require('connect-flash');
+                const flash = require('connect-flash');
                 flash('error', "Unable to retrieve the project : " + resourceURI + " . " + project);
                 res.render('index',
                     {
@@ -553,7 +537,7 @@ exports.show = function(req, res) {
                                 }
                                 else
                                 {
-                                    var flash = require('connect-flash');
+                                    const flash = require('connect-flash');
                                     flash('error', "Unable to fetch project revisions. Reported Error: " + archivedResources);
                                     res.redirect('back');
                                 }
@@ -582,7 +566,7 @@ exports.show = function(req, res) {
                     }
                     else
                     {
-                        var flash = require('connect-flash');
+                        const flash = require('connect-flash');
                         flash('error', "Unable to fetch contents of folder");
                         res.redirect('back');
                     }
@@ -590,7 +574,7 @@ exports.show = function(req, res) {
             }
             else
             {
-                var flash = require('connect-flash');
+                const flash = require('connect-flash');
                 flash('error', "Unable to fetch project");
                 if(!res._headerSent)
                 {
@@ -1460,18 +1444,30 @@ exports.requestAccess = function(req, res){
         }
         else
         {
-            res.render('projects/request_access',
-            {
-                handle: req.params.handle
+            Project.findByUri(req.params.requestedResourceUri, function(err, project){
+                if(isNull(err) && project instanceof Project)
+                {
+                    res.render('projects/request_access',
+                        {
+                            project : project
+                        });
+                }
+                else
+                {
+                    req.flash('error', "Project " + req.params.requestedResourceUri + " not found.");
+                    res.redirect("/");
+                }
             });
+
+
         }
     }
     else if(req.originalMethod === "POST")
     {
         const flash = require('connect-flash');
         console.log(req.user);
-        Project.findByHandle(req.params.handle, function (err, project) {
-            if (!err && project instanceof Project) {
+        Project.findByUri(req.params.requestedResourceUri, function (err, project) {
+            if (isNull(err) && project instanceof Project) {
                 const lastSlash = project.dcterms.creator.lastIndexOf("\/");
                 const creatorUsername = project.dcterms.creator.substring(lastSlash + 1);
 

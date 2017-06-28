@@ -34,12 +34,16 @@ describe("Undelete Public Project Tests", function () {
         });
     });
 
-    describe("[JSON] [POST] /project/:handle/undelete", function () {
+    describe("[JSON] [POST] /project/:handle?undelete", function () {
         it("Should give an error message when a project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.undeleteProject(true, agent, "ARandomProject", function (err, res) {
                     res.statusCode.should.equal(404);
-                    res.body.message.should.equal("Unable to find project with handle : " + "ARandomProject");
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri");
+                    res.body.message[0].should.contain("ARandomProject");
                     done();
                 });
             })
@@ -50,7 +54,8 @@ describe("Undelete Public Project Tests", function () {
             var agent = chai.request.agent(app);
             projectUtils.undeleteProject(true, agent, publicProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);
-                res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                res.body.result.should.equal("error");
+                res.body.message.should.equal("Permission denied : cannot undelete project because you do not have permissions to administer this project.");
                 done();
             });
         });
@@ -59,7 +64,8 @@ describe("Undelete Public Project Tests", function () {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 projectUtils.undeleteProject(true, agent, publicProject.handle, function (err, res) {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                    res.body.result.should.equal("error");
+                    res.body.message.should.equal("Permission denied : cannot undelete project because you do not have permissions to administer this project.");
                     done();
                 });
             })
@@ -69,7 +75,8 @@ describe("Undelete Public Project Tests", function () {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 projectUtils.undeleteProject(true, agent, publicProject.handle, function (err, res) {
                     res.statusCode.should.equal(401);
-                    res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                    res.body.result.should.equal("error");
+                    res.body.message.should.equal("Permission denied : cannot undelete project because you do not have permissions to administer this project.");
                     done();
                 });
             })
@@ -86,13 +93,14 @@ describe("Undelete Public Project Tests", function () {
         })
     });
 
-    describe("[HTML] [POST] /project/:handle/undelete", function () {
+    describe("[HTML] [POST] /project/:handle?undelete", function () {
 
         it("Should give an error message when a project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.undeleteProject(false, agent, "ARandomProject", function (err, res) {
                     res.statusCode.should.equal(404);
-                    res.body.message.should.equal("Unable to find project with handle : " + "ARandomProject");
+                    res.text.should.contain("Resource not found at uri");
+                    res.text.should.contain("ARandomProject");
                     done();
                 });
             })
@@ -102,8 +110,8 @@ describe("Undelete Public Project Tests", function () {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.undeleteProject(false, agent, publicProjectHTMLTests.handle, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.text.should.contain("<p>Please log into the system.</p>");
+                res.statusCode.should.equal(401);
+                res.text.should.contain("Permission denied : cannot undelete project because you do not have permissions to administer this project.");
                 done();
             });
         });
@@ -111,8 +119,7 @@ describe("Undelete Public Project Tests", function () {
         it("Should give an error when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to undelete a project created by demouser1 that is currently deleted", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 projectUtils.undeleteProject(false, agent, publicProjectHTMLTests.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.text.should.contain("<p>Please log into the system.</p>");
+                    res.statusCode.should.equal(401);
                     done();
                 });
             })
@@ -121,8 +128,7 @@ describe("Undelete Public Project Tests", function () {
         it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to undelete the project that is currently deleted", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 projectUtils.undeleteProject(false, agent, publicProjectHTMLTests.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.text.should.contain("<p>Please log into the system.</p>");
+                    res.statusCode.should.equal(401);
                     done();
                 });
             })
@@ -132,9 +138,7 @@ describe("Undelete Public Project Tests", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.undeleteProject(false, agent, publicProjectHTMLTests.handle, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.text.should.contain("This is a public test project with handle publicprojecthtmlcreatedbydemouser1 and created by demouser1");
-                    res.text.should.not.contain("<p>Please log into the system.</p>");
-                    res.text.should.not.contain("This is a public test project with handle publicprojecthtmlcreatedbydemouser1 and created by demouser1 Creator Deleted");
+                    res.text.should.not.contain("Permission denied : cannot undelete project because you do not have permissions to administer this project.");
                     done();
                 });
             })

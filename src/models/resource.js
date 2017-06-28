@@ -2143,7 +2143,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                     },
                     {
                         type: DbConnection.prefixedResource,
-                        value: descriptorToCheck.uri
+                        value: descriptorToCheck.getPrefixedForm()
                     },
                     {
                         type: descriptorToCheck.type,

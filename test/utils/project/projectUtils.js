@@ -388,7 +388,7 @@ var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
 
 var getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb) {
     // /project/:handle/request_access
-    var path = "/project/"+ projectHandle + "/request_access";
+    var path = "/project/"+ projectHandle + "?request_access";
     if(jsonOnly)
     {
         agent
@@ -412,7 +412,7 @@ var getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb) 
 
 var requestAccessToProject = function (jsonOnly, agent, projectHandle, cb) {
     // /project/:handle/request_access
-    var path = "/project/"+ projectHandle + "/request_access";
+    var path = "/project/"+ projectHandle + "?request_access";
     if(jsonOnly)
     {
         agent
@@ -436,7 +436,7 @@ var requestAccessToProject = function (jsonOnly, agent, projectHandle, cb) {
 
 var deleteProject = function (jsonOnly, agent, projectHandle, cb) {
     // /project/:handle/delete
-    var path = "/project/"+ projectHandle + "/delete";
+    var path = "/project/"+ projectHandle + "?delete";
     if(jsonOnly)
     {
         agent
@@ -460,7 +460,7 @@ var deleteProject = function (jsonOnly, agent, projectHandle, cb) {
 
 var undeleteProject = function (jsonOnly, agent, projectHandle, cb) {
     // /project/:handle/undelete
-    var path = "/project/"+ projectHandle + "/undelete";
+    var path = "/project/"+ projectHandle + "?undelete";
     if(jsonOnly)
     {
         agent

@@ -39,14 +39,14 @@ describe("My Projects", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.listAllMyProjects(false, agent, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.text.should.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">");
-                    res.text.should.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">");
+                    res.text.should.contain("metadataonlyprojectcreatedbydemouser1");
+                    res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1");
 
-                    res.text.should.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">");
-                    res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">");
+                    res.text.should.contain("publicprojectcreatedbydemouser1");
+                    res.text.should.contain("publicprojecthtmlcreatedbydemouser1");
 
-                    res.text.should.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">");
-                    res.text.should.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">");
+                    res.text.should.contain("privateprojectcreatedbydemouser1");
+                    res.text.should.contain("privateprojecthtmlcreatedbydemouser1");
                     done();
                 });
             });
@@ -56,14 +56,14 @@ describe("My Projects", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 projectUtils.listAllMyProjects(false, agent, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.text.should.not.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">");
-                    res.text.should.not.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">");
+                    res.text.should.not.contain("metadataonlyprojectcreatedbydemouser1");
+                    res.text.should.not.contain("metadataonlyhtmlprojectcreatedbydemouser1");
 
-                    res.text.should.not.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">");
-                    res.text.should.not.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">");
+                    res.text.should.not.contain("publicprojectcreatedbydemouser1");
+                    res.text.should.not.contain("publicprojecthtmlcreatedbydemouser1");
 
-                    res.text.should.not.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">");
-                    res.text.should.not.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">");
+                    res.text.should.not.contain("privateprojectcreatedbydemouser1");
+                    res.text.should.not.contain("privateprojecthtmlcreatedbydemouser1");
                     done();
                 });
             });
@@ -83,14 +83,14 @@ describe("My Projects", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 projectUtils.listAllMyProjects(false, agent, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.text.should.contain("<a href=\"/project/metadataonlyprojectcreatedbydemouser1\">");
-                    res.text.should.contain("<a href=\"/project/metadataonlyhtmlprojectcreatedbydemouser1\">");
+                    res.text.should.contain("metadataonlyprojectcreatedbydemouser1");
+                    res.text.should.contain("metadataonlyhtmlprojectcreatedbydemouser1");
 
-                    res.text.should.contain("<a href=\"/project/publicprojectcreatedbydemouser1\">");
-                    res.text.should.contain("<a href=\"/project/publicprojecthtmlcreatedbydemouser1\">");
+                    res.text.should.contain("publicprojectcreatedbydemouser1");
+                    res.text.should.contain("publicprojecthtmlcreatedbydemouser1");
 
-                    res.text.should.contain("<a href=\"/project/privateprojectcreatedbydemouser1\">");
-                    res.text.should.contain("<a href=\"/project/privateprojecthtmlcreatedbydemouser1\">");
+                    res.text.should.contain("privateprojectcreatedbydemouser1");
+                    res.text.should.contain("privateprojecthtmlcreatedbydemouser1");
                     done();
                 });
             });

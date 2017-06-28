@@ -25,7 +25,7 @@ const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js")
 var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 var createProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
-describe("Delete Metada only Project Tests", function () {
+describe("Delete Metadata only Project Tests", function () {
     before(function (done) {
         this.timeout(60000);
         createProjectsUnit.setup(function (err, results) {
@@ -34,13 +34,17 @@ describe("Delete Metada only Project Tests", function () {
         });
     });
 
-    describe("[JSON] [POST] /project/:handle/delete", function () {
+    describe("[JSON] [POST] /project/:handle?delete", function () {
         //TODO HTML AND API
         it("Should give an error message when a project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.deleteProject(true, agent, "aRandomProjectHandle", function (err, res) {
                     res.statusCode.should.equal(404);
-                    res.body.message.should.equal("Unable to find project with handle : aRandomProjectHandle");
+                    res.body.result.should.equal("not_found");
+                    res.body.message.should.be.an('array');
+                    res.body.message.length.should.equal(1);
+                    res.body.message[0].should.contain("Resource not found at uri");
+                    res.body.message[0].should.contain("aRandomProjectHandle");
                     done();
                 });
             });
@@ -51,7 +55,7 @@ describe("Delete Metada only Project Tests", function () {
             var agent = chai.request.agent(app);
             projectUtils.deleteProject(true, agent, metadataProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);
-                res.body.message.should.equal("Action not permitted. You are not logged into the system.");
+                res.text.should.contain("Permission denied : cannot delete project because you do not have permissions to administer this project.");
                 done();
             });
         });
@@ -90,7 +94,8 @@ describe("Delete Metada only Project Tests", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.deleteProject(false, agent, "aRandomProjectHandle", function (err, res) {
                     res.statusCode.should.equal(404);
-                    res.body.message.should.equal("Unable to find project with handle : aRandomProjectHandle");
+                    res.text.should.contain("Resource not found at uri");
+                    res.text.should.contain("aRandomProjectHandle");
                     done();
                 });
             });
@@ -100,8 +105,8 @@ describe("Delete Metada only Project Tests", function () {
             var app = GLOBAL.tests.app;
             var agent = chai.request.agent(app);
             projectUtils.deleteProject(false, agent, metadataProjectHTMLTests.handle, function (err, res) {
-                res.statusCode.should.equal(200);
-                res.text.should.contain("<p>Please log into the system.</p>");
+                res.statusCode.should.equal(401);
+                res.text.should.contain("Permission denied : cannot delete project because you do not have permissions to administer this project.");
                 done();
             });
         });
@@ -109,8 +114,8 @@ describe("Delete Metada only Project Tests", function () {
         it("Should give an error when the user is logged in as demouser2(a collaborator in the project with demouser1) and tries to delete a project created by demouser1", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 projectUtils.deleteProject(false, agent, metadataProjectHTMLTests.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.text.should.contain("<p>Please log into the system.</p>");
+                    res.statusCode.should.equal(401);
+                    res.text.should.contain("Permission denied : cannot delete project because you do not have permissions to administer this project.");
                     done();
                 });
             });
@@ -119,8 +124,8 @@ describe("Delete Metada only Project Tests", function () {
         it("Should give an error when the user is logged in as demouser3(nor collaborator nor creator of the project) and tries to delete the project", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 projectUtils.deleteProject(false, agent, metadataProjectHTMLTests.handle, function (err, res) {
-                    res.statusCode.should.equal(200);
-                    res.text.should.contain("<p>Please log into the system.</p>");
+                    res.statusCode.should.equal(401);
+                    res.text.should.contain("Permission denied : cannot delete project because you do not have permissions to administer this project.");
                     done();
                 });
             });
@@ -130,7 +135,7 @@ describe("Delete Metada only Project Tests", function () {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 projectUtils.deleteProject(false, agent, metadataProjectHTMLTests.handle, function (err, res) {
                     res.statusCode.should.equal(200);
-                    res.text.should.not.contain("<p>Please log into the system.</p>");
+                    res.text.should.not.contain("Permission denied : cannot delete project because you do not have permissions to administer this project.");
                     done();
                 });
             });

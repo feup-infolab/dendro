@@ -1140,7 +1140,7 @@ exports.restore = function(req, res){
     }
     else if (req.originalMethod === "POST")
     {
-        const requestedResourceUri = req.params.requestedResourceUri = Config.baseUri + "/project/" + req.params.handle + "/data";
+        const requestedResourceUri = req.params.requestedResourceUri;
 
         req.form.on('error', function(err) {
             res.status(500).json(
@@ -1692,12 +1692,11 @@ exports.mkdir = function(req, res){
 
 exports.ls = function(req, res){
     const resourceURI = req.params.requestedResourceUri;
-    const filepath = req.params.filepath;
     let show_deleted = req.query.show_deleted;
 
-    if(isNull(filepath))
+    if(req.params.showing_project_root)
     {
-        Project.findByHandle(req.params.handle, function(err, project) {
+        Project.findByUri(resourceURI, function(err, project) {
             if(!err)
             {
                 project.getFirstLevelDirectoryContents(function(err, files){
@@ -1724,7 +1723,7 @@ exports.ls = function(req, res){
             {
                 res.status(500).json({
                     result : "error",
-                    message : "Unable to fetch project with handle : " + req.params.handle
+                    message : "Unable to fetch project with uri : " + req.params.requestedResourceUri
                 })
             }
         });
@@ -1963,7 +1962,7 @@ exports.recent_changes = function(req, res) {
                 {
                     res.status(404).json({
                         result : "error",
-                        message : "Unable to find project with handle : " + req.params.handle
+                        message : "Unable to find file or folder with uri : " + req.params.requestedResourceUri
                     });
                 }
             }

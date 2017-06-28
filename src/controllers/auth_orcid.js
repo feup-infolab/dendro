@@ -5,7 +5,7 @@ const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
 module.exports.login = function(req, res, next){
         req.passport.authenticate('orcid', function(err, user, info) {
-            if (err) { return res.redirect('/login'); }
+            if (err) { return res.status(500).redirect('/login'); }
             if( !user && info instanceof Object)
             {
                 let rp = require('request-promise');

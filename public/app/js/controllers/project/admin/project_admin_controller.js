@@ -67,9 +67,9 @@ angular.module('dendroApp.controllers')
             if($scope.project != null && $scope.project.descriptors != null)
             {
                 if(project.deleted)
-                    var uri = $scope.get_current_url() + "/undelete";
+                    var uri = $scope.get_current_url() + "?undelete";
                 else
-                    var uri = $scope.get_current_url() + "/delete";
+                    var uri = $scope.get_current_url() + "?delete";
 
                 //console.log("deleting " + get_current_url() + " via url " + uri);
 

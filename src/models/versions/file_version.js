@@ -54,7 +54,7 @@ function FileVersion (object)
 
     if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = Config.baseUri + "/fileVersion/" + newId;
+        self.uri = Config.baseUri + "/file_version/" + newId;
     }
 
     self.rdf.type = "ddr:FileVersion";

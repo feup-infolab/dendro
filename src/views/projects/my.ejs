@@ -48,7 +48,7 @@
 
                                                 <td>
                                                     <b>
-                                                        <a href="/project/<%=project.ddr.handle%>">
+                                                        <a href="<%=project.uri%>">
                                                             <% if(project.ddr.deleted)
                                                             {
                                                             %>
@@ -82,7 +82,7 @@
                                                     <%
                                                     }
                                                     %>
-                                                            <b><%= project.dcterms.description %></b>
+                                                            <b><%= project.ddr.handle %></b>
                                                     <% if(!project.ddr.deleted)
                                                     {
                                                     %>
@@ -108,10 +108,10 @@
                                                                 <span class="caret"></span></button>
                                                             <ul class="dropdown-menu">
                                                                 <li>
-                                                                    <a href="/project/<%=project.ddr.handle%>?administer"><i class="fa fa-cog"></i>Administer</a>
+                                                                    <a href="<%=project.uri%>?administer"><i class="fa fa-cog"></i>Administer</a>
                                                                 </li>
                                                                 <li>
-                                                                    <a href="/project/<%=project.ddr.handle%>?bagit"><i class="fa fa-file-zip-o"></i>Backup</a>
+                                                                    <a href="<%=project.uri%>?bagit"><i class="fa fa-file-zip-o"></i>Backup</a>
                                                                 </li>
                                                             </ul>
                                                         </div>

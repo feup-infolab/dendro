@@ -57,6 +57,16 @@ let mkdirp = require('mkdirp');
 let pid;
 let registeredUncaughtExceptionHandler;
 
+const MongoStore = require('connect-mongo')(expressSession);
+
+const sessionMongoStore = new MongoStore(
+    {
+        "host": Config.mongoDBHost,
+        "port": Config.mongoDbPort,
+        "db": Config.mongoDBSessionStoreCollection,
+        "url": 'mongodb://' + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDBSessionStoreCollection
+    });
+
 //Setup logging
 if(!isNull(Config.logging))
 {
@@ -1037,6 +1047,17 @@ const loadData = function(callback)
             {
                 return callback(null);
             }
+        },
+        function(callback) {
+            if(Config.startup.clear_session_store)
+            {
+                console.log("[INFO] Clearing session store!");
+                sessionMongoStore.clear(callback);
+            }
+            else
+            {
+                return callback(null);
+            }
         }],
         function(err, results)
         {
@@ -1128,17 +1149,6 @@ async.series([
         app.use(methodOverride());
 
         app.use(cookieParser(appSecret));
-        
-
-        const MongoStore = require('connect-mongo')(expressSession);
-
-        const sessionMongoStore = new MongoStore(
-            {
-                "host": Config.mongoDBHost,
-                "port": Config.mongoDbPort,
-                "db": Config.mongoDBSessionStoreCollection,
-                "url": 'mongodb://' + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDBSessionStoreCollection
-            });
 
         const slug = require('slug');
         const key = "dendro_" + slug(Config.host) + "_sessionKey";
@@ -1147,7 +1157,7 @@ async.series([
                 secret: appSecret,
                 genid: function(){ const uuid = require('uuid'); return uuid.v4() },
                 key: key,
-                cookie: { maxAge: 1000 * 60 * 60 * 24 * 5 },
+                cookie: { maxAge: 1000 * 60 * 60 * 24 * 5 }, //5 days max session age
                 store: sessionMongoStore,
                 resave: false,
                 saveUninitialized: false

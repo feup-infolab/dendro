@@ -33,7 +33,7 @@ describe("Request access to metadata only project", function (done) {
         });
     });
 
-    describe("[GET] /project/:handle/request_access " + "[" + metadataProject.handle + "]", function () {
+    describe("[GET] /project/:handle?request_access " + "[" + metadataProject.handle + "]", function () {
         
         it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
             var app = GLOBAL.tests.app;
@@ -76,7 +76,7 @@ describe("Request access to metadata only project", function (done) {
         })
     });
 
-    describe("[POST] /project/:handle/request_access" + "[" + metadataProject.handle + "]", function () {
+    describe("[POST] /project/:handle?request_access" + "[" + metadataProject.handle + "]", function () {
         //TODO HTML ONLY -> also sends flash messages with success or error responses
         //TODO make a request to JSON API, should return invalid request
         //TODO TEST for all project types

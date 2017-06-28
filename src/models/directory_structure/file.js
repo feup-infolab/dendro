@@ -335,30 +335,39 @@ File.prototype.loadFromLocalFile = function(localFile, callback)
     const tmp = require('tmp');
     const fs = require('fs');
 
-    const ownerProject = self.getOwnerProjectFromUri();
-
-    /**SAVE FILE**/
-    gfs.connection.put(
-        self.uri,
-        fs.createReadStream(localFile),
-        function(err, result)
+    self.getOwnerProject(function(err, ownerProject){
+        if(isNull && project instanceof Project)
         {
-            if(isNull(err))
-            {
-                return callback(null, self);
-            }
-            else
-            {
-                console.log("Error [" + err + "] saving file in GridFS :" + result);
-                return callback(err, result);
-            }
+            /**SAVE FILE**/
+            gfs.connection.put(
+                self.uri,
+                fs.createReadStream(localFile),
+                function(err, result)
+                {
+                    if(isNull(err))
+                    {
+                        return callback(null, self);
+                    }
+                    else
+                    {
+                        console.log("Error [" + err + "] saving file in GridFS :" + result);
+                        return callback(err, result);
+                    }
 
-        },
-        {
-            project : ownerProject,
-            type : "nie:File"
+                },
+                {
+                    project : ownerProject,
+                    type : "nie:File"
+                }
+            );
         }
-    );
+        else
+        {
+            callback(err, ownerProject);
+        }
+    });
+
+
 };
 
 File.prototype.extract_text = function(callback)
