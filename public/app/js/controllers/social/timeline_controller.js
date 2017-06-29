@@ -24,7 +24,6 @@ angular.module('dendroApp.controllers')
 
         $scope.toggleNewPostModal = function (show) {
             $scope.showCreatePostContent = show;
-            //TODO alterar aqui a opacity
         };
 
         var cleanUserProjectsList = function () {

@@ -1,4 +1,4 @@
-<div id="createManualPost">
+<div>
     <div class="media">
         <div class="media-left">
             <div class="text-center" style="border-color: #f5f5f5; border-right-style: solid">
@@ -7,8 +7,8 @@
             </div>
         </div>
 
-        <div id="postContent" class="media-body">
-            <div id="chooseProject" ng-show="showCreatePostContent" class="input-group-btn form-inline">
+        <div class="media-body">
+            <div ng-show="showCreatePostContent" class="input-group-btn form-inline">
                 <select ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" class="form-control" id="choosingProjectID" ng-init="projectChosen"
                         ng-model="$parent.projectChosen"
                         ng-options="userProject.name for userProject in userProjects">

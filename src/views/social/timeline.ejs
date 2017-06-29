@@ -10,23 +10,23 @@
 
             <hr>
             <ul class="list-group">
-                <div ng-if="posts.length==0" style="text-align: center">
-                    <h4>There are no Posts</h4>
+                <div ng-if="posts.length==0" style="text-align:center">
+                        <h4>There are no Posts</h4>
                     <i class="fa fa-file-o fa-5x" aria-hidden="true"></i>
                 </div>
 
-                <p>posts : <%=posts%></p>
+                <!--<p>posts : <%=posts%></p>
                 <p>posts.length : <%=posts.length%></p>
                 <p> totalPosts : {{totalPosts}}</p>
                 <p> postsPerPage : {{postsPerPage}}</p>
-                <p> paginationCurrent : {{pagination.current}}</p>
+                <p> paginationCurrent : {{pagination.current}}</p>-->
 
                 <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">
-                    <p> The post URI is : {{post.uri}}</p>
+                    <!--<p> The post URI is : {{post.uri}}</p>-->
                     <div ng-init="getPost(post.uri, null);">
-                        {{postsContents[post.uri].rdf.type}}
+                        <!--{{postsContents[post.uri].rdf.type}}-->
                         <div ng-if="postsContents[post.uri].rdf.isShare">
-                            <p> IS A SHARE </p>
+                            <!--<p> IS A SHARE </p>-->
                             <ng-include src="'/app/views/social/showShare.html'" onload="initSingleShare(post.uri); shareUri = post.uri;"></ng-include>
                         </div>
 
