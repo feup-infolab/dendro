@@ -1,81 +1,29 @@
 <div id="createManualPost">
-    <div class="panel panel-default">
-        <div class="panel-heading text-center">
-            <!--<h3 class="panel-title"> <button type="button" class="btn label-inverse" ng-click="showCreateNewManualPost = !showCreateNewManualPost;">What are you thinking ?</button> </h3>-->
-            <!--<h3 class="panel-title"> <button type="button" class="btn label-inverse" data-toggle="modal" data-target="#myModal">What are you thinking ?</button> </h3>-->
-            <!--<h3 class="panel-title" data-toggle="modal" data-target="#myModal"> What are you thinking ? </h3>-->
-            <input class="panel-title" data-toggle="modal" data-target="#myModal" placeholder="What are you thinking ?">
+    <div class="media">
+        <div class="media-left">
+            <div class="text-center" style="border-color: #f5f5f5; border-right-style: solid">
+                <img width="70%" height="70%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+                <p>{{loggedUser.split("/").pop()}}</p>
+            </div>
         </div>
 
-        <!-- Modal -->
-        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="myModalLabel">Creating a new Post</h4>
-                    </div>
-                    <div class="modal-body">
-                        <div id="chooseProject" class="input-group-btn form-inline">
-                            <!--<select class="form-control" id="choosingProject" ng-init="projectChosen = userProjects[0]"-->
-                            <select class="form-control" id="choosingProjectID" ng-init="projectChosen"
-                                    ng-model="projectChosen"
-                                    ng-options="userProject.name for userProject in userProjects">
-                            </select>
-                        </div>
+        <div id="postContent" class="media-body">
+            <div id="chooseProject" ng-show="showCreatePostContent" class="input-group-btn form-inline">
+                <select ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" class="form-control" id="choosingProjectID" ng-init="projectChosen"
+                        ng-model="$parent.projectChosen"
+                        ng-options="userProject.name for userProject in userProjects">
+                </select>
+                <input ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" type="text" class="form-control" aria-label="postTitle" id="newPostTitleID" ng-model="$parent.newPostTitle" placeholder="The title of your post">
+            </div>
 
-                        <div id="newPostTitleID">
-                            <!--<input type="text" class="form-control" aria-label="postTitle" id="newPostTitle" ng-model="newPostTitle">-->
-                            <input type="text" class="form-control" aria-label="postTitle" id="newPostTitle" ng-focus="true" ng-model="newPostTitle" placeholder="{{newPostTitlePlaceholder}}">
-                        </div>
-
-                        <div id="newPostContentID">
-                            <!--<textarea class="form-control" rows="5" id="newPostContent" ng-model="newPostContent"></textarea>-->
-                            <textarea class="form-control" rows="5" id="newPostContent" ng-model="newPostContent" placeholder="{{newPostContentPlaceholder}}"></textarea>
-                        </div>
-                        <script type="text/javascript">
-                            $(function(){
-                                /*$('#myModal').on('hidden.bs.modal', function (e) {
-                                    console.log("Modal hidden");
-                                    //$("#chooseProject").html('<select class="form-control" id="choosingProject" ng-init="projectChosen" ng-model="projectChosen" ng-options="userProject.name for userProject in userProjects"> </select>');
-                                    /!*$("#newPostTitleID").html('<input type="text" class="form-control" aria-label="postTitle" id="newPostTitle" ng-focus="true" ng-model="newPostTitle" placeholder="The title of your post">');
-                                     $("#newPostContentID").html('<textarea class="form-control" rows="5" id="newPostContent" ng-model="newPostContent" placeholder="Write your post here"></textarea>');*!/
-
-                                    $(this).removeData('bs.modal');
-
-
-                                    //$('#myModal').removeData();
-                                    //$('#myModal').removeData()
-                                });*/
-
-                                /*$('body').on('hidden.bs.modal', '.modal', function () {
-                                    console.log("Modal hidden");
-                                    $(this).removeData('bs.modal');
-                                });*/
-
-                                $('#myModal').on('hidden.bs.modal', function (event) {
-                                    console.log("Modal hidden");
-                                    var button = $(event.relatedTarget) // Button that triggered the modal
-                                    //var recipient = button.data('whatever') // Extract info from data-* attributes
-                                    var modal = $(this);
-                                    /*console.log("modal:");
-                                    console.log(modal);*/
-                                    modal.find("#newPostTitle")[0].value = "";
-                                    modal.find("#newPostContent")[0].value = "";
-                                    var selectProjectOption = modal.find("#choosingProjectID")[0].options[0].value;
-                                    console.log("choosingProject:");
-                                    console.log(selectProjectOption);
-                                    modal.find("#choosingProjectID")[0].value = selectProjectOption;
-                                })
-                            });
-                        </script>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary" ng-click="createNewManualPost(newPostTitle,newPostContent,projectChosen.value);">Create</button>
-                    </div>
+            <div style="padding-top: 1.5%">
+                <textarea ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" id="newPostContentID" ng-model="$parent.newPostContent" placeholder="What are you thinking ?"></textarea>
+                <div ng-show="showCreatePostContent">
+                    <button type="button" class="btn btn-primary" ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" ng-click="createNewManualPost();">Create</button>
                 </div>
             </div>
         </div>
+
     </div>
+
 </div>

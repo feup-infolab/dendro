@@ -9,24 +9,8 @@ angular.module('dendroApp.controllers')
         $scope.countCenas = 1;
         $scope.totalPosts = 0;
         $scope.postsPerPage = 5; // this should match however many results your API puts on one page
-        $scope.renderPosts = false;
         $scope.postsContents = [];
         $scope.loggedUser = "";
-
-        $scope.newPostTitlePlaceholder = "The title of your post";
-        $scope.newPostContentPlaceholder = "Write your post here";
-        $scope.newPostTitle = "";
-        $scope.newPostContent = "";
-        $scope.showCreateNewManualPost = false;
-
-        $scope.userProjects = [
-            {
-                name: 'Select the Project',//name of the project
-                value: 'selectTheProject-value'//the uri of the project
-            }
-        ];
-
-        $scope.projectChosen = $scope.userProjects[0];
 
         $scope.pagination = {
             current: 1
@@ -38,6 +22,10 @@ angular.module('dendroApp.controllers')
             "delete": "deleted"
         };
 
+        $scope.toggleNewPostModal = function (show) {
+            $scope.showCreatePostContent = show;
+            //TODO alterar aqui a opacity
+        };
 
         var cleanUserProjectsList = function () {
             $scope.userProjects.splice(1);
@@ -250,9 +238,15 @@ angular.module('dendroApp.controllers')
 
         $scope.initTimeline = function()
         {
+            $scope.showCreatePostContent = false;
+            $scope.userProjects = [{name: 'Select the Project', value: 'selectTheProject-value'}];
+            $scope.projectChosen = $scope.userProjects[0];
+            $scope.newPostTitle = "";
+            $scope.newPostContent = "";
+            $scope.getUserProjects();
+
             $scope.countNumPosts();
             $scope.get_all_posts($scope.pagination.current);
-            $scope.showCreateNewManualPost = false;
             $scope.new_post_content = "";
             $scope.commentList = [];
             $scope.shareList = [];
@@ -262,7 +256,6 @@ angular.module('dendroApp.controllers')
             $scope.likesPostInfo = [];
             $scope.postsContents = [];
             $scope.pageChangeHandler($scope.pagination.current);
-            $scope.getUserProjects();
         };
 
         $scope.initSinglePost = function (postUri) {
@@ -361,28 +354,32 @@ angular.module('dendroApp.controllers')
             $window.scrollTo(0, 0);//to scroll up to the top on page change
         };
 
-        $scope.createNewManualPost = function (newPostTitle, newPostContent, projectUri) {
+        //$scope.createNewManualPost = function (newPostTitle, newPostContent, projectUri) {
+        $scope.createNewManualPost = function () {
             $scope.doing_createNewPost = true;
-            timelineService.newPost(newPostTitle, newPostContent, projectUri)
+            timelineService.newPost($scope.newPostTitle, $scope.newPostContent, $scope.projectChosen.value)
                 .then(function (response) {
+                    console.log("before newPostTitle: " + $scope.newPostTitle);
+                    console.log("before newPostContent: " + $scope.newPostContent);
+
+                    $scope.newPostTitle = "";
+                    $scope.newPostContent = "";
+                    $scope.projectChosen = $scope.userProjects[0];
                     $scope.show_popup(response.data.message);
-                    $('#myModal').modal('hide');
                     $scope.pagination.current = 1;
-
-                    /*$scope.newPostTitle = "Shit title";
-                    $scope.newPostContent = "Shit content";
-                    $scope.projectChosen = "Shit project";*/
-                    //angular.copy($scope.newPostTitlePlaceholder, $scope.newPostTitle);
-                    //angular.copy($scope.newPostContentPlaceholder, $scope.newPostContent);
-
                     $scope.pageChangeHandler($scope.pagination.current);
                     $window.scrollTo(0, 0);//to scroll up to the top on page change
                     $scope.doing_createNewPost = false;
+                    $scope.toggleNewPostModal(false);
                 })
                 .catch(function (error) {
                     console.error("Error createNewManualPost" + JSON.stringify(error));
+                    $scope.newPostTitle = "";
+                    $scope.newPostContent = "";
+                    $scope.projectChosen = $scope.userProjects[0];
                     $scope.show_popup(error);
                     $scope.doing_createNewPost = false;
+                    $scope.toggleNewPostModal(false)
                 });
         };
     });
