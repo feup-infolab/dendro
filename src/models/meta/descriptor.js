@@ -1130,4 +1130,43 @@ Descriptor.validateDescriptorParametrization = function(callback)
     );
 };
 
+Descriptor.getUriFromPrefixedForm = function(prefixedForm)
+{
+    if (!isNull(prefixedForm)) {
+        const indexOfColon = prefixedForm.indexOf(":");
+        const indexOfHash = prefixedForm.indexOf("#");
+        let indexOfSeparator = -1;
+
+        if(indexOfColon < 0 && indexOfHash > -1)
+        {
+            indexOfSeparator = indexOfHash;
+        }
+        else if(indexOfColon > -1 && indexOfHash < 0)
+        {
+            indexOfSeparator = indexOfColon;
+        }
+
+        if (indexOfSeparator > 0) {
+            const prefix = prefixedForm.substr(0, indexOfSeparator);
+            const element = prefixedForm.substr(indexOfSeparator + 1);
+            const ontology = Ontology.allOntologies[prefix].uri;
+            const valueAsFullUri = ontology + element;
+            return valueAsFullUri;
+        }
+        else {
+            throw new Error("Value " + prefixedForm + " is not valid. It does not have either a : or a # in the prefixed form.");
+        }
+    }
+    else
+    {
+        throw new Error("Value " + prefixedForm.value + " is null!");
+    }
+}
+
+Descriptor.convertToFullUris = function(prefixedFormsArray)
+{
+    const results = _.map(prefixedFormsArray, Descriptor.getUriFromPrefixedForm);
+    return results;
+}
+
 module.exports.Descriptor = Descriptor;

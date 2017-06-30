@@ -191,45 +191,45 @@ const getOwnerProject = function (requestedResource, callback) {
                 {
                     if(isNull(project) || !(project instanceof Project))
                     {
-                        callback(false, project);
+                        callback(null, null);
                     }
                     else
                     {
-                        callback(true, project);
+                        callback(null, project);
                     }
                 }
                 else
                 {
-                    callback(null, err);
+                    callback(err, null);
                 }
             });
         },
         function(callback)
         {
             InformationElement.findByUri(requestedResource, function(err, resource){
-                if(isNull(err))
+                if(isNull(err) && (resource instanceof InformationElement))
                 {
                     if(isNull(resource) || !(resource instanceof InformationElement))
                     {
-                        callback(false, resource)
+                        callback(null, resource)
                     }
                     else
                     {
                         resource.getOwnerProject(function(err, project){
                             if(isNull(project) || !(project instanceof Project))
                             {
-                                callback(false, project);
+                                callback(null, project);
                             }
                             else
                             {
-                                callback(true, project);
+                                callback(null, null);
                             }
                         });
                     }
                 }
                 else
                 {
-                    callback(null, err);
+                    callback(err, null);
                 }
             });
         }

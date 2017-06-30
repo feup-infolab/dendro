@@ -1546,22 +1546,42 @@ Resource.getUriFromHumanReadableUri = function(humanReadableUri, callback, custo
 Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
 {
     const self = this;
-    const myClass = self.prototype;
-    const rdfType = self.prototype.prefixedRDFType;
 
-    const typeMatches = function(resourceObject, prefixedType)
+    const typeMatches = function(resourceObject)
     {
-        const types = resourceObject.rdf.type;
+        const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+        let rdfType = JSON.parse(JSON.stringify(self.prefixedRDFType));
+        let cachedObjectType = JSON.parse(JSON.stringify(resourceObject.rdf.type));
 
-        if(types instanceof Array)
+        let typeMatches = false;
+        if(cachedObjectType instanceof Array && cachedObjectType instanceof Array)
         {
-            return _.contains(types, prefixedType);
+            rdfType = Descriptor.convertToFullUris(rdfType);
+            cachedObjectType = Descriptor.convertToFullUris(rdfType);
+
+            typeMatches = (_.intersection(cachedObjectType, rdfType).length > 0);
         }
-        else
+        else if(cachedObjectType instanceof Array && typeof rdfType === "string")
         {
-            return prefixedType === types;
+            typeMatches = _.contains(cachedObjectType, Descriptor.getUriFromPrefixedForm(rdfType));
         }
+        else if(rdfType instanceof Array && typeof cachedObjectType === "string")
+        {
+            typeMatches = _.contains(Descriptor.convertToFullUris(rdfType), cachedObjectType);
+        }
+        else if(typeof rdfType === "string" && typeof cachedObjectType === "string")
+        {
+            typeMatches = (Descriptor.getUriFromPrefixedForm(rdfType) === cachedObjectType);
+        }
+
+        return typeMatches;
     };
+
+    /**
+     * TODO This needs to be replaced with a query to a mongodb database. For when we replace redis with mongodb for caching with query support!
+     * @param uri
+     * @param callback
+     */
 
     const getFromCache = function (uri, callback) {
         redis(customGraphUri).connection.get(uri, function (err, result) {
