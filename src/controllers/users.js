@@ -8,6 +8,7 @@ const gfs = function() { return GLOBAL.gfs.default; }();
 
 const async = require('async');
 const _ = require('underscore');
+const fs = require("fs");
 
 /*
  * GET users listing.
@@ -470,4 +471,58 @@ exports.getLoggedUser = function (req, res) {
             );
         }
     }
+};
+
+exports.get_avatar = function (req, res) {
+    var username = req.params['username'];
+
+    User.findByUsername(username, function (err, user) {
+        if(!err)
+        {
+            if(!user)
+            {
+                res.status(404).json({
+                    result : "Error",
+                    message :"Error trying to find user with username " + username + " User does not exist"
+                });
+            }
+            else
+            {
+                if(!user.ddr.hasAvatar)
+                {
+                    console.log("User does not have an avatar");
+                    res.writeHead(200,
+                        {
+                            'Content-disposition': 'filename="' + "avatar"+"\"",
+                            'Content-type': "image/png"
+                        });
+
+                    var absPathOfFileToServe = Config.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
+                    var fileStream = fs.createReadStream(absPathOfFileToServe);
+                    fileStream.pipe(res);
+                }
+                else
+                {
+                    console.log("User has an avatar");
+                    console.log(user.ddr.hasAvatar);
+                    res.json(
+                        {
+                            userUri : user.uri
+                        }
+                    );
+                }
+            }
+        }
+        else
+        {
+            res.status(500).json({
+                result : "Error",
+                message :"Error trying to find user with username " + username + " Error reported: " + JSON.stringify(err)
+            });
+        }
+    });
+};
+
+exports.upload_avatar = function (res, res) {
+
 };

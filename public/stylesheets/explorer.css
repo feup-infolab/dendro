@@ -183,3 +183,9 @@ Animations (uncomment to have animations)
 .social-dendro-btn {
   font-size: 10px;
 }
+.cropArea {
+  background: #e4e4e4;
+  overflow: hidden;
+  width: 500px;
+  height: 350px;
+}

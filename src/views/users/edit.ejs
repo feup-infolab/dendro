@@ -4,6 +4,61 @@
     Editing user <%= user.foaf.firstName %> <%= user.foaf.surname %>
 </h1>
 
+<div class="text-center" ng-controller="avatarCtrl" ng-init="init()">
+    <!--<p>Avatar path :  </p>-->
+    <img class="show-avatar-in-profile" ng-src="/user/<%=user.ddr.username%>/avatar">
+
+    <button data-toggle="modal" data-target="#myModal">Edit Avatar</button>
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Upload a new Avatar</h4>
+                </div>
+                <div class="modal-body">
+                    <!--<p>One fine body&hellip;</p>-->
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <label for="avatar" class="col-sm-2 control-label">Avatar Picture</label>
+                            <div><input type="file" id="fileInput" /></div>
+
+                            <style>
+                                .cropArea {
+                                    background: #E4E4E4;
+                                    overflow: hidden;
+                                    width:500px;
+                                    height:350px;
+                                }
+                            </style>
+
+                            <div class="cropArea">
+                                <img-crop image="myImage" result-image="myCroppedImage"></img-crop>
+                            </div>
+
+                            <!--<div ng-if="myCroppedImage != null">
+                                <div ng-show class="help-block">Your public avatar picture:</div>
+                                <div>
+                                    <img ng-src="{{myCroppedImage}}" />
+                                </div>
+                            </div>-->
+                        </div>
+                    </div>
+
+                    <!--<div class="row">
+                        <button class="btn btn-primary" ng-click="updateProfilePic();">Update Avatar Picture</button>
+                    </div>-->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" ng-click="closeEditAvatarModal()" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" ng-click="updateProfilePic();closeEditAvatarModal()" class="btn btn-primary">Update Avatar Picture</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <br/>
 
 <form action="/register" method="POST">
