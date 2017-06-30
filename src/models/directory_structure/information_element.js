@@ -1,7 +1,7 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -10,15 +10,15 @@ const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnectio
 const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const gfs = function () {
-    return GLOBAL.gfs.default;
+    return global.gfs.default;
 }();
 
 function InformationElement (object)
 {
-    InformationElement.baseConstructor.call(this, object);
+    InformationElement.baseConstructor.call(this, object, InformationElement);
     const self = this;
 
     if(isNull(self.uri))
@@ -44,8 +44,6 @@ function InformationElement (object)
             self.uri = object.nie.isLogicalPartOf + "/" + object.nie.title;
         }
     }
-    
-    self.rdf.type = "nie:InformationElement";
 
     return self;
 }
@@ -97,11 +95,11 @@ InformationElement.getType = function(resourceURI, callback)
                         {
                             const type = types[i].type;
 
-                            if(type === Folder.rdfType)
+                            if(type === Folder.prefixedRDFType)
                             {
                                 return callback(null, Folder);
                             }
-                            else if(type === File.rdfType)
+                            else if(type === File.prefixedRDFType)
                             {
                                 return callback(null, File);
                             }
@@ -544,8 +542,6 @@ InformationElement.prototype.findMetadata = function(callback){
     });
 };
 
-InformationElement.rdfType = "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#FileDataObject";
-
-InformationElement = Class.extend(InformationElement, Resource);
+InformationElement = Class.extend(InformationElement, Resource, "nie#FileDataObject");
 
 module.exports.InformationElement = InformationElement;

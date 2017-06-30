@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -21,8 +21,8 @@ const metadataProject = require(Config.absPathInTestsFolder("mockdata/projects/m
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-var createProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const createProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
 describe("Request access to metadata only project", function (done) {
     before(function (done) {
@@ -36,8 +36,8 @@ describe("Request access to metadata only project", function (done) {
     describe("[GET] /project/:handle?request_access " + "[" + metadataProject.handle + "]", function () {
         
         it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.getRequestProjectAccessPage(false, agent, metadataProject.handle, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.text.should.contain("<h1 class=\"page-header\">\n        Please sign in\n    </h1>");
@@ -82,8 +82,8 @@ describe("Request access to metadata only project", function (done) {
         //TODO TEST for all project types
 
         it("Should get an error when user is not authenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
 
             projectUtils.requestAccessToProject(false, agent, metadataProject.handle, function (err, res) {
                 res.statusCode.should.equal(200);

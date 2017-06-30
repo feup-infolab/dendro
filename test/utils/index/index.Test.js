@@ -1,14 +1,14 @@
 process.env.NODE_ENV = 'test';
 
-var Config = GLOBAL.Config;
-var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Config = GLOBAL.Config;
+const IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var async = require('async');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const async = require('async');
 chai.use(chaiHttp);
 
-var should = chai.should();
+const should = chai.should();
 
 module.exports.deleteIndexes = function (finish) {
     let indexConnection = new IndexConnection();

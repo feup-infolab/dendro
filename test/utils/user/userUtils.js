@@ -102,8 +102,8 @@ exports.getCurrentLoggedUser= function (jsonOnly, agent, cb)
 };
 
 exports.addUserAscontributorToProject = function (jsonOnly, agent, username, projectHandle, cb) {
-    var contributors = {contributors:[username]};
-    var path = "/project/" + projectHandle + "?administer";
+    const contributors = {contributors: [username]};
+    const path = "/project/" + projectHandle + "?administer";
     if(jsonOnly)
     {
         agent
@@ -127,9 +127,9 @@ exports.addUserAscontributorToProject = function (jsonOnly, agent, username, pro
 
 
 exports.newPassword = function (query, cb) {
-    var app = GLOBAL.tests.app;
+    const app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
-    var path = '/set_new_password';
+    let path = '/set_new_password';
     if(query){
         path += query;
     }
@@ -143,7 +143,7 @@ exports.newPassword = function (query, cb) {
 };
 
 exports.sendingPassword = function (email, token, cb) {
-    var app = GLOBAL.tests.app;
+    const app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
 
     agent
@@ -155,7 +155,7 @@ exports.sendingPassword = function (email, token, cb) {
 };
 
 exports.getResetPasswordView = function (cb) {
-    var app = GLOBAL.tests.app;
+    const app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
     agent
         .get('/reset_password')
@@ -167,7 +167,7 @@ exports.getResetPasswordView = function (cb) {
 
 
 exports.sendingNewPassword = function (email, token, pass, passConfirm, cb) {
-    var app = GLOBAL.tests.app;
+    const app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
 
     agent

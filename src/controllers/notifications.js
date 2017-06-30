@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -10,10 +10,10 @@ const _ = require('underscore');
 
 const async = require('async');
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const db_notifications = function () {
-    return GLOBAL.db.notifications;
+    return global.db.notifications;
 }();
 
 const app = require('../app');

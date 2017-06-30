@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -16,8 +16,8 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-var createExportToRepositoriesConfigsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const createExportToRepositoriesConfigsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("List all external repository tests", function () {
     before(function (done) {
@@ -42,8 +42,8 @@ describe("List all external repository tests", function () {
 
         it("[HTML] should refuse the request if the Accept: 'application/json' header is not present with unauthenticated user", function (done)
         {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             repositoryUtils.getAllExternalRepositories(false, agent, function (err, res) {
                 res.text.should.contain("Please log into the system.");
                 done();
@@ -52,8 +52,8 @@ describe("List all external repository tests", function () {
 
         it('[JSON] should refuse the request if the user is unauthenticated.', function (done)
         {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             repositoryUtils.getAllExternalRepositories(true, agent, function (err, res) {
                 res.statusCode.should.equal(401);
                 done();

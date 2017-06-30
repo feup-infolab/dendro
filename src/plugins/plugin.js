@@ -2,7 +2,7 @@ var path = require('path');
 var async = require('async');
 
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;

@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -20,8 +20,8 @@ const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/in
 const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
-var createFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const createFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Metadata only project testFolder1 level update_metadata", function () {
     before(function (done) {
@@ -70,8 +70,8 @@ describe("Metadata only project testFolder1 level update_metadata", function () 
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             itemUtils.updateItemMetadata(true, agent, metadataProject.handle, testFolder1.name, testFolder1.metadata, function (err, res) {
                 res.statusCode.should.equal(401);
                 itemUtils.getItemMetadata(true, agent, metadataProject.handle, testFolder1.name, function (error, response) {

@@ -1,7 +1,7 @@
 //DCTerms ontology : "http://purl.org/dc/elements/1.1/"
 
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -12,10 +12,8 @@ const async = require('async');
 
 function RepositoryPlatform(object)
 {
-    RepositoryPlatform.baseConstructor.call(this, object);
+    RepositoryPlatform.baseConstructor.call(this, object, RepositoryPlatform);
     const self = this;
-
-    self.rdf.type = "ddr:RepositoryPlatform";
 
     if(isNull(self.uri))
     {
@@ -147,6 +145,6 @@ RepositoryPlatform.all = function(callback){
     ]);
 };
 
-RepositoryPlatform = Class.extend(RepositoryPlatform, Resource);
+RepositoryPlatform = Class.extend(RepositoryPlatform, Resource, "ddr:RepositoryPlatform");
 
 module.exports.RepositoryPlatform = RepositoryPlatform;

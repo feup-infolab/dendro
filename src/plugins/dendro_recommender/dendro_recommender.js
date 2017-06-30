@@ -1,7 +1,7 @@
 var path = require('path');
 
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -47,6 +47,6 @@ DendroRecommender.setup = function(app)
  */
 DendroRecommender.config = require(path.join(__dirname, "integration", "config.json"));
 
-DendroRecommender = Class.extend(DendroRecommender, Plugin);
+DendroRecommender = Class.extend(DendroRecommender, Plugin, true);
 
 module.exports.DendroRecommender = DendroRecommender;

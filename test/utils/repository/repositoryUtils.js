@@ -1,13 +1,12 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
-var exportToRepository = function (jsonOnly, projectHandle, agent, exportData, cb) {
+const exportToRepository = function (jsonOnly, projectHandle, agent, exportData, cb) {
     //TODO /project/:handle?export_to_repository
     //TODO this is not implemented i think
-    var path = "/project/" + projectHandle + "?export_to_repository";
-    if(jsonOnly)
-    {
+    const path = "/project/" + projectHandle + "?export_to_repository";
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
@@ -16,8 +15,7 @@ var exportToRepository = function (jsonOnly, projectHandle, agent, exportData, c
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .send(exportData)
@@ -27,13 +25,11 @@ var exportToRepository = function (jsonOnly, projectHandle, agent, exportData, c
     }
 };
 
-var exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, agent, exportData, cb)
-{
+const exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, agent, exportData, cb) {
     //http://127.0.0.1:3001/project/publicproject/data/folder1?export_to_repository
     //http://127.0.0.1:3001/project/publicprojectcreatedbydemouser1/data/pastinhaLinda
-    var path = "/project/" + projectHandle + "/data/" + folderPath + "?export_to_repository";
-    if(jsonOnly)
-    {
+    const path = "/project/" + projectHandle + "/data/" + folderPath + "?export_to_repository";
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
@@ -42,8 +38,7 @@ var exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, ag
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .send(exportData)
@@ -53,10 +48,9 @@ var exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, ag
     }
 };
 
-var createExportConfig = function (jsonOnly, agent, externalRepositoryData, cb) {
-    var path = "/external_repositories/new";
-    if(jsonOnly)
-    {
+const createExportConfig = function (jsonOnly, agent, externalRepositoryData, cb) {
+    const path = "/external_repositories/new";
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
@@ -65,8 +59,7 @@ var createExportConfig = function (jsonOnly, agent, externalRepositoryData, cb) 
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .send(externalRepositoryData)
@@ -76,11 +69,10 @@ var createExportConfig = function (jsonOnly, agent, externalRepositoryData, cb) 
     }
 };
 
-var getMyExternalRepositories = function (jsonOnly, agent, cb) {
+const getMyExternalRepositories = function (jsonOnly, agent, cb) {
     //http://127.0.0.1:3001/external_repositories/my
-    var path = '/external_repositories/my';
-    if(jsonOnly)
-    {
+    const path = '/external_repositories/my';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -89,8 +81,7 @@ var getMyExternalRepositories = function (jsonOnly, agent, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Content-Type', 'application/json')
@@ -100,11 +91,10 @@ var getMyExternalRepositories = function (jsonOnly, agent, cb) {
     }
 };
 
-var getAllExternalRepositories = function (jsonOnly, agent, cb) {
+const getAllExternalRepositories = function (jsonOnly, agent, cb) {
     //http://127.0.0.1:3001/external_repositories/
-    var path = '/external_repositories';
-    if(jsonOnly)
-    {
+    const path = '/external_repositories';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -113,8 +103,7 @@ var getAllExternalRepositories = function (jsonOnly, agent, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')

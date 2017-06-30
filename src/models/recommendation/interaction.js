@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -10,19 +10,17 @@ const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resou
 const moment = require('moment');
 const async = require('async');
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 
 const mysql = function () {
-    return GLOBAL.mysql.pool;
+    return global.mysql.pool;
 };
 
 function Interaction (object, callback)
 {
-    Interaction.baseConstructor.call(this, object);
+    Interaction.baseConstructor.call(this, object, Interaction);
     const self = this;
-
-    self.rdf.type = "ddr:Interaction";
 
     const now = new Date();
 
@@ -572,8 +570,6 @@ Interaction.types =
     }
 };
 
-Interaction.prefixedRDFType = "ddr:Interaction";
-
-Interaction = Class.extend(Interaction, Resource);
+Interaction = Class.extend(Interaction, Resource, "ddr:Interaction");
 
 module.exports.Interaction = Interaction;

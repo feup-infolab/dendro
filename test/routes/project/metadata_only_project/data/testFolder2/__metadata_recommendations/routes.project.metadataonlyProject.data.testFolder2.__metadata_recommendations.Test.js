@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -21,8 +21,8 @@ const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/in
 const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 
-var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Metadata only project testFolder2 level metadata_recommendations tests", function () {
     before(function (done) {
@@ -48,8 +48,8 @@ describe("Metadata only project testFolder2 level metadata_recommendations tests
 
         it('[JSON] should forbid requests for recommendations in project '+ metadataProject.handle +' if no user is authenticated.', function (done)
         {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
 
             itemUtils.getItemMetadataRecommendations(true, agent, metadataProject.handle, testFolder2.name, function (err, res) {
                 res.statusCode.should.equal(401);
@@ -117,8 +117,8 @@ describe("Metadata only project testFolder2 level metadata_recommendations tests
 
         it('[JSON] should forbid requests for recommendations in project '+ invalidProject.handle +' if no user is authenticated.', function (done)
         {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
 
             itemUtils.getItemMetadataRecommendations(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                 res.statusCode.should.equal(401);

@@ -1,11 +1,11 @@
-var Config = require("../../../src/models/meta/config").Config;
+const Config = require("../../../src/models/meta/config").Config;
 
-var async = require('async');
+const async = require('async');
 
-var db = require(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-var index = require(Config.absPathInTestsFolder("utils/index/index.Test.js"));
+const db = require(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const index = require(Config.absPathInTestsFolder("utils/index/index.Test.js"));
 
-var chai = require('chai');
+const chai = require('chai');
 const should = chai.should();
 
 exports.requireUncached = function(module) {

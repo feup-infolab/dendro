@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -12,13 +12,13 @@ const async = require('async');
 const _ = require('underscore');
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 
 const redis = function (graphUri) {
     if (isNull(graphUri) || isNull(graphUri) || !graphUri) {
-        if (!isNull(GLOBAL.redis.default)) {
-            return GLOBAL.redis.default;
+        if (!isNull(global.redis.default)) {
+            return global.redis.default;
         }
         else {
             console.error("Something wrong happened when getting the connection to the Redis cache.");
@@ -31,10 +31,10 @@ const redis = function (graphUri) {
     }
 };
 
-function Resource (object)
+function Resource (object, subclass)
 {
-    Resource.baseConstructor.call(this, object);
     let self = this;
+    Resource.baseConstructor.call(this, object);
 
     if(!isNull(object.uri))
     {
@@ -42,6 +42,15 @@ function Resource (object)
     }
 
     self.copyOrInitDescriptors(object);
+
+    if(!isNull(object.rdf) && !isNull(object.rdf.prefixedRDFType))
+    {
+        self.rdf.type = object.rdf.type;
+    }
+    else if(!isNull(subclass) && !isNull(subclass.prefixedRDFType))
+    {
+        self.rdf.type = subclass.prefixedRDFType;
+    }
 
     if(!isNull(object.ddr) && !isNull(object.ddr.humanReadableUri)) {
         self.ddr.humanReadableUri = object.ddr.humanReadable;
@@ -699,6 +708,10 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
                 if(!(objects instanceof Array))
                 {
                     objects = [objects];
+                }
+                else
+                {
+                    objects = objects;
                 }
 
                 for(let j = 0; j < objects.length ; j++)
@@ -1533,10 +1546,27 @@ Resource.getUriFromHumanReadableUri = function(humanReadableUri, callback, custo
 Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
 {
     const self = this;
+    const myClass = self.prototype;
+    const rdfType = self.prototype.prefixedRDFType;
+
+    const typeMatches = function(resourceObject, prefixedType)
+    {
+        const types = resourceObject.rdf.type;
+
+        if(types instanceof Array)
+        {
+            return _.contains(types, prefixedType);
+        }
+        else
+        {
+            return prefixedType === types;
+        }
+    };
+
     const getFromCache = function (uri, callback) {
         redis(customGraphUri).connection.get(uri, function (err, result) {
             if (!err) {
-                if (!isNull(result)) {
+                if (!isNull(result) && typeMatches(result)) {
                     const resource = Object.create(self.prototype);
 
                     resource.uri = uri;
@@ -1552,7 +1582,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                     return callback(err, resource);
                 }
                 else {
-                    return callback(err, result);
+                    return callback(err, null);
                 }
             }
             else {
@@ -2771,7 +2801,6 @@ Resource.getCount = function(callback) {
     );
 };
 
-
-Resource = Class.extend(Resource, Class);
+Resource = Class.extend(Resource, Class, "ddr:Resource");
 
 module.exports.Resource = Resource;

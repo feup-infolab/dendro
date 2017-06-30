@@ -1,28 +1,26 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var _ = require('underscore');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 
-var createFolder = function (jsonOnly, agent, projectHandle, parentFolderName, newFolderName, cb) {
+const createFolder = function (jsonOnly, agent, projectHandle, parentFolderName, newFolderName, cb) {
     // /project/:handle/data/:foldername?mkdir
-    var path = '/project/' + projectHandle +'/data/'+ parentFolderName;
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + parentFolderName;
+    if (jsonOnly) {
         agent
             .post(path)
-            .query({mkdir : newFolderName})
+            .query({mkdir: newFolderName})
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
-            .query({mkdir : newFolderName})
+            .query({mkdir: newFolderName})
             .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
@@ -31,11 +29,10 @@ var createFolder = function (jsonOnly, agent, projectHandle, parentFolderName, n
     }
 };
 
-var updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, metadata, cb) {
+const updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, metadata, cb) {
     ///project/:handle/data/itemPath?update_metadata
-    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?update_metadata';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + itemPath + '?update_metadata';
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
@@ -45,8 +42,7 @@ var updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, met
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .set('Accept', 'text/html')
@@ -58,11 +54,10 @@ var updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, met
     }
 };
 
-var getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+const getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
-    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?metadata';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + itemPath + '?metadata';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -71,8 +66,7 @@ var getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')
@@ -83,11 +77,10 @@ var getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     }
 };
 
-var getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+const getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata&deep
-    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?metadata&deep';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + itemPath + '?metadata&deep';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -96,8 +89,7 @@ var getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, cb
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')
@@ -108,11 +100,10 @@ var getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, cb
     }
 };
 
-var getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+const getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?parent_metadata
-    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?parent_metadata';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + itemPath + '?parent_metadata';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -121,8 +112,7 @@ var getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath, 
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')
@@ -133,11 +123,10 @@ var getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath, 
     }
 };
 
-var getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+const getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     // /project/:handle/data/foldername?recent_changes
-    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?recent_changes';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + itemPath + '?recent_changes';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -146,8 +135,7 @@ var getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, c
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')
@@ -158,11 +146,10 @@ var getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath, c
     }
 };
 
-var getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVersion, cb) {
+const getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVersion, cb) {
     // /project/:handle/data/foldername?version
-    var path = '/project/' + projectHandle +'/data/'+ itemPath;
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + itemPath;
+    if (jsonOnly) {
         agent
             .get(path)
             .query({version: itemVersion})
@@ -172,8 +159,7 @@ var getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVer
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .query({version: itemVersion})
@@ -185,12 +171,11 @@ var getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemVer
     }
 };
 
-var deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reallyDelete) {
+const deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reallyDelete) {
     ///project/:handle/data/:foldername
-    var path = '/project/' + projectHandle +'/data/'+ itemPath;
+    const path = '/project/' + projectHandle + '/data/' + itemPath;
     var reallyDelete = reallyDelete ? reallyDelete : false;
-    if(jsonOnly)
-    {
+    if (jsonOnly) {
         agent
             .del(path)
             .query({really_delete: reallyDelete})
@@ -200,8 +185,7 @@ var deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reallyD
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .del(path)
             .query({really_delete: reallyDelete})
@@ -213,10 +197,9 @@ var deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reallyD
     }
 };
 
-var undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
-    var path = '/project/' + projectHandle +'/data/'+ itemPath + "?undelete";
-    if(jsonOnly)
-    {
+const undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    const path = '/project/' + projectHandle + '/data/' + itemPath + "?undelete";
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
@@ -225,8 +208,7 @@ var undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .set('Content-Type', 'application/json')
@@ -236,38 +218,35 @@ var undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     }
 };
 
-var itemRestoreMetadataVersion = function (jsonOnly, agent, projectHandle, itemPath, version, cb) {
+const itemRestoreMetadataVersion = function (jsonOnly, agent, projectHandle, itemPath, version, cb) {
     // /project/:handle/data/foldername?restore_metadata_version
-    var path = '/project/' + projectHandle +'/data/'+ itemPath + "?restore_metadata_version";
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + itemPath + "?restore_metadata_version";
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
-            .send({version : version})
+            .send({version: version})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
-            .send({version : version})
+            .send({version: version})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+const getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     // /project/:handle/data/foldername?change_log
-    var path = '/project/' + projectHandle +'/data/'+ itemPath + '?change_log';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + itemPath + '?change_log';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -276,8 +255,7 @@ var getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Content-Type', 'application/json')
@@ -287,10 +265,9 @@ var getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     }
 };
 
-var getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle, itemPath, cb) {
-    var path = '/project/' + projectHandle + "/data/" + itemPath + '?metadata_recommendations';
-    if(jsonOnly)
-    {
+const getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    const path = '/project/' + projectHandle + "/data/" + itemPath + '?metadata_recommendations';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -298,8 +275,7 @@ var getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle, i
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')
@@ -309,11 +285,10 @@ var getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle, i
     }
 };
 
-var getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+const getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     //recommendation_ontologies
-    var path = '/project/' + projectHandle + "/data/" + itemPath + '?recommendation_ontologies';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + "/data/" + itemPath + '?recommendation_ontologies';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -321,8 +296,7 @@ var getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, 
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')
@@ -332,10 +306,9 @@ var getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle, 
     }
 };
 
-var viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
-    var path = '/project/' + projectHandle +"/data/" + itemPath;
-    if(jsonOnly)
-    {
+const viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
+    const path = '/project/' + projectHandle + "/data/" + itemPath;
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -343,8 +316,7 @@ var viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')

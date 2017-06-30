@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -9,12 +9,10 @@ const uuid = require('uuid');
 
 function Notification (object)
 {
-    Notification.baseConstructor.call(this, object);
+    Notification.baseConstructor.call(this, object, Notification);
     const self = this;
 
     self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:Notification";
 
     const newId = uuid.v4();
 

@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -21,8 +21,8 @@ const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/pub
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 const commentMockup = require(Config.absPathInTestsFolder("mockdata/social/comment.js"));
 
-var createPostsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/social/createPosts.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const createPostsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/social/createPosts.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 let demouser1PostURIs;
 
 describe("Social Dendro add comment to post tests", function () {
@@ -53,8 +53,8 @@ describe("Social Dendro add comment to post tests", function () {
         });
 
         it("Should return an error if the user is not logged in", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
 
             postUtils.addCommentToPost(true, agent, demouser1PostURIs[0].uri, commentMockup.msg, function (err, res) {
                 res.statusCode.should.equal(401);

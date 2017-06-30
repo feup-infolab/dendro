@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -11,10 +11,10 @@ const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const gfs = function () {
-    return GLOBAL.gfs.default;
+    return global.gfs.default;
 }();
 
 const _ = require('underscore');
@@ -40,7 +40,7 @@ const uuid = require('uuid');
  }*/
 function FileVersion (object)
 {
-    FileVersion.baseConstructor.call(this, object);
+    FileVersion.baseConstructor.call(this, object, FileVersion);
     const self = this;
 
     const newId = uuid.v4();
@@ -57,12 +57,10 @@ function FileVersion (object)
         self.uri = Config.baseUri + "/file_version/" + newId;
     }
 
-    self.rdf.type = "ddr:FileVersion";
-
     return self;
 }
 
-FileVersion = Class.extend(FileVersion, Resource);
+FileVersion = Class.extend(FileVersion, Resource, "ddr:FileVersion");
 
 module.exports.FileVersion = FileVersion;
 

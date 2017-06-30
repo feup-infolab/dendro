@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -8,23 +8,21 @@ const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnectio
 const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const gfs = function () {
-    return GLOBAL.gfs.default;
+    return global.gfs.default;
 }();
 
 function HarvestedResource(object)
 {
-    HarvestedResource.baseConstructor.call(this, object);
+    HarvestedResource.baseConstructor.call(this, object, HarvestedResource);
 
     const self = this;
 
     self.ddr.lastHarvested = object.ddr.lastHarvested;
     self.ddr.md5Checksum = object.ddr.md5Checksum;
     self.ddr.sourceRepository = object.ddr.sourceRepository;
-
-    self.rdf.type = "ddr:HarvestedResource";
 
     return self;
 }
@@ -169,6 +167,6 @@ HarvestedResource.prototype.save = function(indexConnection, callback) {
     );
 };
 
-HarvestedResource = Class.extend(HarvestedResource, Resource);
+HarvestedResource = Class.extend(HarvestedResource, Resource, "ddr:HarvestedResource");
 
 module.exports.HarvestedResource = HarvestedResource;

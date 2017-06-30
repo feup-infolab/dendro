@@ -1,9 +1,9 @@
 process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -22,8 +22,8 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 
-var createExportToRepositoriesConfig = appUtils.requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const createExportToRepositoriesConfig = appUtils.requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let b2shareData, ckanData, zenodoData, dspaceData, eprintsData,figshareData;
 

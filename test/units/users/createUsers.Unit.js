@@ -37,52 +37,47 @@ module.exports.setup = function(finish)
         }
         else
         {
-            var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+            const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
             console.log("[INFO] Loading demo users. Demo users (in config.js file) -->" + JSON.stringify(Config.demo_mode.users));
 
 
-            var makeAdmin = function(newAdministrator, callback){
+            const makeAdmin = function (newAdministrator, callback) {
 
-                var username = newAdministrator.username;
-                var password = newAdministrator.password;
-                var mbox = newAdministrator.mbox;
-                var firstname = newAdministrator.firstname;
-                var surname = newAdministrator.surname;
+                const username = newAdministrator.username;
+                const password = newAdministrator.password;
+                const mbox = newAdministrator.mbox;
+                const firstname = newAdministrator.firstname;
+                const surname = newAdministrator.surname;
 
-                User.findByUsername(username, function(err, user){
+                User.findByUsername(username, function (err, user) {
 
-                    if(!err && user != null)
-                    {
-                        user.makeGlobalAdmin(function(err, result){
+                    if (!err && user != null) {
+                        user.makeGlobalAdmin(function (err, result) {
                             callback(err, result);
                         });
                     }
-                    else
-                    {
+                    else {
                         console.log("Non-existent user " + username + ". Creating new for promoting to admin.");
 
                         User.createAndInsertFromObject({
                                 foaf: {
                                     mbox: mbox,
-                                    firstName : firstname,
-                                    surname : surname
+                                    firstName: firstname,
+                                    surname: surname
                                 },
-                                ddr:
-                                    {
-                                        username : username,
-                                        password : password
-                                    }
+                                ddr: {
+                                    username: username,
+                                    password: password
+                                }
                             },
-                            function(err, newUser){
-                                if(!err && newUser != null && newUser instanceof User)
-                                {
-                                    newUser.makeGlobalAdmin(function(err, newUser){
+                            function (err, newUser) {
+                                if (!err && newUser != null && newUser instanceof User) {
+                                    newUser.makeGlobalAdmin(function (err, newUser) {
                                         callback(err, newUser);
                                     });
                                 }
-                                else
-                                {
-                                    var msg = "Error creating new User" + JSON.stringify(newUser);
+                                else {
+                                    const msg = "Error creating new User" + JSON.stringify(newUser);
                                     console.error(msg);
                                     callback(err, msg);
                                 }
@@ -92,27 +87,23 @@ module.exports.setup = function(finish)
             };
 
 
-            var createUser = function(user, callback)
-            {
+            const createUser = function (user, callback) {
                 User.createAndInsertFromObject({
                         foaf: {
                             mbox: user.mbox,
-                            firstName : user.firstname,
-                            surname : user.surname
+                            firstName: user.firstname,
+                            surname: user.surname
                         },
-                        ddr:
-                            {
-                                username : user.username,
-                                password : user.password
-                            }
-                    },
-                    function(err, newUser){
-                        if(!err && newUser != null)
-                        {
-                            callback(null,  newUser);
+                        ddr: {
+                            username: user.username,
+                            password: user.password
                         }
-                        else
-                        {
+                    },
+                    function (err, newUser) {
+                        if (!err && newUser != null) {
+                            callback(null, newUser);
+                        }
+                        else {
                             console.log("[ERROR] Error creating new demo User " + JSON.stringify(user));
                             callback(err, user);
                         }
@@ -153,7 +144,7 @@ module.exports.setup = function(finish)
                             }
                             else
                             {
-                                var msg = "Error creating Admins at createUsers.Unit";
+                                const msg = "Error creating Admins at createUsers.Unit";
                                 console.error(msg);
                                 end();
                                 finish(err, results);

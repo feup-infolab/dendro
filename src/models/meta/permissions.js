@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -187,28 +187,49 @@ const getOwnerProject = function (requestedResource, callback) {
         function(callback)
         {
             Project.findByUri(requestedResource, function(err, project){
-                if(isNull(err) && project instanceof Project)
+                if(isNull(err))
                 {
-                    callback(null, project);
+                    if(isNull(project) || !(project instanceof Project))
+                    {
+                        callback(false, project);
+                    }
+                    else
+                    {
+                        callback(true, project);
+                    }
                 }
                 else
                 {
-                    callback(true, err);
+                    callback(null, err);
                 }
             });
         },
         function(callback)
         {
             InformationElement.findByUri(requestedResource, function(err, resource){
-                if(isNull(err) && resource instanceof InformationElement)
+                if(isNull(err))
                 {
-                    resource.getOwnerProject(function(err, project){
-                        callback(null, project);
-                    });
+                    if(isNull(resource) || !(resource instanceof InformationElement))
+                    {
+                        callback(false, resource)
+                    }
+                    else
+                    {
+                        resource.getOwnerProject(function(err, project){
+                            if(isNull(project) || !(project instanceof Project))
+                            {
+                                callback(false, project);
+                            }
+                            else
+                            {
+                                callback(true, project);
+                            }
+                        });
+                    }
                 }
                 else
                 {
-                    callback(true, err);
+                    callback(null, err);
                 }
             });
         }

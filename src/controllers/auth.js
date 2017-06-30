@@ -1,6 +1,6 @@
-const Config = function() { return GLOBAL.Config; }();
+const Config = function() { return global.Config; }();
 
-const db = function() { return GLOBAL.db.default; }();
+const db = function() { return global.db.default; }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;

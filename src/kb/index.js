@@ -1,12 +1,12 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const util = require('util');
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const es = require('elasticsearch');
 const slug = require('slug');

@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -20,8 +20,8 @@ const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/in
 const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
-var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Metadata only project testFolder2 level recent changes", function () {
     before(function (done) {
@@ -45,7 +45,7 @@ describe("Metadata only project testFolder2 level recent changes", function () {
         });
 
         it("Should give an error if the user is unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
+            const app = GLOBAL.tests.app;
             agent = chai.request.agent(app);
 
             itemUtils.getItemRecentChanges(true, agent, metadataProject.handle, testFolder2.name, function (err, res) {

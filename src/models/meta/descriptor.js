@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -9,7 +9,7 @@ const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).
 const ObjectManipulator = require(Config.absPathInSrcFolder("/utils/object_manipulation.js"));
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const async = require('async');
 const _ = require('underscore');

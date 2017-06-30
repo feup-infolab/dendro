@@ -1,13 +1,12 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
-var _ = require('underscore');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 
-var listAllMyProjects = function (jsonOnly, agent, cb) {
-    var path = "/projects/my";
-    if(jsonOnly)
-    {
+const listAllMyProjects = function (jsonOnly, agent, cb) {
+    const path = "/projects/my";
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -15,8 +14,7 @@ var listAllMyProjects = function (jsonOnly, agent, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .end(function (err, res) {
@@ -25,10 +23,9 @@ var listAllMyProjects = function (jsonOnly, agent, cb) {
     }
 };
 
-var listAllProjects = function (jsonOnly, agent, cb) {
-    var path = "/projects";
-    if(jsonOnly)
-    {
+const listAllProjects = function (jsonOnly, agent, cb) {
+    const path = "/projects";
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -36,8 +33,7 @@ var listAllProjects = function (jsonOnly, agent, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .end(function (err, res) {
@@ -46,10 +42,9 @@ var listAllProjects = function (jsonOnly, agent, cb) {
     }
 };
 
-var getNewProjectPage = function (jsonOnly, agent, cb) {
-    var path = "/projects/new";
-    if(jsonOnly)
-    {
+const getNewProjectPage = function (jsonOnly, agent, cb) {
+    const path = "/projects/new";
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -57,8 +52,7 @@ var getNewProjectPage = function (jsonOnly, agent, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .end(function (err, res) {
@@ -67,9 +61,8 @@ var getNewProjectPage = function (jsonOnly, agent, cb) {
     }
 };
 
-var createNewProject = function (jsonOnly, agent, projectData, cb) {
-    if(jsonOnly)
-    {
+const createNewProject = function (jsonOnly, agent, projectData, cb) {
+    if (jsonOnly) {
         agent
             .post('/projects/new')
             .set('Accept', 'application/json')
@@ -78,8 +71,7 @@ var createNewProject = function (jsonOnly, agent, projectData, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post('/projects/new')
             .send(projectData)
@@ -89,9 +81,8 @@ var createNewProject = function (jsonOnly, agent, projectData, cb) {
     }
 };
 
-var viewProject = function (jsonOnly, agent, projectHandle, cb) {
-    if(jsonOnly)
-    {
+const viewProject = function (jsonOnly, agent, projectHandle, cb) {
+    if (jsonOnly) {
         agent
             .get('/project/' + projectHandle)
             .set('Accept', 'application/json')
@@ -99,8 +90,7 @@ var viewProject = function (jsonOnly, agent, projectHandle, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get('/project/' + projectHandle)
             .set('Accept', 'text/html')
@@ -111,21 +101,19 @@ var viewProject = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
-var updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb) {
-    if(jsonOnly)
-    {
+const updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadata, cb) {
+    if (jsonOnly) {
         agent
-            .post('/project/' + projectHandle +'?update_metadata')
+            .post('/project/' + projectHandle + '?update_metadata')
             .set('Accept', 'application/json')
             .send(metadata)
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
-            .post('/project/' + projectHandle +'?update_metadata')
+            .post('/project/' + projectHandle + '?update_metadata')
             .send(metadata)
             .end(function (err, res) {
                 cb(err, res);
@@ -134,11 +122,10 @@ var updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metadat
 };
 
 
-var updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb) {
+const updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folderPath, metadata, cb) {
     ///project/:handle/data/folderpath?update_metadata
-    var path = '/project/' + projectHandle +'/data/'+ folderPath + '?update_metadata';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + folderPath + '?update_metadata';
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
@@ -148,8 +135,7 @@ var updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folde
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .set('Content-Type', 'application/json')
@@ -160,9 +146,8 @@ var updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, folde
     }
 };
 
-var getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb) {
-    if(jsonOnly)
-    {
+const getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHandle, cb) {
+    if (jsonOnly) {
         agent
             .get('/project/' + projectHandle + '?metadata_recommendations')
             .set('Accept', 'application/json')
@@ -170,8 +155,7 @@ var getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHand
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get('/project/' + projectHandle + '?metadata_recommendations')
             .set('Accept', 'text/html')
@@ -181,11 +165,10 @@ var getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHand
     }
 };
 
-var getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb) {
+const getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHandle, cb) {
     //recommendation_ontologies
-    var path = '/project/' + projectHandle + '?recommendation_ontologies';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '?recommendation_ontologies';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -193,8 +176,7 @@ var getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHa
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')
@@ -205,9 +187,8 @@ var getRecommendationOntologiesForProject = function (jsonOnly, agent, projectHa
 };
 
 
-var getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
-    if(jsonOnly)
-    {
+const getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
+    if (jsonOnly) {
         agent
             .get('/project/' + projectHandle + '?ls')
             .set('Accept', 'application/json')
@@ -215,8 +196,7 @@ var getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get('/project/' + projectHandle + '?ls')
             .end(function (err, res) {
@@ -226,11 +206,10 @@ var getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
 };
 
 
-var getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb) {
+const getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, cb) {
     //http://127.0.0.1:3001/project/testproject1/data/folder1?metadata
-    var path = '/project/' + projectHandle +'/data/'+ folderPath + '?metadata';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '/data/' + folderPath + '?metadata';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -239,8 +218,7 @@ var getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, 
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Content-Type', 'application/json')
@@ -250,10 +228,9 @@ var getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath, 
     }
 };
 
-var getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
-    var path = '/project/' + projectHandle + '?metadata';
-    if(jsonOnly)
-    {
+const getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
+    const path = '/project/' + projectHandle + '?metadata';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -262,8 +239,7 @@ var getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')
@@ -274,10 +250,9 @@ var getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
-var getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb) {
-    var path = '/project/' + projectHandle + '?metadata&deep';
-    if(jsonOnly)
-    {
+const getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb) {
+    const path = '/project/' + projectHandle + '?metadata&deep';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -286,8 +261,7 @@ var getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')
@@ -298,10 +272,10 @@ var getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
-var removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb) {
+const removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folderPath, prefixedForm, cb) {
     getResourceMetadata(jsonOnly, agent, projectHandle, folderPath, function (err, res) {
-        var descriptors = JSON.parse(res.text).descriptors;
-        var newDescriptors = _.reject(descriptors, function (descriptor) {
+        const descriptors = JSON.parse(res.text).descriptors;
+        const newDescriptors = _.reject(descriptors, function (descriptor) {
             return descriptor.prefixedForm == prefixedForm;
         });
         updateMetadataCorrectRoute(jsonOnly, agent, projectHandle, folderPath, newDescriptors, function (error, response) {
@@ -310,25 +284,23 @@ var removeDescriptorFromFolder = function (jsonOnly, agent, projectHandle, folde
     });
 };
 
-var getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb) {
+const getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb) {
     //project/:handle?version
-    var path = '/project/' + projectHandle;
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle;
+    if (jsonOnly) {
         agent
             .get(path)
-            .query({version : version})
+            .query({version: version})
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
-            .query({version : version})
+            .query({version: version})
             .set('Content-Type', 'application/json')
             .end(function (err, res) {
                 cb(err, res);
@@ -336,11 +308,10 @@ var getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb) {
     }
 };
 
-var importProjectHTMLPage = function (jsonOnly, agent, cb) {
+const importProjectHTMLPage = function (jsonOnly, agent, cb) {
     // /projects/import
-    var path = "/projects/import";
-    if(jsonOnly)
-    {
+    const path = "/projects/import";
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -349,8 +320,7 @@ var importProjectHTMLPage = function (jsonOnly, agent, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Content-Type', 'application/json')
@@ -360,11 +330,10 @@ var importProjectHTMLPage = function (jsonOnly, agent, cb) {
     }
 };
 
-var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
+const importProject = function (jsonOnly, agent, projectBackupPath, cb) {
     // /projects/import
-    var path = "/projects/import";
-    if(jsonOnly)
-    {
+    const path = "/projects/import";
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
@@ -374,8 +343,7 @@ var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .set('Content-Type', 'application/json')
@@ -386,11 +354,10 @@ var importProject = function (jsonOnly, agent, projectBackupPath, cb) {
     }
 };
 
-var getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb) {
+const getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb) {
     // /project/:handle/request_access
-    var path = "/project/"+ projectHandle + "?request_access";
-    if(jsonOnly)
-    {
+    const path = "/project/" + projectHandle + "?request_access";
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -399,8 +366,7 @@ var getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb) 
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Content-Type', 'application/json')
@@ -410,11 +376,10 @@ var getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb) 
     }
 };
 
-var requestAccessToProject = function (jsonOnly, agent, projectHandle, cb) {
+const requestAccessToProject = function (jsonOnly, agent, projectHandle, cb) {
     // /project/:handle/request_access
-    var path = "/project/"+ projectHandle + "?request_access";
-    if(jsonOnly)
-    {
+    const path = "/project/" + projectHandle + "?request_access";
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
@@ -423,8 +388,7 @@ var requestAccessToProject = function (jsonOnly, agent, projectHandle, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .set('Content-Type', 'application/json')
@@ -434,11 +398,10 @@ var requestAccessToProject = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
-var deleteProject = function (jsonOnly, agent, projectHandle, cb) {
+const deleteProject = function (jsonOnly, agent, projectHandle, cb) {
     // /project/:handle/delete
-    var path = "/project/"+ projectHandle + "?delete";
-    if(jsonOnly)
-    {
+    const path = "/project/" + projectHandle + "?delete";
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
@@ -447,8 +410,7 @@ var deleteProject = function (jsonOnly, agent, projectHandle, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .set('Content-Type', 'application/json')
@@ -458,11 +420,10 @@ var deleteProject = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
-var undeleteProject = function (jsonOnly, agent, projectHandle, cb) {
+const undeleteProject = function (jsonOnly, agent, projectHandle, cb) {
     // /project/:handle/undelete
-    var path = "/project/"+ projectHandle + "?undelete";
-    if(jsonOnly)
-    {
+    const path = "/project/" + projectHandle + "?undelete";
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
@@ -471,8 +432,7 @@ var undeleteProject = function (jsonOnly, agent, projectHandle, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .set('Content-Type', 'application/json')
@@ -482,38 +442,35 @@ var undeleteProject = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
-var createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folderName, cb) {
+const createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, folderName, cb) {
     // /project/:handle?mkdir
-    var path = "/project/"+ projectHandle;
-    if(jsonOnly)
-    {
+    const path = "/project/" + projectHandle;
+    if (jsonOnly) {
         agent
             .post(path)
             .set('Accept', 'application/json')
             .set('Content-Type', 'application/json')
-            .query({mkdir : folderName})
+            .query({mkdir: folderName})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .post(path)
             .set('Accept', 'text/html')
             .set('Content-Type', 'application/json')
-            .query({mkdir : folderName})
+            .query({mkdir: folderName})
             .end(function (err, res) {
                 cb(err, res);
             });
     }
 };
 
-var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
+const getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
     ///project/:handle?recent_changes
-    var path = '/project/' + projectHandle +'?recent_changes';
-    if(jsonOnly)
-    {
+    const path = '/project/' + projectHandle + '?recent_changes';
+    if (jsonOnly) {
         agent
             .get(path)
             .set('Accept', 'application/json')
@@ -522,8 +479,7 @@ var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
                 cb(err, res);
             });
     }
-    else
-    {
+    else {
         agent
             .get(path)
             .set('Accept', 'text/html')
@@ -534,15 +490,15 @@ var getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
     }
 };
 
-var administer = function (agent, modify, projectData, projectHandle, cb) {
-    if(modify) {
+const administer = function (agent, modify, projectData, projectHandle, cb) {
+    if (modify) {
         agent
             .post('/project/' + projectHandle + '?administer')
             .send(projectData)
             .end(function (err, res) {
                 cb(err, res);
             });
-    } else{
+    } else {
         agent
             .get('/project/' + projectHandle + '?administer')
             .end(function (err, res) {
@@ -551,7 +507,7 @@ var administer = function (agent, modify, projectData, projectHandle, cb) {
     }
 };
 
-var backup = function(agent, projectHandle, filepath, cb){
+const backup = function (agent, projectHandle, filepath, cb) {
     agent
         .get('/project/' + projectHandle + filepath + '?backup')
         .end(function (err, res) {
@@ -559,7 +515,7 @@ var backup = function(agent, projectHandle, filepath, cb){
         });
 };
 
-var bagit = function(agent, projectHandle, filepath, cb){
+const bagit = function (agent, projectHandle, filepath, cb) {
     agent
         .get('/project/' + projectHandle + filepath + '?bagit')
         .end(function (err, res) {
@@ -567,7 +523,7 @@ var bagit = function(agent, projectHandle, filepath, cb){
         });
 };
 
-var download = function (agent, projectHandle, filepath, cb) {
+const download = function (agent, projectHandle, filepath, cb) {
     agent
         .get('/project/' + projectHandle + filepath + '?download')
         .end(function (err, res) {
@@ -575,7 +531,7 @@ var download = function (agent, projectHandle, filepath, cb) {
         });
 };
 
-var serve = function(agent, projectHandle, filepath, cb){
+const serve = function (agent, projectHandle, filepath, cb) {
     agent
         .get('/project/' + projectHandle + filepath + '?serve')
         .end(function (err, res) {
@@ -585,7 +541,7 @@ var serve = function(agent, projectHandle, filepath, cb){
 
 
 
-var thumbnail = function(agent, filepath, projectHandle, cb){
+const thumbnail = function (agent, filepath, projectHandle, cb) {
     agent
         .get('/project/' + projectHandle + filepath + '?thumbnail')
         .end(function (err, res) {
@@ -593,9 +549,9 @@ var thumbnail = function(agent, filepath, projectHandle, cb){
         })
 };
 
-var getProjectContributors = function (agent, projectHandle, cb) {
+const getProjectContributors = function (agent, projectHandle, cb) {
     //project/proj1?get_contributors
-    var path = "/project/" + projectHandle + "?get_contributors";
+    const path = "/project/" + projectHandle + "?get_contributors";
     agent
         .get(path)
         .end(function (err, res) {

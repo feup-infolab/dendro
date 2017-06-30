@@ -1,7 +1,7 @@
 var path = require('path');
 
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -47,6 +47,6 @@ DendroInteraction2CSV.setup = function(app)
  */
 DendroInteraction2CSV.config = require(path.join(__dirname, "integration", "config.json"));
 
-DendroInteraction2CSV = Class.extend(DendroInteraction2CSV, Plugin);
+DendroInteraction2CSV = Class.extend(DendroInteraction2CSV, Plugin, true);
 
 module.exports.DendroInteraction2CSV = DendroInteraction2CSV;

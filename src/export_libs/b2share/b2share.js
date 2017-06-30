@@ -2,7 +2,7 @@
  * Created by Fábio on 31/03/2016.
  */
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;

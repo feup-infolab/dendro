@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;

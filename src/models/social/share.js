@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -12,26 +12,23 @@ const Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
 const uuid = require('uuid');
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const db_social = function () {
-    return GLOBAL.db.social;
+    return global.db.social;
 }();
 
 const gfs = function () {
-    return GLOBAL.gfs.default;
+    return global.gfs.default;
 }();
 const async = require('async');
 
 function Share (object)
 {
-    Share.baseConstructor.call(this, object);
+    Share.baseConstructor.call(this, object, Share);
     const self = this;
 
     self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:Share";
-    self.rdf.isShare = true;
     
     let objectType;
     if(object.ddr.postURI)
@@ -106,6 +103,7 @@ function Share (object)
 
 //TODO alterar aqui que extends o Post
 //Share = Class.extend(Share, Event);
-Share = Class.extend(Share, Post);
+
+Share = Class.extend(Share, Post, "ddr:Share");
 
 module.exports.Share = Share;

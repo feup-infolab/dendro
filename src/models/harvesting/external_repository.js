@@ -1,7 +1,7 @@
 //DCTerms ontology : "http://purl.org/dc/elements/1.1/"
 
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -10,17 +10,15 @@ const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnectio
 const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 
 const async = require('async');
 
 function ExternalRepository (object, creatorUsername)
 {
-    ExternalRepository.baseConstructor.call(this, object);
+    ExternalRepository.baseConstructor.call(this, object, ExternalRepository);
     const self = this;
-
-    self.rdf.type = "ddr:ExternalRepository";
 
     const slug = require('slug');
 
@@ -99,6 +97,6 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
     });
 };
 
-ExternalRepository = Class.extend(ExternalRepository, Resource);
+ExternalRepository = Class.extend(ExternalRepository, Resource, "ddr:ExternalRepository");
 
 module.exports.ExternalRepository = ExternalRepository;

@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -7,8 +7,8 @@ const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
-const db = function() { return GLOBAL.db.default; }();
-const gfs = function() { return GLOBAL.gfs.default; }();
+const db = function() { return global.db.default; }();
+const gfs = function() { return global.gfs.default; }();
 
 const async = require('async');
 const _ = require('underscore');

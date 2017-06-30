@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -9,12 +9,10 @@ const uuid = require('uuid');
 
 function Comment (object)
 {
-    Comment.baseConstructor.call(this, object);
+    Comment.baseConstructor.call(this, object, Comment);
     let self = this;
 
     self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:Comment";
 
     const newId = uuid.v4();
 
@@ -31,7 +29,7 @@ function Comment (object)
     return self;
 }
 
-Comment = Class.extend(Comment, Event);
+Comment = Class.extend(Comment, Event, "ddr:Comment");
 
 module.exports.Comment = Comment;
 

@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -7,8 +7,8 @@ const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
-var db = function() { return GLOBAL.db.default; }();
-var gfs = function() { return GLOBAL.gfs.default; }();
+var db = function() { return global.db.default; }();
+var gfs = function() { return global.gfs.default; }();
 var async = require('async');
 var _ = require('underscore');
 var path = require('path');

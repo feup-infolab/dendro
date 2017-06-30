@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -9,19 +9,17 @@ const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resou
 const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 
 const async = require('async');
 
 function Change (object)
 {
-    Change.baseConstructor.call(this, object);
+    Change.baseConstructor.call(this, object, Change);
     const self = this;
 
     self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:Change";
 
     const now = new Date();
     self.dcterms.created = now.toISOString();
@@ -108,6 +106,6 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
     }
 }*/
 
-Change = Class.extend(Change, Resource);
+Change = Class.extend(Change, Resource, "ddr:Change");
 
 module.exports.Change = Change;

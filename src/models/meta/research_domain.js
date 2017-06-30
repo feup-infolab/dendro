@@ -1,7 +1,7 @@
 const async = require('async');
 
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -10,15 +10,13 @@ const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 
 function ResearchDomain (object, callback)
 {
-    ResearchDomain.baseConstructor.call(this, object);
+    ResearchDomain.baseConstructor.call(this, object, ResearchDomain);
     const self = this;
-
-    self.rdf.type = ResearchDomain.prefixedRDFType;
 
     const now = new Date();
 
@@ -136,8 +134,6 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         });
 };
 
-ResearchDomain.prefixedRDFType = "ddr:ResearchDomain";
-
-ResearchDomain = Class.extend(ResearchDomain, Resource);
+ResearchDomain = Class.extend(ResearchDomain, Resource, "ddr:ResearchDomain");
 
 module.exports.ResearchDomain = ResearchDomain;

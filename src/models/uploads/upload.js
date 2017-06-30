@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -173,6 +173,6 @@ Upload.prototype.get_temp_file_size = function(callback)
     return callback(null, stat.size);
 };
 
-Upload = Class.extend(Upload, Class);
+Upload = Class.extend(Upload, Class, true, "ddr:Upload");
 
 module.exports.Upload = Upload;

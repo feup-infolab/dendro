@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -45,12 +45,28 @@ const getParentConstructor = function (parentClass) {
     return parentClass;
 };
 
-Class.extend = function(childClass, parentClass)
+Class.extend = function(childClass, parentClass, rdfTypeForSavingInDatabase)
 {
+    if(rdfTypeForSavingInDatabase)
+    {
+        if (isNull(parentClass.prefixedRDFType))
+        {
+            childClass.prefixedRDFType = rdfTypeForSavingInDatabase;
+        }
+        if(parentClass.prefixedRDFType instanceof Array)
+        {
+            parentClass.prefixedRDFType.push(rdfTypeForSavingInDatabase);
+        }
+        else if(typeof parentClass.prefixedRDFType === "string")
+        {
+            childClass.prefixedRDFType = [parentClass.prefixedRDFType, rdfTypeForSavingInDatabase];
+        }
+    }
+
     childClass.baseConstructor = getParentConstructor(parentClass);
     childClass.prototype['baseConstructor'] = getParentConstructor(parentClass);
 
-    const childClassWithFamilyTreePrototypes = copyPrototypeFromParent(parentClass, childClass);
+    let childClassWithFamilyTreePrototypes = copyPrototypeFromParent(parentClass, childClass);
 
     return childClassWithFamilyTreePrototypes;
 };
@@ -66,5 +82,7 @@ Class.prototype.isA = function (prototype) {
 
     return false;
 };
+
+
 
 module.exports.Class = Class;

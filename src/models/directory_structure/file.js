@@ -1,7 +1,7 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -11,17 +11,17 @@ const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const gfs = function () {
-    return GLOBAL.gfs.default;
+    return global.gfs.default;
 }();
 const path = require('path');
 const async = require('async');
 
 function File (object)
 {
-    File.baseConstructor.call(this, object);
+    File.baseConstructor.call(this, object, File);
     const self = this;
 
     if(isNull(self.uri))
@@ -40,8 +40,6 @@ function File (object)
             self.ddr.humanReadableURI = object.nie.isLogicalPartOf +  "/" + object.nie.title;
         }
     }
-
-    self.rdf.type = File.prefixedRDFType;
 
     const re = /(?:\.([^.]+))?$/;
     let ext = re.exec(self.nie.title)[1];   // "txt"
@@ -561,8 +559,6 @@ File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata,
     }
 };
 
-File.rdfType = "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#FileDataObject";
-
 File.prototype.generateThumbnails = function(callback)
 {
     let self = this;
@@ -732,8 +728,6 @@ File.deleteOnLocalFileSystem = function(err, callback)
     });
 };
 
-File.prefixedRDFType = "nfo:FileDataObject";
-
-File = Class.extend(File, InformationElement);
+File = Class.extend(File, InformationElement, "nfo:FileDataObject");
 
 module.exports.File = File;

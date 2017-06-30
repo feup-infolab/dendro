@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -26,7 +26,7 @@ const metadataOnlyHTMLTests = require(Config.absPathInTestsFolder("mockdata/proj
 const privateProjectHTMLTests = require(Config.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var bootup = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+const bootup = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 
 describe("New project tests", function (done) {
     before(function (done) {
@@ -51,8 +51,8 @@ describe("New project tests", function (done) {
         });
 
         it("[HTML] Should not show the new project Html page when unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
 
             projectUtils.getNewProjectPage(false, agent, function (err, res) {
                 res.statusCode.should.equal(200);
@@ -75,8 +75,8 @@ describe("New project tests", function (done) {
 //CREATE PROJECTS TESTS
     describe("[POST] with project handle: "+ publicProject.handle + " [/projects/new]", function () {
         it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.createNewProject(true, agent, publicProject, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Action not permitted. You are not logged into the system.");
@@ -95,8 +95,8 @@ describe("New project tests", function (done) {
         });
 
         it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.createNewProject(false, agent, publicProjectHTMLTests, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.text.should.contain("<p>Please log into the system.</p>");
@@ -117,8 +117,8 @@ describe("New project tests", function (done) {
 
     describe("[POST] with project handle: "+ metadataOnlyProject.handle + " [/projects/new]", function () {
         it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.createNewProject(true, agent, metadataOnlyProject, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Action not permitted. You are not logged into the system.");
@@ -137,8 +137,8 @@ describe("New project tests", function (done) {
         });
 
         it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.text.should.contain("<p>Please log into the system.</p>");
@@ -159,8 +159,8 @@ describe("New project tests", function (done) {
 
     describe("[POST] with project handle: "+ privateProject.handle + " [/projects/new]", function () {
         it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.createNewProject(true, agent, privateProject, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Action not permitted. You are not logged into the system.");
@@ -179,8 +179,8 @@ describe("New project tests", function (done) {
         });
 
         it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.text.should.contain("<p>Please log into the system.</p>");

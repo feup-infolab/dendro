@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -22,8 +22,8 @@ const publicProjectHTMLTests = require(Config.absPathInTestsFolder("mockdata/pro
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-var createProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const createProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
 describe("Delete Public Project Tests", function () {
     before(function (done) {
@@ -52,8 +52,8 @@ describe("Delete Public Project Tests", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.deleteProject(true, agent, publicProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.body.result.should.equal("error");
@@ -104,8 +104,8 @@ describe("Delete Public Project Tests", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.deleteProject(false, agent, publicProjectHTMLTests.handle, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.text.should.contain("Permission denied : cannot delete project because you do not have permissions to administer this project.");

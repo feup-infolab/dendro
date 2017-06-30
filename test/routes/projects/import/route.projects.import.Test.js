@@ -1,5 +1,5 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
 chai.use(chaiHttp);
 
@@ -16,10 +16,10 @@ const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.
 const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-var projectBackupData = require(Config.absPathInTestsFolder("mockdata/projects/projectBackups/publicProject"));
+const projectBackupData = require(Config.absPathInTestsFolder("mockdata/projects/projectBackups/publicProject"));
 
-var bootup = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const bootup = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Import projects tests", function (done) {
     this.timeout(20000);
@@ -32,8 +32,8 @@ describe("Import projects tests", function (done) {
 
     describe("[GET] /projects/import", function () {
         it("Should get an error when trying to access the html page to import a project when unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.importProjectHTMLPage(false, agent, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.text.should.contain("<p>Please log into the system.</p>");
@@ -65,8 +65,8 @@ describe("Import projects tests", function (done) {
     describe("[POST] /projects/import", function () {
         //TODO API ONLY
         it("Should give an error when the user is not authenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.importProject(true, agent, projectBackupData.path, function (err, res) {
                 res.statusCode.should.equal(401);
                 done();

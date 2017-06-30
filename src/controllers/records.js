@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -12,10 +12,10 @@ const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js
 const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const gfs = function () {
-    return GLOBAL.gfs.default;
+    return global.gfs.default;
 }();
 
 const _ = require('underscore');

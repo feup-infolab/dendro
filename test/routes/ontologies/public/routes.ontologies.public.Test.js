@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -11,7 +11,7 @@ const ontologiesUtils = require(Config.absPathInTestsFolder("utils/ontologies/on
 
 
 const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
-var addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+const addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 
 describe('/ontologies/public', function () {
 
@@ -28,8 +28,8 @@ describe('/ontologies/public', function () {
     });
 
     it('[JSON] should return public ontologies logged in as demouser1.username', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             ontologiesUtils.publicDisplay(true, agent, function(err, res){
@@ -42,8 +42,8 @@ describe('/ontologies/public', function () {
     });
 
     it('[HTML] should return public ontologies logged in as demouser1.username', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
             ontologiesUtils.publicDisplay(false, agent, function(err, res){
@@ -54,8 +54,8 @@ describe('/ontologies/public', function () {
         });
     });
     it('[JSON] should return public ontologies logged in as demouser2.username', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             ontologiesUtils.publicDisplay(true, agent, function(err, res){
@@ -67,8 +67,8 @@ describe('/ontologies/public', function () {
         });
     });
     it('[HTML] should return public ontologies logged in as demouser2.username', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             ontologiesUtils.publicDisplay(false, agent, function(err, res){
@@ -80,8 +80,8 @@ describe('/ontologies/public', function () {
     });
 
     it('[JSON] should return public ontologies logged in as demouser3.username', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             ontologiesUtils.publicDisplay(true, agent, function(err, res){
@@ -93,8 +93,8 @@ describe('/ontologies/public', function () {
         });
     });
     it('[HTML] should return public ontologies logged in as demouser3.username', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             ontologiesUtils.publicDisplay(false, agent, function(err, res){
@@ -107,8 +107,8 @@ describe('/ontologies/public', function () {
 
 
     it('[JSON] should return public ontologies not logged in', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
 
         ontologiesUtils.publicDisplay(true, agent, function(err, res){
             res.body[0].prefix.should.contain('dcterms');
@@ -119,8 +119,8 @@ describe('/ontologies/public', function () {
     });
 
     it('[HTML] should return public ontologies not logged in', function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
+        const app = GLOBAL.tests.app;
+        const agent = chai.request.agent(app);
 
         ontologiesUtils.publicDisplay(false, agent, function(err, res){
             res.text.should.contain('Public Descriptor Sets'); //Temporary test since page is not functional yet

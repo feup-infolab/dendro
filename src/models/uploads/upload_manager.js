@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -100,6 +100,6 @@ UploadManager.destroy_upload= function (id, callback)
     }
 };
 
-UploadManager = Class.extend(UploadManager, Class);
+UploadManager = Class.extend(UploadManager, Class, true);
 
 module.exports.UploadManager = UploadManager;

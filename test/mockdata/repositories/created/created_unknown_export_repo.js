@@ -1,4 +1,4 @@
-var repoData = {
+const repoData = {
     repository: {
         uri: "http://127.0.0.1:3001/external_repository/nelsonpereira1991/Unknown-Repository",
         dcterms: {

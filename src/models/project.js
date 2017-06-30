@@ -3,7 +3,7 @@
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -20,10 +20,10 @@ const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js
 const ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource")).ArchivedResource;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const gfs = function () {
-    return GLOBAL.gfs.default;
+    return global.gfs.default;
 }();
 
 const util = require('util');
@@ -32,7 +32,7 @@ const _ = require('underscore');
 
 function Project(object)
 {
-    Project.baseConstructor.call(this, object);
+    Project.baseConstructor.call(this, object, Project);
     const self = this;
 
     if(isNull(self.uri))
@@ -45,8 +45,6 @@ function Project(object)
     {
         self.ddr.humanReadableURI = Config.baseUri + "/project/" + self.ddr.handle;
     }
-
-    self.rdf.type = "ddr:Project";
 
     return self;
 }
@@ -1711,9 +1709,6 @@ Project.rebaseAllUris = function(structure, newBaseUri)
     modifyNode(structure);
 };
 
-
-Project.prefixedRDFType = "ddr:Project";
-
-Project = Class.extend(Project, Resource);
+Project = Class.extend(Project, Resource, "ddr:Project");
 
 module.exports.Project = Project;

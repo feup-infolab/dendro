@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -9,12 +9,10 @@ const uuid = require('uuid');
 
 function Post (object)
 {
-    Post.baseConstructor.call(this, object);
+    Post.baseConstructor.call(this, object, Post);
     const self = this;
 
     self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:Post";
 
     const newId = uuid.v4();
 
@@ -36,9 +34,7 @@ function Post (object)
     return self;
 }
 
-Post.prefixedRDFType = "ddr:Post";
-
-Post = Class.extend(Post, Event);
+Post = Class.extend(Post, Event, "ddr:Post");
 
 module.exports.Post = Post;
 

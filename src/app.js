@@ -3,7 +3,7 @@
  *
  * @type {Function}
  */
-const Config = GLOBAL.Config = Object.create(require("./models/meta/config.js").Config);
+const Config = global.Config = Object.create(require("./models/meta/config.js").Config);
 Config.initGlobals();
 
 /**
@@ -311,7 +311,7 @@ const signInDebugUser = function (req, res, next) {
 const appendLocalsToUseInViews = function (req, res, next) {
     //append request and session to use directly in views and avoid passing around needless stuff
     res.locals.request = req;
-    res.locals.baseURI = GLOBAL.db.default.baseURI;
+    res.locals.baseURI = global.db.default.baseURI;
 
     if (isNull(res.locals.Config) && !isNull(Config)) {
         res.locals.Config = Config;
@@ -421,7 +421,7 @@ const init = function(callback)
                     console.log("[OK] Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
 
                     //set default connection. If you want to add other connections, add them in succession.
-                    GLOBAL.db.default.connection = db;
+                    global.db.default.connection = db;
 
                     return callback(null);
                 }
@@ -430,12 +430,12 @@ const init = function(callback)
         function(callback) {
             if(Config.debug.database.destroy_all_graphs_on_startup)
             {
-                const graphs = Object.keys(GLOBAL.db);
-                const conn = GLOBAL.db.default.connection;
+                const graphs = Object.keys(global.db);
+                const conn = global.db.default.connection;
 
                 async.map(graphs, function(graph, cb){
 
-                    const graphUri = GLOBAL.db[graph].graphUri;
+                    const graphUri = global.db[graph].graphUri;
                     conn.deleteGraph(graphUri, function(err){
                         if(err)
                         {
@@ -478,7 +478,7 @@ const init = function(callback)
                         instance.id
                     );
 
-                    GLOBAL.redis[redisConn.id].connection = redisConn;
+                    global.redis[redisConn.id].connection = redisConn;
 
                     redisConn.openConnection(function(err, redisConn) {
                         if(err)
@@ -535,7 +535,7 @@ const init = function(callback)
                 {
                     if (!err)
                     {
-                        GLOBAL.allOntologies = ontologies;
+                        global.allOntologies = ontologies;
                         console.log("[OK] Ontology information successfully loaded from database.");
                         return callback(null);
                     }
@@ -551,7 +551,7 @@ const init = function(callback)
                 Ontology.all(function(err, ontologies){
                     if(!err)
                     {
-                        GLOBAL.allOntologies = ontologies;
+                        global.allOntologies = ontologies;
                         return callback(null);
                     }
                     else
@@ -632,7 +632,7 @@ const init = function(callback)
                 else
                 {
                     console.log("[OK] Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
-                    GLOBAL.gfs.default.connection = gfs;
+                    global.gfs.default.connection = gfs;
                     return callback(null);
                 }
             });
@@ -672,7 +672,7 @@ const init = function(callback)
 
                 const poolOK = function (pool) {
                     console.log("[OK] Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-                    GLOBAL.mysql.pool = pool;
+                    global.mysql.pool = pool;
                     return callback(null);
                 };
 

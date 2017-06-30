@@ -1,7 +1,7 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -18,17 +18,17 @@ const fs = require('fs');
 const path = require('path');
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const gfs = function () {
-    return GLOBAL.gfs.default;
+    return global.gfs.default;
 }();
 const async = require('async');
 const _ = require('underscore');
 
 function Folder (object)
 {
-    Folder.baseConstructor.call(this, object);
+    Folder.baseConstructor.call(this, object, Folder);
 
     const self = this;
     
@@ -54,7 +54,6 @@ function Folder (object)
         }
     }
 
-    self.rdf.type = Folder.prefixedRDFType;
     self.ddr.fileExtension = "folder";
     self.ddr.hasFontAwesomeClass = "fa-folder";
 
@@ -104,12 +103,12 @@ Folder.prototype.getLogicalParts = function(final_callback)
                 if(!isNull(children) && children instanceof Array)
                 {
                     const getChildrenProperties = function (child, cb) {
-                        if (child.type === Folder.rdfType) {
+                        if (child.type === Folder.prefixedRDFType) {
                             Folder.findByUri(child.uri, function (err, folder) {
                                 cb(err, folder);
                             });
                         }
-                        else if (child.type === File.rdfType) {
+                        else if (child.type === File.prefixedRDFType) {
                             File.findByUri(child.uri, function (err, file) {
                                 cb(err, file);
                             });
@@ -1250,8 +1249,6 @@ Folder.deleteOnLocalFileSystem = function(absPath, callback)
     });
 };
 
-Folder.rdfType = "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#Folder";
-Folder.prefixedRDFType = "nfo:Folder";
-Folder = Class.extend(Folder, InformationElement);
+Folder = Class.extend(Folder, InformationElement, "nfo:Folder");
 
 module.exports.Folder = Folder;

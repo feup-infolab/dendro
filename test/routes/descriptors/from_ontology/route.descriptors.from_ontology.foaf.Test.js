@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -24,8 +24,8 @@ const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/pr
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
 const ontologyPrefix = "foaf";
-var addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Descriptors from foaf ontology", function (done) {
     before(function (done) {
@@ -101,8 +101,8 @@ describe("Descriptors from foaf ontology", function (done) {
         });
 
         it("[JSON] It should not get descriptors from foaf ontology (when unauthenticated and accessing Public project "+publicProject.handle +")", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
                 res.should.have.status(401);
                 done();
@@ -155,8 +155,8 @@ describe("Descriptors from foaf ontology", function (done) {
         });
 
         it("[JSON] It should not get descriptors from foaf ontology (when unauthenticated and inside of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
                 res.should.have.status(401);
                 done();
@@ -208,8 +208,8 @@ describe("Descriptors from foaf ontology", function (done) {
         });
 
         it("[JSON] It should not get descriptors from foaf ontology (when unauthenticated and inside of the Private project "+privateProject.handle +")", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
                 res.should.have.status(401);
                 done();

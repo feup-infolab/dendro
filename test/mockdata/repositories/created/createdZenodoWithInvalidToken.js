@@ -1,4 +1,4 @@
-var newExportRepoData =
+const newExportRepoData =
     {
         uri: "http://127.0.0.1:3001/external_repository/demouser1/zenodo-export-config-invalid-token",
         dcterms: {

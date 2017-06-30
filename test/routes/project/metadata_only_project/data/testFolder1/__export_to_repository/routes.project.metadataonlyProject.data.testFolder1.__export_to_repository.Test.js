@@ -1,9 +1,9 @@
 process.env.NODE_ENV = 'test';
 
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -23,9 +23,9 @@ const metadataProject = require(Config.absPathInTestsFolder("mockdata/projects/m
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 const testFolder1 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder1.js"));
 
-var createExportToRepositoriesConfig = appUtils.requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+const createExportToRepositoriesConfig = appUtils.requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
 
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 let createdUnknownRepo = require(Config.absPathInTestsFolder("mockdata/repositories/created/created_unknown_export_repo.js"));
 let createdB2shareConfigInvalidToken = require(Config.absPathInTestsFolder("mockdata/repositories/created/createdB2shareWithInvalidToken.js"));

@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -15,7 +15,7 @@ const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnectio
 
 const nodemailer = require('nodemailer');
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const flash = require('connect-flash');
 const async = require('async');

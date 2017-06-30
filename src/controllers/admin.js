@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -8,7 +8,7 @@ const IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).Index
 const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 
 module.exports.home = function(req, res) {

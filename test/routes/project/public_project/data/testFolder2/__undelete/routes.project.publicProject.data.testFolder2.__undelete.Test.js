@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -20,8 +20,8 @@ const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/in
 const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2"));
-var deleteFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/folders/deleteFolders.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const deleteFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/folders/deleteFolders.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Public project testFolder2 level undelete tests", function () {
     before(function (done) {
@@ -68,8 +68,8 @@ describe("Public project testFolder2 level undelete tests", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
 
             itemUtils.undeleteItem(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
                 res.statusCode.should.equal(401);

@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -12,7 +12,7 @@ const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnectio
 const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 
 const _ = require('underscore');
@@ -20,7 +20,7 @@ const async = require('async');
 
 function ArchivedResource (object)
 {
-    ArchivedResource.baseConstructor.call(this, object);
+    ArchivedResource.baseConstructor.call(this, object, ArchivedResource);
     const self = this;
 
     self.copyOrInitDescriptors(object);
@@ -254,7 +254,6 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
         return callback(err, archivedResource);
     });
 };
-
-ArchivedResource = Class.extend(ArchivedResource, Resource);
+ArchivedResource = Class.extend(ArchivedResource, Resource, "ddr:ArchivedResource");
 
 module.exports.ArchivedResource = ArchivedResource;

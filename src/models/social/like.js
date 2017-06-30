@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -9,12 +9,10 @@ const uuid = require('uuid');
 
 function Like (object)
 {
-    Like.baseConstructor.call(this, object);
+    Like.baseConstructor.call(this, object, Like);
     const self = this;
 
     self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:Like";
 
     //self.dcterms.postURI = "";
 
@@ -33,6 +31,6 @@ function Like (object)
     return self;
 }
 
-Like = Class.extend(Like, Event);
+Like = Class.extend(Like, Event, "ddr:Like");
 
 module.exports.Like = Like;

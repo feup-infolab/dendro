@@ -171,7 +171,7 @@ Config.cache =  getConfigParameter("cache");
 
 Config.initGlobals = function()
 {
-    GLOBAL.db = {
+    global.db = {
         default: {
             baseURI: "http://" + Config.host,
             graphHandle: "dendro_graph",
@@ -192,15 +192,15 @@ Config.initGlobals = function()
         }
     };
 
-    GLOBAL.gfs = {
+    global.gfs = {
         default: {}
     };
 
-    GLOBAL.mysql = {
+    global.mysql = {
         default: {}
     };
 
-    GLOBAL.redis = {
+    global.redis = {
         default: {},
         social: {},
         notifications: {}
@@ -208,7 +208,7 @@ Config.initGlobals = function()
 
     const Elements = require('./elements.js').Elements;
 
-    GLOBAL.allOntologies = {
+    global.allOntologies = {
         dcterms: {
             prefix: "dcterms",
             uri: "http://purl.org/dc/terms/",
@@ -398,12 +398,12 @@ Config.initGlobals = function()
     Config.caches = {
     };
 
-    for(let db in GLOBAL.db)
+    for(let db in global.db)
     {
-        const dbParam = GLOBAL.db[db];
+        const dbParam = global.db[db];
         if(dbParam.hasOwnProperty("graphUri") && dbParam.hasOwnProperty("redis_instance"))
         {
-            Config.caches[dbParam.graphUri] = GLOBAL.redis[dbParam.redis_instance];
+            Config.caches[dbParam.graphUri] = global.redis[dbParam.redis_instance];
         }
         else
         {

@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -21,8 +21,8 @@ const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/in
 const testFolder2 = require(Config.absPathInTestsFolder("mockdata/folders/testFolder2.js"));
 const notFoundFolder = require(Config.absPathInTestsFolder("mockdata/folders/notFoundFolder.js"));
 
-var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Metadata only project testFolder2 level (default case) tests", function () {
     before(function (done) {
@@ -36,8 +36,8 @@ describe("Metadata only project testFolder2 level (default case) tests", functio
     describe('/project/'+metadataProject.handle + "/data/" + testFolder2.name +  " (default case where the root of the folder is shown, without any query)", function () {
 
         it("[HTML] should refuse to give the project page html [WITHOUT EDIT MODE] if the user is unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             itemUtils.viewItem(false, agent, metadataProject.handle, testFolder2.name, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.not.contain(metadataProject.handle);
@@ -86,8 +86,8 @@ describe("Metadata only project testFolder2 level (default case) tests", functio
         });
 
         it("[JSON] should refuse to give the project root data if the user is unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             itemUtils.viewItem(true, agent, metadataProject.handle, testFolder2.name, function (err, res) {
                 res.should.have.status(401);
                 should.not.exist(res.body.descriptors);
@@ -154,8 +154,8 @@ describe("Metadata only project testFolder2 level (default case) tests", functio
     describe('/project/'+invalidProject.handle + "/data/" + testFolder2.name +" NON_EXISTENT PROJECT(default case where the root of the folder is shown, without any query)", function () {
 
         it("[HTML] should give the project page html with an error if the user is unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             itemUtils.viewItem(false, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                 res.should.have.status(200);
                 res.text.should.not.contain(invalidProject.handle);
@@ -199,8 +199,8 @@ describe("Metadata only project testFolder2 level (default case) tests", functio
 
 
         it("[JSON] should give a 404 error if the user is unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             itemUtils.viewItem(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {
                 res.should.have.status(404);//-> At the moment it is responding with an html page
                 done();

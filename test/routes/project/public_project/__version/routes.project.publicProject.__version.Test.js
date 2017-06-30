@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -19,8 +19,8 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-var db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const db = requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]

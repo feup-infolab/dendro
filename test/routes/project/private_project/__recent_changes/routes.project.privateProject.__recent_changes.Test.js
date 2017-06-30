@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -20,8 +20,8 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("private project recent changes", function () {
     before(function (done) {
@@ -46,8 +46,8 @@ describe("private project recent changes", function () {
         });
 
         it("Should give an error if the user is unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
 
             projectUtils.getProjectRecentChanges(true, agent, privateProject.handle, function (err, res) {
                 res.should.have.status(401);//because the project is private

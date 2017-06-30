@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const Loader = require(Config.absPathInSrcFolder("/kb/loaders/loader.js")).Loader;
@@ -7,10 +7,10 @@ const HarvestedResource = require(Config.absPathInSrcFolder("/models/harvesting/
 const ExternalRepository = require(Config.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 const gfs = function () {
-    return GLOBAL.gfs.default;
+    return global.gfs.default;
 }();
 
 function DryadLoader ()

@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -37,8 +37,8 @@ describe("List all projects tests", function (done) {
 
     describe("[GET] /projects", function () {
         it("[HTML] Should only get public and metadata_only projects when unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
 
             projectUtils.listAllProjects(false, agent, function (err, res) {
                 res.statusCode.should.equal(200);

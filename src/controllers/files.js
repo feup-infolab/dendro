@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -15,7 +15,7 @@ const FileVersion = require(Config.absPathInSrcFolder("/models/versions/file_ver
 const async = require('async');
 
 const db_social = function () {
-    return GLOBAL.db.social;
+    return global.db.social;
 }();
 
 exports.download = function(req, res){

@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -16,12 +16,12 @@ const _ = require('underscore');
 const path = require('path');
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 
 function User (object)
 {
-    User.baseConstructor.call(this, object);
+    User.baseConstructor.call(this, object, User);
     const self = this;
 
     if(isNull(self.uri))
@@ -58,8 +58,6 @@ function User (object)
             self.ddr.salt = bcrypt.genSaltSync(1);
         }
     }
-
-    self.rdf.type = "ddr:User";
 
     return self;
 }
@@ -1460,8 +1458,6 @@ User.anonymous = {
     uri: "http://dendro.fe.up.pt/user/anonymous"
 };
 
-User.prefixedRDFType = "ddr:User";
-
-User = Class.extend(User, Resource);
+User = Class.extend(User, Resource, "ddr:User");
 
 module.exports.User = User;

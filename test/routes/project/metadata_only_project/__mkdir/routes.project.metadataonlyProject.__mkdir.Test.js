@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -20,8 +20,8 @@ const metadataProject = require(Config.absPathInTestsFolder("mockdata/projects/m
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
-var addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Metadata Project mkdir", function (done) {
     before(function (done) {
@@ -55,8 +55,8 @@ describe("Metadata Project mkdir", function (done) {
 
 
         it("Should give an error when the user is unauthenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.createFolderInProjectRoot(true, agent, metadataProject.handle, folder.name, function (err, res) {
                 res.statusCode.should.equal(401);
                 done();

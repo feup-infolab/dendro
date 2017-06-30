@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -11,7 +11,7 @@ const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
 
 const _ = require('underscore');
@@ -390,7 +390,7 @@ Ontology.initAllFromDatabase = function(callback)
 
 Ontology.allOntologies = function()
 {
-    return GLOBAL.allOntologies;
+    return global.allOntologies;
 }();
 
 Ontology.getAllOntologyPrefixes = function()
@@ -778,8 +778,6 @@ Ontology.findByPrefix = function(prefix, callback)
         });
 };
 
-Ontology.prefixedRDFType = "ddr:Ontology";
-
-Ontology = Class.extend(Ontology, Resource);
+Ontology = Class.extend(Ontology, Resource, "ddr:Ontology");
 
 module.exports.Ontology = Ontology;

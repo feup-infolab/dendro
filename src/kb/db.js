@@ -1,6 +1,6 @@
 const util = require('util');
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -99,102 +99,124 @@ const queryObjectToString = function (query, argumentsArray, callback) {
 
         //check for the presence of the parameter placeholder
         if (transformedQuery.indexOf(currentArgumentIndex) !== -1) {
-            //will allow people to use the same parameter several times in the query,
-            // for example [0]....[0]...[0] by replacing all occurrences of [0] in the query string
-            const pattern = new RegExp("\\\[" + i + "\\\]", "g"); // [] are reserved chars in regex!
+            try {
 
-            switch (currentArgument.type) {
-                case DbConnection.resourceNoEscape:
-                    transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
-                    break;
-                case DbConnection.resource:
-                    transformedQuery = transformedQuery.replace(pattern, "<" + encodeURI(currentArgument.value) + ">");
-                    break;
-                case DbConnection.property:
-                    transformedQuery = transformedQuery.replace(pattern, "<" + encodeURI(currentArgument.value) + ">");
-                    break;
-                case DbConnection.string:
-                    transformedQuery = transformedQuery.replace(pattern, "\"" + encodeURIComponent(currentArgument.value) + "\"");
-                    break;
-                case DbConnection.int:
-                    transformedQuery = transformedQuery.replace(pattern, encodeURIComponent(currentArgument.value));
-                    break;
-                case DbConnection.double:
-                    transformedQuery = transformedQuery.replace(pattern, encodeURIComponent(currentArgument.value));
-                    break;
-                case DbConnection.boolean:
-                    let booleanForm;
-                    try {
-                        booleanForm = JSON.parse(currentArgument.value);
-                        if (!(booleanForm === true || booleanForm === false)) {
-                            throw new Error();
-                        }
-                    }
-                    catch (e) {
-                        const msg = "Unable to convert argument [" + i + "]: It is set as a bolean, but the value is not true or false, it is : " + currentArgument.value;
-                        console.error(msg);
-                        return callback(1, msg);
-                    }
+                //will allow people to use the same parameter several times in the query,
+                // for example [0]....[0]...[0] by replacing all occurrences of [0] in the query string
+                const pattern = new RegExp("\\\[" + i + "\\\]", "g"); // [] are reserved chars in regex!
 
-                    transformedQuery = transformedQuery.replace(pattern, "\"" + encodeURIComponent(booleanForm.toString()) + "\"");
-
-                    break;
-                case DbConnection.prefixedResource:
-
-                    const validator = require('validator');
-
-                    if (validator.isURL(currentArgument.value)) {
+                switch (currentArgument.type) {
+                    case DbConnection.resourceNoEscape:
                         transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
-                    }
-                    else {
-                        const Ontology = require('../models/meta/ontology.js').Ontology;
+                        break;
+                    case DbConnection.resource:
+                        transformedQuery = transformedQuery.replace(pattern, "<" + encodeURI(currentArgument.value) + ">");
+                        break;
+                    case DbConnection.property:
+                        transformedQuery = transformedQuery.replace(pattern, "<" + encodeURI(currentArgument.value) + ">");
+                        break;
+                    case DbConnection.string:
+                        transformedQuery = transformedQuery.replace(pattern, "\"" + encodeURIComponent(currentArgument.value) + "\"");
+                        break;
+                    case DbConnection.int:
+                        transformedQuery = transformedQuery.replace(pattern, encodeURIComponent(currentArgument.value));
+                        break;
+                    case DbConnection.double:
+                        transformedQuery = transformedQuery.replace(pattern, encodeURIComponent(currentArgument.value));
+                        break;
+                    case DbConnection.boolean:
+                        let booleanForm;
+                        try {
+                            booleanForm = JSON.parse(currentArgument.value);
+                            if (!(booleanForm === true || booleanForm === false)) {
+                                throw new Error();
+                            }
+                        }
+                        catch (e) {
+                            const msg = "Unable to convert argument [" + i + "]: It is set as a bolean, but the value is not true or false, it is : " + currentArgument.value;
+                            console.error(msg);
+                            return callback(1, msg);
+                        }
 
-                        if (!isNull(currentArgument.value)) {
-                            const indexOfColon = currentArgument.value.indexOf(":");
+                        transformedQuery = transformedQuery.replace(pattern, "\"" + encodeURIComponent(booleanForm.toString()) + "\"");
 
-                            if (indexOfColon > 0) {
-                                if (!isNull(currentArgument.value)) {
-                                    const prefix = currentArgument.value.substr(0, indexOfColon);
-                                    const element = currentArgument.value.substr(indexOfColon + 1);
-                                    const ontology = Ontology.allOntologies[prefix].uri;
-                                    const valueAsFullUri = ontology + element;
+                        break;
+                    case DbConnection.prefixedResource:
+                        const validator = require('validator');
+                        if (validator.isURL(currentArgument.value)) {
+                            transformedQuery = transformedQuery.replace(pattern, "<" + currentArgument.value + ">");
+                        }
+                        else {
+                            const Ontology = require('../models/meta/ontology.js').Ontology;
 
-                                    transformedQuery = transformedQuery.replace(pattern, "<" + valueAsFullUri + ">");
+                            if (!isNull(currentArgument.value)) {
+                                const indexOfColon = currentArgument.value.indexOf(":");
+                                const indexOfHash = currentArgument.value.indexOf("#");
+                                let indexOfSeparator;
+
+                                if(indexOfColon < 0 && indexOfHash > -1)
+                                {
+                                    indexOfSeparator = indexOfHash;
+                                }
+                                else if(indexOfColon > -1 && indexOfHash < 0)
+                                {
+                                    indexOfSeparator = indexOfColon;
+                                }
+
+                                if (indexOfSeparator > 0) {
+                                    if (!isNull(currentArgument.value)) {
+                                        const prefix = currentArgument.value.substr(0, indexOfSeparator);
+                                        const element = currentArgument.value.substr(indexOfSeparator + 1);
+                                        const ontology = Ontology.allOntologies[prefix].uri;
+                                        const valueAsFullUri = ontology + element;
+
+                                        transformedQuery = transformedQuery.replace(pattern, "<" + valueAsFullUri + ">");
+                                    }
+                                    else {
+                                        const error = "Value of argument " + currentArgument.value + " is null. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                                        console.error(error);
+                                        return callback(1, error);
+                                    }
                                 }
                                 else {
-                                    const error = "Value of argument " + currentArgument.value + " is null. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                                    const error = "Value of argument " + currentArgument.value + " is not valid for an argument of type Prefixed Resource... Did you mean to parametrize it as a string type in the elements.js file?. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                                     console.error(error);
                                     return callback(1, error);
                                 }
                             }
                             else {
-                                const error = "Value of argument " + currentArgument.value + " is not valid for an argument of type Prefixed Resource... Did you mean to parametrize it as a string type in the elements.js file?. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                                const error = "Cannot Execute Query: Value of argument at index " + currentArgumentIndex + " is undefined. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
                                 console.error(error);
                                 return callback(1, error);
                             }
                         }
-                        else {
-                            const error = "Cannot Execute Query: Value of argument at index " + currentArgumentIndex + " is undefined. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
-                            console.error(error);
-                            return callback(1, error);
-                        }
+                        break;
+                    case DbConnection.date
+                    :
+                        transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
+                        break;
+                    case
+                    DbConnection.long_string
+                    :
+                        transformedQuery = transformedQuery.replace(pattern, "'''" + encodeURIComponent(currentArgument.value) + "'''");
+                        break;
+                    case
+                    DbConnection.stringNoEscape
+                    :
+                        transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
+                        break;
+                    default: {
+                        const error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                        console.error(error);
+                        return callback(1, error);
                     }
-
-                    break;
-                case DbConnection.date:
-                    transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
-                    break;
-                case DbConnection.long_string:
-                    transformedQuery = transformedQuery.replace(pattern, "'''" + encodeURIComponent(currentArgument.value) + "'''");
-                    break;
-                case DbConnection.stringNoEscape:
-                    transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
-                    break;
-                default: {
-                    const error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was : " + query + " \n " + JSON.stringify(arguments);
-                    console.error(error);
-                    return callback(1, error);
                 }
+            }
+            catch (e) {
+                console.error("Error processing argument " + currentArgumentIndex + " in query: \n----------------------\n\n" + transformedQuery + "\n----------------------");
+                console.error("Value of Argument " + currentArgumentIndex + ": " + currentArgument.value);
+                console.error(e.stack);
+                throw e;
             }
         }
         else {
@@ -285,12 +307,12 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                 {
                                     for (let i = 0; i < numberOfRows; i++)
                                     {
-                                        var datatypes = [];
-                                        var columnHeaders = [];
+                                        let datatypes = [];
+                                        let columnHeaders = [];
 
-                                        var row = parsedBody.results.bindings[i];
+                                        let row = parsedBody.results.bindings[i];
 
-                                        if (row != null)
+                                        if (!isNull(row))
                                         {
                                             transformedResults[i] = {};
                                             for (let j = 0; j < parsedBody.head.vars.length; j++)
@@ -298,10 +320,10 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                                 let cellHeader = parsedBody.head.vars[j];
                                                 const cell = row[cellHeader];
 
-                                                if (cell != null)
+                                                if (!isNull(cell))
                                                 {
                                                     let datatype;
-                                                    if (cell != null)
+                                                    if (!isNull(cell))
                                                     {
                                                         datatype = cell.type;
                                                     }
@@ -346,8 +368,6 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                         .catch(function(err){
                             const error = "Virtuoso server returned error: \n " + util.inspect(err);
                             console.trace(err);
-                            console.error(error);
-
                             cb();
                             return callback(1, err);
                         });
@@ -558,7 +578,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 
             //console.log("Running insert query : " + query);
 
-            let redis = GLOBAL.redis.default;
+            let redis = global.redis.default;
             //Invalidate cache record for the updated resources
             redis.connection.delete([triple.subject, triple.object], function(err, result){});
 
@@ -658,7 +678,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
          */
         if(Config.cache.active)
         {
-            let redis = GLOBAL.redis.default;
+            let redis = global.redis.default;
             redis.connection.delete(urisToDelete, function(err, result)
             {
                 if (!isNull(err))
@@ -704,10 +724,13 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
             {
                 objects = [objects];
             }
+            else
+            {
+                objects = objects;
+            }
 
             for(let j = 0; j < objects.length ; j++)
             {
-
                 insertString = insertString + " [" + argCount++ + "] ";
 
                 queryArguments.push({
@@ -741,7 +764,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
             "} \n";
 
         //Invalidate cache record for the updated resource
-        let redis = GLOBAL.redis.default;
+        let redis = global.redis.default;
         redis.connection.delete(subject, function(err, result){});
 
         self.execute(query, queryArguments, function(err, results)

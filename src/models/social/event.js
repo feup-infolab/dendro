@@ -1,5 +1,5 @@
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -9,25 +9,14 @@ const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resou
 const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
 const db = function () {
-    return GLOBAL.db.default;
+    return global.db.default;
 }();
-const db_social = function () {
-    return GLOBAL.db.social;
-}();
-
-const gfs = function () {
-    return GLOBAL.gfs.default;
-}();
-const async = require('async');
-
 function Event (object)
 {
-    Event.baseConstructor.call(this, object);
+    Event.baseConstructor.call(this, object, Event);
     const self = this;
 
     self.copyOrInitDescriptors(object);
-
-    self.rdf.type = "ddr:Event";
 
     const now = new Date();
     self.dcterms.created = now.toISOString();
@@ -45,7 +34,7 @@ function Event (object)
  });
  };*/
 
-Event = Class.extend(Event, Resource);
+Event = Class.extend(Event, Resource, "ddr:Event");
 
 module.exports.Event = Event;
 

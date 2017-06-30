@@ -3,7 +3,7 @@ var async = require('async');
 
 var PluginConfig = require("./config.json");
 const Config = function () {
-    return GLOBAL.Config;
+    return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;

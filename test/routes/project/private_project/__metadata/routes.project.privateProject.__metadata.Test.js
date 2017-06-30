@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -19,8 +19,8 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-var addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Private project level metadata tests", function () {
     before(function (done) {
@@ -53,8 +53,8 @@ describe("Private project level metadata tests", function () {
          */
         it('[JSON] should NOT fetch metadata of the ' + privateProject.handle + ' project without authenticating', function (done)
         {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);
                 should.not.exist(res.body.descriptors);

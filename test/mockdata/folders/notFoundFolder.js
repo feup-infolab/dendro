@@ -1,9 +1,9 @@
-var folderName = "notFoundFolder";
-var publicProject = require("../projects/public_project");
-var privateProject = require("../projects/private_project");
-var metadataOnlyProject = require("../projects/metadata_only_project");
-var projectsArray = [publicProject, privateProject, metadataOnlyProject];
-var activeProjectIndex = 0;
+const folderName = "notFoundFolder";
+const publicProject = require("../projects/public_project");
+const privateProject = require("../projects/private_project");
+const metadataOnlyProject = require("../projects/metadata_only_project");
+const projectsArray = [publicProject, privateProject, metadataOnlyProject];
+const activeProjectIndex = 0;
 let folderData = {
     name : folderName,
     version: 0,

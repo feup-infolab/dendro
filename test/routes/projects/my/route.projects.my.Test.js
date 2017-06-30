@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -23,7 +23,7 @@ const privateProject = require(Config.absPathInTestsFolder("mockdata/projects/pr
 
 const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
 
-var addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+const addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
 
 describe("My Projects", function (done) {
     before(function (done) {
@@ -70,8 +70,8 @@ describe("My Projects", function (done) {
         });
 
         it("[HTML] Should give error when the user is not authenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.listAllMyProjects(false, agent, function (err, res) {
                 res.statusCode.should.equal(200);
                 res.text.should.contain("<p>Please log into the system.</p>");
@@ -131,8 +131,8 @@ describe("My Projects", function (done) {
         });
 
         it("[JSON] Should give error when the user is not authenticated", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
             projectUtils.listAllMyProjects(true, agent, function (err, res) {
                 res.statusCode.should.equal(401);
                 res.body.message.should.equal("Action not permitted. You are not logged into the system.");

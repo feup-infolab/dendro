@@ -1,7 +1,7 @@
-var chai = require('chai');
-var chaiHttp = require('chai-http');
+const chai = require('chai');
+const chaiHttp = require('chai-http');
 const should = chai.should();
-var _ = require('underscore');
+const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Config = GLOBAL.Config;
@@ -20,8 +20,8 @@ const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.
 const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-var createLikesUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/social/createLikes.Unit.js"));
-var db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const createLikesUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/social/createLikes.Unit.js"));
+const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 let demouser1PostURIs;
 
 describe("Social Dendro get likes info for a post tests", function () {
@@ -52,8 +52,8 @@ describe("Social Dendro get likes info for a post tests", function () {
         });
 
         it("Should return an error if the user is not logged in", function (done) {
-            var app = GLOBAL.tests.app;
-            var agent = chai.request.agent(app);
+            const app = GLOBAL.tests.app;
+            const agent = chai.request.agent(app);
 
             postUtils.getLikesInfoForAPost(true, agent, demouser1PostURIs[0].uri, function (err, res) {
                 res.statusCode.should.equal(401);
