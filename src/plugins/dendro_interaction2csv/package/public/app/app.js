@@ -5,6 +5,5 @@ angular.module('dendroCSVApp', [
         'ngAnimate',
         'dendroCSVApp.controller',
         'dendroCSVApp.services',
-        'dendroCSVApp.directives',
-        'ngImgCrop'
+        'dendroCSVApp.directives'
     ]);

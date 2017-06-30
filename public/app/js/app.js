@@ -32,7 +32,8 @@ var dendroApp = angular.module('dendroApp', [
     'dendroApp.services',
     'dendroApp.directives',
     'dendroApp.factories',
-    'imageSpinner'
+    'imageSpinner',
+    'ngImgCrop'
 ]).filter('trustAsResourceUrl', ['$sce', function($sce) {
     return function(val) {
         return $sce.trustAsResourceUrl(val);

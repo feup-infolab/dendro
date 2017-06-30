@@ -2,20 +2,12 @@ angular.module('dendroApp.controllers')
 /**
  *  Avatar controller
  */
-    .controller('avatarCtrl', function ($scope, $http, $filter, $window, $element)
+    .controller('avatarCtrl', function ($scope, $http, $filter, $window, $element, usersService)
     {
         $scope.editAvatarModalActivated = false;
         $scope.myImage='';
         $scope.myCroppedImage='';
         $scope.avatarUri = '';
-
-        /*$scope.init = function () {
-            console.log("At INIT!!!");
-            $scope.editAvatarModalActivated = false;
-            $scope.myImage='';
-            $scope.myCroppedImage='';
-            $scope.avatarUri = '';
-        };*/
 
         $scope.openEditAvatarModal = function () {
             console.log("opened avatar modal");
@@ -29,15 +21,12 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.updateProfilePic = function () {
-            console.log("At updateProfilePic");
-        };
-
-        $scope.updateProfilePic = function () {
+            /*console.log('I will update the profile picture');
+            console.log('myCroppedImage is:');*/
             console.log('I will update the profile picture');
-            console.log('myCroppedImage is:');
-            //console.log($scope.myCroppedImage);
-            //TODO call a service here to execute function updateAvatar
-            /*userService.update_avatar($scope.myCroppedImage)
+            console.log('myImage is:');
+            console.log($scope.myCroppedImage);
+            usersService.update_avatar($scope.myCroppedImage)
                 .then(function(response)
                 {
                     console.log('updatedAvatar');
@@ -45,7 +34,7 @@ angular.module('dendroApp.controllers')
                 })
                 .catch(function(error){
                     console.error("Error updating avatar " + JSON.stringify(error));
-                });*/
+                });
         };
 
         var handleFileSelect=function(evt) {
@@ -55,6 +44,7 @@ angular.module('dendroApp.controllers')
             reader.onload = function (evt) {
                 $scope.$apply(function($scope){
                     $scope.myImage=evt.target.result;
+                    console.log("cenas");
                 });
             };
             reader.readAsDataURL(file);

@@ -4,7 +4,7 @@
     Editing user <%= user.foaf.firstName %> <%= user.foaf.surname %>
 </h1>
 
-<div class="text-center" ng-controller="avatarCtrl" ng-init="init()">
+<div class="text-center" ng-controller="avatarCtrl">
     <!--<p>Avatar path :  </p>-->
     <img class="show-avatar-in-profile" ng-src="/user/<%=user.ddr.username%>/avatar">
 
@@ -28,18 +28,14 @@
                                 <img-crop image="myImage" result-image="myCroppedImage"></img-crop>
                             </div>
 
-                            <!--<div ng-if="myCroppedImage != null">
+                            <div ng-if="myCroppedImage != null">
                                 <div ng-show class="help-block">Your public avatar picture:</div>
                                 <div>
                                     <img ng-src="{{myCroppedImage}}" />
                                 </div>
-                            </div>-->
+                            </div>
                         </div>
                     </div>
-
-                    <!--<div class="row">
-                        <button class="btn btn-primary" ng-click="updateProfilePic();">Update Avatar Picture</button>
-                    </div>-->
                 </div>
                 <div class="modal-footer">
                     <button type="button" ng-click="closeEditAvatarModal()" class="btn btn-default" data-dismiss="modal">Close</button>
