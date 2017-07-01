@@ -327,9 +327,7 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 		if (xmlHttp.readyState === 4) {
 
             if (xmlHttp.status !== 200)  {
-                console.log("[FATAL ERROR] Unable to contact ElasticSearch indexing service " +
-                    "on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
-                process.exit(1);
+                throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status)
             }
             else
             {
@@ -347,10 +345,9 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 		}
 
         if (xmlHttp.status &&
-            xmlHttp.status !== 200)  {
-            console.log("[FATAL ERROR] Unable to contact ElasticSearch indexing service " +
-                "on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
-            process.exit(1);
+            xmlHttp.status !== 200)
+        {
+            throw new Error("[FATAL ERROR] Unable to contact ElasticSearch indexing service on remote server: "+ self.host + " running on port " + self.port + "\n Server returned status code " + xmlHttp.status);
         }
 	};
 

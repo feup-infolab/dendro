@@ -313,7 +313,7 @@ InformationElement.prototype.rename = function(newTitle, callback)
             }
         ],
         function(err, result) {
-            redis.connection.delete(self.uri, function(err, result){
+            cache.delete(self.uri, function(err, result){
                 return callback(err, result);
             });
         }

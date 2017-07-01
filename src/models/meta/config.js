@@ -62,8 +62,8 @@ const getConfigParameter = function (parameter, defaultValue) {
             Config[parameter] = defaultValue;
             return Config[parameter];
         }
-        console.error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from \'" + active_config_key + "\' configuration. Please review the deployment_configs.json file.");
-        process.exit(1);
+
+        throw new Error("[FATAL ERROR] Unable to retrieve parameter " + parameter + " from \'" + active_config_key + "\' configuration. Please review the deployment_configs.json file.");
     }
     else {
         return active_config[parameter];
@@ -176,19 +176,28 @@ Config.initGlobals = function()
             baseURI: "http://" + Config.host,
             graphHandle: "dendro_graph",
             graphUri: "http://" + Config.host + "/dendro_graph",
-            redis_instance: 'default'
+            cache : {
+                id: 'default',
+                type : 'mongodb'
+            }
         },
         social: {
             baseURI: "http://" + Config.host,
             graphHandle: "social_dendro",
             graphUri: "http://" + Config.host + "/social_dendro",
-            redis_instance: 'social'
+            cache : {
+                id: 'social',
+                type : 'mongodb'
+            }
         },
         notifications: {
             baseURI: "http://" + Config.host,
             graphHandle: "notifications_dendro",
             graphUri: "http://" + Config.host + "/notifications_dendro",
-            redis_instance: 'notifications'
+            cache : {
+                id: 'notifications',
+                type : 'redis'
+            }
         }
     };
 
@@ -200,10 +209,17 @@ Config.initGlobals = function()
         default: {}
     };
 
-    global.redis = {
-        default: {},
-        social: {},
-        notifications: {}
+    global.caches = {
+        redis : {
+            default: {},
+            social: {},
+            notifications: {}
+        },
+        mongodb : {
+            default: {},
+            social: {},
+            notifications: {}
+        }
     };
 
     const Elements = require('./elements.js').Elements;
@@ -394,23 +410,6 @@ Config.initGlobals = function()
             domain_specific: false
         }
     };
-
-    Config.caches = {
-    };
-
-    for(let db in global.db)
-    {
-        const dbParam = global.db[db];
-        if(dbParam.hasOwnProperty("graphUri") && dbParam.hasOwnProperty("redis_instance"))
-        {
-            Config.caches[dbParam.graphUri] = global.redis[dbParam.redis_instance];
-        }
-        else
-        {
-            console.error("There was an error parametrizing the caches for graph " + JSON.stringify(db) + " .This is a bug. Please review the config.json file.");
-            process.exit(1);
-        }
-    }
 };
 
 /**

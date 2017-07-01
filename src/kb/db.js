@@ -678,8 +678,8 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
          */
         if(Config.cache.active)
         {
-            let redis = global.redis.default;
-            redis.connection.delete(urisToDelete, function(err, result)
+            let cache = global.redis.default;
+            cache.connection.delete(urisToDelete, function(err, result)
             {
                 if (!isNull(err))
                 {

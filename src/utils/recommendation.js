@@ -22,8 +22,7 @@ RecommendationUtils.getActiveRecommender = function()
             }
             else
             {
-                console.error("[FATAL ERROR] Two recommendation modes are active. Something is wrong with your conf/deployment_configs.json file.");
-                process.exit(1);
+                throw new Error("[FATAL ERROR] Two recommendation modes are active. Something is wrong with your conf/deployment_configs.json file.")
             }
         }
     }

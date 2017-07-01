@@ -1,24 +1,24 @@
 const util = require('util');
-const redis = require('redis');
 const Config = function () {
     return global.Config;
 }();
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 const colors = require('colors');
+const redis = require('redis');
 
-function RedisConnection (options, databaseNumber, id)
+function RedisCache (options)
 {
     const self = this;
     self.options = options;
-    self.databaseNumber = databaseNumber;
 
+    self.databaseNumber = options.databaseNumber;
     self.port = options.port;
     self.host = options.host;
-    self.id = id;
+    self.id = options.id;
 }
 
-RedisConnection.prototype.openConnection = function(callback) {
+RedisCache.prototype.openConnection = function(callback) {
     const self = this;
 
     if(Config.cache.active)
@@ -77,7 +77,7 @@ RedisConnection.prototype.openConnection = function(callback) {
     }
 };
 
-RedisConnection.prototype.put = function(resourceUri, object, callback) {
+RedisCache.prototype.put = function(resourceUri, object, callback) {
     const self = this;
 
     if(Config.cache.active)
@@ -119,7 +119,7 @@ RedisConnection.prototype.put = function(resourceUri, object, callback) {
     }
 };
 
-RedisConnection.prototype.get = function(resourceUri, callback) {
+RedisCache.prototype.get = function(resourceUri, callback) {
     const self = this;
 
     if(Config.cache.active)
@@ -169,7 +169,7 @@ RedisConnection.prototype.get = function(resourceUri, callback) {
     }
 };
 
-RedisConnection.prototype.delete = function(resourceUriOrArrayOfResourceUris, callback) {
+RedisCache.prototype.delete = function(resourceUriOrArrayOfResourceUris, callback) {
     const self = this;
 
     if(Config.cache.active)
@@ -213,7 +213,7 @@ RedisConnection.prototype.delete = function(resourceUriOrArrayOfResourceUris, ca
     }
 };
 
-RedisConnection.prototype.deleteAll = function(callback) {
+RedisCache.prototype.deleteAll = function(callback) {
     const self = this;
 
     if(Config.cache.active)
@@ -252,7 +252,9 @@ RedisConnection.prototype.deleteAll = function(callback) {
 
 };
 
-RedisConnection.default = {};
+RedisCache.default = {};
 
-module.exports.RedisConnection = RedisConnection;
+RedisCache.type = "redis";
+
+module.exports.RedisCache = RedisCache;
 

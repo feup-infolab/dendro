@@ -41,9 +41,6 @@ let isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 let IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 let DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 let GridFSConnection = require(Config.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
-let RedisConnection = require(Config.absPathInSrcFolder("/kb/redis.js")).RedisConnection;
-let Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
-let QueryBasedRouter = Object.create(require(Config.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
 let PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
 let Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 let Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
@@ -88,8 +85,7 @@ if(!isNull(Config.logging))
                         }
                         catch (e)
                         {
-                            console.error("[FATAL] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(e));
-                            process.exit(1);
+                            throw new Error("[FATAL] Unable to create folder for logs at " + absPath + "\n" + JSON.stringify(e));
                         }
                     }
 
@@ -211,7 +207,6 @@ if(!isNull(Config.logging))
                         catch (e)
                         {
                             console.error("[ERROR] Error creating folder for logs at " + absPath + "\n" + JSON.stringify(e));
-                            //process.exit(1);
                         }
                     }
                     else
@@ -228,8 +223,7 @@ if(!isNull(Config.logging))
     ], function(err, results){
         if(err)
         {
-            console.error("Unable to setup logging!");
-            process.exit(1);
+            throw new Error("Unable to setup logging!");
         }
     });
 
@@ -260,8 +254,7 @@ catch(e)
     }
     catch(e)
     {
-        console.error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
-        process.exit(1);
+        throw new Error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
     }
 }
 
@@ -413,8 +406,7 @@ const init = function(callback)
             db.create(function(db) {
                 if(!db)
                 {
-                    console.log("[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
-                    process.exit(1);
+                    throw new Error("[ERROR] Unable to connect to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
                 }
                 else
                 {
@@ -446,8 +438,7 @@ const init = function(callback)
                             conn.graphExists(graphUri, function(err, exists){
                                 if(exists)
                                 {
-                                    console.error("Tried to delete graph " + graphUri + " but it still exists!");
-                                    process.exit(1);
+                                    throw new Error("Tried to delete graph " + graphUri + " but it still exists!");
                                 }
                                 else
                                 {
@@ -470,57 +461,14 @@ const init = function(callback)
 
             if(Config.cache.active)
             {
-                async.map(Config.cache.redis.instances, function(instance, callback){
-
-                    const redisConn = new RedisConnection(
-                        instance.options,
-                        instance.database_number,
-                        instance.id
-                    );
-
-                    global.redis[redisConn.id].connection = redisConn;
-
-                    redisConn.openConnection(function(err, redisConn) {
-                        if(err)
-                        {
-                            console.log("[ERROR] Unable to connect to Redis instance with ID: " + instance.id + " running on " + instance.options.host + ":" + instance.options.port + " : " + err.message);
-                            process.exit(1);
-                        }
-                        else
-                        {
-                            console.log("[OK] Connected to Redis cache service with ID : " + redisConn.id + " running on " +  redisConn.host + ":" + redisConn.port);
-
-
-                            redisConn.deleteAll(function(err, result){
-                                if(!err)
-                                {
-                                    console.log("[INFO] Deleted all cache records on Redis instance \""+ redisConn.id +"\" during bootup");
-                                    return callback(null);
-                                }
-                                else
-                                {
-                                    console.log("[ERROR] Unable to delete all cache records on Redis instance \""+ instance.id +"\" during bootup");
-                                    process.exit(1);
-                                }
-                            });
-                        }
-                    });
-                }, function(err, results){
-                    if(!err)
-                    {
-                        console.log("[INFO] All Redis instances are up and running!");
-                        return callback(null);
-                    }
-                    else
-                    {
-                        console.log("[ERROR] Unable to setup Redis instances.");
-                        process.exit(1);
-                    }
+                const Cache = require(Config.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+                Cache.initConnections(function(err, result){
+                    callback(err);
                 });
             }
             else
             {
-                console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to cache server.");
+                console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to any cache servers.");
                 return callback(null);
             }
         },
@@ -541,8 +489,7 @@ const init = function(callback)
                     }
                     else
                     {
-                        console.error("[ERROR] Unable to retrieve parametrization information about the ontologies loaded in the system.");
-                        process.exit(1);
+                        throw new Error("[ERROR] Unable to retrieve parametrization information about the ontologies loaded in the system.");
                     }
                 });
             }
@@ -556,8 +503,7 @@ const init = function(callback)
                     }
                     else
                     {
-                        console.error("[ERROR] Unable to retrieve parametrization information about the ontologies loaded in the system from cache.");
-                        process.exit(1);
+                        throw new Error("[ERROR] Unable to retrieve parametrization information about the ontologies loaded in the system from cache.");
                     }
 
                 });
@@ -576,8 +522,7 @@ const init = function(callback)
                 }
                 else
                 {
-                    console.error("[ERROR] Errors were detected while checking the configuration of descriptors and/or ontologies in the system.");
-                    process.exit(1);
+                    throw new Error("[ERROR] Errors were detected while checking the configuration of descriptors and/or ontologies in the system.");
                 }
             });
         },
@@ -592,8 +537,7 @@ const init = function(callback)
                 }
                 else
                 {
-                    console.log("[ERROR] Unable to create connection to index " + IndexConnection.indexes.dendro.short_name);
-                    process.exit(1);
+                    throw new Error("[ERROR] Unable to create connection to index " + IndexConnection.indexes.dendro.short_name);
                 }
                 return callback(null);
             });
@@ -604,8 +548,7 @@ const init = function(callback)
             {
                 if(!isNull(error))
                 {
-                    console.log("[ERROR] Unable to create or link to index " + IndexConnection.indexes.dendro.short_name);
-                    process.exit(1);
+                    throw new Error("[ERROR] Unable to create or link to index " + IndexConnection.indexes.dendro.short_name);
                 }
                 else
                 {
@@ -626,8 +569,7 @@ const init = function(callback)
             gfs.openConnection(function(err, gfsConn) {
                 if(err)
                 {
-                    console.log("[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn);
-                    process.exit(1);
+                    throw new Error("[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn);
                 }
                 else
                 {
@@ -653,8 +595,7 @@ const init = function(callback)
                             return callback(null);
                         }
                         else {
-                            console.log("[ERROR] Unable to connect to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "! Aborting startup.");
-                            process.exit(1);
+                            throw new Error("[ERROR] Unable to connect to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "! Aborting startup.");
                         }
                     });
             };
@@ -733,21 +674,18 @@ const init = function(callback)
                                                                 cb(null, null);
                                                             }
                                                             else {
-                                                                console.log("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + result);
-                                                                process.exit(1);
+                                                                throw new Error("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + result);
                                                             }
                                                         });
                                                 }
                                                 else {
-                                                    console.log("[ERROR] Unable to create the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-                                                    process.exit(1);
+                                                    throw new Error("[ERROR] Unable to create the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                                                 }
                                             });
                                     }
                                 }
                                 else {
-                                    console.log("[ERROR] Unable to query for the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-                                    process.exit(1);
+                                    throw new Error("[ERROR] Unable to query for the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                                 }
                             });
                         };
@@ -756,7 +694,7 @@ const init = function(callback)
 
                         checkAndCreateTable(table_to_write_recommendations, function (err, results) {
                             if (err) {
-                                process.exit(1);
+                                throw new Error("Unable to create table "+table_to_write_recommendations+" in MySQL ");
                             }
                             else {
                                 poolOK(connection);
@@ -764,8 +702,7 @@ const init = function(callback)
                         });
                     }
                     else {
-                        console.log("[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
-                        process.exit(1);
+                        throw new Error("[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                     }
                 });
             };
@@ -787,8 +724,7 @@ const init = function(callback)
             }
             else
             {
-                console.error("[ERROR] No descriptor recommendation mode set up in deployment config: " + JSON.stringify(Config.recommendation) + ". Set up only one as active. ABORTING Startup.");
-                process.exit(1);
+                throw new Error("[ERROR] No descriptor recommendation mode set up in deployment config: " + JSON.stringify(Config.recommendation) + ". Set up only one as active. ABORTING Startup.");
             }
         },
         function(callback) {
@@ -832,9 +768,7 @@ const init = function(callback)
                             }
                             catch(e)
                             {
-                                const msg = "[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir;
-                                console.error(msg, e);
-                                process.exit(1);
+                                throw new Error("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
                             }
                         }
                         else
@@ -851,8 +785,7 @@ const init = function(callback)
                 }
                 else
                 {
-                    console.error("[ERROR] Unable to set up files directory at " + Config.tempFilesDir);
-                    process.exit(1);
+                    throw new Error("[ERROR] Unable to set up files directory at " + Config.tempFilesDir);
                 }
             });
         }
@@ -942,7 +875,7 @@ const loadData = function(callback)
                                 }
                                 else
                                 {
-                                    process.exit(1);
+                                    throw new Error("Unable to create demo users" + JSON.stringify(result));
                                 }
                             });
                         }
@@ -1039,7 +972,7 @@ const loadData = function(callback)
                         }
                         else
                         {
-                            process.exit(1);
+                            throw new Error("Error promoting default admins " + JSON.stringify(results));
                         }
                     });
             }

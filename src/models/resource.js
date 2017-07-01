@@ -15,22 +15,6 @@ const db = function () {
     return global.db.default;
 }();
 
-const redis = function (graphUri) {
-    if (isNull(graphUri) || isNull(graphUri) || !graphUri) {
-        if (!isNull(global.redis.default)) {
-            return global.redis.default;
-        }
-        else {
-            console.error("Something wrong happened when getting the connection to the Redis cache.");
-            process.exit(1);
-        }
-
-    }
-    else {
-        return Config.caches[graphUri];
-    }
-};
-
 function Resource (object, subclass)
 {
     let self = this;
@@ -186,7 +170,7 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     //Invalidate cache record for the updated resources
-    redis(customGraphUri).connection.delete(self.uri, function(err, result){
+    cache(customGraphUri).connection.delete(self.uri, function(err, result){
 
     });
 
@@ -267,7 +251,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        redis(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
+                        cache(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
                             return callback(err, result);
                         });
                     }
@@ -305,7 +289,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        redis(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
+                        cache(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
                             return callback(err, result);
                         });
                     }
@@ -758,7 +742,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
             "} \n";
 
         //Invalidate cache record for the updated resources
-        redis().connection.delete(subject, function(err, result){});
+        cache().connection.delete(subject, function(err, result){});
 
         db.connection.execute(query, queryArguments, function(err, results)
         {
@@ -1547,46 +1531,10 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 {
     const self = this;
 
-    const typeMatches = function(resourceObject)
-    {
-        const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-        let rdfType = JSON.parse(JSON.stringify(self.prefixedRDFType));
-        let cachedObjectType = JSON.parse(JSON.stringify(resourceObject.rdf.type));
-
-        let typeMatches = false;
-        if(cachedObjectType instanceof Array && cachedObjectType instanceof Array)
-        {
-            rdfType = Descriptor.convertToFullUris(rdfType);
-            cachedObjectType = Descriptor.convertToFullUris(rdfType);
-
-            typeMatches = (_.intersection(cachedObjectType, rdfType).length > 0);
-        }
-        else if(cachedObjectType instanceof Array && typeof rdfType === "string")
-        {
-            typeMatches = _.contains(cachedObjectType, Descriptor.getUriFromPrefixedForm(rdfType));
-        }
-        else if(rdfType instanceof Array && typeof cachedObjectType === "string")
-        {
-            typeMatches = _.contains(Descriptor.convertToFullUris(rdfType), cachedObjectType);
-        }
-        else if(typeof rdfType === "string" && typeof cachedObjectType === "string")
-        {
-            typeMatches = (Descriptor.getUriFromPrefixedForm(rdfType) === cachedObjectType);
-        }
-
-        return typeMatches;
-    };
-
-    /**
-     * TODO This needs to be replaced with a query to a mongodb database. For when we replace redis with mongodb for caching with query support!
-     * @param uri
-     * @param callback
-     */
-
     const getFromCache = function (uri, callback) {
-        redis(customGraphUri).connection.get(uri, function (err, result) {
+        cache(customGraphUri).connection.get(uri, function (err, result) {
             if (!err) {
-                if (!isNull(result) && typeMatches(result)) {
+                if (!isNull(result)) {
                     const resource = Object.create(self.prototype);
 
                     resource.uri = uri;
@@ -1613,7 +1561,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
 
     const saveToCache = function (uri, resource, callback) {
-        redis(customGraphUri).connection.put(uri, resource, function (err) {
+        cache(customGraphUri).connection.put(uri, resource, function (err) {
             if (!err) {
                 if (typeof callback === "function") {
                     return callback(null, resource);
@@ -2219,7 +2167,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                 });
         };
 
-        redis(customGraphUri).connection.get(self.uri, function(err, cachedDescriptor){
+        cache(customGraphUri).connection.get(self.uri, function(err, cachedDescriptor){
            if(!err && !isNull(cachedDescriptor))
            {
                const namespace = descriptorToCheck.getNamespacePrefix();
@@ -2616,7 +2564,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
                     }
 
                     if (resourceUris.length > 0) {
-                        redis(customGraphUri).connection.delete(resourceUris, function (err, result) {
+                        cache(customGraphUri).connection.delete(resourceUris, function (err, result) {
                             if (!err) {
                                 if (resourceUris.length === pageSize) {
                                     page++;
