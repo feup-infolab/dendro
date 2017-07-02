@@ -1615,7 +1615,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
             ontologiesArray = Ontology.getAllOntologiesUris();
         }
 
-        Resource.exists(uri, function (err, exists) {
+        self.exists(uri, function (err, exists) {
             if (!err) {
                 if (exists) {
                     const resource = Object.create(self.prototype);

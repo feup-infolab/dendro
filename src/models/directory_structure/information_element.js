@@ -542,6 +542,6 @@ InformationElement.prototype.findMetadata = function(callback){
     });
 };
 
-InformationElement = Class.extend(InformationElement, Resource, "nie#FileDataObject");
+InformationElement = Class.extend(InformationElement, Resource, "nie:FileDataObject");
 
 module.exports.InformationElement = InformationElement;
