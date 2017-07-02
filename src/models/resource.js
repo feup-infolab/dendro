@@ -7,6 +7,7 @@ const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Cache = require(Config.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 
 const async = require('async');
 const _ = require('underscore');
@@ -170,7 +171,7 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     //Invalidate cache record for the updated resources
-    cache(customGraphUri).connection.delete(self.uri, function(err, result){
+    Cache(customGraphUri).delete(self.uri, function(err, result){
 
     });
 
@@ -251,7 +252,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        cache(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
+                        Cache.get(customGraphUri).delete([self.uri, valueInPrefixedForm], function(err, result){
                             return callback(err, result);
                         });
                     }
@@ -289,7 +290,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        cache(customGraphUri).connection.delete([self.uri, valueInPrefixedForm], function(err, result){
+                        Cache.get(customGraphUri).delete([self.uri, valueInPrefixedForm], function(err, result){
                             return callback(err, result);
                         });
                     }
@@ -742,7 +743,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
             "} \n";
 
         //Invalidate cache record for the updated resources
-        cache().connection.delete(subject, function(err, result){});
+        Cache.get(graphName).delete(subject, function(err, result){});
 
         db.connection.execute(query, queryArguments, function(err, results)
         {
@@ -1532,7 +1533,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     const self = this;
 
     const getFromCache = function (uri, callback) {
-        cache(customGraphUri).connection.get(uri, function (err, result) {
+        Cache.get(customGraphUri).get(uri, function (err, result) {
             if (!err) {
                 if (!isNull(result)) {
                     const resource = Object.create(self.prototype);
@@ -1561,7 +1562,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
 
     const saveToCache = function (uri, resource, callback) {
-        cache(customGraphUri).connection.put(uri, resource, function (err) {
+        Cache.get(customGraphUri).put(uri, resource, function (err) {
             if (!err) {
                 if (typeof callback === "function") {
                     return callback(null, resource);
@@ -2167,7 +2168,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                 });
         };
 
-        cache(customGraphUri).connection.get(self.uri, function(err, cachedDescriptor){
+        Cache.get(customGraphUri).get(self.uri, function(err, cachedDescriptor){
            if(!err && !isNull(cachedDescriptor))
            {
                const namespace = descriptorToCheck.getNamespacePrefix();
@@ -2564,7 +2565,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
                     }
 
                     if (resourceUris.length > 0) {
-                        cache(customGraphUri).connection.delete(resourceUris, function (err, result) {
+                        Cache.get(customGraphUri).delete(resourceUris, function (err, result) {
                             if (!err) {
                                 if (resourceUris.length === pageSize) {
                                     page++;

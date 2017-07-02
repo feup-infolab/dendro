@@ -16,6 +16,7 @@ const Cache = function()
 
 Cache.initConnections = function(callback)
 {
+    var self = this;
     const _ = require('underscore');
 
     let keys = _.filter(Object.keys(global.db), function(key){
@@ -57,7 +58,7 @@ Cache.initConnections = function(callback)
                                                 if(!err)
                                                 {
                                                     console.log("[INFO] Deleted all cache records on MongoDB instance \""+ mongoDBConnection.id +"\" during bootup");
-                                                    Cache[graphUri] = newMongoCacheConnection;
+                                                    self.caches[cacheId] = newMongoCacheConnection;
                                                     return callback(null, newMongoCacheConnection);
                                                 }
                                                 else
@@ -89,7 +90,7 @@ Cache.initConnections = function(callback)
                                             newRedisCacheConnection.deleteAll(function (err, result) {
                                                 if (!err) {
                                                     console.log("[INFO] Deleted all cache records on Redis instance " + redisConnection.id);
-                                                    Cache[graphUri] = redisConnection;
+                                                    self.caches[cacheId] = redisConnection;
                                                     return callback(null, redisConnection);
                                                 }
                                                 else
@@ -142,8 +143,19 @@ Cache.initConnections = function(callback)
     );
 };
 
-Cache.mongodb = {};
-Cache.redis = {};
+Cache.get = function(cacheId)
+{
+    if(isNull(cacheId))
+    {
+        return Cache.caches['default'];
+    }
+    else
+    {
+        return Cache.caches[cacheId];
+    }
+};
+
+Cache.caches = {};
 
 module.exports.Cache = Cache;
 
