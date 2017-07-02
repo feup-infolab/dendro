@@ -53,10 +53,10 @@ Class.extend = function(childClass, parentClass, rdfTypeForSavingInDatabase)
         {
             childClass.prefixedRDFType = rdfTypeForSavingInDatabase;
         }
-        if(parentClass.prefixedRDFType instanceof Array)
+        else if(parentClass.prefixedRDFType instanceof Array)
         {
-            childClass.prefixedRDFType = [];
-            childClass.prefixedRDFType.concat([rdfTypeForSavingInDatabase]);
+            childClass.prefixedRDFType = [rdfTypeForSavingInDatabase];
+            childClass.prefixedRDFType = parentClass.prefixedRDFType.concat(childClass.prefixedRDFType);
         }
         else if(typeof parentClass.prefixedRDFType === "string")
         {
