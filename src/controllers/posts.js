@@ -247,7 +247,7 @@ function pingNewPosts(sessionUser, cb) {
                                             {
                                                 const updatedProject = project;
                                                 updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
-                                                updateResource(project, updatedProject, db.graphUri, function (error, data) {
+                                                updateResource(project, updatedProject, db, function (error, data) {
                                                     cb1(error, fullDescriptors);
                                                 });
                                             }
@@ -262,9 +262,9 @@ function pingNewPosts(sessionUser, cb) {
                                 else
                                 {
                                     //no changes detected
-                                    var updatedProject = project;
+                                    let updatedProject = project;
                                     updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
-                                    updateResource(project, updatedProject, db.graphUri, function (error, data) {
+                                    updateResource(project, updatedProject, db, function (error, data) {
                                         cb1(error,data);
                                     });
                                 }
@@ -853,13 +853,13 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
     }
 };
 
-var updateResource = function(currentResource, newResource, graphUri, cb)
+var updateResource = function(currentResource, newResource, db, cb)
 {
     const newDescriptors = newResource.getDescriptors();
 
     currentResource.replaceDescriptorsInTripleStore(
         newDescriptors,
-        graphUri,
+        db,
         function(err, result)
         {
             cb(err, result);

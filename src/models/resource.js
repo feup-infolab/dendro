@@ -212,7 +212,7 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
  * @param value
  * @param callback
  */
-Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, callback, valueInPrefixedForm, customGraphUri)
+Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, callback, valueInPrefixedForm, db)
 {
     const self = this;
 
@@ -252,7 +252,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        Cache.get(customGraphUri).delete([self.uri, valueInPrefixedForm], function(err, result){
+                        Cache.get(db).delete([self.uri, valueInPrefixedForm], function(err, result){
                             return callback(err, result);
                         });
                     }
@@ -650,10 +650,11 @@ Resource.prototype.validateDescriptorValues = function(callback)
 };
 
 
-Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, graphName, callback)
+Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db, callback)
 {
     const self = this;
     const subject = self.uri;
+    const graphName = db.graphUri;
 
     if(!isNull(newDescriptors) && newDescriptors instanceof Object)
     {
@@ -743,7 +744,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, gr
             "} \n";
 
         //Invalidate cache record for the updated resources
-        Cache.get(graphName).delete(subject, function(err, result){});
+        Cache.get(db.cache.id).delete(subject, function(err, result){});
 
         db.connection.execute(query, queryArguments, function(err, results)
         {
@@ -878,7 +879,7 @@ Resource.prototype.save = function
 
         self.replaceDescriptorsInTripleStore(
             newDescriptors,
-            graphUri,
+            db,
             function (err, result) {
                 cb(err, result);
             }
@@ -1533,33 +1534,57 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     const self = this;
 
     const getFromCache = function (uri, callback) {
-        Cache.get(customGraphUri).get(uri, function (err, result) {
-            if (!err) {
-                if (!isNull(result)) {
-                    const resource = Object.create(self.prototype);
 
-                    resource.uri = uri;
+        let typesArray;
+        if(self.prefixedRDFType instanceof Array)
+        {
+            typesArray = self.prefixedRDFType;
+        }
+        else
+        {
+            typesArray = [self.prefixedRDFType];
+        }
 
-                    //initialize all ontology namespaces in the new object as blank objects
-                    // if they are not already present
-                    resource.copyOrInitDescriptors(result);
 
-                    if (!isNull(descriptorTypesToRemove) && descriptorTypesToRemove instanceof Array) {
-                        resource.clearDescriptors(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+        Cache.get(customGraphUri).getByQuery(
+            {
+                "$and": [
+                    { "uri" : uri },
+                    {
+                        "rdf": {
+                            "type": {
+                                "$all": typesArray
+                            }
+                        }
                     }
+                ]
+            },
+            function (err, result) {
+                    if (!err) {
+                        if (!isNull(result)) {
+                            const resource = Object.create(self.prototype);
 
-                    return callback(err, resource);
-                }
-                else {
-                    return callback(err, null);
-                }
-            }
-            else {
-                return callback(err, result);
-            }
-        });
+                            resource.uri = uri;
+
+                            //initialize all ontology namespaces in the new object as blank objects
+                            // if they are not already present
+                            resource.copyOrInitDescriptors(result);
+
+                            if (!isNull(descriptorTypesToRemove) && descriptorTypesToRemove instanceof Array) {
+                                resource.clearDescriptors(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                            }
+
+                            return callback(err, resource);
+                        }
+                        else {
+                            return callback(err, null);
+                        }
+                    }
+                    else {
+                        return callback(err, result);
+                    }
+                });
     };
-
 
     const saveToCache = function (uri, resource, callback) {
         Cache.get(customGraphUri).put(uri, resource, function (err) {
@@ -2696,7 +2721,30 @@ Resource.arrayToCSVFile = function(resourceArray, fileName, callback)
 
 Resource.exists = function(uri, callback, customGraphUri)
 {
+    const self = this;
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    let typesRestrictions = "";
+    let types;
+
+    if(self.prefixedRDFType instanceof Array)
+    {
+        types = self.prefixedRDFType;
+    }
+    else
+    {
+        types = [self.prefixedRDFType];
+    }
+
+    for (let i = 0; i < types.length; i++)
+    {
+        typesRestrictions = typesRestrictions + "[1] rdf:type " + types[i];
+
+        if(i < types.length - 1)
+        {
+            typesRestrictions =  typesRestrictions + ".\n";
+        }
+    }
 
     db.connection.execute(
         "WITH [0]\n"+
@@ -2705,6 +2753,7 @@ Resource.exists = function(uri, callback, customGraphUri)
         "{ \n" +
         "   {\n" +
         "       [1] ?p ?o. \n" +
+                typesRestrictions +
         "   }\n" +
         "} \n",
 

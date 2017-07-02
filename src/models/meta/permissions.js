@@ -207,7 +207,7 @@ const getOwnerProject = function (requestedResource, callback) {
         function(callback)
         {
             InformationElement.findByUri(requestedResource, function(err, resource){
-                if(isNull(err) && (resource instanceof InformationElement))
+                if(isNull(err))
                 {
                     if(isNull(resource) || !(resource instanceof InformationElement))
                     {

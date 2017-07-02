@@ -578,9 +578,9 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 
             //console.log("Running insert query : " + query);
 
-            let redis = global.redis.default;
+            const Cache = require(Config.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
             //Invalidate cache record for the updated resources
-            redis.connection.delete([triple.subject, triple.object], function(err, result){});
+            Cache.get().delete([triple.subject, triple.object], function(err, result){});
 
             self.execute(query,
                function(error, results)
@@ -764,8 +764,9 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
             "} \n";
 
         //Invalidate cache record for the updated resource
-        let redis = global.redis.default;
-        redis.connection.delete(subject, function(err, result){});
+        const Cache = require(Config.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+        //Invalidate cache record for the updated resources
+        Cache.get().delete(subject, function(err, result){});
 
         self.execute(query, queryArguments, function(err, results)
         {

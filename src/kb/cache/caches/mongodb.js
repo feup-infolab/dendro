@@ -33,7 +33,7 @@ MongoDBCache.prototype.openConnection = function(callback) {
             {
                 console.log("Connected correctly to MONGODB server with config \n" + JSON.stringify(self));
                 self.client = db;
-                callback(null, db);
+                callback(null, self);
             }
             else
             {
@@ -95,9 +95,9 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
     {
         if(!isNull(self.client))
         {
-            if(!isNull(resourceUri))
+            if(!isNull(query))
             {
-                const cursor = self.client.collection(self.collection).find({ uri : resourceUri });
+                const cursor = self.client.collection(self.collection).find(query);
 
                 cursor.each(function(err, cachedJSON)
                 {
@@ -119,7 +119,9 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
                     }
                     else
                     {
-                        return callback(err, "Unable to retrieve value of " + resourceUri + " from mongodb cache. \nError " + cachedJSON);
+                        console.error("Error running query: " + JSON.stringify(query, null, 4));
+                        console.error(err.stack);
+                        return callback(err, "Unable to execute query " + JSON.stringify(query) +" from mongodb cache.");
                     }
                 });
             }

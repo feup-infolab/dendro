@@ -667,7 +667,7 @@ Ontology.prototype.save = function(callback)
     const newDescriptorsArray = [description, domain, type, prefix, modified];
 
 
-    self.replaceDescriptorsInTripleStore(newDescriptorsArray, db.graphUri, function(err, result){
+    self.replaceDescriptorsInTripleStore(newDescriptorsArray, db, function(err, result){
         if(!err)
         {
             return callback(err, result);

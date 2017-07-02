@@ -149,9 +149,13 @@ Cache.get = function(cacheId)
     {
         return Cache.caches['default'];
     }
-    else
+    else if(!isNull(Cache.caches[cacheId]))
     {
         return Cache.caches[cacheId];
+    }
+    else 
+    {
+        throw new Error("Invalid cache identifier : " + cacheId);
     }
 };
 
