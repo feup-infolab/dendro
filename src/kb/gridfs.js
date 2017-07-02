@@ -140,7 +140,7 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback, custo
         downloadStream.on('close', function() {
             const msg = "Finished reading the file";
             console.log(msg);
-            return callback(0, msg);
+            return callback(null, msg);
         });
 
         downloadStream.pipe(outputStream);

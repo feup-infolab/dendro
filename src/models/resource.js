@@ -562,7 +562,7 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
                     formattedResults.push(formattedDescriptor);
                 }
 
-                return callback(0, formattedResults);
+                return callback(null, formattedResults);
             }
             else
             {
@@ -1301,7 +1301,7 @@ Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxR
                                 return resource.uri !== self.uri;
                             });
 
-                            return callback(0, retrievedResources);
+                            return callback(null, retrievedResources);
                         }
                         else
                         {
@@ -1357,7 +1357,7 @@ Resource.findResourcesByTextQuery = function (
             if(!err)
             {
                 let retrievedResources = Resource.restoreFromIndexResults(results);
-                return callback(0, retrievedResources);
+                return callback(null, retrievedResources);
             }
             else
             {
@@ -1433,7 +1433,7 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
                     self.loadFromIndexHit(hit);
                 }
 
-                return callback(0, self);
+                return callback(null, self);
             }
             else
             {
@@ -1574,10 +1574,10 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                                 resource.clearDescriptors(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
                             }
 
-                            return callback(err, resource);
+                            return callback(null, resource);
                         }
                         else {
-                            return callback(err, null);
+                            return callback(null, null);
                         }
                     }
                     else {
@@ -1645,7 +1645,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                         console.log(msg);
                     }
 
-                    return callback(0, null);
+                    return callback(null, null);
                 }
             }
             else {
@@ -1818,11 +1818,11 @@ Resource.prototype.getLatestArchivedVersion = function(callback)
     self.getArchivedVersions(0, 1, function(err, latestRevisionArray){
         if(!err && latestRevisionArray instanceof Array && latestRevisionArray.length === 1)
         {
-            return callback(0, latestRevisionArray[0]);
+            return callback(null, latestRevisionArray[0]);
         }
         else if(!err && latestRevisionArray instanceof Array && latestRevisionArray.length === 0)
         {
-            return callback(0, null);
+            return callback(null, null);
         }
         else
         {
@@ -2040,6 +2040,12 @@ Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptors
                  oldValue = current
                  newValue = new
                  */
+
+                if(isNull(self[prefix]))
+                {
+                    self[prefix] = {};
+                }
+
                 let oldValue = self[prefix][descriptor];
                 let newValue = newResource[prefix][descriptor];
 
@@ -2177,10 +2183,10 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                 function (err, result) {
                     if (!err) {
                         if (result === true) {
-                            return callback(0, true);
+                            return callback(null, true);
                         }
                         else {
-                            return callback(0, false);
+                            return callback(null, false);
                         }
                     }
                     else {

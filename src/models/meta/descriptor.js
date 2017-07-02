@@ -293,7 +293,7 @@ Descriptor.findByUri = function(uri, callback)
                 {
                     if(descriptors.length === 0)
                     {
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                     else
                     {
@@ -303,7 +303,7 @@ Descriptor.findByUri = function(uri, callback)
                         }
 
                         const formattedDescriptor = new Descriptor(descriptors[0]);
-                        return callback(0, formattedDescriptor);
+                        return callback(null, formattedDescriptor);
                     }
                 }
                 else
@@ -434,7 +434,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
                     formattedResults.push(formattedDescriptor);
                 }
 
-                return callback(0, formattedResults);
+                return callback(null, formattedResults);
             }
             else
             {
@@ -964,10 +964,10 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
                     suggestion.overall_use_count = parseInt(result.overall_use_count);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        return callback(0, suggestion);
+                        return callback(null, suggestion);
                     }
                     else {
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                 };
 

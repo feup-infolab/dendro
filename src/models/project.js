@@ -307,7 +307,7 @@ Project.findByHandle = function(handle, callback) {
                 else
                 {
                     //project does not exist, return null
-                    return callback(0, null);
+                    return callback(null, null);
                 }
             }
             else
@@ -375,7 +375,7 @@ Project.prototype.getCreatorsAndContributors = function(callback)
                 else
                 {
                     //project does not exist, return null
-                    return callback(0, null);
+                    return callback(null, null);
                 }
             }
             else
@@ -431,7 +431,7 @@ Project.findByContributor = function(contributor, callback)
                 else
                 {
                     //project does not exist, return null
-                    return callback(0, null);
+                    return callback(null, null);
                 }
             }
             else
@@ -487,7 +487,7 @@ Project.findByCreator = function(creator, callback) {
                 else
                 {
                     //project does not exist, return null
-                    return callback(0, null);
+                    return callback(null, null);
                 }
             }
             else
@@ -546,7 +546,7 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
                 else
                 {
                     //project does not exist, return null
-                    return callback(0, null);
+                    return callback(null, null);
                 }
             }
             else
@@ -1498,7 +1498,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                                                 }
                                                 else
                                                 {
-                                                    return callback(0, false, "child of /data contains only one element but is not a directory.");
+                                                    return callback(null, false, "child of /data contains only one element but is not a directory.");
                                                 }
                                             }
                                             else
@@ -1509,7 +1509,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                                     }
                                     else
                                     {
-                                        return callback(0, false, "/data folder should contain exactly one directory.");
+                                        return callback(null, false, "/data folder should contain exactly one directory.");
                                     }
                                 }
                                 else
@@ -1520,23 +1520,23 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                         }
                         else
                         {
-                            return callback(0, false, "/data exists but is not a directory.");
+                            return callback(null, false, "/data exists but is not a directory.");
                         }
                     }
                     else if (err.code === 'ENOENT')
                     {
-                        return callback(0, false, "/data subfolder does not exist.");
+                        return callback(null, false, "/data subfolder does not exist.");
                     }
                 });
             }
             else
             {
-                return callback(0, false, absPathOfBagItFolder + " is not a directory");
+                return callback(null, false, absPathOfBagItFolder + " is not a directory");
             }
         }
         else if (err.code === 'ENOENT')
         {
-            return callback(0, false);
+            return callback(null, false);
         }
     });
 };

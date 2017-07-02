@@ -221,7 +221,7 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
             gfs.connection.get(self.uri, writeStream, function(err, result){
                 if(!err)
                 {
-                    return callback(0, tempFilePath);
+                    return callback(null, tempFilePath);
                 }
                 else
                 {
@@ -311,13 +311,13 @@ File.prototype.getThumbnail = function(size, callback)
                 {
                     //try to regenerate thumbnails, fire and forget
                     self.generateThumbnails(function(err, result){
-                        return callback(0, Config.absPathInPublicFolder("images/icons/extensions/file_generating_thumbnail.png"));
+                        return callback(null, Config.absPathInPublicFolder("images/icons/extensions/file_generating_thumbnail.png"));
                     })
                 }
                 else if(!err)
                 {
                     console.log("Thumbnail temp file location: " + tempFilePath);
-                    return callback(0, tempFilePath);
+                    return callback(null, tempFilePath);
                 }
                 else
                 {
@@ -689,7 +689,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
 
     fs.stat(absPathToFile, function(err, stat) {
         if(isNull(err)) {
-            return callback(0, absPathToFile, parentFolder);
+            return callback(null, absPathToFile, parentFolder);
         } else if(err.code === 'ENOENT') {
             // file does not exist
             const mkpath = require('mkpath');
@@ -706,7 +706,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
                         // handle error
                         fs.close(fd, function (err) {
                             console.log('Directory structure ' + parentFolder + ' created. File ' + absPathToFile + " also created.");
-                            return callback(0, absPathToFile, parentFolder);
+                            return callback(null, absPathToFile, parentFolder);
                         });
                     });
                 }

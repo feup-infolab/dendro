@@ -102,7 +102,7 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
     else
     {
         console.error("Attempt to record a change on a locked descriptor. debug please. ");
-        return callback(0, null);
+        return callback(null, null);
     }
 }*/
 

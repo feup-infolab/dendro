@@ -209,7 +209,7 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
                             });
                         }
 
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                     else
                     {

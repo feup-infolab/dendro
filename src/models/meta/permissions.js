@@ -182,59 +182,47 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
 };
 
 const getOwnerProject = function (requestedResource, callback) {
-
-    async.tryEach([
-        function(callback)
+    InformationElement.findByUri(requestedResource, function(err, resource){
+        if(isNull(err))
         {
-            Project.findByUri(requestedResource, function(err, project){
-                if(isNull(err))
-                {
-                    if(isNull(project) || !(project instanceof Project))
+            if(isNull(resource) || !(resource instanceof InformationElement))
+            {
+                Project.findByUri(requestedResource, function(err, project){
+                    if(isNull(err))
                     {
-                        callback(null, null);
+                        if(!isNull(project) && project instanceof Project)
+                        {
+                            callback(null, project);
+                        }
+                        else
+                        {
+                            callback(null);
+                        }
                     }
                     else
+                    {
+                        callback(err, project);
+                    }
+                });
+            }
+            else
+            {
+                resource.getOwnerProject(function(err, project){
+                    if(!isNull(project) && project instanceof Project)
                     {
                         callback(null, project);
                     }
-                }
-                else
-                {
-                    callback(err, null);
-                }
-            });
-        },
-        function(callback)
-        {
-            InformationElement.findByUri(requestedResource, function(err, resource){
-                if(isNull(err))
-                {
-                    if(isNull(resource) || !(resource instanceof InformationElement))
-                    {
-                        callback(null, resource)
-                    }
                     else
                     {
-                        resource.getOwnerProject(function(err, project){
-                            if(isNull(project) || !(project instanceof Project))
-                            {
-                                callback(null, project);
-                            }
-                            else
-                            {
-                                callback(null, null);
-                            }
-                        });
+                        callback(err, project);
                     }
-                }
-                else
-                {
-                    callback(err, null);
-                }
-            });
+                });
+            }
         }
-    ], function(err, result){
-        callback(err, result);
+        else
+        {
+            callback(err, resource);
+        }
     });
 };
 

@@ -72,7 +72,7 @@ function ResearchDomain (object, callback)
         }
     }
 
-    return callback(0, self);
+    return callback(null, self);
 }
 ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results)
 {

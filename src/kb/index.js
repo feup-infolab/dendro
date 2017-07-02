@@ -142,7 +142,7 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
         {
             if(!err)
             {
-                return callback(0, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
+                return callback(null, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             else
             {
@@ -166,7 +166,7 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
         {
             if(!err)
             {
-                return callback(0, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
+                return callback(null, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
             else
             {
@@ -196,7 +196,7 @@ IndexConnection.prototype.deleteDocument = function(documentID, type, callback)
             console.log("Deleting document... data received : " + data);
         })
         .on('done', function(data) {
-            return callback(0, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(data));
+            return callback(null, "Document with id " + documentID + " successfully deleted." + ".  result : " + JSON.stringify(data));
         })
         .on('error', function(data) {
             return callback(1, "Unable to delete document " + JSON.stringify(document) + ".  error reported : " + data);

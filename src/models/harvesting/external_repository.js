@@ -87,7 +87,7 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
                 else
                 {
                     //external repository does not exist, return null
-                    return callback(0, null);
+                    return callback(null, null);
                 }
             }
             else

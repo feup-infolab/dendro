@@ -185,7 +185,7 @@ InformationElement.prototype.getParent = function(callback)
                     }
                     else if(results.length === 0)
                     {
-                        return callback(0, "There is no parent of " + self.uri);
+                        return callback(null, "There is no parent of " + self.uri);
                     }
                     else
                     {
@@ -352,7 +352,7 @@ InformationElement.prototype.unlinkFromParent = function(callback)
             }
             else
             {
-                return callback(0, self.uri +" already has no parent.");
+                return callback(null, self.uri +" already has no parent.");
             }
         }
         else

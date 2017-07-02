@@ -175,7 +175,7 @@ Folder.prototype.saveIntoFolder = function(
                     if (includeTempFilesLocations)
                         fileNode.temp_location = absPathOfFinishedFile;
 
-                    return callback(0, absPathOfFinishedFile, fileNode);
+                    return callback(null, absPathOfFinishedFile, fileNode);
                 }
                 else {
                     const error = "Error saving a file node (leaf) at " + node.uri + " " + message;
@@ -241,7 +241,7 @@ Folder.prototype.saveIntoFolder = function(
                                             return callback(null, destinationFolder, folderNode);
                                         }
                                         else {
-                                            return callback(0, destinationFolder);
+                                            return callback(null, destinationFolder);
                                         }
                                     }
                                     else {
@@ -265,10 +265,10 @@ Folder.prototype.saveIntoFolder = function(
                                     selfMetadata.original_node = node;
 
                                 if (includeMetadata) {
-                                    return callback(0, destinationFolder, selfMetadata);
+                                    return callback(null, destinationFolder, selfMetadata);
                                 }
                                 else {
-                                    return callback(0, destinationFolder);
+                                    return callback(null, destinationFolder);
                                 }
                             }
                         }
@@ -324,7 +324,7 @@ Folder.prototype.createTempFolderWithContents = function(
                             includeOriginalNodes,
                             function(err, pathOfFinishedFolder, metadata)
                         {
-                            return callback(0, tempFolderPath, pathOfFinishedFolder, metadata);
+                            return callback(null, tempFolderPath, pathOfFinishedFolder, metadata);
                         });
                     }
                     else

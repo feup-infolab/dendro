@@ -242,7 +242,7 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                 }
                 else
                 {
-                    return callback(0,null);
+                    return callback(null,null);
                 }
             }
             else
@@ -472,10 +472,10 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
             suggestion.last_unhidden = Date.parse(result.last_unhidden);
 
             if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                return callback(0, suggestion);
+                return callback(null, suggestion);
             }
             else {
-                return callback(0, null);
+                return callback(null, null);
             }
         };
 
@@ -663,10 +663,10 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
             suggestion.last_unfavorited = Date.parse(result.last_unfavorited);
 
             if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                return callback(0, suggestion);
+                return callback(null, suggestion);
             }
             else {
-                return callback(0, null);
+                return callback(null, null);
             }
         };
 
@@ -920,10 +920,10 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
                     suggestion.times_favorite_accepted_in_md_editor = parseInt(result.times_favorite_accepted_in_md_editor);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        return callback(0, suggestion);
+                        return callback(null, suggestion);
                     }
                     else {
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                 };
 
@@ -1044,10 +1044,10 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
                     suggestion.times_smart_accepted_in_md_editor = parseInt(result.times_smart_accepted_in_md_editor);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        return callback(0, suggestion);
+                        return callback(null, suggestion);
                     }
                     else {
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                 };
 
@@ -1170,10 +1170,10 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
                     suggestion.last_use = Date.parse(result.last_use);
 
                     if (suggestion instanceof Descriptor && suggestion.isAuthorized([Config.types.private, Config.types.locked])) {
-                        return callback(0, suggestion);
+                        return callback(null, suggestion);
                     }
                     else {
-                        return callback(0, null);
+                        return callback(null, null);
                     }
                 };
 
@@ -1259,7 +1259,7 @@ User.prototype.makeGlobalAdmin = function(callback)
             {
                 const msg = "User " + self.uri + " is already an admin, nothing to be done.";
                 console.error(msg);
-                return callback(0, msg);
+                return callback(null, msg);
             }
         }
         else
@@ -1288,7 +1288,7 @@ User.prototype.undoGlobalAdmin = function(callback)
             {
                 const msg = "User " + self.uri + " is not admin, no need to remove the triples.";
                 console.error(msg);
-                return callback(0, msg);
+                return callback(null, msg);
             }
         }
         else
@@ -1443,7 +1443,7 @@ User.removeAllAdmins = function(callback)
     {
         if (!err)
         {
-            return callback(0, results);
+            return callback(null, results);
         }
         else
         {

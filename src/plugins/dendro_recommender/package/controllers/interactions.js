@@ -424,7 +424,7 @@ exports.by_user = function(req, res)
                                 if(cachedDescriptor != null)
                                 {
                                     interaction.ddr.executedOver = cachedDescriptor;
-                                    callback(0, interaction);
+                                    callback(null, interaction);
                                 }
                                 else
                                 {
@@ -435,11 +435,11 @@ exports.by_user = function(req, res)
                                             {
                                                 interaction.ddr.executedOver = fullDescriptor;
                                                 cachedDescriptors[interaction.ddr.executedOver] = fullDescriptor;
-                                                callback(0, interaction);
+                                                callback(null, interaction);
                                             }
                                             else //ignore invalid interactions
                                             {
-                                                callback(0, null);
+                                                callback(null, null);
                                             }
                                         }
                                         else
