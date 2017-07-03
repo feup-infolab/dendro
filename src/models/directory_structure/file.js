@@ -582,6 +582,7 @@ File.prototype.generateThumbnails = function(callback)
             }).then(function(image) {
                 console.log('Resized and cropped: ' + image.width + ' x ' + image.height);
 
+                //TODO
                 gfs.connection.put(
                         self.uri + "?thumbnail&size=" + sizeTag,
                     fs.createReadStream(thumbnailFile),

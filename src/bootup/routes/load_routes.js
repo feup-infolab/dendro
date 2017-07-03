@@ -590,7 +590,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
             const processRequest = function(resourceUri){
                 req.params.requestedResourceUri = resourceUri;
                 const defaultPermissionsInProjectBranch = [
-                    Permissions.project_privacy_status.public,
+                    Permissions.resource_access_based_on_owner_project_privacy_status.public,
                     Permissions.role.project.contributor,
                     Permissions.role.project.creator
                 ];

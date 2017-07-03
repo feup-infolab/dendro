@@ -18,6 +18,7 @@ function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, p
     self.username = username;
     self.password = password;
 }
+
 GridFSConnection.prototype.openConnection = function(callback) {
     const self = this;
 

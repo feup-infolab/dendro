@@ -27,7 +27,8 @@ Permissions.types = {
     system : "system",
     resource : "resource",
     project : "project",
-    project_privacy_status : "project_privacy_status"
+    project_privacy_status : "project_privacy_status",
+    owner_project_privacy_status : "project_privacy_status"
 };
 
 Permissions.role = {
@@ -98,6 +99,30 @@ Permissions.project_privacy_status = {
         object : "metadata_only",
         error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
         error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
+    }
+};
+
+Permissions.resource_access_based_on_owner_project_privacy_status = {
+    public : {
+        type : Permissions.types.owner_project_privacy_status,
+        predicate : "ddr:privacyStatus",
+        object : "public",
+        error_message_user : "This is a resource that belongs to a public project.",
+        error_message_api : "This is a resource that belongs to a public project."
+    },
+    private : {
+        type : Permissions.types.owner_project_privacy_status,
+        predicate : "ddr:privacyStatus",
+        object : "private",
+        error_message_user : "This is a resource that belongs to a private project, and neither data nor metadata can be accessed.",
+        error_message_api : "Unauthorized Access. This is a resource that belongs to a private project, and neither data nor metadata can be accessed."
+    },
+    metadata_only :  {
+        type : Permissions.types.owner_project_privacy_status,
+        predicate : "ddr:privacyStatus",
+        object : "metadata_only",
+        error_message_user : "This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed.",
+        error_message_api : "Unauthorized Access. This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed."
     }
 };
 
@@ -244,7 +269,7 @@ const checkUsersRoleInResource = function (req, user, role, resource, callback) 
     });
 };
 
-const checkPermissionsForRole = function (req, user, resource, role, callback) {
+const checkPermissionsForRole = function (req, user, role, resource, callback) {
     if (!(user instanceof User) && user instanceof Object)
         user = new User(user);
 
@@ -253,7 +278,7 @@ const checkPermissionsForRole = function (req, user, resource, role, callback) {
             return callback(err, {authorized: hasRole, role: role});
         });
     }
-    else if (role.type === Permissions.types.project) {
+    else if (role.type === Permissions.types.owner_project_privacy_status) {
         getOwnerProject(resource, function (err, project) {
             if (!err) {
                 if (project instanceof Project) {
@@ -268,6 +293,11 @@ const checkPermissionsForRole = function (req, user, resource, role, callback) {
             else {
                 return callback(err, null);
             }
+        });
+    }
+    else if (role.type === Permissions.types.resource) {
+        checkUsersRoleInResource(req, user, role, resource, function (err, hasRole) {
+            return callback(err, {authorized: hasRole, role: role});
         });
     }
     else if (role.type === Permissions.types.resource) {
@@ -351,7 +381,7 @@ Permissions.check = function(permissionsRequired, req, callback)
         const checkPermissions = function (req, user, resource, permission, cb) {
             if (permission.type === Permissions.types.system) {
                 if (!isNull(user)) {
-                    checkPermissionsForRole(req, user, resource, permission, function (err, results) {
+                    checkPermissionsForRole(req, user, permission, resource, function (err, results) {
                         cb(err, results);
                     });
                 }
@@ -362,7 +392,7 @@ Permissions.check = function(permissionsRequired, req, callback)
             }
             else if (permission.type === Permissions.types.project) {
                 if (!isNull(user)) {
-                    checkPermissionsForRole(req, user, resource, permission, function (err, results) {
+                    checkPermissionsForRole(req, user, permission, resource, function (err, results) {
                         cb(err, results);
                     });
                 }
@@ -373,7 +403,7 @@ Permissions.check = function(permissionsRequired, req, callback)
             }
             else if (permission.type === Permissions.types.resource) {
                 if (!isNull(user)) {
-                    checkPermissionsForRole(req, user, resource, permission, function (err, results) {
+                    checkPermissionsForRole(req, user, permission, resource, function (err, results) {
                         cb(err, results);
                     });
                 }
@@ -383,6 +413,11 @@ Permissions.check = function(permissionsRequired, req, callback)
             }
             else if (permission.type === Permissions.types.project_privacy_status) {
                 checkPermissionsForProject(req, permission, function (err, results) {
+                    cb(err, results);
+                });
+            }
+            else if (permission.type === Permissions.types.resource_access_based_on_owner_project_privacy_status) {
+                checkPermissionsForOwnerProject(req, permission, function (err, results) {
                     cb(err, results);
                 });
             }
