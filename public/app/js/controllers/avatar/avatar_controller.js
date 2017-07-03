@@ -7,6 +7,7 @@ angular.module('dendroApp.controllers')
         $scope.editAvatarModalActivated = false;
         $scope.myImage='';
         $scope.myCroppedImage='';
+        $scope.imageCompressed = null;
         $scope.avatarUri = '';
 
         $scope.openEditAvatarModal = function () {
@@ -37,18 +38,26 @@ angular.module('dendroApp.controllers')
                 });
         };
 
-        var handleFileSelect=function(evt) {
-            console.log("AT handleFileSelect");
-            var file=evt.currentTarget.files[0];
-            var reader = new FileReader();
+        var handleFileSelect=function(compressedImage) {
+            //var file=evt.currentTarget.files[0];
+            //var file=compressedImage.compressed.dataURL;
+            $scope.myImage=compressedImage.compressed.dataURL;
+            /*var reader = new FileReader();
             reader.onload = function (evt) {
                 $scope.$apply(function($scope){
                     $scope.myImage=evt.target.result;
                     console.log("cenas");
                 });
             };
-            reader.readAsDataURL(file);
+            reader.readAsDataURL(file);*/
         };
-        angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+        //angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+        $scope.$watch('imageCompressed', function() {
+            if($scope.imageCompressed)
+            {
+                console.log("Hey imageCompressed has changed");
+                handleFileSelect($scope.imageCompressed);
+            }
+        });
 
     });

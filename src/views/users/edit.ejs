@@ -4,11 +4,14 @@
     Editing user <%= user.foaf.firstName %> <%= user.foaf.surname %>
 </h1>
 
-<div class="text-center" ng-controller="avatarCtrl">
+<div ng-controller="avatarCtrl">
     <!--<p>Avatar path :  </p>-->
-    <img class="show-avatar-in-profile" ng-src="/user/<%=user.ddr.username%>/avatar">
-
-    <button data-toggle="modal" data-target="#myModal">Edit Avatar</button>
+    <div class="text-center">
+        <img class="show-avatar-in-profile" ng-src="/user/<%=user.ddr.username%>/avatar">
+    </div>
+    <div class="text-center">
+        <button data-toggle="modal" data-target="#myModal">Edit Avatar</button>
+    </div>
 
     <div class="modal fade" id="myModal" tabindex="-1" role="dialog">
         <div class="modal-dialog" role="document">
@@ -22,7 +25,11 @@
                     <div class="col-sm-12">
                         <div class="form-group">
                             <label for="avatar" class="col-sm-2 control-label">Avatar Picture</label>
-                            <div><input type="file" id="fileInput" /></div>
+                            <div>
+                                <!--<input type="file" id="fileInput" />-->
+                                <input id="fileInput" type="file" accept="image/*" ng-model="imageCompressed" image="imageCompressed" resize-max-height="800" resize-max-width="800" resize-quality="0.2" resize-type="image/jpg" ng-image-compress/>
+                                <!--<img ng-src="{{imageCompressed.compressed.dataURL}}" />--> <!-- just do a console.log of {{image1}} to see what other options are in the file object -->
+                            </div>
 
                             <div class="cropArea">
                                 <img-crop image="myImage" result-image="myCroppedImage"></img-crop>

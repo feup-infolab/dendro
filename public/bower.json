@@ -18,7 +18,7 @@
   "dependencies": {
     "angular-bootstrap": "^1.2.4",
     "bootstrap": "3.3.7",
-    "angular" : "1.6.3",
+    "angular": "1.6.3",
     "angular-cookies": "1.6.1",
     "angular-loader": "1.6.1",
     "angular-mocks": "1.6.1",
@@ -72,7 +72,9 @@
     "flint-sparql-editor": "git://github.com/TSO-Openup/FlintSparqlEditor.git",
     "bootswatch": "https://github.com/thomaspark/bootswatch.git",
     "angular-image-spinner": "*",
-    "spin.js": "~2.0.0"
+    "spin.js": "~2.0.0",
+    "ng-img-crop": "^0.3.2",
+    "angular-image-compress": "^0.1.5"
   },
   "resolutions": {
     "bootstrap": "~3",
