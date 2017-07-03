@@ -22,11 +22,6 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.updateProfilePic = function () {
-            /*console.log('I will update the profile picture');
-            console.log('myCroppedImage is:');*/
-            console.log('I will update the profile picture');
-            console.log('myImage is:');
-            console.log($scope.myCroppedImage);
             usersService.update_avatar($scope.myCroppedImage)
                 .then(function(response)
                 {
@@ -39,19 +34,9 @@ angular.module('dendroApp.controllers')
         };
 
         var handleFileSelect=function(compressedImage) {
-            //var file=evt.currentTarget.files[0];
-            //var file=compressedImage.compressed.dataURL;
             $scope.myImage=compressedImage.compressed.dataURL;
-            /*var reader = new FileReader();
-            reader.onload = function (evt) {
-                $scope.$apply(function($scope){
-                    $scope.myImage=evt.target.result;
-                    console.log("cenas");
-                });
-            };
-            reader.readAsDataURL(file);*/
         };
-        //angular.element(document.querySelector('#fileInput')).on('change',handleFileSelect);
+
         $scope.$watch('imageCompressed', function() {
             if($scope.imageCompressed)
             {

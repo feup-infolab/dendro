@@ -194,8 +194,8 @@ Animations (uncomment to have animations)
   height: 5%;
 }
 .show-avatar-in-header {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   position: relative;
   top: -5px;
   float: left;
