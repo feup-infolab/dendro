@@ -1259,6 +1259,8 @@ async.series([
         app.get('/users', users.all);
         app.get('/user/:username', async.apply(Permissions.require, [Permissions.role.system.user]), users.show);
         app.get('/users/loggedUser', users.getLoggedUser);
+        app.get('/user/:username/avatar', async.apply(Permissions.require, [Permissions.role.system.user]), users.get_avatar);
+        app.post('/user/avatar', async.apply(Permissions.require, [Permissions.role.system.user]), users.upload_avatar);
 
         app.all('/reset_password', users.reset_password);
         app.all('/set_new_password', users.set_new_password);

@@ -183,3 +183,21 @@ Animations (uncomment to have animations)
 .social-dendro-btn {
   font-size: 10px;
 }
+.cropArea {
+  background: #e4e4e4;
+  overflow: hidden;
+  width: 500px;
+  height: 350px;
+}
+.show-avatar-in-profile {
+  width: 5%;
+  height: 5%;
+}
+.show-avatar-in-header {
+  width: 28px;
+  height: 28px;
+  position: relative;
+  top: -5px;
+  float: left;
+  left: -5px;
+}

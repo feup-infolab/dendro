@@ -1401,6 +1401,20 @@ User.prototype.startPasswordReset = function(callback)
     });
 };
 
+User.prototype.getAvatarUri = function () {
+    var self = this;
+    if(self.ddr.hasAvatar)
+    {
+        return self.ddr.hasAvatar;
+    }
+    else
+    {
+        var msg = "User has no previously saved Avatar";
+        console.error(msg);
+        return null;
+    }
+};
+
 User.removeAllAdmins = function(callback)
 {
     var adminDescriptor = new Descriptor({
