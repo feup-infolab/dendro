@@ -129,7 +129,8 @@ angular.module('dendroApp.controllers')
             timelineService.get_logged_user()
                 .then(function(response)
                 {
-                    $scope.loggedUser = response.data.uri;
+                    //$scope.loggedUser = response.data.uri;
+                    $scope.loggedUser = response.data;
 
                     $scope.doing_get_logged_user = false;
                 })

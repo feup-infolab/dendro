@@ -1,6 +1,7 @@
 <div class="text-center" style="border-color: #f5f5f5; border-right-style: solid">
     <p style="margin-bottom: 0%; font-style: italic;">{{postsContents[postUri].dcterms.modified | date : "dd/MMM/yyyy"}}</p>
     <p style="margin-bottom: 0%"> In {{postsContents[postUri].ddr.projectUri.split("/").pop()}}</p>
-    <img width="50%" height="50%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
+    <!--<img width="50%" height="50%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />-->
+    <img class="img-circle show-author-avatar-partial" ng-src="/user/{{postsContents[postUri].dcterms.creator.split('/').pop()}}/avatar">
     <a ng-href="{{postsContents[postUri].dcterms.creator}}"> {{postsContents[postUri].dcterms.creator.split('/').pop()}} </a>
 </div>

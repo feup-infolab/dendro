@@ -2,7 +2,8 @@
     <!--<p> Contents at showShare.html : </p>
     <p> {{postsContents[shareUri]}} </p>-->
     <div class="panel-heading">
-        <h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <img width="5%" height="5%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>
+        <!--<h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <img width="5%" height="5%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>-->
+        <h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <img class="img-circle" width="5%" height="5%" ng-src="/user/{{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}}/avatar"> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>
     </div>
 
     <div class="panel-body">
@@ -29,7 +30,7 @@
             <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
             <hr>
         </div>
-        <label for="new_comment_box">{{loggedUser.split('/').pop()}} :</label>
+        <label for="new_comment_box">{{loggedUser.ddr.username}} :</label>
         <textarea class="form-control" rows="5" id="new_comment_box" ng-model="comment_content" placeholder="Write your comment here"></textarea>
         <a ng-click="commentPost(postsContents[shareUri].uri,comment_content);comment_content=''" class="btn btn-default btn-primary">Send</a>
     </div>
@@ -37,7 +38,7 @@
 
 <div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare" style="margin-left: 20%; margin-right: 20%">
     <div class="wall">
-        <label for="new_post_box_share">{{loggedUser.split('/').pop()}} :</label>
+        <label for="new_post_box_share">{{loggedUser.ddr.username}} :</label>
         <textarea class="form-control" rows="5" id="new_post_box_share" ng-model="share_content" placeholder="Write your share message here"></textarea>
         <a ng-click="sharePost(postsContents[shareUri].uri,share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
     </div>

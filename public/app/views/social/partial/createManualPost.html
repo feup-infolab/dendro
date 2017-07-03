@@ -2,16 +2,16 @@
     <div class="media">
         <div class="media-left">
             <div class="text-center" style="border-color: #f5f5f5; border-right-style: solid">
-                <img width="70%" height="70%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
-                <p>{{loggedUser.split("/").pop()}}</p>
+                <!--<img width="70%" height="70%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />-->
+                <img class="img-circle show-avatar-in-create-post" ng-src='/user/{{loggedUser.ddr.username}}/avatar'>
+                <p>{{loggedUser.ddr.username}}</p>
             </div>
         </div>
 
         <div class="media-body">
             <div ng-show="showCreatePostContent" class="input-group-btn form-inline">
                 <select ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" class="form-control" id="choosingProjectID" ng-init="projectChosen"
-                        ng-model="$parent.projectChosen"
-                        ng-options="userProject.name for userProject in userProjects">
+                        ng-model="$parent.projectChosen" ng-options="userProject.name for userProject in userProjects">
                 </select>
                 <input ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" type="text" class="form-control" aria-label="postTitle" id="newPostTitleID" ng-model="$parent.newPostTitle" placeholder="The title of your post">
             </div>
