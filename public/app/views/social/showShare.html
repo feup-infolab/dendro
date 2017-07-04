@@ -16,7 +16,7 @@
     </div>
 
     <div class="panel-footer">
-        <a ng-model="checkModel.left" ng-class="postsContents[shareUri].likesContent.usersWhoLiked.indexOf(loggedUser) > -1 ? 'btn-sm btn-success' : 'btn-sm'" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="likePost(postsContents[shareUri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</a> {{postsContents[shareUri].likesContent.numLikes}},
+        <a ng-model="checkModel.left" ng-class="postsContents[shareUri].likesContent.usersWhoLiked.indexOf(loggedUser.uri) > -1 ? 'btn-sm btn-success' : 'btn-sm'" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="likePost(postsContents[shareUri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</a> {{postsContents[shareUri].likesContent.numLikes}},
         <a class="btn-sm" ng-model="checkModel.middle" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="social-dendro-btn fa fa-comment" aria-hidden="true"></i> Comment</a> {{postsContents[shareUri].commentsContent.length}},
         <a class="btn-sm" ng-model="checkModel.right" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="social-dendro-btn fa fa-share" aria-hidden="true"></i> Share</a> {{postsContents[shareUri].sharesContent.length}}
     </div>
