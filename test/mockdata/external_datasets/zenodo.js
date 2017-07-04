@@ -6,7 +6,7 @@
  This data is used to create a new export repository configuration
  Use this JSON to create a new export config
  */
-var newExportRepoData = {
+const newExportRepoData = {
     ddr:{
         hasExternalUrl:"http://www.zenodo.org/",
         hasAccessToken:"dgOQrI0zzx5tZ1zSTSaBCtmik3SbJmxaJKW1GZV9ZUe7b7EV9Rr4XSTWMcTs",

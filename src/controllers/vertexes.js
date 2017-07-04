@@ -1,11 +1,17 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var db = function() { return GLOBAL.db.default; }();
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
 
-var async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+
+const async = require('async');
 
 /*
  * GET home page.
@@ -15,12 +21,12 @@ var async = require('async');
 
 exports.all = function(req, res)
 {
-    var Resource = require('./resource.js').Resource;
+    const Resource = require('./resource.js').Resource;
 
-    var viewVars = {
-        title : 'All vertexes',
-        currentPage : 0,
-        pageSize : 0
+    const viewVars = {
+        title: 'All vertexes',
+        currentPage: 0,
+        pageSize: 0
     };
 
     Resource.all(req, function(err, results)
@@ -35,7 +41,7 @@ exports.all = function(req, res)
         else
         {
             viewVars.vertexes = [];
-            viewVars.error_messages = "Unable to fetch nodes"
+            viewVars.error_messages = "Unable to fetch nodes";
             res.render('vertexes/all',
                 viewVars
             )
@@ -83,8 +89,8 @@ exports.random = function(req, res) {
 						function(err, results) {
                             if(!err)
                             {
-                                var randomNumber = Math.floor(Math.random() * results[0].c + 1);
-                                callback(null, randomNumber);
+                                const randomNumber = Math.floor(Math.random() * results[0].c + 1);
+                                return callback(null, randomNumber);
                             }
                             else
                             {
@@ -108,7 +114,7 @@ exports.random = function(req, res) {
                         function(err, results) {
                             if(!err)
                             {
-                                callback(null, results[0].s, randomNumber);
+                                return callback(null, results[0].s, randomNumber);
                             }
                             else
                             {
@@ -120,7 +126,7 @@ exports.random = function(req, res) {
                                     error_messages: ["Unable to fetch random vertex"]
                                 });
 
-                                callback(true);
+                                return callback(true);
                             }
 
 						});
@@ -128,7 +134,7 @@ exports.random = function(req, res) {
 			function(selectedVertex, randomNumber, callback) {
 				getOutNeighbours(req, selectedVertex, function(neighbours)
 				{
-					callback(null, selectedVertex, randomNumber, neighbours);
+					return callback(null, selectedVertex, randomNumber, neighbours);
 				});
 			},
 			function(selectedVertex, randomNumber, neighbours, callback) {
@@ -182,7 +188,7 @@ exports.search = function(req, res)
             req.query.pageSize = 20;
         }
 
-        var skip = req.query.pageSize * req.query.currentPage;
+        const skip = req.query.pageSize * req.query.currentPage;
 
         Resource.findResourcesByTextQuery(
             req.index,
@@ -196,7 +202,7 @@ exports.search = function(req, res)
                     resource.getTextuallySimilarResources(req.index, Config.limits.index.maxResults, function(err, similarResources)
                     {
                         resource.recommendations = similarResources;
-                        callback(err, resource); //null as 1st argument == no error
+                        return callback(err, resource); //null as 1st argument == no error
                     });
                 };
 
@@ -215,7 +221,7 @@ exports.search = function(req, res)
                             title : 'Search Results'
                         };
 
-                        if(results != null && results.length > 0)
+                        if(!isNull(results) && results.length > 0)
                         {
                             renderParameters.vertexes = resultsWithSimilarOnes;
                             renderParameters.currentPage = req.query.currentPage;
@@ -256,11 +262,11 @@ getOutNeighbours = function(req, vertexUri, callback)
             function(err, results) {
                 if(!err)
                 {
-                    callback(results);
+                    return callback(results);
                 }
                 else
                 {
-                    callback([]);
+                    return callback([]);
                 }
 			});
 };

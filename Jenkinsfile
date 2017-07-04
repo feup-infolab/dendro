@@ -6,7 +6,6 @@ properties(
     
 pipeline {
     agent any
-
     stages {
         stage('Build') {
             steps {
@@ -14,12 +13,18 @@ pipeline {
                 sh "$WORKSPACE/conf/scripts/install.sh"
             }
         }
-        stage('Test') {
+        stage('Test and calculate coverage') {
             steps {
                 retry(3) {
-                    sh "chmod +x $WORKSPACE/conf/scripts/test.sh"
-                    sh "$WORKSPACE/conf/scripts/test.sh JENKINSTESTSdendroVagrantDemo root r00t_p4ssw0rd"
+                    sh "chmod +x $WORKSPACE/conf/scripts/calculate_coverage.sh"
+                    sh "$WORKSPACE/conf/scripts/calculate_coverage.sh JENKINSTESTSdendroVagrantDemo root r00t_p4ssw0rd"
                 }
+            }
+        }
+        stage('Report coverage') {
+            steps {
+                sh "chmod +x $WORKSPACE/conf/scripts/report_coverage.sh"
+                sh "$WORKSPACE/conf/scripts/report_coverage.sh"
             }
         }
         stage('Deploy') {
@@ -27,6 +32,19 @@ pipeline {
                 echo 'No deployments yet. Skipping.'
                 //sh "chmod +x $WORKSPACE/conf/scripts/deploy.sh"
             }
+        }
+        stage('Cleanup') {
+            steps {
+                echo "Cleaning workspace at $WORKSPACE"
+                sh "rm -rf $WORKSPACE/*"
+            }
+        }
+    }
+    post
+    {
+        failure {
+            echo "Cleaning workspace at $WORKSPACE"
+            sh "rm -rf $WORKSPACE/*"
         }
     }
 }

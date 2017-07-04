@@ -1,198 +1,179 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" ng-app="dendroApp" ng-animate="'animate'" ng-cloak>
-<head>
+    <head>
 
-    <%- include includes.ejs %>
+        <%- include includes.ejs%>
 
-    <title>
-        <% if (locals.title != null) { %>
-        <%= title %> - <%= Config.version.name %>
-        <% } else { %>
-        <%= Config.version.name %>
+       <title>
+            <% if (locals.title != null) { %>
+                <%= title %> - <%= Config.version.name%>
+            <% } else { %>
+                <%= Config.version.name%>
+            <% } %>
+        </title>
+
+        <link rel="apple-touch-icon" sizes="180x180" href="/images/logos/apple-touch-icon.png">
+        <link rel="icon" type="image/png" href="/images/logos/favicon-32x32.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="/images/logos/favicon-16x16.png" sizes="16x16">
+        <link rel="manifest" href="/images/logos/manifest.json">
+        <link rel="mask-icon" href="/images/logos/safari-pinned-tab.svg" color="#5bbad5">
+        <link rel="shortcut icon" href="/images/logos/favicon.ico">
+        <meta name="msapplication-config" content="/images/logos/browserconfig.xml">
+        <meta name="theme-color" content="#ffffff">
+
+
+        <% if (Config.analytics_tracking_code != null && Config.analytics_tracking_code != "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE") { %>
+            <script>
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+                ga('create', "<%= Config.analytics_tracking_code %>" , 'auto');
+                ga('send', 'pageview');
+
+            </script>
         <% } %>
-    </title>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/images/logos/apple-touch-icon.png">
-    <link rel="icon" type="image/png" href="/images/logos/favicon-32x32.png" sizes="32x32">
-    <link rel="icon" type="image/png" href="/images/logos/favicon-16x16.png" sizes="16x16">
-    <link rel="manifest" href="/images/logos/manifest.json">
-    <link rel="mask-icon" href="/images/logos/safari-pinned-tab.svg" color="#5bbad5">
-    <link rel="shortcut icon" href="/images/logos/favicon.ico">
-    <meta name="msapplication-config" content="/images/logos/browserconfig.xml">
-    <meta name="theme-color" content="#ffffff">
+    </head>
+    <body>
+    <div id="wrap" ng-controller="windowCtrl">
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/">Dendro<sup>&#946</sup></a>
+                </div>
 
-    <% if (Config.analytics_tracking_code != null && Config.analytics_tracking_code != "GOOGLE_ANALYTICS_DEVELOPMENT_ANALYTICS_TRACKING_CODE") { %>
-    <script>
-        (function (i, s, o, g, r, a, m) {
-            i['GoogleAnalyticsObject'] = r;
-            i[r] = i[r] || function () {
-                    (i[r].q = i[r].q || []).push(arguments)
-                }, i[r].l = 1 * new Date();
-            a = s.createElement(o),
-                m = s.getElementsByTagName(o)[0];
-            a.async = 1;
-            a.src = g;
-            m.parentNode.insertBefore(a, m)
-        })(window, document, 'script', 'https://www.google-analytics.com/analytics.js', 'ga');
-
-        ga('create', "<%= Config.analytics_tracking_code %>", 'auto');
-        ga('send', 'pageview');
-
-    </script>
-    <% } %>
-
-</head>
-<body>
-<div id="wrap" ng-controller="windowCtrl">
-    <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-        <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="/">Dendro<sup>&#946</sup></a>
-            </div>
-
-            <!-- Collect the nav links, forms, and other content for toggling -->
-            <div class="collapse navbar-collapse">
-                <ul class="nav navbar-nav">
-                    <% if(locals.session != null && locals.session.user != null)
-                    {
-                    %>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">My <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="/projects/my">Projects</a></li>
-                            <li><a href="/socialDendro/my"> Social Dendro </a></li>
-                            <!--<li><a href="/datasets/my">Datasets</a></li>-->
-                            <!--<li><a href="/publications/my">Publications</a></li>-->
-                            <!--<li><a href="/deposits/my">Deposits</a></li>-->
-                        </ul>
-                    </li>
-                    <%
-                    }
-                    %>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Find <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="/users">People</a></li>
-                            <!--TODO  <li><a href="/datasets">Datasets</a></li>-->
-                            <li><a href="/projects">Projects</a></li>
-                            <!--TODO <li><a href="/publications">Publications</a></li>-->
-                            <!--TODO <li><a href="/ontologies/all">Descriptor Sets</a></li>-->
-                            <!--TODO <li><a href="/application_profiles">Application Profiles</a></li> -->
-                        </ul>
-                    </li>
-                </ul>
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins<b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <% if(locals.session != null && locals.session.user != null && locals.session.isAdmin)
-                            {
-                            %>
-                            <li role="presentation" class="dropdown-header">Dendro Recommender</li>
-                            <li>
-                                <a href="/plugins/dendro_recommender/interactions/user/<%= locals.session.user.ddr.username %>">User
-                                    interaction analysis</a>
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse">
+                    <ul class="nav navbar-nav">
+                        <% if(locals.user != null)
+                        {
+                         %>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown">My <b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="/projects/my">Projects</a></li>
+                                    <!--<li><a href="/datasets/my">Datasets</a></li>-->
+                                    <!--<li><a href="/publications/my">Publications</a></li>-->
+                                    <!--<li><a href="/deposits/my">Deposits</a></li>-->
+                                </ul>
                             </li>
-                            <li role="presentation" class="dropdown-header">Dendro Interactions CSV Exporter</li>
-                            <li>
-                                <a href="/src/plugins/dendro_interaction2csv">Export interactions</a>
-                            </li>
-                            <%
-                            }
-                            %>
-                        </ul>
-                    </li>
-
-                    <form class="navbar-form navbar-left" role="search" action="/search" method="get">
-                        <div class="form-group">
-                            <input class="form-control" name="q" id="q" type="text" placeholder="Search Dendro"/>
-                        </div>
-                        <button type="submit" class="btn btn-default">Submit</button>
-                    </form>
-                    <% if(locals.session != null && locals.session.user != null)
-                    {
-                    %>
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle"
-                           data-toggle="dropdown"><img class="img-circle show-avatar-in-header"
-                                                       ng-src="/user/<%= locals.session.user.ddr.username %>/avatar"><%= locals.session.user.foaf.firstName %> <%= locals.session.user.foaf.surname %>
-                            <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a href="/me">Profile</a>
-                            </li>
-                            <% if(locals.session.isAdmin)
-                            {
-                            %>
-                            <li>
-                                <a href="/admin">Admin Panel</a>
-                            </li>
-                            <%
-                            }
-                            %>
-                            <li>
-                                <a href="/logout">Logout <%= locals.session.user.foaf.firstName %> <%= locals.session.user.foaf.surname %></a>
-                            </li>
-                        </ul>
-                    </li>
-                    <!--<li>-->
                         <%
                         }
-                        else
+                        %>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Find <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/users">People</a></li>
+                                <!--TODO  <li><a href="/datasets">Datasets</a></li>-->
+                                <li><a href="/projects">Projects</a></li>
+                                <!--TODO <li><a href="/publications">Publications</a></li>-->
+                                <!--TODO <li><a href="/ontologies/all">Descriptor Sets</a></li>-->
+                                <!--TODO <li><a href="/application_profiles">Application Profiles</a></li> -->
+                            </ul>
+                        </li>
+                    </ul>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Plugins<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <% if(locals.user != null && locals.session != null && locals.session.isAdmin)
+                                {
+                                %>
+                                    <li role="presentation" class="dropdown-header">Dendro Recommender</li>
+                                    <li>
+                                        <a href="/plugins/dendro_recommender/interactions/user/<%=locals.user.ddr.username%>">User interaction analysis</a>
+                                    </li>
+                                    <li role="presentation" class="dropdown-header">Dendro Interactions CSV Exporter</li>
+                                    <li>
+                                        <a href="/src/plugins/dendro_interaction2csv">Export interactions</a>
+                                    </li>
+                                <%
+                                }
+                                %>
+                            </ul>
+                        </li>
+
+                        <form class="navbar-form navbar-left" role="search" action="/search" method="get">
+                            <div class="form-group">
+                                <input class="form-control" name="q" id="q" type="text" placeholder="Search Dendro"/>
+                            </div>
+                            <button type="submit" class="btn btn-default">Submit</button>
+                        </form>
+                        <% if(locals.user != null)
                         {
                         %>
-                    <li>
-                        <a href="/login">Login</a>
-                    </li>
-                    <%
-                    }
-                    %>
+                            <li class="dropdown">
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown"><%=locals.user.foaf.firstName%> <%=locals.user.foaf.surname%><b class="caret"></b></a>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a href="/me">Profile</a>
+                                    </li>
+                                    <% if(locals.session != null && locals.session.isAdmin)
+                                    {
+                                    %>
+                                        <li>
+                                            <a href="/admin">Admin Panel</a>
+                                        </li>
+                                    <%
+                                    }
+                                    %>
+                                    <li>
+                                        <a href="/logout">Logout <%=locals.user.foaf.firstName%> <%=locals.user.foaf.surname%></a>
+                                    </li>
+                                </ul>
+                            </li>
+                        <li>
+                            <%
+                            }
+                            else
+                            {
+                            %>
+                                <li>
+                                    <a href="/login">Login</a>
+                                </li>
+                            <%
+                            }
+                            %>
 
-                    <% if(locals.session.user != null) { %>
+                        <%if(locals.user != null) { %>
 
-                    <!--<li>
-                        <img class="show-avatar-in-header"
-                             ng-src="/user/<%= locals.session.user.ddr.username %>/avatar">
-                    </li>-->
-                    <li ng-controller="notificationCtrl" ng-init="init();getAlerts()" class="dropdown">
-                        <a class="notifications-icon" href="#" ng-alerts-popover popover-placement="bottom-right"
-                           style="
+                            <li ng-controller="notificationCtrl" ng-init="init();getAlerts()" class="dropdown">
+                                <a class="notifications-icon" href="#" ng-alerts-popover popover-placement="bottom-right" style="
                                     padding-top: 10px;
                                     padding-bottom: 4px;
                                 ">
-                            <ng-alerts-count badge="true" hide-empty="true"></ng-alerts-count>
-                            <span class="fa-stack fa-1x notifications-icon">
-                                                            <i class="fa fa-bell fa-stack-2x text-default"
-                                                               ng-class="{'faa-horizontal' : numNotifications > 0, 'animated' : numNotifications > 0}"></i>
-                                                            <i class="fa fa-circle fa-stack-2x text-default badge-circle text-danger"
-                                                               ng-show="numNotifications > 0"></i>
-                                                            <strong class="fa-stack-1x notifications-text badge-text"
-                                                                    ng-show="numNotifications > 0">{{numNotifications}}</strong>
+                                    <ng-alerts-count badge="true" hide-empty="true"> </ng-alerts-count>
+                                                        <span class="fa-stack fa-1x notifications-icon">
+                                                            <i class="fa fa-bell fa-stack-2x text-default" ng-class="{'faa-horizontal' : numNotifications > 0, 'animated' : numNotifications > 0}"></i>
+                                                            <i class="fa fa-circle fa-stack-2x text-default badge-circle text-danger" ng-show="numNotifications > 0"></i>
+                                                            <strong class="fa-stack-1x notifications-text badge-text" ng-show="numNotifications > 0">{{numNotifications}}</strong>
                                                         </span>
-                        </a>
-                        <div ng-repeat="notifUri in notifsUris">
-                            <div ng-init="get_notification_info(notifUri.uri)">
-                            </div>
-                        </div>
-                    </li>
-                    <% } %>
-                </ul>
-            </div><!-- /.navbar-collapse -->
-        </div>
-    </nav>
+                                </a>
+                                <div ng-repeat="notifUri in notifsUris">
+                                    <div ng-init="get_notification_info(notifUri.uri)">
+                                    </div>
+                                </div>
+                            </li>
+                        <% } %>
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div>
+        </nav>
 
-    <div class="navbar-spacer"></div>
+        <div class="navbar-spacer"></div>
 
-    <!--<p class="lead">Pin a fixed-height footer to the bottom of the viewport in desktop browsers with this custom HTML and CSS. A fixed navbar has been added within <code>#wrap</code> with <code>padding-top: 60px;</code> on the <code>.container</code>.</p>-->
+        <!--<p class="lead">Pin a fixed-height footer to the bottom of the viewport in desktop browsers with this custom HTML and CSS. A fixed navbar has been added within <code>#wrap</code> with <code>padding-top: 60px;</code> on the <code>.container</code>.</p>-->
 
-<%- include messages/errors_and_infos.ejs %>
+        <%- include messages/errors_and_infos.ejs %>

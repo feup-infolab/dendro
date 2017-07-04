@@ -1,35 +1,35 @@
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var async = require('async');
-var _ = require('underscore');
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+
+const async = require('async');
+const _ = require('underscore');
 
 exports.recommend_descriptors = function(req, res) {
-    if(req.params.requestedResource != null)
+    if(!isNull(req.params.requestedResource))
     {
-        if(req.session.user != null)
+        if(!isNull(req.user))
         {
-            var recommendationMode = req.query.recommendations_mode;
+            const recommendationMode = req.query.recommendations_mode;
 
-            var getAllowedOntologies = function()
-            {
-                if(req.session.user.recommendations != null && req.session.user.recommendations.ontologies != null)
-                {
-                    var acceptedOntologies = req.session.user.recommendations.ontologies.accepted;
-                    var fullOntologies = [];
+            const getAllowedOntologies = function () {
+                if (!isNull(req.user.recommendations) && !isNull(req.user.recommendations.ontologies)) {
+                    const acceptedOntologies = req.user.recommendations.ontologies.accepted;
+                    const fullOntologies = [];
 
-                    for(var prefix in acceptedOntologies)
-                    {
-                        if(acceptedOntologies.hasOwnProperty(prefix))
-                        {
-                            var ontology = new Ontology({
-                                prefix : prefix
+                    for (let prefix in acceptedOntologies) {
+                        if (acceptedOntologies.hasOwnProperty(prefix)) {
+                            const ontology = new Ontology({
+                                prefix: prefix
                             });
 
                             fullOntologies.push(ontology.uri);
@@ -40,55 +40,46 @@ exports.recommend_descriptors = function(req, res) {
                 }
             };
 
-            var registerRecommendationRequestInteraction = function()
-            {
-                if(req.query.page != null)
-                {
-                    var oldPage = req.session.user.recommendations.descriptor_page;
+            const registerRecommendationRequestInteraction = function () {
+                if (!isNull(req.query.page)) {
+                    let oldPage = req.user.recommendations.descriptor_page;
 
-                    if(oldPage == null)
-                    {
+                    if (isNull(oldPage)) {
                         oldPage = 0;
                     }
 
-                    var newPage = parseInt(req.query.page);
+                    const newPage = parseInt(req.query.page);
 
-                    req.session.user.recommendations.descriptor_page = newPage;
+                    req.user.recommendations.descriptor_page = newPage;
 
-                    var interactionType;
+                    let interactionType;
 
-                    if(newPage == (oldPage + 1))
-                    {
+                    if (newPage === (oldPage + 1)) {
                         interactionType = Interaction.types.browse_to_next_page_in_descriptor_list.key;
                     }
-                    else if(newPage == (oldPage - 1))
-                    {
+                    else if (newPage === (oldPage - 1)) {
                         interactionType = Interaction.types.browse_to_previous_page_in_descriptor_list.key;
                     }
 
-                    if(interactionType != null)
-                    {
-                        var lastRecommendationList = JSON.stringify(req.session.user.recommendations.lastRecommendationList);
+                    if (!isNull(interactionType)) {
+                        const lastRecommendationList = JSON.stringify(req.user.recommendations.lastRecommendationList);
 
                         new Interaction(
                             {
-                                ddr : {
-                                    performedBy : req.session.user.uri,
-                                    interactionType : interactionType,
-                                    lastDescriptorRecommendationsList : lastRecommendationList,
-                                    originallyRecommendedFor : req.params.requestedResource
+                                ddr: {
+                                    performedBy: req.user.uri,
+                                    interactionType: interactionType,
+                                    lastDescriptorRecommendationsList: lastRecommendationList,
+                                    originallyRecommendedFor: req.params.requestedResource
                                 }
                             },
-                            function(err, interaction){
-                                if(!err && interaction != null)
-                                {
-                                    interaction.save(function(err, interaction){
-                                        if(err)
-                                        {
+                            function (err, interaction) {
+                                if (!err && !isNull(interaction)) {
+                                    interaction.save(function (err, interaction) {
+                                        if (err) {
                                             console.err("Unable to record interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list. ");
                                         }
-                                        else
-                                        {
+                                        else {
                                             console.log("Successfully recorded interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list in resource with uri " + req.params.requestedResource);
                                         }
                                     });
@@ -98,14 +89,14 @@ exports.recommend_descriptors = function(req, res) {
                 }
             };
 
-            var allowedOntologies = getAllowedOntologies();
+            const allowedOntologies = getAllowedOntologies();
 
-            exports.shared.recommend_descriptors(req.params.requestedResource, req.session.user.uri, req.query.page, allowedOntologies, req.index, function(err, descriptors){
+            exports.shared.recommend_descriptors(req.params.requestedResource, req.user.uri, req.query.page, allowedOntologies, req.index, function(err, descriptors){
                 if(!err)
                 {
                     registerRecommendationRequestInteraction();
 
-                    req.session.user.recommendations.lastRecommendationList = descriptors;
+                    req.user.recommendations.lastRecommendationList = descriptors;
                     res.json(
                         {
                             result : "ok",
@@ -124,9 +115,9 @@ exports.recommend_descriptors = function(req, res) {
                 }
             },
             {
-                favorites : (recommendationMode == exports.shared.recommendation_options.favorites),
-                smart : (recommendationMode == exports.shared.recommendation_options.smart),
-                hidden : (recommendationMode == exports.shared.recommendation_options.hidden)
+                favorites : (recommendationMode === exports.shared.recommendation_options.favorites),
+                smart : (recommendationMode === exports.shared.recommendation_options.smart),
+                hidden : (recommendationMode === exports.shared.recommendation_options.hidden)
             });
         }
         else
@@ -172,29 +163,26 @@ exports.shared.recommendation_options = {
 
 exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allowedOntologies, indexConnection, callback, options)
 {
-    var ie = new InformationElement(
+    const ie = new InformationElement(
         {
             uri: resourceUri
         }
     );
 
-    var projectUri = ie.getOwnerProjectFromUri();
+    const projectUri = ie.getOwnerProjectFromUri();
 
 
-    var includeOnlyFavorites = options != null && options[exports.shared.recommendation_options.favorites];
-    var smartRecommendationMode = options != null && options[exports.shared.recommendation_options.smart];
-    var includeOnlyHiddenDescriptors = options != null && options[exports.shared.recommendation_options.hidden];
+    let includeOnlyFavorites = !isNull(options) && options[exports.shared.recommendation_options.favorites];
+    const smartRecommendationMode = !isNull(options) && options[exports.shared.recommendation_options.smart];
+    let includeOnlyHiddenDescriptors = !isNull(options) && options[exports.shared.recommendation_options.hidden];
 
     /**
      * Get Most Used Descriptors
      * @param callback
      */
-
-    var getMostUsedPublicDescriptors = function(callback)
-    {
-        Descriptor.mostUsedPublicDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, mostUsedDescriptors)
-        {
-            callback(error, mostUsedDescriptors);
+    const getMostUsedPublicDescriptors = function (callback) {
+        Descriptor.mostUsedPublicDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, mostUsedDescriptors) {
+            return callback(error, mostUsedDescriptors);
         }, allowedOntologies);
     };
 
@@ -202,23 +190,17 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
      * Get Recently Used Descriptors
      * @param callback
      */
-
-    var getUsersMostUsedDescriptors = function(userUri, callback)
-    {
-        User.findByUri(userUri, function (err, user)
-        {
-            if (!err)
-            {
-                user.mostRecentlyFilledInDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, mostRecentlyFilledIn)
-                {
-                    callback(error, mostRecentlyFilledIn);
+    const getUsersMostUsedDescriptors = function (userUri, callback) {
+        User.findByUri(userUri, function (err, user) {
+            if (!err) {
+                user.mostRecentlyFilledInDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, mostRecentlyFilledIn) {
+                    return callback(error, mostRecentlyFilledIn);
                 }, allowedOntologies);
             }
-            else
-            {
+            else {
                 var error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -228,23 +210,17 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
      * Get User's favorite descriptors
      * @param callback
      */
-
-    var getUsersFavoriteDescriptors = function(userUri, callback)
-    {
-        User.findByUri(userUri, function (err, user)
-        {
-            if (!err)
-            {
-                user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
-                {
-                    callback(error, favorites);
+    const getUsersFavoriteDescriptors = function (userUri, callback) {
+        User.findByUri(userUri, function (err, user) {
+            if (!err) {
+                user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
+                    return callback(error, favorites);
                 }, allowedOntologies);
             }
-            else
-            {
+            else {
                 var error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -253,23 +229,17 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
      * Get User's favorite descriptors
      * @param callback
      */
-
-    var getUsersHiddenDescriptors = function(userUri, callback)
-    {
-        User.findByUri(userUri, function (err, user)
-        {
-            if (!err)
-            {
-                user.hiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
-                {
-                    callback(error, hidden);
+    const getUsersHiddenDescriptors = function (userUri, callback) {
+        User.findByUri(userUri, function (err, user) {
+            if (!err) {
+                user.hiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
+                    return callback(error, hidden);
                 }, allowedOntologies);
             }
-            else
-            {
+            else {
                 var error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -278,65 +248,50 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
      * Get Project's favorite descriptors
      * @param callback
      */
+    const getProjectsFavoriteDescriptors = function (projectUri, callback) {
+        const Project = require('./project.js').Project;
 
-    var getProjectsFavoriteDescriptors = function(projectUri, callback)
-    {
-        var Project = require('./project.js').Project;
-
-        Project.findByUri(projectUri, function (err, project)
-        {
-            if (!err)
-            {
-                if(project != null)
-                {
-                    project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
-                    {
-                        callback(error, favorites);
+        Project.findByUri(projectUri, function (err, project) {
+            if (!err) {
+                if (!isNull(project)) {
+                    project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
+                        return callback(error, favorites);
                     }, allowedOntologies);
                 }
-                else
-                {
+                else {
                     var error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
                     console.error(error);
-                    callback(1, error);
+                    return callback(1, error);
                 }
             }
-            else
-            {
+            else {
                 var error = "Error fetching project : " + project + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
 
-    var getProjectsHiddenDescriptors = function(projectUri, callback)
-    {
-        var Project = require('./project.js').Project;
+    const getProjectsHiddenDescriptors = function (projectUri, callback) {
+        const Project = require('./project.js').Project;
 
-        Project.findByUri(projectUri, function (err, project)
-        {
-            if (!err)
-            {
-                if(project != null)
-                {
-                    project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
-                    {
-                        callback(error, hidden);
+        Project.findByUri(projectUri, function (err, project) {
+            if (!err) {
+                if (!isNull(project)) {
+                    project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
+                        return callback(error, hidden);
                     }, allowedOntologies);
                 }
-                else
-                {
+                else {
                     var error = "Project with uri : " + projectUri + " is not registered in this Dendro instance.";
                     console.error(error);
-                    callback(1, error);
+                    return callback(1, error);
                 }
             }
-            else
-            {
+            else {
                 var error = "Error fetching project : " + project + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -345,47 +300,37 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
      * Get descriptors used in textually similar resources
      * @param callback
      */
-
-    var getDescriptorsFromTextuallySimilarResources = function(resourceUri, callback)
-    {
-        var resource = new Resource(
+    const getDescriptorsFromTextuallySimilarResources = function (resourceUri, callback) {
+        const resource = new Resource(
             {
                 uri: resourceUri
             }
         );
 
-        resource.getTextuallySimilarResources(indexConnection, Config.limits.index.maxResults, function (err, similarResources)
-        {
-            if (!err && similarResources != null && similarResources instanceof Array)
-            {
+        resource.getTextuallySimilarResources(indexConnection, Config.limits.index.maxResults, function (err, similarResources) {
+            if (!err && !isNull(similarResources) && similarResources instanceof Array) {
                 //get properties of the similar resources
-                var getDescriptorsOfSimilarResources = function (resource, callback)
-                {
-                    resource.getPropertiesFromOntologies(allowedOntologies, function (err, descriptors)
-                    {
-                        if (!err)
-                        {
-                            for (var i = 0; i < descriptors.length; i++)
-                            {
+                const getDescriptorsOfSimilarResources = function (resource, callback) {
+                    resource.getPropertiesFromOntologies(allowedOntologies, function (err, descriptors) {
+                        if (!err) {
+                            for (let i = 0; i < descriptors.length; i++) {
                                 descriptors[i].recommendation_types = {};
                                 descriptors[i].recommendation_types[Descriptor.recommendation_types.from_textually_similar.key] = true;
                             }
                         }
 
-                        callback(err, resource); //null as 1st argument == no error
+                        return callback(err, resource); //null as 1st argument == no error
                     });
                 };
 
-                async.map(similarResources, getDescriptorsOfSimilarResources, function (err, similarResourcesWithDescriptors)
-                {
-                    callback(err, similarResourcesWithDescriptors);
+                async.map(similarResources, getDescriptorsOfSimilarResources, function (err, similarResourcesWithDescriptors) {
+                    return callback(err, similarResourcesWithDescriptors);
                 });
             }
-            else
-            {
-                var error = "Error fetching similar resources : " + similarResources + " : " + err;
+            else {
+                const error = "Error fetching similar resources : " + similarResources + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -393,23 +338,17 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
     /**
      * Get user's favorite descriptors that are most accepted in the metadata editor
      */
-
-    var getUsersMostAcceptedFavoriteDescriptorsInMetadataEditor = function(userUri, callback)
-    {
-        User.findByUri(userUri, function (err, user)
-        {
-            if (!err)
-            {
-                user.mostAcceptedFavoriteDescriptorsInMetadataEditor(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
-                {
-                    callback(error, hidden);
+    const getUsersMostAcceptedFavoriteDescriptorsInMetadataEditor = function (userUri, callback) {
+        User.findByUri(userUri, function (err, user) {
+            if (!err) {
+                user.mostAcceptedFavoriteDescriptorsInMetadataEditor(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
+                    return callback(error, hidden);
                 }, allowedOntologies);
             }
-            else
-            {
+            else {
                 var error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -417,23 +356,17 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
     /**
      * Get user's smart descriptors that are most accepted in the metadata editor
      */
-
-    var getUsersMostAcceptedSmartDescriptorsInMetadataEditor = function(userUri, callback)
-    {
-        User.findByUri(userUri, function (err, user)
-        {
-            if (!err)
-            {
-                user.mostAcceptedSmartDescriptorsInMetadataEditor(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
-                {
-                    callback(error, hidden);
+    const getUsersMostAcceptedSmartDescriptorsInMetadataEditor = function (userUri, callback) {
+        User.findByUri(userUri, function (err, user) {
+            if (!err) {
+                user.mostAcceptedSmartDescriptorsInMetadataEditor(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
+                    return callback(error, hidden);
                 }, allowedOntologies);
             }
-            else
-            {
+            else {
                 var error = "Error fetching user : " + user + " : " + err;
                 console.error(error);
-                callback(1, error);
+                return callback(1, error);
             }
         });
     };
@@ -490,26 +423,20 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                  * allowed ontologies until we have the needed
                  * recommendations
                  * **/
+                const flattenAndMergeDescriptors = function (results) {
+                    const initDescriptorsHash = function (descriptorsArray) {
+                        const hash = {};
 
-                var flattenAndMergeDescriptors = function(results)
-                {
-                    var initDescriptorsHash = function (descriptorsArray)
-                    {
-                        var hash = {};
-
-                        for (var i = 0; i < descriptorsArray.length; i++)
-                        {
-                            var descriptor = new Descriptor({
+                        for (let i = 0; i < descriptorsArray.length; i++) {
+                            const descriptor = new Descriptor({
                                 uri: descriptorsArray[i].uri
                             });
 
-                            if (hash[descriptor.prefix] == null)
-                            {
+                            if (isNull(hash[descriptor.prefix])) {
                                 hash[descriptor.prefix] = {};
                             }
 
-                            if (hash[descriptor.prefix][descriptor.shortName] == null)
-                            {
+                            if (isNull(hash[descriptor.prefix][descriptor.shortName])) {
                                 hash[descriptor.prefix][descriptor.shortName] = null;
                             }
                         }
@@ -517,74 +444,62 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                         return hash;
                     };
 
-                    var flatResults = _.compact(_.flatten(results));
-                    var descriptors = initDescriptorsHash(flatResults);
+                    const flatResults = _.compact(_.flatten(results));
+                    const descriptors = initDescriptorsHash(flatResults);
 
-                    for(var i = 0; i < flatResults.length; i++)
-                    {
-                        var dummyToParseUri = new Descriptor(flatResults[i]);
-                        var descriptorPrefix = dummyToParseUri.prefix;
-                        var descriptorShortName = dummyToParseUri.shortName;
+                    for (var i = 0; i < flatResults.length; i++) {
+                        const dummyToParseUri = new Descriptor(flatResults[i]);
+                        const descriptorPrefix = dummyToParseUri.prefix;
+                        const descriptorShortName = dummyToParseUri.shortName;
 
                         var d = descriptors[descriptorPrefix][descriptorShortName];
 
-                        if(d == null)
-                        {
+                        if (isNull(d)) {
                             d = new Descriptor(flatResults[i]);
                         }
 
-                        if(flatResults[i].recent_use_count != null)
-                        {
+                        if (typeof flatResults[i].recent_use_count !== "undefined") {
                             d.recent_use_count = flatResults[i].recent_use_count;
                         }
-                        if(flatResults[i].overall_use_count != null)
-                        {
+                        if (typeof flatResults[i].overall_use_count !== "undefined") {
                             d.overall_use_count = flatResults[i].overall_use_count;
                         }
-                        if(flatResults[i].times_smart_accepted_in_md_editor != null)
-                        {
+                        if (typeof flatResults[i].times_smart_accepted_in_md_editor !== "undefined") {
                             d.times_smart_accepted_in_md_editor = flatResults[i].times_smart_accepted_in_md_editor;
                         }
-                        if(flatResults[i].times_favorite_accepted_in_md_editor != null)
-                        {
+                        if (typeof flatResults[i].times_favorite_accepted_in_md_editor !== "undefined") {
                             d.times_favorite_accepted_in_md_editor = flatResults[i].times_favorite_accepted_in_md_editor;
                         }
-                        if(flatResults[i].last_use != null)
-                        {
+                        if (typeof flatResults[i].last_use !== "undefined") {
                             d.last_use = flatResults[i].last_use;
                         }
 
                         descriptors[descriptorPrefix][descriptorShortName] = d;
                     }
 
-                    for (var i = 0; i < flatResults.length; i++)
-                    {
+                    for (var i = 0; i < flatResults.length; i++) {
                         var d = new Descriptor(flatResults[i]);
 
-                        var fused_result_types = descriptors[d.prefix][d.shortName].recommendation_types;
-                        if(fused_result_types == null)
-                        {
+                        let fused_result_types = descriptors[d.prefix][d.shortName].recommendation_types;
+                        if (typeof fused_result_types === "undefined") {
                             fused_result_types = {};
                         }
 
-                        if(flatResults[i].recommendation_types instanceof Object)
-                        {
-                            try{
+                        if (flatResults[i].recommendation_types instanceof Object) {
+                            try {
                                 var result_rec_types = Object.keys(flatResults[i].recommendation_types);
                             }
-                            catch(e)
-                            {
+                            catch (e) {
                                 console.error("Estourei onde devia");
                             }
 
 
-                            if(result_rec_types == null)
+                            if (typeof result_rec_types === "undefined")
                                 result_rec_types = [];
 
                             //copy rec types from the result
-                            for(var j = 0; j < result_rec_types.length; j++)
-                            {
-                                var result_rec_type = result_rec_types[j];
+                            for (let j = 0; j < result_rec_types.length; j++) {
+                                const result_rec_type = result_rec_types[j];
                                 fused_result_types[result_rec_type] = true;
                             }
                         }
@@ -592,38 +507,29 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                         descriptors[d.prefix][d.shortName].recommendation_types = fused_result_types;
                     }
 
-                    var flatDescriptors = [];
+                    const flatDescriptors = [];
 
-                    for (var prefix in descriptors)
-                    {
-                        if (descriptors.hasOwnProperty(prefix))
-                        {
-                            for (var shortName in descriptors[prefix])
-                            {
-                                if (descriptors[prefix].hasOwnProperty(shortName))
-                                {
+                    for (let prefix in descriptors) {
+                        if (descriptors.hasOwnProperty(prefix)) {
+                            for (let shortName in descriptors[prefix]) {
+                                if (descriptors[prefix].hasOwnProperty(shortName)) {
                                     var descriptor = descriptors[prefix][shortName];
 
-                                    if(includeOnlyFavorites)
-                                    {
-                                        if(descriptor.recommendation_types[Descriptor.recommendation_types.project_favorite.key]
+                                    if (includeOnlyFavorites) {
+                                        if (descriptor.recommendation_types[Descriptor.recommendation_types.project_favorite.key]
                                             ||
-                                            descriptor.recommendation_types[Descriptor.recommendation_types.user_favorite.key])
-                                        {
+                                            descriptor.recommendation_types[Descriptor.recommendation_types.user_favorite.key]) {
                                             flatDescriptors.push(descriptor);
                                         }
                                     }
-                                    else if(includeOnlyHiddenDescriptors)
-                                    {
-                                        if(descriptor.recommendation_types[Descriptor.recommendation_types.project_hidden.key]
+                                    else if (includeOnlyHiddenDescriptors) {
+                                        if (descriptor.recommendation_types[Descriptor.recommendation_types.project_hidden.key]
                                             ||
-                                            descriptor.recommendation_types[Descriptor.recommendation_types.user_hidden.key])
-                                        {
+                                            descriptor.recommendation_types[Descriptor.recommendation_types.user_hidden.key]) {
                                             flatDescriptors.push(descriptor);
                                         }
                                     }
-                                    else
-                                    {
+                                    else {
                                         flatDescriptors.push(descriptor);
                                     }
                                 }
@@ -634,74 +540,59 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                     return flatDescriptors;
                 };
 
-                var rankDescriptors = function (descriptors)
-                {
-                    for (var i = 0; i < descriptors.length; i++)
-                    {
+                const rankDescriptors = function (descriptors) {
+                    for (let i = 0; i < descriptors.length; i++) {
                         var descriptor = descriptors[i];
 
                         //console.log("Ranking descriptor " + descriptor.prefixedForm);
 
-                        var score = descriptor.score;
+                        let score = descriptor.score;
 
-                        if (score == null)
-                        {
+                        if (isNull(score)) {
                             score = 0;
                         }
 
-                        var rec_types = {};
+                        let rec_types = {};
 
-                        if (descriptor.recommendation_types != null)
-                        {
+                        if (typeof descriptor.recommendation_types !== "undefined") {
                             rec_types = descriptor.recommendation_types;
                         }
-                        else
-                        {
+                        else {
                             rec_types = {};
                         }
 
                         //Hidden descriptors have Zero Score!
-                        if(rec_types[Descriptor.recommendation_types.user_hidden.key] || rec_types[Descriptor.recommendation_types.project_hidden.key])
-                        {
+                        if (rec_types[Descriptor.recommendation_types.user_hidden.key] || rec_types[Descriptor.recommendation_types.project_hidden.key]) {
                             score = 0;
                         }
-                        else
-                        {
+                        else {
                             //if NOT hidden, calculate score
-                            if (rec_types[Descriptor.recommendation_types.recently_used.key])
-                            {
+                            if (rec_types[Descriptor.recommendation_types.recently_used.key]) {
                                 score += descriptor.recent_use_count *
                                     Descriptor.recommendation_types.recently_used.weight;
                             }
-                            if (rec_types[Descriptor.recommendation_types.from_textually_similar.key])
-                            {
+                            if (rec_types[Descriptor.recommendation_types.from_textually_similar.key]) {
                                 score += Descriptor.recommendation_types.from_textually_similar *
                                     Descriptor.recommendation_types.from_textually_similar.weight;
                             }
-                            if (rec_types[Descriptor.recommendation_types.frequently_used_overall.key])
-                            {
+                            if (rec_types[Descriptor.recommendation_types.frequently_used_overall.key]) {
                                 score += descriptor.overall_use_count *
                                     Descriptor.recommendation_types.frequently_used_overall.weight;
                             }
-                            if (rec_types[Descriptor.recommendation_types.random.key])
-                            {
+                            if (rec_types[Descriptor.recommendation_types.random.key]) {
                                 score += Descriptor.recommendation_types.random.weight;
                             }
-                            if (rec_types[Descriptor.recommendation_types.user_favorite.key])
-                            {
+                            if (rec_types[Descriptor.recommendation_types.user_favorite.key]) {
                                 score += Descriptor.recommendation_types.user_favorite.weight;
                             }
-                            if (rec_types[Descriptor.recommendation_types.project_favorite.key])
-                            {
+                            if (rec_types[Descriptor.recommendation_types.project_favorite.key]) {
                                 score += Descriptor.recommendation_types.project_favorite.weight;
                             }
-                            if (rec_types[Descriptor.recommendation_types.smart_accepted_in_metadata_editor.key])
-                            {
+                            if (rec_types[Descriptor.recommendation_types.smart_accepted_in_metadata_editor.key]) {
                                 score += descriptor.times_smart_accepted_in_md_editor *
                                     Descriptor.recommendation_types.smart_accepted_in_metadata_editor.weight;
                             }
-                            if (rec_types[Descriptor.recommendation_types.favorite_accepted_in_metadata_editor.key])
-                            {
+                            if (rec_types[Descriptor.recommendation_types.favorite_accepted_in_metadata_editor.key]) {
                                 score += descriptor.times_favorite_accepted_in_md_editor *
                                     Descriptor.recommendation_types.favorite_accepted_in_metadata_editor.weight;
                             }
@@ -712,8 +603,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                     }
 
 
-                    descriptors = _.sortBy(descriptors, function (descriptor)
-                    {
+                    descriptors = _.sortBy(descriptors, function (descriptor) {
                         return descriptor.score;
                     });
 
@@ -722,54 +612,45 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                     return descriptors;
                 };
 
-                var applyPaging = function (rankedDescriptors, page)
-                {
-                    if (page != null)
-                    {
-                        var skip = page * Config.recommendation.recommendation_page_size;
+                const applyPaging = function (rankedDescriptors, page) {
+                    if (!isNull(page)) {
+                        const skip = page * Config.recommendation.recommendation_page_size;
                         rankedDescriptors = rankedDescriptors.slice(skip, skip + Config.recommendation.recommendation_page_size);
                     }
-                    else
-                    {
+                    else {
                         rankedDescriptors = rankedDescriptors.slice(0, Config.recommendation.recommendation_page_size);
                     }
 
                     return rankedDescriptors;
                 };
 
-                var padWithRandomDescriptors = function(results, callback)
-                {
-                    var numberOfDescriptorsRequiredForPadding = Config.recommendation.recommendation_page_size - results.length;
+                const padWithRandomDescriptors = function (results, callback) {
+                    const numberOfDescriptorsRequiredForPadding = Config.recommendation.recommendation_page_size - results.length;
 
-                    Descriptor.getRandomDescriptors(allowedOntologies, numberOfDescriptorsRequiredForPadding, function (err, randomDescriptors)
-                    {
-                        if (!err && randomDescriptors != null)
-                        {
+                    Descriptor.getRandomDescriptors(allowedOntologies, numberOfDescriptorsRequiredForPadding, function (err, randomDescriptors) {
+                        if (!err && !isNull(randomDescriptors)) {
                             results = results.concat(randomDescriptors);
-                            callback(err, results);
+                            return callback(err, results);
                         }
-                        else
-                        {
-                            var msg = "Error occurred when padding recommended descriptors list with random descriptors: " + err + ". Error reported: " + JSON.stringify(randomDescriptors);
+                        else {
+                            const msg = "Error occurred when padding recommended descriptors list with random descriptors: " + err + ". Error reported: " + JSON.stringify(randomDescriptors);
                             console.error(msg);
-                            callback(err, msg);
+                            return callback(err, msg);
                         }
                     });
                 };
 
-                var removeDuplicates = function(results)
-                {
-                    var uniques = _.uniq(results, false, function(result){
+                const removeDuplicates = function (results) {
+                    const uniques = _.uniq(results, false, function (result) {
                         return result.uri;
                     });
 
                     return uniques;
                 };
 
-                var removeLockedAndPrivate = function(results)
-                {
-                    var filtered = _.filter(results, function(result){
-                        var isLockedOrPrivate =  (result.locked || result.private);
+                const removeLockedAndPrivate = function (results) {
+                    const filtered = _.filter(results, function (result) {
+                        let isLockedOrPrivate = (result.locked || result.private);
                         return !isLockedOrPrivate;
                     });
 
@@ -780,9 +661,9 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 results = rankDescriptors(results);
                 results = removeLockedAndPrivate(results);
 
-                var uuid = require('uuid');
-                var recommendation_call_id = uuid.v4();
-                var recommendation_call_timestamp = new Date().toISOString();
+                const uuid = require('uuid');
+                const recommendation_call_id = uuid.v4();
+                const recommendation_call_timestamp = new Date().toISOString();
                 for(var i = 0; i < results.length; i++)
                 {
                     results[i].recommendationCallId = recommendation_call_id;
@@ -800,23 +681,23 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                      * In case we only want favorites, no need to pad with random descriptors
                      */
 
-                    callback(null, results)
+                    return callback(null, results)
                 }
                 else if (results.length < Config.recommendation.recommendation_page_size && !includeOnlyFavorites && !includeOnlyHiddenDescriptors)
                 {
                     padWithRandomDescriptors(results, function(err, results){
                         results = removeDuplicates(results);
-                        callback(err, results);
+                        return callback(err, results);
                     });
                 }
                 else
                 {
-                    callback(null, results);
+                    return callback(null, results);
                 }
             }
             else
             {
-                var error_messages = [];
+                const error_messages = [];
                 for(var i = 0; i < results.length; i++)
                 {
                     if(!(results[i] instanceof Array))
@@ -827,7 +708,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
 
                 var msg = "Error performing final ranking of descriptors. Error reported : " + err + ", Errors reported  " + JSON.stringify(error_messages);
                 console.log(msg);
-                callback(err, msg);
+                return callback(err, msg);
             }
         });
 };

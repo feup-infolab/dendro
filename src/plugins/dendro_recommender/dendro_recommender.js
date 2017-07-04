@@ -1,6 +1,10 @@
 var path = require('path');
 
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
 var Plugin = require(Config.absPathInSrcFolder("/plugins/plugin.js")).Plugin;

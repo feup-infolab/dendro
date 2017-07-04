@@ -1,25 +1,35 @@
-var Config = function() { return GLOBAL.Config; }();
-var Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
-var gfs = function() { return GLOBAL.gfs.default; }();
-var async = require('async');
+const db = function () {
+    return GLOBAL.db.default;
+}();
+const db_social = function () {
+    return GLOBAL.db.social;
+}();
+
+const gfs = function () {
+    return GLOBAL.gfs.default;
+}();
+const async = require('async');
 
 function Event (object)
 {
     Event.baseConstructor.call(this, object);
-    var self = this;
+    const self = this;
 
     self.copyOrInitDescriptors(object);
 
     self.rdf.type = "ddr:Event";
 
-    var now = new Date();
+    const now = new Date();
     self.dcterms.created = now.toISOString();
 
     return self;
@@ -31,7 +41,7 @@ function Event (object)
  var self = this;
 
  self.baseConstructor.save(function (err, newEvent) {
- callback(err, newEvent);
+ return callback(err, newEvent);
  });
  };*/
 

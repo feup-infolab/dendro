@@ -1,15 +1,19 @@
-var Config = function() { return GLOBAL.Config; }();
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var _ = require('underscore');
-var async = require('async');
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+
+const _ = require('underscore');
+const async = require('async');
 
 
 exports.recommend_descriptors = function(req, res) {
 
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    const acceptsHTML = req.accepts('html');
+    let acceptsJSON = req.accepts('json');
 
     if(!acceptsJSON && acceptsHTML)
     {
@@ -20,22 +24,22 @@ exports.recommend_descriptors = function(req, res) {
     }
     else
     {
-        var resourceUri = req.params.requestedResource;
+        const resourceUri = req.params.requestedResource;
 
-        if(req.session.user != null)
+        if(!isNull(req.user))
         {
-            var userUri = req.session.user.uri;
+            var userUri = req.user.uri;
         }
         else
         {
             var userUri = null;
         }
 
-        var allowedOntologies = _.map(Config.public_ontologies, function(prefix){
+        const allowedOntologies = _.map(Config.public_ontologies, function (prefix) {
             return Ontology.allOntologies[prefix].uri;
         });
 
-        var indexConnection = req.index;
+        const indexConnection = req.index;
 
         exports.shared.recommend_descriptors(resourceUri, userUri, req.query.page, allowedOntologies, indexConnection, function(err, descriptors){
             if(!err)
@@ -72,7 +76,7 @@ exports.shared.recommendation_options = {
 
 exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allowedOntologies, indexConnection, callback, options)
 {
-     if(allowedOntologies == null)
+     if(isNull(allowedOntologies))
      {
          allowedOntologies = _.map(Config.public_ontologies, function(prefix){
              return Ontology.allOntologies[prefix].uri;
@@ -82,9 +86,9 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
     Descriptor.all_in_ontologies(allowedOntologies, function(err, descriptors){
         if(!err)
         {
-            var uuid = require('uuid');
-            var recommendation_call_id = uuid.v4();
-            var recommendation_call_timestamp = new Date().toISOString();
+            const uuid = require('uuid');
+            const recommendation_call_id = uuid.v4();
+            const recommendation_call_timestamp = new Date().toISOString();
             
             for(let i = 0; i < descriptors.length; i++)
             {
@@ -94,11 +98,11 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
             }
             
-            callback(null, descriptors);
+            return callback(null, descriptors);
         }
         else
         {
-            callback(err, []);
+            return callback(err, []);
         }
     }, options.page_number, options.page_size);
 

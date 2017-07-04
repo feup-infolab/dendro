@@ -6,6 +6,7 @@ const chai = require('chai');
 chai.use(require('chai-http'));
 const async = require('async');
 const should = chai.should();
+const colors = require('colors');
 
 const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -27,8 +28,23 @@ function requireUncached(module) {
     return require(module)
 }
 
+const start = function()
+{
+    console.log("**********************************************".green);
+    console.log("[Adding contributors unit] Adding contributors to projects...".green);
+    console.log("**********************************************".green);
+};
+
+const end = function()
+{
+    console.log("**********************************************".blue);
+    console.log("[Adding contributors unit] Complete.".blue);
+    console.log("**********************************************".blue);
+};
+
 module.exports.setup = function(finish)
 {
+    start();
     const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
     let createProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
@@ -36,6 +52,7 @@ module.exports.setup = function(finish)
         if(err)
         {
             finish(err, results);
+            end();
         }
         else
         {
@@ -55,6 +72,7 @@ module.exports.setup = function(finish)
             }, function (err, results) {
                 //should.equal(err, null);
                 finish(err, results);
+                end();
             });
         }
     });

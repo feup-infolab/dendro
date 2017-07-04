@@ -1,7 +1,11 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 function PluginManager ()
 {

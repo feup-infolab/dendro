@@ -1,10 +1,9 @@
 <%- include ../layout/header.ejs %>
 
 <script type="text/javascript">
-    var makeToolTipHtml = function(tooltipTitle, tooltipText)
-    {
-        return "<h4>"+tooltipTitle+"</h4>" + tooltipText;
-    }
+    const makeToolTipHtml = function (tooltipTitle, tooltipText) {
+        return "<h4>" + tooltipTitle + "</h4>" + tooltipText;
+    };
 </script>
 <div class="container-fluid" ng-controller="projectEditorCtrl" ng-init="init()">
     <div class="row main-row">
@@ -13,7 +12,7 @@
         </div>
 
         <%
-        if(locals.session != null && locals.session.user != null)
+        if(locals.user != null)
         {
         %>
             <div class="col-lg-3 col-md-3 col-sm-5 col-xs-6">
@@ -223,7 +222,7 @@
                                         Select one of the resource on the file explorer to view its metadata.
                                     </div>
                                 </div>
-                                <div ng-show="edit_mode === false || edit_mode === null || showing_project_root()">
+                                <div ng-show="!edit_mode || showing_project_root()">
                                     <div ng-if="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
                                         <%- include show/file_preview.ejs %>
                                     </div>

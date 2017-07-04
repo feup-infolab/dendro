@@ -1,3 +1,9 @@
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+
 const util = require('util');
 const GridFSBucket = require('mongodb').GridFSBucket;
 
@@ -11,21 +17,20 @@ function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, p
 
     self.username = username;
     self.password = password;
-};
-
+}
 GridFSConnection.prototype.openConnection = function(callback) {
-    var self = this;
+    const self = this;
 
-    if(self.gfs != null)
+    if(!isNull(self.gfs))
     {
-        callback(1, "Database connection is already open");
+        return callback(1, "Database connection is already open");
     }
     else
     {
-        var mongo = require('mongodb');
-        var Grid = require('gridfs-stream');
+        const mongo = require('mongodb');
+        const Grid = require('gridfs-stream');
 
-        var db = new mongo.Db(self.collectionName, new mongo.Server(
+        const db = new mongo.Db(self.collectionName, new mongo.Server(
             self.hostname,
             self.port,
             {
@@ -33,9 +38,9 @@ GridFSConnection.prototype.openConnection = function(callback) {
                 poolSize: 4
             }),
             {
-                w : 'majority',
-                safe : false,
-                strict : false
+                w: 'majority',
+                safe: false,
+                strict: false
             }
         );
 
@@ -45,11 +50,11 @@ GridFSConnection.prototype.openConnection = function(callback) {
             {
                 self.db = db;
                 self.gfs = Grid(db, mongo);
-                callback(null, self);
+                return callback(null, self);
             }
             else
             {
-                callback(1, err);
+                return callback(1, err);
             }
         });
     }
@@ -59,7 +64,7 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
     let self = this;
     let message;
 
-    if(self.gfs != null)
+    if(!isNull(self.gfs))
     {
         let bucket = new GridFSBucket(self.db, { bucketName: customBucket });
         let uploadStream = bucket.openUploadStream(
@@ -76,7 +81,7 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
         uploadStream.on('error', function (err) {
             hasError = true;
             console.log('An error occurred saving the file to the database!', err);
-            callback(1, err);
+            return callback(1, err);
         });
 
         //callback on complete
@@ -93,21 +98,21 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
                 message = 'GridFS: Error saving file with uri :'+fileUri;
             }
 
-            callback(hasError, message, file);
+            return callback(hasError, message, file);
         });
 
         inputStream.pipe(uploadStream);
     }
     else
     {
-        callback(1, "Must open connection to database first!");
+        return callback(1, "Must open connection to database first!");
     }
 };
 
 GridFSConnection.prototype.get = function(fileUri, outputStream, callback, customBucket) {
     let self = this;
 
-    if(self.gfs != null && self.db != null)
+    if(!isNull(self.gfs) && !isNull(self.db))
     {
         let bucket = new GridFSBucket(self.db, { bucketName: customBucket });
         let downloadStream = bucket.openDownloadStreamByName(fileUri);
@@ -115,11 +120,11 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback, custo
         downloadStream.on('error', function(error) {
             if(error.code === "ENOENT" )
             {
-                callback(404, error);
+                return callback(404, error);
             }
             else
             {
-                callback(1, error);
+                return callback(1, error);
             }
 
         });
@@ -128,21 +133,21 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback, custo
         });
 
         downloadStream.on('end', function() {
-            var msg = "EOF of file";
+            const msg = "EOF of file";
             console.log(msg);
         });
 
         downloadStream.on('close', function() {
-            var msg = "Finished reading the file";
+            const msg = "Finished reading the file";
             console.log(msg);
-            callback(0, msg);
+            return callback(0, msg);
         });
 
         downloadStream.pipe(outputStream);
     }
     else
     {
-        callback(1, "Must open connection to database first!");
+        return callback(1, "Must open connection to database first!");
     }
 
 };
@@ -150,7 +155,7 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback, custo
 GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
     let self = this;
 
-    if(self.gfs != null && self.db != null)
+    if(!isNull(self.gfs) && !isNull(self.db))
     {
         let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
         bucket.delete(fileUri, function (err)
@@ -162,23 +167,23 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
                 {
                     if (!err && !exists)
                     {
-                        callback(null, "File " + fileUri + "successfully deleted");
+                        return callback(null, "File " + fileUri + "successfully deleted");
                     }
                     else
                     {
-                        callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
+                        return callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
                     }
                 });
             }
             else
             {
-                callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
+                return callback(err, "Error deleting file " + fileUri + ". Error reported " + result);
             }
         });
     }
     else
     {
-        callback(1, "Must open connection to database first!");
+        return callback(1, "Must open connection to database first!");
     }
 
 };

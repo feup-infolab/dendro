@@ -3,15 +3,16 @@
  *
  * @type {Function}
  */
-var Config = GLOBAL.Config = Object.create(require("./models/meta/config.js").Config);
+const Config = GLOBAL.Config = Object.create(require("./models/meta/config.js").Config);
 Config.initGlobals();
 
 /**
  * Module dependencies.
  */
 
-var express = require('express'),
+let express = require('express'),
     domain = require('domain'),
+    passport = require('passport'),
     flash = require('connect-flash'),
     http = require('http'),
     path = require('path'),
@@ -26,67 +27,45 @@ var express = require('express'),
     Q = require('q'),
     swaggerUi = require('swagger-ui-express'),
     YAML = require('yamljs'),
+    csrf = require('csurf'),
+    csrfProtection = csrf({ cookie: true }),
+
     swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
 
-var bootupPromise = Q.defer();
-var connectionsInitializedPromise = Q.defer();
+let bootupPromise = Q.defer();
+let connectionsInitializedPromise = Q.defer();
 
-var app = express();
+let app = express();
 
-var IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-var GridFSConnection = require(Config.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
-var RedisConnection = require(Config.absPathInSrcFolder("/kb/redis.js")).RedisConnection;
-var Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
-var QueryBasedRouter = Object.create(require(Config.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
-var PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
-var RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+let isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+let IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+let DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+let GridFSConnection = require(Config.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
+let RedisConnection = require(Config.absPathInSrcFolder("/kb/redis.js")).RedisConnection;
+let Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+let QueryBasedRouter = Object.create(require(Config.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
+let PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
+let Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+let Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+let UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+let RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+let User = require('./models/user.js').User;
 
-var async = require('async');
-var util = require('util');
-var mkdirp = require('mkdirp');
-
-//create temporary uploads folder if not exists
-var tempUploadsFolder = Config.tempFilesDir;
-var fs = require('fs');
-
+let async = require('async');
+let util = require('util');
+let mkdirp = require('mkdirp');
 let pid;
+let registeredUncaughtExceptionHandler;
 
-try{
-    fs.statSync(tempUploadsFolder).isDirectory();
-}
-catch(e)
-{
-    console.log("[INFO] Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...")
-    try{
-        mkdirp.sync(tempUploadsFolder);
-        console.log("[SUCCESS] Temp uploads folder " + tempUploadsFolder + " created.")
-    }
-    catch(e)
-    {
-        console.error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
-        process.exit(1);
-    }
-}
-
-var busboy = require('connect-busboy');
-app.use(busboy());
-
-var self = this;
-
-var appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::?=?)=)';
-
-if(Config.logging != null)
+//Setup logging
+if(!isNull(Config.logging))
 {
     async.series([
         function(cb)
         {
-            if (Config.logging.app_logs_folder != null && Config.logging.pipe_console_to_logfile)
+            if (!isNull(Config.logging.app_logs_folder) && (Config.logging.pipe_console_to_logfile || Config.logging.suppress_all_logs || Config.logging.suppress_all_logs))
             {
-                var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
+                const absPath = Config.absPathInApp(Config.logging.app_logs_folder);
 
                 fs.exists(absPath, function (exists)
                 {
@@ -104,57 +83,77 @@ if(Config.logging != null)
                         }
                     }
 
-                    var util = require('util');
-                    var log_file = require('file-stream-rotator').getStream({
+                    const util = require('util');
+                    const log_file = require('file-stream-rotator').getStream({
                         date_format: 'YYYYMMDD',
                         filename: path.join(absPath, '%DATE%.log'),
                         frequency: 'daily',
                         verbose: false
                     });
 
-                    var log_stdout = process.stdout;
+                    const log_stdout = process.stdout;
 
-                    console.log = function (d)
-                    { //
-                        var date = new Date().toISOString();
-                        log_file.write("[ " + date + " ] "+ util.format(d) + '\n');
-                        log_stdout.write(util.format(d) + '\n');
-
-                        if(d != null && d.stack != null)
-                        {
-                            log_file.write("[ " + date + " ] "+ util.format(d.stack) + "\n");
-                            log_stdout.write(util.format(d.stack) + '\n');
-                        }
-                    };
-
-                    console.error = function (err)
+                    if(Config.logging.suppress_all_logs)
                     {
-                        var date = new Date().toISOString();
-                        log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(err) + '\n');
-                        log_stdout.write(util.format(err) + '\n');
-
-                        if(err != null && err.stack != null)
+                        console.log = function (d)
                         {
-                            log_file.write("[ " + date + " ] "+ util.format(err.stack) + "\n");
-                            log_stdout.write(util.format(err.stack) + '\n');
-                        }
+                            let a = 1;
+                        };
+                    }
+                    else {
+                        console.log = function (d) { //
+                            const date = new Date().toISOString();
+                            log_file.write("[ " + date + " ] " + util.format(d) + '\n');
+                            log_stdout.write(util.format(d) + '\n');
 
-                        throw err;
-                    };
-
-                    process.on('uncaughtException', function (err)
+                            if (!isNull(d) && !isNull(d.stack)) {
+                                log_file.write("[ " + date + " ] " + util.format(d.stack) + "\n");
+                                log_stdout.write(util.format(d.stack) + '\n');
+                            }
+                        };
+                    }
+                    if(Config.logging.suppress_all_errors)
                     {
-                        const date = new Date().toISOString();
-
-                        if (err.stack != null)
+                        console.error = function (d)
+                        {};
+                    }
+                    else
+                    {
+                        console.error = function (err)
                         {
-                            log_file.write("[ " + date + " ] [ uncaughtException ] " + util.format(err.stack) + "\n");
-                        }
+                            const date = new Date().toISOString();
+                            log_file.write("[ " + new Date().toISOString() + " ] [ERROR] "+ util.format(err) + '\n');
+                            log_stdout.write(util.format(err) + '\n');
 
-                        pid.remove();
+                            if(!isNull(err) && !isNull(err.stack))
+                            {
+                                log_file.write("[ " + date + " ] "+ util.format(err.stack) + "\n");
+                                log_stdout.write(util.format(err.stack) + '\n');
+                            }
+                        };
+                    }
 
-                        throw err;
-                    });
+                    if (!registeredUncaughtExceptionHandler && !(typeof Config.logging.app_logs_folder !== "undefined" && Config.logging.pipe_console_to_logfile))
+                    {
+                        process.on('uncaughtException', function (err)
+                        {
+                            const date = new Date().toISOString();
+
+                            if (!isNull(err.stack))
+                            {
+                                log_file.write("[ " + date + " ] [ uncaughtException ] " + util.format(err.stack) + "\n");
+                            }
+
+                            if(!isNull(pid))
+                            {
+                                pid.remove();
+                            }
+
+                            throw err;
+                        });
+
+                        registeredUncaughtExceptionHandler = true;
+                    }
 
                     cb(null);
                 })
@@ -166,9 +165,14 @@ if(Config.logging != null)
         },
         function(cb)
         {
-            if (Config.logging.log_request_times && Config.logging.request_times_log_folder != null)
+            if(Config.logging.log_all_requests)
             {
-                var absPath = Config.absPathInApp(Config.logging.app_logs_folder);
+                app.use(morgan('combined'));
+            }
+
+            if (Config.logging.log_request_times && typeof Config.logging.request_times_log_folder !== "undefined")
+            {
+                const absPath = Config.absPathInApp(Config.logging.app_logs_folder);
 
                 fs.exists(absPath, function (exists)
                 {
@@ -177,7 +181,7 @@ if(Config.logging != null)
                         try
                         {
                             mkdirp.sync(absPath);
-                            var accessLogStream = require('file-stream-rotator').getStream({
+                            const accessLogStream = require('file-stream-rotator').getStream({
                                 date_format: 'YYYYMMDD',
                                 filename: path.join(absPath, 'times-%DATE%.log'),
                                 frequency: 'daily',
@@ -221,35 +225,66 @@ if(Config.logging != null)
 
 }
 
-var appendIndexToRequest = function(req, res, next)
+//set serialization and deserialization methods
+
+passport.serializeUser(function(user, done) {
+    done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+    done(null, new User(user));
+});
+
+//create temporary uploads folder if not exists
+let tempUploadsFolder = Config.tempFilesDir;
+
+try{
+    fs.statSync(tempUploadsFolder).isDirectory();
+}
+catch(e)
 {
+    console.log("[INFO] Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...");
+    try{
+        mkdirp.sync(tempUploadsFolder);
+        console.log("[SUCCESS] Temp uploads folder " + tempUploadsFolder + " created.")
+    }
+    catch(e)
+    {
+        console.error("[FATAL] Unable to create temporary uploads directory at " + tempUploadsFolder + "\n Error : " + JSON.stringify(e));
+        process.exit(1);
+    }
+}
+
+const busboy = require('connect-busboy');
+app.use(busboy());
+
+const self = this;
+
+const appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::?=?)=)';
+
+const appendIndexToRequest = function (req, res, next) {
     req.index = self.index;
     // for debugging
     req.util = require('util');
     req.async = require('async');
 
-    req.sha1_encode = function(value){
-        var crypto = require('crypto');
+    req.sha1_encode = function (value) {
+        const crypto = require('crypto');
         return crypto.createHash('sha1').update(value);
     };
 
     next(null, req, res);
 };
 
-var signInDebugUser = function(req, res, next)
-{
+const signInDebugUser = function (req, res, next) {
     //console.log("[INFO] Dendro is in debug mode, user " + Config.debug.session.login_user +" automatically logged in.");
-    var User = require('./models/user.js').User;
 
-    if(req.session.user == null)
-    {
+    if (isNull(req.user)) {
         User.findByUsername(Config.debug.session.login_user,
-            function(err, user) {
-                if(!err)
-                {
-                    if(req.session.user == null)
-                    {
-                        req.session.user = user;
+            function (err, user) {
+                if (!err) {
+                    if (isNull(req.user)) {
+                        req.user = user;
                         req.session.upload_manager = new UploadManager(user.ddr.username);
                     }
 
@@ -258,108 +293,92 @@ var signInDebugUser = function(req, res, next)
                 }
             });
     }
-    else
-    {
+    else {
         next(null, req, res);
     }
 };
 
-var appendLocalsToUseInViews = function(req, res, next)
-{
+const appendLocalsToUseInViews = function (req, res, next) {
     //append request and session to use directly in views and avoid passing around needless stuff
     res.locals.request = req;
     res.locals.baseURI = GLOBAL.db.default.baseURI;
 
-    if(res.locals.Config == null && Config != null)
-    {
+    if (isNull(res.locals.Config) && !isNull(Config)) {
         res.locals.Config = Config;
     }
 
-    var flashMessagesInfo = req.flash('info');
+    const flashMessagesInfo = req.flash('info');
 
-    if( flashMessagesInfo != null &&
+    if (!isNull(flashMessagesInfo) &&
         flashMessagesInfo instanceof Array &&
-        flashMessagesInfo.length > 0)
-    {
-        if(res.locals.info_messages == null)
-        {
+        flashMessagesInfo.length > 0) {
+        if (typeof res.locals.info_messages === "undefined") {
             res.locals.info_messages = flashMessagesInfo;
         }
-        else
-        {
+        else {
             res.locals.info_messages = req.info_messages.concat(flashMessagesInfo);
         }
     }
 
-    var flashMessagesError = req.flash('error');
+    const flashMessagesError = req.flash('error');
 
-    if( flashMessagesError != null &&
+    if (!isNull(flashMessagesError) &&
         flashMessagesError instanceof Array &&
-        flashMessagesError.length > 0)
-    {
-        if(res.locals.error_messages == null)
-        {
+        flashMessagesError.length > 0) {
+        if (isNull(res.locals.error_messages)) {
             res.locals.error_messages = flashMessagesError;
         }
-        else
-        {
+        else {
             res.locals.error_messages = res.locals.error_messages.concat(flashMessagesError);
         }
     }
 
-    var flashMessagesSuccess = req.flash('success');
+    const flashMessagesSuccess = req.flash('success');
 
-    if( flashMessagesSuccess != null &&
+    if (!isNull(flashMessagesSuccess) &&
         flashMessagesSuccess instanceof Array &&
-        flashMessagesSuccess.length > 0)
-    {
-        if(res.locals.success_messages == null)
-        {
+        flashMessagesSuccess.length > 0) {
+        if (typeof res.locals.success_messages === "undefined") {
             res.locals.success_messages = flashMessagesSuccess;
         }
-        else
-        {
+        else {
             res.locals.success_messages = res.locals.success_messages.concat(flashMessagesSuccess);
         }
     }
 
-    if(Config.debug.session.auto_login)
-    {
-        if(req.session != null && req.session.user != null)
-        {
+    if (Config.debug.session.auto_login) {
+        if (!isNull(req.session) && !isNull(req.user) && req.user instanceof Object) {
             //append request and session to use directly in views and avoid passing around needless stuff
             res.locals.session = req.session;
 
-            if(req.session.isAdmin == null)
-            {
-                req.session.user.isAdmin(function(err, isAdmin){
+            if (isNull(req.session.isAdmin)) {
+                req.user.isAdmin(function (err, isAdmin) {
                     req.session.isAdmin = isAdmin;
                     next(null, req, res);
 
-                    if(err)
-                    {
-                        console.error("Error checking for admin status of user " + req.session.user.uri + " !!");
+                    if (err) {
+                        console.error("Error checking for admin status of user " + req.user.uri + " !!");
                     }
                 });
             }
-            else
-            {
+            else {
                 next(null, req, res);
             }
         }
-        else
-        {
+        else {
             next(null, req, res);
         }
     }
-    else
-    {
+    else {
         res.locals.session = req.session;
+        res.locals.user = req.user;
 
-        /*if(req.session != null && req.session.user != null)
+        req.passport = passport;
+
+        /*if(req.session != null && req.user != null)
          {
          //append request and session to use directly in views and avoid passing around needless stuff
-         res.locals.user = req.session.user;
+         res.locals.user = req.user;
          res.locals.isAdmin = req.session.isAdmin;
          }*/
 
@@ -374,7 +393,7 @@ const init = function(callback)
 {
     async.waterfall([
         function(callback) {
-            var db = new DbConnection(
+            let db = new DbConnection(
                 Config.virtuosoHost,
                 Config.virtuosoPort,
                 Config.virtuosoAuth.user,
@@ -394,23 +413,23 @@ const init = function(callback)
                     //set default connection. If you want to add other connections, add them in succession.
                     GLOBAL.db.default.connection = db;
 
-                    callback(null);
+                    return callback(null);
                 }
             });
         },
         function(callback) {
             if(Config.debug.database.destroy_all_graphs_on_startup)
             {
-                var graphs = Object.keys(GLOBAL.db);
-                var conn = GLOBAL.db.default.connection;
+                const graphs = Object.keys(GLOBAL.db);
+                const conn = GLOBAL.db.default.connection;
 
                 async.map(graphs, function(graph, cb){
 
-                    var graphUri = GLOBAL.db[graph].graphUri;
+                    const graphUri = GLOBAL.db[graph].graphUri;
                     conn.deleteGraph(graphUri, function(err){
                         if(err)
                         {
-                            callback(err);
+                            return callback(err);
                         }
                         else
                         {
@@ -429,12 +448,12 @@ const init = function(callback)
                     });
                 }, function(err, res)
                 {
-                    callback(err);
+                    return callback(err);
                 });
             }
             else
             {
-                callback(null);
+                return callback(null);
             }
         },
         function(callback) {
@@ -443,7 +462,7 @@ const init = function(callback)
             {
                 async.map(Config.cache.redis.instances, function(instance, callback){
 
-                    var redisConn = new RedisConnection(
+                    const redisConn = new RedisConnection(
                         instance.options,
                         instance.database_number,
                         instance.id
@@ -466,7 +485,7 @@ const init = function(callback)
                                 if(!err)
                                 {
                                     console.log("[INFO] Deleted all cache records on Redis instance \""+ redisConn.id +"\" during bootup");
-                                    callback(null);
+                                    return callback(null);
                                 }
                                 else
                                 {
@@ -480,7 +499,7 @@ const init = function(callback)
                     if(!err)
                     {
                         console.log("[INFO] All Redis instances are up and running!");
-                        callback(null);
+                        return callback(null);
                     }
                     else
                     {
@@ -492,13 +511,13 @@ const init = function(callback)
             else
             {
                 console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to cache server.");
-                callback(null);
+                return callback(null);
             }
         },
         function(callback) {
             console.log("[INFO] Loading ontology parametrization from database... ");
 
-            var Ontology = require(Config.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
+            const Ontology = require(Config.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
 
             if(Config.startup.reload_ontologies_on_startup)
             {
@@ -508,7 +527,7 @@ const init = function(callback)
                     {
                         GLOBAL.allOntologies = ontologies;
                         console.log("[OK] Ontology information successfully loaded from database.");
-                        callback(null);
+                        return callback(null);
                     }
                     else
                     {
@@ -523,7 +542,7 @@ const init = function(callback)
                     if(!err)
                     {
                         GLOBAL.allOntologies = ontologies;
-                        callback(null);
+                        return callback(null);
                     }
                     else
                     {
@@ -543,7 +562,7 @@ const init = function(callback)
                 if(!err)
                 {
                     console.log("[OK] All ontologies and descriptors seem correctly set up.");
-                    callback(null);
+                    return callback(null);
                 }
                 else
                 {
@@ -566,14 +585,14 @@ const init = function(callback)
                     console.log("[ERROR] Unable to create connection to index " + IndexConnection.indexes.dendro.short_name);
                     process.exit(1);
                 }
-                callback(null);
+                return callback(null);
             });
         },
         function(callback) {
             console.log("[INFO] Now trying to connect to ElasticSearch Cluster to check if the required indexes exist or need to be created...");
             self.index.create_new_index(1, 1, false, function(error,result)
             {
-                if(error != null)
+                if(!isNull(error))
                 {
                     console.log("[ERROR] Unable to create or link to index " + IndexConnection.indexes.dendro.short_name);
                     process.exit(1);
@@ -581,12 +600,12 @@ const init = function(callback)
                 else
                 {
                     console.log("[OK] Indexes are up and running on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort);
-                    callback(null);
+                    return callback(null);
                 }
             });
         },
         function(callback) {
-            var gfs = new GridFSConnection(
+            const gfs = new GridFSConnection(
                 Config.mongoDBHost,
                 Config.mongoDbPort,
                 Config.mongoDbCollectionName,
@@ -604,41 +623,36 @@ const init = function(callback)
                 {
                     console.log("[OK] Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
                     GLOBAL.gfs.default.connection = gfs;
-                    callback(null);
+                    return callback(null);
                 }
             });
         },
         function(callback) {
-            var testDRConnection = function (callback)
-            {
+            const testDRConnection = function (callback) {
                 console.log("[INFO] Testing connection to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " ...");
-                var needle = require("needle");
+                const needle = require("needle");
 
-                var checkUri = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/about";
+                const checkUri = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/about";
                 // using callback
                 needle.get(checkUri, {
-                        accept : "application/json"
+                        accept: "application/json"
                     },
-                    function (error, response)
-                    {
-                        if (!error)
-                        {
+                    function (error, response) {
+                        if (!error) {
                             console.log("[OK] Successfully connected to Dendro Recommender instance, version " + response.body.version + " at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " :-)");
-                            callback(null);
+                            return callback(null);
                         }
-                        else
-                        {
+                        else {
                             console.log("[ERROR] Unable to connect to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "! Aborting startup.");
                             process.exit(1);
                         }
                     });
             };
 
-            var setupMySQLConnection = function (callback)
-            {
-                var mysql = require('mysql');
+            const setupMySQLConnection = function (callback) {
+                const mysql = require('mysql');
                 //var connection = mysql.createConnection({
-                var pool = mysql.createPool({
+                const pool = mysql.createPool({
                     host: Config.mySQLHost,
                     user: Config.mySQLAuth.user,
                     password: Config.mySQLAuth.password,
@@ -646,37 +660,29 @@ const init = function(callback)
                     multipleStatements: true
                 });
 
-                var poolOK = function (pool)
-                {
+                const poolOK = function (pool) {
                     console.log("[OK] Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
                     GLOBAL.mysql.pool = pool;
-                    callback(null);
+                    return callback(null);
                 };
 
                 //connection.connect(function (err)
-                pool.getConnection(function (err, connection)
-                {
-                    var freeConnectionsIndex = pool._freeConnections.indexOf(connection);
+                pool.getConnection(function (err, connection) {
+                    const freeConnectionsIndex = pool._freeConnections.indexOf(connection);
                     //console.log("FREE CONNECTIONS: ", freeConnectionsIndex);
-                    if (!err)
-                    {
-                        var checkAndCreateTable = function(tablename, cb)
-                        {
-                            connection.query("SHOW TABLES LIKE '"+tablename+"';", function (err, result, fields)
-                            {
+                    if (!err) {
+                        const checkAndCreateTable = function (tablename, cb) {
+                            connection.query("SHOW TABLES LIKE '" + tablename + "';", function (err, result, fields) {
                                 connection.release();
-                                if (!err)
-                                {
-                                    if (result.length > 0)
-                                    {
-                                        console.log("[INFO] Interactions table "+tablename+" exists in the MySQL database.");
+                                if (!err) {
+                                    if (result.length > 0) {
+                                        console.log("[INFO] Interactions table " + tablename + " exists in the MySQL database.");
                                         poolOK(pool);
                                     }
-                                    else
-                                    {
+                                    else {
                                         console.log("[INFO] Interactions table does not exists in the MySQL database. Attempting creation...");
 
-                                        var createTableQuery = "CREATE TABLE `"+tablename+"` (\n" +
+                                        const createTableQuery = "CREATE TABLE `" + tablename + "` (\n" +
                                             "   `id` int(11) NOT NULL AUTO_INCREMENT, \n" +
                                             "   `uri` text, \n" +
                                             "   `created` datetime DEFAULT NULL, \n" +
@@ -692,18 +698,16 @@ const init = function(callback)
                                             "   PRIMARY KEY (`id`) \n" +
                                             ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n";
 
-                                        console.log("[INFO] Interactions table "+tablename+" does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
+                                        console.log("[INFO] Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
 
                                         connection.query(
                                             createTableQuery,
-                                            function (err, result, fields)
-                                            {
+                                            function (err, result, fields) {
                                                 connection.release();
-                                                if (!err)
-                                                {
+                                                if (!err) {
                                                     console.log("[INFO] Interactions table " + tablename + " succesfully created in the MySQL database.");
 
-                                                    var createIndexesQuery =
+                                                    const createIndexesQuery =
                                                         "CREATE INDEX " + tablename + "_uri_text ON " + tablename + "(uri(255)); \n" +
                                                         "CREATE INDEX " + tablename + "_performedBy_text ON " + tablename + "(performedBy(255)); \n" +
                                                         "CREATE INDEX " + tablename + "_interaction_type_text ON " + tablename + "(interactionType(255)); \n" +
@@ -712,62 +716,53 @@ const init = function(callback)
 
                                                     connection.query(
                                                         createIndexesQuery,
-                                                        function (err, result, fields)
-                                                        {
+                                                        function (err, result, fields) {
                                                             connection.release();
-                                                            if (!err)
-                                                            {
+                                                            if (!err) {
                                                                 console.log("[INFO] Indexes on table  " + tablename + " succesfully created in the MySQL database.");
                                                                 cb(null, null);
                                                             }
-                                                            else
-                                                            {
+                                                            else {
                                                                 console.log("[ERROR] Unable to create indexes on table  " + tablename + " in the MySQL database. Query was: \n" + createIndexesQuery + "\n . Result was: \n" + result);
                                                                 process.exit(1);
                                                             }
                                                         });
                                                 }
-                                                else
-                                                {
-                                                    console.log("[ERROR] Unable to create the interactions table "+tablename+" on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+                                                else {
+                                                    console.log("[ERROR] Unable to create the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                                                     process.exit(1);
                                                 }
                                             });
                                     }
                                 }
-                                else
-                                {
-                                    console.log("[ERROR] Unable to query for the interactions table "+tablename+" on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
+                                else {
+                                    console.log("[ERROR] Unable to query for the interactions table " + tablename + " on the MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                                     process.exit(1);
                                 }
                             });
-                        }
+                        };
 
-                        var table_to_write_recommendations = Config.recommendation.getTargetTable();
+                        const table_to_write_recommendations = Config.recommendation.getTargetTable();
 
-                        checkAndCreateTable(table_to_write_recommendations, function(err, results)
-                        {
-                            if(err)
-                            {
+                        checkAndCreateTable(table_to_write_recommendations, function (err, results) {
+                            if (err) {
                                 process.exit(1);
                             }
-                            else
-                            {
+                            else {
                                 poolOK(connection);
                             }
                         });
                     }
-                    else
-                    {
+                    else {
                         console.log("[ERROR] Unable to connect to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort + "\n Error description : " + err);
                         process.exit(1);
                     }
                 });
             };
 
-            var recommendation_mode = RecommendationUtils.getActiveRecommender();
+            const recommendation_mode = RecommendationUtils.getActiveRecommender();
 
-            if (recommendation_mode != null)
+            if (typeof recommendation_mode !== "undefined")
             {
                 async.series([
                         setupMySQLConnection
@@ -776,7 +771,7 @@ const init = function(callback)
                     {
                         if (!err)
                         {
-                            callback(null);
+                            return callback(null);
                         }
                     });
             }
@@ -795,7 +790,7 @@ const init = function(callback)
                     if(Config.debug.files.delete_temp_folder_on_startup)
                     {
                         console.log("[INFO] Deleting temp files dir at " + Config.tempFilesDir);
-                        var fsextra = require('fs-extra');
+                        const fsextra = require('fs-extra');
                         fsextra.remove(Config.tempFilesDir, function (err) {
                             if(!err)
                             {
@@ -816,7 +811,7 @@ const init = function(callback)
                 },
                 function(cb)
                 {
-                    var fsextra = require('fs-extra');
+                    const fsextra = require('fs-extra');
                     fsextra.exists(Config.tempFilesDir, function(exists){
                         if(!exists)
                         {
@@ -827,7 +822,7 @@ const init = function(callback)
                             }
                             catch(e)
                             {
-                                var msg = "[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir;
+                                const msg = "[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir;
                                 console.error(msg, e);
                                 process.exit(1);
                             }
@@ -842,7 +837,7 @@ const init = function(callback)
                 if(!err)
                 {
                     console.log("[OK] Temporary files directory successfully set up at " + Config.tempFilesDir);
-                    callback(null);
+                    return callback(null);
                 }
                 else
                 {
@@ -862,7 +857,7 @@ const init = function(callback)
             connectionsInitializedPromise.reject(results);
         }
 
-        callback(err, results);
+        return callback(err, results);
     });
 };
 
@@ -873,30 +868,25 @@ const loadData = function(callback)
 
             //try to delete all demo users
 
-            var deleteUser = function(demoUser, callback)
-            {
-                var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-                User.findByUsername(demoUser.username, function(err, user){
+            const deleteUser = function (demoUser, callback) {
+                const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                User.findByUsername(demoUser.username, function (err, user) {
 
-                    if(!err)
-                    {
-                        if(user == null)
-                        {
+                    if (!err) {
+                        if (isNull(user)) {
                             //everything ok, user simply does not exist
-                            callback(null, null);
+                            return callback(null, null);
                         }
-                        else
-                        {
+                        else {
                             console.log("[INFO] Demo user with username " + user.ddr.username + " found. Attempting to delete...");
-                            user.deleteAllMyTriples(function(err, result){
-                                callback(err, result);
+                            user.deleteAllMyTriples(function (err, result) {
+                                return callback(err, result);
                             });
                         }
                     }
-                    else
-                    {
+                    else {
                         console.log("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
-                        callback(err, user);
+                        return callback(err, user);
                     }
                 });
             };
@@ -908,32 +898,28 @@ const loadData = function(callback)
                     {
                         if(Config.startup.load_databases && Config.startup.reload_demo_users_on_startup)
                         {
-                            var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                            const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
                             console.log("[INFO] Loading demo users. Demo users (in config.js file) -->" + JSON.stringify(Config.demo_mode.users));
 
-                            var createUser = function(user, callback)
-                            {
+                            const createUser = function (user, callback) {
                                 User.createAndInsertFromObject({
                                         foaf: {
                                             mbox: user.mbox,
-                                            firstName : user.firstname,
-                                            surname : user.surname
+                                            firstName: user.firstname,
+                                            surname: user.surname
                                         },
-                                        ddr:
-                                            {
-                                                username : user.username,
-                                                password : user.password
-                                            }
-                                    },
-                                    function(err, newUser){
-                                        if(!err && newUser != null)
-                                        {
-                                            callback(null,  newUser);
+                                        ddr: {
+                                            username: user.username,
+                                            password: user.password
                                         }
-                                        else
-                                        {
+                                    },
+                                    function (err, newUser) {
+                                        if (!err && !isNull(newUser)) {
+                                            return callback(null, newUser);
+                                        }
+                                        else {
                                             console.log("[ERROR] Error creating new demo User " + JSON.stringify(user));
-                                            callback(err, user);
+                                            return callback(err, user);
                                         }
                                     });
                             };
@@ -942,7 +928,7 @@ const loadData = function(callback)
                                 if(!err)
                                 {
                                     console.log("[INFO] Existing demo users recreated. ");
-                                    callback(err);
+                                    return callback(err);
                                 }
                                 else
                                 {
@@ -952,23 +938,23 @@ const loadData = function(callback)
                         }
                         else
                         {
-                            callback(null);
+                            return callback(null);
                         }
                     }
                     else
                     {
-                        callback(null);
+                        return callback(null);
                     }
                 }
                 else {
-                    callback(err);
+                    return callback(err);
                 }
             });
         },
         function(callback) {
             if(Config.startup.load_databases && Config.startup.reload_administrators_on_startup)
             {
-                var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
                 console.log("[INFO] Loading default administrators. Admins (in config.js file) -->" + JSON.stringify(Config.administrators));
 
                 async.series([
@@ -978,50 +964,45 @@ const loadData = function(callback)
                         },
                         function(callback)
                         {
-                            var makeAdmin = function(newAdministrator, callback){
+                            const makeAdmin = function (newAdministrator, callback) {
 
-                                var username = newAdministrator.username;
-                                var password = newAdministrator.password;
-                                var mbox = newAdministrator.mbox;
-                                var firstname = newAdministrator.firstname;
-                                var surname = newAdministrator.surname;
+                                const username = newAdministrator.username;
+                                const password = newAdministrator.password;
+                                const mbox = newAdministrator.mbox;
+                                const firstname = newAdministrator.firstname;
+                                const surname = newAdministrator.surname;
 
-                                User.findByUsername(username, function(err, user){
+                                User.findByUsername(username, function (err, user) {
 
-                                    if(!err && user != null)
-                                    {
-                                        user.makeGlobalAdmin(function(err, result){
-                                            callback(err, result);
+                                    if (!err && !isNull(user)) {
+                                        user.makeGlobalAdmin(function (err, result) {
+                                            return callback(err, result);
                                         });
                                     }
-                                    else
-                                    {
+                                    else {
                                         console.log("Non-existent user " + username + ". Creating new for promoting to admin.");
 
                                         User.createAndInsertFromObject({
                                                 foaf: {
                                                     mbox: mbox,
-                                                    firstName : firstname,
-                                                    surname : surname
+                                                    firstName: firstname,
+                                                    surname: surname
                                                 },
-                                                ddr:
-                                                    {
-                                                        username : username,
-                                                        password : password
-                                                    }
+                                                ddr: {
+                                                    username: username,
+                                                    password: password
+                                                }
                                             },
-                                            function(err, newUser){
-                                                if(!err && newUser != null && newUser instanceof User)
-                                                {
-                                                    newUser.makeGlobalAdmin(function(err, newUser){
-                                                        callback(err, newUser);
+                                            function (err, newUser) {
+                                                if (!err && !isNull(newUser) && newUser instanceof User) {
+                                                    newUser.makeGlobalAdmin(function (err, newUser) {
+                                                        return callback(err, newUser);
                                                     });
                                                 }
-                                                else
-                                                {
-                                                    var msg = "Error creating new User" + JSON.stringify(newUser);
+                                                else {
+                                                    const msg = "Error creating new User" + JSON.stringify(newUser);
                                                     console.error(msg);
-                                                    callback(err, msg);
+                                                    return callback(err, msg);
                                                 }
                                             });
                                     }
@@ -1037,14 +1018,14 @@ const loadData = function(callback)
                                     console.log("[ERROR] Unable to load admins. Error : " + err);
                                 }
 
-                                callback(err);
+                                return callback(err);
                             });
                         }
                     ],
                     function(err, results){
                         if(!err)
                         {
-                            callback(null);
+                            return callback(null);
                         }
                         else
                         {
@@ -1054,12 +1035,12 @@ const loadData = function(callback)
             }
             else
             {
-                callback(null);
+                return callback(null);
             }
         }],
         function(err, results)
         {
-            callback(err, results);
+            return callback(err, results);
         }
     );
 };
@@ -1084,44 +1065,45 @@ async.series([
     function(callback)
     {
         //app's own requires
-        var index = require(Config.absPathInSrcFolder("/controllers/index"));
-        var users = require(Config.absPathInSrcFolder("/controllers/users"));
-        var vertexes = require(Config.absPathInSrcFolder("/controllers/vertexes"));
-        var admin = require(Config.absPathInSrcFolder("/controllers/admin"));
-        var projects = require(Config.absPathInSrcFolder("/controllers/projects"));
-        var files = require(Config.absPathInSrcFolder("/controllers/files"));
-        var records = require(Config.absPathInSrcFolder("/controllers/records"));
-        var interactions = require(Config.absPathInSrcFolder("/controllers/interactions"));
-        var descriptors = require(Config.absPathInSrcFolder("/controllers/descriptors"));
-        var evaluation = require(Config.absPathInSrcFolder("/controllers/evaluation"));
-        var ontologies = require(Config.absPathInSrcFolder("/controllers/ontologies"));
-        var research_domains = require(Config.absPathInSrcFolder("/controllers/research_domains"));
-        var repo_bookmarks = require(Config.absPathInSrcFolder("/controllers/repo_bookmarks"));
-        var datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
-        var sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
-        var posts = require(Config.absPathInSrcFolder("/controllers/posts"));
-        var timeline = require(Config.absPathInSrcFolder("/controllers/timeline"));
-        var notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
+        const index = require(Config.absPathInSrcFolder("/controllers/index"));
+        const users = require(Config.absPathInSrcFolder("/controllers/users"));
+        const vertexes = require(Config.absPathInSrcFolder("/controllers/vertexes"));
+        const admin = require(Config.absPathInSrcFolder("/controllers/admin"));
+        const projects = require(Config.absPathInSrcFolder("/controllers/projects"));
+        const files = require(Config.absPathInSrcFolder("/controllers/files"));
+        const records = require(Config.absPathInSrcFolder("/controllers/records"));
+        const interactions = require(Config.absPathInSrcFolder("/controllers/interactions"));
+        const descriptors = require(Config.absPathInSrcFolder("/controllers/descriptors"));
+        const evaluation = require(Config.absPathInSrcFolder("/controllers/evaluation"));
+        const ontologies = require(Config.absPathInSrcFolder("/controllers/ontologies"));
+        const research_domains = require(Config.absPathInSrcFolder("/controllers/research_domains"));
+        const repo_bookmarks = require(Config.absPathInSrcFolder("/controllers/repo_bookmarks"));
+        const datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
+        const sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
+        const posts = require(Config.absPathInSrcFolder("/controllers/posts"));
+        const timeline = require(Config.absPathInSrcFolder("/controllers/timeline"));
+        const notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
 
-        var auth = require(Config.absPathInSrcFolder("/controllers/auth"));
+        const auth = require(Config.absPathInSrcFolder("/controllers/auth"));
+        const auth_orcid = require(Config.absPathInSrcFolder("/controllers/auth_orcid"));
 
-        var recommendation;
+        let recommendation;
 
-        var recommendation_mode = RecommendationUtils.getActiveRecommender();
+        const recommendation_mode = RecommendationUtils.getActiveRecommender();
 
-        if(recommendation_mode == "dendro_recommender")
+        if(recommendation_mode === "dendro_recommender")
         {
             recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation"));
         }
-        else if(recommendation_mode == "standalone")
+        else if(recommendation_mode === "standalone")
         {
             recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
         }
-        else if(recommendation_mode == "project_descriptors")
+        else if(recommendation_mode === "project_descriptors")
         {
             recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
         }
-        else if(recommendation_mode == "none")
+        else if(recommendation_mode === "none")
         {
             recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation"));
         }
@@ -1147,18 +1129,19 @@ async.series([
 
         app.use(cookieParser(appSecret));
 
+
         const MongoStore = require('connect-mongo')(expressSession);
 
-        var sessionMongoStore = new MongoStore(
+        const sessionMongoStore = new MongoStore(
             {
                 "host": Config.mongoDBHost,
                 "port": Config.mongoDbPort,
                 "db": Config.mongoDBSessionStoreCollection,
-                "url": 'mongodb://'+Config.mongoDBHost+":"+Config.mongoDbPort+"/"+Config.mongoDBSessionStoreCollection
+                "url": 'mongodb://' + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDBSessionStoreCollection
             });
 
-        var slug = require('slug');
-        var key = "dendro_" + slug(Config.host)+ "_sessionKey";
+        const slug = require('slug');
+        const key = "dendro_" + slug(Config.host) + "_sessionKey";
         app.use(expressSession(
             {
                 secret: appSecret,
@@ -1170,6 +1153,9 @@ async.series([
                 saveUninitialized: false
             })
         );
+
+        app.use(passport.initialize());
+        app.use(passport.session());
 
         app.use(flash());
 
@@ -1186,15 +1172,15 @@ async.series([
 
         // all environments
 
-        var env = process.env.NODE_ENV || 'development';
-        if ('development' == env)
+        const env = process.env.NODE_ENV || 'development';
+        if ('development' === env)
         {
             app.set('title', 'Dendro');
             app.set('theme', Config.theme);
         }
 
         //		development only
-        if ('development' == app.get('env')) {
+        if ('development' === app.get('env')) {
             app.use(errorHandler({
                 secret: appSecret,
                 resave: true,
@@ -1228,8 +1214,99 @@ async.series([
         //app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
 
         //authentication
-        app.get('/login', auth.login);
-        app.post('/login', auth.login);
+
+        if(Config.authentication.default.enabled)
+        {
+            const LocalStrategy = require('passport-local').Strategy;
+
+            passport.use(new LocalStrategy({
+                    usernameField: 'username',
+                    passwordField: 'password'
+                },
+                function(username, password, done) {
+                    const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                    User.findByUsername(username, function (err, user) {
+
+                        const bcrypt = require('bcryptjs');
+                        bcrypt.hash(password, user.ddr.salt, function(err, hashedPassword) {
+                            if(!err) {
+                                if (!isNull(user)) {
+                                    if (user.ddr.password === hashedPassword) {
+                                        user.isAdmin(function (err, isAdmin) {
+                                            if (!err) {
+                                                return done(
+                                                    err,
+                                                    user,
+                                                    {
+                                                        isAdmin : isAdmin
+                                                    });
+                                            }
+                                            else {
+                                                return done("Unable to check for admin user when authenticating with username " + username, null);
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        return done("Invalid username/password combination.", null);
+                                    }
+                                }
+                                else {
+                                    console.error(err.stack);
+                                    return done("Unknown error during authentication, calculating password hash.", null);
+                                }
+                            }
+                            else
+                            {
+                                return done("There is no user with username " + username + " registered in this system.", null);
+                            }
+                        });
+                    });
+                }
+            ));
+
+            app.get('/login', auth.login);
+            app.post('/login', auth.login);
+        }
+
+        if(Config.authentication.orcid.enabled)
+        {
+            const OrcidStrategy = require('passport-orcid').Strategy;
+
+            passport.use(new OrcidStrategy({
+                    clientID: Config.authentication.orcid.client_id,
+                    clientSecret: Config.authentication.orcid.client_secret,
+                    callbackURL: Config.baseUri + Config.authentication.orcid.callback_url
+                },
+                function(accessToken, refreshToken, params, profile, done) {
+                    const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                    User.findByORCID(params.orcid, function (err, user) {
+                        if (err)
+                        {
+                            return done(err);
+                        }
+                        if (!user)
+                        {
+                            return done(null, false,
+                                {
+                                    orcid_data : {
+                                        accessToken: accessToken,
+                                        refreshToken: refreshToken,
+                                        params: params,
+                                        profile: profile
+                                    }
+                                });
+                        }
+
+                        return done(null, user);
+                    });
+                }
+            ));
+
+            app.get('/auth/orcid', passport.authenticate('orcid'));
+            app.get('/auth/orcid/callback', csrfProtection, function(req, res, next) {
+                passport.authenticate('orcid', auth_orcid.login(req, res, next));
+            });
+        }
 
         //ontologies
 
@@ -1258,6 +1335,7 @@ async.series([
         //people listing
         app.get('/users', users.all);
         app.get('/user/:username', async.apply(Permissions.require, [Permissions.role.system.user]), users.show);
+        app.get('/username_exists', users.username_exists);
         app.get('/users/loggedUser', users.getLoggedUser);
         app.get('/user/:username/avatar', async.apply(Permissions.require, [Permissions.role.system.user]), users.get_avatar);
         app.post('/user/avatar', async.apply(Permissions.require, [Permissions.role.system.user]), users.upload_avatar);
@@ -1339,19 +1417,19 @@ async.series([
         //view a project's root
         app.all(/\/project\/([^\/]+)(\/data)?\/?$/, function(req,res, next)
         {
-            var defaultPermissionsInProjectRoot = [
+            const defaultPermissionsInProjectRoot = [
                 Permissions.project_privacy_status.public,
                 Permissions.project_privacy_status.metadata_only,
                 Permissions.role.project.contributor,
                 Permissions.role.project.creator
             ];
 
-            var modificationPermissions = [
+            const modificationPermissions = [
                 Permissions.role.project.contributor,
                 Permissions.role.project.creator
             ];
 
-            var administrationPermissions = [
+            const administrationPermissions = [
                 Permissions.role.project.creator
             ];
 
@@ -1360,152 +1438,152 @@ async.series([
             req.params.requestedResource = Config.baseUri + "/project/" + req.params.handle;
             req.params.is_project_root = true;
 
-            var queryBasedRoutes = {
+            const queryBasedRoutes = {
                 get: [
                     //downloads
                     {
-                        queryKeys : ['download'],
-                        handler : files.download,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot download this project."
+                        queryKeys: ['download'],
+                        handler: files.download,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot download this project."
                     },
                     //backups
                     {
-                        queryKeys : ['backup'],
-                        handler : files.serve,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot backup this project."
+                        queryKeys: ['backup'],
+                        handler: files.serve,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot backup this project."
                     },
                     //list contents
                     {
-                        queryKeys : ['ls'],
-                        handler : files.ls,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot list the contents of this project."
+                        queryKeys: ['ls'],
+                        handler: files.ls,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot list the contents of this project."
                     },
                     //descriptor recommendations
                     {
-                        queryKeys : ['metadata_recommendations'],
-                        handler : recommendation.recommend_descriptors,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot fetch descriptor recommendations for this project."
+                        queryKeys: ['metadata_recommendations'],
+                        handler: recommendation.recommend_descriptors,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot fetch descriptor recommendations for this project."
                     },
                     //recent changes
                     {
-                        queryKeys : ['recent_changes'],
-                        handler : projects.recent_changes,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot fetch recent changes for this project."
+                        queryKeys: ['recent_changes'],
+                        handler: projects.recent_changes,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot fetch recent changes for this project."
                     },
                     //project stats
                     {
-                        queryKeys : ['stats'],
-                        handler : projects.stats,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot fetch recent changes for this project."
+                        queryKeys: ['stats'],
+                        handler: projects.stats,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot fetch recent changes for this project."
                     },
                     //recommendation ontologies
                     {
-                        queryKeys : ['recommendation_ontologies'],
-                        handler : ontologies.get_recommendation_ontologies,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
+                        queryKeys: ['recommendation_ontologies'],
+                        handler: ontologies.get_recommendation_ontologies,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
                     },
                     //show versions of resources
                     {
-                        queryKeys : ['version'],
-                        handler : records.show_version,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot get versions of this project because you do not have permissions to access this project."
+                        queryKeys: ['version'],
+                        handler: records.show_version,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot get versions of this project because you do not have permissions to access this project."
                     },
                     //auto completing descriptors
                     {
-                        queryKeys : ['descriptors_autocomplete'],
-                        handler : descriptors.descriptors_autocomplete,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
+                        queryKeys: ['descriptors_autocomplete'],
+                        handler: descriptors.descriptors_autocomplete,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
 
                     },
                     //auto completing ontologies
                     {
-                        queryKeys : ['ontology_autocomplete'],
-                        handler : ontologies.ontologies_autocomplete,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
+                        queryKeys: ['ontology_autocomplete'],
+                        handler: ontologies.ontologies_autocomplete,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
                     },
                     //auto completing users
                     {
-                        queryKeys : ['user_autocomplete'],
-                        handler : users.users_autocomplete,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
+                        queryKeys: ['user_autocomplete'],
+                        handler: users.users_autocomplete,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot get user autocompletions in this resource because you do not have permissions to access this project."
                     },
                     //thumb nails
                     {
-                        queryKeys : ['thumbnail'],
-                        handler : files.thumbnail,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot get thumbnail for this project because you do not have permissions to access this project."
+                        queryKeys: ['thumbnail'],
+                        handler: files.thumbnail,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot get thumbnail for this project because you do not have permissions to access this project."
                     },
                     {
-                        queryKeys : ['get_contributors'],
-                        handler : projects.get_contributors,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot get contributors for this project because you do not have permissions to access this project."
+                        queryKeys: ['get_contributors'],
+                        handler: projects.get_contributors,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot get contributors for this project because you do not have permissions to access this project."
                     },
                     //administration page
                     {
-                        queryKeys : ['administer'],
-                        handler : projects.administer,
-                        permissions : administrationPermissions,
-                        authentication_error : "Permission denied : cannot access the administration area of the project because you are not its creator."
+                        queryKeys: ['administer'],
+                        handler: projects.administer,
+                        permissions: administrationPermissions,
+                        authentication_error: "Permission denied : cannot access the administration area of the project because you are not its creator."
                     },
                     //metadata
                     {
                         queryKeys: ['metadata'],
-                        handler : projects.show,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot get metadata for this project because you do not have permissions to access this project."
+                        handler: projects.show,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot get metadata for this project because you do not have permissions to access this project."
                     },
                     //metadata deep
                     {
                         queryKeys: ['metadata', 'deep'],
-                        handler : projects.show,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access this project."
+                        handler: projects.show,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot get metadata (recursive) for this project because you do not have permissions to access this project."
                     },
                     //default case
                     {
-                        queryKeys : [],
-                        handler : projects.show,
-                        permissions : defaultPermissionsInProjectRoot,
-                        authentication_error : "Permission denied : cannot show the project because you do not have permissions to access this project."
+                        queryKeys: [],
+                        handler: projects.show,
+                        permissions: defaultPermissionsInProjectRoot,
+                        authentication_error: "Permission denied : cannot show the project because you do not have permissions to access this project."
                     }
                 ],
                 post: [
                     {
-                        queryKeys : ['mkdir'],
-                        handler : files.mkdir,
-                        permissions : modificationPermissions,
-                        authentication_error : "Permission denied : cannot create new folder because you do not have permissions to edit this project."
+                        queryKeys: ['mkdir'],
+                        handler: files.mkdir,
+                        permissions: modificationPermissions,
+                        authentication_error: "Permission denied : cannot create new folder because you do not have permissions to edit this project."
                     },
                     {
-                        queryKeys : ['restore'],
-                        handler : files.restore,
-                        permissions : modificationPermissions,
-                        authentication_error : "Permission denied : cannot restore project from backup because you do not have permissions to edit this project."
+                        queryKeys: ['restore'],
+                        handler: files.restore,
+                        permissions: modificationPermissions,
+                        authentication_error: "Permission denied : cannot restore project from backup because you do not have permissions to edit this project."
                     },
                     {
-                        queryKeys : ['administer'],
-                        handler : projects.administer,
-                        permissions : administrationPermissions,
-                        authentication_error : "Permission denied : cannot access the administration area of the project because you are not its creator."
+                        queryKeys: ['administer'],
+                        handler: projects.administer,
+                        permissions: administrationPermissions,
+                        authentication_error: "Permission denied : cannot access the administration area of the project because you are not its creator."
                     },
                     {
-                        queryKeys : ['export_to_repository'],
-                        handler : datasets.export_to_repository,
-                        permissions : modificationPermissions,
-                        authentication_error : "Permission denied : cannot export project because you do not have permissions to edit this project."
+                        queryKeys: ['export_to_repository'],
+                        handler: datasets.export_to_repository,
+                        permissions: modificationPermissions,
+                        authentication_error: "Permission denied : cannot export project because you do not have permissions to edit this project."
                     }
                 ]
                 /*all: [
@@ -1526,7 +1604,7 @@ async.series([
         app.all(/\/project\/([^\/]+)(\/data\/.+\/?)$/,
             function(req,res, next)
             {
-                var defaultPermissionsInProjectBranch = [
+                const defaultPermissionsInProjectBranch = [
                     Permissions.project_privacy_status.public,
                     Permissions.role.project.contributor,
                     Permissions.role.project.creator
@@ -1545,21 +1623,21 @@ async.series([
 
                 req.params.is_project_root = false;
 
-                var queryBasedRoutes = {
+                const queryBasedRoutes = {
                     get: [
                         //downloads
                         {
-                            queryKeys : ['download'],
-                            handler : files.download,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot download this resource because you do not have permissions to access its project."
+                            queryKeys: ['download'],
+                            handler: files.download,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot download this resource because you do not have permissions to access its project."
                         },
                         //backups
                         {
-                            queryKeys : ['backup'],
-                            handler : files.serve,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot backup this resource because you do not have permissions to access its project."
+                            queryKeys: ['backup'],
+                            handler: files.serve,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot backup this resource because you do not have permissions to access its project."
                         },
                         //bagits
                         //{
@@ -1570,200 +1648,200 @@ async.series([
                         //},
                         //list contents
                         {
-                            queryKeys : ['ls'],
-                            handler :files.ls,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
+                            queryKeys: ['ls'],
+                            handler: files.ls,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot list the contents of this resource because you do not have permissions to access its project."
                         },
                         //descriptor recommendations
                         {
-                            queryKeys : ['metadata_recommendations'],
-                            handler : recommendation.recommend_descriptors,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get descriptor recommendations for this resource because you do not have permissions to access its project."
+                            queryKeys: ['metadata_recommendations'],
+                            handler: recommendation.recommend_descriptors,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get descriptor recommendations for this resource because you do not have permissions to access its project."
                         },
                         //recent changes
                         {
-                            queryKeys : ['recent_changes'],
-                            handler : projects.recent_changes,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get recent changes for this resource because you do not have permissions to access its project."
+                            queryKeys: ['recent_changes'],
+                            handler: projects.recent_changes,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get recent changes for this resource because you do not have permissions to access its project."
                         },
                         //project stats
                         {
-                            queryKeys : ['stats'],
-                            handler : projects.stats,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get project stats because you do not have permissions to access this project."
+                            queryKeys: ['stats'],
+                            handler: projects.stats,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get project stats because you do not have permissions to access this project."
                         },
                         //recommendation ontologies
                         {
-                            queryKeys : ['recommendation_ontologies'],
-                            handler : ontologies.get_recommendation_ontologies,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
+                            queryKeys: ['recommendation_ontologies'],
+                            handler: ontologies.get_recommendation_ontologies,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get recommendation ontologies because you do not have permissions to access this project."
                         },
                         //show versions of resources
                         {
-                            queryKeys : ['version'],
-                            handler : records.show_version,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get versions of this resource because you do not have permissions to access this project."
+                            queryKeys: ['version'],
+                            handler: records.show_version,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get versions of this resource because you do not have permissions to access this project."
                         },
                         //auto completing descriptors
                         {
-                            queryKeys : ['descriptor_autocomplete'],
-                            handler : descriptors.descriptors_autocomplete,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get descriptor autocompletions in this resource because you do not have permissions to access this project."
+                            queryKeys: ['descriptor_autocomplete'],
+                            handler: descriptors.descriptors_autocomplete,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get descriptor autocompletions in this resource because you do not have permissions to access this project."
                         },
                         //auto completing ontologies
                         {
-                            queryKeys : ['ontology_autocomplete'],
-                            handler : ontologies.ontologies_autocomplete,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
+                            queryKeys: ['ontology_autocomplete'],
+                            handler: ontologies.ontologies_autocomplete,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get ontology autocompletions in this resource because you do not have permissions to access this project."
                         },
                         //thumb nails
                         {
-                            queryKeys : ['thumbnail'],
-                            handler : files.thumbnail,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get thumbnail for this resource because you do not have permissions to access this project."
+                            queryKeys: ['thumbnail'],
+                            handler: files.thumbnail,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get thumbnail for this resource because you do not have permissions to access this project."
                         },
                         //metadata
                         {
                             queryKeys: ['metadata'],
-                            handler : records.show,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get metadata for this resource because you do not have permissions to access this project."
+                            handler: records.show,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get metadata for this resource because you do not have permissions to access this project."
                         },
                         //metadata deep
                         {
                             queryKeys: ['metadata', 'deep'],
-                            handler : records.show_deep,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get metadata (recursive) for this resource because you do not have permissions to access this project."
+                            handler: records.show_deep,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get metadata (recursive) for this resource because you do not have permissions to access this project."
                         },
                         //parent metadata
                         {
                             queryKeys: ['parent_metadata'],
-                            handler : records.show_parent,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get parent metadata for this resource because you do not have permissions to access this project."
+                            handler: records.show_parent,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get parent metadata for this resource because you do not have permissions to access this project."
                         },
                         //change_log
                         {
                             queryKeys: ['change_log'],
-                            handler : projects.change_log,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get the change log of this resource because you do not have permissions to access this project."
+                            handler: projects.change_log,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get the change log of this resource because you do not have permissions to access this project."
                         },
                         //recommendation_ontologies
                         {
                             queryKeys: ['recommendation_ontologies'],
-                            handler : ontologies.get_recommendation_ontologies,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot get the recommended ontologies for this resource because you do not have permissions to access this project."
+                            handler: ontologies.get_recommendation_ontologies,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot get the recommended ontologies for this resource because you do not have permissions to access this project."
                         },
                         //serve files
                         {
                             queryKeys: ['serve'],
-                            handler : files.serve,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot serve this file because you do not have permissions to access this project."
+                            handler: files.serve,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot serve this file because you do not have permissions to access this project."
                         },
                         //serve files in base64
                         {
                             queryKeys: ['serve_base64'],
-                            handler : files.serve_base64,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot serve this file (base64) because you do not have permissions to access this project."
+                            handler: files.serve_base64,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot serve this file (base64) because you do not have permissions to access this project."
                         },
                         //serve files serialized
                         {
                             queryKeys: ['data'],
-                            handler : files.data,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot serve serialized data for this resource because you do not have permissions to access this project."
+                            handler: files.data,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot serve serialized data for this resource because you do not have permissions to access this project."
                         },
                         //metadata_evaluation
                         {
                             queryKeys: ['metadata_evaluation'],
-                            handler : evaluation.metadata_evaluation,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot calculate metadata evaluation for this resource because you do not have permissions to access this project."
+                            handler: evaluation.metadata_evaluation,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot calculate metadata evaluation for this resource because you do not have permissions to access this project."
                         },
                         //default case
                         {
-                            queryKeys : [],
-                            handler : projects.show,
-                            permissions : defaultPermissionsInProjectBranch,
-                            authentication_error : "Permission denied : cannot show the resource because you do not have permissions to access this project."
+                            queryKeys: [],
+                            handler: projects.show,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot show the resource because you do not have permissions to access this project."
                         }
                     ],
                     post: [
                         {
-                            queryKeys : ['update_metadata'],
-                            handler : records.update,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot update the resource metadata because you do not have permissions to edit this project."
+                            queryKeys: ['update_metadata'],
+                            handler: records.update,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot update the resource metadata because you do not have permissions to edit this project."
                         },
                         {
-                            queryKeys : ['restore_metadata_version'],
-                            handler : records.restore_metadata_version,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot restore the resource metadata because you do not have permissions to edit this project."
+                            queryKeys: ['restore_metadata_version'],
+                            handler: records.restore_metadata_version,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot restore the resource metadata because you do not have permissions to edit this project."
                         },
                         {
-                            queryKeys : ['register_interaction'],
-                            handler : interactions.register,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot register the interaction because you do not have permissions to edit this project."
+                            queryKeys: ['register_interaction'],
+                            handler: interactions.register,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot register the interaction because you do not have permissions to edit this project."
                         },
                         {
-                            queryKeys : ['remove_recommendation_ontology'],
-                            handler : interactions.reject_ontology_from_quick_list,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot remove the recommendation ontology interaction because you do not have permissions to edit this project."
+                            queryKeys: ['remove_recommendation_ontology'],
+                            handler: interactions.reject_ontology_from_quick_list,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot remove the recommendation ontology interaction because you do not have permissions to edit this project."
                         },
                         {
-                            queryKeys : ['mkdir'],
-                            handler : files.mkdir,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot create new folder because you do not have permissions to edit this project."
+                            queryKeys: ['mkdir'],
+                            handler: files.mkdir,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot create new folder because you do not have permissions to edit this project."
                         },
                         {
-                            queryKeys : ['restore'],
-                            handler : files.restore,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot restore previous version of resource because you do not have permissions to edit this project."
+                            queryKeys: ['restore'],
+                            handler: files.restore,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot restore previous version of resource because you do not have permissions to edit this project."
                         },
                         {
-                            queryKeys : ['undelete'],
-                            handler : files.undelete,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot undelete resource because you do not have permissions to edit this project."
+                            queryKeys: ['undelete'],
+                            handler: files.undelete,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot undelete resource because you do not have permissions to edit this project."
                         },
                         {
-                            queryKeys : ['export_to_repository'],
-                            handler : datasets.export_to_repository,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot export resource because you do not have permissions to edit this project."
+                            queryKeys: ['export_to_repository'],
+                            handler: datasets.export_to_repository,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot export resource because you do not have permissions to edit this project."
                         }
                     ],
-                    delete : [
+                    delete: [
                         {
-                            queryKeys : ['really_delete'],
-                            handler : files.rm,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot delete resource because you do not have permissions to edit this project."
+                            queryKeys: ['really_delete'],
+                            handler: files.rm,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit this project."
                         },
                         {
-                            queryKeys : [],
-                            handler : files.rm,
-                            permissions : modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot delete resource because you do not have permissions to edit this project."
+                            queryKeys: [],
+                            handler: files.rm,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot delete resource because you do not have permissions to edit this project."
                         }
                     ],
                     all: [
@@ -1772,7 +1850,7 @@ async.series([
                             queryKeys: ['upload'],
                             handler: files.upload,
                             permissions: modificationPermissionsBranch,
-                            authentication_error : "Permission denied : cannot upload resource because you do not have permissions to edit this project."
+                            authentication_error: "Permission denied : cannot upload resource because you do not have permissions to edit this project."
                         }
                     ]
                 };
@@ -1809,13 +1887,13 @@ async.series([
         app.get(/(\/app\/views\/.+)\.html$/,
             function(req, res, next){
 
-                var requestedEJSPath = path.join(Config.getPathToPublicFolder(), req.params[0]) + ".ejs";
+                const requestedEJSPath = path.join(Config.getPathToPublicFolder(), req.params[0]) + ".ejs";
 
                 fs.exists(requestedEJSPath, function(exists) {
                     if (exists) {
                         fs.readFile(requestedEJSPath, 'utf-8', function(err, data) {
                             if(!err) {
-                                var ejs = require('ejs');
+                                const ejs = require('ejs');
                                 res.send(ejs.render(data, { locals : res.locals} ));
                             }
                             else
@@ -1846,19 +1924,18 @@ async.series([
              });*/
 
 
-            var server = http.createServer(function (req, res) {
+            const server = http.createServer(function (req, res) {
 
-                var reqd = domain.create();
+                const reqd = domain.create();
                 reqd.add(req);
                 reqd.add(res);
 
                 // On error dispose of the domain
                 reqd.on('error', function (error) {
-                    console.error('Error!\n' +  "Code: \n" + error.code + " \nMessage: \n" +error.message + "Request URL: \n" + req.originalRequestUrl);
+                    console.error('Error!\n' + "Code: \n" + error.code + " \nMessage: \n" + error.message + "Request URL: \n" + req.originalRequestUrl);
 
-                    if(error.stack != null)
-                    {
-                        var util = require('util');
+                    if (!isNull(error.stack)) {
+                        const util = require('util');
                         console.error('Stack Trace : ' + util.format(error.stack));
                     }
 
@@ -1873,7 +1950,7 @@ async.series([
             //dont start server twice (for testing)
             //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
 
-            if(process.env.NODE_ENV != 'test')
+            if(process.env.NODE_ENV !== 'test')
             {
                 server.listen(app.get('port'), function() {
                     const npid = require('npid');
@@ -1894,17 +1971,8 @@ async.series([
                         process.exit(err);
                     });
 
-                    if (!(Config.logging.app_logs_folder != null && Config.logging.pipe_console_to_logfile))
-                    {
-                        process.on('uncaughtException', function (err)
-                        {
-                            pid.remove();
-                            throw err;
-                        });
-                    }
-
                     console.log('Express server listening on port ' + app.get('port'));
-                    var appInfo = {server: server, app: app};
+                    const appInfo = {server: server, app: app};
                     bootupPromise.resolve(appInfo);
                 });
             }
@@ -1919,7 +1987,7 @@ async.series([
             {
                 setInterval(function ()
                 {
-                    var pretty = require('prettysize');
+                    const pretty = require('prettysize');
                     console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
                     if (typeof gc === 'function')
                     {
@@ -1931,8 +1999,8 @@ async.series([
 
             // Handle 404
             app.use(function(req, res) {
-                var acceptsHTML = req.accepts('html');
-                var acceptsJSON = req.accepts('json');
+                let acceptsHTML = req.accepts('html');
+                const acceptsJSON = req.accepts('json');
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
                     res.status(404).json(
@@ -1954,8 +2022,8 @@ async.series([
 
             // Handle 405
             app.use(function(req, res) {
-                var acceptsHTML = req.accepts('html');
-                var acceptsJSON = req.accepts('json');
+                let acceptsHTML = req.accepts('html');
+                const acceptsJSON = req.accepts('json');
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
                     res.status(405).json(
@@ -1977,8 +2045,8 @@ async.series([
 
             // Handle 500
             app.use(function(error, req, res, next) {
-                var acceptsHTML = req.accepts('html');
-                var acceptsJSON = req.accepts('json');
+                let acceptsHTML = req.accepts('html');
+                const acceptsJSON = req.accepts('json');
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
                     res.status(500).json(

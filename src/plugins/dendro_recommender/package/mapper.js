@@ -37,7 +37,7 @@ Mapper.getEndpoint = function(object)
         var mappedObject = mapper.endpoint;
         return mappedObject;
     }
-}
+};
 
 Mapper.map = function(object)
 {

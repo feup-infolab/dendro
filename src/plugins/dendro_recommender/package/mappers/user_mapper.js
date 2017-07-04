@@ -1,5 +1,9 @@
 var path = require('path');
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;

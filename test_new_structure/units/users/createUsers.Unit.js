@@ -5,17 +5,34 @@ const chai = require('chai');
 chai.use(require('chai-http'));
 const should = chai.should();
 const async = require('async');
+const colors = require('colors');
 
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
+const start = function()
+{
+    console.log("**********************************************".green);
+    console.log("[Create Users Unit] Creating new users...".green);
+    console.log("**********************************************".green);
+};
+
+const end = function()
+{
+    console.log("**********************************************".blue);
+    console.log("[Create Users Unit] Complete".blue);
+    console.log("**********************************************".blue);
+};
+
 module.exports.setup = function(finish)
 {
+    start();
     let bootupUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
 
     bootupUnit.setup(function (err, results) {
         if(err)
         {
+            end();
             finish(err, results);
         }
         else
@@ -131,13 +148,14 @@ module.exports.setup = function(finish)
                         function(err, results){
                             if(!err)
                             {
-                                //callback(null);
+                                end();
                                 finish(err, results);
                             }
                             else
                             {
                                 var msg = "Error creating Admins at createUsers.Unit";
                                 console.error(msg);
+                                end();
                                 finish(err, results);
                             }
                         });
@@ -146,6 +164,7 @@ module.exports.setup = function(finish)
                 {
                     var msg = "Error creating users at createUsers.Unit";
                     console.error(msg);
+                    end();
                     finish(err, results);
                 }
             });

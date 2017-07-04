@@ -77,6 +77,8 @@ describe("Metadata Project mkdir", function (done) {
                 projectUtils.createFolderInProjectRoot(true, agent, metadataProject.handle, folder.name, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.result.should.equal("ok");
+                    res.body.new_folder.nie.title.should.equal(folder.name);
+                    res.body.new_folder.nie.isLogicalPartOf.should.contain(metadataProject.handle);
                     done();
                 });
             });
@@ -87,6 +89,8 @@ describe("Metadata Project mkdir", function (done) {
                 projectUtils.createFolderInProjectRoot(true, agent, metadataProject.handle, folderForDemouser2.name, function (err, res) {
                     res.statusCode.should.equal(200);
                     res.body.result.should.equal("ok");
+                    res.body.new_folder.nie.title.should.equal(folderForDemouser2.name);
+                    res.body.new_folder.nie.isLogicalPartOf.should.contain(metadataProject.handle);
                     done();
                 });
             });

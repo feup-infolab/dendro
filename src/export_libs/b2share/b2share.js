@@ -1,8 +1,11 @@
 /**
  * Created by Fábio on 31/03/2016.
  */
+const Config = function () {
+    return GLOBAL.Config;
+}();
 
-var Config = function() { return GLOBAL.Config; }();
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 B2Share.apiURL = Config.eudatBaseUrl + "/api";
 B2Share.depositionURL = B2Share.apiURL + "/deposition/";
@@ -11,17 +14,16 @@ B2Share.depositionFilesPath =  "/files";
 B2Share.commitDepositionPath = "/commit";
 B2Share.recordPath = Config.eudatBaseUrl + "/record";
 
-var request = require('request');
+const request = require('request');
 
 function B2Share(accessToken){
-    if(accessToken == null){
+    if(isNull(accessToken)){
         throw "Undefined Access Token";
     }
     else{
         this.accessToken = accessToken;
     }
-};
-
+}
 B2Share.prototype.createDeposition = function(callback){
     request.post({
         url: B2Share.depositionsURL + "?access_token=" + this.accessToken,
@@ -29,67 +31,67 @@ B2Share.prototype.createDeposition = function(callback){
     }, function(error, result, deposition){
         if(error){
             console.log("[B2SHARE] Deposition Error: " + error);
-            callback(true);
+            return callback(true);
         }
         else{
-            if(result.statusCode != 201){
+            if(result.statusCode !== 201){
                 console.log("[B2SHARE] Deposition Error: " + JSON.stringify(result));
-                callback(true);
+                return callback(true);
             }
             else{
                 console.log("[B2SHARE] Deposition Created");
-                callback(false, deposition);
+                return callback(false, deposition);
             }
         }
     });
 };
 
 B2Share.prototype.uploadFileToDeposition = function(depositionID, file, callback){
-    var fs = require('fs');
-    var r = request.post({
+    const fs = require('fs');
+    const r = request.post({
         url: B2Share.depositionURL + depositionID + B2Share.depositionFilesPath + "?access_token=" + this.accessToken,
         json: true,
         rejectUnauthorized: false
-    }, function(error, result, data){
-        if(error){
+    }, function (error, result, data) {
+        if (error) {
             console.log("[B2SHARE] File Upload error: " + error);
-            callback(true);
+            return callback(true);
         }
-        else{
-            if(result.statusCode != 200){
+        else {
+            if (result.statusCode !== 200) {
                 console.log("[B2SHARE] File Upload error:" + JSON.stringify(result));
-                callback(true);
+                return callback(true);
             }
-            else{
-                console.log("[B2SHARE] Success Uploading File" );
-                callback(false);
+            else {
+                console.log("[B2SHARE] Success Uploading File");
+                return callback(false);
             }
         }
     });
 
-    var form = r.form();
+    const form = r.form();
     form.append('file', fs.createReadStream(file));
 };
 
 B2Share.prototype.uploadMultipleFilesToDeposition = function (depositionID, files, callback) {
-    var async = require('async');
-    var self = this;
+    const async = require('async');
+    const self = this;
 
     async.each(files, function(file, callback){
         self.uploadFileToDeposition(depositionID, file, function(error){
             if(error){
-                callback(true);
+                return callback(true);
             }
             else{
-                callback(false);
+                return callback(false);
             }
         });
     }, function(error){
         if(error){
-            callback(true);
+            return callback(true);
         }
         else{
-            callback(false);
+            return callback(false);
         }
     });
 };
@@ -103,16 +105,16 @@ B2Share.prototype.depositionPublish = function(depositionID, metadata, callback)
     }, function(error, result, data){
         if(error){
             console.log("[B2SHARE] Error Publishing Dataset: " + error);
-            callback(true);
+            return callback(true);
         }
         else{
-            if(result.statusCode != 201){
+            if(result.statusCode !== 201){
                 console.log("[B2SHARE] Error Publishing Dataset:" + JSON.stringify(result));
-                callback(true);
+                return callback(true);
             }
             else{
                 console.log("[B2SHARE] Success Committing Deposit: " + JSON.stringify(result));
-                callback(false, result);
+                return callback(false, result);
             }
         }
     });

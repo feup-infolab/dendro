@@ -1,4 +1,8 @@
-const Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
@@ -16,7 +20,7 @@ const path = require('path');
  */
 exports.users_autocomplete = function(req, res){
 
-    if(req.params.requestedResource != null)
+    if(!isNull(req.params.requestedResource))
     {
 
         User.autocomplete_search(
@@ -41,34 +45,32 @@ exports.users_autocomplete = function(req, res){
             }
         );
     }
-}
+};
 
 exports.all = function(req, res){
 
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
-    var viewVars = {
-        title : 'Researchers in the knowledge base'
+    let viewVars = {
+        title: 'Researchers in the knowledge base'
     };
 
     viewVars = DbConnection.paginate(req,
         viewVars
     );
 
-    var getUserCount = function(cb)
-    {
-        User.getCount(function(err, count){
+    const getUserCount = function (cb) {
+        User.getCount(function (err, count) {
             cb(err, count);
         });
-    }
+    };
 
-    var getAllUsers = function(cb)
-    {
-        User.all(function(err, users) {
+    const getAllUsers = function (cb) {
+        User.all(function (err, users) {
             cb(err, users);
         }, req, null, [Config.types.private, Config.types.locked], [Config.types.api_readable]);
-    }
+    };
 
     async.parallel(
         [
@@ -79,7 +81,7 @@ exports.all = function(req, res){
             {
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
-                    var users = results[1];
+                    const users = results[1];
                     res.json(
                         users
                     );
@@ -117,17 +119,54 @@ exports.all = function(req, res){
     );
 };
 
-exports.show = function(req, res){
-    var username = req.params["username"];
-
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+exports.username_exists = function(req, res){
+    const username = req.query["username"];
 
     User.findByUsername(username, function(err, user)
     {
         if(!err)
         {
-            if(user != null)
+            if(!isNull(user))
+            {
+                res.json(
+                    {
+                        result: "ok",
+                        message: "found"
+                    }
+                );
+            }
+            else
+            {
+                res.json(
+                    {
+                        result: "ok",
+                        message: "not_found"
+                    }
+                );
+            }
+        }
+        else
+        {
+            res.status(500).json(
+                {
+                    result: "error"
+                }
+            );
+        }
+    }, true);
+};
+
+exports.show = function(req, res){
+    const username = req.params["username"];
+
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
+
+    User.findByUsername(username, function(err, user)
+    {
+        if(!err)
+        {
+            if(!isNull(user))
             {
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
@@ -189,23 +228,23 @@ exports.show = function(req, res){
 };
 
 exports.me = function(req, res){
-    req.params.user = req.session.user;
+    req.params.user = req.user;
 
-    if(req.originalMethod == "GET")
+    if(req.originalMethod === "GET")
     {
         res.render('users/edit',
             {
-                user : req.session.user
+                user : req.user
             }
         );
     }
-    else if (req.originalMethod == "POST")
+    else if (req.originalMethod === "POST")
     {
         //perform modifications
 
         res.render('users/edit',
             {
-                user : req.session.user
+                user : req.user
             }
         );
     }
@@ -213,12 +252,12 @@ exports.me = function(req, res){
 
 exports.set_new_password = function(req, res) {
 
-    if (req.originalMethod == "GET") {
+    if (req.originalMethod === "GET") {
 
         var email = req.query["email"];
         var token = req.query["token"];
 
-        if(email == null || token == null)
+        if(isNull(email) || isNull(token))
         {
             res.render('index',
                 {
@@ -285,12 +324,12 @@ exports.set_new_password = function(req, res) {
             });
         }
     }
-    else if (req.originalMethod == "POST")
+    else if (req.originalMethod === "POST")
     {
         var email = req.body["email"];
         var token = req.body["token"];
 
-        if (token == null || email == null) {
+        if (isNull(token) || isNull(email)) {
             res.render('users/set_new_password',
                 {
                     token : token,
@@ -303,10 +342,10 @@ exports.set_new_password = function(req, res) {
         }
         else
         {
-            var new_password = req.body["new_password"];
-            var new_password_confirm = req.body["new_password_confirm"];
+            const new_password = req.body["new_password"];
+            const new_password_confirm = req.body["new_password_confirm"];
 
-            if(new_password != new_password_confirm)
+            if(new_password !== new_password_confirm)
             {
                 res.render('users/set_new_password',
                     {
@@ -371,17 +410,17 @@ exports.set_new_password = function(req, res) {
 
 exports.reset_password = function(req, res){
 
-    if(req.originalMethod == "GET")
+    if(req.originalMethod === "GET")
     {
         res.render('users/reset_password',
             {
             }
         );
     }
-    else if (req.originalMethod == "POST")
+    else if (req.originalMethod === "POST")
     {
-        var email = req.body["email"];
-        if(email != null)
+        const email = req.body["email"];
+        if(!isNull(email))
         {
             User.findByEmail(email, function(err, user){
                 if(!err)
@@ -444,18 +483,19 @@ exports.reset_password = function(req, res){
 
 exports.getLoggedUser = function (req, res) {
 
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
-    if(req.session.user != null)
+    if(!isNull(req.user))
     {
-        req.params.username = req.session.user.ddr.username;
+        req.params.username = req.user.ddr.username;
         exports.show(req, res);
     }
     else
     {
         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
         {
+            res.status(403);
             res.json(
                 {
                     result : "error",
@@ -465,11 +505,8 @@ exports.getLoggedUser = function (req, res) {
         }
         else
         {
-            viewVars.projects = [];
-            viewVars.info_messages = ["There is no user authenticated in the system."];
-            res.render('index',
-                viewVars
-            );
+            viewVars.error_messages = ["There is no user authenticated in the system."];
+            res.status(403).render('index');
         }
     }
 };

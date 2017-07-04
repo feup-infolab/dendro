@@ -1,6 +1,10 @@
 var path = require('path');
 
-var Config = function() { return GLOBAL.Config; }();
+const Config = function () {
+    return GLOBAL.Config;
+}();
+
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 var UserMapper = require("./user_mapper.js").UserMapper;
 var DescriptorMapper = require("./descriptor_mapper.js").DescriptorMapper;
