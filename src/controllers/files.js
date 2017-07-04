@@ -10,7 +10,8 @@ const File = require(Config.absPathInSrcFolder("/models/directory_structure/file
 const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 const UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
-const FileVersion = require(Config.absPathInSrcFolder("/models/versions/file_version.js")).FileVersion;
+const Post = require(Config.absPathInSrcFolder("/models/social/post.js")).Post;
+const FileSystemPost = require(Config.absPathInSrcFolder("/models/social/fileSystemPost.js")).FileSystemPost;
 
 const db = function () {
     return GLOBAL.db.default;
@@ -812,46 +813,37 @@ exports.upload = function(req, res)
                                                         newFile.findFileInMongo(db, function (error, fileVersionsInMongoDb) {
                                                             if (!error) {
                                                                 async.map(fileVersionsInMongoDb, function (fileVersion, cb) {
-                                                                    FileVersion.findByUri(fileVersion.filename, function (err, fileVersion) {
-                                                                        if (!err) {
-                                                                            if (isNull(fileVersion)) {
-                                                                                console.log('FileinfoFromMongo: ', fileVersion);
-                                                                                const newFileVersion = new FileVersion({
-                                                                                    nfo: {
-                                                                                        fileName: fileVersion.filename,
-                                                                                        hashValue: fileVersion.md5,
-                                                                                        hashAlgorithm: 'md5'
-                                                                                    },
-                                                                                    nie: {
-                                                                                        contentLastModified: fileVersion.uploadDate,
-                                                                                        byteSize: fileVersion.length
-                                                                                    },
-                                                                                    ddr: {
-                                                                                        contentType: fileVersion.contentType,
-                                                                                        chunkSize: fileVersion.chunkSize,
-                                                                                        projectUri: fileVersion.metadata.project,
-                                                                                        itemType: fileVersion.metadata.type,
-                                                                                        creatorUri: currentUserUri
+                                                                    if(fileVersion != null)
+                                                                    {
+                                                                        FileSystemPost.buildFromUpload(currentUserUri, fileVersion.metadata.project, fileVersion, function (err, newfileSystemPost) {
+                                                                            if(!err)
+                                                                            {
+                                                                                newfileSystemPost.save(function (err, fileSystemPost)
+                                                                                {
+                                                                                    if (!err)
+                                                                                    {
+                                                                                        cb(null, fileSystemPost);
                                                                                     }
-                                                                                });
-
-                                                                                newFileVersion.save(function (err, fileVersion) {
-                                                                                    if (!err) {
-                                                                                        cb(null, fileVersion);
-                                                                                    }
-                                                                                    else {
-                                                                                        cb(true, fileVersion);
+                                                                                    else
+                                                                                    {
+                                                                                        console.error("Error when saving a FileSystemPost from a file upload");
+                                                                                        console.error(err);
+                                                                                        cb(true, fileSystemPost);
                                                                                     }
                                                                                 }, false, null, null, null, null, db_social.graphUri)
                                                                             }
-                                                                            else {
-                                                                                cb(null, fileVersion);
+                                                                            else
+                                                                            {
+                                                                                console.error("Error when building a FileSystemPost from a file upload");
+                                                                                console.error(err);
+                                                                                cb(true, newfileSystemPost);
                                                                             }
-                                                                        }
-                                                                        else {
-                                                                            cb(1, "Error fetching file version with URI " + fileVersion.uri);
-                                                                        }
-                                                                    });
+                                                                        });
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        cb(null, fileVersion);
+                                                                    }
                                                                 }, function (err, results) {
                                                                     if (!err) {
                                                                         return callback(null, {
@@ -1274,13 +1266,14 @@ exports.rm = function(req, res){
     else
     {
         const resourceToDelete = req.params.requestedResource;
+        let reallyDelete = false;
 
         try{
-            const reallyDelete = JSON.parse(req.query.really_delete);
+            reallyDelete = JSON.parse(req.query.really_delete);
         }
         catch(e)
         {
-            var reallyDelete = false;
+            reallyDelete = false;
         }
 
         if(!isNull(resourceToDelete))
@@ -1306,10 +1299,52 @@ exports.rm = function(req, res){
                                 file.delete(function(err, result){
                                     if(!err)
                                     {
-                                        res.status(200).json({
+                                        Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
+                                            if(!err)
+                                            {
+                                                FileSystemPost.buildFromDeleteFile(userUri, project.uri,file, function (error, fileSystemPost) {
+                                                    if(!error)
+                                                    {
+                                                        fileSystemPost.save(function (error, post) {
+                                                            if(!error)
+                                                            {
+                                                                res.status(200).json({
+                                                                    "result" : "success",
+                                                                    "message" : "Successfully deleted " + resourceToDelete
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+                                                                res.status(500).json({
+                                                                    result: "Error",
+                                                                    message: "Unable to save Social Dendro post from file system change to resource uri: " + file.uri + ". Error reported : " + error
+                                                                });
+                                                            }
+                                                        }, false, null, null, null, null, db_social.graphUri);
+                                                    }
+                                                    else
+                                                    {
+                                                        res.status(500).json({
+                                                            result: "Error",
+                                                            message: "Unable to create Social Dendro post from file system change to resource uri: " + file.uri + ". Error reported : " + error
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                            else
+                                            {
+                                                let error =  "Unable to find the project where the resource " + file.uri + " is located";
+                                                console.error(error);
+                                                res.status(404).json({
+                                                    result : "Error",
+                                                    message : error
+                                                });
+                                            }
+                                        });
+                                        /*res.status(200).json({
                                             "result" : "success",
                                             "message" : "Successfully deleted " + resourceToDelete
-                                        });
+                                        });*/
                                     }
                                     else
                                     {
@@ -1360,10 +1395,53 @@ exports.rm = function(req, res){
                                 folder.delete(function(err, result){
                                     if(!err)
                                     {
-                                        res.status(200).json({
+                                        //social dendro aqui
+                                        Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
+                                            if(!err)
+                                            {
+                                                FileSystemPost.buildFromRmdirOperation(req.session.user.uri, project, result, reallyDelete, function(err, post){
+                                                    if(!err)
+                                                    {
+                                                        post.save(function (err, post) {
+                                                            if(!err)
+                                                            {
+                                                                res.status(200).json({
+                                                                    "result" : "success",
+                                                                    "message" : "Successfully deleted " + resourceToDelete
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+                                                                res.status(500).json({
+                                                                    result: "Error",
+                                                                    message: "Unable to save Social Dendro post from file system change to resource uri: " + folder.uri + ". Error reported : " + err
+                                                                });
+                                                            }
+                                                        }, false, null, null, null, null, db_social.graphUri);
+                                                    }
+                                                    else
+                                                    {
+                                                        res.status(500).json({
+                                                            result: "Error",
+                                                            message: "Unable to create Social Dendro post from file system change to resource uri: " + folder.uri + ". Error reported : " + err
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                            else
+                                            {
+                                                let error =  "Unable to find the project where the resource " + folder.uri + " is located";
+                                                console.error(error);
+                                                res.status(404).json({
+                                                    result : "Error",
+                                                    message : error
+                                                });
+                                            }
+                                        });
+                                        /*res.status(200).json({
                                             "result" : "success",
                                             "message" : "Successfully deleted " + resourceToDelete
-                                        });
+                                        });*/
                                     }
                                     else
                                     {
@@ -1573,14 +1651,63 @@ exports.mkdir = function(req, res){
                                 {
                                     if(!err)
                                     {
-                                        res.json(
+                                        //SOCIAL DENDRO HERE
+                                        Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
+                                            if(!err)
+                                            {
+                                                FileSystemPost.buildFromMkdirOperation(req.session.user.uri, project, result, function(err, post){
+                                                    if(!err)
+                                                    {
+                                                        post.save(function(err, post)
+                                                        {
+                                                            if (!err)
+                                                            {
+                                                                res.json(
+                                                                    {
+                                                                        "status" : "1",
+                                                                        "id" : newChildFolder.uri,
+                                                                        "result" : "ok",
+                                                                        "new_folder" : Descriptor.removeUnauthorizedFromObject(result, [Config.types.private], [Config.types.api_readable])
+                                                                    }
+                                                                );
+                                                            }
+                                                            else
+                                                            {
+                                                                res.status(500).json({
+                                                                    result: "Error",
+                                                                    message: "Unable to save Social Dendro post from file system change to resource uri: " + newChildFolder.uri + ". Error reported : " + err
+                                                                });
+                                                            }
+                                                        }, false, null, null, null, null, db_social.graphUri);
+                                                    }
+                                                    else
+                                                    {
+                                                        res.status(500).json({
+                                                            result: "Error",
+                                                            message: "Unable to create Social Dendro post from file system change to resource uri: " + newChildFolder.uri + ". Error reported : " + err
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                            else
+                                            {
+                                                var error =  "Unable to find the project where the resource " + newChildFolder.uri + " is located";
+                                                console.error(error);
+                                                res.status(404).json({
+                                                    result : "Error",
+                                                    message : error
+                                                });
+                                            }
+                                        });
+                                        //AQUI
+                                        /*res.json(
                                             {
                                                 "status" : "1",
                                                 "id" : newChildFolder.uri,
                                                 "result" : "ok",
                                                 "new_folder" : Descriptor.removeUnauthorizedFromObject(result, [Config.types.private], [Config.types.api_readable])
                                             }
-                                        );
+                                        );*/
                                     }
                                     else
                                     {
