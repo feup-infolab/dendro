@@ -180,3 +180,16 @@ Animations (uncomment to have animations)
 .file_explorer_icon {
   text-shadow: 1px 1px 1px #ccc;
 }
+.folderss {
+  display: inline-block;
+  width: 100px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
+.intro {
+  border-style: solid;
+  border-width: 1px;
+  border-color: #9e76ab;
+}
