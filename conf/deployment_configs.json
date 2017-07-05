@@ -174,7 +174,7 @@
       "load_databases" : true,
       "reload_administrators_on_startup" : true,
       "reload_demo_users_on_startup" : true,
-      "reload_ontologies_on_startup": true
+      "reload_ontologies_on_startup": false
     },
     "baselines" : {
 

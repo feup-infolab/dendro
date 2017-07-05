@@ -26,7 +26,7 @@ module.exports.login = function(req, res, next){
             req.passport.authenticate(
                 'local',
                 {
-                    successRedirect: '/user/me',
+                    //successRedirect: '/projects/my',
                     failureRedirect: '/login',
                     failureFlash: true
                 },
@@ -79,12 +79,20 @@ module.exports.login = function(req, res, next){
                     }
                     else
                     {
-                        res.status(401).json(
-                            {
-                                result : "error",
-                                message : err
-                            }
-                        );
+                        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                        {
+                            res.status(401).json(
+                                {
+                                    result : "error",
+                                    message : err
+                                }
+                            );
+                        }
+                        else
+                        {
+                            req.flash('error', err);
+                            res.redirect('/login');
+                        }
                     }
                 }
             )(req, res, next);
@@ -204,7 +212,7 @@ module.exports.register = function(req, res){
                     }
                 );
             }
-            else if(!isNull(req.body.username) && !req.body.username.mat0ch(/^[0-9a-zA-Z]+$/))
+            else if(!isNull(req.body.username) && !req.body.username.match(/^[0-9a-zA-Z]+$/))
             {
                 res.render('auth/register',
                     {
@@ -226,7 +234,7 @@ module.exports.register = function(req, res){
                             }
                             else
                             {
-                                if(typeof req.body.password === req.body.repeat_password)
+                                if(req.body.password === req.body.repeat_password)
                                 {
                                     const userData = {
                                         ddr : {
@@ -338,16 +346,16 @@ module.exports.register = function(req, res){
                 ], function(err, user){
                     if(!err)
                     {
-                        res.render('/login', {
-                            success_messages : [user]
-                        });
+                        req.flash('success', user);
+                        console.log("User " + user);
+                        res.redirect('/login');
                     }
                     else
                     {
-                        
+                        req.flash('error', "Error registering a new user");
+                        console.error("Error registering a new user: " + JSON.stringify(err));
+                        res.redirect('/register');
                     }
-
-
                 });
             }
         }
