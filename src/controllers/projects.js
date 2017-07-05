@@ -105,7 +105,7 @@ exports.my = function(req, res) {
     };
 
     Project.findByCreatorOrContributor(req.user.uri, function(err, projects) {
-        if(!err && typeof projects != null)
+        if(!err && !isNull(projects))
         {
             let acceptsHTML = req.accepts('html');
             const acceptsJSON = req.accepts('json');

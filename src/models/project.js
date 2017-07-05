@@ -1617,13 +1617,13 @@ Project.restoreFromFolder = function(absPathOfRootFolder,
     const self = this;
     const path = require('path');
 
-    if(typeof entityLoadingTheMetadata != null && entityLoadingTheMetadata instanceof User)
+    if(!isNull(entityLoadingTheMetadata) && entityLoadingTheMetadata instanceof User)
     {
-        var entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
+        let entityLoadingTheMetadataUri = entityLoadingTheMetadata.uri;
     }
     else
     {
-        var entityLoadingTheMetadataUri = User.anonymous.uri;
+        let entityLoadingTheMetadataUri = User.anonymous.uri;
     }
 
     self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function(err, result){
@@ -1683,7 +1683,7 @@ Project.rebaseAllUris = function(structure, newBaseUri)
     const modifyNode = function (node) {
         node.resource = Utils.replaceBaseUri(node.resource, newBaseUri);
 
-        for (var i = 0; i < node.metadata.length; i++) {
+        for (let i = 0; i < node.metadata.length; i++) {
             let value = node.metadata[i].value;
 
             if (value instanceof Array) {
@@ -1699,7 +1699,7 @@ Project.rebaseAllUris = function(structure, newBaseUri)
         }
 
         if (!isNull(node.children) && node.children instanceof Array) {
-            for (var i = 0; i < node.children.length; i++) {
+            for (let i = 0; i < node.children.length; i++) {
                 const child = node.children[i];
                 modifyNode(child);
             }

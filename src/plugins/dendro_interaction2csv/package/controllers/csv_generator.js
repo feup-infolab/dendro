@@ -28,7 +28,7 @@ var isValidURI = function(uriString)
     //from http://www.dzone.com/snippets/validate-url-regexp
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
 
-    return uriString != null && regexp.test(uriString);
+    return !isNull(uriString) && regexp.test(uriString);
 };
 
 var streamingExportToCSVFile = function(queryFunction, csvMappingFunction, fileNamePrefix, req, res, callback)
@@ -55,19 +55,19 @@ var streamingExportToCSVFile = function(queryFunction, csvMappingFunction, fileN
             queryFunction(function(err, results, fetchNextPageCallback){
                 if(!err)
                 {
-                    var fs = require('fs');
+                    const fs = require('fs');
 
-                    if(results != null && results instanceof Array && results.length > 0)
+                    if(!isNull(results) && results instanceof Array && results.length > 0)
                     {
                         async.mapLimit(results, 1, function(result,callback){
 
                             //for those cases where the serialization function is already present in the result object
-                            if(result[csvMappingFunction] != null && typeof result[csvMappingFunction] == "function")
+                            if(!isNull(result[csvMappingFunction]) && typeof result[csvMappingFunction] === "function")
                             {
                                 var lineWriteResults = result[csvMappingFunction](headers);
                             }
                             //custom serialization function (non-model-based-object type of results)
-                            else if(csvMappingFunction != null && typeof csvMappingFunction == "function")
+                            else if(!isNull(csvMappingFunction) && typeof csvMappingFunction === "function")
                             {
                                 var lineWriteResults = csvMappingFunction(result, headers);
                             }
@@ -247,7 +247,7 @@ exports.average_descriptor_length_per_interaction = function(req, res)
                     var pos = headers[descriptorPrefixedEscaped];
                     values[pos]= result[headerNames[i]];
                 }
-                else if(result[headerNames[i]] != null)
+                else if(!isNull(result[headerNames[i]]))
                 {
                     var pos = headers[headerNames[i]];
                     values[pos]= result[headerNames[i]];

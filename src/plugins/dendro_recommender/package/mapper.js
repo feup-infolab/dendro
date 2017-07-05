@@ -6,7 +6,7 @@ var DRConnection = require("connection.js").Connection;
 
 function Mapper (connection)
 {
-    var self = this;
+    const self = this;
     self.active = false;
     self.connection = connection;
 }
@@ -29,10 +29,10 @@ Mapper.register_in_recommender = function(object, callback)
 
 Mapper.getEndpoint = function(object)
 {
-    var objectClassName = object.constructor.name;
-    var mapper = Mapper.mappingsTable[objectClassName];
+    const objectClassName = object.constructor.name;
+    const mapper = Mapper.mappingsTable[objectClassName];
 
-    if(mapper != null)
+    if(!isNull(mapper))
     {
         var mappedObject = mapper.endpoint;
         return mappedObject;
@@ -41,12 +41,12 @@ Mapper.getEndpoint = function(object)
 
 Mapper.map = function(object)
 {
-    var objectClassName = object.constructor.name;
-    var mapper = Mapper.mappingsTable[objectClassName];
+    const objectClassName = object.constructor.name;
+    const mapper = Mapper.mappingsTable[objectClassName];
 
-    if(mapper != null)
+    if(!isNull(mapper))
     {
-        var mappedObject = mapper.mapperClass.map(object);
+        const mappedObject = mapper.mapperClass.map(object);
         return mappedObject;
     }
 };

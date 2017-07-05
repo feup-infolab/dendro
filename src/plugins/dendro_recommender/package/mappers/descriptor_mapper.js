@@ -18,9 +18,9 @@ DescriptorMapper.map = function(descriptorUri, callback)
 {
     Descriptor.findByUri(descriptorUri, function(err, descriptor){
 
-        if(!err && descriptor != null)
+        if(!err && !isNull(descriptor))
         {
-            var result = {
+            let result = {
                 entity_type : {
                     identifier : Ontology.allOntologies.ddr.uri + "Descriptor",
                     name : "Dendro Descriptor",

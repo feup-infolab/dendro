@@ -35,7 +35,7 @@ Connection.prototype.check_connection = function(callback)
 
     var fullUrl = "http://" + self.config.network.host;
 
-    if(self.config.network.port != null)
+    if(!isNull(self.config.network.port))
     {
         fullUrl = fullUrl + ":" + self.config.network.port;
     }

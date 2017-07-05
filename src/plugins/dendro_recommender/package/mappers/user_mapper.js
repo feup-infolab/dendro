@@ -20,9 +20,9 @@ UserMapper.map = function (userUri, callback)
 
         Descriptor.removeUnauthorizedFromObject(user, [Config.types.private, Config.types.locked], []);
 
-        if(!err && user != null)
+        if(!err && !isNull(user))
         {
-            var result = {
+            const result = {
                 entity_type : {
                     identifier : Ontology.allOntologies.ddr.uri + "User",
                     name : "Dendro User",

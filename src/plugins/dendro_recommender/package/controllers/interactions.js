@@ -1,7 +1,7 @@
-var async = require('async');
-var path = require('path');
-var needle = require('needle');
-var _ = require('underscore');
+const async = require('async');
+const path = require('path');
+const needle = require('needle');
+const _ = require('underscore');
 
 
 const Config = function () {
@@ -10,26 +10,26 @@ const Config = function () {
 
 const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-var Folder= require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Folder= require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
 
-var DendroRecommender = require("../../dendro_recommender.js").DendroRecommender;
-var DRConnection = require("../connection.js").DRConnection;
-var InteractionMapper = require("../mappers/interaction_mapper.js").InteractionMapper;
+const DendroRecommender = require("../../dendro_recommender.js").DendroRecommender;
+const DRConnection = require("../connection.js").DRConnection;
+const InteractionMapper = require("../mappers/interaction_mapper.js").InteractionMapper;
 
 exports.generate_random_interactions = function(req, res)
 {
-    if(req.body.how_many != null)
+    if(!isNull(req.body.how_many))
     {
-        var howMany = req.body.how_many;
-        var howManyLoops = Math.ceil(howMany / Config.recommendation.random_interactions_generation_page_size);
+        const howMany = req.body.how_many;
+        const howManyLoops = Math.ceil(howMany / Config.recommendation.random_interactions_generation_page_size);
 
-        var selectNRandomDescriptors = function(howMany, callback)
+        const selectNRandomDescriptors = function(howMany, callback)
         {
-            var randomDescriptors = [];
+            let randomDescriptors = [];
 
             Descriptor.getRandomDescriptors(req.body.included_ontologies,
                 howMany,
@@ -46,7 +46,7 @@ exports.generate_random_interactions = function(req, res)
                 });
         };
 
-        var selectNRandomResources = function(howMany, callback)
+        const selectNRandomResources = function(howMany, callback)
         {
             async.timesSeries(howMany, function(n, callback){
                 var file = Math.round(Math.random());
@@ -69,7 +69,7 @@ exports.generate_random_interactions = function(req, res)
             });
         };
 
-        var selectNRandomNonUniqueUsers = function(howMany, callback)
+        const selectNRandomNonUniqueUsers = function(howMany, callback)
         {
             async.timesSeries(howMany, function(n, callback){
                 User.randomInstance("ddr:User", function(err, user){
@@ -81,7 +81,7 @@ exports.generate_random_interactions = function(req, res)
             });
         };
 
-        var generateNRandomInteractions = function(howManyToGenerate, user, callback)
+        const generateNRandomInteractions = function(howManyToGenerate, user, callback)
         {
             async.waterfall([
                     function(callback)
@@ -100,10 +100,10 @@ exports.generate_random_interactions = function(req, res)
                     },
                     function(descriptors, resources, callback)
                     {
-                        if(user != null)
+                        if(!isNull(user))
                         {
-                            var users = [];
-                            for (var i = 0; i < howManyToGenerate; i++)
+                            const users = [];
+                            for (let i = 0; i < howManyToGenerate; i++)
                             {
                                 users.push(user);
                             }
@@ -121,12 +121,12 @@ exports.generate_random_interactions = function(req, res)
                     function(descriptors, resources, users, cb)
                     {
                         async.timesSeries(howManyToGenerate, function(n, cb){
-                            var interactionType = Interaction.getRandomType(req.body);
-                            var descriptor = descriptors[n];
-                            var resource = resources[n];
-                            var user = users[n];
+                                const interactionType = Interaction.getRandomType(req.body);
+                                const descriptor = descriptors[n];
+                                const resource = resources[n];
+                                const user = users[n];
 
-                            if(descriptor != null && interactionType != null && user != null && resource != null)
+                            if(!isNull(descriptor) && isNull(interactionType) && isNull(user) && isNull(resource))
                             {
                                 new Interaction({
                                     ddr : {
@@ -162,15 +162,15 @@ exports.generate_random_interactions = function(req, res)
                 });
         };
 
-        var createSpecificUserArray = function(user, callback)
+        const createSpecificUserArray = function(user, callback)
         {
-            var valid_url = function (url)
+            const valid_url = function (url)
             {
-                var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+                const regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
                 return regexp.test(url);
             };
 
-            if (user != null && valid_url(user))
+            if (!isNull(user) && valid_url(user))
             {
                 User.findByUri(user, function (err, user)
                 {
@@ -188,7 +188,7 @@ exports.generate_random_interactions = function(req, res)
             }
         };
 
-        var saveInteractions = function(interactionsArray, callback)
+        const saveInteractions = function(interactionsArray, callback)
         {
             async.map(
                 interactionsArray,
@@ -211,12 +211,12 @@ exports.generate_random_interactions = function(req, res)
                 });
         };
 
-        var generateInteractionsInLoop = function(howMany, howManyLoops, user, callback)
+        const generateInteractionsInLoop = function(howMany, howManyLoops, user, callback)
         {
             async.timesSeries(howManyLoops,
                 function(n, callback)
                 {
-                    var howManyInLoop;
+                    let howManyInLoop;
 
                     if (n < howManyLoops - 1)
                     {
@@ -225,7 +225,7 @@ exports.generate_random_interactions = function(req, res)
                     else
                     {
                         howManyInLoop = howMany % Config.recommendation.random_interactions_generation_page_size;
-                        if(howManyInLoop == 0)
+                        if(howManyInLoop === 0)
                         {
                             howManyInLoop = Config.recommendation.random_interactions_generation_page_size;
                         }
@@ -309,16 +309,16 @@ exports.refresh_interactions = function(req, res)
      * Push all interactions
      */
 
-    var now = new Date();
-    var path = require('path');
-    var appDir = path.dirname(require.main.filename);
+    const now = new Date();
+    const path = require('path');
+    const appDir = path.dirname(require.main.filename);
 
-    var dumpFileName = path.join(appDir, "temp", "interaction_dumps", now.toISOString() + ".txt");
+    const dumpFileName = path.join(appDir, "temp", "interaction_dumps", now.toISOString() + ".txt");
 
     if(req.params.starting_instant_in_iso_format == null)
     {
-        var fs = require('fs');
-        var stream = fs.createWriteStream(dumpFileName);
+        const fs = require('fs');
+        const stream = fs.createWriteStream(dumpFileName);
         stream.once('open', function(fd) {
 
             stream.write("[");
@@ -348,7 +348,7 @@ exports.refresh_interactions = function(req, res)
                     }
                 }, true);
 
-            var conn = new DRConnection();
+            const conn = new DRConnection();
 
             conn.init(function(err, result)
             {
@@ -392,10 +392,10 @@ exports.refresh_interactions = function(req, res)
 
 exports.by_user = function(req, res)
 {
-    var username = req.params["username"];
-    var currentUser = req.user;
-    var acceptsHTML = req.accepts('html');
-    var acceptsJSON = req.accepts('json');
+    let username = req.params["username"];
+    const currentUser = req.user;
+    const acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
 
     if(!username)
     {
@@ -406,7 +406,7 @@ exports.by_user = function(req, res)
      * normal users can only access their own information, admins
      * can access information of all users
      */
-    if(req.params.username == username || currentUser.isOfClass("ddr:Administrator"))
+    if(req.params.username === username || currentUser.isOfClass("ddr:Administrator"))
     {
         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
         {
@@ -416,12 +416,12 @@ exports.by_user = function(req, res)
                     user.getInteractions(function(err, interactions){
                         if(!err)
                         {
-                            var cachedDescriptors = {};
-                            var getFullDescriptor = function(interaction, callback){
+                            const cachedDescriptors = {};
+                            const getFullDescriptor = function(interaction, callback){
                                 //console.log("Getting full descriptor for uri " + interaction.ddr.executedOver);
-                                var cachedDescriptor = cachedDescriptors[interaction.ddr.executedOver];
+                                const cachedDescriptor = cachedDescriptors[interaction.ddr.executedOver];
 
-                                if(cachedDescriptor != null)
+                                if(!isNull(cachedDescriptor))
                                 {
                                     interaction.ddr.executedOver = cachedDescriptor;
                                     callback(null, interaction);
@@ -431,7 +431,7 @@ exports.by_user = function(req, res)
                                     Descriptor.findByUri(interaction.ddr.executedOver, function(err, fullDescriptor){
                                         if(!err)
                                         {
-                                            if(fullDescriptor != null)
+                                            if(!isNull(fullDescriptor))
                                             {
                                                 interaction.ddr.executedOver = fullDescriptor;
                                                 cachedDescriptors[interaction.ddr.executedOver] = fullDescriptor;
@@ -450,7 +450,7 @@ exports.by_user = function(req, res)
                                 }
                             };
 
-                            var length = interactions.length;
+                            let length = interactions.length;
 
                             console.log("Length of interactions array for user "+ user.uri +" : " + length);
 
@@ -489,7 +489,7 @@ exports.by_user = function(req, res)
         }
         else
         {
-            var ejs = require('ejs');
+            const ejs = require('ejs');
 
             DendroRecommender.renderView(res, "interactions", {
                 user : req.user,
@@ -515,7 +515,7 @@ exports.by_user = function(req, res)
     }
 };
 
-var sendInteractionsArray = function(req, res, conn, interactions, callback)
+const sendInteractionsArray = function(req, res, conn, interactions, callback)
 {
     InteractionMapper.map(interactions, function(err, mappedInteractions){
         if(!err)
@@ -532,7 +532,7 @@ var sendInteractionsArray = function(req, res, conn, interactions, callback)
                 }
                 else
                 {
-                    if(body != null && body.message)
+                    if(!isNull(body) && body.message)
                     {
                         return res.status(500).json({
                             result: "error",
