@@ -12,6 +12,8 @@ const gfs = function() { return GLOBAL.gfs.default; }();
 
 const async = require('async');
 const _ = require('underscore');
+const fs = require("fs");
+const path = require('path');
 
 /*
  * GET users listing.
@@ -507,4 +509,235 @@ exports.getLoggedUser = function (req, res) {
             res.status(403).render('index');
         }
     }
+};
+
+
+
+exports.get_avatar = function (req, res) {
+    var username = req.params['username'];
+
+    User.findByUsername(username, function (err, user) {
+        if(!err)
+        {
+            if(!user)
+            {
+                res.status(404).json({
+                    result : "Error",
+                    message :"Error trying to find user with username " + username + " User does not exist"
+                });
+            }
+            else
+            {
+                if(!user.ddr.hasAvatar)
+                {
+                    //User does not have an avatar
+                    res.writeHead(200,
+                        {
+                            'Content-disposition': 'filename="' + "avatar"+"\"",
+                            'Content-type': "image/png"
+                        });
+
+                    var absPathOfFileToServe = Config.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
+                    var fileStream = fs.createReadStream(absPathOfFileToServe);
+                    fileStream.pipe(res);
+                }
+                else
+                {
+                    //User has an avatar
+                    getAvatarFromGfs(user, function (err, avatarFilePath) {
+                        if(!err)
+                        {
+                            var fileStream = fs.createReadStream(avatarFilePath);
+                            var filename = path.basename(avatarFilePath);
+
+                            res.writeHead(200,
+                                {
+                                    'Content-disposition': 'filename="' + filename+"\"",
+                                    'Content-type': path.extname(filename)
+                                });
+
+                            fileStream.pipe(res);
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result : "Error",
+                                message :"Error trying to get from gridFs user Avatar from user " + username + " Error reported: " + JSON.stringify(avatarFilePath)
+                            });
+                        }
+                    });
+                }
+            }
+        }
+        else
+        {
+            res.status(500).json({
+                result : "Error",
+                message :"Error trying to find user with username " + username + " Error reported: " + JSON.stringify(err)
+            });
+        }
+    });
+};
+
+exports.upload_avatar = function (req, res) {
+    var avatar = req.body["new_avatar"];
+    var currentUser = req.session.user;
+    User.findByUri(currentUser.uri, function (err, user) {
+        if(!err)
+        {
+            var avatarExt = avatar.split(';')[0].split('/')[1];
+            var avatarUri = "/avatar/" + currentUser.ddr.username + "/avatar." + avatarExt;
+
+            saveAvatarInGfs(avatar, user, avatarExt, function (err, data) {
+                if(!err)
+                {
+                    user.ddr.hasAvatar = avatarUri;
+                    user.save(function (err, newUser) {
+                        if(!err)
+                        {
+                            res.status(200).json({
+                                result : "Success",
+                                message :"Avatar saved successfully."
+                            });
+                        }
+                        else
+                        {
+                            var msg = "Error updating hasAvatar for user " + user.uri + ". Error reported :" + data;
+                            console.error(msg);
+                            res.status(500).json({
+                                result: "Error",
+                                message: msg
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    res.status(500).json({
+                        result : "Error",
+                        message :"Error user " + currentUser.uri + " avatar. Error reported: " + JSON.stringify(data)
+                    });
+                }
+            });
+        }
+        else
+        {
+            res.status(500).json({
+                result : "Error",
+                message :"Error trying to find user with uri " + currentUser.uri + " Error reported: " + JSON.stringify(err)
+            });
+        }
+    });
+};
+
+var getAvatarFromGfs = function (user, callback)
+{
+    var tmp = require('tmp');
+    var fs = require('fs');
+    var avatarUri = user.getAvatarUri();
+    // /avatar/" + user.ddr.username + "/avatar." + "png";
+    if(avatarUri)
+    {
+        var ext = avatarUri.split(".").pop();
+
+        tmp.dir(
+            {
+                mode: Config.tempFilesCreationMode,
+                dir : Config.tempFilesDir
+            },
+            function(err, tempFolderPath){
+                if(!err)
+                {
+                    var avatarFilePath = path.join(tempFolderPath, user.ddr.username + "avatarOutput." + ext);
+                    var writeStream = fs.createWriteStream(avatarFilePath);
+
+                    gfs.connection.get(avatarUri, writeStream, function(err, result){
+                        if(!err)
+                        {
+                            callback(null, avatarFilePath);
+                        }
+                        else
+                        {
+                            let msg = "Error getting the avatar file from GridFS for user " + user.uri;
+                            console.error(msg);
+                            callback(err, msg);
+                        }
+                    });
+                }
+                else
+                {
+                    let msg = "Error when creating a temp dir when getting the avatar from GridFS for user " + user.uri;
+                    console.error(msg);
+                    callback(err, msg);
+                }
+            }
+        );
+    }
+    else
+    {
+        var msg = "User has no avatar saved in gridFs";
+        console.error(msg);
+        callback(true, msg);
+    }
+};
+
+
+var saveAvatarInGfs = function (avatar, user, extension, callback) {
+    var fs = require('fs');
+    var tmp = require('tmp');
+    var avatarUri = "/avatar/" + user.ddr.username + "/avatar." + extension;
+    var base64Data = avatar.replace(/^data:image\/png;base64,/, "");
+
+    gfs.connection.delete(avatarUri, function (err, result) {
+        tmp.dir(
+            {
+                mode: Config.tempFilesCreationMode,
+                dir: Config.tempFilesDir
+            },
+            function (err, tempFolderPath) {
+                if(!err)
+                {
+                    var path = require('path');
+                    var avatarFilePath = path.join(tempFolderPath, 'avatar.png');
+                    fs.writeFile(avatarFilePath, base64Data, 'base64', function (error) {
+                        if(!error)
+                        {
+                            var readStream = fs.createReadStream(avatarFilePath);
+                            gfs.connection.put(
+                                avatarUri,
+                                readStream,
+                                function (err, result) {
+                                    if (err != null) {
+                                        var msg = "Error saving avatar file in GridFS :" + result + " for user " + user.uri;
+                                        console.error(msg);
+                                        callback(err, msg);
+                                    }
+                                    else {
+                                        callback(null, result);
+                                    }
+                                },
+                                {
+                                    user: user.uri,
+                                    fileExtension: extension,
+                                    type: "nie:File"
+                                }
+                            );
+                        }
+                        else
+                        {
+                            let msg = "Error when creating a temp file for the avatar upload";
+                            console.error(msg);
+                            callback(error, msg);
+                        }
+                    });
+                }
+                else
+                {
+                    let msg = "Error when creating a temp dir for the avatar upload";
+                    console.error(msg);
+                    callback(err, msg);
+                }
+            }
+        );
+    });
 };

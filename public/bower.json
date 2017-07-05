@@ -73,7 +73,9 @@
     "bootswatch": "https://github.com/thomaspark/bootswatch.git",
     "angular-image-spinner": "*",
     "spin.js": "~2.0.0",
-    "parsleyjs": "^2.7.2"
+    "parsleyjs": "^2.7.2",
+    "ng-img-crop": "^0.3.2",
+    "angular-image-compress": "^0.1.5"
   },
   "resolutions": {
     "bootstrap": "~3",
