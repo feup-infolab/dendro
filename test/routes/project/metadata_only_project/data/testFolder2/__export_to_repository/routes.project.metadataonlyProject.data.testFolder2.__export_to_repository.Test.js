@@ -6,7 +6,7 @@ const should = chai.should();
 const _ = require('underscore');
 chai.use(chaiHttp);
 
-const Config = GLOBAL.Config;
+const Config = global.Config;
 
 const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));

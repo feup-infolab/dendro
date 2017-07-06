@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-const Config = GLOBAL.Config;
+const Config = global.Config;
 
 const chai = require('chai');
 chai.use(require('chai-http'));

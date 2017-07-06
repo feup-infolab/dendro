@@ -3,7 +3,7 @@ const chaiHttp = require('chai-http');
 const should = chai.should();
 chai.use(chaiHttp);
 
-const Config = GLOBAL.Config;
+const Config = global.Config;
 
 const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));

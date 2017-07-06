@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-const Config = GLOBAL.Config;
+const Config = global.Config;
 const async = require('async');
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 const repositoryUtils = require(Config.absPathInTestsFolder("utils/repository/repositoryUtils.js"));

@@ -1,4 +1,4 @@
-let Config = GLOBAL.Config;
+let Config = global.Config;
 
 module.exports = {
     md5 : "8a1fb73260a39d067997e287c9571085",

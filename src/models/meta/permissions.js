@@ -107,27 +107,7 @@ const getOwnerProject = function (requestedResource, callback) {
     InformationElement.findByUri(requestedResource, function(err, resource){
         if(isNull(err))
         {
-            if(isNull(resource) || !(resource instanceof InformationElement))
-            {
-                Project.findByUri(requestedResource, function(err, project){
-                    if(isNull(err))
-                    {
-                        if(!isNull(project) && project instanceof Project)
-                        {
-                            callback(null, project);
-                        }
-                        else
-                        {
-                            callback(null);
-                        }
-                    }
-                    else
-                    {
-                        callback(err, project);
-                    }
-                });
-            }
-            else
+            if(!isNull(resource) && resource instanceof InformationElement)
             {
                 resource.getOwnerProject(function(err, project){
                     if(!isNull(project) && project instanceof Project)
@@ -140,6 +120,10 @@ const getOwnerProject = function (requestedResource, callback) {
                     }
                 });
             }
+            else
+            {
+                callback(null, null);
+            }
         }
         else
         {
@@ -151,54 +135,73 @@ const getOwnerProject = function (requestedResource, callback) {
 /** Role-based validation **/
 
 const checkRoleInSystem = function (req, user, role, callback) {
-    user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result) {
-        return callback(err, result);
-    });
+    if (!isNull(user)) {
+        user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result) {
+            return callback(err, result);
+        });
+    }
+    else {
+        callback(null, false);
+    }
 };
 
 const checkUsersRoleInProject = function (req, user, role, project, callback) {
-    Project.findByUri(project, function (err, project)
-    {
-        if (!err)
+    if (!isNull(user)) {
+        if (project instanceof Project)
         {
-            if (project instanceof Project)
+            project.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result)
             {
-                project.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result)
+                return callback(err, result);
+            });
+        }
+        else if(typeof project === "string")
+        {
+            Project.findByUri(project, function (err, project)
+            {
+                if (!err && project instanceof Project)
                 {
-                    return callback(err, result);
-                });
-            }
-            else
-            {
-                return callback(null, null);
-            }
+                    project.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result)
+                    {
+                        return callback(err, result);
+                    });
+                }
+                else
+                {
+                    return callback(err, null);
+                }
+            });
         }
         else
         {
-            return callback(err, null);
+            return callback(null, null);
         }
-    });
+    }
+    else {
+        callback(null, false);
+    }
 };
 
 const checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
-    if (!(user instanceof User) && user instanceof Object)
-        user = new User(user);
-
-    getOwnerProject(resource, function (err, project) {
-        if (!err) {
-            if (project instanceof Project) {
-                checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
-                    return callback(err, {authorized: hasRole, role: role});
-                });
+    if (!isNull(user)) {
+        getOwnerProject(resource, function (err, project) {
+            if (!err) {
+                if (project instanceof Project) {
+                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
+                        return callback(err, hasRole);
+                    });
+                }
+                else {
+                    return callback(null, null);
+                }
             }
             else {
-                return callback(null, null);
+                return callback(err, null);
             }
-        }
-        else {
-            return callback(err, null);
-        }
-    });
+        });
+    }
+    else {
+        callback(null, false);
+    }
 };
 
 /** "Privacy status"-based validation **/
@@ -252,30 +255,15 @@ const checkPrivacyOfOwnerProject = function (req, user, role, resource, callback
             if (!isNull(project) && project instanceof Project) {
                 const privacy = project.ddr.privacyStatus;
 
-                if (!isNull(permission.object) && privacy === permission.object) {
-                    return callback(null,
-                        {
-                            authorized: true,
-                            role: Permissions.privacy_of_project[permission.object]
-                        }
-                    );
+                if (!isNull(role.object) && privacy === role.object) {
+                    return callback(null, true);
                 }
                 else {
-                    return callback(null,
-                        {
-                            authorized: false,
-                            role: permission
-                        }
-                    );
+                    return callback(null, false);
                 }
             }
             else {
-                return callback(null,
-                    {
-                        authorized: true,
-                        role: ["Project with uri" + req.requestedResourceUri + " does not exist."]
-                    }
-                );
+                return callback(null, false);
             }
         }
         else {
@@ -432,45 +420,24 @@ Permissions.check = function(permissionsRequired, req, callback) {
 
         const checkPermission = function (req, user, resource, permission, cb) {
             if (permission.type === Permissions._types.role_in_system) {
-                if (!isNull(user)) {
-                    Permissions._types.role_in_system.validator(req, user, permission, function (err, result) {
-                        cb(err, {authorized: result, role: permission});
-                    });
-                }
-                else {
-                    cb(null, {authorized: false, role: permission});
-                }
+                Permissions._types.role_in_system.validator(req, user, permission, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
+                });
             }
             else if (permission.type === Permissions._types.role_in_project) {
-                if (!isNull(user)) {
-                    Permissions._types.role_in_project.validator(req, user, permission, resource, function (err, result) {
-                        cb(err, {authorized: result, role: permission});
-                    });
-                }
-                else {
-                    cb(null, {authorized: false, role: permission});
-                }
-
+                Permissions._types.role_in_project.validator(req, user, permission, resource, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
+                });
             }
-            else if (permission.type === Permissions._types.role_in_owner_project) {
-                if (!isNull(user)) {
-                    Permissions._types.role_in_owner_project.validator(req, user, permission, resource, function (err, result) {
-                        cb(err, {authorized: result, role: permission});
-                    });
-                }
-                else {
-                    cb(null, {authorized: false, role: permission});
-                }
+            else if (permission.type.validator.name === Permissions._types.role_in_owner_project.validator.name) {
+                Permissions._types.role_in_owner_project.validator(req, user, permission, resource, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
+                });
             }
             else if (permission.type === Permissions._types.privacy_of_project) {
-                if (!isNull(user)) {
-                    Permissions._types.privacy_of_project.validator(req, permission, function (err, result) {
-                        cb(err, {authorized: result, role: permission});
-                    });
-                }
-                else {
-                    cb(null, {authorized: false, role: permission});
-                }
+                Permissions._types.privacy_of_project.validator(req, permission, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
+                });
             }
             else if (permission.type === Permissions._types.privacy_of_owner_project)
             {

@@ -12,7 +12,7 @@ module.exports.binaryParser = function (res, cb) {
 
 module.exports.uploadFile = function(acceptsJSON, agent, file, targetUrl, fileType, cb)
 {
-    const Config = GLOBAL.Config;
+    const Config = global.Config;
     let supertest = require('supertest');
 
     let request = supertest(Config.host);

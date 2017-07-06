@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 GLOBAL.tests = {};
 
 let Config = Object.create(require("../src/models/meta/config.js").Config);
-GLOBAL.Config = Config;
+global.Config = Config;
 Config.initGlobals();
 
 //Config.cache.active = false;

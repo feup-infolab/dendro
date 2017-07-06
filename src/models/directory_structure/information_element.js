@@ -256,8 +256,9 @@ InformationElement.prototype.getOwnerProject = function(callback)
                 if(result instanceof Array && result.length === 1)
                 {
                     const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-                    const parent = new Project(result[0]);
-                    return callback(null,parent);
+                    Project.findByUri(result[0].uri, function(err, project){
+                        callback(err,project);
+                    });
                 }
                 else
                 {

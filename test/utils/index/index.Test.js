@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-const Config = GLOBAL.Config;
+const Config = global.Config;
 const IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
 const chai = require('chai');
