@@ -267,7 +267,7 @@ exports.show = function(req, res) {
         const _ = require('underscore');
         const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
             const reason = authorization.role;
-            return _.isEqual(reason, Permissions.role.project.creator) || _.isEqual(reason, Permissions.role.project.contributor) || _.isEqual(reason, Permissions.role.system.admin);
+            return _.isEqual(reason, Permissions.role.project.creator) || _.isEqual(reason, Permissions.role.project.contributor) || _.isEqual(reason, Permissions.role.in_system.admin);
         });
 
         if(isEditor.length > 0)
@@ -283,17 +283,17 @@ exports.show = function(req, res) {
         {
             const isPublicOrMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
                 const reason = authorization.role;
-                return _.isEqual(reason, Permissions.project_privacy_status.metadata_only) || _.isEqual(reason, Permissions.project_privacy_status.public) || _.isEqual(reason, Permissions.role.system.admin);
+                return _.isEqual(reason, Permissions.privacy_of_project.metadata_only) || _.isEqual(reason, Permissions.privacy_of_project.public) || _.isEqual(reason, Permissions.role.in_system.admin);
             });
 
             const isPublicProject = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
                 const reason = authorization.role;
-                return _.isEqual(reason, Permissions.project_privacy_status.public) || _.isEqual(reason, Permissions.role.system.admin);
+                return _.isEqual(reason, Permissions.privacy_of_project.public) || _.isEqual(reason, Permissions.role.in_system.admin);
             });
 
             const isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
                 const reason = authorization.role;
-                return _.isEqual(reason, Permissions.project_privacy_status.metadata_only) || _.isEqual(reason, Permissions.role.system.admin);
+                return _.isEqual(reason, Permissions.privacy_of_project.metadata_only) || _.isEqual(reason, Permissions.role.in_system.admin);
             });
 
             if(isPublicOrMetadataOnlyProject.length > 0)

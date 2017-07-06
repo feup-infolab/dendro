@@ -768,7 +768,8 @@ const init = function(callback)
                             }
                             catch(e)
                             {
-                                throw new Error("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
+                                console.error("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
+                                throw e;
                             }
                         }
                         else

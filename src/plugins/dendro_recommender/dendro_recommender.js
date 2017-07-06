@@ -23,10 +23,10 @@ DendroRecommender.setup = function(app)
 
     var interactions = require(path.join(pluginRootFolder, "package", "controllers", "interactions.js"));
 
-    app = DendroRecommender.registerRoute(app, 'POST', 'push_interactions/from/:starting_instant_in_iso_format',[Permissions.role.system.user], interactions.refresh_interactions);
-    app = DendroRecommender.registerRoute(app, 'POST', 'push_interactions/all', [Permissions.role.system.user], interactions.refresh_interactions);
-    app = DendroRecommender.registerRoute(app, 'POST', 'push_interactions/random', [Permissions.role.system.user], interactions.generate_random_interactions);
-    app = DendroRecommender.registerRoute(app, 'GET', 'interactions/user/:username', [Permissions.role.system.user], interactions.by_user);
+    app = DendroRecommender.registerRoute(app, 'POST', 'push_interactions/from/:starting_instant_in_iso_format',[Permissions.settings.role.in_system.user], interactions.refresh_interactions);
+    app = DendroRecommender.registerRoute(app, 'POST', 'push_interactions/all', [Permissions.settings.role.in_system.user], interactions.refresh_interactions);
+    app = DendroRecommender.registerRoute(app, 'POST', 'push_interactions/random', [Permissions.settings.role.in_system.user], interactions.generate_random_interactions);
+    app = DendroRecommender.registerRoute(app, 'GET', 'interactions/user/:username', [Permissions.settings.role.in_system.user], interactions.by_user);
     //app = DendroRecommender.registerRoute(app, 'POST', new RegExp('project\/([^\/]+)(\/data)?$'), [Permissions.role.creator_or_contributor], interactions.register);
 
     /**

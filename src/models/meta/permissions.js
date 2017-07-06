@@ -23,109 +23,6 @@ Permissions.messages = {
     }
 };
 
-Permissions.types = {
-    system : "system",
-    resource : "resource",
-    project : "project",
-    project_privacy_status : "project_privacy_status",
-    owner_project_privacy_status : "project_privacy_status"
-};
-
-Permissions.role = {
-    system : {
-        admin : {
-            type : Permissions.types.system,
-            predicate : "rdf:type",
-            object : "ddr:Administrator",
-            error_message_user : "You are not authorized to perform this operation. You must be a Dendro administrator.",
-            error_message_api : "Error detected. You are not authorized to perform this operation. You must be a Dendro administrator."
-        },
-        user : {
-            type : Permissions.types.system,
-            predicate : "rdf:type",
-            object : "ddr:User",
-            error_message_user : "You are not authorized to perform this operation. You must be signed into Dendro.",
-            error_message_api : "Error detected. You are not authorized to perform this operation. You must be signed into Dendro."
-        }
-    },
-    resource : {
-        creator : {
-            type : Permissions.types.resource,
-            predicate : "dcterms:creator",
-            error_message_user : "You are not authorized to perform this operation. You must be the creator of this resource.",
-            error_message_api : "Unauthorized access. Must be signed on as the creator of this resource."
-        },
-        contributor : {
-            type : Permissions.types.resource,
-            predicate : "dcterms:contributor",
-            error_message_user : "You are not authorized to perform this operation. You must be the contributor of this resource.",
-            error_message_api : "Unauthorized access. Must be signed on as a contributor of this resource."
-        }
-    },
-    project : {
-        creator : {
-            type : Permissions.types.project,
-            predicate : "dcterms:creator",
-            error_message_user : "Error trying to access a project or a file / folder within a project that you have not created.",
-            error_message_api : "Unauthorized access. Must be signed on as a creator of this project or as a contributor of the project it belongs to."
-        },
-        contributor : {
-            type : Permissions.types.project,
-            predicate : "dcterms:contributor",
-            error_message_user : "You are not a contributor of this project or of the project to which this resource belongs to.",
-            error_message_api : "Unauthorized access. Must be signed on as a contributor of this project or as a contributor of the project it belongs to."
-        }
-    }
-};
-
-Permissions.project_privacy_status = {
-    public : {
-        type : Permissions.types.project_privacy_status,
-        predicate : "ddr:privacyStatus",
-        object : "public",
-        error_message_user : "This is a public project.",
-        error_message_api : "This is a public project."
-    },
-    private : {
-        type : Permissions.types.project_privacy_status,
-        predicate : "ddr:privacyStatus",
-        object : "private",
-        error_message_user : "This is a private project, and neither data nor metadata can be accessed.",
-        error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed."
-    },
-    metadata_only :  {
-        type : Permissions.types.project_privacy_status,
-        predicate : "ddr:privacyStatus",
-        object : "metadata_only",
-        error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
-        error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
-    }
-};
-
-Permissions.resource_access_based_on_owner_project_privacy_status = {
-    public : {
-        type : Permissions.types.owner_project_privacy_status,
-        predicate : "ddr:privacyStatus",
-        object : "public",
-        error_message_user : "This is a resource that belongs to a public project.",
-        error_message_api : "This is a resource that belongs to a public project."
-    },
-    private : {
-        type : Permissions.types.owner_project_privacy_status,
-        predicate : "ddr:privacyStatus",
-        object : "private",
-        error_message_user : "This is a resource that belongs to a private project, and neither data nor metadata can be accessed.",
-        error_message_api : "Unauthorized Access. This is a resource that belongs to a private project, and neither data nor metadata can be accessed."
-    },
-    metadata_only :  {
-        type : Permissions.types.owner_project_privacy_status,
-        predicate : "ddr:privacyStatus",
-        object : "metadata_only",
-        error_message_user : "This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed.",
-        error_message_api : "Unauthorized Access. This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed."
-    }
-};
-
 Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllowingOrDenying, errorMessage)
 {
     let acceptsHTML = req.accepts('html');
@@ -135,7 +32,7 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
     {
         if(Config.debug.permissions.log_authorizations)
         {
-            var user = "-> NO USER AUTHENTICATED <-";
+            let user = "-> NO USER AUTHENTICATED <-";
             if(req.user)
             {
                 user = req.user.uri;
@@ -157,7 +54,7 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
 
         if(Config.debug.permissions.log_authorizations)
         {
-            var user = "-> NO USER AUTHENTICATED <-";
+            let user = "-> NO USER AUTHENTICATED <-";
             if(!isNull(req.user))
             {
                 user = req.user.uri;
@@ -192,9 +89,9 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
             if(req.user)
             {
                 return res.status(401).render('index',
-                {
-                    error_messages : [messageUser]
-                });
+                    {
+                        error_messages : [messageUser]
+                    });
             }
             else
             {
@@ -251,63 +148,62 @@ const getOwnerProject = function (requestedResource, callback) {
     });
 };
 
-const checkUsersRoleInSystem = function (req, user, role, callback) {
+/** Role-based validation **/
+
+const checkRoleInSystem = function (req, user, role, callback) {
     user.checkIfHasPredicateValue(role.predicate, role.object, function (err, result) {
         return callback(err, result);
     });
 };
 
 const checkUsersRoleInProject = function (req, user, role, project, callback) {
-    project.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result) {
-        return callback(err, result);
+    Project.findByUri(project, function (err, project)
+    {
+        if (!err)
+        {
+            if (project instanceof Project)
+            {
+                project.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result)
+                {
+                    return callback(err, result);
+                });
+            }
+            else
+            {
+                return callback(null, null);
+            }
+        }
+        else
+        {
+            return callback(err, null);
+        }
     });
 };
 
-const checkUsersRoleInResource = function (req, user, role, resource, callback) {
-    resource.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result) {
-        return callback(err, result);
-    });
-};
-
-const checkPermissionsForRole = function (req, user, role, resource, callback) {
+const checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
     if (!(user instanceof User) && user instanceof Object)
         user = new User(user);
 
-    if (role.type === Permissions.types.system) {
-        checkUsersRoleInSystem(req, user, role, function (err, hasRole) {
-            return callback(err, {authorized: hasRole, role: role});
-        });
-    }
-    else if (role.type === Permissions.types.owner_project_privacy_status) {
-        getOwnerProject(resource, function (err, project) {
-            if (!err) {
-                if (project instanceof Project) {
-                    checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
-                        return callback(err, {authorized: hasRole, role: role});
-                    });
-                }
-                else {
-                    return callback(null, null);
-                }
+    getOwnerProject(resource, function (err, project) {
+        if (!err) {
+            if (project instanceof Project) {
+                checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
+                    return callback(err, {authorized: hasRole, role: role});
+                });
             }
             else {
-                return callback(err, null);
+                return callback(null, null);
             }
-        });
-    }
-    else if (role.type === Permissions.types.resource) {
-        checkUsersRoleInResource(req, user, role, resource, function (err, hasRole) {
-            return callback(err, {authorized: hasRole, role: role});
-        });
-    }
-    else if (role.type === Permissions.types.resource) {
-        checkUsersRoleInResource(req, user, role, resource, function (err, hasRole) {
-            return callback(err, {authorized: hasRole, role: role});
-        });
-    }
+        }
+        else {
+            return callback(err, null);
+        }
+    });
 };
 
-const checkPermissionsForProject = function (req, permission, callback) {
+/** "Privacy status"-based validation **/
+
+const checkPrivacyOfProject = function (req, permission, callback) {
     Project.findByUri(req.params.requestedResourceUri, function (err, project) {
         if (!err) {
             if (!isNull(project) && project instanceof Project) {
@@ -317,7 +213,7 @@ const checkPermissionsForProject = function (req, permission, callback) {
                     return callback(null,
                         {
                             authorized: true,
-                            role: Permissions.project_privacy_status[permission.object]
+                            role: Permissions.privacy_of_project[permission.object]
                         }
                     );
                 }
@@ -350,10 +246,167 @@ const checkPermissionsForProject = function (req, permission, callback) {
     });
 };
 
+const checkPrivacyOfOwnerProject = function (req, user, role, resource, callback) {
+    getOwnerProject(resource, function (err, project) {
+        if (!err) {
+            if (!isNull(project) && project instanceof Project) {
+                const privacy = project.ddr.privacyStatus;
 
-Permissions.addToReasons = function(req, reason, authorizing)
-{
-    if(typeof req.permissions_management === "undefined")
+                if (!isNull(permission.object) && privacy === permission.object) {
+                    return callback(null,
+                        {
+                            authorized: true,
+                            role: Permissions.privacy_of_project[permission.object]
+                        }
+                    );
+                }
+                else {
+                    return callback(null,
+                        {
+                            authorized: false,
+                            role: permission
+                        }
+                    );
+                }
+            }
+            else {
+                return callback(null,
+                    {
+                        authorized: true,
+                        role: ["Project with uri" + req.requestedResourceUri + " does not exist."]
+                    }
+                );
+            }
+        }
+        else {
+            return callback(err, null);
+        }
+    });
+};
+
+/** Permission types **/
+
+Permissions._types = {
+    role_in_system : {
+        validator : checkRoleInSystem
+    },
+    role_in_project : {
+        validator : checkUsersRoleInProject
+    },
+    role_in_owner_project : {
+        validator : checkUsersRoleInParentProject
+    },
+    privacy_of_project : {
+        validator : checkPrivacyOfProject
+    },
+    privacy_of_owner_project : {
+        validator : checkPrivacyOfOwnerProject
+    }
+};
+
+/** Permission parametrization **/
+
+Permissions.settings = {
+    role : {
+        in_system : {
+            admin: {
+                type: Permissions._types.role_in_system,
+                predicate: "rdf:type",
+                object: "ddr:Administrator",
+                error_message_user: "You are not authorized to perform this operation. You must be a Dendro administrator.",
+                error_message_api: "Error detected. You are not authorized to perform this operation. You must be a Dendro administrator."
+            },
+            user: {
+                type: Permissions._types.role_in_system,
+                predicate: "rdf:type",
+                object: "ddr:User",
+                error_message_user: "You are not authorized to perform this operation. You must be signed into Dendro.",
+                error_message_api: "Error detected. You are not authorized to perform this operation. You must be signed into Dendro."
+            }
+        },
+        in_project : {
+            creator: {
+                type: Permissions._types.role_in_project,
+                predicate: "dcterms:creator",
+                error_message_user: "Error trying to access a project or a file / folder within a project that you have not created.",
+                error_message_api: "Unauthorized access. Must be signed on as a creator of this project."
+            },
+            contributor: {
+                type: Permissions._types.role_in_project,
+                predicate: "dcterms:contributor",
+                error_message_user: "You are not a contributor of this project or of the project to which this resource belongs to.",
+                error_message_api: "Unauthorized access. Must be signed on as a contributor of this project."
+            }
+        },
+        in_owner_project : {
+            creator: {
+                type: Permissions._types.role_in_owner_project,
+                predicate: "dcterms:creator",
+                error_message_user: "Error trying to access a project or a file / folder within a project that you have not created.",
+                error_message_api: "Unauthorized access. Must be signed on as a creator of the project the resource belongs to."
+            },
+            contributor: {
+                type: Permissions._types.role_in_owner_project,
+                predicate: "dcterms:contributor",
+                error_message_user: "You are not a contributor of this project or of the project to which this resource belongs to.",
+                error_message_api: "Unauthorized access. Must be signed on as a contributor of the project the resource belongs to."
+            }
+        }
+    },
+    privacy : {
+        of_project : {
+            public : {
+                type : Permissions._types.privacy_of_project,
+                predicate : "ddr:privacyStatus",
+                object : "public",
+                error_message_user : "This is a public project.",
+                error_message_api : "This is a public project."
+            },
+            private : {
+                type : Permissions._types.privacy_of_project,
+                predicate : "ddr:privacyStatus",
+                object : "private",
+                error_message_user : "This is a private project, and neither data nor metadata can be accessed.",
+                error_message_api : "Unauthorized Access. This is a private project, and neither data nor metadata can be accessed."
+            },
+            metadata_only :  {
+                type : Permissions._types.privacy_of_project,
+                predicate : "ddr:privacyStatus",
+                object : "metadata_only",
+                error_message_user : "This is a project with only metadata access. Data metadata cannot be accessed.",
+                error_message_api : "Unauthorized Access. This is a project with only metadata access. Data metadata cannot be accessed."
+            }
+        },
+        of_owner_project : {
+            public: {
+                type: Permissions._types.privacy_of_owner_project,
+                predicate: "ddr:privacyStatus",
+                object: "public",
+                error_message_user: "This is a resource that belongs to a public project.",
+                error_message_api: "This is a resource that belongs to a public project."
+            },
+            private: {
+                type: Permissions._types.privacy_of_owner_project,
+                predicate: "ddr:privacyStatus",
+                object: "private",
+                error_message_user: "This is a resource that belongs to a private project, and neither data nor metadata can be accessed.",
+                error_message_api: "Unauthorized Access. This is a resource that belongs to a private project, and neither data nor metadata can be accessed."
+            },
+            metadata_only: {
+                type: Permissions._types.privacy_of_owner_project,
+                predicate: "ddr:privacyStatus",
+                object: "metadata_only",
+                error_message_user: "This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed.",
+                error_message_api: "Unauthorized Access. This is a resource that belongs to a project with only metadata access. Data metadata cannot be accessed."
+            }
+        }
+    }
+};
+
+/** Permissions checking logic **/
+
+Permissions.addToReasons = function(req, reason, authorizing) {
+    if(isNull(req.permissions_management))
     {
         req.permissions_management = {};
     }
@@ -370,19 +423,28 @@ Permissions.addToReasons = function(req, reason, authorizing)
     return req;
 };
 
-Permissions.check = function(permissionsRequired, req, callback)
-{
+Permissions.check = function(permissionsRequired, req, callback) {
     //Global Administrators are God, so they dont go through any checks
     if(!req.session.isAdmin)
     {
         const resource = req.params.requestedResourceUri;
         const user = req.user;
 
-        const checkPermissions = function (req, user, resource, permission, cb) {
-            if (permission.type === Permissions.types.system) {
+        const checkPermission = function (req, user, resource, permission, cb) {
+            if (permission.type === Permissions._types.role_in_system) {
                 if (!isNull(user)) {
-                    checkPermissionsForRole(req, user, permission, resource, function (err, results) {
-                        cb(err, results);
+                    Permissions._types.role_in_system.validator(req, user, permission, function (err, result) {
+                        cb(err, {authorized: result, role: permission});
+                    });
+                }
+                else {
+                    cb(null, {authorized: false, role: permission});
+                }
+            }
+            else if (permission.type === Permissions._types.role_in_project) {
+                if (!isNull(user)) {
+                    Permissions._types.role_in_project.validator(req, user, permission, resource, function (err, result) {
+                        cb(err, {authorized: result, role: permission});
                     });
                 }
                 else {
@@ -390,49 +452,45 @@ Permissions.check = function(permissionsRequired, req, callback)
                 }
 
             }
-            else if (permission.type === Permissions.types.project) {
+            else if (permission.type === Permissions._types.role_in_owner_project) {
                 if (!isNull(user)) {
-                    checkPermissionsForRole(req, user, permission, resource, function (err, results) {
-                        cb(err, results);
+                    Permissions._types.role_in_owner_project.validator(req, user, permission, resource, function (err, result) {
+                        cb(err, {authorized: result, role: permission});
                     });
                 }
                 else {
                     cb(null, {authorized: false, role: permission});
                 }
-
             }
-            else if (permission.type === Permissions.types.resource) {
+            else if (permission.type === Permissions._types.privacy_of_project) {
                 if (!isNull(user)) {
-                    checkPermissionsForRole(req, user, permission, resource, function (err, results) {
-                        cb(err, results);
+                    Permissions._types.privacy_of_project.validator(req, permission, function (err, result) {
+                        cb(err, {authorized: result, role: permission});
                     });
                 }
                 else {
-                    cb(null, {authorized: hasRole, role: permission});
+                    cb(null, {authorized: false, role: permission});
                 }
             }
-            else if (permission.type === Permissions.types.project_privacy_status) {
-                checkPermissionsForProject(req, permission, function (err, results) {
-                    cb(err, results);
+            else if (permission.type === Permissions._types.privacy_of_owner_project)
+            {
+                Permissions._types.privacy_of_owner_project.validator(req, user, permission, resource, function (err, result) {
+                    cb(err, {authorized: result, role: permission});
                 });
             }
-            else if (permission.type === Permissions.types.resource_access_based_on_owner_project_privacy_status) {
-                checkPermissionsForOwnerProject(req, permission, function (err, results) {
-                    cb(err, results);
-                });
-            }
-            else {
+            else
+            {
                 cb(null,
                     {
                         authorized: false,
-                        role: "Permission required is badly configured. Ask your administrator to review your Dendro server's configuration"
+                        role: "Type of permission required is badly configured. Ask your administrator to review your Dendro server's configuration."
                     }
                 );
             }
         };
 
         async.map(permissionsRequired,
-            async.apply(checkPermissions, req, user, resource),
+            async.apply(checkPermission, req, user, resource),
             function(err, results)
             {
                 const reasonsForDenying = _.filter(results, function (result) {
@@ -444,8 +502,6 @@ Permissions.check = function(permissionsRequired, req, callback)
                     }
                 });
 
-                req = Permissions.addToReasons(req, reasonsForDenying, false);
-
                 const reasonsForAuthorizing = _.filter(results, function (result) {
                     if (!isNull(result)) {
                         return result.authorized
@@ -454,6 +510,8 @@ Permissions.check = function(permissionsRequired, req, callback)
                         return false;
                     }
                 });
+
+                req = Permissions.addToReasons(req, reasonsForDenying, false);
 
                 req = Permissions.addToReasons(req, reasonsForAuthorizing, true);
 
@@ -465,7 +523,7 @@ Permissions.check = function(permissionsRequired, req, callback)
     {
         const reasonsForAllowing = [{
             authorized: true,
-            role: Permissions.role.system.admin
+            role: Permissions.role.in_system.admin
         }];
 
         req = Permissions.addToReasons(req, reasonsForAllowing, true);
@@ -474,8 +532,7 @@ Permissions.check = function(permissionsRequired, req, callback)
     }
 };
 
-Permissions.require = function(permissionsRequired, req, res, next)
-{
+Permissions.require = function(permissionsRequired, req, res, next) {
     if(Config.debug.permissions.enable_permissions_system)
     {
         if(Config.debug.permissions.log_requests_and_permissions)
@@ -507,6 +564,7 @@ Permissions.require = function(permissionsRequired, req, res, next)
                     {
                         console.log("[DENIED] : Checking for permissions on request " + req.originalUrl);
                         console.log(JSON.stringify(req.permissions_management.reasons_for_authorizing.length, null, 2));
+                        console.log(JSON.stringify(req.permissions_management.reasons_for_denying, null, 2));
                     }
 
                     return Permissions.sendResponse(false, req, res, next, req.permissions_management.reasons_for_denying);
@@ -520,7 +578,7 @@ Permissions.require = function(permissionsRequired, req, res, next)
         }
         else
         {
-            return Permissions.sendResponse(true, req, res, next, [Permissions.role.system.admin]);
+            return Permissions.sendResponse(true, req, res, next, [Permissions.role.in_system.admin]);
         }
     }
     else

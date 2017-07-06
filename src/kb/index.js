@@ -302,7 +302,7 @@ IndexConnection.prototype.delete_index  = function (callback)
             {
                 const error = "Error deleting index : " + data.error;
                 console.error(error);
-                return callback(error, result);
+                return callback(error, data.error);
             }
         });
 };

@@ -167,7 +167,7 @@
       "permissions": {
         "enable_permissions_system": true,
         "log_authorizations": false,
-        "log_denials": false,
+        "log_denials": true,
         "log_requests_and_permissions": false
       },
       "users": {
@@ -513,7 +513,7 @@
       "permissions": {
         "enable_permissions_system": true,
         "log_authorizations": false,
-        "log_denials": false,
+        "log_denials": true,
         "log_requests_and_permissions": false
       },
       "users": {
