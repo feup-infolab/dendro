@@ -700,19 +700,19 @@
         "active": true,
         "instances": {
           "default": {
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "6780",
             "database_number": 1,
             "id": "default"
           },
           "social": {
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "6781",
             "database_number": 1,
             "id": "social"
           },
           "notifications": {
-            "host": "192.168.56.249",
+            "host": "127.0.0.1",
             "port": "6782",
             "database_number": 1,
             "id": "notifications"
