@@ -216,7 +216,7 @@ const checkPrivacyOfProject = function (req, permission, callback) {
                     return callback(null,
                         {
                             authorized: true,
-                            role: Permissions.privacy_of_project[permission.object]
+                            role: Permissions._types.privacy_of_project[permission.object]
                         }
                     );
                 }

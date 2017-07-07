@@ -350,7 +350,7 @@ exports.show = function(req, res) {
     if(isNull(req.params.filepath))
     {
         viewVars.read_only = true;
-        viewVars.showing_project_root = 1;
+        viewVars.is_project_root = 1;
 
         Project.findByHandle(req.params.handle, function(err, project) {
             if(!err && !isNull(project))
@@ -506,7 +506,7 @@ exports.show = function(req, res) {
                  */
 
                 //viewVars.read_only = true;
-                viewVars.showing_project_root = false;
+                viewVars.is_project_root = false;
 
                 Project.findByHandle(req.params.handle, function(err, project) {
                     if(!err && !isNull(project))

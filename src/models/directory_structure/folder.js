@@ -65,76 +65,86 @@ function Folder (object)
     return self;
 }
 
-Folder.prototype.getLogicalParts = function(final_callback)
+Folder.prototype.getLogicalParts = function(callback)
 {
     const self = this;
     const fs = require('fs');
 
-    const query =
+    const childFoldersQuery =
         "SELECT ?uri ?type\n" +
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
-        "{ \n" +
-        " [1] nie:hasLogicalPart ?uri . \n" +
-        "?uri rdf:type ?type . \n" +
-        "?uri rdf:type nfo:Folder  \n" +
-        " } UNION { \n" +
-        " [1] nie:hasLogicalPart ?uri . \n" +
-        "?uri rdf:type ?type . \n" +
-        "?uri rdf:type nfo:FileDataObject \n" +
-        "} \n" +
+        "   [1] nie:hasLogicalPart ?uri . \n" +
+        "   ?uri rdf:type nfo:Folder  \n" +
         "} \n";
 
-    db.connection.execute(query,
-        [
-            {
-                type: DbConnection.resourceNoEscape,
-                value : db.graphUri
-            },
-            {
-                type: DbConnection.resource,
-                value : self.uri
-            }
-        ],
-        function(err, children) {
-            if(!err)
-            {
-                if(!isNull(children) && children instanceof Array)
-                {
-                    const getChildrenProperties = function (child, cb) {
-                        if (child.type === Folder.prefixedRDFType) {
-                            Folder.findByUri(child.uri, function (err, folder) {
-                                cb(err, folder);
-                            });
-                        }
-                        else if (child.type === File.prefixedRDFType) {
-                            File.findByUri(child.uri, function (err, file) {
-                                cb(err, file);
-                            });
-                        }
-                        else {
-                            const error = "Unknown child node type : " + child.type;
-                            console.error(error);
-                            cb(1, error);
-                        }
-                    };
+    const childFilesQuery =
+        "SELECT ?uri ?type\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:hasLogicalPart ?uri . \n" +
+        "   ?uri rdf:type nfo:FileDataObject \n" +
+        "} \n";
 
-                    async.map(children, getChildrenProperties, function(err, children){
-                        if(!err)
-                        {
-                            return final_callback(null, children);
-                        }
-                        else
-                        {
-                            return final_callback(1, children)
-                        }
-                    });
-                }
-                else
+    async.map([
+        {
+            query : childFoldersQuery,
+            childClass : Folder
+        },
+        {
+            query : childFilesQuery,
+            childClass : File.findByUri
+        }
+    ], function(argument, callback){
+        db.connection.execute(argument.query,
+            [
                 {
-                    return callback(1,"Unable to retrieve Information Element's metadata " + children);
+                    type: DbConnection.resourceNoEscape,
+                    value : db.graphUri
+                },
+                {
+                    type: DbConnection.resource,
+                    value : self.uri
                 }
+            ],
+            function(err, children) {
+                if(!err)
+                {
+                    if(!isNull(children) && children instanceof Array)
+                    {
+                        const getChildrenProperties = function (child, cb) {
+                            argument.childClass.findByUri(child.uri, function (err, child) {
+                                cb(err, child)
+                            });
+                        };
+
+                        async.map(children, getChildrenProperties, function(err, children){
+                            if(!err)
+                            {
+                                return callback(null, children);
+                            }
+                            else
+                            {
+                                return callback(err, children);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        return callback(1,"Unable to retrieve Information Element's metadata " + children);
+                    }
+                }
+            });
+    }, function(err, results){
+        if(err)
+        {
+            callback(err, results);
+        }
+        else
+        {
+            callback(err, _.flatten(results));
         }
     });
 };
