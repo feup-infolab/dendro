@@ -1945,7 +1945,7 @@ Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptor
         {
             const element = elements[j];
 
-            if(self[prefix] !== null && !isNull(self[prefix][element]))
+            if(!isNull(self[prefix]) && !isNull(self[prefix][element]))
             {
                 const newDescriptor = new Descriptor(
                     {
@@ -2041,13 +2041,17 @@ Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptors
                  newValue = new
                  */
 
-                if(isNull(self[prefix]))
+                let oldValue = null;
+                if(!isNull(self[prefix]) && !isNull(self[prefix][descriptor]))
                 {
-                    self[prefix] = {};
+                    oldValue = self[prefix][descriptor];
                 }
 
-                let oldValue = self[prefix][descriptor];
-                let newValue = newResource[prefix][descriptor];
+                let newValue = null;
+                if(!isNull(newResource[prefix]) && !isNull(newResource[prefix][descriptor]))
+                {
+                    newValue = newResource[prefix][descriptor];
+                }
 
                 if(isNull(oldValue) && !isNull(newValue))
                 {

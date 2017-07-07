@@ -325,7 +325,7 @@
       },
       "saml": {
         "enabled": true,
-        "path": "/auth/saml/callback",
+        "callback_path": "/auth/saml/callback",
         "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
         "issuer": "passport-saml",
         "button_text": "Sign-in with SIGARRA"
@@ -672,7 +672,7 @@
       },
       "saml": {
         "enabled": true,
-        "path": "/auth/saml/callback",
+        "callback_path": "/auth/saml/callback",
         "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
         "issuer": "passport-saml",
         "button_text": "Sign-in with SIGARRA"
@@ -1006,7 +1006,7 @@
       },
       "saml": {
         "enabled": true,
-        "path": "/auth/saml/callback",
+        "callback_path": "/auth/saml/callback",
         "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
         "issuer": "passport-saml"
       }

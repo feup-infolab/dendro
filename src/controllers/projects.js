@@ -153,7 +153,7 @@ exports.change_log = function(req, res){
     {
         if(!err && containingFolder !== "undefined" && containingFolder instanceof Folder)
         {
-            folder.getOwnerProject(function(err, project){
+            containingFolder.getOwnerProject(function(err, project){
                 if(!err && !isNull(project))
                 {
                     let offset;
