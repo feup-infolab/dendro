@@ -178,5 +178,26 @@ exports.sendingNewPassword = function (email, token, pass, passConfirm, cb) {
         });
 };
 
+exports.editUser = function (jsonOnly, agent, dataToEdit, cb) {
+    let path = "/user/edit";
+    if(jsonOnly){
+        agent
+            .post(path)
+            .set('Accept','application/json')
+            .send(dataToEdit)
+            .end(function(err,res){
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .post(path)
+            .send(dataToEdit)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = exports;
 

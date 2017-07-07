@@ -641,7 +641,7 @@ exports.edit = function (req, res, next) {
                     {
                         user.save(function (err, editedUser) {
                             if (!err) {
-                                req.flash('success', "User, " + editedUser.ddr.username + " edited.");
+                                req.flash('success', "User " + editedUser.ddr.username + " edited.");
                                 console.log("User " + editedUser.ddr.username + " edited.");
                                 //res.redirect('/me');
                                 if(changedPassword)
