@@ -328,6 +328,51 @@ exports.refresh_interactions = function(req, res)
                 {
                     if (!err)
                     {
+                        const sendInteractionsArray = function(req, res, conn, interactions, callback)
+                        {
+                            InteractionMapper.map(interactions, function(err, mappedInteractions){
+                                if(!err)
+                                {
+                                    conn.send("POST", mappedInteractions, "/facts/new", function (err, result, body)
+                                    {
+                                        if (!err)
+                                        {
+                                            callback(null, result);
+                                            return res.json({
+                                                result: "ok",
+                                                messages : ["Interactions successfully pushed to Dendro Recommender"]
+                                            });
+                                        }
+                                        else
+                                        {
+                                            if(!isNull(body) && body.message)
+                                            {
+                                                return res.status(500).json({
+                                                    result: "error",
+                                                    messages: ["Dendro Recommender is active but there were errors pushing the recommendations to the external system", body.message]
+                                                });
+                                            }
+                                            else
+                                            {
+                                                return res.status(500).json({
+                                                    result: "error",
+                                                    messages: ["Dendro Recommender is active but there were unknown errors pushing the recommendations to the external system"]
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    return res.status(500).json({
+                                        result: "error",
+                                        title : "Internal error",
+                                        messages: ["Unable to map existing interactions to the Dendro Recommender's format. Error reported : " + mappedInteractions]
+                                    });
+                                }
+                            });
+                        };
+
                         sendInteractionsArray(req, res, conn, interactions, function(err, result){
                             if(!err)
                             {
@@ -513,49 +558,4 @@ exports.by_user = function(req, res)
             res.redirect('/');
         }
     }
-};
-
-const sendInteractionsArray = function(req, res, conn, interactions, callback)
-{
-    InteractionMapper.map(interactions, function(err, mappedInteractions){
-        if(!err)
-        {
-            conn.send("POST", mappedInteractions, "/facts/new", function (err, result, body)
-            {
-                if (!err)
-                {
-                    callback(null, result);
-                    return res.json({
-                        result: "ok",
-                        messages : ["Interactions successfully pushed to Dendro Recommender"]
-                    });
-                }
-                else
-                {
-                    if(!isNull(body) && body.message)
-                    {
-                        return res.status(500).json({
-                            result: "error",
-                            messages: ["Dendro Recommender is active but there were errors pushing the recommendations to the external system", body.message]
-                        });
-                    }
-                    else
-                    {
-                        return res.status(500).json({
-                            result: "error",
-                            messages: ["Dendro Recommender is active but there were unknown errors pushing the recommendations to the external system"]
-                        });
-                    }
-                }
-            });
-        }
-        else
-        {
-            return res.status(500).json({
-                result: "error",
-                title : "Internal error",
-                messages: ["Unable to map existing interactions to the Dendro Recommender's format. Error reported : " + mappedInteractions]
-            });
-        }
-    });
 };

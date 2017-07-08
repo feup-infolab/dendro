@@ -1196,6 +1196,29 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function(ontologyURIsArr
                 }
                 else
                 {
+                    const groupPropertiesArrayIntoObject = function(results)
+                    {
+                        let properties = null;
+
+                        if(results.length > 0 )
+                        {
+                            properties = {};
+
+                            for(let i = 0; i < results.length; i++)
+                            {
+                                const result = results[i];
+                                if(isNull(properties[result.property]))
+                                {
+                                    properties[result.property] = [];
+                                }
+
+                                properties[result.property].push(decodeURI(result.object));
+                            }
+                        }
+
+                        return properties;
+                    };
+
                     const propertiesObject = groupPropertiesArrayIntoObject(results);
                     return callback(null, propertiesObject);
                 }
@@ -1902,29 +1925,6 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
             return callback(1, error);
         }
     });
-};
-
-const groupPropertiesArrayIntoObject = function(results)
-{
-    let properties = null;
-
-    if(results.length > 0 )
-    {
-        properties = {};
-
-        for(let i = 0; i < results.length; i++)
-        {
-            const result = results[i];
-            if(isNull(properties[result.property]))
-            {
-                properties[result.property] = [];
-            }
-
-            properties[result.property].push(decodeURI(result.object));
-        }
-    }
-
-    return properties;
 };
 
 Resource.prototype.getURIsOfCurrentDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)

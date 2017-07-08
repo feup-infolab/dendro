@@ -52,7 +52,12 @@ module.exports.login = function(req, res, next){
                                 else
                                 {
                                     req.flash('success', "Welcome, " + user.foaf.firstName + " " + user.foaf.surname + ".");
-                                    console.log("User " + user.ddr.username + " signed in.");
+
+                                    if(Config.debug.permissions.log_authorizations)
+                                    {
+                                        console.log("User " + user.ddr.username + " signed in.");
+                                    }
+                                        
                                     res.redirect('/projects/my');
                                 }
                             }

@@ -151,15 +151,6 @@ Utils.add_line_breaks = function(sentence, every_x_words)
     return brokenSentence;
 };
 
-Utils.display_name = function()
-{
-    var myName = arguments.callee.toString();
-    myName = myName.substr('function '.length);
-    myName = myName.substr(0, myName.indexOf('('));
-
-    console.log(myName + " not implemented yet.");
-};
-
 Utils.isCyclic = function(obj) {
     var seenObjects = [];
 

@@ -210,46 +210,39 @@ exports.from_ontology = function(req, res)
                                                 {
                                                     if (!err)
                                                     {
-                                                        for (var i = 0; i < descriptors.length; i++)
+                                                        let typeDetected = function(results, descriptor)
+                                                        {
+                                                            return _.find(results, function (userFavoriteDescriptor)
+                                                            {
+                                                                return userFavoriteDescriptor.uri === descriptor.uri;
+                                                            });
+                                                        };
+                                                        
+                                                        for (let i = 0; i < descriptors.length; i++)
                                                         {
                                                             descriptors[i]["recommendation_types"] = {};
 
-                                                            if (_.find(results[0], function (userFavoriteDescriptor)
-                                                                {
-                                                                    return userFavoriteDescriptor.uri === descriptors[i].uri
-                                                                }))
+                                                            if (typeDetected(results[0], descriptors[i]))
                                                             {
                                                                 descriptors[i]["recommendation_types"][Descriptor.recommendation_types.user_favorite.key] = true;
                                                             }
 
-                                                            if (_.find(results[1], function (projectFavoriteDescriptor)
-                                                                {
-                                                                    return projectFavoriteDescriptor.uri === descriptors[i].uri
-                                                                }))
+                                                            if (typeDetected(results[1], descriptors[i]))
                                                             {
                                                                 descriptors[i]["recommendation_types"][Descriptor.recommendation_types.project_favorite.key] = true;
                                                             }
 
-                                                            if (_.find(results[2], function (usersHiddenDescriptor)
-                                                                {
-                                                                    return usersHiddenDescriptor.uri === descriptors[i].uri
-                                                                }))
+                                                            if (typeDetected(results[2], descriptors[i]))
                                                             {
                                                                 descriptors[i]["recommendation_types"][Descriptor.recommendation_types.user_hidden.key] = true;
                                                             }
 
-                                                            if (_.find(results[3], function (projectHiddenDescriptor)
-                                                                {
-                                                                    return projectHiddenDescriptor.uri === descriptors[i].uri
-                                                                }))
+                                                            if (typeDetected(results[3], descriptors[i]))
                                                             {
                                                                 descriptors[i]["recommendation_types"][Descriptor.recommendation_types.project_hidden.key] = true;
                                                             }
 
-                                                            if (_.find(results[4], function (dcElementDescriptor)
-                                                                {
-                                                                    return dcElementDescriptor.uri === descriptors[i].uri
-                                                                }))
+                                                            if (typeDetected(results[4], descriptors[i]))
                                                             {
                                                                 descriptors[i]["recommendation_types"][Descriptor.recommendation_types.dc_element_forced.key] = true;
                                                             }
