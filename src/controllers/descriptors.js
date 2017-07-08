@@ -45,17 +45,15 @@ exports.from_ontology = function(req, res)
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        if (typeof req.query.project_handle !== "undefined")
+        if (!isNull(req.query.project_handle))
         {
             const project_handle = req.query.project_handle;
 
-            if(typeof req.params.ontology_prefix !== "undefined")
+            if(!isNull(req.params.ontology_prefix))
             {
-                var prefix = req.params.ontology_prefix;
-
+                const prefix = req.params.ontology_prefix;
                 if(!isNull(prefix))
                 {
-                    var prefix = req.params.ontology_prefix;
                     Ontology.findByPrefix(prefix, function (err, ontology)
                     {
                         if (!err)

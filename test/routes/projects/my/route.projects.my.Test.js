@@ -73,7 +73,7 @@ describe("My Projects", function (done) {
             const app = GLOBAL.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.listAllMyProjects(false, agent, function (err, res) {
-                res.statusCode.should.equal(200);
+                res.statusCode.should.equal(401);
                 res.text.should.contain("<p>Please log into the system.</p>");
                 done();
             });

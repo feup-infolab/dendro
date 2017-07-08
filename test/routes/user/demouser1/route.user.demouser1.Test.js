@@ -38,8 +38,7 @@ describe("/user/demouser1", function (done) {
         const app = GLOBAL.tests.app;
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(demouser1.username, false, agent, function(err, res){
-            res.should.have.status(200);
-            res.redirects[0].should.contain("/login");
+            res.should.have.status(401);
             res.text.should.contain("Please log into the system");
             done();
         })
@@ -108,7 +107,7 @@ describe("/user/demouser1", function (done) {
         const app = GLOBAL.tests.app;
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(falseUser, false, agent, function(err, res){
-            res.should.have.status(200);
+            res.should.have.status(401);
             res.text.should.contain("Please log into the system");
             done();
         })

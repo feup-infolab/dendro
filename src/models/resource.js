@@ -84,6 +84,13 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
+    const queryArguments = [
+        {
+            type: DbConnection.resourceNoEscape,
+            value: graphUri
+        }
+    ];
+
     let query =
         "SELECT ?uri " +
         "FROM [0]" +
@@ -92,9 +99,35 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 
     if(!isNull(type))
     {
-        query = query + "   ?uri rdf:type [1] "
-    }
+        let rdfTypes;
 
+        if(!(self.prefixedRDFType instanceof Array))
+            rdfTypes = [self.prefixedRDFType];
+        else
+            rdfTypes = self.prefixedRDFType;
+
+
+        let typeRestrictions = "";
+        for(let i = 1; i < rdfTypes.length + 1; i++)
+        {
+            typeRestrictions = typeRestrictions + " ?uri rdf:type ["+i+"]";
+            queryArguments.push({
+                type: DbConnection.prefixedResource,
+                value: self.prefixedRDFType[i-1]
+            });
+
+            if(i < rdfTypes.length)
+            {
+                typeRestrictions += ".\n";
+            }
+            else
+            {
+                typeRestrictions += "\n";
+            }
+        }
+
+        query = query + typeRestrictions;
+    }
 
     query = query + "} \n";
 
@@ -112,21 +145,6 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
             req,
             query
         );
-    }
-
-    const queryArguments = [
-        {
-            type: DbConnection.resourceNoEscape,
-            value: graphUri
-        }
-    ];
-
-    if(!isNull(type))
-    {
-        queryArguments.push({
-            type : DbConnection.prefixedResource,
-            value : type
-        });
     }
 
     db.connection.execute(
@@ -2794,29 +2812,55 @@ Resource.exists = function(uri, callback, customGraphUri)
 
 Resource.getCount = function(callback) {
     const self = this;
-    const countQuery =
-        "SELECT " +
-        "COUNT(?uri) as ?count " +
-        "FROM [0] " +
-        "WHERE " +
-        "{ " +
-        " ?uri rdf:type [1] " +
-        "}";
 
     let totalCount;
+    let rdfTypes;
 
-    db.connection.execute(countQuery,
-        [
-            {
-                type: DbConnection.resourceNoEscape,
-                value: db.graphUri
-            },
-            {
-                type: DbConnection.prefixedResource,
-                value: self.prefixedRDFType
-            }
-        ],
+    let queryArguments = [
+        {
+            type: DbConnection.resourceNoEscape,
+            value: db.graphUri
+        }
+    ];
 
+
+    if(!(self.prefixedRDFType instanceof Array))
+        rdfTypes = [self.prefixedRDFType];
+    else
+        rdfTypes = self.prefixedRDFType;
+
+
+    let typeRestrictions = "";
+    for(let i = 1; i < rdfTypes.length + 1; i++)
+    {
+        typeRestrictions = typeRestrictions + " ?uri rdf:type ["+i+"]";
+        queryArguments.push({
+            type: DbConnection.prefixedResource,
+            value: self.prefixedRDFType[i-1]
+        });
+
+        if(i < rdfTypes.length)
+        {
+            typeRestrictions += ".\n";
+        }
+        else
+        {
+            typeRestrictions += "\n";
+        }
+    }
+
+    const countQuery =
+        "SELECT \n" +
+        "COUNT(?uri) as ?count \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+            typeRestrictions +
+        "}\n";
+
+    db.connection.execute(
+        countQuery,
+        queryArguments,
         function(err, count) {
             if(!err && count instanceof Array)
             {

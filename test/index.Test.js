@@ -10,52 +10,52 @@ Config.initGlobals();
 
 GLOBAL.tests = {};
 
-/*
- require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
- */
-
-require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
-
-
-//USERS
-require(Config.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
-require(Config.absPathInTestsFolder("/routes/users/route.users.Test.js"));
-
-//USER
-require(Config.absPathInTestsFolder("/routes/user/demouser1/route.user.demouser1.Test.js"));
-require(Config.absPathInTestsFolder("/routes/user/demouser2/route.user.demouser2.Test.js"));
-require(Config.absPathInTestsFolder("/routes/user/demouser3/route.user.demouser3.Test.js"));
-
-
-require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
-
-require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
-/*require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
+// /*
+//  require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
+//  */
+//
+// require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
+//
+//
+// //USERS
+// require(Config.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/users/route.users.Test.js"));
+//
+// //USER
+// require(Config.absPathInTestsFolder("/routes/user/demouser1/route.user.demouser1.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/user/demouser2/route.user.demouser2.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/user/demouser3/route.user.demouser3.Test.js"));
+//
+//
+// require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
+//
+// require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
+// /*require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
 
 /*require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
- require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));*/
-require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
-
-/*require(Config.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));*/
-
-//PUBLIC PROJECT
-/*require(Config.absPathInTestsFolder("/routes/projects/public_project/request_access/route.projects.publicProject.requestAccess.Test.js"));*/
-require(Config.absPathInTestsFolder("/routes/projects/public_project/delete/route.projects.publicProject.delete.Test.js"));
-require(Config.absPathInTestsFolder("/routes/projects/public_project/undelete/route.projects.publicProject.undelete.Test.js"));
-
-//METADATA PROJECT
-/*require(Config.absPathInTestsFolder("/routes/projects/metadataonly_project/request_access/route.projects.metadataonlyProject.requestAccess.Test.js"));*/
-require(Config.absPathInTestsFolder("/routes/projects/metadataonly_project/delete/route.projects.metadataonlyProject.delete.Test.js"));
-require(Config.absPathInTestsFolder("/routes/projects/metadataonly_project/undelete/route.projects.metadataonlyProject.undelete.Test.js"));
-
-//PRIVATE PROJECT
-/*require(Config.absPathInTestsFolder("/routes/projects/private_project/request_access/route.projects.privateProject.requestAccess.Test.js"));*/
-require(Config.absPathInTestsFolder("/routes/projects/private_project/delete/route.projects.privateProject.delete.Test.js"));
-require(Config.absPathInTestsFolder("/routes/projects/private_project/undelete/route.projects.privateProject.undelete.Test.js"));
-
-
-//PROJECT CHANGES PUBLIC PROJECT
-require(Config.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
+//  require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));*/
+// require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
+//
+// /*require(Config.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));*/
+//
+// //PUBLIC PROJECT
+// /*require(Config.absPathInTestsFolder("/routes/projects/public_project/request_access/route.projects.publicProject.requestAccess.Test.js"));*/
+// require(Config.absPathInTestsFolder("/routes/projects/public_project/delete/route.projects.publicProject.delete.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/projects/public_project/undelete/route.projects.publicProject.undelete.Test.js"));
+//
+// //METADATA PROJECT
+// /*require(Config.absPathInTestsFolder("/routes/projects/metadataonly_project/request_access/route.projects.metadataonlyProject.requestAccess.Test.js"));*/
+// require(Config.absPathInTestsFolder("/routes/projects/metadataonly_project/delete/route.projects.metadataonlyProject.delete.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/projects/metadataonly_project/undelete/route.projects.metadataonlyProject.undelete.Test.js"));
+//
+// //PRIVATE PROJECT
+// /*require(Config.absPathInTestsFolder("/routes/projects/private_project/request_access/route.projects.privateProject.requestAccess.Test.js"));*/
+// require(Config.absPathInTestsFolder("/routes/projects/private_project/delete/route.projects.privateProject.delete.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/projects/private_project/undelete/route.projects.privateProject.undelete.Test.js"));
+//
+//
+// //PROJECT CHANGES PUBLIC PROJECT
+// require(Config.absPathInTestsFolder("/routes/project/public_project/__recent_changes/routes.project.publicProject.__recent_changes.Test.js"));
 //PROJECT CHANGES PRIVATE PROJECT
 require(Config.absPathInTestsFolder("/routes/project/private_project/__recent_changes/routes.project.privateProject.__recent_changes.Test.js"));
 //PROJECT CHANGES METADADATA ONlY PROJECT

@@ -772,7 +772,8 @@ Ontology.findByPrefix = function(prefix, callback)
                 }
                 else
                 {
-                    return callback(1, null);
+                    //not found
+                    return callback(null, null);
                 }
             }
         });

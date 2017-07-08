@@ -213,38 +213,18 @@ const checkPrivacyOfProject = function (req, permission, callback) {
                 const privacy = project.ddr.privacyStatus;
 
                 if (!isNull(permission.object) && privacy === permission.object) {
-                    return callback(null,
-                        {
-                            authorized: true,
-                            role: Permissions._types.privacy_of_project[permission.object]
-                        }
-                    );
+                    return callback(null, true);
                 }
                 else {
-                    return callback(null,
-                        {
-                            authorized: false,
-                            role: permission
-                        }
-                    );
+                    return callback(null, false);
                 }
             }
             else {
-                return callback(null,
-                    {
-                        authorized: true,
-                        role: ["Project with uri" + req.requestedResourceUri + " does not exist."]
-                    }
-                );
+                return callback(null, true);
             }
         }
         else {
-            return callback(null,
-                {
-                    authorized: true,
-                    role: ["Error accessing project: " + project]
-                }
-            );
+            return callback(null, true);
         }
     });
 };
