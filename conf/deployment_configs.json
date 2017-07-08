@@ -355,17 +355,20 @@
           "default": {
             "host": "192.168.56.249",
             "port": "6780",
-            "id": "default"
+            "id": "default",
+            "database_number": 1
           },
           "social": {
             "host": "192.168.56.249",
             "port": "6781",
-            "id": "social"
+            "id": "social",
+            "database_number": 1
           },
           "notifications": {
             "host": "192.168.56.249",
             "port": "6782",
-            "id": "notifications"
+            "id": "notifications",
+            "database_number": 1
           }
         }
       },
@@ -426,7 +429,7 @@
     "mySQLDBName": "dendroVagrantDemo",
     "maxUploadSize": 2147483648,
     "maxProjectSize": 5368709120,
-    "maxSimultanousConnectionsToDb": 10,
+    "maxSimultanousConnectionsToDb": 5,
     "dbOperationTimeout": 5000,
     "tempFilesDir": "temp",
     "tempFilesCreationMode": "0777",
@@ -730,14 +733,14 @@
             "id": "default"
           },
           "social": {
-            "db": "127.0.0.1:3001",
+            "database": "127.0.0.1:3001",
             "collection": "social_cache_jenkins_test",
             "host": "127.0.0.1",
             "port": "27017",
             "id": "social"
           },
           "notifications": {
-            "db": "127.0.0.1:3001",
+            "database": "127.0.0.1:3001",
             "collection": "notifications_cache_jenkins_test",
             "host": "127.0.0.1",
             "port": "27017",
@@ -827,8 +830,7 @@
       "active": true,
       "database": {
         "log_all_queries": false,
-        "destroy_all_graphs_on_startup": true,
-        "monitor_number_of_connections": true
+        "destroy_all_graphs_on_startup": true
       },
       "session": {
         "auto_login": false,
@@ -898,7 +900,8 @@
       "suppress_all_logs": false,
       "suppress_all_errors": false,
       "log_all_requests": false,
-      "log_emailing": false
+      "log_emailing": false,
+      "custom_exception_logging": false
     },
     "version": {
       "number": 0.2,
@@ -1008,7 +1011,8 @@
         "enabled": true,
         "callback_path": "/auth/saml/callback",
         "entry_point": "https://openidp.feide.no/simplesaml/saml2/idp/SSOService.php",
-        "issuer": "passport-saml"
+        "issuer": "passport-saml",
+        "button_text": "Sign-in with SIGARRA"
       }
     }
   }
