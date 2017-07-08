@@ -10,9 +10,27 @@ Config.initGlobals();
 
 GLOBAL.tests = {};
 
-/*
- require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
- */
+// /*
+//  require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
+//  */
+//
+// require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
+//
+//
+// //USERS
+// require(Config.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/users/route.users.Test.js"));
+//
+// //USER
+// require(Config.absPathInTestsFolder("/routes/user/demouser1/route.user.demouser1.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/user/demouser2/route.user.demouser2.Test.js"));
+// require(Config.absPathInTestsFolder("/routes/user/demouser3/route.user.demouser3.Test.js"));
+//
+//
+// require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
+//
+// require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
+// /*require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
 
 require(Config.absPathInTestsFolder("/cleanEverything.Test.js"));
 
