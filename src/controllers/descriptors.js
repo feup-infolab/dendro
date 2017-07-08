@@ -210,7 +210,7 @@ exports.from_ontology = function(req, res)
                                                 {
                                                     if (!err)
                                                     {
-                                                        for (var i = 0; i < descriptors.length; i++)
+                                                        for (let i = 0; i < descriptors.length; i++)
                                                         {
                                                             descriptors[i]["recommendation_types"] = {};
 

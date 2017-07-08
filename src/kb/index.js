@@ -11,6 +11,9 @@ const db = function () {
 const es = require('elasticsearch');
 const slug = require('slug');
 
+const IndexConnection = function() {
+};
+
 IndexConnection.indexTypes =
 {
     resource : "resource"
@@ -78,11 +81,6 @@ IndexConnection.indexes = {
         uri : "http://freebase.org"
     }
 };
-
-function IndexConnection()
-{
-    let self = this;
-}
 
 IndexConnection.prototype.open = function(host, port, index, callback)
 {	
