@@ -106,7 +106,7 @@
     "ui-router": "^1.0.0-alpha.3",
     "underscore": "1.8.3",
     "uuid": "*",
-    "validator": "^7.0.0",
+    "validator": "^8.0.0",
     "xml-writer": "^1.4.1",
     "xml2js": "^0.4.17",
     "xmlhttprequest": "^1.8.0",

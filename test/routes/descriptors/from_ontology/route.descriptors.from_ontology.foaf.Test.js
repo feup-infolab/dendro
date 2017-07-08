@@ -197,11 +197,11 @@ describe("Descriptors from foaf ontology", function (done) {
             });
         });
 
-        it("[JSON] It should not get descriptors from foaf ontology when logged in as demouser3 (not collaborator or creator of the Private project "+privateProject.handle +")", function (done) {
+        it("[JSON] It should get descriptors from foaf ontology when logged in as demouser3 (not collaborator or creator of the Private project "+privateProject.handle +")", function (done) {
             console.log(demouser3);
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-                    res.should.have.status(401);
+                    res.should.have.status(200);
                     done();
                 });
             });

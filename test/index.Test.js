@@ -3,7 +3,7 @@ process.env.NODE_ENV = 'test';
 GLOBAL.tests = {};
 
 let Config = Object.create(require("../src/models/meta/config.js").Config);
-global.Config = Config;
+GLOBAL.Config = Config;
 Config.initGlobals();
 
 //Config.cache.active = false;
@@ -32,8 +32,8 @@ require(Config.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
 require(Config.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
 /*require(Config.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
 
-/*require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
- require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));*/
+require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
+require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));
 require(Config.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
 
 /*require(Config.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));*/

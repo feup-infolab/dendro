@@ -255,7 +255,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
     app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), ontologies.edit);
 
     //descriptors
-    app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [ Permissions.settings.role.in_project.contributor, Permissions.settings.role.in_project.creator]), descriptors.from_ontology);
+    app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [ Permissions.settings.role.in_system.user]), descriptors.from_ontology);
 
     //research domains
 

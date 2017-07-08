@@ -78,7 +78,7 @@ describe("Descriptors from dcterms ontology", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.descriptors.length.should.equal(52);
+                    res.body.descriptors.length.should.equal(53);
                     done();
                 });
             });
@@ -89,7 +89,7 @@ describe("Descriptors from dcterms ontology", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.descriptors.length.should.equal(52);
+                    res.body.descriptors.length.should.equal(53);
                     done();
                 });
             });
@@ -101,7 +101,7 @@ describe("Descriptors from dcterms ontology", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.descriptors.length.should.equal(52);
+                    res.body.descriptors.length.should.equal(53);
                     done();
                 });
             });
@@ -137,7 +137,7 @@ describe("Descriptors from dcterms ontology", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.descriptors.length.should.equal(52);
+                    res.body.descriptors.length.should.equal(53);
                     done();
                 });
             });
@@ -148,7 +148,7 @@ describe("Descriptors from dcterms ontology", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.descriptors.length.should.equal(52);
+                    res.body.descriptors.length.should.equal(53);
                     done();
                 });
             });
@@ -160,7 +160,7 @@ describe("Descriptors from dcterms ontology", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.descriptors.length.should.equal(52);
+                    res.body.descriptors.length.should.equal(53);
                     done();
                 });
             });
@@ -196,7 +196,7 @@ describe("Descriptors from dcterms ontology", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.descriptors.length.should.equal(52);
+                    res.body.descriptors.length.should.equal(53);
                     done();
                 });
             });
@@ -207,17 +207,17 @@ describe("Descriptors from dcterms ontology", function (done) {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
                     res.should.have.status(200);
-                    res.body.descriptors.length.should.equal(52);
+                    res.body.descriptors.length.should.equal(53);
                     done();
                 });
             });
         });
 
-        it("[JSON] It should not get descriptors from dcterms ontology when logged in as demouser3 (not collaborator or creator of the Private project "+privateProject.handle +")", function (done) {
+        it("[JSON] It should get descriptors from dcterms ontology when logged in as demouser3 (not collaborator or creator of the Private project "+privateProject.handle +")", function (done) {
             let ontologyPrefix = "dcterms";
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
-                    res.should.have.status(401);
+                    res.should.have.status(200);
                     done();
                 });
             });
