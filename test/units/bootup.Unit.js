@@ -13,16 +13,22 @@ function requireUncached(module) {
 
 const start = function()
 {
-    console.log("**********************************************".green);
-    console.log("[Boot up Unit] Booting Dendro test instance...".green);
-    console.log("**********************************************".green);
+    if(Config.debug.tests.log_unit_completion_and_startup)
+    {
+        console.log("**********************************************".green);
+        console.log("[Boot up Unit] Booting Dendro test instance...".green);
+        console.log("**********************************************".green);
+    }
 };
 
 const end = function()
 {
-    console.log("**********************************************".blue);
-    console.log("[Boot up Unit] Complete".blue);
-    console.log("**********************************************".blue);
+    if(Config.debug.tests.log_unit_completion_and_startup)
+    {
+        console.log("**********************************************".blue);
+        console.log("[Boot up Unit] Complete".blue);
+        console.log("**********************************************".blue);
+    }
 };
 
 module.exports.setup = function(finish)

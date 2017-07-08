@@ -12,16 +12,22 @@ const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const start = function()
 {
-    console.log("**********************************************".green);
-    console.log("[Create Users Unit] Creating new users...".green);
-    console.log("**********************************************".green);
+    if(Config.debug.tests.log_unit_completion_and_startup)
+    {
+        console.log("**********************************************".green);
+        console.log("[Create Users Unit] Creating new users...".green);
+        console.log("**********************************************".green);
+    }
 };
 
 const end = function()
 {
-    console.log("**********************************************".blue);
-    console.log("[Create Users Unit] Complete".blue);
-    console.log("**********************************************".blue);
+    if(Config.debug.tests.log_unit_completion_and_startup)
+    {
+        console.log("**********************************************".blue);
+        console.log("[Create Users Unit] Complete".blue);
+        console.log("**********************************************".blue);
+    }
 };
 
 module.exports.setup = function(finish)

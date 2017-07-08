@@ -30,16 +30,22 @@ function requireUncached(module) {
 
 const start = function()
 {
-    console.log("**********************************************".green);
-    console.log("[Create Projects Unit] Setting up projects...".green);
-    console.log("**********************************************".green);
+    if(Config.debug.tests.log_unit_completion_and_startup)
+    {
+        console.log("**********************************************".green);
+        console.log("[Create Projects Unit] Setting up projects...".green);
+        console.log("**********************************************".green);
+    }
 };
 
 const end = function()
 {
-    console.log("**********************************************".blue);
-    console.log("[Create Projects Unit] Complete...".blue);
-    console.log("**********************************************".blue);
+    if(Config.debug.tests.log_unit_completion_and_startup)
+    {
+        console.log("**********************************************".blue);
+        console.log("[Create Projects Unit] Complete...".blue);
+        console.log("**********************************************".blue);
+    }
 };
 
 module.exports.setup = function(finish)

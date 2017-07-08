@@ -195,6 +195,10 @@
       },
       "index": {
         "elasticsearch_connection_log_type": "trace"
+      },
+      "tests" :
+      {
+        "log_unit_completion_and_startup" : false
       }
     },
     "startup": {
@@ -544,6 +548,10 @@
       },
       "index": {
         "elasticsearch_connection_log_type": ""
+      },
+      "tests" :
+      {
+        "log_unit_completion_and_startup" : false
       }
     },
     "startup": {
@@ -878,6 +886,10 @@
       },
       "index": {
         "elasticsearch_connection_log_type": ""
+      },
+      "tests" :
+      {
+        "log_unit_completion_and_startup" : false
       }
     },
     "startup": {
