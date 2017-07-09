@@ -55,14 +55,12 @@ module.exports.setup = function(finish)
 
                 User.findByUsername(username, function (err, user) {
 
-                    if (!err && user != null) {
+                    if (!err && user !== null) {
                         user.makeGlobalAdmin(function (err, result) {
                             callback(err, result);
                         });
                     }
                     else {
-                        console.log("Non-existent user " + username + ". Creating new for promoting to admin.");
-
                         User.createAndInsertFromObject({
                                 foaf: {
                                     mbox: mbox,
@@ -75,7 +73,7 @@ module.exports.setup = function(finish)
                                 }
                             },
                             function (err, newUser) {
-                                if (!err && newUser != null && newUser instanceof User) {
+                                if (!err && newUser !== null && newUser instanceof User) {
                                     newUser.makeGlobalAdmin(function (err, newUser) {
                                         callback(err, newUser);
                                     });
