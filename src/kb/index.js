@@ -113,7 +113,6 @@ IndexConnection.prototype.open = function(host, port, index, callback)
 
         self.client.indices.getMapping()
             .then(function(mapping){
-                console.log(mapping);
                 return callback(self);
             });
     }
@@ -151,11 +150,6 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
     }
     else
     {
-        /*self.client.indices.getMapping()
-            .then(function(mapping){
-                console.log(mapping);
-            });*/
-
         self.client.index({
             index : self.index.short_name,
             type : type,
@@ -350,8 +344,6 @@ IndexConnection.prototype.check_if_index_exists = function (callback)
 	};
 
 	const fullUrl = "http://" + self.host + ":" + self.port + "/_stats";
-
-    console.log("Index Checker URL: "+ util.inspect(fullUrl));
 
 	xmlHttp.open("GET", fullUrl, true);
 	xmlHttp.send(null);

@@ -29,7 +29,7 @@ let express = require('express'),
     YAML = require('yamljs'),
     csrf = require('csurf'),
     csrfProtection = csrf({ cookie: true }),
-
+    colors = require('colors'),
     swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
 
 let bootupPromise = Q.defer();
@@ -53,6 +53,24 @@ let util = require('util');
 let mkdirp = require('mkdirp');
 let pid;
 let registeredUncaughtExceptionHandler;
+
+const log_boot_message = function(type, message)
+{
+    let intro = "[MISC]".cyan;
+    if(Config.startup.log_bootup_actions)
+    {
+        if(type === "info")
+        {
+            intro = "[INFO]".blue;
+        }
+        else if(type === "success")
+        {
+            intro = "[OK]".green;
+        }
+
+        console.log(intro + " " + message);
+    }
+};
 
 const MongoStore = require('connect-mongo')(expressSession);
 
@@ -81,7 +99,7 @@ if(!isNull(Config.logging))
                         try
                         {
                             mkdirp.sync(absPath);
-                            console.log("[SUCCESS] Temp uploads folder " + absPath + " created.");
+                            log_boot_message("success", "Temp uploads folder " + absPath + " created.");
                         }
                         catch (e)
                         {
@@ -247,10 +265,10 @@ try{
 }
 catch(e)
 {
-    console.log("[INFO] Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...");
+    log_boot_message("info", "Temp uploads folder " + tempUploadsFolder + " does not exist. Creating...");
     try{
         mkdirp.sync(tempUploadsFolder);
-        console.log("[SUCCESS] Temp uploads folder " + tempUploadsFolder + " created.")
+        log_boot_message("success", "Temp uploads folder " + tempUploadsFolder + " created.");
     }
     catch(e)
     {
@@ -262,7 +280,6 @@ const busboy = require('connect-busboy');
 app.use(busboy());
 
 const self = this;
-
 const appSecret = '891237983kjjhagaGSAKPOIOHJFDSJHASDKLASHDK1987123324ADSJHXZ_:;::?=?)=)';
 
 const appendIndexToRequest = function (req, res, next) {
@@ -389,8 +406,8 @@ const appendLocalsToUseInViews = function (req, res, next) {
     }
 };
 
-console.log("[INFO] Welcome! Booting up a Dendro Node on this machine");
-console.log("[INFO] Starting Dendro support services...");
+log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine");
+log_boot_message("info", "Starting Dendro support services...");
 
 const init = function(callback)
 {
@@ -410,7 +427,7 @@ const init = function(callback)
                 }
                 else
                 {
-                    console.log("[OK] Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
+                    log_boot_message("success", "Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
 
                     //set default connection. If you want to add other connections, add them in succession.
                     global.db.default.connection = db;
@@ -468,12 +485,12 @@ const init = function(callback)
             }
             else
             {
-                console.log("[INFO] Cache not active in deployment configuration. Continuing Dendro startup without connecting to any cache servers.");
+                log_boot_message("info","Cache not active in deployment configuration. Continuing Dendro startup without connecting to any cache servers.");
                 return callback(null);
             }
         },
         function(callback) {
-            console.log("[INFO] Loading ontology parametrization from database... ");
+            log_boot_message("info","Loading ontology parametrization from database... ");
 
             const Ontology = require(Config.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
 
@@ -484,7 +501,7 @@ const init = function(callback)
                     if (!err)
                     {
                         global.allOntologies = ontologies;
-                        console.log("[OK] Ontology information successfully loaded from database.");
+                        log_boot_message("success","Ontology information successfully loaded from database.");
                         return callback(null);
                     }
                     else
@@ -511,13 +528,13 @@ const init = function(callback)
         },
         function(callback) {
 
-            console.log("[INFO] Checking ontology and descriptor parametrizations...");
+            log_boot_message("info","Checking ontology and descriptor parametrizations...");
 
             Descriptor.validateDescriptorParametrization(function(err, result)
             {
                 if(!err)
                 {
-                    console.log("[OK] All ontologies and descriptors seem correctly set up.");
+                    log_boot_message("success","All ontologies and descriptors seem correctly set up.");
                     return callback(null);
                 }
                 else
@@ -527,13 +544,13 @@ const init = function(callback)
             });
         },
         function(callback) {
-            console.log("[INFO] Connecting to ElasticSearch Cluster...");
+            log_boot_message("info","Connecting to ElasticSearch Cluster...");
             self.index = new IndexConnection();
 
             self.index.open(Config.elasticSearchHost, Config.elasticSearchPort, IndexConnection.indexes.dendro, function(index) {
                 if(index.client)
                 {
-                    console.log("[OK] Created connection to ElasticSearch Cluster on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort +" but did not try to connect yet");
+                    log_boot_message("info","Created connection to ElasticSearch Cluster on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort +" but did not try to connect yet");
                 }
                 else
                 {
@@ -543,7 +560,7 @@ const init = function(callback)
             });
         },
         function(callback) {
-            console.log("[INFO] Now trying to connect to ElasticSearch Cluster to check if the required indexes exist or need to be created...");
+            log_boot_message("info","Now trying to connect to ElasticSearch Cluster to check if the required indexes exist or need to be created...");
             self.index.create_new_index(1, 1, false, function(error,result)
             {
                 if(!isNull(error))
@@ -552,7 +569,7 @@ const init = function(callback)
                 }
                 else
                 {
-                    console.log("[OK] Indexes are up and running on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort);
+                    log_boot_message("ok","Indexes are up and running on "+ Config.elasticSearchHost + ":" + Config.elasticSearchPort);
                     return callback(null);
                 }
             });
@@ -573,7 +590,7 @@ const init = function(callback)
                 }
                 else
                 {
-                    console.log("[OK] Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
+                    log_boot_message("ok","Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
                     global.gfs.default.connection = gfs;
                     return callback(null);
                 }
@@ -581,7 +598,7 @@ const init = function(callback)
         },
         function(callback) {
             const testDRConnection = function (callback) {
-                console.log("[INFO] Testing connection to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " ...");
+                log_boot_message("info","Testing connection to Dendro Recommender at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " ...");
                 const needle = require("needle");
 
                 const checkUri = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/about";
@@ -591,7 +608,7 @@ const init = function(callback)
                     },
                     function (error, response) {
                         if (!error) {
-                            console.log("[OK] Successfully connected to Dendro Recommender instance, version " + response.body.version + " at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " :-)");
+                            log_boot_message("success","Successfully connected to Dendro Recommender instance, version " + response.body.version + " at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " :-)");
                             return callback(null);
                         }
                         else {
@@ -612,7 +629,7 @@ const init = function(callback)
                 });
 
                 const poolOK = function (pool) {
-                    console.log("[OK] Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
+                    log_boot_message("success","Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
                     global.mysql.pool = pool;
                     return callback(null);
                 };
@@ -620,18 +637,17 @@ const init = function(callback)
                 //connection.connect(function (err)
                 pool.getConnection(function (err, connection) {
                     const freeConnectionsIndex = pool._freeConnections.indexOf(connection);
-                    //console.log("FREE CONNECTIONS: ", freeConnectionsIndex);
                     if (!err) {
                         const checkAndCreateTable = function (tablename, cb) {
                             connection.query("SHOW TABLES LIKE '" + tablename + "';", function (err, result, fields) {
                                 connection.release();
                                 if (!err) {
                                     if (result.length > 0) {
-                                        console.log("[INFO] Interactions table " + tablename + " exists in the MySQL database.");
+                                        log_boot_message("info","Interactions table " + tablename + " exists in the MySQL database.");
                                         poolOK(pool);
                                     }
                                     else {
-                                        console.log("[INFO] Interactions table does not exists in the MySQL database. Attempting creation...");
+                                        log_boot_message("info","Interactions table does not exists in the MySQL database. Attempting creation...");
 
                                         const createTableQuery = "CREATE TABLE `" + tablename + "` (\n" +
                                             "   `id` int(11) NOT NULL AUTO_INCREMENT, \n" +
@@ -649,14 +665,14 @@ const init = function(callback)
                                             "   PRIMARY KEY (`id`) \n" +
                                             ") ENGINE=InnoDB DEFAULT CHARSET=utf8; \n";
 
-                                        console.log("[INFO] Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
+                                        log_boot_message("info","Interactions table " + tablename + " does not exist in the MySQL database. Running query for creating interactions table... \n" + createTableQuery);
 
                                         connection.query(
                                             createTableQuery,
                                             function (err, result, fields) {
                                                 connection.release();
                                                 if (!err) {
-                                                    console.log("[INFO] Interactions table " + tablename + " succesfully created in the MySQL database.");
+                                                    log_boot_message("info","Interactions table " + tablename + " succesfully created in the MySQL database.");
 
                                                     const createIndexesQuery =
                                                         "CREATE INDEX " + tablename + "_uri_text ON " + tablename + "(uri(255)); \n" +
@@ -670,7 +686,7 @@ const init = function(callback)
                                                         function (err, result, fields) {
                                                             connection.release();
                                                             if (!err) {
-                                                                console.log("[INFO] Indexes on table  " + tablename + " succesfully created in the MySQL database.");
+                                                                log_boot_message("info","Indexes on table  " + tablename + " succesfully created in the MySQL database.");
                                                                 cb(null, null);
                                                             }
                                                             else {
@@ -728,19 +744,19 @@ const init = function(callback)
             }
         },
         function(callback) {
-            console.log("[INFO] Setting up temporary files directory at " + Config.tempFilesDir);
+            log_boot_message("info","Setting up temporary files directory at " + Config.tempFilesDir);
 
             async.waterfall([
                 function(cb)
                 {
                     if(Config.debug.files.delete_temp_folder_on_startup)
                     {
-                        console.log("[INFO] Deleting temp files dir at " + Config.tempFilesDir);
+                        log_boot_message("info","Deleting temp files dir at " + Config.tempFilesDir);
                         const fsextra = require('fs-extra');
                         fsextra.remove(Config.tempFilesDir, function (err) {
                             if(!err)
                             {
-                                console.log("[OK] Deleted temp files dir at " + Config.tempFilesDir);
+                                log_boot_message("success","Deleted temp files dir at " + Config.tempFilesDir);
                             }
                             else
                             {
@@ -763,7 +779,7 @@ const init = function(callback)
                         {
                             try{
                                 mkdirp.sync(Config.tempFilesDir);
-                                console.log("[OK] Temporary files directory successfully created at " + Config.tempFilesDir);
+                                log_boot_message("success","Temporary files directory successfully created at " + Config.tempFilesDir);
                                 cb();
                             }
                             catch(e)
@@ -781,7 +797,7 @@ const init = function(callback)
             ], function(err){
                 if(!err)
                 {
-                    console.log("[OK] Temporary files directory successfully set up at " + Config.tempFilesDir);
+                    log_boot_message("success","Temporary files directory successfully set up at " + Config.tempFilesDir);
                     return callback(null);
                 }
                 else
@@ -822,14 +838,14 @@ const loadData = function(callback)
                             return callback(null, null);
                         }
                         else {
-                            console.log("[INFO] Demo user with username " + user.ddr.username + " found. Attempting to delete...");
+                            log_boot_message("info","Demo user with username " + user.ddr.username + " found. Attempting to delete...");
                             user.deleteAllMyTriples(function (err, result) {
                                 return callback(err, result);
                             });
                         }
                     }
                     else {
-                        console.log("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
+                        console.error("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
                         return callback(err, user);
                     }
                 });
@@ -837,13 +853,13 @@ const loadData = function(callback)
 
             async.map(Config.demo_mode.users, deleteUser, function(err, results) {
                 if (!err) {
-                    console.log("[INFO] Existing demo users deleted. ");
+                    log_boot_message("info","Existing demo users deleted. ");
                     if(Config.demo_mode.active)
                     {
                         if(Config.startup.load_databases && Config.startup.reload_demo_users_on_startup)
                         {
                             const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-                            console.log("[INFO] Loading demo users. Demo users (in config.js file) -->" + JSON.stringify(Config.demo_mode.users));
+                            log_boot_message("info","Loading Demo Users... ");
 
                             const createUser = function (user, callback) {
                                 User.createAndInsertFromObject({
@@ -862,7 +878,7 @@ const loadData = function(callback)
                                             return callback(null, newUser);
                                         }
                                         else {
-                                            console.log("[ERROR] Error creating new demo User " + JSON.stringify(user));
+                                            console.error("[ERROR] Error creating new demo User " + JSON.stringify(user));
                                             return callback(err, user);
                                         }
                                     });
@@ -871,7 +887,7 @@ const loadData = function(callback)
                             async.map(Config.demo_mode.users, createUser, function(err, results) {
                                 if(!err)
                                 {
-                                    console.log("[INFO] Existing demo users recreated. ");
+                                    log_boot_message("info","Existing demo users recreated. ");
                                     return callback(err);
                                 }
                                 else
@@ -899,7 +915,7 @@ const loadData = function(callback)
             if(Config.startup.load_databases && Config.startup.reload_administrators_on_startup)
             {
                 const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-                console.log("[INFO] Loading default administrators. Admins (in config.js file) -->" + JSON.stringify(Config.administrators));
+                log_boot_message("info","Loading default administrators.");
 
                 async.series([
                         function(callback)
@@ -924,7 +940,7 @@ const loadData = function(callback)
                                         });
                                     }
                                     else {
-                                        console.log("Non-existent user " + username + ". Creating new for promoting to admin.");
+                                        log_boot_message("info","Non-existent user " + username + ". Creating new for promoting to admin.");
 
                                         User.createAndInsertFromObject({
                                                 foaf: {
@@ -956,10 +972,10 @@ const loadData = function(callback)
                             async.map(Config.administrators, makeAdmin, function(err){
                                 if(!err)
                                 {
-                                    console.log("[OK] Admins successfully loaded.");
+                                    log_boot_message("success","Admins successfully loaded.");
                                 }
                                 else {
-                                    console.log("[ERROR] Unable to load admins. Error : " + err);
+                                    console.error("[ERROR] Unable to load admins. Error : " + err);
                                 }
 
                                 return callback(err);
@@ -985,7 +1001,7 @@ const loadData = function(callback)
         function(callback) {
             if(Config.startup.clear_session_store)
             {
-                console.log("[INFO] Clearing session store!");
+                log_boot_message("info","Clearing session store!");
                 sessionMongoStore.clear(callback);
             }
             else

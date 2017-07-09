@@ -15,6 +15,7 @@ function MongoDBCache (options)
     self.host = options.host;
     self.database = options.database;
     self.collection = options.collection;
+    self.id = options.id;
 }
 
 MongoDBCache.prototype.openConnection = function(callback) {
@@ -31,7 +32,6 @@ MongoDBCache.prototype.openConnection = function(callback) {
         MongoClient.connect(url, function(err, db) {
             if(!err)
             {
-                console.log("Connected correctly to MONGODB server with config \n" + JSON.stringify(self));
                 self.client = db;
                 callback(null, self);
             }

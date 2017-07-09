@@ -44,8 +44,6 @@ module.exports.setup = function(finish)
         else
         {
             const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-            console.log("[INFO] Loading demo users. Demo users (in config.js file) -->" + JSON.stringify(Config.demo_mode.users));
-
 
             const makeAdmin = function (newAdministrator, callback) {
 
@@ -119,9 +117,6 @@ module.exports.setup = function(finish)
             async.mapSeries(Config.demo_mode.users, createUser, function(err, results) {
                 if(!err)
                 {
-                    console.log("[INFO] Existing demo users recreated. ");
-                    console.log("[INFO] Loading default administrators. Admins (in config.js file) -->" + JSON.stringify(Config.administrators));
-
                     async.series([
                             function(callback)
                             {

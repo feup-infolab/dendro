@@ -41,18 +41,13 @@ RedisCache.prototype.openConnection = function(callback) {
 
                 self.redis.on('ready', function ()
                 {
-                    console
-                        .log
-
-                        ('Redis client ready');
                     return callback(null, self);
                 });
 
                 self.redis.on('error', function (err)
                 {
-                    const msg =
-                        'Error connecting to Redis client ' + JSON.stringify(err);
-                    console.log();
+                    const msg = 'Error connecting to Redis client ' + JSON.stringify(err);
+                    console.error(msg);
                     return callback(err, msg);
                 });
             };

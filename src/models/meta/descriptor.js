@@ -1088,17 +1088,23 @@ Descriptor.validateDescriptorParametrization = function(callback)
                         try{
                             if(isNull(Elements[descriptor.prefix]))
                             {
-                                console.error("Descriptor " + JSON.stringify(descriptor) + " has an unparametrized namespace " + descriptor.prefix + " . Check your elements.js file and ontology.js file");
+                                if(Config.debug.descriptors.log_missing_unknown_descriptors)
+                                    console.error("Descriptor " + JSON.stringify(descriptor) + " has an unparametrized namespace " + descriptor.prefix + " . Check your elements.js file and ontology.js file");
+
                                 error = 1;
                             }
                             else if(isNull(Elements[descriptor.prefix][descriptor.shortName]))
                             {
-                                console.error("Descriptor " + descriptor.prefixedForm + " is not present in the elements.js file!");
+                                if(Config.debug.descriptors.log_missing_unknown_descriptors)
+                                    console.error("Descriptor " + descriptor.prefixedForm + " is not present in the elements.js file!");
+
                                 error = 1;
                             }
                             else if(isNull(Elements[descriptor.prefix][descriptor.shortName].control))
                             {
-                                console.error("Descriptor " + descriptor.prefixedForm + " is present in the elements.js file, but has no control type associated! Correct the error by setting the appropriate control type.");
+                                if(Config.debug.descriptors.log_missing_unknown_descriptors)
+                                    console.error("Descriptor " + descriptor.prefixedForm + " is present in the elements.js file, but has no control type associated! Correct the error by setting the appropriate control type.");
+
                                 error = 1;
                             }
                         }

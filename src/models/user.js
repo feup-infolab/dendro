@@ -256,8 +256,6 @@ User.createAndInsertFromObject = function(object, callback) {
 
     const self = new User(object);
 
-    console.log("creating user from object" + util.inspect(object));
-
     //encrypt password
     const bcrypt = require('bcryptjs');
     bcrypt.hash(self.ddr.password, self.ddr.salt, function(err, password){

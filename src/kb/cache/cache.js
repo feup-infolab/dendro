@@ -52,12 +52,11 @@ Cache.initConnections = function(callback)
                                         }
                                         else
                                         {
-                                            console.log("[OK] Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " +  mongoDBConnection.host + ":" + mongoDBConnection.port);
+                                            console.log("[OK] Connected to MongoDB cache service with ID : " + newMongoCacheConnection.id + " running on " +  newMongoCacheConnection.host + ":" + newMongoCacheConnection.port);
 
                                             newMongoCacheConnection.deleteAll(function(err, result){
                                                 if(!err)
                                                 {
-                                                    console.log("[INFO] Deleted all cache records on MongoDB instance \""+ mongoDBConnection.id +"\" during bootup");
                                                     self.caches[cacheId] = newMongoCacheConnection;
                                                     return callback(null, newMongoCacheConnection);
                                                 }
