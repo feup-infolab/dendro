@@ -53,7 +53,7 @@ describe("Private project level metadata tests", function () {
          */
         it('[JSON] should NOT fetch metadata of the ' + privateProject.handle + ' project without authenticating', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.getProjectMetadata(true, agent, privateProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);

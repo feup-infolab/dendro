@@ -55,7 +55,7 @@ describe("Private project testFolder2 level metadata tests", function () {
          */
         it('[JSON] should NOT fetch metadata of the ' + privateProject.handle + "/data/" + testFolder2.name +' folder without authenticating', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.getItemMetadata(true, agent, privateProject.handle, testFolder2.name, function (err, res) {
                 res.statusCode.should.equal(401);

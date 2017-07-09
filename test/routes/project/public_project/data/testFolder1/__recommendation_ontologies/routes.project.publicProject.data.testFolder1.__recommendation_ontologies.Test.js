@@ -48,7 +48,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
 
         it('[JSON] should forbid ontology recommendation requests for ontologies in project '+ publicProject.handle +' if no user is authenticated.', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.getItemRecommendationOntologies(true, agent, publicProject.handle, testFolder1.name, function (err, res) {
                 res.statusCode.should.equal(401);
@@ -116,7 +116,7 @@ describe("Public project testFolder1 level recommendation_ontologies tests", fun
 
         it('[JSON] should forbid requests for recommendations in folder '+ invalidProject.handle +' if no user is authenticated.', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.getItemRecommendationOntologies(true, agent, invalidProject.handle, testFolder1.name, function (err, res) {
                 res.statusCode.should.equal(401);

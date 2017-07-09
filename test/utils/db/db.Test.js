@@ -9,12 +9,12 @@ chai.use(chaiHttp);
 const should = chai.should();
 
 module.exports.deleteGraphs = function (finish) {
-    const graphs = Object.keys(GLOBAL.db);
-    const conn = GLOBAL.db.default.connection;
+    const graphs = Object.keys(global.db);
+    const conn = global.db.default.connection;
 
     async.mapSeries(graphs, function(graph, cb){
 
-        const graphUri = GLOBAL.db[graph].graphUri;
+        const graphUri = global.db[graph].graphUri;
         conn.deleteGraph(graphUri, function(err){
             if(err)
             {

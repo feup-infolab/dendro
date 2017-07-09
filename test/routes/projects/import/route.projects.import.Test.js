@@ -32,7 +32,7 @@ describe("Import projects tests", function (done) {
 
     describe("[GET] /projects/import", function () {
         it("Should get an error when trying to access the html page to import a project when unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.importProjectHTMLPage(false, agent, function (err, res) {
                 res.statusCode.should.equal(200);
@@ -65,7 +65,7 @@ describe("Import projects tests", function (done) {
     describe("[POST] /projects/import", function () {
         //TODO API ONLY
         it("Should give an error when the user is not authenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.importProject(true, agent, projectBackupData.path, function (err, res) {
                 res.statusCode.should.equal(401);

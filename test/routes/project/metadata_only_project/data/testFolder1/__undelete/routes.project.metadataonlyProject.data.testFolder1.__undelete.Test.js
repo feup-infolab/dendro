@@ -68,7 +68,7 @@ describe("Metadata only project testFolder1 level undelete tests", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.undeleteItem(true, agent, metadataProject.handle, testFolder1.name, function (err, res) {

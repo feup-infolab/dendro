@@ -43,6 +43,13 @@ MongoDBCache.prototype.openConnection = function(callback) {
     }
 };
 
+MongoDBCache.prototype.closeConnection = function(cb)
+{
+    const self = this;
+    self.client.close();
+    cb(null, null);
+};
+
 MongoDBCache.prototype.put = function(resourceUri, object, callback) {
     const self = this;
 

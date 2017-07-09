@@ -13,6 +13,10 @@ exports.requireUncached = function(module) {
     return require(module)
 };
 
+exports.clearCacheConnections = function(cb)
+{
+
+}
 
 exports.clearAllData = function (cb) {
     async.series([
@@ -31,7 +35,13 @@ exports.clearAllData = function (cb) {
             });
         },
         function (cb) {
-            exports.quitAllRedisConnections(function (err, results) {
+            exports.quitAllCacheConnections(function (err, results) {
+                should.equal(err, null);
+                cb(err, results);
+            });
+        },
+        function (cb) {
+            exports.quitGridFSConnections(function (err, results) {
                 should.equal(err, null);
                 cb(err, results);
             });
@@ -47,19 +57,27 @@ exports.clearAllData = function (cb) {
     });
 };
 
-exports.quitAllRedisConnections = function (cb) {
-    //GLOBAL.redis[redisConn.id].connection = redisConn;
-    async.mapSeries(GLOBAL.redis, function (redisConnection, cb) {
-        redisConnection.connection.redis.quit();
-        cb(null,null);
-    }, function (err, results) {
-        cb(err, results);
-    });
+exports.quitAllCacheConnections = function (cb) {
+    const Cache = require(Config.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+    Cache.closeConnections(cb);
+};
+
+exports.quitGridFSConnections = function(cb)
+{
+    for(let gridFSConnection in global.gfs)
+    {
+        if(global.gfs.hasOwnProperty(gridFSConnection))
+        {
+            global.gfs[gridFSConnection].connection.closeConnection(function(err, result){});
+        }
+    }
+
+    cb(null, null);
 };
 
 exports.endMysqlConnectionPool = function (cb) {
-    //GLOBAL.mysql
-    /*async.mapSeries(GLOBAL.mysql.connection, function (mysqlConnection, cb) {
+    //global.mysql
+    /*async.mapSeries(global.mysql.connection, function (mysqlConnection, cb) {
         mysqlConnection.connection.end(function(err) {
             cb(err,err);
         });
@@ -67,14 +85,14 @@ exports.endMysqlConnectionPool = function (cb) {
         cb(err, results);
     });*/
 
-    /*GLOBAL.mysql.connection.release(function (err) {
+    /*global.mysql.connection.release(function (err) {
         cb(err,err);
     });*/
-    //GLOBAL.mysql.connection.destroy();
-    /*GLOBAL.mysql.connection._realEnd(function(err) {
+    //global.mysql.connection.destroy();
+    /*global.mysql.connection._realEnd(function(err) {
         cb(err,err);
     });*/
-    GLOBAL.mysql.pool.end(function(err){
+    global.mysql.pool.end(function(err){
         if(err === undefined )
             err = null;
         cb(err, null);
@@ -85,7 +103,7 @@ exports.clearAppState = function (cb) {
     //var db = exports.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
 
     exports.clearAllData(function(err, results){
-        GLOBAL.tests.server.close();
+        global.tests.server.close();
         exports.endMysqlConnectionPool(function (err, results) {
             should.equal(err, null);
             cb(err, results);

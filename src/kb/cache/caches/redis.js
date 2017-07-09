@@ -77,6 +77,13 @@ RedisCache.prototype.openConnection = function(callback) {
     }
 };
 
+RedisCache.prototype.closeConnection = function(cb)
+{
+    let self = this;
+    self.redis.end(true);
+    cb(null, null);
+};
+
 RedisCache.prototype.put = function(resourceUri, object, callback) {
     const self = this;
 

@@ -56,7 +56,7 @@ describe("Private Project mkdir", function (done) {
 
 
         it("Should give an error when the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createFolderInProjectRoot(true, agent, privateProject.handle, folder.name, function (err, res) {
                 res.statusCode.should.equal(401);

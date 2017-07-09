@@ -49,7 +49,7 @@ describe("Private project level recommendation_ontologies", function () {
 
         it('[JSON] should forbid ontology recommendation requests in project '+ privateProject.handle +' if no user is authenticated.', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.getRecommendationOntologiesForProject(true, agent, privateProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);
@@ -107,7 +107,7 @@ describe("Private project level recommendation_ontologies", function () {
 
         it('[JSON] should forbid requests for recommendations in folder '+ invalidProject.handle +' if no user is authenticated.', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.getRecommendationOntologiesForProject(true, agent, invalidProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);

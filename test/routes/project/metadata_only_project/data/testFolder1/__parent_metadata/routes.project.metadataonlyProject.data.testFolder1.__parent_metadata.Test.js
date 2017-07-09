@@ -55,7 +55,7 @@ describe("Metadata only project testFolder1 level parent_metadata tests", functi
          */
         it("[JSON] should refuse to fetch the parent_metadata of the " + metadataProject.handle  + "/data/" + testFolder1.name+ " resource without authenticating", function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.getItemParentMetadata(true, agent, metadataProject.handle, testFolder1.name, function (err, res) {
                 res.statusCode.should.equal(401);

@@ -51,7 +51,7 @@ describe("Social Dendro check if Post is liked by a user tests", function () {
         });
 
         it("Should return an error if the user is not logged in", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             postUtils.checkIfPostIsLikedByUser(true, agent, demouser1PostURIs[0].uri, function (err, res) {

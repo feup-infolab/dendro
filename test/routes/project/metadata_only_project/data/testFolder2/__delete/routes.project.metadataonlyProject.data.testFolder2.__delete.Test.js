@@ -71,7 +71,7 @@ describe("Metadata only project testFolder2 level delete tests", function () {
 
         it("Should give an error when the user is not authenticated", function (done) {
             //done(1);
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.deleteItem(true, agent, metadataProject.handle, testFolder2.name, function (err, res) {
                 res.statusCode.should.equal(401);

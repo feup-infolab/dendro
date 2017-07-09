@@ -50,7 +50,7 @@ describe("Undelete Public Project Tests", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.undeleteProject(true, agent, publicProject.handle, function (err, res) {
                 res.statusCode.should.equal(401);
@@ -107,7 +107,7 @@ describe("Undelete Public Project Tests", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.undeleteProject(false, agent, publicProjectHTMLTests.handle, function (err, res) {
                 res.statusCode.should.equal(401);

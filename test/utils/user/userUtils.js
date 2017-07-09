@@ -3,7 +3,7 @@ const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
 exports.loginUser = function (username, password, cb) {
-    const app = GLOBAL.tests.app;
+    const app = global.tests.app;
     agent = chai.request.agent(app);
     agent
         .post('/login')
@@ -14,7 +14,7 @@ exports.loginUser = function (username, password, cb) {
 };
 
 exports.logoutUser = function (cb) {
-    const app = GLOBAL.tests.app;
+    const app = global.tests.app;
     agent = chai.request.agent(app);
     agent
         .get('/logout')
@@ -127,7 +127,7 @@ exports.addUserAscontributorToProject = function (jsonOnly, agent, username, pro
 
 
 exports.newPassword = function (query, cb) {
-    const app = GLOBAL.tests.app;
+    const app = global.tests.app;
     agent = chai.request.agent(app);
     let path = '/set_new_password';
     if(query){
@@ -143,7 +143,7 @@ exports.newPassword = function (query, cb) {
 };
 
 exports.sendingPassword = function (email, token, cb) {
-    const app = GLOBAL.tests.app;
+    const app = global.tests.app;
     agent = chai.request.agent(app);
 
     agent
@@ -155,7 +155,7 @@ exports.sendingPassword = function (email, token, cb) {
 };
 
 exports.getResetPasswordView = function (cb) {
-    const app = GLOBAL.tests.app;
+    const app = global.tests.app;
     agent = chai.request.agent(app);
     agent
         .get('/reset_password')
@@ -167,7 +167,7 @@ exports.getResetPasswordView = function (cb) {
 
 
 exports.sendingNewPassword = function (email, token, pass, passConfirm, cb) {
-    const app = GLOBAL.tests.app;
+    const app = global.tests.app;
     agent = chai.request.agent(app);
 
     agent

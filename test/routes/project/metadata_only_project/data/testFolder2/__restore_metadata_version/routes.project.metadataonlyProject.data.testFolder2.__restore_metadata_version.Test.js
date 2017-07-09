@@ -44,7 +44,7 @@ describe("Metadata only project testFolder2 level restore_metadata_version", fun
         });
 
         it("Should give an error if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.itemRestoreMetadataVersion(true, agent, metadataProject.handle, testFolder2.name, 0, function (err, res) {

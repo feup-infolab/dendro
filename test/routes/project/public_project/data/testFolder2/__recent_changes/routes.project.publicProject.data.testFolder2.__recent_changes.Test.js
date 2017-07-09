@@ -45,7 +45,7 @@ describe("Public project testFolder2 level recent changes", function () {
         });
 
         it("Should give the item changes if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             agent = chai.request.agent(app);
 
             itemUtils.getItemRecentChanges(true, agent, publicProject.handle, testFolder2.name, function (err, res) {

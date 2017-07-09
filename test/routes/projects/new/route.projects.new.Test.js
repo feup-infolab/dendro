@@ -51,7 +51,7 @@ describe("New project tests", function (done) {
         });
 
         it("[HTML] Should not show the new project Html page when unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.getNewProjectPage(false, agent, function (err, res) {
@@ -75,7 +75,7 @@ describe("New project tests", function (done) {
 //CREATE PROJECTS TESTS
     describe("[POST] with project handle: "+ publicProject.handle + " [/projects/new]", function () {
         it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(true, agent, publicProject, function (err, res) {
                 res.statusCode.should.equal(401);
@@ -95,7 +95,7 @@ describe("New project tests", function (done) {
         });
 
         it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(false, agent, publicProjectHTMLTests, function (err, res) {
                 res.statusCode.should.equal(200);
@@ -117,7 +117,7 @@ describe("New project tests", function (done) {
 
     describe("[POST] with project handle: "+ metadataOnlyProject.handle + " [/projects/new]", function () {
         it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(true, agent, metadataOnlyProject, function (err, res) {
                 res.statusCode.should.equal(401);
@@ -137,7 +137,7 @@ describe("New project tests", function (done) {
         });
 
         it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(false, agent, metadataOnlyHTMLTests, function (err, res) {
                 res.statusCode.should.equal(200);
@@ -159,7 +159,7 @@ describe("New project tests", function (done) {
 
     describe("[POST] with project handle: "+ privateProject.handle + " [/projects/new]", function () {
         it("[JSON] Should show an error when trying to create a project unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(true, agent, privateProject, function (err, res) {
                 res.statusCode.should.equal(401);
@@ -179,7 +179,7 @@ describe("New project tests", function (done) {
         });
 
         it("[HTML] Should show an error when trying to create a project unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.createNewProject(false, agent, privateProjectHTMLTests, function (err, res) {
                 res.statusCode.should.equal(200);

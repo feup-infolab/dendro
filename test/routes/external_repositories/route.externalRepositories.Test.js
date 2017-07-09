@@ -42,7 +42,7 @@ describe("List all external repository tests", function () {
 
         it("[HTML] should refuse the request if the Accept: 'application/json' header is not present with unauthenticated user", function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             repositoryUtils.getAllExternalRepositories(false, agent, function (err, res) {
                 res.text.should.contain("Please log into the system.");
@@ -52,7 +52,7 @@ describe("List all external repository tests", function () {
 
         it('[JSON] should refuse the request if the user is unauthenticated.', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             repositoryUtils.getAllExternalRepositories(true, agent, function (err, res) {
                 res.statusCode.should.equal(401);

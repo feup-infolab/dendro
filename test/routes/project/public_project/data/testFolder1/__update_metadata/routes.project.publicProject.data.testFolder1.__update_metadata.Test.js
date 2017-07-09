@@ -71,7 +71,7 @@ describe("Public project testFolder1 level update_metadata", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.updateItemMetadata(true, agent, publicProject.handle, testFolder1.name, testFolder1.metadata, function (err, res) {
                 res.statusCode.should.equal(401);

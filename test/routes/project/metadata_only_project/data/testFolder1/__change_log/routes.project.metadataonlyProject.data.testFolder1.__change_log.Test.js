@@ -34,7 +34,7 @@ describe("Metadata only project testFolder1 level ?change_log", function () {
 
     describe("[GET] [METADATA ONLY PROJECT] /project/" + metadataProject.handle + "/data/foldername?change_log", function () {
         it("Should give an error if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.getItemChangeLog(true, agent, metadataProject.handle, testFolder1.name, function (err, res) {

@@ -71,7 +71,7 @@ describe("Public project testFolder2 level hard delete tests", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             //jsonOnly, agent, projectHandle, itemPath, cb
             itemUtils.deleteItem(true, agent, publicProject.handle, testFolder2.name, function (err, res) {

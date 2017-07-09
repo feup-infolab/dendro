@@ -34,7 +34,7 @@ describe("Private project testFolder2 level ?change_log", function () {
 
     describe("[GET] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/foldername?change_log", function () {
         it("Should give an error if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.getItemChangeLog(true, agent, privateProject.handle, testFolder2.name, function (err, res) {

@@ -53,7 +53,7 @@ describe("Public project level metadata&deep tests", function () {
          */
         it('[JSON] should fetch metadata recursively of the ' + publicProject.handle + ' project without authenticating', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.getProjectMetadataDeep(true, agent, publicProject.handle, function (err, res) {
                 res.statusCode.should.equal(200);

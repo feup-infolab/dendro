@@ -37,7 +37,7 @@ describe("List all projects tests", function (done) {
 
     describe("[GET] /projects", function () {
         it("[HTML] Should only get public and metadata_only projects when unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.listAllProjects(false, agent, function (err, res) {

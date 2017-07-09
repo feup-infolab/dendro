@@ -34,7 +34,7 @@ describe("Private project root tests", function () {
     describe('/project/'+privateProject.handle + " (default case where the root of the project is shown, without any query)", function () {
 
         it("[HTML] should not show the project page if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.viewProject(false, agent, privateProject.handle, function (err, res) {
                 res.should.have.status(200);
@@ -78,7 +78,7 @@ describe("Private project root tests", function () {
         });
 
         it("[JSON] should give an unauthorized error if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.viewProject(true, agent, privateProject.handle, function (err, res) {
                 res.should.have.status(401);
@@ -125,7 +125,7 @@ describe("Private project root tests", function () {
     describe('/project/'+invalidProject.handle + " NON_EXISTENT PROJECT(default case where the root of the project is shown, without any query)", function () {
 
         it("[HTML] should give the project page html with an error if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.viewProject(false, agent, invalidProject.handle, function (err, res) {
                 res.should.have.status(200);
@@ -174,7 +174,7 @@ describe("Private project root tests", function () {
 
 
         it("[JSON] should give a 404 error if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.viewProject(true, agent, invalidProject.handle, function (err, res) {
                 res.should.have.status(404);//-> At the moment it is responding with an html page saying that the project does not exist

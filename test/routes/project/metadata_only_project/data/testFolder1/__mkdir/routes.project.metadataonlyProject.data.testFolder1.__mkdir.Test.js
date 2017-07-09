@@ -45,7 +45,7 @@ describe("Metadata only project testFolder1 level ?mkdir", function () {
         });
 
         it("Should give an error when the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.createFolder(true, agent, metadataProject.handle, testFolder1.name, folder.name, function (err, res) {
                 res.statusCode.should.equal(401);

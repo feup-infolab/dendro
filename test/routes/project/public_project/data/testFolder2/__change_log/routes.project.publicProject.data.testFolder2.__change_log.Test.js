@@ -34,7 +34,7 @@ describe("Public project testFolder2 level ?change_log", function () {
 
     describe("[GET] [PUBLIC PROJECT] /project/" + publicProject.handle + "/data/foldername?change_log", function () {
         it("Should give the change log if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.getItemChangeLog(true, agent, publicProject.handle, testFolder2.name, function (err, res) {

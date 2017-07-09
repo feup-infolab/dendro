@@ -37,7 +37,7 @@ describe("Social Dendro get all user posts tests", function () {
         let postsURISDemouser1;
 
         it("Should return an error if the user is not authenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             postUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
                 res.statusCode.should.equal(401);

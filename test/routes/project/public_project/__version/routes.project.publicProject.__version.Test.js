@@ -79,7 +79,7 @@ describe("Public project ?version tests", function(){
         this.timeout(60000);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
-            GLOBAL.tests.server.close();
+            global.tests.server.close();
             done();
         });
     });

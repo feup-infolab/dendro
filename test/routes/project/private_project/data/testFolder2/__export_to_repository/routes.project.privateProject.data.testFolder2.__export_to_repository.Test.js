@@ -69,7 +69,7 @@ describe("Export private project testFolder2 level to repositories tests", funct
         });
 
         it("Should give an error when the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             repositoryUtils.exportFolderToRepository(true, privateProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: b2shareData}, function (err, res) {
                 res.statusCode.should.equal(401);
@@ -157,7 +157,7 @@ describe("Export private project testFolder2 level to repositories tests", funct
         });
 
         it("Should give an error when the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             repositoryUtils.exportFolderToRepository(true, privateProject.handle, testFolder2.pathInProject + testFolder2.name, agent, {repository: zenodoData}, function (err, res) {
                 res.statusCode.should.equal(401);

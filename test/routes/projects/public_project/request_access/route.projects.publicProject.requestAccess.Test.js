@@ -35,7 +35,7 @@ describe("Request access to public project", function (done) {
 
     describe("[GET] /project/:handle?request_access " + "[" + publicProject.handle + "]", function () {
         it("Should get an error when trying to access the request access to a project HTML page when not authenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             projectUtils.getRequestProjectAccessPage(false, agent, publicProject.handle, function (err, res) {
                 res.statusCode.should.equal(200);
@@ -81,7 +81,7 @@ describe("Request access to public project", function (done) {
         //TODO TEST for all project types
 
         it("Should get an error when user is not authenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.requestAccessToProject(false, agent, publicProject.handle, function (err, res) {

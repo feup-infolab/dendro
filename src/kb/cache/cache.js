@@ -16,7 +16,7 @@ const Cache = function()
 
 Cache.initConnections = function(callback)
 {
-    var self = this;
+    const self = this;
     const _ = require('underscore');
 
     let keys = _.filter(Object.keys(global.db), function(key){
@@ -48,7 +48,7 @@ Cache.initConnections = function(callback)
                                     newMongoCacheConnection.openConnection(function(err, mongoDBConnection) {
                                         if(!isNull(err))
                                         {
-                                            throw new Error("[ERROR] Unable to connect to MongoDB instance with ID: " + instance.id + " running on " + instance.options.host + ":" + instance.options.port + " : " + err.message);
+                                            throw new Error("[ERROR] Unable to connect to MongoDB instance with ID: " + mongoDBConnection.id + " running on " + mongoDBConnection.options.host + ":" + mongoDBConnection.options.port + " : " + err.message);
                                         }
                                         else
                                         {
@@ -141,6 +141,24 @@ Cache.initConnections = function(callback)
             }
         }
     );
+};
+
+Cache.closeConnections = function(cb)
+{
+    let self = this;
+
+    async.map(Object.keys(self.caches), function(cacheKey, cb){
+        if(self.caches.hasOwnProperty(cacheKey))
+        {
+            self.caches[cacheKey].closeConnection(cb);
+        }
+        else
+        {
+            cb(null, null);
+        }
+    }, function(err, results){
+        cb(err, results);
+    });
 };
 
 Cache.get = function(cacheId)

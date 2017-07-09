@@ -44,7 +44,7 @@ describe("Private project testFolder1 level ?version", function () {
         });
 
         it("Should give an error if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.getItemVersion(true, agent, privateProject.handle, testFolder1.name, testFolder1.version, function (err, res) {

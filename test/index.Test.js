@@ -1,14 +1,14 @@
 process.env.NODE_ENV = 'test';
 
-GLOBAL.tests = {};
+global.tests = {};
 
 let Config = Object.create(require("../src/models/meta/config.js").Config);
-GLOBAL.Config = Config;
+global.Config = Config;
 Config.initGlobals();
 
 //Config.cache.active = false;
 
-GLOBAL.tests = {};
+global.tests = {};
 
 // /*
 //  require(Config.absPathInTestsFolder("/routes/search/routes.search.Test.js"));

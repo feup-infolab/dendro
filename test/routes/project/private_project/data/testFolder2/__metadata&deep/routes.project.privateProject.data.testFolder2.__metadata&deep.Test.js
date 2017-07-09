@@ -55,7 +55,7 @@ describe("Private project testFolder2 level metadata&deep tests", function () {
          */
         it("[JSON] should refuse to fetch metadata recursively of the " + privateProject.handle  + "/data/" + testFolder2.name+ " resource without authenticating", function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.getItemMetadataDeep(true, agent, privateProject.handle, testFolder2.name, function (err, res) {
                 res.statusCode.should.equal(401);

@@ -46,7 +46,7 @@ describe("Public project recent changes", function () {
         });
 
         it("Should give the recent project changes if the user is unauthenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.getProjectRecentChanges(true, agent, publicProject.handle, function (err, res) {

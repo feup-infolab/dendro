@@ -53,7 +53,7 @@ describe("Social Dendro add comment to post tests", function () {
         });
 
         it("Should return an error if the user is not logged in", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             postUtils.addCommentToPost(true, agent, demouser1PostURIs[0].uri, commentMockup.msg, function (err, res) {

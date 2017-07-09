@@ -25,7 +25,7 @@ describe("/user/demouser2", function (done) {
     });
 
     it("[JSON] should NOT access demouser2.username profile when given demouser2.username and NOT logged in",function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(demouser2.username, true, agent, function(err, res){
             res.should.have.status(401);
@@ -35,7 +35,7 @@ describe("/user/demouser2", function (done) {
     });
 
     it("[HTML] should NOT access demouser2.username profile when given demouser2.username and  NOT logged in",function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(demouser2.username, false, agent, function(err, res){
             res.should.have.status(401);
@@ -45,7 +45,7 @@ describe("/user/demouser2", function (done) {
     });
     //review agent immediatly
     it("[JSON] should access demouser2.username profile when given demouser2.username and logged in",function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             userUtils.getUserInfo(demouser2.username, true, agent, function(err, res){
@@ -57,7 +57,7 @@ describe("/user/demouser2", function (done) {
     });
 
     it("[HTML] should access demouser2.username profile when given demouser2.username and logged in",function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             userUtils.getUserInfo(demouser2.username, false, agent, function(err, res){
@@ -70,7 +70,7 @@ describe("/user/demouser2", function (done) {
 
 
     it("[JSON] should NOT access demouser2.username profile when given non-existent username and logged in",function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             userUtils.getUserInfo(falseUser, true, agent, function(err, res){
@@ -82,7 +82,7 @@ describe("/user/demouser2", function (done) {
     });
 
     it("[HTML] should NOT access demouser2.username profile when given non-existent username and logged in",function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
             userUtils.getUserInfo(falseUser, false, agent, function(err, res){
@@ -94,7 +94,7 @@ describe("/user/demouser2", function (done) {
     });
 
     it("[JSON] should NOT access demouser2.username profile when given non-existent username and NOT logged in",function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(falseUser, true, agent, function(err, res){
             res.should.have.status(401);
@@ -104,7 +104,7 @@ describe("/user/demouser2", function (done) {
     });
 
     it("[HTML] should NOT access demouser2.username profile when given non-existent username and NOT logged in",function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
         userUtils.getUserInfo(falseUser, false, agent, function(err, res){
             res.should.have.status(401);

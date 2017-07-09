@@ -48,7 +48,7 @@ describe("Public project testFolder2 level metadata_recommendations tests", func
 
         it('[JSON] should forbid requests for recommendations in project '+ publicProject.handle +' if no user is authenticated.', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.getItemMetadataRecommendations(true, agent, publicProject.handle, testFolder2.name, function (err, res) {
@@ -117,7 +117,7 @@ describe("Public project testFolder2 level metadata_recommendations tests", func
 
         it('[JSON] should forbid requests for recommendations in project '+ invalidProject.handle +' if no user is authenticated.', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             itemUtils.getItemMetadataRecommendations(true, agent, invalidProject.handle, testFolder2.name, function (err, res) {

@@ -47,8 +47,8 @@ module.exports.setup = function(finish)
                 chai.request(appInfo.app)
                     .get('/')
                     .end((err, res) => {
-                        GLOBAL.tests.app = appInfo.app;
-                        GLOBAL.tests.server = appInfo.server;
+                        global.tests.app = appInfo.app;
+                        global.tests.server = appInfo.server;
                         end();
                         finish(err, res);
                     });

@@ -69,7 +69,7 @@ describe("Private project testFolder1 level delete tests", function () {
         });
 
         it("Should give an error when the user is not authenticated", function (done) {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
             itemUtils.deleteItem(true, agent, privateProject.handle, testFolder1.name, function (err, res) {
                 res.statusCode.should.equal(401);

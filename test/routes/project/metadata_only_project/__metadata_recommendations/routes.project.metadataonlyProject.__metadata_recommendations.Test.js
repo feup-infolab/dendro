@@ -49,7 +49,7 @@ describe("Metadata only project level metadata_recommendations", function () {
 
         it('[JSON] should forbid requests for recommendations in project '+ metadataProject.handle +' if no user is authenticated.', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.getMetadataRecomendationsForProject(true, agent, metadataProject.handle, function (err, res) {
@@ -108,7 +108,7 @@ describe("Metadata only project level metadata_recommendations", function () {
 
         it('[JSON] should forbid requests for recommendations in project '+ invalidProject.handle +' if no user is authenticated.', function (done)
         {
-            const app = GLOBAL.tests.app;
+            const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             projectUtils.getMetadataRecomendationsForProject(true, agent, invalidProject.handle, function (err, res) {

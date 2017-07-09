@@ -29,7 +29,7 @@ describe('/ontologies/all', function () {
     });
 
     it('[JSON] should return all ontologies logged in as demouser1.username', function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -42,7 +42,7 @@ describe('/ontologies/all', function () {
         });
     });
     it('[HTML] should return all ontologies logged in as demouser1.username', function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -54,7 +54,7 @@ describe('/ontologies/all', function () {
         });
     });
     it('[JSON] should return all ontologies logged in as demouser2.username', function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
@@ -67,7 +67,7 @@ describe('/ontologies/all', function () {
         });
     });
     it('[HTML] should return all ontologies logged in as demouser2.username', function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
@@ -79,7 +79,7 @@ describe('/ontologies/all', function () {
         });
     });
     it('[JSON] should return all ontologies logged in as demouser3.username', function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
@@ -92,7 +92,7 @@ describe('/ontologies/all', function () {
         });
     });
     it('[HTML] should return all ontologies logged in as demouser3.username', function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
 
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
@@ -105,7 +105,7 @@ describe('/ontologies/all', function () {
     });
 
     it('[JSON] should return all ontologies not logged in', function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
 
         ontologiesUtils.allDisplay(true, agent, function(err, res){
@@ -116,7 +116,7 @@ describe('/ontologies/all', function () {
         });
     });
     it('[HTML] should return all ontologies not logged in', function (done) {
-        const app = GLOBAL.tests.app;
+        const app = global.tests.app;
         const agent = chai.request.agent(app);
 
         ontologiesUtils.allDisplay(false, agent, function(err, res){
