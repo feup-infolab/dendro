@@ -401,7 +401,7 @@ const init = function(callback)
                 Config.virtuosoPort,
                 Config.virtuosoAuth.user,
                 Config.virtuosoAuth.password,
-                Config.maxSimultanousConnectionsToDb);
+                Config.maxSimultaneousConnectionsToDb);
 
             db.create(function(db) {
                 if(!db)

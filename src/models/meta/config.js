@@ -115,7 +115,7 @@ Config.mySQLDBName = getConfigParameter("mySQLDBName");
 
 Config.maxUploadSize = getConfigParameter("maxUploadSize");   //1000MB®
 Config.maxProjectSize = getConfigParameter("maxProjectSize");   //10000MB®
-Config.maxSimultanousConnectionsToDb = getConfigParameter("maxSimultanousConnectionsToDb");
+Config.maxSimultaneousConnectionsToDb = getConfigParameter("maxSimultaneousConnectionsToDb");
 Config.dbOperationTimeout = getConfigParameter("dbOperationTimeout");
 
 if(path.isAbsolute(getConfigParameter("tempFilesDir")))
