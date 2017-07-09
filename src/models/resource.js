@@ -107,16 +107,19 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
             rdfTypes = self.prefixedRDFType;
 
 
+        let argumentCount = 1;
         let typeRestrictions = "";
-        for(let i = 1; i < rdfTypes.length + 1; i++)
+        for(let i = 0; i < rdfTypes.length; i++)
         {
-            typeRestrictions = typeRestrictions + " ?uri rdf:type ["+i+"]";
+            typeRestrictions = typeRestrictions + " ?uri rdf:type ["+argumentCount+"]";
+            argumentCount++;
+
             queryArguments.push({
                 type: DbConnection.prefixedResource,
-                value: self.prefixedRDFType[i-1]
+                value: self.prefixedRDFType[i]
             });
 
-            if(i < rdfTypes.length)
+            if(i < rdfTypes.length - 1)
             {
                 typeRestrictions += ".\n";
             }
@@ -2830,16 +2833,19 @@ Resource.getCount = function(callback) {
         rdfTypes = self.prefixedRDFType;
 
 
+    let argumentCount = 1;
     let typeRestrictions = "";
-    for(let i = 1; i < rdfTypes.length + 1; i++)
+    for(let i = 0; i < rdfTypes.length; i++)
     {
-        typeRestrictions = typeRestrictions + " ?uri rdf:type ["+i+"]";
+        typeRestrictions = typeRestrictions + " ?uri rdf:type ["+argumentCount+"]";
         queryArguments.push({
             type: DbConnection.prefixedResource,
-            value: self.prefixedRDFType[i-1]
+            value: self.prefixedRDFType[i]
         });
 
-        if(i < rdfTypes.length)
+        argumentCount++;
+
+        if(i < rdfTypes.length - 1)
         {
             typeRestrictions += ".\n";
         }

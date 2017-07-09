@@ -42,16 +42,18 @@ function ArchivedResource (object)
     {
         if(object.rdf.type instanceof Array)
         {
-            self.rdf.type.push("ddr:ArchivedResource");
+            if(!_.contains(object.rdf.type, "ddr:ArchivedResource"))
+            {
+                self.rdf.type = object.rdf.type.concat(["ddr:ArchivedResource"]);
+            }
         }
-        else
+        else if (typeof object.rdf.type === "string")
         {
-            self.rdf.type = [self.rdf.type, "ddr:ArchivedResource"];
+            if(object.rdf.type !== "ddr:ArchivedResource")
+            {
+                self.rdf.type = [object.rdf.type, "ddr:ArchivedResource"];
+            }
         }
-    }
-    else
-    {
-        self.rdf.type = "ddr:ArchivedResource";
     }
 
     const now = new Date();
@@ -254,6 +256,8 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
         return callback(err, archivedResource);
     });
 };
+
+
 ArchivedResource = Class.extend(ArchivedResource, Resource, "ddr:ArchivedResource");
 
 module.exports.ArchivedResource = ArchivedResource;
