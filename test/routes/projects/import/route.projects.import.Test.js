@@ -3,6 +3,7 @@ const chaiHttp = require('chai-http');
 const should = chai.should();
 chai.use(chaiHttp);
 
+const Pathfinder = global.Pathfinder;
 const Config = global.Config;
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));

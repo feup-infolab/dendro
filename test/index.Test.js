@@ -1,11 +1,15 @@
-const path = require('path');
-const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
-const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
-
 process.env.NODE_ENV = 'test';
 
-global.tests = {};
-//Config.cache.active = false;
+const path = require('path');
+const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
+const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
+Pathfinder.appDir = appDir;
+
+const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
+console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
+
+global.Pathfinder = Pathfinder;
+global.Config = Config;
 
 global.tests = {};
 

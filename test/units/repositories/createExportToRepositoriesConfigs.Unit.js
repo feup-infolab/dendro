@@ -1,5 +1,6 @@
 process.env.NODE_ENV = 'test';
 
+const Pathfinder = global.Pathfinder;
 const Config = global.Config;
 const async = require('async');
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));

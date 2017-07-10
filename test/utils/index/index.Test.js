@@ -1,5 +1,6 @@
 process.env.NODE_ENV = 'test';
 
+const Pathfinder = global.Pathfinder;
 const Config = global.Config;
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 

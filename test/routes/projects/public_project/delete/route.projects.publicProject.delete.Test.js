@@ -4,6 +4,7 @@ const should = chai.should();
 const _ = require('underscore');
 chai.use(chaiHttp);
 
+const Pathfinder = global.Pathfinder;
 const Config = global.Config;
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));

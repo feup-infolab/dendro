@@ -1,4 +1,5 @@
 process.env.NODE_ENV = 'test';
+const Pathfinder = global.Pathfinder;
 const Config = global.Config;
 
 const chai = require('chai');

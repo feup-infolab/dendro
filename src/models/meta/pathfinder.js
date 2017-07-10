@@ -3,18 +3,7 @@ const path = require('path');
 const Pathfinder = function()
 {
 
-}
-
-if(process.env.NODE_ENV === "test")
-{
-    Pathfinder.appDir = path.resolve(path.dirname(require.main.filename), "../../..");
-    console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
-}
-else
-{
-    Pathfinder.appDir = path.resolve(path.dirname(require.main.filename), "..");
-    console.log("Running in production / dev mode and the app directory is : " + Pathfinder.appDir);
-}
+};
 
 Pathfinder.absPathInApp = function(relativePath)
 {

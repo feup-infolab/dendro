@@ -1,4 +1,5 @@
 const publicProjectHandle = 'publicprojectcreatedbydemouser1';
+const Config = global.Config;
 
 const projectData = {
     creator: "http://" + Config.host + "/user/demouser1",

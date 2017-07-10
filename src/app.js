@@ -1,5 +1,21 @@
 const path = require('path');
-const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+
+if(process.env.NODE_ENV === "test")
+{
+    const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
+    const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
+    Pathfinder.appDir = appDir;
+    console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
+}
+else
+{
+    const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
+    const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
+    Pathfinder.appDir = path.resolve(path.dirname(require.main.filename), "..");
+    Pathfinder.appDir = appDir;
+    console.log("Running in production / dev mode and the app directory is : " + Pathfinder.appDir);
+}
+
 const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
 /**
@@ -435,11 +451,11 @@ const init = function(callback)
             if(Config.debug.database.destroy_all_graphs_on_startup)
             {
                 const graphs = Object.keys(Config.db);
-                const conn = Config.getDBByGraphUri();
+                const conn = Config.getDBByID().connection;
 
                 async.map(graphs, function(graph, cb){
 
-                    const graphUri = Config.getDBByGraphUri(graphUri).graphUri;
+                    const graphUri = Config.getDBByID(graph).graphUri;
                     conn.deleteGraph(graphUri, function(err){
                         if(err)
                         {
@@ -625,7 +641,7 @@ const init = function(callback)
 
                 const poolOK = function (pool) {
                     log_boot_message("success","Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-                    Config.mysql.pool = pool;
+                    Config.mysql.default.pool = pool;
                     return callback(null);
                 };
 

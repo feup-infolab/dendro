@@ -4,7 +4,7 @@ const should = chai.should();
 const _ = require('underscore');
 chai.use(chaiHttp);
 
-const Config = require("../src/models/meta/config").Config;
+const Pathfinder = require("../src/models/meta/pathfinder").Pathfinder;
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));

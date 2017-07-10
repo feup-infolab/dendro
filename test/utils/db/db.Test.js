@@ -1,3 +1,4 @@
+const Pathfinder = global.Pathfinder;
 const Config = global.Config;
 process.env.NODE_ENV = 'test';
 
@@ -9,12 +10,12 @@ chai.use(chaiHttp);
 const should = chai.should();
 
 module.exports.deleteGraphs = function (finish) {
-    const graphs = Object.keys(global.db);
-    const conn = global.db.default.connection;
+    const graphs = Object.keys(Config.db);
+    const conn = Config.db.default.connection;
 
     async.mapSeries(graphs, function(graph, cb){
 
-        const graphUri = global.db[graph].graphUri;
+        const graphUri = Config.db[graph].graphUri;
         conn.deleteGraph(graphUri, function(err){
             if(err)
             {

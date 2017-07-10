@@ -1,4 +1,4 @@
-const Config = require("../../../src/models/meta/config").Config;
+const Pathfinder = require("../../../src/models/meta/pathfinder").Pathfinder;
 
 const async = require('async');
 
@@ -9,8 +9,8 @@ const chai = require('chai');
 const should = chai.should();
 
 exports.requireUncached = function(module) {
-    delete require.cache[require.resolve(module)]
-    return require(module)
+    delete require.cache[require.resolve(module)];
+    return require(module);
 };
 
 exports.clearCacheConnections = function(cb)
@@ -92,7 +92,7 @@ exports.endMysqlConnectionPool = function (cb) {
     /*global.mysql.connection._realEnd(function(err) {
         cb(err,err);
     });*/
-    global.mysql.pool.end(function(err){
+    Config.getMySQLByID().pool.end(function(err){
         if(err === undefined )
             err = null;
         cb(err, null);
