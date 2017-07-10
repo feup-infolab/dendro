@@ -6,15 +6,15 @@ chai.use(chaiHttp);
 
 const Config = global.Config;
 
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
 
-const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
-const createUserUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const createUserUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
 //to review naming before mergin to master
 

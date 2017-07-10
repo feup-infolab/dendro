@@ -7,20 +7,20 @@ chai.use(require('chai-http'));
 const should = chai.should();
 const async = require('async');
 
-const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
-const postsUtils = require(Config.absPathInTestsFolder("utils/social/post.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const postsUtils = require(Pathfinder.absPathInTestsFolder("utils/social/post.js"));
 
 
-const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 
 
 module.exports.setup = function(finish)
 {
-    let createPostsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/social/createPosts.Unit.js"));
+    let createPostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createPosts.Unit.js"));
 
     createPostsUnit.setup(function (err, results) {
         if(err)

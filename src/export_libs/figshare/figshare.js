@@ -3,11 +3,11 @@
  */
 const request = require('request');
 
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 FigShare.apiURL = 'http://api.figshare.com';
 FigShare.requestTokenURL = FigShare.apiURL + '/v1/pbl/oauth/request_token';

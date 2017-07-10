@@ -1,16 +1,14 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const ObjectManipulator = require(Config.absPathInSrcFolder("/utils/object_manipulation.js"));
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const ObjectManipulator = require(Pathfinder.absPathInSrcFolder("/utils/object_manipulation.js"));
 
-const db = function () {
-    return global.db.default;
-}();
+const db = Config.getDBByID();
 const async = require('async');
 const _ = require('underscore');
 

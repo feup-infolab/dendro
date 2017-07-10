@@ -1,22 +1,18 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 
-const db = function () {
-    return global.db.default;
-}();
-const gfs = function () {
-    return global.gfs.default;
-}();
+const db = Config.getDBByID();
+const gfs = Config.getGFSByID();
 
 const _ = require('underscore');
 const request = require('request');
@@ -297,7 +293,7 @@ exports.update = function(req, res) {
                                             if(!err)
                                             {
                                                 //Refresh metadata evaluation
-                                                require(Config.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
+                                                require(Pathfinder.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
                                                 {
                                                     if (evaluation.metadata_evaluation !== resource.ddr.metadataQuality)
                                                     {

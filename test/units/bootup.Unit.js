@@ -34,15 +34,15 @@ const end = function()
 module.exports.setup = function(finish)
 {
     start();
-    let connectionsInitalized = requireUncached(Config.absPathInSrcFolder("app.js")).connectionsInitialized;
+    let connectionsInitalized = requireUncached(Pathfinder.absPathInSrcFolder("app.js")).connectionsInitialized;
 
     connectionsInitalized.then(function(){
-        const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+        const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
         appUtils.clearAllData(function (err, data) {
             should.equal(err, null);
 
-            let bootup = requireUncached(Config.absPathInSrcFolder("app.js")).bootup;
+            let bootup = requireUncached(Pathfinder.absPathInSrcFolder("app.js")).bootup;
             bootup.then(function(appInfo) {
                 chai.request(appInfo.app)
                     .get('/')

@@ -1,17 +1,16 @@
 var async = require('async');
-var path = require('path');
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+
 var needle = require('needle');
 var _ = require('underscore');
 
-const Config = function () {
-    return global.Config;
-}();
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-var File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+var File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 var DendroInteraction2CSV = require("../../dendro_interaction2csv").DendroInteraction2CSV;
 var InteractionAnalyser = require("../models/interaction_analyser.js").InteractionAnalyser;

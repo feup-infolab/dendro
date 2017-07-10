@@ -1,15 +1,14 @@
-const util = require('util');
-const Config = function () {
-    return global.Config;
-}();
+const path = require("path");
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const util = require('util');
+
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 const uuid = require('uuid');
 let queue = require('queue');
 
-function DbConnection (host, port, username, password, maxSimultaneousConnections)
-{
+function DbConnection (host, port, username, password, maxSimultaneousConnections) {
     let self = this;
 
     if (!self.host || !self.port) {
@@ -45,50 +44,6 @@ DbConnection.prefixedResource = 7; //for "dcterms:creator", "nie:isLogicalPartOf
 DbConnection.date = 8;
 DbConnection.long_string = 9;
 DbConnection.stringNoEscape = 10;
-
-DbConnection.prototype.create = function(callback) {
-    const self = this;
-    const xmlHttp = new XMLHttpRequest();
-
-    // prepare callback
-    xmlHttp.onreadystatechange = function() {
-        if(xmlHttp.readyState === 4)
-        {
-            if(xmlHttp.status === 200)
-            {
-                self.q = queue();
-                self.q.timeout = Config.dbOperationTimeout;
-
-                if(Config.debug.database.log_query_timeouts) {
-                    self.q.on('timeout', function (next, job) {
-                        console.log('query timed out:', job.toString().replace(/\n/g, ''));
-                        next();
-                    });
-                }
-
-                self.q.on('success', function(result, job) {
-                    //console.log('query finished processing:', job.toString().replace(/\n/g, ''));
-                });
-
-                return callback(self);
-            }
-            else
-            {
-                return callback(false);
-            }
-        }
-    };
-
-    let fullUrl = "http://" + self.host;
-
-    if (self.port) {
-        fullUrl = fullUrl + ":" + self.port;
-    }
-
-    xmlHttp.open("GET", fullUrl, true);
-    xmlHttp.send(null);
-};
-
 
 const queryObjectToString = function (query, argumentsArray, callback) {
     let transformedQuery = query;
@@ -229,8 +184,208 @@ const queryObjectToString = function (query, argumentsArray, callback) {
     return callback(null, transformedQuery);
 };
 
-DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows) {
+DbConnection.addLimitsClauses = function(query, offset, maxResults) {
+    if(!isNull(offset) &&
+        typeof offset === "number" &&
+        offset > 0)
+    {
+        query = query + " OFFSET " + offset + "\n";
+    }
 
+    if(!isNull(maxResults) &&
+        typeof maxResults === "number" &&
+        maxResults > 0)
+    {
+        query = query + " LIMIT "+ maxResults + " \n";
+    }
+
+    return query;
+};
+
+DbConnection.pushLimitsArguments = function(unpaginatedArgumentsArray, maxResults, offset) {
+    if(!isNull(offset) &&
+        typeof offset === "number" &&
+        offset > 0)
+    {
+        unpaginatedArgumentsArray = unpaginatedArgumentsArray.push({
+            type : DbConnection.int,
+            value : maxResults
+        });
+    }
+
+    if(!isNull(maxResults) &&
+        typeof maxResults === "number" &&
+        maxResults > 0)
+    {
+        unpaginatedArgumentsArray = unpaginatedArgumentsArray.push({
+            type : DbConnection.int,
+            value : maxResults
+        });
+    }
+
+    return unpaginatedArgumentsArray;
+};
+
+DbConnection.paginate = function(req, viewVars) {
+    if(!isNull(req) && !isNull(req.query))
+    {
+        if(!req.query.currentPage)
+        {
+            viewVars.currentPage = 0;
+        }
+        else
+        {
+            viewVars.currentPage = parseInt(req.query.currentPage);           //avoid injections
+        }
+
+        if(!req.query.pageSize)
+        {
+            viewVars.pageSize = 20;
+        }
+        else
+        {
+            viewVars.pageSize = parseInt(req.query.pageSize);              //avoid injections
+        }
+    }
+
+    return viewVars;
+};
+
+DbConnection.paginateQuery = function (req, query) {
+    if(!isNull(req) && !isNull(req.query))
+    {
+        if(isNull(req.query.currentPage))
+        {
+            req.query.currentPage = 0;
+        }
+        else
+        {
+            req.query.currentPage = parseInt(req.query.currentPage);           //avoid injections
+        }
+
+        if(!req.query.pageSize)
+        {
+            req.query.pageSize = 20;
+        }
+        else
+        {
+            req.query.pageSize = parseInt(req.query.pageSize);              //avoid injections
+        }
+
+        const skip = req.query.pageSize * req.query.currentPage;
+
+        if(req.query.pageSize > 0)
+        {
+            query = query + " LIMIT " + req.query.pageSize;
+        }
+
+        if(skip > 0)
+        {
+            query = query + " OFFSET " + skip;
+        }
+    }
+
+    return query;
+};
+
+DbConnection.buildFromStringAndArgumentsArrayForOntologies = function(ontologyURIsArray, startingArgumentCount) {
+    let i;
+    let fromString = "";
+    const argumentsArray = [];
+
+    for(i = 0; i < ontologyURIsArray.length; i++)
+    {
+        const argIndex = i + startingArgumentCount; //arguments array starts with 2 fixed elements
+
+        fromString = fromString + " FROM [" + argIndex +"] \n";
+
+        argumentsArray.push(
+            {
+                type : DbConnection.resourceNoEscape,
+                value : ontologyURIsArray[i]
+            }
+        );
+    }
+
+    return {
+        fromString : fromString,
+        argumentsArray : argumentsArray
+    };
+};
+
+DbConnection.buildFilterStringForOntologies = function(ontologyURIsArray, filteredVariableName) {
+    let filterString = "";
+
+    if(!isNull(ontologyURIsArray) && ontologyURIsArray instanceof Array)
+    {
+        if(ontologyURIsArray.length > 0)
+        {
+            filterString = filterString + "FILTER( ";
+
+            for(let i = 0; i < ontologyURIsArray.length; i++)
+            {
+                const ontologyUri = ontologyURIsArray[i];
+                filterString = filterString + " STRSTARTS(STR(?"+filteredVariableName+"), \""+ontologyUri + "\") ";
+
+                if(i < ontologyURIsArray.length - 1)
+                {
+                    filterString = filterString + " || ";
+                }
+            }
+
+            filterString = filterString + ") .";
+        }
+    }
+
+    return filterString;
+};
+
+DbConnection.prototype.create = function(callback) {
+    const self = this;
+    const xmlHttp = new XMLHttpRequest();
+    const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+
+    // prepare callback
+    xmlHttp.onreadystatechange = function() {
+        if(xmlHttp.readyState === 4)
+        {
+            if(xmlHttp.status === 200)
+            {
+                self.q = queue();
+                self.q.timeout = Config.dbOperationTimeout;
+
+                if(Config.debug.database.log_query_timeouts) {
+                    self.q.on('timeout', function (next, job) {
+                        console.log('query timed out:', job.toString().replace(/\n/g, ''));
+                        next();
+                    });
+                }
+
+                self.q.on('success', function(result, job) {
+                    //console.log('query finished processing:', job.toString().replace(/\n/g, ''));
+                });
+
+                return callback(self);
+            }
+            else
+            {
+                return callback(false);
+            }
+        }
+    };
+
+    let fullUrl = "http://" + self.host;
+
+    if (self.port) {
+        fullUrl = fullUrl + ":" + self.port;
+    }
+
+    xmlHttp.open("GET", fullUrl, true);
+    xmlHttp.send(null);
+};
+
+DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows) {
+    const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
     const self = this;
 
     queryObjectToString(queryStringWithArguments, argumentsArray, function(err, query){
@@ -389,114 +544,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
     });
 };
 
-DbConnection.addLimitsClauses = function(query, offset, maxResults)
-{
-    if(!isNull(offset) &&
-        typeof offset === "number" &&
-        offset > 0)
-    {
-        query = query + " OFFSET " + offset + "\n";
-    }
-
-    if(!isNull(maxResults) &&
-        typeof maxResults === "number" &&
-        maxResults > 0)
-    {
-        query = query + " LIMIT "+ maxResults + " \n";
-    }
-
-    return query;
-};
-
-DbConnection.pushLimitsArguments = function(unpaginatedArgumentsArray, maxResults, offset)
-{
-    if(!isNull(offset) &&
-        typeof offset === "number" &&
-        offset > 0)
-    {
-        unpaginatedArgumentsArray = unpaginatedArgumentsArray.push({
-            type : DbConnection.int,
-            value : maxResults
-        });
-    }
-
-    if(!isNull(maxResults) &&
-        typeof maxResults === "number" &&
-        maxResults > 0)
-    {
-        unpaginatedArgumentsArray = unpaginatedArgumentsArray.push({
-            type : DbConnection.int,
-            value : maxResults
-        });
-    }
-
-    return unpaginatedArgumentsArray;
-};
-
-DbConnection.paginate = function(req, viewVars) {
-    if(!isNull(req) && !isNull(req.query))
-    {
-        if(!req.query.currentPage)
-        {
-            viewVars.currentPage = 0;
-        }
-        else
-        {
-            viewVars.currentPage = parseInt(req.query.currentPage);           //avoid injections
-        }
-
-        if(!req.query.pageSize)
-        {
-            viewVars.pageSize = 20;
-        }
-        else
-        {
-            viewVars.pageSize = parseInt(req.query.pageSize);              //avoid injections
-        }
-    }
-
-    return viewVars;
-};
-
-DbConnection.paginateQuery = function (req, query) {
-    if(!isNull(req) && !isNull(req.query))
-    {
-        if(isNull(req.query.currentPage))
-        {
-            req.query.currentPage = 0;
-        }
-        else
-        {
-            req.query.currentPage = parseInt(req.query.currentPage);           //avoid injections
-        }
-
-        if(!req.query.pageSize)
-        {
-            req.query.pageSize = 20;
-        }
-        else
-        {
-            req.query.pageSize = parseInt(req.query.pageSize);              //avoid injections
-        }
-
-        const skip = req.query.pageSize * req.query.currentPage;
-
-        if(req.query.pageSize > 0)
-        {
-            query = query + " LIMIT " + req.query.pageSize;
-        }
-
-        if(skip > 0)
-        {
-            query = query + " OFFSET " + skip;
-        }
-    }
-
-    return query;
-};
-
-DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
-{
+DbConnection.prototype.insertTriple = function (triple, graphUri, callback) {
     const self = this;
 
     if(!triple.subject  || !triple.predicate || !triple.object)
@@ -566,7 +614,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 
                 query = query +
                     "\"" +
-                        escapedObject
+                    escapedObject
                     + "\"";
             }
             else
@@ -578,29 +626,30 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback)
 
             //console.log("Running insert query : " + query);
 
-            const Cache = require(Config.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+            const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
             //Invalidate cache record for the updated resources
-            Cache.get().delete([triple.subject, triple.object], function(err, result){});
+            Cache.getByGraphUri().delete([triple.subject, triple.object], function(err, result){});
 
             self.execute(query,
-               function(error, results)
-               {
-                   if(isNull(error))
-                   {
-                       return callback(null);
-                   }
-                   else
-                   {
-                       return callback(1, ("Error inserting triple " + triple.subject + " " + triple.predicate + " "  + triple.object +"\n").substr(0,200) +" . Server returned " + error);
-                   }
-               }
+                function(error, results)
+                {
+                    if(isNull(error))
+                    {
+                        return callback(null);
+                    }
+                    else
+                    {
+                        return callback(1, ("Error inserting triple " + triple.subject + " " + triple.predicate + " "  + triple.object +"\n").substr(0,200) +" . Server returned " + error);
+                    }
+                }
             );
         }
     }
 };
 
-DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
-{
+DbConnection.prototype.deleteTriples = function(triples, graphName, callback) {
+    const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+
     if(!isNull(triples) && triples instanceof Array && triples.length > 0)
     {
         const self = this;
@@ -678,7 +727,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
          */
         if(Config.cache.active)
         {
-            let cache = global.redis.default;
+            let cache = Cache.caches.default;
             cache.connection.delete(urisToDelete, function(err, result)
             {
                 if (!isNull(err))
@@ -699,8 +748,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback)
     }
 };
 
-DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescriptorsOfSubject, graphName, callback)
-{
+DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescriptorsOfSubject, graphName, callback) {
     const self = this;
 
     if(!isNull(newDescriptorsOfSubject) && newDescriptorsOfSubject instanceof Object)
@@ -764,9 +812,9 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
             "} \n";
 
         //Invalidate cache record for the updated resource
-        const Cache = require(Config.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+        const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
         //Invalidate cache record for the updated resources
-        Cache.get().delete(subject, function(err, result){});
+        Cache.getByGraphUri().delete(subject, function(err, result){});
 
         self.execute(query, queryArguments, function(err, results)
         {
@@ -780,8 +828,7 @@ DbConnection.prototype.insertDescriptorsForSubject = function(subject, newDescri
     }
 };
 
-DbConnection.prototype.deleteGraph = function(graphUri, callback)
-{
+DbConnection.prototype.deleteGraph = function(graphUri, callback) {
     const self = this;
 
     self.execute("CLEAR GRAPH <"+graphUri+">",
@@ -793,8 +840,7 @@ DbConnection.prototype.deleteGraph = function(graphUri, callback)
     );
 };
 
-DbConnection.prototype.graphExists = function(graphUri, callback)
-{
+DbConnection.prototype.graphExists = function(graphUri, callback) {
     const self = this;
 
     self.execute("ASK { GRAPH [0] { ?s ?p ?o . } }",
@@ -824,62 +870,5 @@ DbConnection.prototype.graphExists = function(graphUri, callback)
         }
     );
 };
-
-DbConnection.buildFromStringAndArgumentsArrayForOntologies = function(ontologyURIsArray, startingArgumentCount)
-{
-    let i;
-    let fromString = "";
-    const argumentsArray = [];
-
-    for(i = 0; i < ontologyURIsArray.length; i++)
-    {
-        const argIndex = i + startingArgumentCount; //arguments array starts with 2 fixed elements
-
-        fromString = fromString + " FROM [" + argIndex +"] \n";
-
-        argumentsArray.push(
-            {
-                type : DbConnection.resourceNoEscape,
-                value : ontologyURIsArray[i]
-            }
-        );
-    }
-
-    return {
-        fromString : fromString,
-        argumentsArray : argumentsArray
-    };
-};
-
-DbConnection.buildFilterStringForOntologies = function(ontologyURIsArray, filteredVariableName)
-{
-    let filterString = "";
-
-    if(!isNull(ontologyURIsArray) && ontologyURIsArray instanceof Array)
-    {
-        if(ontologyURIsArray.length > 0)
-        {
-            filterString = filterString + "FILTER( ";
-
-            for(let i = 0; i < ontologyURIsArray.length; i++)
-            {
-                const ontologyUri = ontologyURIsArray[i];
-                filterString = filterString + " STRSTARTS(STR(?"+filteredVariableName+"), \""+ontologyUri + "\") ";
-
-                if(i < ontologyURIsArray.length - 1)
-                {
-                    filterString = filterString + " || ";
-                }
-            }
-
-            filterString = filterString + ") .";
-        }
-    }
-
-    return filterString;
-};
-
-
-DbConnection.default = {};
 
 module.exports.DbConnection = DbConnection ;

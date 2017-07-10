@@ -1,10 +1,6 @@
-/**
- * Initialize configuration first before everything else (will init global connections (DB, storage, etc).
- *
- * @type {Function}
- */
-const Config = global.Config = Object.create(require("./models/meta/config.js").Config);
-Config.initGlobals();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
 /**
  * Module dependencies.
@@ -15,7 +11,6 @@ let express = require('express'),
     passport = require('passport'),
     flash = require('connect-flash'),
     http = require('http'),
-    path = require('path'),
     fs = require('fs'),
     morgan = require('morgan'),
     favicon = require('serve-favicon'),
@@ -30,22 +25,22 @@ let express = require('express'),
     csrf = require('csurf'),
     csrfProtection = csrf({ cookie: true }),
     colors = require('colors'),
-    swaggerDocument = YAML.load(Config.absPathInApp("swagger.yaml"));
+    swaggerDocument = YAML.load(Pathfinder.absPathInApp("swagger.yaml"));
 
 let bootupPromise = Q.defer();
 let connectionsInitializedPromise = Q.defer();
 
 let app = express();
 
-let isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-let IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-let DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-let GridFSConnection = require(Config.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
-let PluginManager = Object.create(require(Config.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
-let Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-let Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-let UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
-let RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+let isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+let IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+let DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+let GridFSConnection = require(Pathfinder.absPathInSrcFolder("/kb/gridfs.js")).GridFSConnection;
+let PluginManager = Object.create(require(Pathfinder.absPathInSrcFolder("/plugins/plugin_manager.js")).PluginManager);
+let Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+let Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+let UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+let RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 let User = require('./models/user.js').User;
 
 let async = require('async');
@@ -90,7 +85,7 @@ if(!isNull(Config.logging))
         {
             if (!isNull(Config.logging.app_logs_folder) && (Config.logging.pipe_console_to_logfile || Config.logging.suppress_all_logs || Config.logging.suppress_all_errors))
             {
-                const absPath = Config.absPathInApp(Config.logging.app_logs_folder);
+                const absPath = Pathfinder.absPathInApp(Config.logging.app_logs_folder);
 
                 fs.exists(absPath, function (exists)
                 {
@@ -196,7 +191,7 @@ if(!isNull(Config.logging))
 
             if (Config.logging.log_request_times && typeof Config.logging.request_times_log_folder !== "undefined")
             {
-                const absPath = Config.absPathInApp(Config.logging.app_logs_folder);
+                const absPath = Pathfinder.absPathInApp(Config.logging.app_logs_folder);
 
                 fs.exists(absPath, function (exists)
                 {
@@ -321,7 +316,7 @@ const signInDebugUser = function (req, res, next) {
 const appendLocalsToUseInViews = function (req, res, next) {
     //append request and session to use directly in views and avoid passing around needless stuff
     res.locals.request = req;
-    res.locals.baseURI = global.db.default.baseURI;
+    res.locals.baseURI = Config.baseUri;
 
     if (isNull(res.locals.Config) && !isNull(Config)) {
         res.locals.Config = Config;
@@ -430,7 +425,7 @@ const init = function(callback)
                     log_boot_message("success", "Connected to graph database running on " + Config.virtuosoHost + ":" + Config.virtuosoPort);
 
                     //set default connection. If you want to add other connections, add them in succession.
-                    global.db.default.connection = db;
+                    Config.db.default.connection = db;
 
                     return callback(null);
                 }
@@ -439,12 +434,12 @@ const init = function(callback)
         function(callback) {
             if(Config.debug.database.destroy_all_graphs_on_startup)
             {
-                const graphs = Object.keys(global.db);
-                const conn = global.db.default.connection;
+                const graphs = Object.keys(Config.db);
+                const conn = Config.getDBByGraphUri();
 
                 async.map(graphs, function(graph, cb){
 
-                    const graphUri = global.db[graph].graphUri;
+                    const graphUri = Config.getDBByGraphUri(graphUri).graphUri;
                     conn.deleteGraph(graphUri, function(err){
                         if(err)
                         {
@@ -478,7 +473,7 @@ const init = function(callback)
 
             if(Config.cache.active)
             {
-                const Cache = require(Config.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+                const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
                 Cache.initConnections(function(err, result){
                     callback(err);
                 });
@@ -492,7 +487,7 @@ const init = function(callback)
         function(callback) {
             log_boot_message("info","Loading ontology parametrization from database... ");
 
-            const Ontology = require(Config.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
+            const Ontology = require(Pathfinder.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
 
             if(Config.startup.reload_ontologies_on_startup)
             {
@@ -500,7 +495,7 @@ const init = function(callback)
                 {
                     if (!err)
                     {
-                        global.allOntologies = ontologies;
+                        Config.allOntologies = ontologies;
                         log_boot_message("success","Ontology information successfully loaded from database.");
                         return callback(null);
                     }
@@ -515,7 +510,7 @@ const init = function(callback)
                 Ontology.all(function(err, ontologies){
                     if(!err)
                     {
-                        global.allOntologies = ontologies;
+                        Config.allOntologies = ontologies;
                         return callback(null);
                     }
                     else
@@ -591,7 +586,7 @@ const init = function(callback)
                 else
                 {
                     log_boot_message("ok","Connected to MongoDB file storage running on " + Config.mongoDBHost + ":" + Config.mongoDbPort);
-                    global.gfs.default.connection = gfs;
+                    Config.gfs.default.connection = gfs;
                     return callback(null);
                 }
             });
@@ -630,7 +625,7 @@ const init = function(callback)
 
                 const poolOK = function (pool) {
                     log_boot_message("success","Connected to MySQL Database server running on " + Config.mySQLHost + ":" + Config.mySQLPort);
-                    global.mysql.pool = pool;
+                    Config.mysql.pool = pool;
                     return callback(null);
                 };
 
@@ -829,7 +824,7 @@ const loadData = function(callback)
             //try to delete all demo users
 
             const deleteUser = function (demoUser, callback) {
-                const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                 User.findByUsername(demoUser.username, function (err, user) {
 
                     if (!err) {
@@ -858,7 +853,7 @@ const loadData = function(callback)
                     {
                         if(Config.startup.load_databases && Config.startup.reload_demo_users_on_startup)
                         {
-                            const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                            const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                             log_boot_message("info","Loading Demo Users... ");
 
                             const createUser = function (user, callback) {
@@ -914,7 +909,7 @@ const loadData = function(callback)
         function(callback) {
             if(Config.startup.load_databases && Config.startup.reload_administrators_on_startup)
             {
-                const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                 log_boot_message("info","Loading default administrators.");
 
                 async.series([
@@ -1036,27 +1031,27 @@ async.series([
     function(callback)
     {
         //app's own requires
-        const index = require(Config.absPathInSrcFolder("/controllers/index"));
-        const users = require(Config.absPathInSrcFolder("/controllers/users"));
-        const vertexes = require(Config.absPathInSrcFolder("/controllers/vertexes"));
-        const admin = require(Config.absPathInSrcFolder("/controllers/admin"));
-        const projects = require(Config.absPathInSrcFolder("/controllers/projects"));
-        const files = require(Config.absPathInSrcFolder("/controllers/files"));
-        const records = require(Config.absPathInSrcFolder("/controllers/records"));
-        const interactions = require(Config.absPathInSrcFolder("/controllers/interactions"));
-        const descriptors = require(Config.absPathInSrcFolder("/controllers/descriptors"));
-        const evaluation = require(Config.absPathInSrcFolder("/controllers/evaluation"));
-        const ontologies = require(Config.absPathInSrcFolder("/controllers/ontologies"));
-        const research_domains = require(Config.absPathInSrcFolder("/controllers/research_domains"));
-        const repo_bookmarks = require(Config.absPathInSrcFolder("/controllers/repo_bookmarks"));
-        const datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
-        const sparql = require(Config.absPathInSrcFolder("/controllers/sparql"));
-        const posts = require(Config.absPathInSrcFolder("/controllers/posts"));
-        const fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
-        const notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
+        const index = require(Pathfinder.absPathInSrcFolder("/controllers/index"));
+        const users = require(Pathfinder.absPathInSrcFolder("/controllers/users"));
+        const vertexes = require(Pathfinder.absPathInSrcFolder("/controllers/vertexes"));
+        const admin = require(Pathfinder.absPathInSrcFolder("/controllers/admin"));
+        const projects = require(Pathfinder.absPathInSrcFolder("/controllers/projects"));
+        const files = require(Pathfinder.absPathInSrcFolder("/controllers/files"));
+        const records = require(Pathfinder.absPathInSrcFolder("/controllers/records"));
+        const interactions = require(Pathfinder.absPathInSrcFolder("/controllers/interactions"));
+        const descriptors = require(Pathfinder.absPathInSrcFolder("/controllers/descriptors"));
+        const evaluation = require(Pathfinder.absPathInSrcFolder("/controllers/evaluation"));
+        const ontologies = require(Pathfinder.absPathInSrcFolder("/controllers/ontologies"));
+        const research_domains = require(Pathfinder.absPathInSrcFolder("/controllers/research_domains"));
+        const repo_bookmarks = require(Pathfinder.absPathInSrcFolder("/controllers/repo_bookmarks"));
+        const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"));
+        const sparql = require(Pathfinder.absPathInSrcFolder("/controllers/sparql"));
+        const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
+        const fileVersions = require(Pathfinder.absPathInSrcFolder("/controllers/file_versions"));
+        const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
 
-        const auth = require(Config.absPathInSrcFolder("/controllers/auth"));
-        const auth_orcid = require(Config.absPathInSrcFolder("/controllers/auth_orcid"));
+        const auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth"));
+        const auth_orcid = require(Pathfinder.absPathInSrcFolder("/controllers/auth_orcid"));
 
         let recommendation;
 
@@ -1064,31 +1059,31 @@ async.series([
 
         if(recommendation_mode === "dendro_recommender")
         {
-            recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation"));
+            recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/dr_recommendation"));
         }
         else if(recommendation_mode === "standalone")
         {
-            recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation"));
+            recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/standalone_recommendation"));
         }
         else if(recommendation_mode === "project_descriptors")
         {
-            recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
+            recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
         }
         else if(recommendation_mode === "none")
         {
-            recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation"));
+            recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/no_recommendation"));
         }
 
         app.use(appendIndexToRequest);
 
         // all environments
         app.set('port', process.env.PORT || Config.port);
-        app.set('views', Config.absPathInSrcFolder('/views'));
+        app.set('views', Pathfinder.absPathInSrcFolder('/views'));
 
         app.set('view engine', 'ejs');
         app.set('etag', 'strong');
 
-        app.use(favicon(Config.absPathInPublicFolder("images/logo_micro.png")));
+        app.use(favicon(Pathfinder.absPathInPublicFolder("images/logo_micro.png")));
 
         //app.use(express.logger('dev'));
 
@@ -1126,9 +1121,9 @@ async.series([
 
         app.use(appendLocalsToUseInViews);
 
-        app.use(require('stylus').middleware(Config.getPathToPublicFolder()));
+        app.use(require('stylus').middleware(Pathfinder.getPathToPublicFolder()));
 
-        app.use(express.static(Config.getPathToPublicFolder()));
+        app.use(express.static(Pathfinder.getPathToPublicFolder()));
 
         // all environments
 
@@ -1152,7 +1147,7 @@ async.series([
             docExpansion : "list"
         }));
 
-        const loadRoutes = require(Config.absPathInSrcFolder("bootup/routes/load_routes.js")).loadRoutes;
+        const loadRoutes = require(Pathfinder.absPathInSrcFolder("bootup/routes/load_routes.js")).loadRoutes;
         
         loadRoutes(app, passport, recommendation, function(err, result){
             PluginManager.registerPlugins(app, function(err, app){
@@ -1195,7 +1190,7 @@ async.series([
                 {
                     server.listen(app.get('port'), function() {
                         const npid = require('npid');
-                        pid = npid.create(Config.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
+                        pid = npid.create(Pathfinder.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
 
                         pid.removeOnExit();
 

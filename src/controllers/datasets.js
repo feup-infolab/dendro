@@ -1,28 +1,26 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-const records = require(Config.absPathInSrcFolder("/controllers/records.js"));
-const Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
-const swordConnection = require(Config.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
-const Figshare = require(Config.absPathInSrcFolder("/export_libs/figshare/figshare.js"));
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const records = require(Pathfinder.absPathInSrcFolder("/controllers/records.js"));
+const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
+const swordConnection = require(Pathfinder.absPathInSrcFolder("/export_libs/sword-connection/index.js"));
+const Figshare = require(Pathfinder.absPathInSrcFolder("/export_libs/figshare/figshare.js"));
 const B2ShareClient = require('node-b2share-v2');
-const Zenodo = require(Config.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
-const Utils = require(Config.absPathInPublicFolder("/js/utils.js")).Utils;
+const Zenodo = require(Pathfinder.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
+const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 
 const async = require('async');
 const nodemailer = require('nodemailer');
 const flash = require('connect-flash');
 const _ = require('underscore');
 const fs = require('fs');
-const path = require('path');
-
 
 const createPackage = function (parentFolderPath, folder, callback) {
 

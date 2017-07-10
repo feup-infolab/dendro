@@ -1,23 +1,20 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 
 const util = require('util');
 const async = require('async');
 const _ = require('underscore');
-const path = require('path');
 
-const db = function () {
-    return global.db.default;
-}();
+const db = Config.getDBByID();
 
 function User (object)
 {
@@ -1362,7 +1359,7 @@ User.prototype.startPasswordReset = function(callback)
 
         const appDir = path.dirname(require.main.filename);
 
-        const emailHTMLFilePath = Config.absPathInSrcFolder('views/users/password_reset_email.ejs');
+        const emailHTMLFilePath = Pathfinder.absPathInSrcFolder('views/users/password_reset_email.ejs');
         const emailTXTFilePath = path.join(appDir, 'views/users/password_reset_email_txt.ejs');
 
         const file = fs.readFileSync(emailHTMLFilePath, 'ascii');

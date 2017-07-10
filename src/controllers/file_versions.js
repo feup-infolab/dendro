@@ -1,9 +1,7 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Post = require('../models/social/post.js').Post;
 const Like = require('../models/social/like.js').Like;
 const Comment = require('../models/social/comment.js').Comment;
 const Share = require('../models/social/share.js').Share;
@@ -15,14 +13,14 @@ const DbConnection = require("../kb/db.js").DbConnection;
 const _ = require('underscore');
 
 const async = require('async');
-const db = function () {
-    return global.db.default;
-}();
+const db = Config.getDBByID();
+
 const db_social = function () {
-    return global.db.social;
+    return Config.db.social;
 }();
+
 const db_notifications = function () {
-    return global.db.notifications;
+    return Config.db.notifications;
 }();
 
 const app = require('../app');

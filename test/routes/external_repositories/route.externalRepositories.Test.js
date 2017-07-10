@@ -6,18 +6,18 @@ chai.use(chaiHttp);
 
 const Config = global.Config;
 
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Config.absPathInTestsFolder("utils/item/itemUtils.js"));
-const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
-const repositoryUtils = require(Config.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const createExportToRepositoriesConfigsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
-const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const createExportToRepositoriesConfigsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/repositories/createExportToRepositoriesConfigs.Unit.js"));
+const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("List all external repository tests", function () {
     before(function (done) {

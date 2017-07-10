@@ -1,15 +1,15 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
 const async = require('async');
 const _ = require('underscore');

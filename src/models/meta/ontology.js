@@ -1,18 +1,16 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const ResearchDomain = require(Config.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
-const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const ResearchDomain = require(Pathfinder.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
+const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return global.db.default;
-}();
+const db = Config.getDBByID();
 
 const _ = require('underscore');
 const async = require('async');
@@ -68,7 +66,7 @@ function Ontology (object)
 
 Ontology.findByUri = function(uri, callback)
 {
-    const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+    const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
     Resource.findByUri(uri, function(err, ontology){
 
@@ -258,7 +256,7 @@ Ontology.initAllFromDatabase = function(callback)
                                 if (!err) {
                                     if (!isNull(result)) {
                                         element.hasRegex = result;
-                                        element.control = Config.controls.regex_checking_input_box;
+                                        element.control = Elements.controls.regex_checking_input_box;
                                     }
                                 }
 
@@ -272,7 +270,7 @@ Ontology.initAllFromDatabase = function(callback)
                                 if (!err) {
                                     if (!isNull(result)) {
                                         element.hasAlternative = result;
-                                        element.control = Config.controls.combo_box;
+                                        element.control = Elements.controls.combo_box;
                                     }
                                 }
 
@@ -390,7 +388,7 @@ Ontology.initAllFromDatabase = function(callback)
 
 Ontology.allOntologies = function()
 {
-    return global.allOntologies;
+    return Config.allOntologies;
 }();
 
 Ontology.getAllOntologyPrefixes = function()
@@ -625,7 +623,7 @@ Ontology.prototype.save = function(callback)
     const self = this;
     const uri = self.uri;
 
-    const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
     const description = new Descriptor(
         {

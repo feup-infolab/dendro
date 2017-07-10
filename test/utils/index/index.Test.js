@@ -1,7 +1,7 @@
 process.env.NODE_ENV = 'test';
 
 const Config = global.Config;
-const IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 
 const chai = require('chai');
 const chaiHttp = require('chai-http');

@@ -8,29 +8,11 @@ const fs = require('fs');
 const path = require('path');
 const isNull = require("../../utils/null.js").isNull;
 
-if(process.env.NODE_ENV === "test")
-{
-    Config.appDir = path.resolve(path.dirname(require.main.filename), "../../..");
-    console.log("Running in test mode and the app directory is : " + Config.appDir);
-}
-else
-{
-    Config.appDir = path.resolve(path.dirname(require.main.filename), "..");
-    console.log("Running in production / dev mode and the app directory is : " + Config.appDir);
-}
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Elements = require('./elements.js').Elements;
 
-Config.absPathInApp = function(relativePath)
-{
-    return path.join(Config.appDir, relativePath);
-};
-
-Config.absPathInTestsFolder = function(relativePath)
-{
-    return path.join(Config.appDir, "test", relativePath);
-};
-
-const configs_file_path = Config.absPathInApp("conf/deployment_configs.json");
-const active_config_file_path = Config.absPathInApp("conf/active_deployment_config.json");
+const configs_file_path = Pathfinder.absPathInApp("conf/deployment_configs.json");
+const active_config_file_path = Pathfinder.absPathInApp("conf/active_deployment_config.json");
 
 const configs = JSON.parse(fs.readFileSync(configs_file_path, 'utf8'));
 
@@ -124,7 +106,7 @@ if(path.isAbsolute(getConfigParameter("tempFilesDir")))
 }
 else
 {
-    Config.tempFilesDir = Config.absPathInApp(getConfigParameter("tempFilesDir"));
+    Config.tempFilesDir = Pathfinder.absPathInApp(getConfigParameter("tempFilesDir"));
 }
 
 Config.tempFilesCreationMode = getConfigParameter("tempFilesCreationMode");
@@ -169,247 +151,319 @@ Config.cache =  getConfigParameter("cache");
  * @type {{default: {baseURI: string, graphName: string, graphUri: string}}}
  */
 
-Config.initGlobals = function()
+Config.getDBByID = function(DBID)
 {
-    global.db = {
-        default: {
-            baseURI: "http://" + Config.host,
-            graphHandle: "dendro_graph",
-            graphUri: "http://" + Config.host + "/dendro_graph",
-            cache : {
-                id: 'default',
-                type : 'mongodb'
-            }
-        },
-        social: {
-            baseURI: "http://" + Config.host,
-            graphHandle: "social_dendro",
-            graphUri: "http://" + Config.host + "/social_dendro",
-            cache : {
-                id: 'social',
-                type : 'mongodb'
-            }
-        },
-        notifications: {
-            baseURI: "http://" + Config.host,
-            graphHandle: "notifications_dendro",
-            graphUri: "http://" + Config.host + "/notifications_dendro",
-            cache : {
-                id: 'notifications',
-                type : 'redis'
-            }
+    if(!isNull(DBID))
+    {
+        if(!isNull(Config.db[DBID]))
+        {
+            return Config.db[DBID]
         }
-    };
-
-    global.gfs = {
-        default: {}
-    };
-
-    global.mysql = {
-        default: {}
-    };
-
-    global.caches = {
-        redis : {
-            default: {},
-            social: {},
-            notifications: {}
-        },
-        mongodb : {
-            default: {},
-            social: {},
-            notifications: {}
+        else
+        {
+            throw new Error("Invalid DB connection ID " + DBID);
         }
-    };
+    }
+    else
+    {
+        return Config.db.default;
+    }
+};
 
-    const Elements = require('./elements.js').Elements;
+Config.getDBByGraphUri = function(graphUri)
+{
+   if(!isNull(graphUri))
+   {
+       if(!isNull(Config.db_by_uri[graphUri]))
+       {
+           return Config.db_by_uri[graphUri]
+       }
+       else
+       {
+           for(let dbKey in Config.db)
+           {
+               if(Config.db.hasOwnProperty(dbKey))
+               {
+                   if(Config.db.graphUri[graphUri] === graphUri)
+                   {
+                       Config.db_by_uri[graphUri] = Config.db[dbKey];
+                       return Config.db_by_uri[graphUri];
+                   }
+               }
+           }
+       }
+   }
+   else
+   {
+       return Config.db.default;
+   }
+};
 
-    global.allOntologies = {
-        dcterms: {
-            prefix: "dcterms",
-            uri: "http://purl.org/dc/terms/",
-            elements: Elements.dcterms,
-            label: "Dublin Core terms",
-            description: "Generic description. Creator, title, subject...",
-            domain: "Generic",
-            domain_specific: false
-        },
-        foaf: {
-            prefix: "foaf",
-            uri: "http://xmlns.com/foaf/0.1/",
-            elements: Elements.foaf,
-            label: "Friend of a friend",
-            description: "For expressing people-related metadata. Mailbox, web page...",
-            domain: "Generic",
-            domain_specific: false
-        },
-        ddr: {
-            prefix: "ddr",
-            uri: "http://dendro.fe.up.pt/ontology/0.1/",
-            private: true,
-            elements: Elements.ddr,
-            label: "Dendro internal ontology",
-            description: "Designed to represent internal system information important to Dendro",
-            domain: "Generic",
-            domain_specific: false
-        },
-        rdf: {
-            prefix: "rdf",
-            uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
-            private: true,
-            elements: Elements.rdf,
-            label: "Resource Description Framework",
-            description: "Low-level technical ontology. It is the building block of all others.",
-            domain: "Low-level, System",
-            domain_specific: false
-        },
-        nie: {
-            prefix: "nie",
-            uri: "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
-            private: true,
-            elements: Elements.nie,
-            label: "Nepomuk Information Element",
-            description: "Ontology for representing files and folders. Information Elements",
-            domain: "Low-level, System",
-            domain_specific: false
-        },
-        nfo: {
-            prefix: "nfo",
-            uri: "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#",
-            private: true,
-            elements: Elements.nfo,
-            label: "Nepomuk File Ontology",
-            description: "Ontology for representing files and folders. Files and Folders.",
-            domain: "Low-level, System",
-            domain_specific: false
-        },
-        research: {
-            prefix: "research",
-            uri: "http://dendro.fe.up.pt/ontology/research/",
-            elements: Elements.research,
-            label: "Dendro research",
-            description: "Experimental research-related metadata. Instrumentation, method...",
-            domain: "Generic",
-            domain_specific: true
-        },
-        dcb: {
-            prefix: "dcb",
-            uri: "http://dendro.fe.up.pt/ontology/dcb/",
-            elements: Elements.dcb,
-            label: "Double Cantilever Beam",
-            description: "Fracture mechanics experiments. Initial crack length, Material type...",
-            domain: "Mechanical Engineering",
-            domain_specific: true
-        },
-        achem: {
-            prefix: "achem",
-            uri: "http://dendro.fe.up.pt/ontology/achem/",
-            elements: Elements.achem,
-            label: "Pollutant analysis",
-            description: "Analytical Chemistry experimental studies... Analysed substances, Sample count...",
-            domain: "Analytical Chemistry",
-            domain_specific: true
-        },
-        bdv: {
-            prefix: "bdv",
-            uri: "http://dendro.fe.up.pt/ontology/BIODIV/0.1#",
-            elements: Elements.bdv,
-            label: "Biodiversity evolution studies",
-            description: "For INSPIRE-represented observational data for biodiversity. Reference system identifier, Metadata point of contact...",
-            domain: "Biodiversity, Georeferencing",
-            domain_specific: true
-        },
-        biocn: {
-            prefix: "biocn",
-            uri: "http://dendro.fe.up.pt/ontology/BioOc#",
-            elements: Elements.biocn,
-            label: "Biological Oceanography",
-            description: "Biological Oceanography observational and experimental studies...Life stage, Species count, individualPerSpecie...",
-            domain: "Biological Oceanography",
-            domain_specific: true
-        },
-        grav: {
-            prefix: "grav",
-            uri: "http://dendro.fe.up.pt/ontology/gravimetry#",
-            elements: Elements.grav,
-            label: "Gravimetry",
-            description: "Gravimetry observational and experimental studies...Altitude resolution; Beginning time...",
-            domain: "Gravimetry",
-            domain_specific: true
-        },
-        hdg: {
-            prefix: "hdg",
-            uri: "http://dendro.fe.up.pt/ontology/hydrogen#",
-            elements: Elements.hdg,
-            label: "Hydrogen Generation",
-            description: "Hydrogen Generation experimental studies...Catalyst; Reagent...",
-            domain: "Hydrogen Generation",
-            domain_specific: true
-        },
-        tsim: {
-            prefix: "tsim",
-            uri: "http://dendro.fe.up.pt/ontology/trafficSim#",
-            elements: Elements.tsim,
-            label: "Traffic Simulation",
-            description: "Traffic Simulation studies...Driving cycle; Vehicle Mass...",
-            domain: "Traffic Simulation",
-            domain_specific: true
-        },
-        cep: {
-            prefix: "cep",
-            uri: "http://dendro.fe.up.pt/ontology/cep/",
-            elements: Elements.cep,
-            label: "Cutting and Packing",
-            description: "Cutting and packing optimization strategies...Solver configuration, Optimization strategy, Heuristics used...",
-            domain: "Algorithms and optimization",
-            domain_specific: true
-        },
-        social: {
-            prefix: "social",
-            uri: "http://dendro.fe.up.pt/ontology/socialStudies#",
-            elements: Elements.social,
-            label: "Social Studies",
-            description: "Social and Behavioural Studies... Methodology, Sample procedure, Kind of data...",
-            domain: "Social and Behavioural Science",
-            domain_specific: true
-        },
-        cfd: {
-            prefix: "cfd",
-            uri: "http://dendro.fe.up.pt/ontology/cfd#",
-            elements: Elements.cfd,
-            label: "Fluid Dynamics",
-            description: "Computational Fluid Dynamics... Flow Case, Initial Condition, Temporal Discretization...",
-            domain: "Computational Fluid Dynamics",
-            domain_specific: true
-        },
-        tvu: {
-            prefix: "tvu",
-            uri: "http://dendro.fe.up.pt/ontology/tvu#",
-            elements: Elements.tvu,
-            label: "Audiovisual Content",
-            description: "Concepts for the description of datasets generated in the scope of audiovisual production",
-            domain: "Audiovisual",
-            domain_specific: true
-        },
-        po: {
-            prefix: "po",
-            uri: "http://purl.org/ontology/po/",
-            elements: Elements.po,
-            label: "Programmes Ontology",
-            description: "A vocabulary for programme data. It defines concepts such as brands, series, episodes, broadcasts, etc.",
-            domain: "Programmes",
-            domain_specific: true
-        },
-        schema : {
-            prefix: "schema",
-            uri: "http://schema.org/",
-            elements: Elements.schema,
-            label: "Schema.org",
-            description: "General Purpose schema",
-            domain: "Generic",
-            domain_specific: false
+Config.getGFSByID = function(gfsID)
+{
+    if(!isNull(gfsID))
+    {
+        if(!isNull(Config.gfs[gfsID]))
+        {
+            return Config.gfs[gfsID]
         }
-    };
+        else
+        {
+            throw new Error("Invalid GridFS connection ID " + gfsID);
+        }
+    }
+    else
+    {
+        return Config.gfs.default;
+    }
+};
+
+Config.getMySQLByID = function(mySQLID) {
+    if(!isNull(mySQLID))
+    {
+        if(!isNull(Config.mysql[mySQLID]))
+        {
+            return Config.mysql[mySQLID]
+        }
+        else
+        {
+            throw new Error("Invalid MySQL connection ID " + mySQLID);
+        }
+    }
+    else
+    {
+        return Config.mysql.default;
+    }
+};
+
+
+Config.db_by_uri = {};
+Config.mysql_by_id = {};
+Config.gfs_by_id = {};
+
+Config.db = {
+    default: {
+        baseURI: "http://" + Config.host,
+        graphHandle: "dendro_graph",
+        graphUri: "http://" + Config.host + "/dendro_graph",
+        cache : {
+            id: 'default',
+            type : 'mongodb'
+        }
+    },
+    social: {
+        baseURI: "http://" + Config.host,
+        graphHandle: "social_dendro",
+        graphUri: "http://" + Config.host + "/social_dendro",
+        cache : {
+            id: 'social',
+            type : 'mongodb'
+        }
+    },
+    notifications: {
+        baseURI: "http://" + Config.host,
+        graphHandle: "notifications_dendro",
+        graphUri: "http://" + Config.host + "/notifications_dendro",
+        cache : {
+            id: 'notifications',
+            type : 'redis'
+        }
+    }
+};
+
+Config.gfs = {
+    default: {}
+};
+
+Config.mysql = {
+    default: {}
+};
+
+Config.allOntologies = {
+    dcterms: {
+        prefix: "dcterms",
+        uri: "http://purl.org/dc/terms/",
+        elements: Elements.dcterms,
+        label: "Dublin Core terms",
+        description: "Generic description. Creator, title, subject...",
+        domain: "Generic",
+        domain_specific: false
+    },
+    foaf: {
+        prefix: "foaf",
+        uri: "http://xmlns.com/foaf/0.1/",
+        elements: Elements.foaf,
+        label: "Friend of a friend",
+        description: "For expressing people-related metadata. Mailbox, web page...",
+        domain: "Generic",
+        domain_specific: false
+    },
+    ddr: {
+        prefix: "ddr",
+        uri: "http://dendro.fe.up.pt/ontology/0.1/",
+        private: true,
+        elements: Elements.ddr,
+        label: "Dendro internal ontology",
+        description: "Designed to represent internal system information important to Dendro",
+        domain: "Generic",
+        domain_specific: false
+    },
+    rdf: {
+        prefix: "rdf",
+        uri: "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+        private: true,
+        elements: Elements.rdf,
+        label: "Resource Description Framework",
+        description: "Low-level technical ontology. It is the building block of all others.",
+        domain: "Low-level, System",
+        domain_specific: false
+    },
+    nie: {
+        prefix: "nie",
+        uri: "http://www.semanticdesktop.org/ontologies/2007/01/19/nie#",
+        private: true,
+        elements: Elements.nie,
+        label: "Nepomuk Information Element",
+        description: "Ontology for representing files and folders. Information Elements",
+        domain: "Low-level, System",
+        domain_specific: false
+    },
+    nfo: {
+        prefix: "nfo",
+        uri: "http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#",
+        private: true,
+        elements: Elements.nfo,
+        label: "Nepomuk File Ontology",
+        description: "Ontology for representing files and folders. Files and Folders.",
+        domain: "Low-level, System",
+        domain_specific: false
+    },
+    research: {
+        prefix: "research",
+        uri: "http://dendro.fe.up.pt/ontology/research/",
+        elements: Elements.research,
+        label: "Dendro research",
+        description: "Experimental research-related metadata. Instrumentation, method...",
+        domain: "Generic",
+        domain_specific: true
+    },
+    dcb: {
+        prefix: "dcb",
+        uri: "http://dendro.fe.up.pt/ontology/dcb/",
+        elements: Elements.dcb,
+        label: "Double Cantilever Beam",
+        description: "Fracture mechanics experiments. Initial crack length, Material type...",
+        domain: "Mechanical Engineering",
+        domain_specific: true
+    },
+    achem: {
+        prefix: "achem",
+        uri: "http://dendro.fe.up.pt/ontology/achem/",
+        elements: Elements.achem,
+        label: "Pollutant analysis",
+        description: "Analytical Chemistry experimental studies... Analysed substances, Sample count...",
+        domain: "Analytical Chemistry",
+        domain_specific: true
+    },
+    bdv: {
+        prefix: "bdv",
+        uri: "http://dendro.fe.up.pt/ontology/BIODIV/0.1#",
+        elements: Elements.bdv,
+        label: "Biodiversity evolution studies",
+        description: "For INSPIRE-represented observational data for biodiversity. Reference system identifier, Metadata point of contact...",
+        domain: "Biodiversity, Georeferencing",
+        domain_specific: true
+    },
+    biocn: {
+        prefix: "biocn",
+        uri: "http://dendro.fe.up.pt/ontology/BioOc#",
+        elements: Elements.biocn,
+        label: "Biological Oceanography",
+        description: "Biological Oceanography observational and experimental studies...Life stage, Species count, individualPerSpecie...",
+        domain: "Biological Oceanography",
+        domain_specific: true
+    },
+    grav: {
+        prefix: "grav",
+        uri: "http://dendro.fe.up.pt/ontology/gravimetry#",
+        elements: Elements.grav,
+        label: "Gravimetry",
+        description: "Gravimetry observational and experimental studies...Altitude resolution; Beginning time...",
+        domain: "Gravimetry",
+        domain_specific: true
+    },
+    hdg: {
+        prefix: "hdg",
+        uri: "http://dendro.fe.up.pt/ontology/hydrogen#",
+        elements: Elements.hdg,
+        label: "Hydrogen Generation",
+        description: "Hydrogen Generation experimental studies...Catalyst; Reagent...",
+        domain: "Hydrogen Generation",
+        domain_specific: true
+    },
+    tsim: {
+        prefix: "tsim",
+        uri: "http://dendro.fe.up.pt/ontology/trafficSim#",
+        elements: Elements.tsim,
+        label: "Traffic Simulation",
+        description: "Traffic Simulation studies...Driving cycle; Vehicle Mass...",
+        domain: "Traffic Simulation",
+        domain_specific: true
+    },
+    cep: {
+        prefix: "cep",
+        uri: "http://dendro.fe.up.pt/ontology/cep/",
+        elements: Elements.cep,
+        label: "Cutting and Packing",
+        description: "Cutting and packing optimization strategies...Solver configuration, Optimization strategy, Heuristics used...",
+        domain: "Algorithms and optimization",
+        domain_specific: true
+    },
+    social: {
+        prefix: "social",
+        uri: "http://dendro.fe.up.pt/ontology/socialStudies#",
+        elements: Elements.social,
+        label: "Social Studies",
+        description: "Social and Behavioural Studies... Methodology, Sample procedure, Kind of data...",
+        domain: "Social and Behavioural Science",
+        domain_specific: true
+    },
+    cfd: {
+        prefix: "cfd",
+        uri: "http://dendro.fe.up.pt/ontology/cfd#",
+        elements: Elements.cfd,
+        label: "Fluid Dynamics",
+        description: "Computational Fluid Dynamics... Flow Case, Initial Condition, Temporal Discretization...",
+        domain: "Computational Fluid Dynamics",
+        domain_specific: true
+    },
+    tvu: {
+        prefix: "tvu",
+        uri: "http://dendro.fe.up.pt/ontology/tvu#",
+        elements: Elements.tvu,
+        label: "Audiovisual Content",
+        description: "Concepts for the description of datasets generated in the scope of audiovisual production",
+        domain: "Audiovisual",
+        domain_specific: true
+    },
+    po: {
+        prefix: "po",
+        uri: "http://purl.org/ontology/po/",
+        elements: Elements.po,
+        label: "Programmes Ontology",
+        description: "A vocabulary for programme data. It defines concepts such as brands, series, episodes, broadcasts, etc.",
+        domain: "Programmes",
+        domain_specific: true
+    },
+    schema : {
+        prefix: "schema",
+        uri: "http://schema.org/",
+        elements: Elements.schema,
+        label: "Schema.org",
+        description: "General Purpose schema",
+        domain: "Generic",
+        domain_specific: false
+    }
 };
 
 /**
@@ -474,16 +528,6 @@ Config.acl = {
     deny : 0
 };
 
-Config.controls = {
-    date_picker : "date_picker",
-    input_box : "input_box",
-    markdown_box : "markdown_box",
-    map : "map",
-    url_box : "url_box",
-    regex_checking_input_box : "regex_checking_input_box",
-    combo_box : "combo_box"
-};
-
 Config.types = {
     public : "public",                                  //can be shared, read and written
     private : "private",                                //cannot be shared to the outside world under any circumstance
@@ -505,46 +549,19 @@ Backup and restore
 Config.packageMetadataFileName = "metadata.json";
 Config.systemOrHiddenFilesRegexes = getConfigParameter("systemOrHiddenFilesRegexes");
 
-Config.getAbsolutePathToPluginsFolder = function()
-{
-    const path = require('path');
-    return path.join(Config.appDir, "src", Config.plugins.folderName);
-};
-
-Config.absPathInPluginsFolder = function(relativePath)
-{
-    return path.join(Config.getAbsolutePathToPluginsFolder(), relativePath);
-};
-
-Config.absPathInSrcFolder = function(relativePath)
-{
-    return path.join(Config.appDir, "src", relativePath);
-};
-
-Config.getPathToPublicFolder = function()
-{
-    return path.join(Config.appDir, "public");
-};
-
-Config.absPathInPublicFolder = function(relativePath)
-{
-    return path.join(Config.getPathToPublicFolder(), relativePath);
-};
-
-
 /**
  * Thumbnail Generation
  */
 
 if(isNull(Config.thumbnailableExtensions))
 {
-    Config.thumbnailableExtensions = require(Config.absPathInPublicFolder("/shared/public_config.json"))["thumbnailable_file_extensions"];
+    Config.thumbnailableExtensions = require(Pathfinder.absPathInPublicFolder("/shared/public_config.json"))["thumbnailable_file_extensions"];
 }
 
 if(isNull(Config.iconableFileExtensions))
 {
     Config.iconableFileExtensions = {};
-    let extensions = fs.readdirSync(Config.absPathInPublicFolder("/images/icons/extensions"));
+    let extensions = fs.readdirSync(Pathfinder.absPathInPublicFolder("/images/icons/extensions"));
 
     for(let i = 0; i < extensions.length; i++)
     {
@@ -608,7 +625,7 @@ Config.swordConnection = {
     EprintsCollectionRef: "/id/contents"
 };
 
-const Serializers = require(Config.absPathInSrcFolder("/utils/serializers.js"));
+const Serializers = require(Pathfinder.absPathInSrcFolder("/utils/serializers.js"));
 
 Config.defaultMetadataSerializer = Serializers.dataToJSON;
 Config.defaultMetadataContentType = "text/json";

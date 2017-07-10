@@ -1,15 +1,15 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 
 const async = require('async');
 const _ = require('underscore');

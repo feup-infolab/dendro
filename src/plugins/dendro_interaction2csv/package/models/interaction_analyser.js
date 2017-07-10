@@ -1,17 +1,17 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-var DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+var Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+var DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
-var db = function() { return global.db.default; }();
-var gfs = function() { return global.gfs.default; }();
+var db = Config.getDBByGraphUri()
+var gfs = Config.getGFSByID();
+
 var async = require('async');
 var _ = require('underscore');
-var path = require('path');
 
 function InteractionAnalyser (object)
 {

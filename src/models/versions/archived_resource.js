@@ -1,19 +1,17 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
+const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
 
-const db = function () {
-    return global.db.default;
-}();
+const db = Config.getDBByID();
 
 const _ = require('underscore');
 const async = require('async');

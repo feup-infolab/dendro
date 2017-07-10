@@ -1,9 +1,8 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
 const _ = require('underscore');
 const async = require('async');
@@ -13,23 +12,23 @@ let recommendation;
 
 if(recommendation_mode === "dendro_recommender")
 {
-    recommendation = require(Config.absPathInSrcFolder("/controllers/dr_recommendation.js")).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/dr_recommendation.js")).shared;
 }
 else if(recommendation_mode === "standalone")
 {
-    recommendation = require(Config.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/standalone_recommendation.js")).shared;
 }
 else if(recommendation_mode === "project_descriptors")
 {
-    recommendation = require(Config.absPathInSrcFolder("/controllers/project_descriptors_recommendation.js")).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/project_descriptors_recommendation.js")).shared;
 }
 else if(recommendation_mode === "none")
 {
-    recommendation = require(Config.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/no_recommendation.js")).shared;
 }
 
-const records = require(Config.absPathInSrcFolder("/controllers/records.js"));
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const records = require(Pathfinder.absPathInSrcFolder("/controllers/records.js"));
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 
 exports.metadata_evaluation = function(req, res)
 {

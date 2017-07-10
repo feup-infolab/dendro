@@ -7,20 +7,20 @@ chai.use(require('chai-http'));
 const async = require('async');
 const should = chai.should();
 
-const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
 
-const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
 
-const publicProjectData = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProjectData = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProjectData = require(Config.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const publicProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const metadataOnlyProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+const privateProjectData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
 
-const publicProjectForHTMLTestsData = require(Config.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
-const metadataOnlyProjectForHTMLTestsData = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
-const privateProjectForHTMLTestsData = require(Config.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
+const publicProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project_for_html.js"));
+const metadataOnlyProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project_for_html.js"));
+const privateProjectForHTMLTestsData = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project_for_html.js"));
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]
@@ -30,7 +30,7 @@ function requireUncached(module) {
 module.exports.setup = function(finish)
 {
     const projectsData = [publicProjectData, metadataOnlyProjectData, privateProjectData, publicProjectForHTMLTestsData, metadataOnlyProjectForHTMLTestsData, privateProjectForHTMLTestsData];
-    let createProjectsUnit = requireUncached(Config.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
+    let createProjectsUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/projects/createProjects.Unit.js"));
 
     createProjectsUnit.setup(function (err, results) {
         if(err)

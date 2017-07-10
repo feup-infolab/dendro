@@ -1,10 +1,10 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Event = require(Config.absPathInSrcFolder("/models/social/event.js")).Event;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Event = require(Pathfinder.absPathInSrcFolder("/models/social/event.js")).Event;
 const uuid = require('uuid');
 
 function Comment (object)

@@ -1,20 +1,19 @@
 const async = require('async');
-const path = require('path');
 const needle = require('needle');
 const _ = require('underscore');
 
 
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Interaction = require(Config.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
-const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Folder= require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Folder= require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
 const DendroRecommender = require("../../dendro_recommender.js").DendroRecommender;
 const DRConnection = require("../connection.js").DRConnection;

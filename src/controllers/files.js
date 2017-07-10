@@ -1,21 +1,21 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-const UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
-const FileVersion = require(Config.absPathInSrcFolder("/models/versions/file_version.js")).FileVersion;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+const FileVersion = require(Pathfinder.absPathInSrcFolder("/models/versions/file_version.js")).FileVersion;
 
 const async = require('async');
 
 const db_social = function () {
-    return global.db.social;
+    return Config.db.social;
 }();
 
 exports.download = function(req, res){
@@ -585,8 +585,8 @@ exports.get_thumbnail = function(req, res) {
                     exports.serve_static(
                         req,
                         res,
-                        Config.absPathInPublicFolder("/images/icons/extensions/file_extension_" + file.ddr.fileExtension + ".png"),
-                        Config.absPathInPublicFolder("/images/icons/file.png"),
+                        Pathfinder.absPathInPublicFolder("/images/icons/extensions/file_extension_" + file.ddr.fileExtension + ".png"),
+                        Pathfinder.absPathInPublicFolder("/images/icons/file.png"),
                         Config.cache.static.etag_cache_active
                     );
                 }
@@ -1905,7 +1905,7 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
         const fileName = path.basename(pathOfIntendedFileRelativeToProjectRoot);
         const extension = path.extname(pathOfIntendedFileRelativeToProjectRoot).replace(".", "");
         var mimeType = Config.mimeType(extension);
-        var absPathOfFileToServe = Config.absPathInPublicFolder(pathOfIntendedFileRelativeToProjectRoot);
+        var absPathOfFileToServe = Pathfinder.absPathInPublicFolder(pathOfIntendedFileRelativeToProjectRoot);
 
         fs.exists(absPathOfFileToServe, function(exists){
             if(exists)
@@ -2127,7 +2127,7 @@ exports.data = function(req, res){
     }
     else
     {
-        const projects = require(Config.absPathInSrcFolder("/controllers/projects.js"));
+        const projects = require(Pathfinder.absPathInSrcFolder("/controllers/projects.js"));
         projects.show(req, res);
     }
 };

@@ -1,14 +1,11 @@
-var path = require('path');
-var async = require('async');
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
 var PluginConfig = require("./config.json");
 
-const Config = function () {
-    return global.Config;
-}();
-
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-var DendroInteraction2CSV = require(Config.absPathInPluginsFolder(path.join(PluginConfig.plugin_folder_name, "dendro_interaction2csv.js"))).DendroInteraction2CSV;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+var DendroInteraction2CSV = require(Pathfinder.absPathInPluginsFolder(path.join(PluginConfig.plugin_folder_name, "dendro_interaction2csv.js"))).DendroInteraction2CSV;
 
 function Setup ()
 {

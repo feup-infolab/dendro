@@ -1,41 +1,40 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Permissions = Object.create(require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
-const Resource = Object.create(require(Config.absPathInSrcFolder("/models/resource.js")).Resource);
-const QueryBasedRouter = Object.create(require(Config.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
-let RecommendationUtils = require(Config.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
+const Resource = Object.create(require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource);
+const QueryBasedRouter = Object.create(require(Pathfinder.absPathInSrcFolder("/utils/query_based_router.js")).QueryBasedRouter);
+let RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
 //middlewares
 
-const parseRequest = require(Config.absPathInSrcFolder("/bootup/middleware/parse_request.js")).parseRequest;
-const sendResponse = require(Config.absPathInSrcFolder("/bootup/middleware/send_response.js")).sendResponse;
+const parseRequest = require(Pathfinder.absPathInSrcFolder("/bootup/middleware/parse_request.js")).parseRequest;
+const sendResponse = require(Pathfinder.absPathInSrcFolder("/bootup/middleware/send_response.js")).sendResponse;
 
 //app's own requires
-const index = require(Config.absPathInSrcFolder("/controllers/index"));
-const users = require(Config.absPathInSrcFolder("/controllers/users"));
-const vertexes = require(Config.absPathInSrcFolder("/controllers/vertexes"));
-const admin = require(Config.absPathInSrcFolder("/controllers/admin"));
-const projects = require(Config.absPathInSrcFolder("/controllers/projects"));
-const files = require(Config.absPathInSrcFolder("/controllers/files"));
-const records = require(Config.absPathInSrcFolder("/controllers/records"));
-const interactions = require(Config.absPathInSrcFolder("/controllers/interactions"));
-const descriptors = require(Config.absPathInSrcFolder("/controllers/descriptors"));
-const evaluation = require(Config.absPathInSrcFolder("/controllers/evaluation"));
-const ontologies = require(Config.absPathInSrcFolder("/controllers/ontologies"));
-const research_domains = require(Config.absPathInSrcFolder("/controllers/research_domains"));
-const repo_bookmarks = require(Config.absPathInSrcFolder("/controllers/repo_bookmarks"));
-const datasets = require(Config.absPathInSrcFolder("/controllers/datasets"));
-const posts = require(Config.absPathInSrcFolder("/controllers/posts"));
-const fileVersions = require(Config.absPathInSrcFolder("/controllers/file_versions"));
-const notifications = require(Config.absPathInSrcFolder("/controllers/notifications"));
+const index = require(Pathfinder.absPathInSrcFolder("/controllers/index"));
+const users = require(Pathfinder.absPathInSrcFolder("/controllers/users"));
+const vertexes = require(Pathfinder.absPathInSrcFolder("/controllers/vertexes"));
+const admin = require(Pathfinder.absPathInSrcFolder("/controllers/admin"));
+const projects = require(Pathfinder.absPathInSrcFolder("/controllers/projects"));
+const files = require(Pathfinder.absPathInSrcFolder("/controllers/files"));
+const records = require(Pathfinder.absPathInSrcFolder("/controllers/records"));
+const interactions = require(Pathfinder.absPathInSrcFolder("/controllers/interactions"));
+const descriptors = require(Pathfinder.absPathInSrcFolder("/controllers/descriptors"));
+const evaluation = require(Pathfinder.absPathInSrcFolder("/controllers/evaluation"));
+const ontologies = require(Pathfinder.absPathInSrcFolder("/controllers/ontologies"));
+const research_domains = require(Pathfinder.absPathInSrcFolder("/controllers/research_domains"));
+const repo_bookmarks = require(Pathfinder.absPathInSrcFolder("/controllers/repo_bookmarks"));
+const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"));
+const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
+const fileVersions = require(Pathfinder.absPathInSrcFolder("/controllers/file_versions"));
+const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
 const recommendation_mode = RecommendationUtils.getActiveRecommender();
 
-const auth = require(Config.absPathInSrcFolder("/controllers/auth"));
-const auth_orcid = require(Config.absPathInSrcFolder("/controllers/auth_orcid"));
-const path = require('path');
+const auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth"));
+const auth_orcid = require(Pathfinder.absPathInSrcFolder("/controllers/auth_orcid"));
 
 const express = require('express'),
     domain = require('domain'),
@@ -102,7 +101,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
                 passwordField: 'password'
             },
             function(username, password, done) {
-                const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                 User.findByUsername(username, function (err, user) {
 
                     const bcrypt = require('bcryptjs');
@@ -156,7 +155,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
                 callbackURL: Config.baseUri + Config.authentication.orcid.callback_url
             },
             function(accessToken, refreshToken, params, profile, done) {
-                const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                 User.findByORCID(params.orcid, function (err, user) {
                     if (err)
                     {
@@ -959,7 +958,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
     app.get(/(\/app\/views\/.+)\.html$/,
         function(req, res, next){
 
-            const requestedEJSPath = path.join(Config.getPathToPublicFolder(), req.params[0]) + ".ejs";
+            const requestedEJSPath = path.join(Pathfinder.getPathToPublicFolder(), req.params[0]) + ".ejs";
 
             fs.exists(requestedEJSPath, function(exists) {
                 if (exists) {

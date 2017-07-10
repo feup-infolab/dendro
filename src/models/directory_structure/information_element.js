@@ -1,20 +1,15 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return global.db.default;
-}();
-const gfs = function () {
-    return global.gfs.default;
-}();
+const db = Config.getDBByID();
 
 function InformationElement (object)
 {
@@ -77,8 +72,8 @@ InformationElement.getType = function(resourceURI, callback)
             {
                 if(types instanceof Array)
                 {
-                    const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-                    const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+                    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
                     if(types.length === 0)
                     {
@@ -167,14 +162,14 @@ InformationElement.prototype.getParent = function(callback)
                         if(!isNull(results[0].parent_folder))
                         {
                             result.uri = result.parent_folder;
-                            const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                            const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
                             let parent = new Folder(result);
                             return callback(null,parent);
                         }
                         else if(!isNull(result[0].parent_project))
                         {
                             result.uri = result.parent_project;
-                            const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+                            const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
                             let parent = new Project(result);
                             return callback(null,parent);
                         }
@@ -255,7 +250,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
             {
                 if(result instanceof Array && result.length === 1)
                 {
-                    const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
+                    const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
                     Project.findByUri(result[0].uri, function(err, project){
                         callback(err,project);
                     });
@@ -423,8 +418,8 @@ InformationElement.findByParentAndName = function(parentURI, name, callback)
 };
 
 InformationElement.prototype.findMetadata = function(callback){
-    const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-    const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder")).Folder;
+    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder")).Folder;
 
     const self = this;
     InformationElement.findByUri(self.uri, function(err, resource){

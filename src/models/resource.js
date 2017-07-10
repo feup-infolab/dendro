@@ -1,20 +1,18 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Elements = require(Config.absPathInSrcFolder("/models/meta/elements.js")).Elements;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Cache = require(Config.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 
 const async = require('async');
 const _ = require('underscore');
 
-const db = function () {
-    return global.db.default;
-}();
+const db = Config.getDBByID();
 
 function Resource (object, subclass)
 {
@@ -46,7 +44,7 @@ function Resource (object, subclass)
 
 Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumentObject)
 {
-    const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     const self = this;
 
     const ontologyPrefixes = Ontology.getAllOntologyPrefixes();
@@ -189,15 +187,19 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
 Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
 {
     const self = this;
-    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    let graphUri;
+    if(isNull(customGraphUri))
+        graphUri = Config.db.default.graphUri;
+    else
+        graphUri = customGraphUri;
 
     //Invalidate cache record for the updated resources
-    Cache(customGraphUri).delete(self.uri, function(err, result){
+    Cache.getByGraphUri(graphUri).delete(self.uri, function(err, result){
 
     });
 
-    //TODO CACHE DONE
-    db.connection.execute(
+    Config.getDBByGraphUri(customGraphUri).connection.execute(
             "WITH [0] \n" +
             "DELETE \n" +
             "WHERE " +
@@ -273,7 +275,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        Cache.get(db).delete([self.uri, valueInPrefixedForm], function(err, result){
+                        Cache.getByGraphUri(db).delete([self.uri, valueInPrefixedForm], function(err, result){
                             return callback(err, result);
                         });
                     }
@@ -311,7 +313,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(!err)
                     {
                         //Invalidate cache record for the updated resources
-                        Cache.get(customGraphUri).delete([self.uri, valueInPrefixedForm], function(err, result){
+                        Cache.getByGraphUri(customGraphUri).delete([self.uri, valueInPrefixedForm], function(err, result){
                             return callback(err, result);
                         });
                     }
@@ -462,7 +464,7 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
         function(err, descriptors) {
             if(!err)
             {
-                const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+                const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
                 for (let i = 0; i < descriptors.length; i++)
                 {
                     const descriptor = new Descriptor(descriptors[i]);
@@ -512,7 +514,7 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
 
 Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, callback, customGraphUri)
 {
-    const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
@@ -765,7 +767,7 @@ Resource.prototype.replaceDescriptorsInTripleStore = function(newDescriptors, db
             "} \n";
 
         //Invalidate cache record for the updated resources
-        Cache.get(db.cache.id).delete(subject, function(err, result){});
+        Cache.getByGraphUri(graphName).delete(subject, function(err, result){});
 
         db.connection.execute(query, queryArguments, function(err, results)
         {
@@ -801,7 +803,7 @@ Resource.prototype.save = function
         customGraphUri
     )
 {
-    const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
@@ -1231,7 +1233,7 @@ Resource.prototype.getLiteralPropertiesFromOntologies = function(ontologyURIsArr
 
 Resource.prototype.reindex = function(indexConnection, callback)
 {
-    const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     const self = this;
     const infoMessages = [];
     const errorMessages = [];
@@ -1590,7 +1592,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
         }
 
 
-        Cache.get(customGraphUri).getByQuery(
+        Cache.getByGraphUri(customGraphUri).getByQuery(
             {
                 "$and": [
                     { "uri" : uri },
@@ -1631,7 +1633,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     };
 
     const saveToCache = function (uri, resource, callback) {
-        Cache.get(customGraphUri).put(uri, resource, function (err) {
+        Cache.getByGraphUri(customGraphUri).put(uri, resource, function (err) {
             if (!err) {
                 if (typeof callback === "function") {
                     return callback(null, resource);
@@ -1645,7 +1647,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
     };
 
     const getFromTripleStore = function (uri, callback, customGraphUri) {
-        const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
         if (uri instanceof Object && !isNull(uri.uri)) {
             uri = uri.uri;
@@ -1827,7 +1829,7 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
             if(!err)
             {
                 const getVersionContents = function (versionRow, cb) {
-                    const ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+                    const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
                     ArchivedResource.findByUri(versionRow.uri, function (err, archivedResource) {
                         cb(err, archivedResource)
                     }, null, customGraphUri);
@@ -1906,7 +1908,7 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
             }
             else
             {
-                const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                 versionCreator = User.anonymous.uri;
             }
 
@@ -1916,7 +1918,7 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
             objectValues.ddr.versionNumber = newVersionNumber;
             objectValues.ddr.humanReadableURI = self.ddr.humanReadableURI + "/version/" + newVersionNumber;
 
-            const ArchivedResource = require(Config.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+            const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
             const archivedResource = new ArchivedResource(objectValues);
             
             return callback(null, archivedResource);
@@ -1952,7 +1954,7 @@ Resource.prototype.getPublicDescriptorsForAPICalls = function()
 
 Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)
 {
-    const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;
     let descriptorsArray = [];
 
@@ -1993,8 +1995,8 @@ Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptor
  */
 Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptorsToExclude)
 {
-    const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-    const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
     const self = this;
     let deltas = [];
@@ -2032,7 +2034,7 @@ Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptors
         //     }
         // }
 
-        const Change = require(Config.absPathInSrcFolder("/models/versions/change.js")).Change;
+        const Change = require(Pathfinder.absPathInSrcFolder("/models/versions/change.js")).Change;
 
         const newChange = new Change({
             ddr: {
@@ -2168,7 +2170,7 @@ Resource.prototype.calculateDescriptorDeltas = function(newResource, descriptors
 Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, value, callback, customGraphUri)
 {
     const self = this;
-    const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+    const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
@@ -2224,7 +2226,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                 });
         };
 
-        Cache.get(customGraphUri).get(self.uri, function(err, cachedDescriptor){
+        Cache.getByGraphUri(customGraphUri).get(self.uri, function(err, cachedDescriptor){
            if(!err && !isNull(cachedDescriptor))
            {
                const namespace = descriptorToCheck.getNamespacePrefix();
@@ -2280,8 +2282,8 @@ Resource.prototype.restoreFromArchivedVersion = function(version, callback, uriO
 
 
 Resource.prototype.findMetadataRecursive = function(callback){
-    const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-    const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 
     const self = this;
     Resource.findByUri(self.uri, function(err, resource){
@@ -2621,7 +2623,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
                     }
 
                     if (resourceUris.length > 0) {
-                        Cache.get(customGraphUri).delete(resourceUris, function (err, result) {
+                        Cache.getByGraphUri(customGraphUri).delete(resourceUris, function (err, result) {
                             if (!err) {
                                 if (resourceUris.length === pageSize) {
                                     page++;
@@ -2725,7 +2727,7 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function(callback,
 
 Resource.arrayToCSVFile = function(resourceArray, fileName, callback)
 {
-    const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
     File.createBlankTempFile(fileName, function(err, tempFileAbsPath){
         return callback(err, tempFileAbsPath);

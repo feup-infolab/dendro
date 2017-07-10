@@ -1,13 +1,12 @@
-var path = require('path');
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-var User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-var Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-var Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+var User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+var Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+var Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
 function UserMapper ()
 {

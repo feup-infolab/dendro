@@ -1,11 +1,10 @@
-const util = require('util');
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const RedisCache = require(Config.absPathInSrcFolder("/kb/cache/caches/redis.js")).RedisCache;
-const MongoDBCache = require(Config.absPathInSrcFolder("/kb/cache/caches/mongodb.js")).MongoDBCache;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const RedisCache = require(Pathfinder.absPathInSrcFolder("/kb/cache/caches/redis.js")).RedisCache;
+const MongoDBCache = require(Pathfinder.absPathInSrcFolder("/kb/cache/caches/mongodb.js")).MongoDBCache;
 const colors = require('colors');
 const async = require('async');
 
@@ -19,13 +18,13 @@ Cache.initConnections = function(callback)
     const self = this;
     const _ = require('underscore');
 
-    let keys = _.filter(Object.keys(global.db), function(key){
-        return global.db.hasOwnProperty(key);
+    let keys = _.filter(Object.keys(Config.db), function(key){
+        return Config.db.hasOwnProperty(key);
     });
 
     async.map(keys,
         function(key, callback) {
-            const dbConfig = global.db[key];
+            const dbConfig = Config.db[key];
 
             if(!isNull(dbConfig.cache))
             {
@@ -48,16 +47,18 @@ Cache.initConnections = function(callback)
                                     newMongoCacheConnection.openConnection(function(err, mongoDBConnection) {
                                         if(!isNull(err))
                                         {
-                                            throw new Error("[ERROR] Unable to connect to MongoDB instance with ID: " + mongoDBConnection.id + " running on " + mongoDBConnection.options.host + ":" + mongoDBConnection.options.port + " : " + err.message);
+                                            throw new Error("[ERROR] Unable to connect to MongoDB instance with ID: " + mongoCacheConfig.options.id + " running on " + mongoCacheConfig.options.host + ":" + mongoCacheConfig.options.port + " : " + err.message);
                                         }
                                         else
                                         {
-                                            console.log("[OK] Connected to MongoDB cache service with ID : " + newMongoCacheConnection.id + " running on " +  newMongoCacheConnection.host + ":" + newMongoCacheConnection.port);
+                                            console.log("[OK] Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " +  mongoDBConnection.host + ":" + mongoDBConnection.port);
 
                                             newMongoCacheConnection.deleteAll(function(err, result){
                                                 if(!err)
                                                 {
-                                                    self.caches[cacheId] = newMongoCacheConnection;
+                                                    Cache.caches[cacheId] = newMongoCacheConnection;
+                                                    Cache.cachesByGraphUri[graphUri] = newMongoCacheConnection;
+
                                                     return callback(null, newMongoCacheConnection);
                                                 }
                                                 else
@@ -77,20 +78,21 @@ Cache.initConnections = function(callback)
                                 {
                                     const newRedisCacheConnection = new RedisCache(redisCacheConfig);
 
-                                    newRedisCacheConnection.openConnection(function(err, redisConnection) {
+                                    newRedisCacheConnection.openConnection(function(err, newRedisConnection) {
                                         if(!isNull(err))
                                         {
-                                            throw new Error("[ERROR] Unable to connect to Redis instance with ID: " + instance.id + " running on " + instance.options.host + ":" + instance.options.port + " : " + err.message)
+                                            throw new Error("[ERROR] Unable to connect to Redis instance with ID: " + redisCacheConfig.id + " running on " + redisCacheConfig.options.host + ":" + redisCacheConfig.options.port + " : " + err.message)
                                         }
                                         else {
-                                            console.log("[OK] Connected to Redis cache service with ID : " + redisConnection.id + " running on " + redisConnection.host + ":" + redisConnection.port);
+                                            console.log("[OK] Connected to Redis cache service with ID : " + newRedisConnection.id + " running on " + newRedisConnection.host + ":" + newRedisConnection.port);
 
 
                                             newRedisCacheConnection.deleteAll(function (err, result) {
                                                 if (!err) {
-                                                    console.log("[INFO] Deleted all cache records on Redis instance " + redisConnection.id);
-                                                    self.caches[cacheId] = redisConnection;
-                                                    return callback(null, redisConnection);
+                                                    console.log("[INFO] Deleted all cache records on Redis instance " + newRedisConnection.id);
+                                                    Cache.caches[cacheId] = newRedisConnection;
+                                                    Cache.cachesByGraphUri[graphUri] = newRedisConnection;
+                                                    return callback(null, newRedisConnection);
                                                 }
                                                 else
                                                 {
@@ -160,7 +162,7 @@ Cache.closeConnections = function(cb)
     });
 };
 
-Cache.get = function(cacheId)
+Cache.getByID = function(cacheId)
 {
     if(isNull(cacheId))
     {
@@ -176,7 +178,24 @@ Cache.get = function(cacheId)
     }
 };
 
+Cache.getByGraphUri = function(graphUri)
+{
+    if(isNull(graphUri))
+    {
+        return Cache.caches['default'];
+    }
+    else if(!isNull(Cache.cachesByGraphUri[graphUri]))
+    {
+        return Cache.cachesByGraphUri[graphUri];
+    }
+    else
+    {
+        throw new Error("Invalid graph uri when fetching cache : " + graphUri);
+    }
+};
+
 Cache.caches = {};
+Cache.cachesByGraphUri = {};
 
 module.exports.Cache = Cache;
 

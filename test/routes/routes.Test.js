@@ -7,7 +7,7 @@ chai.use(chaiHttp);
 describe('/', function () {
 
     before(function(done){
-        require(Config.absPathInTestsFolder("bootup.Unit.js"));
+        require(Pathfinder.absPathInTestsFolder("bootup.Unit.js"));
         done();
     });
 

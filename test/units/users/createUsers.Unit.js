@@ -7,8 +7,8 @@ const should = chai.should();
 const async = require('async');
 const colors = require('colors');
 
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 const start = function()
 {
@@ -33,7 +33,7 @@ const end = function()
 module.exports.setup = function(finish)
 {
     start();
-    let bootupUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+    let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
     bootupUnit.setup(function (err, results) {
         if(err)
@@ -43,7 +43,7 @@ module.exports.setup = function(finish)
         }
         else
         {
-            const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+            const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
             const makeAdmin = function (newAdministrator, callback) {
 

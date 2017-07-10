@@ -1,7 +1,9 @@
-const Config = function() { return global.Config; }();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
 module.exports.login = function(req, res, next){
         req.passport.authenticate('orcid', function(err, user, info) {

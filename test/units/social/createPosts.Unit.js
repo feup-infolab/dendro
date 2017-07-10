@@ -7,11 +7,11 @@ chai.use(require('chai-http'));
 const should = chai.should();
 const async = require('async');
 
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
 module.exports.setup = function(finish)
 {
-    let addMetadataToFoldersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+    let addMetadataToFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 
     addMetadataToFoldersUnit.setup(function (err, results) {
         if(err)

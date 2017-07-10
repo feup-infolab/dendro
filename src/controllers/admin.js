@@ -1,15 +1,13 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const DryadLoader = require(Config.absPathInSrcFolder("/kb/loaders/dryad/dryad_loader.js")).DryadLoader;
-const IndexConnection = require(Config.absPathInSrcFolder("/kb/index.js")).IndexConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const DryadLoader = require(Pathfinder.absPathInSrcFolder("/kb/loaders/dryad/dryad_loader.js")).DryadLoader;
+const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return global.db.default;
-}();
+const db = Config.getDBByGraphUri();
 
 module.exports.home = function(req, res) {
     res.render('admin/home',
@@ -29,7 +27,7 @@ module.exports.reload = function(req, res)
         if (!err) {
             const util = require('util');
             //noinspection ES6ConvertVarToLetConst
-            var messages = "All resources successfully loaded in graph(s) : ";
+            let messages = "All resources successfully loaded in graph(s) : ";
 
             for (let i = 0; i < graphNames.length; i++) {
                 messages = messages + " " + graphNames[i];

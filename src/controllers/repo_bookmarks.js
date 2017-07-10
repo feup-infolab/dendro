@@ -1,11 +1,11 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const ExternalRepository = require(Config.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
-const RepositoryPlatform = require(Config.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const ExternalRepository = require(Pathfinder.absPathInSrcFolder("/models/harvesting/external_repository.js")).ExternalRepository;
+const RepositoryPlatform = require(Pathfinder.absPathInSrcFolder("/models/harvesting/repo_platform")).RepositoryPlatform;
 
 const async = require('async');
 const _ = require('underscore');

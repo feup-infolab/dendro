@@ -6,22 +6,22 @@ chai.use(chaiHttp);
 
 const Config = global.Config;
 
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
-const itemUtils = require(Config.absPathInTestsFolder("utils/item/itemUtils.js"));
-const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
-const repositoryUtils = require(Config.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
-const postUtils = require(Config.absPathInTestsFolder("utils/social/post.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const postUtils = require(Pathfinder.absPathInTestsFolder("utils/social/post.js"));
 
-const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Config.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const invalidProject = require(Config.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
+const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
+const invalidProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/invalidProject.js"));
 
-const createPostsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/social/createPosts.Unit.js"));
-const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const createPostsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/social/createPosts.Unit.js"));
+const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 let demouser1PostURIs;
 
 describe("Social Dendro get specific post info tests", function () {

@@ -1,22 +1,20 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const Ontology = require(Config.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-const Project = require(Config.absPathInSrcFolder("/models/project.js")).Project;
-const Folder = require(Config.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Permissions = require(Config.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const Permissions = require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
 const nodemailer = require('nodemailer');
-const db = function () {
-    return global.db.default;
-}();
+const db = Config.getDBByID();
 const flash = require('connect-flash');
 const async = require('async');
 
@@ -213,8 +211,7 @@ exports.change_log = function(req, res){
 };
 
 exports.show = function(req, res) {
-    const userIsLoggedIn = req.user ? true : false;
-
+    const userIsLoggedIn = !!req.user;
     let resourceURI = req.params.requestedResourceUri;
 
     function sendResponse(viewVars, requestedResource)
@@ -327,14 +324,7 @@ exports.show = function(req, res) {
         }
     }
 
-    if(typeof req.query.show_history !== "undefined")
-    {
-        var showing_history = 1;
-    }
-    else
-    {
-        var showing_history = 0;
-    }
+    let showing_history = !!req.query.show_history;
 
     const fetchVersionsInformation = function (archivedResource, cb) {
         archivedResource.getDetailedInformation(function (err, result) {
@@ -342,7 +332,7 @@ exports.show = function(req, res) {
         });
     };
 
-    var viewVars = {
+    const viewVars = {
         showing_history : showing_history,
         Descriptor : Descriptor
     };

@@ -22,61 +22,50 @@
           "default": {
             "host": "192.168.56.249",
             "port": "6780",
-            "database_number": 1,
-            "id": "default"
+            "id": "default",
+            "database_number": 1
           },
           "social": {
-            "options": {
-              "host": "192.168.56.249",
-              "port": "6781",
-              "database_number": 1,
-              "id": "social"
-            }
+            "host": "192.168.56.249",
+            "port": "6781",
+            "id": "social",
+            "database_number": 1
           },
           "notifications": {
-            "options": {
-              "host": "192.168.56.249",
-              "port": "6782",
-              "database_number": 1,
-              "id": "notification"
-            }
+            "host": "192.168.56.249",
+            "port": "6782",
+            "id": "notifications",
+            "database_number": 1
           }
         }
       },
       "mongodb": {
         "active": true,
-        "instances": [
-          {
-            "id": "default",
-            "options": {
-              "database": "127.0.0.1:3001",
-              "collection": "default_cache",
-              "host": "192.168.56.249",
-              "port": "27017",
-              "id": "default"
-            }
+        "instances": {
+          "default": {
+            "database": "127.0.0.1:3001",
+            "collection": "default_cache_test",
+            "host": "192.168.56.249",
+            "port": "27017",
+            "id": "default"
           },
-          {
-            "id": "social",
-            "options": {
-              "database": "127.0.0.1:3001",
-              "collection": "social_cache",
-              "host": "192.168.56.249",
-              "port": "27017",
-              "id": "social"
-            }
+          "social": {
+            "database": "127.0.0.1:3001",
+            "collection": "social_cache_test",
+            "host": "192.168.56.249",
+            "port": "27017",
+            "id": "social"
           },
-          {
-            "id": "notifications",
+          "notifications": {
             "options": {
               "database": "127.0.0.1:3001",
-              "collection": "notifications_cache",
+              "collection": "notifications_cache_test",
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
             }
           }
-        ]
+        }
       },
       "static": {
         "last_modified_caching": true,
@@ -207,7 +196,7 @@
       "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": false,
       "clear_session_store": true,
-      "log_bootup_actions" : false
+      "log_bootup_actions" : true
     },
     "baselines": {
     },

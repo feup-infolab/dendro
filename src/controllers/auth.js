@@ -1,10 +1,10 @@
-const Config = function() { return global.Config; }();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const db = function() { return global.db.default; }();
-
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-const UploadManager = require(Config.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
 const async = require('async');
 

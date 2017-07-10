@@ -1,11 +1,8 @@
-/**
- * Created by Fábio on 31/03/2016.
- */
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 B2Share.apiURL = Config.eudatBaseUrl + "/api";
 B2Share.depositionURL = B2Share.apiURL + "/deposition/";

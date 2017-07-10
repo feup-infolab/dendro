@@ -1,22 +1,18 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const Config = function () {
-    return global.Config;
-}();
-
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-
-const db = function () {
-    return global.db.default;
-}();
-const gfs = function () {
-    return global.gfs.default;
-}();
 const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+
+const db = Config.getDBByID();
+const gfs = Config.getGFSByID();
+
 const async = require('async');
 
 function File (object)
@@ -311,7 +307,7 @@ File.prototype.getThumbnail = function(size, callback)
                 {
                     //try to regenerate thumbnails, fire and forget
                     self.generateThumbnails(function(err, result){
-                        return callback(null, Config.absPathInPublicFolder("images/icons/extensions/file_generating_thumbnail.png"));
+                        return callback(null, Pathfinder.absPathInPublicFolder("images/icons/extensions/file_generating_thumbnail.png"));
                     })
                 }
                 else if(!err)
@@ -685,7 +681,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
 {
     const fs = require('fs');
     
-    const absPathToFile = Config.absPathInApp(relativePathToFile);
+    const absPathToFile = Pathfinder.absPathInApp(relativePathToFile);
     const parentFolder = path.resolve(absPathToFile, "..");
 
     fs.stat(absPathToFile, function(err, stat) {

@@ -2,8 +2,8 @@ const Config = require("../../../src/models/meta/config").Config;
 
 const async = require('async');
 
-const db = require(Config.absPathInTestsFolder("utils/db/db.Test.js"));
-const index = require(Config.absPathInTestsFolder("utils/index/index.Test.js"));
+const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+const index = require(Pathfinder.absPathInTestsFolder("utils/index/index.Test.js"));
 
 const chai = require('chai');
 const should = chai.should();
@@ -58,7 +58,7 @@ exports.clearAllData = function (cb) {
 };
 
 exports.quitAllCacheConnections = function (cb) {
-    const Cache = require(Config.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+    const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
     Cache.closeConnections(cb);
 };
 
@@ -100,7 +100,7 @@ exports.endMysqlConnectionPool = function (cb) {
 };
 
 exports.clearAppState = function (cb) {
-    //var db = exports.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+    //var db = exports.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
     exports.clearAllData(function(err, results){
         global.tests.server.close();

@@ -1,13 +1,11 @@
-var path = require('path');
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const Config = function () {
-    return global.Config;
-}();
-
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-var Class = require(Config.absPathInSrcFolder("models/meta/class.js")).Class;
-var Plugin = require(Config.absPathInSrcFolder("plugins/plugin.js")).Plugin;
-var Permissions = require(Config.absPathInSrcFolder("models/meta/permissions.js")).Permissions;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+var Class = require(Pathfinder.absPathInSrcFolder("models/meta/class.js")).Class;
+var Plugin = require(Pathfinder.absPathInSrcFolder("plugins/plugin.js")).Plugin;
+var Permissions = require(Pathfinder.absPathInSrcFolder("models/meta/permissions.js")).Permissions;
 
 var DendroInteraction2CSV = function()
 {

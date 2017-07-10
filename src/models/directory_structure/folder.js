@@ -1,28 +1,22 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
-const Class = require(Config.absPathInSrcFolder("/models/meta/class.js")).Class;
-const InformationElement = require(Config.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
-const Descriptor = require(Config.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
-const File = require(Config.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
+const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 const slug = require('slug');
 const fs = require('fs');
-const path = require('path');
 
-const db = function () {
-    return global.db.default;
-}();
-const gfs = function () {
-    return global.gfs.default;
-}();
+const db = Config.getDBByID();
+
 const async = require('async');
 const _ = require('underscore');
 
@@ -504,7 +498,7 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
         },
         function(absolutePathOfFinishedFolder, parentFolderPath, cb)
         {
-            const gladstone = require(Config.absPathInApp("/node_modules/gladstone/gladstone.js"));
+            const gladstone = require(Pathfinder.absPathInApp("/node_modules/gladstone/gladstone.js"));
             gladstone.createBagDirectory(bagItOptions)
                 .then(function(result){
                     cb(null, {

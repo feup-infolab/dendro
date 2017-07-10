@@ -6,18 +6,18 @@ chai.use(chaiHttp);
 
 const Config = global.Config;
 
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
-const ontologiesUtils = require(Config.absPathInTestsFolder("utils/ontologies/ontologiesUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const ontologiesUtils = require(Pathfinder.absPathInTestsFolder("utils/ontologies/ontologiesUtils.js"));
 
 
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
-const addBootUpUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/bootup.Unit.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const addBootUpUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/bootup.Unit.js"));
 
 describe('/ontologies/public', function () {
 
-    const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
-    const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
-    const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
+    const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+    const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+    const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
     before(function (done) {
         this.timeout(60000);

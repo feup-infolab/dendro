@@ -1,11 +1,8 @@
 const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
 const async = require('async');
 
-const Config = function () {
-    return global.Config;
-}();
-
-const Permissions = require(Config.absPathInSrcFolder("models/meta/permissions.js")).Permissions;
+const Permissions = require(Pathfinder.absPathInSrcFolder("models/meta/permissions.js")).Permissions;
 
 function Plugin (object)
 {
@@ -76,7 +73,7 @@ Plugin.registerRoute = function(app, method, route, permissions, controllerMetho
 Plugin.getPluginRootFolder = function()
 {
     const self = this;
-    const allPluginsRootFolder = Config.getAbsolutePathToPluginsFolder();
+    const allPluginsRootFolder = Pathfinder.getAbsolutePathToPluginsFolder();
     const myConfig = self.config;
 
     return path.join(allPluginsRootFolder, myConfig.plugin_folder_name);
@@ -95,7 +92,7 @@ Plugin.renderView = function(res, viewPath, dataObject)
         viewPath = viewPath + ".ejs";
     }
 
-    const pluginViewAbsPath = path.join(Config.getAbsolutePathToPluginsFolder(), self.config.plugin_folder_name, "package", "views", viewPath);
+    const pluginViewAbsPath = path.join(Pathfinder.getAbsolutePathToPluginsFolder(), self.config.plugin_folder_name, "package", "views", viewPath);
 
     /**
      * Copy global data objects so that they are accessible in the plugins' views

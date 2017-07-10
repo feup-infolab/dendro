@@ -2,17 +2,17 @@ process.env.NODE_ENV = 'test';
 
 const Config = global.Config;
 const async = require('async');
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
-const repositoryUtils = require(Config.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const repositoryUtils = require(Pathfinder.absPathInTestsFolder("utils/repository/repositoryUtils.js"));
 
-const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
 
-const b2share = require(Config.absPathInTestsFolder("mockdata/repositories/dataToCreate/b2share"));
-const ckan = require(Config.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
-const dspace = require(Config.absPathInTestsFolder("mockdata/repositories/dataToCreate/dspace"));
-const eprints = require(Config.absPathInTestsFolder("mockdata/repositories/dataToCreate/eprints"));
-const figshare = require(Config.absPathInTestsFolder("mockdata/repositories/dataToCreate/figshare"));
-const zenodo = require(Config.absPathInTestsFolder("mockdata/repositories/dataToCreate/zenodo"));
+const b2share = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/b2share"));
+const ckan = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/ckan"));
+const dspace = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/dspace"));
+const eprints = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/eprints"));
+const figshare = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/figshare"));
+const zenodo = require(Pathfinder.absPathInTestsFolder("mockdata/repositories/dataToCreate/zenodo"));
 
 const dataToCreateExportConfigs = [b2share, ckan, dspace, eprints, figshare, zenodo];
 
@@ -23,7 +23,7 @@ function requireUncached(module) {
 
 module.exports.setup = function(finish)
 {
-    let addMetadataToFoldersUnit = requireUncached(Config.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
+    let addMetadataToFoldersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/metadata/addMetadataToFolders.Unit.js"));
 
     addMetadataToFoldersUnit.setup(function (err, results) {
         if(err)

@@ -6,22 +6,22 @@ chai.use(chaiHttp);
 
 const Config = global.Config;
 
-const projectUtils = require(Config.absPathInTestsFolder("utils/project/projectUtils.js"));
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
-const folderUtils = require(Config.absPathInTestsFolder("utils/folder/folderUtils.js"));
-const httpUtils = require(Config.absPathInTestsFolder("utils/http/httpUtils.js"));
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
+const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
+const folderUtils = require(Pathfinder.absPathInTestsFolder("utils/folder/folderUtils.js"));
+const httpUtils = require(Pathfinder.absPathInTestsFolder("utils/http/httpUtils.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 
-const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
-const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const metadataProject = require(Config.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
+const metadataProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
 
-const folder = require(Config.absPathInTestsFolder("mockdata/folders/folder.js"));
-const folderForDemouser2 = require(Config.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
-const addContributorsToProjectsUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
-const db = appUtils.requireUncached(Config.absPathInTestsFolder("utils/db/db.Test.js"));
+const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
+const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
+const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/projects/addContributorsToProjects.Unit.js"));
+const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Metadata Project mkdir", function (done) {
     before(function (done) {

@@ -1,15 +1,13 @@
-const Config = function () {
-    return global.Config;
-}();
+const path = require('path');
+const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
-const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const DbConnection = require(Config.absPathInSrcFolder("/kb/db.js")).DbConnection;
-const Resource = require(Config.absPathInSrcFolder("/models/resource.js")).Resource;
+const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
-const db = function () {
-    return global.db.default;
-}();
+const db = Config.getDBByID();
 
 const async = require('async');
 
