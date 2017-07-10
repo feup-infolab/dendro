@@ -106,7 +106,12 @@ exports.clearAppState = function (cb) {
         global.tests.server.close();
         exports.endMysqlConnectionPool(function (err, results) {
             should.equal(err, null);
-            cb(err, results);
+
+            // add a timeout to help the tests not to crash
+            // sometimes because of overwhelming load.
+            setTimeout(function(){
+                cb(err, results);
+            }, 200);
         });
     });
 };
