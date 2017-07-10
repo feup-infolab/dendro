@@ -107,18 +107,25 @@ const getOwnerProject = function (requestedResource, callback) {
     InformationElement.findByUri(requestedResource, function(err, resource){
         if(isNull(err))
         {
-            if(!isNull(resource) && resource instanceof InformationElement)
+            if(!isNull(resource))
             {
-                resource.getOwnerProject(function(err, project){
-                    if(!isNull(project) && project instanceof Project)
-                    {
-                        callback(null, project);
-                    }
-                    else
-                    {
-                        callback(err, project);
-                    }
-                });
+                if(resource instanceof InformationElement)
+                {
+                    resource.getOwnerProject(function(err, project){
+                        if(!isNull(project) && project instanceof Project)
+                        {
+                            callback(null, project);
+                        }
+                        else
+                        {
+                            callback(err, project);
+                        }
+                    });
+                }
+                else
+                {
+                    callback("Resource " + requestedResource + " is of invalid type!", null);
+                }
             }
             else
             {
@@ -173,7 +180,7 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
         }
         else
         {
-            return callback(null, null);
+            return callback("Invalid project type supplied!", null);
         }
     }
     else {
@@ -191,11 +198,11 @@ const checkUsersRoleInParentProject = function (req, user, role, resource, callb
                     });
                 }
                 else {
-                    return callback(null, null);
+                    return callback(null, false);
                 }
             }
             else {
-                return callback(err, null);
+                return callback(err, false);
             }
         });
     }
@@ -224,7 +231,7 @@ const checkPrivacyOfProject = function (req, permission, callback) {
             }
         }
         else {
-            return callback(null, true);
+            return callback(err, true);
         }
     });
 };

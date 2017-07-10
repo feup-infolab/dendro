@@ -111,7 +111,7 @@ exports.clearAppState = function (cb) {
             // sometimes because of overwhelming load.
             setTimeout(function(){
                 cb(err, results);
-            }, 200);
+            }, 300);
         });
     });
 };
