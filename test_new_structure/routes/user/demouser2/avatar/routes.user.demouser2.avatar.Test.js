@@ -9,109 +9,94 @@ const Config = GLOBAL.Config;
 const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
 
 const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
-var createUserUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+var createAvatarsForUsersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/users/createAvatarsForUsers.Unit.js"));
+const md5 = require("md5");
 
-describe("/user/demouser1", function (done) {
-
-    const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
-    const falseUser = "demouser404";
+describe("[GET] /user/demouser2/avatar", function (done) {
 
     before(function (done) {
         this.timeout(60000);
-        createUserUnit.setup(function (err, results) {
+        createAvatarsForUsersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
         });
     });
 
-    it("[JSON] should NOT access demouser1.username profile when given demouser1.username and NOT logged in",function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.getUserInfo(demouser1.username, true, agent, function(err, res){
-            res.should.have.status(401);
-            res.text.should.contain("You are not logged into the system.");
-            done();
-        })
-    });
+    const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
+    const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
+    const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-    it("[HTML] should NOT access demouser1.username profile when given demouser1.username and  NOT logged in",function (done) {
+    it("[HTML] should give an unauthorized error if the current user is not authenticated", function (done) {
         var app = GLOBAL.tests.app;
         var agent = chai.request.agent(app);
-        userUtils.getUserInfo(demouser1.username, false, agent, function(err, res){
+
+        userUtils.getAvatar(false, demouser2.username, agent, function (err, res) {
             res.should.have.status(200);
-            res.redirects[0].should.contain("/login");
-            res.text.should.contain("Please log into the system");
+            //because the body in the utils(for test purposes in turned into a array)
+            res.body.toString().should.contain("Please log into the system.");
             done();
-        })
+        });
     });
-    //review agent immediatly
-    it("[JSON] should access demouser1.username profile when given demouser1.username and logged in",function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            userUtils.getUserInfo(demouser1.username, true, agent, function(err, res){
-                res.should.have.status(200);
-                res.text.should.contain("\"username\":\"demouser1\"");
+
+    it("[HTML] should give a not found error if the avatar is from a user that does not exist and if the current user is authenticated", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            userUtils.getAvatar(false, "notFoundUser", agent, function (err, res) {
+                res.should.have.status(404);
                 done();
-            })
-        })
+            });
+        });
     });
 
-    it("[HTML] should access demouser1.username profile when given demouser1.username and logged in",function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            userUtils.getUserInfo(demouser1.username, false, agent, function(err, res){
+    it("[HTML] Should give the avatar of demouser1 even if the user is authenticated as demouser2", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            userUtils.getAvatar(false, demouser1.username, agent, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.contain("Viewing user demouser1");
+                let imageFromServerDemouser1 = res.body.toString('base64');
+                let imageFromServerDemouser1MD5 = md5(imageFromServerDemouser1);
+                let defaultAvatarForDemouser2MD5 = md5(demouser2.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser1MD5 = md5(demouser1.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser3MD5 = md5(demouser3.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                imageFromServerDemouser1MD5.should.equal(defaultAvatarForDemouser1MD5);
+                imageFromServerDemouser1MD5.should.not.equal(defaultAvatarForDemouser2MD5);
+                imageFromServerDemouser1MD5.should.not.equal(defaultAvatarForDemouser3MD5);
                 done();
-            })
-        })
+            });
+        });
     });
 
-
-    it("[JSON] should NOT access demouser1.username profile when given non-existent username and logged in",function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            userUtils.getUserInfo(falseUser, true, agent, function(err, res){
+    it("[HTML] Should give the avatar of demouser3 even if the user is authenticated as demouser2", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            userUtils.getAvatar(false, demouser3.username, agent, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.contain("demouser404 does not exist");
+                let imageFromServerDemouser3 = res.body.toString('base64');
+                let imageFromServerDemouser3MD5 = md5(imageFromServerDemouser3);
+                let defaultAvatarForDemouser2MD5 = md5(demouser2.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser1MD5 = md5(demouser1.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser3MD5 = md5(demouser3.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                imageFromServerDemouser3MD5.should.equal(defaultAvatarForDemouser3MD5);
+                imageFromServerDemouser3MD5.should.not.equal(defaultAvatarForDemouser1MD5);
+                imageFromServerDemouser3MD5.should.not.equal(defaultAvatarForDemouser2MD5);
                 done();
-            })
-        })
+            });
+        });
     });
 
-    it("[HTML] should NOT access demouser1.username profile when given non-existent username and logged in",function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-            userUtils.getUserInfo(falseUser, false, agent, function(err, res){
+
+    it("[HTML] Should give the avatar of demouser2 if the user is authenticated as demouser2", function (done) {
+        userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
+            userUtils.getAvatar(false, demouser2.username, agent, function (err, res) {
                 res.should.have.status(200);
-                res.text.should.contain("demouser404 does not exist");
+                let imageFromServerDemouser2 = res.body.toString('base64');
+                let imageFromServerDemouser2MD5 = md5(imageFromServerDemouser2);
+                let defaultAvatarForDemouser2MD5 = md5(demouser2.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser1MD5 = md5(demouser1.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser3MD5 = md5(demouser3.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                imageFromServerDemouser2MD5.should.equal(defaultAvatarForDemouser2MD5);
+                imageFromServerDemouser2MD5.should.not.equal(defaultAvatarForDemouser1MD5);
+                imageFromServerDemouser2MD5.should.not.equal(defaultAvatarForDemouser3MD5);
                 done();
-            })
-        })
-    });
-
-    it("[JSON] should NOT access demouser1.username profile when given non-existent username and NOT logged in",function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.getUserInfo(falseUser, true, agent, function(err, res){
-            res.should.have.status(401);
-            res.text.should.contain("You are not logged into the system");
-            done();
-        })
-    });
-
-    it("[HTML] should NOT access demouser1.username profile when given non-existent username and NOT logged in",function (done) {
-        var app = GLOBAL.tests.app;
-        var agent = chai.request.agent(app);
-        userUtils.getUserInfo(falseUser, false, agent, function(err, res){
-            res.should.have.status(200);
-            res.text.should.contain("Please log into the system");
-            done();
-        })
+            });
+        });
     });
 
     after(function (done) {
