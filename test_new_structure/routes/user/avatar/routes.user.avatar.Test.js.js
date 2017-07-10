@@ -60,11 +60,8 @@ describe("[POST] /user/avatar", function (done) {
                     userUtils.getAvatar(false, demouser2.username, agent, function (err, res) {
                         res.should.have.status(200);
                         let imageFromServerDemouser2 = res.body.toString('base64');
-                        let originalData = avatar.new_avatar.replace(/^data:image\/png;base64,/, "");
-
-                        let originalDataMD5 = md5(imageFromServerDemouser2);
-                        let imageFromServerMD5 = md5(imageFromServer);
-                        originalDataMD5.should.not.equal(imageFromServerMD5);
+                        let imageFromServerDemouser2MD5 = md5(imageFromServerDemouser2);
+                        imageFromServerDemouser2MD5.should.not.equal(originalDataMD5);
                         done();
                     });
                 });
