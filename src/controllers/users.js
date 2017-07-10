@@ -470,15 +470,24 @@ exports.get_avatar = function (req, res) {
                 if (!user.ddr.hasAvatar) {
                     //User does not have an avatar
                     /*res.writeHead(200,
-                        {
-                            'Content-disposition': 'filename="' + "avatar" + "\"",
-                            'Content-type': "image/png"
-                        });*/
+                     {
+                     'Content-disposition': 'filename="' + "avatar" + "\"",
+                     'Content-type': "image/png"
+                     });*/
 
                     var absPathOfFileToServe = Config.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
                     var fileStream = fs.createReadStream(absPathOfFileToServe);
 
-                    var stream = fileStream.pipe(res);
+                    var filename = path.basename(absPathOfFileToServe);
+
+                    res.writeHead(200, {
+                        "Content-Type": "application/octet-stream",
+                        "Content-Disposition": "attachment; filename=" + filename
+                    });
+
+                    fileStream.pipe(res);
+
+                    /*var stream = fileStream.pipe(res);
 
                     stream.on('close', function (err, data) {
                         res.writeHead(200,
@@ -486,7 +495,7 @@ exports.get_avatar = function (req, res) {
                                 'Content-disposition': 'filename="' + "avatar" + "\"",
                                 'Content-type': "image/png"
                             });
-                    });
+                    });*/
                 }
                 else {
                     //User has an avatar
@@ -495,15 +504,34 @@ exports.get_avatar = function (req, res) {
                             var fileStream = fs.createReadStream(avatarFilePath);
                             var filename = path.basename(avatarFilePath);
 
-                            var stream = fileStream.pipe(res);
+                            /*var stream = fileStream.pipe(res);
 
-                            stream.on('close', function (err, data) {
-                                res.writeHead(200,
-                                    {
-                                        'Content-disposition': 'filename="' + filename + "\"",
-                                        'Content-type': path.extname(filename)
-                                    });
+                             stream.on('close', function (err, data) {
+                             res.writeHead(200,
+                             {
+                             'Content-disposition': 'filename="' + filename + "\"",
+                             'Content-type': path.extname(filename)
+                             });
+                             });*/
+
+                            /*res.writeHead(200, {
+                                "Content-Type": "application/octet-stream",
+                                "Content-Disposition": "attachment; filename=" + filename
+                            });*/
+
+                            /*res.writeHead(200, {
+                                "Content-Type": "application/octet-stream",
+                                "Content-Disposition": "attachment; filename=" + filename
+                            });*/
+
+                            res.writeHead(200, {
+                                "Content-Type": "application/octet-stream",
+                                "Connection": "keep-alive",
+                                /*"Content-Disposition": "attachment; filename=" + filename*/
+                                "Content-Disposition": "attachment; filename=" + filename
                             });
+
+                            fileStream.pipe(res);
                         }
                         else {
                             res.status(500).json({
@@ -586,8 +614,7 @@ exports.edit = function (req, res, next) {
                             user.foaf.mbox = req.body.email;
                             callback(null, null);
                         }
-                        else
-                        {
+                        else {
                             let msg = "Invalid email format!";
                             callback(true, msg);
                         }
@@ -618,7 +645,7 @@ exports.edit = function (req, res, next) {
                                         let msg = "Error encrypting password";
                                         console.error(msg);
                                         /*req.flash('error', msg);
-                                        res.redirect('/me');*/
+                                         res.redirect('/me');*/
                                         callback(true, msg);
                                     }
                                 });
@@ -631,45 +658,37 @@ exports.edit = function (req, res, next) {
                                 callback(true, msg);
                             }
                         }
-                        else
-                        {
-                            callback(null,null);
+                        else {
+                            callback(null, null);
                         }
                     }
                 ], function (err, results) {
-                    if(!err)
-                    {
+                    if (!err) {
                         user.save(function (err, editedUser) {
                             if (!err) {
                                 req.flash('success', "User " + editedUser.ddr.username + " edited.");
                                 console.log("User " + editedUser.ddr.username + " edited.");
                                 //res.redirect('/me');
-                                if(changedPassword)
-                                {
+                                if (changedPassword) {
                                     req.flash('info', "Since you changed your password, you need to login again!");
                                     auth.logout(req, res);
                                 }
-                                else
-                                {
+                                else {
                                     req.body.username = editedUser.ddr.username;
-                                    if(req.user instanceof User)
-                                    {
-                                        req.logIn(user, function(err) {
-                                            if (!err)
-                                            {
+                                    if (req.user instanceof User) {
+                                        req.logIn(user, function (err) {
+                                            if (!err) {
                                                 res.redirect('back');
                                             }
-                                            else
-                                            {
-                                                var msg = "Error updating user session. Error reported:  " +  JSON.stringify(err);
+                                            else {
+                                                var msg = "Error updating user session. Error reported:  " + JSON.stringify(err);
                                                 console.error(msg);
                                                 req.flash('error', msg);
                                                 auth.logout(req, res);
                                             }
                                         });
                                     }
-                                    else
-                                    {
+                                    else {
                                         req.flash('info', "Session was lost! Please login again.");
                                         auth.logout(req, res);
                                     }
@@ -683,8 +702,7 @@ exports.edit = function (req, res, next) {
                             }
                         });
                     }
-                    else
-                    {
+                    else {
                         var msg = "Error editing user " + user.uri + ". Error reported :" + JSON.stringify(results);
                         console.error(msg);
                         req.flash('error', msg);
@@ -728,7 +746,14 @@ var getAvatarFromGfs = function (user, callback) {
 
                     gfs.connection.get(avatarUri, writeStream, function (err, result) {
                         if (!err) {
-                            callback(null, avatarFilePath);
+                            writeStream.on('error', function (err) {
+                                console.log("Deu error");
+                                callback(err, result);
+                            }).on('finish', function () {
+                                console.log("Deu finish");
+                                callback(null, avatarFilePath);
+                            });
+                            //callback(null, avatarFilePath);
                         }
                         else {
                             let msg = "Error getting the avatar file from GridFS for user " + user.uri;
@@ -765,25 +790,56 @@ var uploadAvatarToGrifs = function (user, avatarUri, base64Data, extension, call
                 fs.writeFile(avatarFilePath, base64Data, 'base64', function (error) {
                     if (!error) {
                         var readStream = fs.createReadStream(avatarFilePath);
-                        gfs.connection.put(
-                            avatarUri,
-                            readStream,
-                            function (err, result) {
-                                if (err != null) {
-                                    var msg = "Error saving avatar file in GridFS :" + result + " for user " + user.uri;
-                                    console.error(msg);
-                                    callback(err, msg);
+                        readStream.on('open', function () {
+                            // This just pipes the read stream to the response object (which goes to the client)
+                            console.log("readStream is ready");
+                            gfs.connection.put(
+                                avatarUri,
+                                readStream,
+                                function (err, result) {
+                                    if (err != null) {
+                                        var msg = "Error saving avatar file in GridFS :" + result + " for user " + user.uri;
+                                        console.error(msg);
+                                        callback(err, msg);
+                                    }
+                                    else {
+                                        callback(null, result);
+                                    }
+                                },
+                                {
+                                    user: user.uri,
+                                    fileExtension: extension,
+                                    type: "nie:File"
                                 }
-                                else {
-                                    callback(null, result);
-                                }
-                            },
-                            {
-                                user: user.uri,
-                                fileExtension: extension,
-                                type: "nie:File"
-                            }
-                        );
+                            );
+                        });
+
+                        // This catches any errors that happen while creating the readable stream (usually invalid names)
+                        readStream.on('error', function(err) {
+                            var msg = "Error creating readStream for avatar :" + err + " for user " + user.uri;
+                            console.error(msg);
+                            callback(err, msg);
+                        });
+
+                        /*gfs.connection.put(
+                         avatarUri,
+                         readStream,
+                         function (err, result) {
+                         if (err != null) {
+                         var msg = "Error saving avatar file in GridFS :" + result + " for user " + user.uri;
+                         console.error(msg);
+                         callback(err, msg);
+                         }
+                         else {
+                         callback(null, result);
+                         }
+                         },
+                         {
+                         user: user.uri,
+                         fileExtension: extension,
+                         type: "nie:File"
+                         }
+                         );*/
                     }
                     else {
                         let msg = "Error when creating a temp file for the avatar upload";

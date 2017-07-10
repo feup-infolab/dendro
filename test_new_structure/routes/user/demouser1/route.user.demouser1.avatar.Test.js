@@ -22,27 +22,15 @@ describe("[GET] /user/demouser1/avatar", function (done) {
         });
     });
 
-    it("[JSON] should give an unauthorized error if the current user is not authenticated", function (done) {
+    it("[HTML] should give an unauthorized error if the current user is not authenticated", function (done) {
 
     });
 
-    it("[JSON] should give a not found error if the avatar is from a user that does not exist and if the current user is authenticated", function (done) {
+    it("[HTML] should give a not found error if the avatar is from a user that does not exist and if the current user is authenticated", function (done) {
 
     });
 
-    it("[JSON] should give an unauthorized error if the avatar is from a user that does not exist and if the current user is not authenticated", function (done) {
-
-    });
-
-    it("[JSON] should give the avatar for demouser1 if the current user is authenticated", function (done) {
-
-    });
-
-    it("[JSON] should give the avatar for demouser2 if the current user is authenticated", function (done) {
-
-    });
-
-    it("[JSON] should give the avatar for demouser2 if the current user is authenticated", function (done) {
+    it("[HTML] Should give the avatar of demouser2 if the user is authenticated", function (done) {
 
     });
 
