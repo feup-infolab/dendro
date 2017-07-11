@@ -54,7 +54,7 @@ Cache.initConnections = function(callback)
                                             console.log("[OK] Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " +  mongoDBConnection.host + ":" + mongoDBConnection.port);
 
                                             newMongoCacheConnection.deleteAll(function(err, result){
-                                                if(!err)
+                                                if(isNull(err))
                                                 {
                                                     Cache.caches[cacheId] = newMongoCacheConnection;
                                                     Cache.cachesByGraphUri[graphUri] = newMongoCacheConnection;
@@ -88,7 +88,7 @@ Cache.initConnections = function(callback)
 
 
                                             newRedisCacheConnection.deleteAll(function (err, result) {
-                                                if (!err) {
+                                                if (isNull(err)) {
                                                     console.log("[INFO] Deleted all cache records on Redis instance " + newRedisConnection.id);
                                                     Cache.caches[cacheId] = newRedisConnection;
                                                     Cache.cachesByGraphUri[graphUri] = newRedisConnection;
@@ -131,7 +131,7 @@ Cache.initConnections = function(callback)
             }
         },
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 console.log("[INFO] All Cache instances are up and running!");
                 return callback(null);

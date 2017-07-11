@@ -106,11 +106,11 @@ const loadRoutes = function(app, passport, recommendation, callback)
 
                     const bcrypt = require('bcryptjs');
                     bcrypt.hash(password, user.ddr.salt, function(err, hashedPassword) {
-                        if(!err) {
+                        if(isNull(err)) {
                             if (!isNull(user)) {
                                 if (user.ddr.password === hashedPassword) {
                                     user.isAdmin(function (err, isAdmin) {
-                                        if (!err) {
+                                        if (isNull(err)) {
                                             return done(
                                                 err,
                                                 user,
@@ -963,7 +963,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
             fs.exists(requestedEJSPath, function(exists) {
                 if (exists) {
                     fs.readFile(requestedEJSPath, 'utf-8', function(err, data) {
-                        if(!err) {
+                        if(isNull(err)) {
                             const ejs = require('ejs');
                             res.send(ejs.render(data, { locals : res.locals} ));
                         }

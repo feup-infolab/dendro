@@ -74,7 +74,7 @@ exports.recommend_descriptors = function(req, res) {
                                 }
                             },
                             function (err, interaction) {
-                                if (!err && !isNull(interaction)) {
+                                if (isNull(err) && !isNull(interaction)) {
                                     interaction.save(function (err, interaction) {
                                         if (err) {
                                             console.err("Unable to record interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list. ");
@@ -92,7 +92,7 @@ exports.recommend_descriptors = function(req, res) {
             const allowedOntologies = getAllowedOntologies();
 
             exports.shared.recommend_descriptors(req.params.requestedResourceUri, req.user.uri, req.query.page, allowedOntologies, req.index, function(err, descriptors){
-                if(!err)
+                if(isNull(err))
                 {
                     registerRecommendationRequestInteraction();
 
@@ -194,7 +194,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
              */
             const getUsersMostUsedDescriptors = function (userUri, callback) {
                 User.findByUri(userUri, function (err, user) {
-                    if (!err) {
+                    if (isNull(err)) {
                         user.mostRecentlyFilledInDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, mostRecentlyFilledIn) {
                             return callback(error, mostRecentlyFilledIn);
                         }, allowedOntologies);
@@ -214,7 +214,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
              */
             const getUsersFavoriteDescriptors = function (userUri, callback) {
                 User.findByUri(userUri, function (err, user) {
-                    if (!err) {
+                    if (isNull(err)) {
                         user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
                             return callback(error, favorites);
                         }, allowedOntologies);
@@ -233,7 +233,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
              */
             const getUsersHiddenDescriptors = function (userUri, callback) {
                 User.findByUri(userUri, function (err, user) {
-                    if (!err) {
+                    if (isNull(err)) {
                         user.hiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
                             return callback(error, hidden);
                         }, allowedOntologies);
@@ -254,7 +254,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 const Project = require('./project.js').Project;
 
                 Project.findByUri(projectUri, function (err, project) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (!isNull(project)) {
                             project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
                                 return callback(error, favorites);
@@ -278,7 +278,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 const Project = require('./project.js').Project;
 
                 Project.findByUri(projectUri, function (err, project) {
-                    if (!err) {
+                    if (!isNull(err)) {
                         if (!isNull(project)) {
                             project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
                                 return callback(error, hidden);
@@ -310,11 +310,11 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                 );
 
                 resource.getTextuallySimilarResources(indexConnection, Config.limits.index.maxResults, function (err, similarResources) {
-                    if (!err && !isNull(similarResources) && similarResources instanceof Array) {
+                    if (!isNull(err) && !isNull(similarResources) && similarResources instanceof Array) {
                         //get properties of the similar resources
                         const getDescriptorsOfSimilarResources = function (resource, callback) {
                             resource.getPropertiesFromOntologies(allowedOntologies, function (err, descriptors) {
-                                if (!err) {
+                                if (isNull(err)) {
                                     for (let i = 0; i < descriptors.length; i++) {
                                         descriptors[i].recommendation_types = {};
                                         descriptors[i].recommendation_types[Descriptor.recommendation_types.from_textually_similar.key] = true;
@@ -342,7 +342,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
              */
             const getUsersMostAcceptedFavoriteDescriptorsInMetadataEditor = function (userUri, callback) {
                 User.findByUri(userUri, function (err, user) {
-                    if (!err) {
+                    if (isNull(isNull(err))) {
                         user.mostAcceptedFavoriteDescriptorsInMetadataEditor(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
                             return callback(error, hidden);
                         }, allowedOntologies);
@@ -360,7 +360,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
              */
             const getUsersMostAcceptedSmartDescriptorsInMetadataEditor = function (userUri, callback) {
                 User.findByUri(userUri, function (err, user) {
-                    if (!err) {
+                    if (isNull(err)) {
                         user.mostAcceptedSmartDescriptorsInMetadataEditor(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
                             return callback(error, hidden);
                         }, allowedOntologies);
@@ -418,7 +418,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                  */
                 function (err, results)
                 {
-                    if (!err)
+                    if (isNull(err))
                     {
                         /**
                          * fill in with random descriptors from the currently
@@ -630,7 +630,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                             const numberOfDescriptorsRequiredForPadding = Config.recommendation.recommendation_page_size - results.length;
 
                             Descriptor.getRandomDescriptors(allowedOntologies, numberOfDescriptorsRequiredForPadding, function (err, randomDescriptors) {
-                                if (!err && !isNull(randomDescriptors)) {
+                                if (isNull(err) && !isNull(randomDescriptors)) {
                                     results = results.concat(randomDescriptors);
                                     return callback(err, results);
                                 }

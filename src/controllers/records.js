@@ -39,7 +39,7 @@ exports.show_deep = function(req, res) {
             });
 
             requestedResource.findMetadataRecursive(function(err, result){
-                if(!err){
+                if(isNull(err)){
 
                     const accept = req.header('Accept');
                     let serializer = null;
@@ -95,7 +95,7 @@ exports.show = function(req, res) {
         });
 
         requestedResource.findMetadata(function(err, result){
-            if(!err){
+            if(isNull(err)){
 
                 const accept = req.header('Accept');
                 let serializer = null;
@@ -141,12 +141,12 @@ exports.show_parent = function(req, res) {
             const requestedResourceURI = req.params.requestedResourceUri;
 
             InformationElement.findByUri(requestedResourceURI, function(err, ie){
-                if(!err)
+                if(isNull(err))
                 {
                     if(!isNull(ie))
                     {
                         ie.getParent(function(err, parent){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 if(!isNull(parent) && parent instanceof Object)
                                 {
@@ -154,7 +154,7 @@ exports.show_parent = function(req, res) {
                                         Ontology.getPublicOntologiesUris(),
                                         function(err, descriptors)
                                         {
-                                            if(!err)
+                                            if(isNull(err))
                                             {
                                                 //remove sensitive descriptors
                                                 for(let i = 0 ; i < descriptors.length ; i++)
@@ -233,7 +233,7 @@ exports.update = function(req, res) {
 
         InformationElement.findByUri(requestedResourceURI, function(err, resource)
         {
-            if(!err)
+            if(isNull(err))
             {
                 if(!isNull(resource))
                 {
@@ -274,7 +274,7 @@ exports.update = function(req, res) {
 
                         Descriptor.mergeDescriptors(descriptors, function(err, fusedDescriptors)
                         {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 let changeAuthor;
                                 if(!isNull(req.user))
@@ -286,11 +286,11 @@ exports.update = function(req, res) {
 
                                 resource.save(function(err, record)
                                 {
-                                    if(!err)
+                                    if(isNull(err))
                                     {
                                         record.reindex(req.index, function(err, result)
                                         {
-                                            if(!err)
+                                            if(isNull(err))
                                             {
                                                 //Refresh metadata evaluation
                                                 require(Pathfinder.absPathInSrcFolder("/controllers/evaluation.js")).shared.evaluate_metadata(req, function(err, evaluation)
@@ -301,7 +301,7 @@ exports.update = function(req, res) {
                                                         resource.ddr.metadataQuality = evaluation.metadata_evaluation;
                                                         resource.save(function (err, result)
                                                         {
-                                                            if (!err)
+                                                            if (isNull(err))
                                                             {
                                                                 res.json({
                                                                     result: "OK",
@@ -471,7 +471,7 @@ exports.restore_metadata_version = function(req, res) {
 
         Resource.findByUri(requestedResourceURI, function(err, resource)
         {
-            if(!err)
+            if(isNull(err))
             {
                 //if resource exists
                 if(!isNull(resource))
@@ -479,7 +479,7 @@ exports.restore_metadata_version = function(req, res) {
                     if(!isNull(requestedVersion) && typeof requestedVersion === 'number' && requestedVersion%1 === 0)
                     {
                         ArchivedResource.findByResourceAndVersionNumber(requestedResourceURI, requestedVersion, function(err, version){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 if(!isNull(version))
                                 {
@@ -496,7 +496,7 @@ exports.restore_metadata_version = function(req, res) {
                                     }
 
                                     resource.restoreFromArchivedVersion(version, function(err, result){
-                                        if(!err)
+                                        if(isNull(err))
                                         {
                                             res.status(200).json({
                                                 result : "OK",

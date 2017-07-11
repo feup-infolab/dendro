@@ -287,7 +287,7 @@ Descriptor.findByUri = function(uri, callback)
                 }*/
             ],
             function(err, descriptors) {
-                if(!err)
+                if(isNull(err))
                 {
                     if(descriptors.length === 0)
                     {
@@ -422,7 +422,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 
     db.connection.execute(query, args,
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const formattedResults = [];
 
@@ -450,7 +450,7 @@ Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number
             cb(err, descriptors);
         });
     },function(err, results){
-        if(!err)
+        if(isNull(err))
         {
             let flat = _.flatten(results);
 
@@ -751,7 +751,7 @@ Descriptor.mergeDescriptors = function(descriptorsArray, callback)
 
     const getFullDescriptor = function (descriptor, cb) {
         Descriptor.findByUri(descriptor.uri, function (err, fullDescriptor) {
-            if (!err && !isNull(fullDescriptor) && fullDescriptor instanceof Descriptor) {
+            if (isNull(err) && !isNull(fullDescriptor) && fullDescriptor instanceof Descriptor) {
                 fullDescriptor.value = descriptor.value;
                 cb(null, fullDescriptor);
             }
@@ -848,7 +848,7 @@ Descriptor.getRandomDescriptors = function(allowedOntologies, numberOfDescriptor
                 {
                     Descriptor.findByUri(randomDescriptor.uri, function(err, descriptor)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(!isNull(descriptor) && isNull(descriptor.error))
                             {
@@ -942,7 +942,7 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
         argumentsArray,
 
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const createDescriptor = function (result, callback) {
 
@@ -971,7 +971,7 @@ Descriptor.mostUsedPublicDescriptors = function(maxResults, callback, allowedOnt
 
                 async.map(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
@@ -1038,7 +1038,7 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
         argumentsArray,
 
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const createDescriptor = function (result, callback) {
                     Descriptor.findByUri(result.uri, function (err, descriptor) {
@@ -1048,7 +1048,7 @@ Descriptor.findByLabelOrComment = function(filterValue, maxResults, callback, al
 
                 async.map(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, fullDescriptors);
                     }
@@ -1078,7 +1078,7 @@ Descriptor.validateDescriptorParametrization = function(callback)
         {
             Descriptor.all_in_ontology(ontology, function(err, descriptors)
             {
-                if (!err)
+                if (isNull(err))
                 {
                     for(let i = 0; i < descriptors.length; i++)
                     {

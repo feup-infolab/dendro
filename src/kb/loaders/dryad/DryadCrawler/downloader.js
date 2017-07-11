@@ -21,7 +21,7 @@ const makeRequestAndSaveToFile = function (url, absolutePath) {
     sem.take(function () {
         console.log("Sending request to " + url + "   ... and saving to file " + absolutePath);
         request(url, function (error, response, body) {
-            if (!error && response.statusCode === 200) {
+            if (isNull(err)or && response.statusCode === 200) {
                 fs.writeFile(absolutePath, body, function (err) {
                     sem.leave();
 

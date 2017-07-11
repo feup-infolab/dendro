@@ -31,10 +31,10 @@ module.exports.setup = function(finish)
         else
         {
             userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
-                if(!err)
+                if(isNull(err))
                 {
                     postsUtils.getAllPostsFromUserProjects(true, agent, function (err, res) {
-                        if(!err)
+                        if(isNull(err))
                         {
                             async.mapSeries(res.body, function (post, cb) {
                                 postsUtils.likeOrUnlikeAPost(true, agent, post.uri, function (err, res) {

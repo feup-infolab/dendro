@@ -33,7 +33,7 @@ exports.download = function(req, res){
 
     const downloadFolder = function (requestedResourceURI, res) {
         Folder.findByUri(requestedResourceURI, function (err, folderToDownload) {
-            if (!err) {
+            if (isNull(err)) {
                 const mimeType = Config.mimeType("zip");
                 const fileName = folderToDownload.nie.title + ".zip";
 
@@ -75,7 +75,7 @@ exports.download = function(req, res){
                     }
                 ],
                 function (err, results) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (!isNull(results) && !isNull(results[0])) {
                             var writtenFilePath = results[0];
 
@@ -134,18 +134,18 @@ exports.download = function(req, res){
     {
         InformationElement.getType(requestedResourceURI,
             function(err, type){
-                if(!err)
+                if(isNull(err))
                 {
                     const path = require('path');
                     if(type === File)
                     {
                         File.findByUri(requestedResourceURI, function(err, file){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 const mimeType = Config.mimeType(file.ddr.fileExtension);
                                 file.writeToTempFile(function(err, writtenFilePath)
                                 {
-                                    if(!err)
+                                    if(isNull(err))
                                     {
                                         if(!isNull(writtenFilePath))
                                         {
@@ -241,7 +241,7 @@ exports.serve = function(req, res){
 
     const downloadFolder = function (requestedResourceURI, res) {
         Folder.findByUri(requestedResourceURI, function (err, folderToDownload) {
-            if (!err) {
+            if (isNull(err)) {
                 const mimeType = Config.mimeType("zip");
                 const fileName = folderToDownload.nie.title + ".zip";
 
@@ -255,7 +255,7 @@ exports.serve = function(req, res){
                 const includeMetadata = (!isNull(req.query.backup));
 
                 folderToDownload.zipAndDownload(includeMetadata, function (err, writtenFilePath) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (!isNull(writtenFilePath)) {
                             const fs = require('fs');
                             const fileStream = fs.createReadStream(writtenFilePath);
@@ -312,19 +312,19 @@ exports.serve = function(req, res){
     {
         InformationElement.getType(requestedResourceURI,
             function(err, type){
-                if(!err)
+                if(isNull(err))
                 {
                     const path = require('path');
                     if(type === File)
                     {
                         File.findByUri(requestedResourceURI, function(err, file){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 const mimeType = Config.mimeType(file.ddr.fileExtension);
 
                                 file.writeToTempFile(function(err, writtenFilePath)
                                 {
-                                    if(!err)
+                                    if(isNull(err))
                                     {
                                         if(!isNull(writtenFilePath))
                                         {
@@ -415,19 +415,19 @@ exports.serve_base64 = function(req, res){
 
     InformationElement.getType(requestedResourceURI,
         function(err, type){
-            if(!err)
+            if(isNull(err))
             {
                 const path = require('path');
                 if(type === File)
                 {
                     File.findByUri(requestedResourceURI, function(err, file){
-                        if(!err)
+                        if(isNull(err))
                         {
                             const mimeType = Config.mimeType(file.ddr.fileExtension);
 
                             file.writeToTempFile(function(err, writtenFilePath)
                             {
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     if(!isNull(writtenFilePath))
                                     {
@@ -521,7 +521,7 @@ exports.get_thumbnail = function(req, res) {
     const size = req.query.size;
 
     File.findByUri(requestedResourceURI, function(err, file){
-        if(!err)
+        if(isNull(err))
         {
             if(!isNull(file))
             {
@@ -531,7 +531,7 @@ exports.get_thumbnail = function(req, res) {
                 {
                     file.getThumbnail(size, function(err, writtenFilePath)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(!isNull(writtenFilePath))
                             {
@@ -637,7 +637,7 @@ exports.upload = function(req, res)
                         {
                             upload.restart(function (err, result)
                             {
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     res.json({
                                         size: upload.loaded
@@ -703,7 +703,7 @@ exports.upload = function(req, res)
                         req.params.requestedResourceUri,
                         function (err, newUpload)
                         {
-                            if (!err)
+                            if (isNull(err))
                             {
                                 res.json({
                                     size: newUpload.loaded,
@@ -790,7 +790,7 @@ exports.upload = function(req, res)
 
                     /* Async usage */
                     md5File(file.path, function (err, hash) {
-                        if (!err) {
+                        if (isNull(err)) {
                             if (typeof hash !== upload.md5_checksum) {
                                 return callback(400, {
                                     result: "error",
@@ -807,12 +807,12 @@ exports.upload = function(req, res)
                                             if (isNull(err)) {
                                                 console.log("File " + newFile.uri + " is now saved in GridFS");
                                                 newFile.connectToMongo(function (err, db) {
-                                                    if (!err) {
+                                                    if (isNull(err)) {
                                                         newFile.findFileInMongo(db, function (error, fileVersionsInMongoDb) {
-                                                            if (!error) {
+                                                            if (isNull(error)) {
                                                                 async.map(fileVersionsInMongoDb, function (fileVersion, cb) {
                                                                     FileVersion.findByUri(fileVersion.filename, function (err, fileVersion) {
-                                                                        if (!err) {
+                                                                        if (isNull(err)) {
                                                                             if (isNull(fileVersion)) {
                                                                                 console.log('FileinfoFromMongo: ', fileVersion);
                                                                                 const newFileVersion = new FileVersion({
@@ -835,7 +835,7 @@ exports.upload = function(req, res)
                                                                                 });
 
                                                                                 newFileVersion.save(function (err, fileVersion) {
-                                                                                    if (!err) {
+                                                                                    if (isNull(err)) {
                                                                                         cb(null, fileVersion);
                                                                                     }
                                                                                     else {
@@ -852,7 +852,7 @@ exports.upload = function(req, res)
                                                                         }
                                                                     });
                                                                 }, function (err, results) {
-                                                                    if (!err) {
+                                                                    if (isNull(err)) {
                                                                         return callback(null, {
                                                                             result: "success",
                                                                             message: "File submitted successfully. Message returned : " + result,
@@ -983,7 +983,7 @@ exports.upload = function(req, res)
                     console.log('got file named ' + part.name);
 
                     upload.pipe(part, function(err){
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(upload.is_finished())
                             {
@@ -1175,7 +1175,7 @@ exports.restore = function(req, res){
 
                     Folder.findByUri(requestedResourceUri, function(err, folder)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(isNull(folder))
                             {
@@ -1185,10 +1185,10 @@ exports.restore = function(req, res){
                             }
 
                             User.findByUri(req.user, function(err, user){
-                                if(!err && user instanceof User)
+                                if(isNull(err) && user instanceof User)
                                 {
                                     folder.restoreFromLocalBackupZipFile(tempFilePath, user, function(err, result){
-                                        if(!err)
+                                        if(isNull(err))
                                         {
                                             const msg = "Successfully restored zip file to folder " + requestedResourceUri + " : " + result;
                                             console.log(msg);
@@ -1281,7 +1281,7 @@ exports.rm = function(req, res){
         if(!isNull(resourceToDelete))
         {
             InformationElement.findByUri(resourceToDelete, function(err, result){
-                if(!err)
+                if(isNull(err))
                 {
                     if(isNull(result))
                     {
@@ -1295,7 +1295,7 @@ exports.rm = function(req, res){
                         function deleteFolder(callback)
                         {
                             Folder.findByUri(resourceToDelete, function(err, folder){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     if(isNull(folder))
                                     {
@@ -1314,7 +1314,7 @@ exports.rm = function(req, res){
                                         }
 
                                         folder.delete(function(err, result){
-                                            if(!err)
+                                            if(isNull(err))
                                             {
                                                 res.status(200).json({
                                                     "result" : "success",
@@ -1361,7 +1361,7 @@ exports.rm = function(req, res){
                         function deleteFile(callback)
                         {
                             File.findByUri(resourceToDelete, function(err, file){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     if(isNull(file))
                                     {
@@ -1376,7 +1376,7 @@ exports.rm = function(req, res){
                                         }
 
                                         file.delete(function(err, result){
-                                            if(!err)
+                                            if(isNull(err))
                                             {
                                                 res.status(200).json({
                                                     "result" : "success",
@@ -1467,7 +1467,7 @@ exports.undelete = function(req, res){
         {
             InformationElement.findByUri(resourceToUnDelete, function(err, result)
             {
-                if (!err)
+                if (isNull(err))
                 {
                     if (isNull(result))
                     {
@@ -1482,11 +1482,11 @@ exports.undelete = function(req, res){
                         {
                             File.findByUri(resourceToUnDelete, function (err, file)
                             {
-                                if (!err)
+                                if (isNull(err))
                                 {
                                     file.undelete(function (err, result)
                                     {
-                                        if (!err)
+                                        if (isNull(err))
                                         {
                                             res.status(200).json({
                                                 "result": "success",
@@ -1524,11 +1524,11 @@ exports.undelete = function(req, res){
                         {
                             Folder.findByUri(resourceToUnDelete, function (err, folder)
                             {
-                                if (!err)
+                                if (isNull(err))
                                 {
                                     folder.undelete(function (err, result)
                                     {
-                                        if (!err)
+                                        if (isNull(err))
                                         {
                                             res.status(200).json({
                                                 "result": "success",
@@ -1626,7 +1626,7 @@ exports.mkdir = function(req, res){
         let getProjectRootFolder = function(projectUri, callback)
         {
             Project.findByUri(projectUri, function(err, project){
-                if(!err)
+                if(isNull(err))
                 {
                     if(!isNull(project) || !(project instanceof Project))
                     {
@@ -1655,7 +1655,7 @@ exports.mkdir = function(req, res){
         {
             Folder.findByUri(parentFolderURI, function(err, parentFolder)
             {
-                if(!err && !isNull(parentFolder))
+                if(isNull(err) && !isNull(parentFolder))
                 {
                     const newChildFolder = new Folder({
                         nie: {
@@ -1675,11 +1675,11 @@ exports.mkdir = function(req, res){
                         ],
                         function(err, result)
                         {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 newChildFolder.save(function(err, result)
                                 {
-                                    if(!err)
+                                    if(isNull(err))
                                     {
                                         res.json(
                                             {
@@ -1776,10 +1776,10 @@ exports.ls = function(req, res){
     if(req.params.is_project_root)
     {
         Project.findByUri(resourceURI, function(err, project) {
-            if(!err)
+            if(isNull(err))
             {
                 project.getFirstLevelDirectoryContents(function(err, files){
-                    if(!err)
+                    if(isNull(err))
                     {
                         if(!show_deleted)
                         {
@@ -1811,12 +1811,12 @@ exports.ls = function(req, res){
     {
         Folder.findByUri(resourceURI, function(err, containingFolder)
         {
-            if(!err && !isNull(containingFolder))
+            if(isNull(err) && !isNull(containingFolder))
             {
                 containingFolder.getLogicalParts(function(err, children)
                 {
 
-                    if(!err)
+                    if(isNull(err))
                     {
                         if(!show_deleted)
                         {
@@ -1992,7 +1992,7 @@ exports.recent_changes = function(req, res) {
     {
         //const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
         InformationElement.findByUri(req.params.requestedResourceUri, function(err, fileOrFolder){
-            if(!err)
+            if(isNull(err))
             {
                 if(!isNull(fileOrFolder) && fileOrFolder instanceof InformationElement)
                 {
@@ -2005,7 +2005,7 @@ exports.recent_changes = function(req, res) {
                             if(!isNull(project) && project instanceof Project)
                             {
                                 project.getRecentProjectWideChanges(function(err, changes){
-                                    if(!err)
+                                    if(isNull(err))
                                     {
                                         res.json(changes);
                                     }
@@ -2065,13 +2065,13 @@ exports.data = function(req, res){
         const resourceURI = req.params.requestedResourceUri;
 
         File.findByUri(resourceURI, function(err, file){
-            if(!err)
+            if(isNull(err))
             {
                 const mimeType = Config.mimeType(file.ddr.fileExtension);
 
                 file.writeToTempFile(function(err, writtenFilePath)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         if(!isNull(writtenFilePath))
                         {

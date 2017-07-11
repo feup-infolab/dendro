@@ -108,7 +108,7 @@ Plugin.renderView = function(res, viewPath, dataObject)
             dataObject,
             function(error, html)
             {
-                if(!error)
+                if(isNull(error))
                 {
                     res.send(html);
                 }

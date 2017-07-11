@@ -28,7 +28,7 @@ function parseFile(dbConnection, fileName, cb)
 
                         parser.parse(line,
                             function (err, triple) {
-                                if (triple && !err)
+                                if (triple && isNull(err))
                                 {
                                     return callback(null, triple);
                                 }

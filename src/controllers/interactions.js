@@ -42,10 +42,10 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
             const projectUri = ie.getOwnerProjectFromUri();
 
             Project.findByUri(projectUri, function (err, project) {
-                if (!err) {
+                if (isNull(err)) {
                     if (!isNull(project)) {
                         project.getCreatorsAndContributors(function (err, contributors) {
-                            if (!err && !isNull(contributors) && contributors instanceof Array) {
+                            if (isNull(err) && !isNull(contributors) && contributors instanceof Array) {
                                 for (let i = 0; i < contributors.length; i++) {
                                     if (contributors[i].uri === user.uri) {
                                         const interaction = new Interaction({
@@ -62,9 +62,9 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                                         }, function (err, interaction) {
                                             interaction.save(
                                                 function (err, result) {
-                                                    if (!err) {
+                                                    if (isNull(err)) {
                                                         interaction.saveToMySQL(function (err, result) {
-                                                            if (!err) {
+                                                            if (isNull(err)) {
                                                                 const msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
                                                                 console.log(msg);
                                                                 res.json({
@@ -1480,7 +1480,7 @@ exports.fill_in_inherited_descriptor = function(req, res)
 exports.delete_all_interactions = function(req, res)
 {
     Interaction.deleteAllOfMyTypeAndTheirOutgoingTriples(function(err, result){
-        if(!err)
+        if(isNull(err))
         {
             res.json({
                 result : "OK",

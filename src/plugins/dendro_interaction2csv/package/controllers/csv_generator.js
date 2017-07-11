@@ -52,7 +52,7 @@ var streamingExportToCSVFile = function(queryFunction, csvMappingFunction, fileN
 
         File.createBlankTempFile(fileName, function(err, tempFileAbsPath){
             queryFunction(function(err, results, fetchNextPageCallback){
-                if(!err)
+                if(isNull(err))
                 {
                     const fs = require('fs');
 
@@ -80,7 +80,7 @@ var streamingExportToCSVFile = function(queryFunction, csvMappingFunction, fileN
                             });
                         }, function(err)
                         {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 fetchNextPageCallback(err);
                             }
@@ -132,7 +132,7 @@ var streamingExportToCSVFile = function(queryFunction, csvMappingFunction, fileN
 
 var sendFile = function(err, fileName, tempFileAbsPath, req, res)
 {
-    if(!err)
+    if(isNull(err))
     {
         console.log("Wrote headers to file..." + tempFileAbsPath);
         mimeType = Config.mimeType("csv");

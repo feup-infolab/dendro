@@ -47,7 +47,7 @@ exports.get_unread_user_notifications = function (req ,res) {
                 }
             ]),
             function(err, notifications) {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json(notifications);
                 }
@@ -107,7 +107,7 @@ exports.get_notification_info = function (req, res) {
                 }
             ]),
             function(err, notification) {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json(notification);
                 }
@@ -164,7 +164,7 @@ exports.delete = function (req, res) {
                 }
             ]),
             function(err, result) {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json({
                         result : "OK",

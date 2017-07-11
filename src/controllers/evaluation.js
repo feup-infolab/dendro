@@ -33,7 +33,7 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 exports.metadata_evaluation = function(req, res)
 {
     exports.shared.evaluate_metadata(req, function(err, evaluation){
-        if(!err)
+        if(isNull(err))
         {
             res.json(evaluation);
         }
@@ -78,7 +78,7 @@ exports.shared.evaluate_metadata = function(req, callback)
                 0,
                 recommendationOntologies,
                 req.index, function (err, descriptors) {
-                    if (!err) {
+                    if (isNull(err)) {
                         return callback(null, descriptors);
                     }
                     else {
@@ -96,7 +96,7 @@ exports.shared.evaluate_metadata = function(req, callback)
 
     const getMetadata = function (requestedResource, callback) {
         requestedResource.findMetadata(function (err, metadata) {
-            if (!err) {
+            if (isNull(err)) {
                 return callback(null, metadata);
             }
             else {
@@ -152,7 +152,7 @@ exports.shared.evaluate_metadata = function(req, callback)
     };
 
     const calculateQuality = function (err, requestedResource) {
-        if (!err) {
+        if (isNull(err)) {
             if (!isNull(requestedResource)) {
                 async.series([
 

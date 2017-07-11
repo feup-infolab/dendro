@@ -49,7 +49,7 @@ const getNumLikesForAFileVersion = function(fileVersionUri, cb) {
             }
         ]),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 cb(false, results);
             }
@@ -88,7 +88,7 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) 
             }
         ]),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 let likeExists = false;
                 if(results.length > 0)
@@ -130,7 +130,7 @@ const getSharesForAFileVersion = function (fileVersionUri, cb) {
             }
         ]),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 async.map(results, function(shareObject, callback){
                     Share.findByUri(shareObject.shareURI, function(err, share)
@@ -175,7 +175,7 @@ const numFileVersionsDatabaseAux = function (projectUrisArray, callback) {
                     }
                 ]),
                 function (err, results) {
-                    if (!err) {
+                    if (isNull(err)) {
                         return callback(err, results[0].count);
                     }
                     else {
@@ -196,13 +196,13 @@ exports.numFileVersionsInDatabase = function (req, res) {
     const currentUserUri = req.user.uri;
 
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
-        if(!err)
+        if(isNull(err))
         {
             async.map(projects, function (project, cb1) {
                 cb1(null, project.uri);
             }, function (err, fullProjectsUris) {
                 numFileVersionsDatabaseAux(fullProjectsUris, function (err, count) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         res.json(count);
                     }
@@ -258,7 +258,7 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
                     }
                 ]),
                 function (err, results) {
-                    if (!err) {
+                    if (isNull(err)) {
                         return callback(err, results);
                     }
                     else {
@@ -282,13 +282,13 @@ exports.all = function (req, res) {
     const maxResults = 5;
     
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
-       if(!err)
+       if(isNull(err))
        {
            async.map(projects, function (project, cb1) {
                cb1(null, project.uri);
            }, function (err, projectsUris) {
                getProjectFileVersions(projectsUris, index, maxResults, function (err, fileVersions) {
-                   if(!err)
+                   if(isNull(err))
                    {
                        res.json(fileVersions);
                    }
@@ -310,7 +310,7 @@ exports.getFileVersion = function (req, res) {
     const fileVersionUri = req.body.fileVersionUri;
 
     FileVersion.findByUri(fileVersionUri, function (err, fileVersion) {
-        if(!err)
+        if(isNull(err))
         {
             res.json(fileVersion);
         }
@@ -331,7 +331,7 @@ exports.fileVersionLikesInfo = function (req, res) {
     let resultInfo;
 
     getNumLikesForAFileVersion(fileVersionUri, function (err, likesArray) {
-        if(!err)
+        if(isNull(err))
         {
             if(likesArray.length)
             {
@@ -363,7 +363,7 @@ exports.like = function (req, res) {
     const currentUser = req.user;
 
     removeOrAdLikeFileVersion(fileVersionUri, currentUser.uri, function (err, likeExists) {
-        if(!err)
+        if(isNull(err))
         {
             if(likeExists)
             {
@@ -398,10 +398,10 @@ exports.like = function (req, res) {
 
                     newLike.save(function(err, resultLike)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             newNotification.save(function (error, resultNotification) {
-                                if(!error)
+                                if(isNull(error))
                                 {
                                     res.json({
                                         result : "OK",
@@ -461,7 +461,7 @@ const removeLikeInFileVersion = function (likeUri, currentUserUri, cb) {
             }
         ]),
         function (err, results) {
-            if (!err) {
+            if (isNull(err)) {
                 let likeExists = false;
                 if (results.length > 0) {
                     likeExists = true;
@@ -502,10 +502,10 @@ exports.comment = function (req, res) {
 
         newComment.save(function(err, resultComment)
         {
-            if(!err)
+            if(isNull(err))
             {
                 newNotification.save(function (error, resultNotification) {
-                    if(!error)
+                    if(isNull(error))
                     {
                         res.json({
                             result : "OK",
@@ -568,10 +568,10 @@ exports.share = function (req, res) {
 
         newShare.save(function(err, resultShare)
         {
-            if(!err)
+            if(isNull(err))
             {
                 newNotification.save(function (error, resultNotification) {
-                    if(!error)
+                    if(isNull(error))
                     {
                         res.json({
                             result : "OK",

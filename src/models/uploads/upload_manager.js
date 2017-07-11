@@ -26,7 +26,7 @@ UploadManager.add_upload = function(username, filename, size, md5_checksum, pare
             md5_checksum  : md5_checksum,
             parent_folder : parent_folder
     }, function(err, upload){
-        if(!err)
+        if(isNull(err))
         {
             const id = upload.id;
             UploadManager.__uploads[id] = upload;

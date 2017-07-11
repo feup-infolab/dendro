@@ -95,7 +95,7 @@ ArchivedResource.findByResourceAndVersionNumber = function(resourceUri, versionN
                     }
                 ],
                 function(err, results) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         if(results instanceof Array && results.length === 1)
                         {
@@ -129,11 +129,11 @@ ArchivedResource.findByUri = function(uri, callback)
 {
     ArchivedResource.baseConstructor.findByUri(uri, function(err, archivedResource)
     {
-        if(!err && !isNull(archivedResource))
+        if(isNull(err) && !isNull(archivedResource))
         {
             Change.findByAssociatedRevision(uri, function(err, changes)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     archivedResource = new ArchivedResource(JSON.parse(JSON.stringify(archivedResource)));
                     archivedResource.changes = changes;
@@ -159,7 +159,7 @@ ArchivedResource.prototype.getChanges = function(callback)
     const self = this;
     Change.findByAssociatedRevision(self.uri, function(err, changes)
     {
-        if(!err)
+        if(isNull(err))
         {
             return callback(null, changes);
         }
@@ -182,7 +182,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
 
     const getAuthorInformation = function (callback) {
         User.findByUri(authorUri, function (err, fullVersionCreator) {
-            if (!err) {
+            if (isNull(err)) {
                 Descriptor.removeUnauthorizedFromObject(fullVersionCreator, [Config.types.private], [Config.types.api_readable]);
                 archivedResource.ddr.versionCreator = fullVersionCreator;
                 return callback(null);
@@ -204,7 +204,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
     const getDescriptorInformation = function (callback) {
         const fetchFullDescriptor = function (change, cb) {
             Descriptor.findByUri(change.ddr.changedDescriptor, function (err, descriptor) {
-                if (!err) {
+                if (isNull(err)) {
                     change.ddr.changedDescriptor = descriptor;
                     cb(null, change);
                 }
@@ -216,7 +216,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
 
         if (!isNull(archivedResource.changes)) {
             async.map(archivedResource.changes, fetchFullDescriptor, function (err, fullChanges) {
-                if (!err) {
+                if (isNull(err)) {
                     archivedResource.changes = fullChanges;
                     Descriptor.removeUnauthorizedFromObject(archivedResource, [Config.types.private], [Config.types.api_readable]);
                     return callback(0);
@@ -233,7 +233,7 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
 
     const getVersionedResourceDetail = function (callback) {
         Resource.findByUri(self.ddr.isVersionOf, function (err, versionedResource) {
-            if (!err) {
+            if (isNull(err)) {
                 archivedResource.ddr.isVersionOf = versionedResource;
                 return callback(null);
             }

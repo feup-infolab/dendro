@@ -56,7 +56,7 @@ module.exports.setup = function(finish)
 
                 User.findByUsername(username, function (err, user) {
 
-                    if (!err && user !== null) {
+                    if (isNull(err) && user !== null) {
                         user.makeGlobalAdmin(function (err, result) {
                             callback(err, result);
                         });
@@ -74,7 +74,7 @@ module.exports.setup = function(finish)
                                 }
                             },
                             function (err, newUser) {
-                                if (!err && newUser !== null && newUser instanceof User) {
+                                if (isNull(err) && newUser !== null && newUser instanceof User) {
                                     newUser.makeGlobalAdmin(function (err, newUser) {
                                         callback(err, newUser);
                                     });
@@ -103,7 +103,7 @@ module.exports.setup = function(finish)
                         }
                     },
                     function (err, newUser) {
-                        if (!err && newUser != null) {
+                        if (isNull(err) && newUser != null) {
                             callback(null, newUser);
                         }
                         else {
@@ -114,7 +114,7 @@ module.exports.setup = function(finish)
             };
 
             async.mapSeries(Config.demo_mode.users, createUser, function(err, results) {
-                if(!err)
+                if(isNull(err))
                 {
                     async.series([
                             function(callback)
@@ -124,7 +124,7 @@ module.exports.setup = function(finish)
                             function(callback)
                             {
                                 async.mapSeries(Config.administrators, makeAdmin, function(err){
-                                    if(!err)
+                                    if(isNull(err))
                                     {
                                         console.log("[OK] Admins successfully loaded.");
                                     }
@@ -137,7 +137,7 @@ module.exports.setup = function(finish)
                             }
                         ],
                         function(err, results){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 end();
                                 finish(err, results);

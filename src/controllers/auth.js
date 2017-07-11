@@ -32,10 +32,10 @@ module.exports.login = function(req, res, next){
                 },
                 function(err, user, info)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         req.logIn(user, function(err) {
-                            if (!err)
+                            if (isNull(err))
                             {
                                 req.session.isAdmin = info.isAdmin;
                                 req.session.upload_manager = new UploadManager(user.ddr.username);
@@ -223,7 +223,7 @@ module.exports.register = function(req, res){
                 const findByUsername = function(callback)
                 {
                     User.findByUsername(req.body.username, function(err, user){
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(!isNull(user))
                             {
@@ -263,7 +263,7 @@ module.exports.register = function(req, res){
                 const findByORCID = function(callback)
                 {
                     User.findByORCID(req.body.orcid, function(err, user){
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(!isNull(user))
                             {
@@ -304,7 +304,7 @@ module.exports.register = function(req, res){
                 const insertUserRecord = function(userData, callback)
                 {
                     User.createAndInsertFromObject(userData, function(err, newUser){
-                        if(!err)
+                        if(isNull(err))
                         {
                             return callback(null, "New user " + userData.ddr.username +" created successfully. You can now login with the username and password you specified.");
                         }
@@ -341,7 +341,7 @@ module.exports.register = function(req, res){
 
                     }
                 ], function(err, user){
-                    if(!err)
+                    if(isNull(err))
                     {
                         res.render('/login', {
                             success_messages : [user]

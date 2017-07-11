@@ -16,7 +16,7 @@ DescriptorMapper.map = function(descriptorUri, callback)
 {
     Descriptor.findByUri(descriptorUri, function(err, descriptor){
 
-        if(!err && !isNull(descriptor))
+        if(isNull(err) && !isNull(descriptor))
         {
             let result = {
                 entity_type : {

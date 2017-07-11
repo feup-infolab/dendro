@@ -152,7 +152,7 @@ Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, 
         query,
         queryArguments,
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 async.map(results,
                     function(result, cb)
@@ -217,7 +217,7 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
             }
         ],
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 return callback(err, results);
             }
@@ -272,7 +272,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     }
                 ],
                 function(err, results) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         //Invalidate cache record for the updated resources
                         Cache.getByGraphUri(db).delete([self.uri, valueInPrefixedForm], function(err, result){
@@ -310,7 +310,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     }
                 ],
                 function(err, results) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         //Invalidate cache record for the updated resources
                         Cache.getByGraphUri(customGraphUri).delete([self.uri, valueInPrefixedForm], function(err, result){
@@ -360,7 +360,7 @@ Resource.prototype.descriptorValue = function(descriptorWithNamespaceSeparatedBy
             }
         ],
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 const extractedResults = [];
                 for(let i = 0; i < results.length; i++)
@@ -462,7 +462,7 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
     db.connection.execute(query,
         argumentsArray,
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
                 for (let i = 0; i < descriptors.length; i++)
@@ -568,7 +568,7 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
     db.connection.execute(query,
         argumentsArray,
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const formattedResults = [];
 
@@ -827,7 +827,7 @@ Resource.prototype.save = function
 
     const getMyLastSavedVersion = function (myUri, cb) {
         Resource.findByUri(myUri, function (err, currentResource) {
-            if (!err) {
+            if (isNull(err)) {
                 cb(err, currentResource);
             }
             else {
@@ -846,7 +846,7 @@ Resource.prototype.save = function
 
     const archiveResource = function (resourceToBeArchived, entityArchivingTheResource, changes, descriptorsToExcludeFromChangeLog, descriptorsToExceptionFromChangeLog, cb) {
         resourceToBeArchived.makeArchivedVersion(entitySavingTheResource, function (err, archivedResource) {
-            if (!err) {
+            if (isNull(err)) {
                 const saveChange = function (change, cb) {
                     const changedDescriptor = new Descriptor({
                         uri: change.ddr.changedDescriptor
@@ -879,7 +879,7 @@ Resource.prototype.save = function
                 };
 
                 async.map(changes, saveChange, function (err, results) {
-                    if (!err) {
+                    if (isNull(err)) {
                         archivedResource.save(function (err, savedArchivedResource) {
                             cb(err, savedArchivedResource);
                         });
@@ -917,7 +917,7 @@ Resource.prototype.save = function
             allDescriptors,
             graphUri,
             function (err, result) {
-                if (!err) {
+                if (isNull(err)) {
                     cb(null, self);
                 }
                 else {
@@ -932,7 +932,7 @@ Resource.prototype.save = function
         {
             validateValues(function(err, results)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     cb(err);
                 }
@@ -1017,7 +1017,7 @@ Resource.prototype.save = function
     ],
     function(err, result)
     {
-        if(!err)
+        if(isNull(err))
         {
             return callback(err, self);
         }
@@ -1244,7 +1244,7 @@ Resource.prototype.reindex = function(indexConnection, callback)
         true,
         function(err, results)
     {
-        if(!err && !isNull(results))
+        if(isNull(err) && !isNull(results))
         {
             const now = new Date();
 
@@ -1266,7 +1266,7 @@ Resource.prototype.reindex = function(indexConnection, callback)
 
             self.getIndexDocumentId(indexConnection, function(err, id)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     if(!isNull(id))
                     {
@@ -1278,7 +1278,7 @@ Resource.prototype.reindex = function(indexConnection, callback)
                         document,
                         function(err, result)
                         {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 infoMessages.push(results.length + " resources successfully reindexed in index " + indexConnection.index.short_name);
                                 return callback(null, infoMessages);
@@ -1330,7 +1330,7 @@ Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxR
 
     self.getIndexDocumentId(indexConnection, function(err, id)
     {
-        if(!err)
+        if(isNull(err))
         {
             if(!isNull(id))
             {
@@ -1339,7 +1339,7 @@ Resource.prototype.getTextuallySimilarResources = function(indexConnection, maxR
                     id,
                     function(err, results)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             let retrievedResources = Resource.restoreFromIndexResults(results);
 
@@ -1400,7 +1400,7 @@ Resource.findResourcesByTextQuery = function (
         queryObject,
         function(err, results)
         {
-            if(!err)
+            if(isNull(err))
             {
                 let retrievedResources = Resource.restoreFromIndexResults(results);
                 return callback(null, retrievedResources);
@@ -1464,7 +1464,7 @@ Resource.prototype.restoreFromIndexDocument = function(indexConnection, callback
         queryObject,
         function(err, hits)
         {
-            if(!err)
+            if(isNull(err))
             {
                 let id = null;
 
@@ -1519,7 +1519,7 @@ Resource.getUriFromHumanReadableUri = function(humanReadableUri, callback, custo
                 }
             ],
             function(err, results) {
-                if(!err)
+                if(isNull(err))
                 {
                     if(!isNull(results) && results instanceof Array)
                     {
@@ -1554,7 +1554,7 @@ Resource.getUriFromHumanReadableUri = function(humanReadableUri, callback, custo
     else
     {
         getFromCache(function(err, resourceUri){
-            if(!err && !isNull(resourceUri))
+            if(isNull(err) && !isNull(resourceUri))
             {
                 callback(null, resourceUri);
             }
@@ -1606,7 +1606,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                 ]
             },
             function (err, result) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (!isNull(result)) {
                             const resource = Object.create(self.prototype);
 
@@ -1634,7 +1634,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
 
     const saveToCache = function (uri, resource, callback) {
         Cache.getByGraphUri(customGraphUri).put(uri, resource, function (err) {
-            if (!err) {
+            if (isNull(err)) {
                 if (typeof callback === "function") {
                     return callback(null, resource);
                 }
@@ -1662,7 +1662,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
         }
 
         self.exists(uri, function (err, exists) {
-            if (!err) {
+            if (isNull(err)) {
                 if (exists) {
                     const resource = Object.create(self.prototype);
                     //initialize all ontology namespaces in the new object as blank objects
@@ -1674,7 +1674,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                      * TODO Handle the edge case where there is a resource with the same uri in different graphs in Dendro
                      */
                     resource.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject) {
-                        if (!err) {
+                        if (isNull(err)) {
                             resource.baseConstructor(loadedObject);
                             return callback(null, resource);
                         }
@@ -1728,7 +1728,7 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                 {
                     getFromTripleStore(uri, function(err, object)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(!isNull(object))
                             {
@@ -1826,7 +1826,7 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
             }
         ], function(err, versions)
         {
-            if(!err)
+            if(isNull(err))
             {
                 const getVersionContents = function (versionRow, cb) {
                     const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
@@ -1837,7 +1837,7 @@ Resource.prototype.getArchivedVersions = function(offset, limit, callback, custo
 
                 async.map(versions, getVersionContents, function(err, formattedVersions)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, formattedVersions);
                     }
@@ -1862,11 +1862,11 @@ Resource.prototype.getLatestArchivedVersion = function(callback)
 {
     const self = this;
     self.getArchivedVersions(0, 1, function(err, latestRevisionArray){
-        if(!err && latestRevisionArray instanceof Array && latestRevisionArray.length === 1)
+        if(isNull(err) && latestRevisionArray instanceof Array && latestRevisionArray.length === 1)
         {
             return callback(null, latestRevisionArray[0]);
         }
-        else if(!err && latestRevisionArray instanceof Array && latestRevisionArray.length === 0)
+        else if(isNull(err) && latestRevisionArray instanceof Array && latestRevisionArray.length === 0)
         {
             return callback(null, null);
         }
@@ -1884,7 +1884,7 @@ Resource.prototype.makeArchivedVersion = function(entitySavingTheResource, callb
     const self = this;
     self.getLatestArchivedVersion(function(err, latestArchivedVersion)
     {
-        if(!err)
+        if(isNull(err))
         {
             let newVersionNumber;
             if(isNull(latestArchivedVersion))
@@ -2208,7 +2208,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                     }
                 ],
                 function (err, result) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (result === true) {
                             return callback(null, true);
                         }
@@ -2227,7 +2227,7 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
         };
 
         Cache.getByGraphUri(customGraphUri).get(self.uri, function(err, cachedDescriptor){
-           if(!err && !isNull(cachedDescriptor))
+           if(isNull(err) && !isNull(cachedDescriptor))
            {
                const namespace = descriptorToCheck.getNamespacePrefix();
                const element = descriptorToCheck.getShortName();
@@ -2287,14 +2287,14 @@ Resource.prototype.findMetadataRecursive = function(callback){
 
     const self = this;
     Resource.findByUri(self.uri, function(err, resource){
-        if(!err){
+        if(isNull(err)){
             if(!isNull(resource))
             {
                 resource.getPropertiesFromOntologies(
                     Ontology.getPublicOntologiesUris(),
                     function(err, descriptors)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             //remove locked descriptors
                             for(let i = 0 ; i < descriptors.length ; i++)
@@ -2313,10 +2313,10 @@ Resource.prototype.findMetadataRecursive = function(callback){
                                     file_extension: resource.ddr.fileExtension,
                                     hasLogicalParts: []
                                 };
-                                if(!err){
+                                if(isNull(err)){
 
                                     folder.getLogicalParts(function (err, children) {
-                                        if (!err) {
+                                        if (isNull(err)) {
                                             const _ = require('underscore');
                                             children = _.reject(children, function (child) {
                                                 return child.ddr.deleted;
@@ -2332,7 +2332,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
                                                     function(child, callback){
                                                         // Call an asynchronous function
                                                         child.findMetadataRecursive( function (err, result2) {
-                                                            if (!err) {
+                                                            if (isNull(err)) {
                                                                 metadataResult.hasLogicalParts.push(result2);
                                                                 return callback(null);
                                                             }
@@ -2344,7 +2344,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
                                                     },
                                                     // 3rd parameter is the function call when everything is done
                                                     function(err){
-                                                        if(!err) {
+                                                        if(isNull(err)) {
                                                             // All tasks are done now
                                                             return callback(false, metadataResult);
                                                         }
@@ -2508,7 +2508,7 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
                     }
                 ],
                 function(err, results) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         const randomNumber = Math.floor(Math.random() * (results[0].c - 1));
                         return callback(null, randomNumber);
@@ -2550,7 +2550,7 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
                 }
             ],
             function(err, result) {
-                if(!err)
+                if(isNull(err))
                 {
                     const randomResourceUri = result[0].s;
                     self.findByUri(randomResourceUri, function(err, result){
@@ -2615,7 +2615,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
 
     const deleteAllCachedResourcesWithDescriptorValue = function (descriptor, page, pageSize, callback) {
         pagedFetchResourcesWithDescriptor(descriptor, page, pageSize, function (err, results) {
-            if (!err) {
+            if (isNull(err)) {
                 if (results instanceof Array) {
                     const resourceUris = [];
                     for (let i = 0; i < results.length; i++) {
@@ -2624,7 +2624,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
 
                     if (resourceUris.length > 0) {
                         Cache.getByGraphUri(customGraphUri).delete(resourceUris, function (err, result) {
-                            if (!err) {
+                            if (isNull(err)) {
                                 if (resourceUris.length === pageSize) {
                                     page++;
                                     deleteAllCachedResourcesWithDescriptorValue(descriptor, page, pageSize, callback);
@@ -2653,7 +2653,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
     //TODO CACHE DONE
 
     deleteAllCachedResourcesWithDescriptorValue(descriptor, 0, Config.limits.db.pageSize, function(err){
-        if(!err)
+        if(isNull(err))
         {
             db.connection.execute(
                 "WITH [0]\n"+
@@ -2679,7 +2679,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
                     }
                 ],
                 function(err, results) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, results);
                     }
@@ -2801,7 +2801,7 @@ Resource.exists = function(uri, callback, customGraphUri)
             }
         ],
         function(err, result) {
-            if(!err)
+            if(isNull(err))
             {
                 return callback(null, result);
             }
@@ -2870,7 +2870,7 @@ Resource.getCount = function(callback) {
         countQuery,
         queryArguments,
         function(err, count) {
-            if(!err && count instanceof Array)
+            if(isNull(err) && count instanceof Array)
             {
                 totalCount = parseInt(count[0].count);
                 return callback(null, totalCount);

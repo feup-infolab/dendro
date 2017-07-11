@@ -20,7 +20,7 @@ exports.descriptors_autocomplete = function(req, res) {
             Config.recommendation.max_autocomplete_results,
             function(err, descriptors)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json(
                         descriptors
@@ -56,7 +56,7 @@ exports.from_ontology = function(req, res)
                 {
                     Ontology.findByPrefix(prefix, function (err, ontology)
                     {
-                        if (!err)
+                        if (isNull(err))
                         {
                             if (!isNull(ontology))
                             {
@@ -64,7 +64,7 @@ exports.from_ontology = function(req, res)
                                 {
                                     Descriptor.all_in_ontology(ontology.uri, function (err, descriptors)
                                     {
-                                        if (!err)
+                                        if (isNull(err))
                                         {
                                             /**
                                              * Get User's favorite descriptors
@@ -72,7 +72,7 @@ exports.from_ontology = function(req, res)
                                              */
                                             const getUsersFavoriteDescriptors = function (userUri, callback) {
                                                 User.findByUri(userUri, function (err, user) {
-                                                    if (!err) {
+                                                    if (isNull(err)) {
                                                         user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
                                                             return callback(error, favorites);
                                                         }, [ontology]);
@@ -91,7 +91,7 @@ exports.from_ontology = function(req, res)
                                              */
                                             const getProjectsFavoriteDescriptors = function (projectHandle, callback) {
                                                 Project.findByHandle(projectHandle, function (err, project) {
-                                                    if (!err && !isNull(project)) {
+                                                    if (isNull(err) && !isNull(project)) {
                                                         project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
                                                             return callback(error, favorites);
                                                         }, [ontology]);
@@ -110,7 +110,7 @@ exports.from_ontology = function(req, res)
                                              */
                                             const getUsersHiddenDescriptors = function (userUri, callback) {
                                                 User.findByUri(userUri, function (err, user) {
-                                                    if (!err) {
+                                                    if (isNull(err)) {
                                                         user.hiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
                                                             return callback(error, favorites);
                                                         }, [ontology]);
@@ -125,7 +125,7 @@ exports.from_ontology = function(req, res)
 
                                             const getProjectsHiddenDescriptors = function (projectHandle, callback) {
                                                 Project.findByHandle(projectHandle, function (err, project) {
-                                                    if (!err) {
+                                                    if (isNull(err)) {
                                                         project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
                                                             return callback(error, hidden);
                                                         }, [ontology]);
@@ -140,7 +140,7 @@ exports.from_ontology = function(req, res)
 
                                             const getDCTermsDescriptors = function (callback) {
                                                 Descriptor.DCElements(function (error, dcElementsDescriptors) {
-                                                    if (!err) {
+                                                    if (isNull(err)) {
                                                         return callback(error, dcElementsDescriptors);
                                                     }
                                                     else {
@@ -208,7 +208,7 @@ exports.from_ontology = function(req, res)
                                                  */
                                                 function (err, results)
                                                 {
-                                                    if (!err)
+                                                    if (isNull(err))
                                                     {
                                                         let typeDetected = function(results, descriptor)
                                                         {

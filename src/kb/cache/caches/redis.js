@@ -90,7 +90,7 @@ RedisCache.prototype.put = function(resourceUri, object, callback) {
             {
                 self.redis.set(resourceUri, JSON.stringify(object), function(err, reply)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         if (Config.debug.active && Config.debug.cache.log_cache_writes)
                         {
@@ -133,7 +133,7 @@ RedisCache.prototype.get = function(resourceUri, callback) {
             {
                 self.redis.get(resourceUri, function(err, cachedJSON)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         if(Config.cache.active && Config.debug.cache.log_cache_hits)
                         {
@@ -182,7 +182,7 @@ RedisCache.prototype.delete = function(resourceUriOrArrayOfResourceUris, callbac
             {
                 self.redis.del(resourceUriOrArrayOfResourceUris, function (err)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                         {
@@ -225,7 +225,7 @@ RedisCache.prototype.deleteAll = function(callback) {
         {
             self.redis.flushdb(function (err)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                     {

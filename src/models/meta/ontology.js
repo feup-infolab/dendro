@@ -70,7 +70,7 @@ Ontology.findByUri = function(uri, callback)
 
     Resource.findByUri(uri, function(err, ontology){
 
-        if(!err)
+        if(isNull(err))
         {
             if(!isNull(ontology))
             {
@@ -113,7 +113,7 @@ Ontology.all = function(callback)
         ],
         function(err, results)
         {
-            if (!err)
+            if (isNull(err))
             {
                 const getOntology = function (ontologyResult, callback) {
                     Ontology.findByUri(ontologyResult.uri, callback)
@@ -137,7 +137,7 @@ Ontology.initAllFromDatabase = function(callback)
     const addResearchDomainsDetails = function (ontology, callback) {
         if (ontology.domain instanceof Array) {
             async.map(ontology.domain, getFullResearchDomain, function (err, results) {
-                if (!err) {
+                if (isNull(err)) {
                     ontology.domain = results;
                 }
 
@@ -178,7 +178,7 @@ Ontology.initAllFromDatabase = function(callback)
                     }
                 ],
                 function (err, alternatives) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (alternatives.length === 0) {
                             return callback(null, null);
                         }
@@ -220,7 +220,7 @@ Ontology.initAllFromDatabase = function(callback)
                     }
                 ],
                 function (err, regex) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (regex.length > 1) {
                             console.error("There are two different Regular Expressions for validating element " + elementUri + "! Please review the ontology with URI " + ontologyUri + " and delete hasRegex annotation properties until there is only one.");
                             return callback(1, null);
@@ -253,7 +253,7 @@ Ontology.initAllFromDatabase = function(callback)
                     async.waterfall([
                         function (callback) {
                             getRegexForDescriptor(elementUri, ontology.uri, function (err, result) {
-                                if (!err) {
+                                if (isNull(err)) {
                                     if (!isNull(result)) {
                                         element.hasRegex = result;
                                         element.control = Elements.controls.regex_checking_input_box;
@@ -267,7 +267,7 @@ Ontology.initAllFromDatabase = function(callback)
                         function (element, callback) {
                             getAlternativesForDescriptor(elementUri, function (err, result) {
 
-                                if (!err) {
+                                if (isNull(err)) {
                                     if (!isNull(result)) {
                                         element.hasAlternative = result;
                                         element.control = Elements.controls.combo_box;
@@ -325,12 +325,12 @@ Ontology.initAllFromDatabase = function(callback)
 
     const loadOntologyConfigurationsFromDatabase = function (callback) {
         Ontology.all(function (err, ontologies) {
-            if (!err) {
+            if (isNull(err)) {
                 async.waterfall(
                     [
                         function (callback) {
                             async.map(ontologies, addResearchDomainsDetails, function (err, loadedOntologies) {
-                                if (!err) {
+                                if (isNull(err)) {
                                     console.log("[INFO] Finished loading research domain configurations for descriptors from database");
                                 }
 
@@ -339,7 +339,7 @@ Ontology.initAllFromDatabase = function(callback)
                         },
                         function (loadedOntologies, callback) {
                             async.map(loadedOntologies, addValidationData, function (err, loadedOntologies) {
-                                if (!err) {
+                                if (isNull(err)) {
                                     console.log("[INFO] Finished loading validation information (Regex + alternatives) for the descriptors in the database");
                                 }
 
@@ -348,7 +348,7 @@ Ontology.initAllFromDatabase = function(callback)
                         }
                     ],
                     function (err, loadedOntologies) {
-                        if (!err) {
+                        if (isNull(err)) {
                             return callback(err, loadedOntologies);
                         }
                         else {
@@ -666,7 +666,7 @@ Ontology.prototype.save = function(callback)
 
 
     self.replaceDescriptorsInTripleStore(newDescriptorsArray, db, function(err, result){
-        if(!err)
+        if(isNull(err))
         {
             return callback(err, result);
         }
@@ -755,7 +755,7 @@ Ontology.findByPrefix = function(prefix, callback)
         ],
         function (err, results)
         {
-            if (!err && !isNull(results))
+            if (isNull(err) && !isNull(results))
             {
                 if (results.length > 1)
                 {

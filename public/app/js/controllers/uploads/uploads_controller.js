@@ -75,7 +75,7 @@ angular.module('dendroApp.controllers')
                                    file.calculating_md5 = true;
                                    uploadsService.calculate_md5(file, function (err, md5)
                                    {
-                                       if (!err)
+                                       if (isNull(err))
                                        {
                                            file.calculating_md5 = false;
                                            file.md5 = md5;
@@ -101,7 +101,7 @@ angular.module('dendroApp.controllers')
                            },
                            function (err, results)
                            {
-                               if (!err)
+                               if (isNull(err))
                                {
                                    if ($scope.move_to_success_timeout != null && $scope.move_to_success_timeout > 0)
                                    {

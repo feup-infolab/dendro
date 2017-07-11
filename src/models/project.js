@@ -70,13 +70,13 @@ Project.prototype.backup = function(callback)
     }
 
     self.save(function(err, result){
-        if(!err && result instanceof Project)
+        if(isNull(err) && result instanceof Project)
         {
             if(!isNull(self.ddr.rootFolder))
             {
                 console.log("Started backup of project " + self.uri);
                 Folder.findByUri(self.ddr.rootFolder, function(err, folder){
-                    if(!err && folder instanceof Folder)
+                    if(isNull(err) && folder instanceof Folder)
                     {
                         //TODO Add this information
                         const bagItOptions = {
@@ -92,7 +92,7 @@ Project.prototype.backup = function(callback)
                         folder.bagit(
                             bagItOptions,
                             function(err, result, absolutePathOfFinishedFolder, parentFolderPath){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     const path = require('path');
 
@@ -135,7 +135,7 @@ Project.addProjectInformations = function(arrayOfProjectsUris, callback)
         // and return the array of projects, complete with that info
         async.map(arrayOfProjectsUris, getProjectInformation, function(err, projectsToReturn)
         {
-            if(!err)
+            if(isNull(err))
             {
                 return callback(null, projectsToReturn);
             }
@@ -181,7 +181,7 @@ Project.allNonPrivate = function(currentUser, callback) {
 
         function(err, projects) {
 
-            if(!err && !isNull(projects) && projects instanceof Array)
+            if(isNull(err) && !isNull(projects) && projects instanceof Array)
             {
                 Project.addProjectInformations(projects, callback);
             }
@@ -237,7 +237,7 @@ Project.allNonPrivateUnlessTheyBelongToMe = function(currentUser, callback) {
 
         function(err, projects) {
 
-            if(!err && !isNull(projects) && projects instanceof Array)
+            if(isNull(err) && !isNull(projects) && projects instanceof Array)
             {
                 Project.addProjectInformations(projects, callback);
             }
@@ -283,7 +283,7 @@ Project.findByHandle = function(handle, callback) {
         ],
 
         function(err, project) {
-            if(!err)
+            if(isNull(err))
             {
                 if(project instanceof Array && project.length > 0)
                 {
@@ -354,7 +354,7 @@ Project.prototype.getCreatorsAndContributors = function(callback)
             }
         ],
         function(err, contributors) {
-            if(!err)
+            if(isNull(err))
             {
                 if(contributors instanceof Array)
                 {
@@ -411,7 +411,7 @@ Project.findByContributor = function(contributor, callback)
             }
         ],
         function(err, projects) {
-            if(!err)
+            if(isNull(err))
             {
                 if(projects instanceof Array)
                 {
@@ -465,7 +465,7 @@ Project.findByCreator = function(creator, callback) {
             }
         ],
         function(err, projects) {
-            if(!err)
+            if(isNull(err))
             {
                 if(projects instanceof Array)
                 {
@@ -524,7 +524,7 @@ Project.findByCreatorOrContributor = function(creatorOrContributor, callback)
             }
         ],
         function(err, rows) {
-            if(!err)
+            if(isNull(err))
             {
                 if(rows instanceof Array)
                 {
@@ -558,7 +558,7 @@ Project.createAndInsertFromObject = function(object, callback) {
 
     const newProject = new Project(object);
     newProject.save(function(err, newProject) {
-        if(!err)
+        if(isNull(err))
         {
             if(newProject instanceof Project)
             {
@@ -575,7 +575,7 @@ Project.createAndInsertFromObject = function(object, callback) {
 
                 rootFolder.save(function(err, result)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         newProject.ddr.rootFolder = rootFolder.uri;
                         newProject.nie.hasLogicalPart = rootFolder.uri;
@@ -616,10 +616,10 @@ Project.prototype.getFirstLevelDirectoryContents = function(callback)
     const self = this;
 
     self.getRootFolder(function(err, folder){
-        if(!err && !isNull(folder))
+        if(isNull(err) && !isNull(folder))
         {
             folder.getLogicalParts(function(err, children){
-                if(!err)
+                if(isNull(err))
                 {
                     return callback(null, children);
                 }
@@ -683,7 +683,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
             }*/
         ]),//, startingResultPosition, maxResults),
         function(err, itemsUri) {
-            if(!err)
+            if(isNull(err))
             {
                 console.log('itemsUri: ', itemsUri);
 
@@ -694,7 +694,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
                         //TODO get author
                     });
                 }, function (err, fullItems) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, fullItems);
                     }
@@ -708,7 +708,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
                 /*
                 var getVersionDetails = function(result, callback){
                     ArchivedResource.findByUri(result.version, function(err, result){
-                        if(!err)
+                        if(isNull(err))
                         {
                             result.getDetailedInformation(function(err, versionWithDetailedInfo)
                             {
@@ -773,11 +773,11 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
             }
         ], startingResultPosition, maxResults),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 const getVersionDetails = function (result, callback) {
                     ArchivedResource.findByUri(result.version, function (err, result) {
-                        if (!err) {
+                        if (isNull(err)) {
                             result.getDetailedInformation(function (err, versionWithDetailedInfo) {
                                 return callback(err, versionWithDetailedInfo);
                             });
@@ -829,11 +829,11 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
             }
         ], startingResultPosition, maxResults),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 const getVersionDetails = function (result, callback) {
                     ArchivedResource.findByUri(result.version, function (err, result) {
-                        if (!err) {
+                        if (isNull(err)) {
                             result.getDetailedInformation(function (err, versionWithDetailedInfo) {
                                 return callback(err, versionWithDetailedInfo);
                             });
@@ -863,7 +863,7 @@ Project.prototype.getStorageSize = function(callback)
      * YOU NEED MONGODB 10GEN to run this, or it will give errors.
      */
     gfs.connection.db.collection("fs.files", function(err, collection) {
-        if(!err)
+        if(isNull(err))
         {
             collection.aggregate([
                 {
@@ -879,7 +879,7 @@ Project.prototype.getStorageSize = function(callback)
                     }
                 }
             ],function(err, result){
-                if(!err)
+                if(isNull(err))
                 {
                     if(!isNull(result) && result instanceof Array && result.length === 1 && !isNull(result[0].sum))
                     {
@@ -937,7 +937,7 @@ Project.prototype.getFilesCount = function(callback)
         ],
         function(err, result)
         {
-            if (!err)
+            if (isNull(err))
             {
                 if(result instanceof Array && result.length > 0)
                 {
@@ -988,7 +988,7 @@ Project.prototype.getMembersCount = function(callback)
         ],
         function(err, result)
         {
-            if (!err)
+            if (isNull(err))
             {
                 if(result instanceof Array && result.length > 0)
                 {
@@ -1038,7 +1038,7 @@ Project.prototype.getFoldersCount = function(callback)
         ],
         function(err, result)
         {
-            if (!err)
+            if (isNull(err))
             {
                 if(result instanceof Array && result.length > 0)
                 {
@@ -1086,7 +1086,7 @@ Project.prototype.getRevisionsCount = function(callback)
         ],
         function(err, result)
         {
-            if (!err)
+            if (isNull(err))
             {
                 if(result instanceof Array && result.length > 0)
                 {
@@ -1200,7 +1200,7 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
         argumentsArray,
         function(err, descriptors)
         {
-            if (!err)
+            if (isNull(err))
             {
                 if(descriptors instanceof Array)
                 {
@@ -1334,7 +1334,7 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         argumentsArray,
         function(err, descriptors)
         {
-            if (!err)
+            if (isNull(err))
             {
                 if(descriptors instanceof Array)
                 {
@@ -1399,23 +1399,9 @@ Project.prototype.findMetadataOfRootFolder = function(callback)
     rootFolder.findMetadata(callback);
 };
 
-/**
- * Attempts to determine the project of a requested resource based on its uri
- * @param originalRequestUri
- * @param callback
- */
-Project.getOwnerProjectBasedOnUri = function(requestedResource, callback)
-{
-    let handle = requestedResource.replace(Config.baseUri + "/project/", "");
-    handle = handle.replace(/\?.*/,"");
-    handle = handle.replace(/\/.*$/,"");
-    Project.findByHandle(handle, callback);
-};
-
-
 Project.privacy = function (projectUri, callback) {
     Project.findByUri(projectUri, function (err, project) {
-        if (!err)
+        if (isNull(err))
         {
             if(isNull(project))
             {
@@ -1461,7 +1447,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
                         if(stat.isDirectory())
                         {
                             fs.readdir(dataFolder, function (err, folderContents) {
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     if(folderContents instanceof Array && folderContents.length === 1)
                                     {
@@ -1543,16 +1529,16 @@ Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSi
 
     File.estimateUnzippedSize(absPathToZipFile, function(err, size)
     {
-        if(!err)
+        if(isNull(err))
         {
             if(size < maxStorageSize)
             {
                 File.unzip(absPathToZipFile, function(err, absPathOfRootFolder){
-                    if(!err)
+                    if(isNull(err))
                     {
                         Project.validateBagItFolderStructure(absPathOfRootFolder, function(err, valid, pathToFolderToRestore)
                         {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 if(valid)
                                 {
@@ -1623,7 +1609,7 @@ Project.restoreFromFolder = function(absPathOfRootFolder,
     }
 
     self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function(err, result){
-        if(!err)
+        if(isNull(err))
         {
             if(runningOnRoot)
             {
@@ -1645,7 +1631,7 @@ Project.restoreFromFolder = function(absPathOfRootFolder,
                             const node = JSON.parse(data);
 
                             self.loadMetadata(node, function(err, result){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     return callback(null, "Data and metadata restored successfully. Result : " + result);
                                 }

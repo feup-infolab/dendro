@@ -40,16 +40,16 @@ DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
 
     dryadRepository.save(function(err, result)
     {
-        if(!err)
+        if(isNull(err))
         {
             fs.readdir(dir,function(err,files)
             {
-                if (!err)
+                if (isNull(err))
                 {
                     files.forEach(function(file)
                     {
                         fs.readFile(dir+"/"+file,'utf-8',function(err,contents){
-                            if (!err)
+                            if (isNull(err))
                             {
                                 console.log("No error, parsing file " + file);
                                 const xmlParser = require('xml2js').parseString;

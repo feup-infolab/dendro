@@ -165,7 +165,7 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
         {
             Project.findByUri(project, function (err, project)
             {
-                if (!err && project instanceof Project)
+                if (isNull(err) && project instanceof Project)
                 {
                     project.checkIfHasPredicateValue(role.predicate, user.uri, function (err, result)
                     {
@@ -191,7 +191,7 @@ const checkUsersRoleInProject = function (req, user, role, project, callback) {
 const checkUsersRoleInParentProject = function (req, user, role, resource, callback) {
     if (!isNull(user)) {
         getOwnerProject(resource, function (err, project) {
-            if (!err) {
+            if (isNull(err)) {
                 if (project instanceof Project) {
                     checkUsersRoleInProject(req, user, role, project, function (err, hasRole) {
                         return callback(err, hasRole);
@@ -215,7 +215,7 @@ const checkUsersRoleInParentProject = function (req, user, role, resource, callb
 
 const checkPrivacyOfProject = function (req, permission, callback) {
     Project.findByUri(req.params.requestedResourceUri, function (err, project) {
-        if (!err) {
+        if (isNull(err)) {
             if (!isNull(project) && project instanceof Project) {
                 const privacy = project.ddr.privacyStatus;
 
@@ -238,7 +238,7 @@ const checkPrivacyOfProject = function (req, permission, callback) {
 
 const checkPrivacyOfOwnerProject = function (req, user, role, resource, callback) {
     getOwnerProject(resource, function (err, project) {
-        if (!err) {
+        if (isNull(err)) {
             if (!isNull(project) && project instanceof Project) {
                 const privacy = project.ddr.privacyStatus;
 

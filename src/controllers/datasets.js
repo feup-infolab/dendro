@@ -36,7 +36,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
     async.series([
             function (cb) {
                 fs.readdir(folderToZip, function (err, files) {
-                    if (!err) {
+                    if (isNull(err)) {
                         async.map(files, function (file, callback) {
                             const absPathToChild = path.join(folderToZip, file);
                             fs.stat(absPathToChild, function (err, stats) {
@@ -79,11 +79,11 @@ const createPackage = function (parentFolderPath, folder, callback) {
                     extraFiles.push(outputFilenameZip);
 
                     folder.findMetadataRecursive(function (err, result) {
-                        if (!err) {
+                        if (isNull(err)) {
                             const metadataRDF = require('pretty-data').pd.xml(Serializers.metadataToRDF(result));
 
                             fs.writeFile(outputFilenameRDF, metadataRDF, function (err) {
-                                if (!err) {
+                                if (isNull(err)) {
                                     console.log("The file " + outputFilenameRDF + " was saved!");
                                     filesToIncludeInPackage.push(outputFilenameRDF);
                                     extraFiles.push(outputFilenameRDF);
@@ -91,7 +91,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
                                     const metadataTXT = Serializers.metadataToText(result);
 
                                     fs.writeFile(outputFilenameTXT, metadataTXT, function (err) {
-                                        if (!err) {
+                                        if (isNull(err)) {
                                             console.log("The file " + outputFilenameTXT + " was saved!");
                                             filesToIncludeInPackage.push(outputFilenameTXT);
                                             extraFiles.push(outputFilenameTXT);
@@ -99,7 +99,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
                                             const metadataJSON = require('pretty-data').pd.json(JSON.stringify(result));
 
                                             fs.writeFile(outputFilenameJSON, metadataJSON, function (err) {
-                                                if (!err) {
+                                                if (isNull(err)) {
                                                     console.log("The file " + outputFilenameJSON + " was saved!");
                                                     filesToIncludeInPackage.push(outputFilenameJSON);
                                                     extraFiles.push(outputFilenameJSON);
@@ -136,7 +136,7 @@ const createPackage = function (parentFolderPath, folder, callback) {
             }
         ],
         function (err, results) {
-            if (!err) {
+            if (isNull(err)) {
                 return callback(err, filesToIncludeInPackage, extraFiles);
             }
             else {
@@ -161,7 +161,7 @@ export_to_repository_sword = function(req, res){
     }
     else {
         Folder.findByUri(requestedResourceUri, function (err, folder) {
-            if (!err) {
+            if (isNull(err)) {
                 if (!isNull(folder)) {
                     if (isNull(folder.dcterms.title)) {
                         const msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
@@ -175,9 +175,9 @@ export_to_repository_sword = function(req, res){
                     }
                     else {
                         folder.createTempFolderWithContents(false, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata) {
-                            if (!err) {
+                            if (isNull(err)) {
                                 createPackage(parentFolderPath, folder, function (err, files) {
-                                    if (!err) {
+                                    if (isNull(err)) {
                                         console.log("Package for export " + requestedResourceUri + " created.");
 
 
@@ -199,7 +199,7 @@ export_to_repository_sword = function(req, res){
                                         };
 
                                         swordConnection.sendFiles(options, function (err, message) {
-                                            if (!err) {
+                                            if (isNull(err)) {
                                                 deleteFolderRecursive(parentFolderPath);
                                                 const msg = "Folder " + folder.nie.title + " successfully exported from Dendro platform. " + message;
                                                 console.log(msg);
@@ -372,7 +372,7 @@ export_to_repository_ckan = function(req, res){
             const organization = req.body.repository.ddr.hasOrganization;
 
             Folder.findByUri(requestedResourceUri, function(err, folder){
-                if(!err)
+                if(isNull(err))
                 {
                     if(!isNull(folder))
                     {
@@ -433,7 +433,7 @@ export_to_repository_ckan = function(req, res){
                                     },
                                     function(err, info)
                                     {
-                                        if(!err)
+                                        if(isNull(err))
                                         {
                                             const slug = require('slug');
                                             //var slugifiedTitle = slug(folder.dcterms.title, "-");
@@ -444,10 +444,10 @@ export_to_repository_ckan = function(req, res){
                                             packageId = packageId.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
 
                                             folder.createTempFolderWithContents(true, true, true, function(err, parentFolderPath, absolutePathOfFinishedFolder, datasetFolderMetadata){
-                                                if(!err){
+                                                if(isNull(err)){
                                                     createPackage(parentFolderPath, folder, function (err, files, extraFiles)
                                                     {
-                                                        if (!err)
+                                                        if (isNull(err))
                                                         {
                                                             const packageContents = [
                                                                 {
@@ -495,7 +495,7 @@ export_to_repository_ckan = function(req, res){
                                                                                     {
                                                                                         createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function (err, response)
                                                                                         {
-                                                                                            if (!err)
+                                                                                            if (isNull(err))
                                                                                             {
                                                                                                 const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
                                                                                                 const msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten.";
@@ -558,7 +558,7 @@ export_to_repository_ckan = function(req, res){
                                                                                 if(result.success)
                                                                                 {
                                                                                     createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function(err, response){
-                                                                                        if(!err)
+                                                                                        if(isNull(err))
                                                                                         {
                                                                                             const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
                                                                                             const msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/>";
@@ -752,7 +752,7 @@ export_to_repository_figshare = function(req, res){
     }
     else {
         Folder.findByUri(requestedResourceUri, function(err, folder){
-            if(!err){
+            if(isNull(err)){
                 if(!isNull(folder))
                 {
                     if(isNull(folder.dcterms.title))
@@ -768,9 +768,9 @@ export_to_repository_figshare = function(req, res){
                     }
                     else {
                         folder.createTempFolderWithContents(false, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata) {
-                            if (!err) {
+                            if (isNull(err)) {
                                 createPackage(parentFolderPath, folder, function (err, files) {
-                                    if (!err) {
+                                    if (isNull(err)) {
                                         console.log("Package for export " + requestedResourceUri + " created.");
 
 
@@ -923,7 +923,7 @@ export_to_repository_zenodo = function(req, res){
     }
     else {
         Folder.findByUri(requestedResourceUri, function (err, folder) {
-            if (!err) {
+            if (isNull(err)) {
                 if (!isNull(folder)) {
                     if (isNull(folder.dcterms.title)) {
                         const msg = "Folder " + folder.uri + " has no title! Please set the Title property (from the dcterms metadata schema) and try the exporting process again.";
@@ -937,9 +937,9 @@ export_to_repository_zenodo = function(req, res){
                     }
                     else {
                         folder.createTempFolderWithContents(false, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata) {
-                            if (!err) {
+                            if (isNull(err)) {
                                 createPackage(parentFolderPath, folder, function (err, files) {
-                                    if (!err) {
+                                    if (isNull(err)) {
                                         console.log("Package for export " + requestedResourceUri + " created.");
 
 
@@ -1095,7 +1095,7 @@ export_to_repository_b2share = function(req, res){
     //targetRepository.ddr.hasExternalUri -> the b2share host url
 
     Folder.findByUri(requestedResourceUri, function(err, folder){
-        if(!err){
+        if(isNull(err)){
             if(!isNull(folder)) {
                 if(isNull(folder.dcterms.title) || isNull(folder.dcterms.creator)){
                     const msg = "Folder " + folder.uri + " has no title or creator! Please set these properties (from the dcterms metadata schema) and try the exporting process again.";
@@ -1108,14 +1108,14 @@ export_to_repository_b2share = function(req, res){
                     );
                 }
                 else{
-                    Project.getOwnerProjectBasedOnUri(requestedResourceUri, function(err, project)
+                    Folder.getOwnerProject(requestedResourceUri, function(err, project)
                     {
-                       if(!err)
+                       if(isNull(err))
                        {
                            folder.createTempFolderWithContents(false, false, false, function (err, parentFolderPath, absolutePathOfFinishedFolder, metadata){
-                               if(!err){
+                               if(isNull(err)){
                                    createPackage(parentFolderPath, folder, function (err, files){
-                                       if(!err){
+                                       if(isNull(err)){
                                            console.log("Package for export " + requestedResourceUri + " created.");
 
                                            try{
@@ -1519,7 +1519,7 @@ exports.sword_collections = function(req, res){
         serviceDocRef: serviceDocumentRef
     };
     swordConnection.listCollections(options, function(err, message,collections){
-        if(!err)
+        if(isNull(err))
         {
             console.log(message);
             res.json(collections)

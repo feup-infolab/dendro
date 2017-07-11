@@ -73,7 +73,7 @@ exports.recommend_descriptors = function(req, res) {
                                 }
                             },
                             function (err, interaction) {
-                                if (!err && !isNull(interaction)) {
+                                if (isNull(err) && !isNull(interaction)) {
                                     interaction.save(function (err, interaction) {
                                         if (err) {
                                             console.err("Unable to record interaction of type " + interactionType + " for shifting between pages in the descriptor recommender list. ");
@@ -91,7 +91,7 @@ exports.recommend_descriptors = function(req, res) {
             const allowedOntologies = getAllowedOntologies();
 
             exports.shared.recommend_descriptors(req.params.requestedResourceUri, req.user.uri, req.query.page, allowedOntologies, req.index, function(err, descriptors){
-                if(!err)
+                if(isNull(err))
                 {
                     registerRecommendationRequestInteraction();
 
@@ -191,7 +191,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
         });
 
         requestedResource.findMetadata(function (err, metadata) {
-            if (!err && !isNull(metadata)) {
+            if (isNull(err) && !isNull(metadata)) {
                 const request = require('request');
                 const DRUrl = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/recommendations/recommend";
 
@@ -240,7 +240,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                         ]
                     },
                     function (error, response) {
-                        if (!error) {
+                        if (isNull(error)) {
                             if (!isNull(response.body)) {
                                 try {
                                     const parsedBody = JSON.parse(response.body);
@@ -250,7 +250,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                                     if (!isNull(recommendations) && recommendations instanceof Array) {
                                         async.map(recommendations, function (recommendation, cb) {
                                                 Descriptor.findByUri(recommendation.uri, function (err, fetchedDescriptor) {
-                                                    if (!err) {
+                                                    if (isNull(err)) {
                                                         if (isNull(fetchedDescriptor)) {
                                                             cb(1, "Descriptor " + recommendation.uri + " is not present in this Dendro instance. Check your Virtuoso parametrization to see if it exists in its own graph.");
                                                         }
@@ -302,7 +302,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
 
     getRecommendationsFromDR(resourceUri, function(err, results)
     {
-        if(!err)
+        if(isNull(err))
         {
             results = removeLockedAndPrivate(results);
 

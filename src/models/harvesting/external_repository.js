@@ -65,7 +65,7 @@ ExternalRepository.findByCreator = function(creatorUri, callback)
             }
         ],
         function(err, rows) {
-            if(!err)
+            if(isNull(err))
             {
                 if(rows instanceof Array)
                 {

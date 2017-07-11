@@ -78,7 +78,7 @@ function Share (object)
  console.log('share uri is:', self.uri);
  console.log('self.baseConstructor:', self.baseConstructor);
  self.baseConstructor.save(function (err, newShare) {
- if(!err)
+ if(isNull(err))
  {
  //self.insertDescriptors
  var descriptor = [new Descriptor ({prefixedForm : "rdf:type", value : "ddr:Post"})];

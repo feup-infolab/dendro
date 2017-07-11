@@ -42,7 +42,7 @@ exports.recommend_descriptors = function(req, res) {
         const indexConnection = req.index;
 
         exports.shared.recommend_descriptors(resourceUri, userUri, req.query.page, allowedOntologies, indexConnection, function(err, descriptors){
-            if(!err)
+            if(isNull(err))
             {
                 res.json(
                     {
@@ -84,7 +84,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
      }
 
     Descriptor.all_in_ontologies(allowedOntologies, function(err, descriptors){
-        if(!err)
+        if(isNull(err))
         {
             const uuid = require('uuid');
             const recommendation_call_id = uuid.v4();

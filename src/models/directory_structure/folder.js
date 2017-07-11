@@ -104,7 +104,7 @@ Folder.prototype.getLogicalParts = function(callback)
                 }
             ],
             function(err, children) {
-                if(!err)
+                if(isNull(err))
                 {
                     if(!isNull(children) && children instanceof Array)
                     {
@@ -115,7 +115,7 @@ Folder.prototype.getLogicalParts = function(callback)
                         };
 
                         async.map(children, getChildrenProperties, function(err, children){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 return callback(null, children);
                             }
@@ -166,7 +166,7 @@ Folder.prototype.saveIntoFolder = function(
                 includeTempFilesLocations,
                 includeOriginalNodes,
                 function (err, absPathOfFinishedFile) {
-                if (!err) {
+                if (isNull(err)) {
                     const descriptors = node.getDescriptors([Config.types.locked], [Config.types.backuppable]);
                     const fileNode = {
                         resource: node.uri,
@@ -196,13 +196,13 @@ Folder.prototype.saveIntoFolder = function(
 
             //mode = 0777, recursive = true
             nfs.mkdir(destinationFolder, Config.tempFilesCreationMode, true, function (err) {
-                if (!err) {
+                if (isNull(err)) {
                     node.getLogicalParts(function (err, children) {
-                        if (!err && !isNull(children) && children instanceof Array) {
+                        if (isNull(err) && !isNull(children) && children instanceof Array) {
                             if (children.length > 0) {
                                 const saveChild = function (child, callback) {
                                     saveIntoFolder(child, destinationFolder, includeMetadata, includeTempFilesLocations, includeOriginalNodes, function (err, message, childNode) {
-                                        if (!err) {
+                                        if (isNull(err)) {
                                             if (includeMetadata) {
                                                 return callback(null, childNode);
                                             }
@@ -220,7 +220,7 @@ Folder.prototype.saveIntoFolder = function(
                                 };
 
                                 async.map(children, saveChild, function (err, childrenNodes) {
-                                    if (!err) {
+                                    if (isNull(err)) {
                                         const message = "Finished saving a complete folder at " + node.uri;
                                         console.log(message);
 
@@ -312,14 +312,14 @@ Folder.prototype.createTempFolderWithContents = function(
             dir : Config.tempFilesDir
         },
         function _tempDirCreated(err, tempFolderPath) {
-            if(!err)
+            if(isNull(err))
             {
                 console.log("Producing temporary folder on " + tempFolderPath +" to download "+self.uri);
 
                 const tempSubFolderWithCorrectTitle = tempFolderPath + "/" + self.nie.title;
                 fs.mkdir(tempSubFolderWithCorrectTitle, function(err)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         self.saveIntoFolder(
                             tempFolderPath,
@@ -363,7 +363,7 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
     const self = this;
     self.createTempFolderWithContents(includeMetadata, false, false, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
     {
-        if(!err)
+        if(isNull(err))
         {
             console.log("Preparing to zip contents of folder : " + absolutePathOfFinishedFolder);
 
@@ -398,7 +398,7 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
                     if(!isNull(bagItOptions) && bagItOptions instanceof Object)
                     {
                         self.bagit(absolutePathOfFinishedFolder, parentFolderPath, bagItOptions, function(err, absolutePathOfBaggedFolder){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 console.log("BaggIted folder! at : " + absolutePathOfBaggedFolder);
                                 cb(0, absolutePathOfBaggedFolder);
@@ -412,7 +412,7 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
                     else
                     {
                         Folder.zip(absolutePathOfFinishedFolder, parentFolderPath, function(err, absolutePathOfZippedFile){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 console.log("Zipped folder! at : " + absolutePathOfZippedFile);
                                 cb(0, absolutePathOfZippedFile);
@@ -426,7 +426,7 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
                 }
             ],
             function(err, results){
-                if(!err)
+                if(isNull(err))
                 {
                     return callback(err, results[1]);
                 }
@@ -461,7 +461,7 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
 
                 self.createTempFolderWithContents(true, false, false, function(err, parentFolderPath, absolutePathOfFinishedFolder, metadata)
                 {
-                    if (!err)
+                    if (isNull(err))
                     {
                         console.log("Produced temporary folder on " + absolutePathOfFinishedFolder + " to bagit " + self.uri);
                         const path = require('path');
@@ -593,13 +593,13 @@ Folder.prototype.restoreFromLocalBackupZipFile = function(zipFileAbsLocation, us
 
                     files = InformationElement.removeInvalidFileNames(files);
 
-                    if(!err && files instanceof Array && files.length === 1)
+                    if(isNull(err) && files instanceof Array && files.length === 1)
                     {
                         const location = path.join(unzippedContentsLocation, files[0]);
 
                         self.restoreFromFolder(location, userRestoringTheFolder, true, true,function(err, result)
                         {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 self.undelete(callback, userRestoringTheFolder.uri, true);
                                 //return callback(null, result);
@@ -697,7 +697,7 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
         };
 
         createFolder(folderName, function (err, childFolder) {
-            if (!err) {
+            if (isNull(err)) {
                 const childPathAbsFolder = path.join(absolutePathOfLocalFolder, folderName);
                 childFolder.loadContentsOfFolderIntoThis(childPathAbsFolder, replaceExistingFolder, function (err, loadedFolder) {
                     childFolder.undelete(cb, userPerformingTheOperation, true);
@@ -743,10 +743,10 @@ Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFold
         };
 
         createFile(fileName, function (err, childFile) {
-            if (!err) {
+            if (isNull(err)) {
                 const localFilePath = path.join(absolutePathOfLocalFolder, fileName);
                 childFile.loadFromLocalFile(localFilePath, function (err, childFile) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (!isNull(childFile) && childFile instanceof File) {
                             childFile.undelete(cb, userPerformingTheOperation, false);
                         }
@@ -848,11 +848,11 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                             const loadMetadataForChildFolder = function (childNode, callback) {
                                 if (!isNull(childNode.children) && childNode.children instanceof Array) {
                                     Folder.findByUri(childNode.resource, function (err, folder) {
-                                        if (!err && !isNull(folder)) {
+                                        if (isNull(err) && !isNull(folder)) {
                                             folder.loadMetadata(
                                                 childNode,
                                                 function (err, result) {
-                                                    if (!err) {
+                                                    if (isNull(err)) {
                                                         return callback(null, "Folder " + folder.uri + " successfully restored. ");
                                                     }
                                                     else {
@@ -869,11 +869,11 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                                 }
                                 else {
                                     File.findByUri(childNode.resource, function (err, file) {
-                                        if (!err && !isNull(file)) {
+                                        if (isNull(err) && !isNull(file)) {
                                             file.loadMetadata(
                                                 childNode,
                                                 function (err, result) {
-                                                    if (!err) {
+                                                    if (isNull(err)) {
                                                         return callback(null, "File " + file.uri + " successfully restored. ");
                                                     }
                                                     else {
@@ -891,11 +891,11 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                             };
 
                             async.map(node.children, loadMetadataForChildFolder, function(err, results){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     currentFolder.replaceDescriptors(oldDescriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
                                     currentFolder.save(function(err, result){
-                                        if(!err)
+                                        if(isNull(err))
                                         {
                                             return callback(null, result)
                                         }
@@ -921,14 +921,14 @@ Folder.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadat
                 {
                     File.findByUri(node.resource, function(err, currentFile)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(!isNull(currentFile))
                             {
                                 currentFile.loadMetadata(
                                     node,
                                     function(err, result){
-                                        if(!err)
+                                        if(isNull(err))
                                         {
                                             return callback(null, "File " + currentFile.uri +" successfully restored. ");
                                         }
@@ -983,7 +983,7 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
     }
 
     self.loadContentsOfFolderIntoThis(absPathOfRootFolder, replaceExistingFolder, function(err, result){
-        if(!err)
+        if(isNull(err))
         {
             if(runningOnRoot)
             {
@@ -1005,7 +1005,7 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
                             const node = JSON.parse(data);
 
                             self.loadMetadata(node, function(err, result){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     return callback(null, "Data and metadata restored successfully. Result : " + result);
                                 }
@@ -1045,12 +1045,12 @@ Folder.prototype.setDescriptorsRecursively = function(descriptors, callback, uri
         else if (node instanceof Folder) {
             node.updateDescriptors(descriptors);
             node.save(function (err, result) {
-                    if (!err) {
+                    if (isNull(err)) {
                         node.getLogicalParts(function (err, children) {
-                            if (!err && !isNull(children) && children instanceof Array) {
+                            if (isNull(err) && !isNull(children) && children instanceof Array) {
                                 if (children.length > 0) {
                                     async.map(children, setDescriptors, function (err, results) {
-                                        if (!err) {
+                                        if (isNull(err)) {
                                             /*if(Config.debug.active && Config.debug.files.log_all_restore_operations)
                                         {
                                             var message = "Finished updating a complete folder at " + node.uri;
@@ -1107,10 +1107,10 @@ Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecu
         if(self.ddr.deleted && reallyDelete)
         {
             self.deleteAllMyTriples(function(err, result){
-                if(!err)
+                if(isNull(err))
                 {
                     self.unlinkFromParent(function(err, result){
-                        if(!err)
+                        if(isNull(err))
                         {
                             return callback(err, self);
                         }
@@ -1153,13 +1153,13 @@ Folder.prototype.delete = function(callback, uriOfUserDeletingTheFolder, notRecu
                 };
 
                 async.map(children, deleteChild, function(err, result){
-                    if(!err)
+                    if(isNull(err))
                     {
                         self.deleteAllMyTriples(function(err, result){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 self.unlinkFromParent(function(err, result){
-                                    if(!err)
+                                    if(isNull(err))
                                     {
                                         return callback(null, self);
                                     }

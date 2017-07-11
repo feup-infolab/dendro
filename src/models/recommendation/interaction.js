@@ -55,7 +55,7 @@ function Interaction (object, callback)
         else if(typeof self.ddr.performedBy === "string")
         {
             User.findByUri(self.ddr.performedBy, function(err, user){
-               if(!err && !isNull(user))
+               if(isNull(err) && !isNull(user))
                {
                    self.ddr.humanReadableURI = db.baseURI+"/user/"+user.ddr.username+"/interaction/"+self.dcterms.created;
                }
@@ -86,7 +86,7 @@ Interaction.all = function(callback, streaming, customGraphUri) {
         // get all the information about all the interaction
         // and return the array of interactions, complete with that info
         async.map(interactions, getInteractionInformation, function (err, interactionsToReturn) {
-            if (!err) {
+            if (isNull(err)) {
                 return callback(null, interactionsToReturn);
             }
             else {
@@ -114,10 +114,10 @@ Interaction.all = function(callback, streaming, customGraphUri) {
             ],
 
             function(err, interactions) {
-                if(!err && interactions instanceof Array)
+                if(isNull(err) && interactions instanceof Array)
                 {
                     getFullInteractions(interactions, function(err, interactions){
-                        if(!err)
+                        if(isNull(err))
                         {
                             return callback(null, interactions);
                         }
@@ -154,7 +154,7 @@ Interaction.all = function(callback, streaming, customGraphUri) {
 
             function (err, result)
             {
-                if (!err && result instanceof Array && result.length === 1)
+                if (isNull(err) && result instanceof Array && result.length === 1)
                 {
                     const count = result[0].n_interactions;
                     const n_pages = Math.ceil(count / Config.streaming.db.page_size);
@@ -217,7 +217,7 @@ Interaction.all = function(callback, streaming, customGraphUri) {
                             ],
                             function (err, interactions)
                             {
-                                if (!err && interactions instanceof Array)
+                                if (isNull(err) && interactions instanceof Array)
                                 {
                                     getFullInteractions(interactions, function(err, interactions){
                                         return callback(err, interactions, cb);
@@ -339,12 +339,12 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
         console.log(insertNewInteractionQuery);
 
         mysql().getConnection(function (err, connection) {
-            if (!err) {
+            if (isNull(err)) {
                 connection.query(
                     insertNewInteractionQuery,
                     inserts,
                     function (err, rows, fields) {
-                        if (!err) {
+                        if (isNull(err)) {
                             return callback(null, rows, fields);
                         }
                         else {
@@ -373,11 +373,11 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
     else
     {
         mysql().getConnection(function(err, connection) {
-            if (!err)
+            if (isNull(err))
             {
                 connection.query('SELECT * from ?? WHERE uri = ?', [targetTable, self.uri], function (err, rows, fields)
                 {
-                    if (!err)
+                    if (isNull(err))
                     {
                         if (!isNull(rows) && rows instanceof Array && rows.length > 0)
                         {

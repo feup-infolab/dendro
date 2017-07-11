@@ -24,7 +24,7 @@ module.exports.reload = function(req, res)
     const async = require("async");
 
     const renderResponse = function (err, messages) {
-        if (!err) {
+        if (isNull(err)) {
             const util = require('util');
             //noinspection ES6ConvertVarToLetConst
             let messages = "All resources successfully loaded in graph(s) : ";
@@ -175,7 +175,7 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
             {
                 indexConnection.create_new_index(1, 1, deleteBeforeReindexing, function(err,result)
                 {
-                    if(!err && result)
+                    if(isNull(err) && result)
                     {
                         console.log("Index "+indexConnection.index.short_name+" recreated .");
                         return callback(null);
@@ -191,7 +191,7 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
             function(callback) //select all elements in the knowledge base
             {
                 Resource.all(null, function(err, resources) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         for(let i = 0; i < resources.length; i++)
                         {
@@ -218,7 +218,7 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
         ],
             function(err, results)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     return callback(null, results);
                 }

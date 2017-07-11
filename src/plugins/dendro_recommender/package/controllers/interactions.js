@@ -33,7 +33,7 @@ exports.generate_random_interactions = function(req, res)
             Descriptor.getRandomDescriptors(req.body.included_ontologies,
                 howMany,
                 function(err, randomDescriptorsPage){
-                    if(!err && randomDescriptorsPage.length > 0)
+                    if(isNull(err) && randomDescriptorsPage.length > 0)
                     {
                         randomDescriptors = randomDescriptors.concat(randomDescriptorsPage);
                         callback(null, randomDescriptors);
@@ -193,7 +193,7 @@ exports.generate_random_interactions = function(req, res)
                 interactionsArray,
                 function(interaction, cb){
                     interaction.save(function(err, interaction){
-                        if(!err)
+                        if(isNull(err))
                         {
                             //console.log("Interaction " + interaction.uri + " saved successfully.");
                         }
@@ -231,10 +231,10 @@ exports.generate_random_interactions = function(req, res)
                     }
 
                     generateNRandomInteractions(howManyInLoop, user, function(err, interactions) {
-                        if(!err)
+                        if(isNull(err))
                         {
                             saveInteractions(interactions, function(err, results){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     console.log("[Loop " + n + " of "+ howManyLoops + "] : Generated " + howManyInLoop + " interactions ");
                                 }
@@ -274,7 +274,7 @@ exports.generate_random_interactions = function(req, res)
                 }],
             function(err)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json({
                         result : "ok",
@@ -325,16 +325,16 @@ exports.refresh_interactions = function(req, res)
             Interaction.all(
                 function (err, interactions, callback)
                 {
-                    if (!err)
+                    if (isNull(err))
                     {
                         const sendInteractionsArray = function(req, res, conn, interactions, callback)
                         {
                             InteractionMapper.map(interactions, function(err, mappedInteractions){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     conn.send("POST", mappedInteractions, "/facts/new", function (err, result, body)
                                     {
-                                        if (!err)
+                                        if (isNull(err))
                                         {
                                             callback(null, result);
                                             return res.json({
@@ -373,7 +373,7 @@ exports.refresh_interactions = function(req, res)
                         };
 
                         sendInteractionsArray(req, res, conn, interactions, function(err, result){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 callback(err, result);
                             }
@@ -396,11 +396,11 @@ exports.refresh_interactions = function(req, res)
 
             conn.init(function(err, result)
             {
-                if (!err)
+                if (isNull(err))
                 {
                     conn.send("DELETE", {}, "/facts/all", function (err, result, body)
                     {
-                        if (!err)
+                        if (isNull(err))
                         {
 
                         }
@@ -455,10 +455,10 @@ exports.by_user = function(req, res)
         if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
         {
             User.findByUsername(username, function(err, user){
-                if(!err)
+                if(isNull(err))
                 {
                     user.getInteractions(function(err, interactions){
-                        if(!err)
+                        if(isNull(err))
                         {
                             const cachedDescriptors = {};
                             const getFullDescriptor = function(interaction, callback){
@@ -473,7 +473,7 @@ exports.by_user = function(req, res)
                                 else
                                 {
                                     Descriptor.findByUri(interaction.ddr.executedOver, function(err, fullDescriptor){
-                                        if(!err)
+                                        if(isNull(err))
                                         {
                                             if(!isNull(fullDescriptor))
                                             {
@@ -499,7 +499,7 @@ exports.by_user = function(req, res)
                             console.log("Length of interactions array for user "+ user.uri +" : " + length);
 
                             async.map(interactions, getFullDescriptor, function(err, interactionsWithFullDescriptors){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     interactionsWithFullDescriptors = _.compact(interactionsWithFullDescriptors);
                                     return res.json(interactionsWithFullDescriptors);

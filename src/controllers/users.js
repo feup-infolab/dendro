@@ -25,7 +25,7 @@ exports.users_autocomplete = function(req, res){
             Config.recommendation.max_autocomplete_results,
             function(err, users)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json(
                         users
@@ -74,7 +74,7 @@ exports.all = function(req, res){
             getUserCount, getAllUsers
         ], function(err, results)
         {
-            if(!err)
+            if(isNull(err))
             {
                 if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
                 {
@@ -121,7 +121,7 @@ exports.username_exists = function(req, res){
 
     User.findByUsername(username, function(err, user)
     {
-        if(!err)
+        if(isNull(err))
         {
             if(!isNull(user))
             {
@@ -161,7 +161,7 @@ exports.show = function(req, res){
 
     User.findByUsername(username, function(err, user)
     {
-        if(!err)
+        if(isNull(err))
         {
             if(!isNull(user))
             {
@@ -265,7 +265,7 @@ exports.set_new_password = function(req, res) {
         else
         {
             User.findByEmail(email, function(err, user){
-                if(!err)
+                if(isNull(err))
                 {
                     if(!user)
                     {
@@ -278,7 +278,7 @@ exports.set_new_password = function(req, res) {
                     else
                     {
                         user.checkIfHasPredicateValue("ddr:password_reset_token", token, function(err, tokenMatches){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 if(tokenMatches)
                                 {
@@ -357,7 +357,7 @@ exports.set_new_password = function(req, res) {
             else
             {
                 User.findByEmail(email, function(err, user){
-                    if(!err)
+                    if(isNull(err))
                     {
                         if(!user)
                         {
@@ -420,7 +420,7 @@ exports.reset_password = function(req, res){
         if(!isNull(email))
         {
             User.findByEmail(email, function(err, user){
-                if(!err)
+                if(isNull(err))
                 {
                     if(!user)
                     {

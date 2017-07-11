@@ -19,7 +19,7 @@ UserMapper.map = function (userUri, callback)
 
         Descriptor.removeUnauthorizedFromObject(user, [Config.types.private, Config.types.locked], []);
 
-        if(!err && !isNull(user))
+        if(isNull(err) && !isNull(user))
         {
             const result = {
                 entity_type : {

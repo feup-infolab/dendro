@@ -1,16 +1,17 @@
 const path = require('path');
 
+let Pathfinder;
 if(process.env.NODE_ENV === "test")
 {
     const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
-    const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
+    Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
     Pathfinder.appDir = appDir;
     console.log("Running in test mode and the app directory is : " + Pathfinder.appDir);
 }
 else
 {
-    const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
-    const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
+    const appDir = path.resolve(path.dirname(require.main.filename), "../");
+    Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
     Pathfinder.appDir = path.resolve(path.dirname(require.main.filename), "..");
     Pathfinder.appDir = appDir;
     console.log("Running in production / dev mode and the app directory is : " + Pathfinder.appDir);
@@ -223,7 +224,7 @@ if(!isNull(Config.logging))
                                 verbose: false
                             });
 
-                            if (!err)
+                            if (isNull(err))
                             {
                                 app.use(morgan(Config.logging.format, {
                                     format: Config.logging.format,
@@ -313,7 +314,7 @@ const signInDebugUser = function (req, res, next) {
     if (isNull(req.user)) {
         User.findByUsername(Config.debug.session.login_user,
             function (err, user) {
-                if (!err) {
+                if (isNull(err)) {
                     if (isNull(req.user)) {
                         req.user = user;
                         req.session.upload_manager = new UploadManager(user.ddr.username);
@@ -509,7 +510,7 @@ const init = function(callback)
             {
                 Ontology.initAllFromDatabase(function (err, ontologies)
                 {
-                    if (!err)
+                    if (isNull(err))
                     {
                         Config.allOntologies = ontologies;
                         log_boot_message("success","Ontology information successfully loaded from database.");
@@ -524,7 +525,7 @@ const init = function(callback)
             else
             {
                 Ontology.all(function(err, ontologies){
-                    if(!err)
+                    if(isNull(err))
                     {
                         Config.allOntologies = ontologies;
                         return callback(null);
@@ -543,7 +544,7 @@ const init = function(callback)
 
             Descriptor.validateDescriptorParametrization(function(err, result)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     log_boot_message("success","All ontologies and descriptors seem correctly set up.");
                     return callback(null);
@@ -618,7 +619,7 @@ const init = function(callback)
                         accept: "application/json"
                     },
                     function (error, response) {
-                        if (!error) {
+                        if (isNull(error)) {
                             log_boot_message("success","Successfully connected to Dendro Recommender instance, version " + response.body.version + " at " + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + " :-)");
                             return callback(null);
                         }
@@ -648,11 +649,11 @@ const init = function(callback)
                 //connection.connect(function (err)
                 pool.getConnection(function (err, connection) {
                     const freeConnectionsIndex = pool._freeConnections.indexOf(connection);
-                    if (!err) {
+                    if (isNull(err)) {
                         const checkAndCreateTable = function (tablename, cb) {
                             connection.query("SHOW TABLES LIKE '" + tablename + "';", function (err, result, fields) {
                                 connection.release();
-                                if (!err) {
+                                if (isNull(err)) {
                                     if (result.length > 0) {
                                         log_boot_message("info","Interactions table " + tablename + " exists in the MySQL database.");
                                         poolOK(pool);
@@ -682,7 +683,7 @@ const init = function(callback)
                                             createTableQuery,
                                             function (err, result, fields) {
                                                 connection.release();
-                                                if (!err) {
+                                                if (isNull(err)) {
                                                     log_boot_message("info","Interactions table " + tablename + " succesfully created in the MySQL database.");
 
                                                     const createIndexesQuery =
@@ -696,7 +697,7 @@ const init = function(callback)
                                                         createIndexesQuery,
                                                         function (err, result, fields) {
                                                             connection.release();
-                                                            if (!err) {
+                                                            if (isNull(err)) {
                                                                 log_boot_message("info","Indexes on table  " + tablename + " succesfully created in the MySQL database.");
                                                                 cb(null, null);
                                                             }
@@ -743,7 +744,7 @@ const init = function(callback)
                     ],
                     function (err, result)
                     {
-                        if (!err)
+                        if (isNull(err))
                         {
                             return callback(null);
                         }
@@ -765,7 +766,7 @@ const init = function(callback)
                         log_boot_message("info","Deleting temp files dir at " + Config.tempFilesDir);
                         const fsextra = require('fs-extra');
                         fsextra.remove(Config.tempFilesDir, function (err) {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 log_boot_message("success","Deleted temp files dir at " + Config.tempFilesDir);
                             }
@@ -806,7 +807,7 @@ const init = function(callback)
                     });
                 }
             ], function(err){
-                if(!err)
+                if(isNull(err))
                 {
                     log_boot_message("success","Temporary files directory successfully set up at " + Config.tempFilesDir);
                     return callback(null);
@@ -819,7 +820,7 @@ const init = function(callback)
         }
     ],function(err, results)
     {
-        if(!err)
+        if(isNull(err))
         {
             connectionsInitializedPromise.resolve();
         }
@@ -843,7 +844,7 @@ const loadData = function(callback)
                 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                 User.findByUsername(demoUser.username, function (err, user) {
 
-                    if (!err) {
+                    if (isNull(err)) {
                         if (isNull(user)) {
                             //everything ok, user simply does not exist
                             return callback(null, null);
@@ -863,7 +864,7 @@ const loadData = function(callback)
             };
 
             async.map(Config.demo_mode.users, deleteUser, function(err, results) {
-                if (!err) {
+                if (isNull(err)) {
                     log_boot_message("info","Existing demo users deleted. ");
                     if(Config.demo_mode.active)
                     {
@@ -885,7 +886,7 @@ const loadData = function(callback)
                                         }
                                     },
                                     function (err, newUser) {
-                                        if (!err && !isNull(newUser)) {
+                                        if (isNull(err) && !isNull(newUser)) {
                                             return callback(null, newUser);
                                         }
                                         else {
@@ -896,7 +897,7 @@ const loadData = function(callback)
                             };
 
                             async.map(Config.demo_mode.users, createUser, function(err, results) {
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     log_boot_message("info","Existing demo users recreated. ");
                                     return callback(err);
@@ -945,7 +946,7 @@ const loadData = function(callback)
 
                                 User.findByUsername(username, function (err, user) {
 
-                                    if (!err && !isNull(user)) {
+                                    if (isNull(err) && !isNull(user)) {
                                         user.makeGlobalAdmin(function (err, result) {
                                             return callback(err, result);
                                         });
@@ -965,7 +966,7 @@ const loadData = function(callback)
                                                 }
                                             },
                                             function (err, newUser) {
-                                                if (!err && !isNull(newUser) && newUser instanceof User) {
+                                                if (isNull(err) && !isNull(newUser) && newUser instanceof User) {
                                                     newUser.makeGlobalAdmin(function (err, newUser) {
                                                         return callback(err, newUser);
                                                     });
@@ -981,7 +982,7 @@ const loadData = function(callback)
                             };
 
                             async.map(Config.administrators, makeAdmin, function(err){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     log_boot_message("success","Admins successfully loaded.");
                                 }
@@ -994,7 +995,7 @@ const loadData = function(callback)
                         }
                     ],
                     function(err, results){
-                        if(!err)
+                        if(isNull(err))
                         {
                             return callback(null);
                         }

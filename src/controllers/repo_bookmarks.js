@@ -205,7 +205,7 @@ exports.new = function(req, res) {
 
                 if (newBookmark instanceof ExternalRepository) {
                     newBookmark.save(function (err, result) {
-                        if (!err) {
+                        if (isNull(err)) {
                             res.json({
                                 result: "ok",
                                 message: "New bookmark saved as " + newBookmark.dcterms.title
@@ -270,11 +270,11 @@ returned format :
 
 exports.my = function(req, res) {
     ExternalRepository.findByCreator(req.user.uri, function(err, myRepositoryBookmarks){
-        if(!err)
+        if(isNull(err))
         {
             const getPlatformDetails = function (myRepositoryBookmark, callback) {
                 RepositoryPlatform.findByUri(myRepositoryBookmark.ddr.hasPlatform, function (err, platform) {
-                    if (!err) {
+                    if (isNull(err)) {
                         if (!isNull(platform)) {
                             myRepositoryBookmark.ddr.hasPlatform = platform;
                         }
@@ -288,7 +288,7 @@ exports.my = function(req, res) {
             };
 
             async.map(myRepositoryBookmarks, getPlatformDetails, function(err, bookmarksWithPlatforms){
-                if(!err)
+                if(isNull(err))
                 {
                     res.json(bookmarksWithPlatforms);
                 }
@@ -330,7 +330,7 @@ exports.all = function(req, res) {
     {
         ExternalRepository.all(function(err, externalRepositories){
 
-            if(!err)
+            if(isNull(err))
             {
                 for(let i = 0; i < externalRepositories.length; i++)
                 {
@@ -357,7 +357,7 @@ exports.delete = function(req, res){
     if(req.originalMethod === "DELETE")
     {
         ExternalRepository.findByUri(requestedResourceUri, function(err, bookmark){
-            if(!err)
+            if(isNull(err))
             {
                 if(!bookmark)
                 {
@@ -370,7 +370,7 @@ exports.delete = function(req, res){
                 else
                 {
                     bookmark.deleteAllMyTriples(function(err, result){
-                        if(!err)
+                        if(isNull(err))
                         {
                             const msg = "Bookmark " + bookmark.dcterms.title + " successfully deleted. ";
                             res.json({
@@ -434,7 +434,7 @@ exports.delete = function(req, res){
 exports.repository_types = function(req, res){
 
     RepositoryPlatform.all(function(err, types){
-        if(!err)
+        if(isNull(err))
         {
             res.json(types);
         }

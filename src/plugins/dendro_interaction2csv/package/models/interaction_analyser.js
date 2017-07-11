@@ -29,7 +29,7 @@ InteractionAnalyser.getFullInteractions = function(interactions, callback)
     // and return the array of interactions, complete with that info
     async.map(interactions, getInteractionInformation, function(err, interactionsToReturn)
     {
-        if(!err)
+        if(isNull(err))
         {
             callback(null, interactionsToReturn);
         }
@@ -62,7 +62,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
 
         function (err, result)
         {
-            if (!err && result instanceof Array && result.length == 1)
+            if (isNull(err) && result instanceof Array && result.length == 1)
             {
                 const count = result[0].n_interactions;
                 const n_pages = Math.ceil(count / Config.streaming.db.page_size);
@@ -115,7 +115,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                             ],
                             function (err, interactions)
                             {
-                                if (!err && interactions instanceof Array)
+                                if (isNull(err) && interactions instanceof Array)
                                 {
                                     async.mapLimit(interactions, 1, function(interaction,callback){
                                         var query =
@@ -189,7 +189,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                                             ],
                                             function (err, results)
                                             {
-                                                if (!err && results instanceof Array)
+                                                if (isNull(err) && results instanceof Array)
                                                 {
                                                     const transposedResult = {};
                                                     for(let i = 0; i < results.length; i++)
@@ -267,7 +267,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
 
         function (err, result)
         {
-            if (!err && result instanceof Array && result.length === 1)
+            if (isNull(err) && result instanceof Array && result.length === 1)
             {
                 var count = result[0].n_interactions;
                 var n_pages = Math.ceil(count / Config.streaming.db.page_size);
@@ -320,7 +320,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                             ],
                             function (err, interactions)
                             {
-                                if (!err && interactions instanceof Array)
+                                if (isNull(err) && interactions instanceof Array)
                                 {
                                     async.mapLimit(interactions, 1, function(interaction,callback){
                                         var query =
@@ -394,7 +394,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                                             ],
                                             function (err, results)
                                             {
-                                                if (!err && results instanceof Array && results.length == 1)
+                                                if (isNull(err) && results instanceof Array && results.length == 1)
                                                 {
                                                     callback(null, results[0]);
                                                 }
@@ -456,7 +456,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
 
         function (err, result)
         {
-            if (!err && result instanceof Array && result.length == 1)
+            if (isNull(err) && result instanceof Array && result.length == 1)
             {
                 const count = result[0].n_interactions;
                 const n_pages = Math.ceil(count / Config.streaming.db.page_size);
@@ -509,7 +509,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                             ],
                             function (err, interactions)
                             {
-                                if (!err && interactions instanceof Array)
+                                if (isNull(err) && interactions instanceof Array)
                                 {
                                     async.mapLimit(interactions, 1, function(interaction,callback){
                                         var query =
@@ -583,7 +583,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                                             ],
                                             function (err, results)
                                             {
-                                                if (!err && results instanceof Array && results.length == 1)
+                                                if (isNull(err) && results instanceof Array && results.length == 1)
                                                 {
                                                     callback(null, results[0]);
                                                 }
@@ -645,7 +645,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
 
         function (err, result)
         {
-            if (!err && result instanceof Array && result.length === 1)
+            if (isNull(err) && result instanceof Array && result.length === 1)
             {
                 const count = result[0].n_interactions;
                 const n_pages = Math.ceil(count / Config.streaming.db.page_size);
@@ -698,7 +698,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                             ],
                             function (err, interactions)
                             {
-                                if (!err && interactions instanceof Array)
+                                if (isNull(err) && interactions instanceof Array)
                                 {
                                     async.mapLimit(interactions, 1, function(interaction,callback){
                                         var query =
@@ -772,7 +772,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                                             ],
                                             function (err, results)
                                             {
-                                                if (!err && results instanceof Array && results.length == 1)
+                                                if (isNull(err) && results instanceof Array && results.length == 1)
                                                 {
                                                     callback(null, results[0]);
                                                 }

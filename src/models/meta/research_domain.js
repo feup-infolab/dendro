@@ -113,7 +113,7 @@ ResearchDomain.findByTitleOrDescription  = function(query, callback, max_results
         queryArguments,
         function(err, results)
         {
-            if (!err)
+            if (isNull(err))
             {
                 const fetchResearchDomain = function (result, callback) {
                     ResearchDomain.findByUri(result.uri, function (err, domain) {

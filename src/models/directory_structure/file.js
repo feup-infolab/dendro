@@ -67,7 +67,7 @@ File.prototype.save = function(callback)
 
     self.extract_text(function(err, text)
     {
-        if(!err)
+        if(isNull(err))
         {
             if(!isNull(text))
             {
@@ -141,10 +141,10 @@ File.prototype.delete = function(callback, uriOfUserDeletingTheFile, reallyDelet
     if(self.ddr.deleted && reallyDelete)
     {
         self.deleteAllMyTriples(function(err, result){
-            if(!err)
+            if(isNull(err))
             {
                 self.unlinkFromParent(function(err, result){
-                    if(!err)
+                    if(isNull(err))
                     {
                         gfs.connection.delete(self.uri, function(err, result)
                         {
@@ -187,7 +187,7 @@ File.prototype.undelete = function(callback, uriOfUserUnDeletingTheFile)
     );
 
     self.save(function(err, result){
-        if(!err)
+        if(isNull(err))
         {
             return callback(null, self);
         }
@@ -215,7 +215,7 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
 
             const writeStream = fs.createWriteStream(tempFilePath);
             gfs.connection.get(self.uri, writeStream, function(err, result){
-                if(!err)
+                if(isNull(err))
                 {
                     return callback(null, tempFilePath);
                 }
@@ -234,7 +234,7 @@ File.prototype.writeToTempFile = function(callback)
     const tmp = require('tmp');
 
     let fetchMetadataCallback = function (err, tempFolderPath) {
-        if (!err)
+        if (isNull(err))
         {
             let writeToFileCallback = function(callback)
             {
@@ -245,7 +245,7 @@ File.prototype.writeToTempFile = function(callback)
                 const fs = require('fs');
                 const writeStream = fs.createWriteStream(tempFilePath);
                 gfs.connection.get(self.uri, writeStream, function(err, result){
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, tempFilePath);
                     }
@@ -310,7 +310,7 @@ File.prototype.getThumbnail = function(size, callback)
                         return callback(null, Pathfinder.absPathInPublicFolder("images/icons/extensions/file_generating_thumbnail.png"));
                     })
                 }
-                else if(!err)
+                else if(isNull(err))
                 {
                     console.log("Thumbnail temp file location: " + tempFilePath);
                     return callback(null, tempFilePath);
@@ -388,7 +388,7 @@ File.prototype.extract_text = function(callback)
                     }
                 });
                 
-                if(!err)
+                if(isNull(err))
                 {
                     return callback(null, textContent);
                 }
@@ -415,7 +415,7 @@ File.estimateUnzippedSize = function(pathOfZipFile, callback)
 
 
     exec(command, {cwd : parentFolderPath},  function (error, stdout, stderr) {
-        if(!error)
+        if(isNull(error))
         {
             const regex = new RegExp(" *[0-9]* [0-9]* file[s]?");
 
@@ -450,12 +450,12 @@ File.unzip = function(pathOfFile, callback) {
         },
         function(err, tmpFolderPath)
         {
-            if(!err)
+            if(isNull(err))
             {
                 var command = 'unzip -qq -o ' + pathOfFile;
 
                 const unzip = exec(command, {cwd: tmpFolderPath}, function (error, stdout, stderr) {
-                    if (!error) {
+                    if (isNull(error)) {
                         console.log("Contents are in folder " + tmpFolderPath);
                         return callback(null, tmpFolderPath);
 
@@ -481,7 +481,7 @@ File.prototype.connectToMongo = function (callback) {
     const MongoClient = require('mongodb').MongoClient;
     const url = 'mongodb://' + Config.mongoDBHost + ':' + Config.mongoDbPort + '/' + Config.mongoDbCollectionName;
     MongoClient.connect(url, function(err, db) {
-        if(!err)
+        if(isNull(err))
         {
             console.log("Connected successfully to MongoDB");
             return callback(null, db);
@@ -504,7 +504,7 @@ File.prototype.findFileInMongo = function (db, callback) {
             console.log(files);
         }
 
-        if(!err)
+        if(isNull(err))
         {
             return callback(null, files);
         }
@@ -538,7 +538,7 @@ File.prototype.loadMetadata = function(node, callback, entityLoadingTheMetadata,
         self.replaceDescriptors(descriptors, excludedDescriptorTypes, exceptionedDescriptorTypes);
 
         self.save(function(err, result){
-            if(!err)
+            if(isNull(err))
             {
                 return callback(null, result);
             }
@@ -610,18 +610,18 @@ File.prototype.generateThumbnails = function(callback)
     };
 
     self.getOwnerProject(function(err, project){
-        if(!err)
+        if(isNull(err))
         {
             if(!isNull(Config.thumbnailableExtensions[self.ddr.fileExtension]))
             {
                 self.writeToTempFile(function(err, tempFileAbsPath){
-                    if(!err)
+                    if(isNull(err))
                     {
                         async.map(Config.thumbnails.sizes, function(thumbnailSize, callback){
                                 generateThumbnail(tempFileAbsPath, project.uri, thumbnailSize, callback);
                             },
                             function(err, results){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     return callback(null, null);
                                 }
@@ -663,7 +663,7 @@ File.createBlankTempFile = function(fileName, callback)
         {
             const tempFilePath = path.join(tempFolderAbsPath, fileName);
 
-            if(!err)
+            if(isNull(err))
             {
                 console.log("Temp File Created! Location: " + tempFilePath);
             }

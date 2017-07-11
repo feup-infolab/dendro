@@ -26,7 +26,7 @@ exports.show = function(req, res){
 
     User.all(function(err, users)
     {
-        if(!err)
+        if(isNull(err))
         {
             viewVars.users = users;
 

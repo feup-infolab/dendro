@@ -19,7 +19,7 @@ exports.autocomplete = function(req, res) {
             query,
             function(err, research_domains)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     for(let i = 0; i < research_domains.length; i++)
                     {
@@ -63,7 +63,7 @@ exports.all = function(req, res) {
     ResearchDomain.all(req,
         function(err, research_domains)
         {
-            if(!err)
+            if(isNull(err))
             {
                 const getResearchDomainProperties = function (resultRow, cb) {
                     ResearchDomain.findByUri(resultRow.uri, function (err, project) {
@@ -73,7 +73,7 @@ exports.all = function(req, res) {
 
                 async.map(research_domains, getResearchDomainProperties, function(err, researchDomains)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         res.json({
                             result: "ok",
@@ -124,7 +124,7 @@ exports.edit = function(req, res) {
             });
         },
         function(err, results){
-            if(!err)
+            if(isNull(err))
             {
                 res.json({
                         result : "ok",
@@ -151,12 +151,12 @@ exports.delete = function(req, res) {
     if(!isNull(uriOfResearchDomainToDelete))
     {
         ResearchDomain.findByUri(uriOfResearchDomainToDelete, function(err, research_domain){
-            if(!err)
+            if(isNull(err))
             {
                 if(typeof research_domain !== "undefined")
                 {
                     research_domain.deleteAllMyTriples(function(err, result){
-                        if(!err)
+                        if(isNull(err))
                         {
                             res.json({
                                     result : "ok",

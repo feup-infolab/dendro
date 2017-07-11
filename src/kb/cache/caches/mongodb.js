@@ -30,7 +30,7 @@ MongoDBCache.prototype.openConnection = function(callback) {
         const slug = require('slug');
         const url = "mongodb://" + self.host + ":" + self.port + "/" + slug(self.database, '_');
         MongoClient.connect(url, function(err, db) {
-            if(!err)
+            if(isNull(err))
             {
                 self.client = db;
                 callback(null, self);
@@ -64,7 +64,7 @@ MongoDBCache.prototype.put = function(resourceUri, object, callback) {
                     object,
                     { "upsert" : true },
                     function(err, results) {
-                        if(!err)
+                        if(isNull(err))
                         {
                             if (Config.debug.active && Config.debug.cache.log_cache_writes)
                             {
@@ -108,7 +108,7 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
 
                 cursor.each(function(err, cachedJSON)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         if(Config.cache.active && Config.debug.cache.log_cache_hits)
                         {
@@ -183,7 +183,7 @@ MongoDBCache.prototype.delete = function(resourceUriOrArrayOfResourceUris, callb
                         filterObject,
                         function (err)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                         {
@@ -229,7 +229,7 @@ MongoDBCache.prototype.deleteAll = function(callback) {
                     { },
                     function (err)
                     {
-                        if (!err)
+                        if (isNull(err))
                         {
                             if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                             {

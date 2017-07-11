@@ -53,11 +53,11 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
             }
         ],
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 const fetchFullChange = function (changeResultRow, cb) {
                     Change.findByUri(changeResultRow.uri, function (err, change) {
-                        if (!err) {
+                        if (isNull(err)) {
                             cb(null, change);
                         }
                         else {
@@ -67,7 +67,7 @@ Change.findByAssociatedRevision = function(revisionUri, callback)
                 };
 
                 async.map(results, fetchFullChange, function(err, fullChanges){
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, fullChanges);
                     }

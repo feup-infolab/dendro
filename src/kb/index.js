@@ -136,7 +136,7 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
             body : document
         }, function(err, data)
         {
-            if(!err)
+            if(isNull(err))
             {
                 return callback(null, "Document successfully RE indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
@@ -155,7 +155,7 @@ IndexConnection.prototype.indexDocument = function(type, document, callback) {
             body : document
         }, function(err, data)
         {
-            if(!err)
+            if(isNull(err))
             {
                 return callback(null, "Document successfully indexed" + JSON.stringify(document) + " with ID " + data._id);
             }
@@ -212,7 +212,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
                         {
                             self.delete_index(function(err)
                             {
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     return callback();
                                 }
@@ -252,7 +252,7 @@ IndexConnection.prototype.create_new_index = function(numberOfShards, numberOfRe
 			settings.index = indexName;
 
             self.client.indices.create(settings, function(err, data){
-                if(!err)
+                if(isNull(err))
                 {
                     if(isNull(data.error) && data.acknowledged === true)
                     {
@@ -285,7 +285,7 @@ IndexConnection.prototype.delete_index  = function (callback)
             index: self.index.short_name
         }, function(err, data)
         {
-            if(!err && !data.error)
+            if(isNull(err) && !data.error)
             {
                 return callback(null, "Index with name " + self.index.short_name + " successfully deleted.");
             }

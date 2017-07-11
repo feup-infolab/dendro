@@ -389,7 +389,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
     const self = this;
 
     queryObjectToString(queryStringWithArguments, argumentsArray, function(err, query){
-        if (!err)
+        if (isNull(err))
         {
             if (self.host && self.port)
             {

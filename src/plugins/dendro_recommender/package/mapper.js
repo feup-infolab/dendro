@@ -16,7 +16,7 @@ Mapper.register_in_recommender = function(object, callback)
     var mappedObject = Mapper.map(object);
 
     DRConnection.send("POST", mappedObject, Mapper.getEndpoint(object), function(err, result){
-        if(!err)
+        if(isNull(err))
         {
             callback(null, result);
         }

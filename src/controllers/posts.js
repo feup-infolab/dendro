@@ -24,13 +24,13 @@ const app = require('../app');
 exports.numPostsDatabase = function (req, res) {
     const currentUserUri = req.user.uri;
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
-        if(!err)
+        if(isNull(err))
         {
             async.map(projects, function (project, cb1) {
                 cb1(null, project.uri);
             }, function (err, projectsUris) {
                 numPostsDatabaseAux(projectsUris,function (err, count) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         res.json(count);
                     }
@@ -79,13 +79,13 @@ exports.all = function(req, res){
                 else
                 {
                     Project.findByCreatorOrContributor(currentUser.uri, function (err, projects) {
-                        if(!err)
+                        if(isNull(err))
                         {
                             async.map(projects, function (project, cb1) {
                                 cb1(null, project.uri);
                             }, function (err, fullProjectsUris) {
                                 getAllPosts(fullProjectsUris,function (err, results) {
-                                    if(!err)
+                                    if(isNull(err))
                                     {
                                         res.json(results);
                                     }
@@ -108,7 +108,7 @@ exports.all = function(req, res){
                     });
                     /*
                     getAllPosts(function (err, results) {
-                        if(!err)
+                        if(isNull(err))
                         {
                             res.json(results);
                         }
@@ -126,7 +126,7 @@ exports.all = function(req, res){
         {
             Post.all(req, function (err, posts)
             {
-                if (!err)
+                if (isNull(err))
                 {
                     async.map(posts, function(post, callback){
 
@@ -141,7 +141,7 @@ exports.all = function(req, res){
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri)
                         }, null, db_social.graphUri, null)
                     }, function(err, loadedPosts){
-                        if(!err)
+                        if(isNull(err))
                         {
                             loadedPosts.sort(sortPostsByModifiedDate);//sort posts by modified date
                             res.json(loadedPosts);
@@ -188,14 +188,14 @@ function pingNewPosts(sessionUser, cb) {
     const currentUserUri = sessionUser.uri;
     let numPostsCreated = 0;
     Project.findByCreatorOrContributor(currentUserUri, function(err, projects) {
-        if(!err)
+        if(isNull(err))
         {
             if(projects.length > 0)
             {
                 async.map(projects, function (project, cb1) {
                         const socialUpdatedAt = project.dcterms.socialUpdatedAt ? project.dcterms.socialUpdatedAt : '1970-09-21T19:27:46.578Z';
                         project.getRecentProjectWideChangesSocial(function(err, changes){
-                            if(!err)
+                            if(isNull(err))
                             {
                                 if(changes.length > 0)
                                 {
@@ -219,7 +219,7 @@ function pingNewPosts(sessionUser, cb) {
 
                                                 newPost.save(function(err, post)
                                                 {
-                                                    if (!err)
+                                                    if (isNull(err))
                                                     {
                                                         numPostsCreated++;
                                                         return callback(err, post);
@@ -237,7 +237,7 @@ function pingNewPosts(sessionUser, cb) {
                                         },
                                         function(err, fullDescriptors)
                                         {
-                                            if(!err)
+                                            if(isNull(err))
                                             {
                                                 const updatedProject = project;
                                                 updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
@@ -308,7 +308,7 @@ exports.new = function(req, res){
 
      newPost.save(function(err, post)
      {
-     if (!err)
+     if (isNull(err))
      {
      res.json({
      result : "OK",
@@ -354,7 +354,7 @@ exports.getPost_controller = function (req, res) {
         const debugGraph = db_social.graphUri;
         Post.findByUri(req.body.postID, function(err, post)
         {
-            if(!err)
+            if(isNull(err))
             {
 
                 if(!post)
@@ -426,7 +426,7 @@ exports.share = function (req, res) {
 
         newShare.save(function(err, resultShare)
         {
-            if(!err)
+            if(isNull(err))
             {
                 /*
                 res.json({
@@ -434,7 +434,7 @@ exports.share = function (req, res) {
                     message : "Post shared successfully"
                 });*/
                 newNotification.save(function (error, resultNotification) {
-                    if(!error)
+                    if(isNull(error))
                     {
                         res.json({
                             result : "OK",
@@ -493,7 +493,7 @@ exports.comment = function (req, res) {
 
         Post.findByUri(req.body.postID, function(err, post)
         {
-            if(!err && !isNull(post))
+            if(isNull(err) && !isNull(post))
             {
                 const newComment = new Comment({
                     ddr: {
@@ -517,7 +517,7 @@ exports.comment = function (req, res) {
 
                 newComment.save(function(err, resultComment)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         /*
                          res.json({
@@ -525,7 +525,7 @@ exports.comment = function (req, res) {
                          message : "Post commented successfully"
                          });*/
                         newNotification.save(function (error, resultNotification) {
-                            if(!error)
+                            if(isNull(error))
                             {
                                 res.json({
                                     result : "OK",
@@ -596,7 +596,7 @@ exports.comment = function (req, res) {
 
         newComment.save(function(err, resultComment)
         {
-            if(!err)
+            if(isNull(err))
             {
                 /!*
                 res.json({
@@ -604,7 +604,7 @@ exports.comment = function (req, res) {
                     message : "Post commented successfully"
                 });*!/
                 newNotification.save(function (error, resultNotification) {
-                    if(!error)
+                    if(isNull(error))
                     {
                         res.json({
                             result : "OK",
@@ -644,10 +644,10 @@ exports.checkIfPostIsLikedByUser = function (req, res) {
 
         Post.findByUri(postID, function(err, post)
         {
-            if(!err && !isNull(post))
+            if(isNull(err) && !isNull(post))
             {
                 userLikedAPost(post.uri, currentUser.uri, function (err, isLiked) {
-                    if(!err)
+                    if(isNull(err))
                         res.json(isLiked);
                     else
                         res.status(500).json({
@@ -685,7 +685,7 @@ exports.like = function (req, res) {
     {
         const currentUser = req.user;
         removeOrAdLike(req.body.postID, currentUser.uri, function (err, likeExists) {
-            if(!err)
+            if(isNull(err))
             {
                 if(likeExists)
                 {
@@ -699,7 +699,7 @@ exports.like = function (req, res) {
                 {
                     Post.findByUri(req.body.postID, function(err, post)
                     {
-                        if(!err && !isNull(post))
+                        if(isNull(err) && !isNull(post))
                         {
                             const updatedPost = post;
                             const newLike = new Like({
@@ -729,10 +729,10 @@ exports.like = function (req, res) {
 
                             newLike.save(function(err, resultLike)
                             {
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     newNotification.save(function (error, resultNotification) {
-                                        if(!error)
+                                        if(isNull(error))
                                         {
                                             res.json({
                                                 result : "OK",
@@ -828,7 +828,7 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
                     }
                 ]),
                 function(err, results) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(err,results[0].count);
                     }
@@ -889,7 +889,7 @@ const removeLike = function (likeID, userUri, cb) {
             }
         ]),
         function (err, results) {
-            if (!err) {
+            if (isNull(err)) {
                 let likeExists = false;
                 if (results.length > 0) {
                     likeExists = true;
@@ -930,7 +930,7 @@ var removeOrAdLike = function (postID, userUri, cb) {
             }
         ]),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 let likeExists = false;
                 if(results.length > 0)
@@ -976,7 +976,7 @@ var getCommentsForAPost = function (postID, cb) {
             }
         ]),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 async.map(results, function(commentUri, callback){
                     Comment.findByUri(commentUri.commentURI, function(err, comment)
@@ -1018,7 +1018,7 @@ const getSharesForAPost = function (postID, cb) {
             }
         ]),
         function (err, results) {
-            if (!err) {
+            if (isNull(err)) {
                 async.map(results, function (shareObject, callback) {
                     Share.findByUri(shareObject.shareURI, function (err, share) {
                         return callback(false, share);
@@ -1074,10 +1074,10 @@ exports.postLikesInfo = function (req, res) {
 
         Post.findByUri(postURI, function(err, post)
         {
-            if(!err && !isNull(post))
+            if(isNull(err) && !isNull(post))
             {
                 getNumLikesForAPost(post.uri, function (err, likesArray) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         if(likesArray.length)
                         {
@@ -1153,7 +1153,7 @@ var userLikedAPost = function(postID, userUri, cb )
             }
         ]),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 if(results.length > 0)
                     cb(err, true);
@@ -1192,7 +1192,7 @@ var getNumLikesForAPost = function(postID, cb)
             }
         ]),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 cb(false, results);
             }
@@ -1242,7 +1242,7 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
                     }
                 ]),
                 function(err, results) {
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(err,results);
                     }
@@ -1301,7 +1301,7 @@ exports.getShare = function (req, res) {
             }
         ]),
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 //var types =_.pluck(results, 'type');
 

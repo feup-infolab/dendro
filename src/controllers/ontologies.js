@@ -13,7 +13,7 @@ exports.recommend = function(req, res) {
     if(!isNull(req.params.requestedResourceUri))
     {
         Ontology.previouslyUsed(req.user, function(error, previouslyUsedOntologies){
-            if(!err)
+            if(isNull(err))
             {
                 res.json(previouslyUsedOntologies)
             }
@@ -105,7 +105,7 @@ exports.ontologies_autocomplete = function(req, res) {
             Config.recommendation.max_autocomplete_results,
             function(err, ontologies)
             {
-                if(!err)
+                if(isNull(err))
                 {
                     res.json(
                         ontologies
@@ -203,10 +203,10 @@ exports.edit = function(req, res) {
         const newOntology = new Ontology(newOntologyData);
 
         newOntology.save(function(err, result){
-            if(!err)
+            if(isNull(err))
             {
                 Ontology.initAllFromDatabase(function(err, result){
-                    if(!err)
+                    if(isNull(err))
                     {
                         res.json({
                             result : "ok",

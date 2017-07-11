@@ -29,7 +29,7 @@ exports.all = function(req, res)
 
     Resource.all(req, function(err, results)
     {
-        if(!err)
+        if(isNull(err))
         {
             viewVars.vertexes = results;
             res.render('vertexes/all',
@@ -58,7 +58,7 @@ exports.show = function(req, res) {
             ],
 			function(err, results) {
 
-                if(!err)
+                if(isNull(err))
                 {
                     res.render('vertexes/show', {
                         title : 'Showing a single vertex',
@@ -85,7 +85,7 @@ exports.random = function(req, res) {
 				db.connection.execute("SELECT (count(?s) as ?c) WHERE {?s ?p ?o .}",
                         [],
 						function(err, results) {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 const randomNumber = Math.floor(Math.random() * results[0].c + 1);
                                 return callback(null, randomNumber);
@@ -110,7 +110,7 @@ exports.random = function(req, res) {
                             }
                         ],
                         function(err, results) {
-                            if(!err)
+                            if(isNull(err))
                             {
                                 return callback(null, results[0].s, randomNumber);
                             }
@@ -258,7 +258,7 @@ getOutNeighbours = function(req, vertexUri, callback)
                 }
             ],
             function(err, results) {
-                if(!err)
+                if(isNull(err))
                 {
                     return callback(results);
                 }

@@ -62,7 +62,7 @@ function User (object)
 User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 {
     User.findByPropertyValue(orcid, "ddr:orcid", function(err, user){
-        if(!err && !isNull(user) && user instanceof User)
+        if(isNull(err) && !isNull(user) && user instanceof User)
         {
             if(removePrivateDescriptors)
             {
@@ -84,7 +84,7 @@ User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 User.findByUsername = function(username, callback, removePrivateDescriptors)
 {
     User.findByPropertyValue(username, "ddr:username", function(err, user){
-        if(!err && !isNull(user) && user instanceof User)
+        if(isNull(err) && !isNull(user) && user instanceof User)
         {
             if(removePrivateDescriptors)
             {
@@ -154,7 +154,7 @@ User.autocomplete_search = function(value, maxResults, callback) {
         ],
 
         function(err, users) {
-            if(!err && users instanceof Array)
+            if(isNull(err) && users instanceof Array)
             {
                 const getUserProperties = function (resultRow, cb) {
                     User.findByUri(resultRow.uri, function (err, user) {
@@ -206,7 +206,7 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
         ],
 
         function(err, user) {
-            if(!err)
+            if(isNull(err))
             {
                 if(user.length > 1)
                 {
@@ -218,7 +218,7 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                     const uri = user[0].uri;
                     User.findByUri(uri, function(err, fetchedUser)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             if(!isNull(fetchedUser))
                             {
@@ -256,12 +256,12 @@ User.createAndInsertFromObject = function(object, callback) {
     //encrypt password
     const bcrypt = require('bcryptjs');
     bcrypt.hash(self.ddr.password, self.ddr.salt, function(err, password){
-        if(!err)
+        if(isNull(err))
         {
             self.ddr.password = password;
 
             self.save(function(err, newUser) {
-                if(!err)
+                if(isNull(err))
                 {
                     if(newUser instanceof User)
                     {
@@ -323,7 +323,7 @@ User.allInPage = function(page, pageSize, callback) {
     db.connection.execute(query,
         [],
         function(err, users) {
-            if(!err)
+            if(isNull(err))
             {
                 if(users instanceof Array)
                 {
@@ -331,7 +331,7 @@ User.allInPage = function(page, pageSize, callback) {
                     // and return the array of projects, complete with that info
                     async.map(users, User.findByUri, function(err, usersToReturn)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             return callback(null, usersToReturn);
                         }
@@ -407,7 +407,7 @@ User.prototype.getInteractions = function(callback)
             value : self.uri
         }
     ], function(err, results) {
-        if(!err)
+        if(isNull(err))
         {
             if(!isNull(results) && results instanceof Array)
             {
@@ -475,7 +475,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         };
 
         async.map(descriptors, createDescriptor, function (err, fullDescriptors) {
-            if (!err) {
+            if (isNull(err)) {
                 /**remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
 
@@ -615,7 +615,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         argumentsArray,
 
         function(err, hidden) {
-            if(!err)
+            if(isNull(err))
             {
                 createDescriptorsList(hidden, function(err, fullDescriptors){
                     return callback(err, fullDescriptors);
@@ -666,7 +666,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         };
 
         async.map(descriptors, createDescriptor, function (err, fullDescriptors) {
-            if (!err) {
+            if (isNull(err)) {
                 /**remove nulls (that were unauthorized descriptors)**/
                 fullDescriptors = _.without(fullDescriptors, null);
 
@@ -806,7 +806,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         argumentsArray,
 
         function(err, favorites) {
-            if(!err)
+            if(isNull(err))
             {
                 createDescriptorsList(favorites, function(err, fullDescriptors){
                     return callback(err, fullDescriptors);
@@ -890,7 +890,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
         argumentsArray,
 
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const createDescriptor = function (result, callback) {
 
@@ -924,7 +924,7 @@ User.prototype.mostAcceptedFavoriteDescriptorsInMetadataEditor = function(maxRes
 
                 async.map(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
@@ -1014,7 +1014,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
         argumentsArray,
 
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const createDescriptor = function (result, callback) {
 
@@ -1048,7 +1048,7 @@ User.prototype.mostAcceptedSmartDescriptorsInMetadataEditor = function(maxResult
 
                 async.map(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
@@ -1139,7 +1139,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
         argumentsArray,
 
         function(err, descriptors) {
-            if(!err)
+            if(isNull(err))
             {
                 const createDescriptor = function (result, callback) {
 
@@ -1174,7 +1174,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
 
                 async.map(descriptors, createDescriptor, function(err, fullDescriptors)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         /**remove nulls (that were unauthorized descriptors)**/
                         fullDescriptors = _.without(fullDescriptors, null);
@@ -1226,7 +1226,7 @@ User.prototype.makeGlobalAdmin = function(callback)
     const self = this;
 
     self.isAdmin(function(err, isAdmin){
-        if(!err)
+        if(isNull(err))
         {
             if(!isAdmin)
             {
@@ -1237,7 +1237,7 @@ User.prototype.makeGlobalAdmin = function(callback)
                 });
 
                 self.insertDescriptors([newAdminDescriptor], function(err, result){
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, self);
                     }
@@ -1271,7 +1271,7 @@ User.prototype.undoGlobalAdmin = function(callback)
     const self = this;
 
     self.checkIfHasPredicateValue("rdf:type", "ddr:Administrator", function(err, isAdmin){
-        if(!err)
+        if(isNull(err))
         {
             if (isAdmin)
             {
@@ -1301,7 +1301,7 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
 
     self.checkIfHasPredicateValue("ddr:password_reset_token", token, function(err, tokenIsCorrect)
     {
-        if(!err)
+        if(isNull(err))
         {
             if(tokenIsCorrect)
             {
@@ -1312,7 +1312,7 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
                 self.ddr.password_reset_token = null;
 
                 self.save(function(err, result){
-                    if(!err)
+                    if(isNull(err))
                     {
                         console.log("Successfully set new password for user : " + self.uri + ".");
                         return callback(err, result);
@@ -1415,7 +1415,7 @@ User.prototype.startPasswordReset = function(callback)
     };
 
     self.save(function(err, updatedUser){
-        if(!err)
+        if(isNull(err))
         {
             sendConfirmationEmail(callback)
         }
@@ -1436,7 +1436,7 @@ User.removeAllAdmins = function(callback)
 
     Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples(adminDescriptor, function(err, results)
     {
-        if (!err)
+        if (isNull(err))
         {
             return callback(null, results);
         }

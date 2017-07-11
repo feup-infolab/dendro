@@ -63,7 +63,7 @@ Upload.create = function(object, callback)
             },
             function(err, tmp_dir)
             {
-                if (!err)
+                if (isNull(err))
                 {
                     self.temp_dir = tmp_dir;
                     self.temp_file = path.join(tmp_dir, object.filename);
@@ -84,7 +84,7 @@ Upload.prototype.restart = function(callback)
 
     fs.unlink(self.temp_file, function(err)
     {
-        if(!err)
+        if(isNull(err))
         {
             self.loaded = 0;
             return callback(null);

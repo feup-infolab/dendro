@@ -47,7 +47,7 @@ GridFSConnection.prototype.openConnection = function(callback) {
 
         // make sure the db instance is open before passing into `Grid`
         db.open(function (err) {
-            if (!err)
+            if (isNull(err))
             {
                 self.db = db;
                 self.gfs = Grid(db, mongo);
@@ -168,12 +168,12 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
         let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
         bucket.delete(fileUri, function (err)
         {
-            if (!err)
+            if (isNull(err))
             {
                 // Verify that the file no longer exists
                 self.db.find(fileUri, function (err, exists)
                 {
-                    if (!err && !exists)
+                    if (isNull(err) && !exists)
                     {
                         return callback(null, "File " + fileUri + "successfully deleted");
                     }

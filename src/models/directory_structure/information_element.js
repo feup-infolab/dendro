@@ -118,8 +118,6 @@ InformationElement.getType = function(resourceURI, callback)
         });
 };
 
-
-
 InformationElement.prototype.getParent = function(callback)
 {
     const self = this;
@@ -152,7 +150,7 @@ InformationElement.prototype.getParent = function(callback)
             }
         ],
         function(err, results) {
-            if(!err)
+            if(isNull(err))
             {
                 if(results instanceof Array)
                 {
@@ -195,6 +193,62 @@ InformationElement.prototype.getParent = function(callback)
             else
             {
                 return callback(1, "Error reported when querying for the parent of" + self.uri + " . Error was ->" + result);
+            }
+        }
+    );
+};
+
+InformationElement.prototype.getAllParentsUntilProject = function(callback)
+{
+    const self = this;
+
+    /**
+     *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+     *    (Recursive querying through inference).
+     *   @type {string}
+     */
+    const query =
+        "SELECT ?uri \n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:isLogicalPartOf+ ?uri. \n" +
+        "   ?uri rdf:type ddr:Resource. \n" +
+        "   ?uri rdf:type nie:FileDataObject \n" +
+        "} ";
+
+    db.connection.execute(query,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.resource,
+                value: self.uri
+            }
+        ],
+        function(err, result) {
+            if(isNull(err))
+            {
+                if(result instanceof Array)
+                {
+                    const async = require('async');
+                    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+                    async.map(result, function(result, callback){
+                        Folder.findByUri(result.uri, function(err, parentFolder){
+                            return callback(err,parentFolder);
+                        });
+                    }, callback);
+                }
+                else
+                {
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent PROJECT of" + self.uri);
+                }
+            }
+            else
+            {
+                return callback(1, "Error reported when querying for the parent PROJECT of" + self.uri + " . Error was ->" + result);
             }
         }
     );
@@ -246,7 +300,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
             }
         ],
         function(err, result) {
-            if(!err)
+            if(isNull(err))
             {
                 if(result instanceof Array && result.length === 1)
                 {
@@ -320,7 +374,7 @@ InformationElement.prototype.unlinkFromParent = function(callback)
 {
     const self = this;
     self.getParent(function(err, parent){
-        if(!err)
+        if(isNull(err))
         {
             if(parent instanceof Object && !isNull(parent.nie))
             {
@@ -423,14 +477,14 @@ InformationElement.prototype.findMetadata = function(callback){
 
     const self = this;
     InformationElement.findByUri(self.uri, function(err, resource){
-        if(!err){
+        if(isNull(err)){
             if(!isNull(resource))
             {
                 resource.getPropertiesFromOntologies(
                     Ontology.getPublicOntologiesUris(),
                     function(err, descriptors)
                     {
-                        if(!err)
+                        if(isNull(err))
                         {
                             //remove locked descriptors
                             for(let i = 0 ; i < descriptors.length ; i++)
@@ -459,10 +513,10 @@ InformationElement.prototype.findMetadata = function(callback){
                                     metadataResult.metadata_quality = 0;
                                 }
 
-                                if(!err){
+                                if(isNull(err)){
 
                                     folder.getLogicalParts(function (err, children) {
-                                        if (!err) {
+                                        if (isNull(err)) {
                                             const _ = require('underscore');
                                             children = _.reject(children, function (child) {
                                                 return child.ddr.deleted;
@@ -484,7 +538,7 @@ InformationElement.prototype.findMetadata = function(callback){
                                                     },
                                                     // 3rd parameter is the function call when everything is done
                                                     function(err){
-                                                        if(!err) {
+                                                        if(isNull(err)) {
                                                             // All tasks are done now
                                                             return callback(false, metadataResult);
                                                         }

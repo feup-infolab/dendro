@@ -137,11 +137,11 @@ HarvestedResource.prototype.save = function(indexConnection, callback) {
         argumentsArray,
         function(err, result)
         {
-            if(!err)
+            if(isNull(err))
             {
                 self.reindex(indexConnection, function(err, result)
                 {
-                    if(!err)
+                    if(isNull(err))
                     {
                         return callback(null, "Metadata successfully inserted for resource : "+ self.uri + " Virtuoso error : " + result);
                     }
