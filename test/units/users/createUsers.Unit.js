@@ -1,6 +1,7 @@
 process.env.NODE_ENV = 'test';
 const Pathfinder = global.Pathfinder;
 const Config = global.Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("utils/null")).isNull;
 
 const chai = require('chai');
 chai.use(require('chai-http'));
