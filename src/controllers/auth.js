@@ -90,8 +90,8 @@ module.exports.login = function(req, res, next){
                         }
                         else
                         {
-                            req.flash('error', err);
-                            res.redirect('/login');
+                            req.flash("error", err);
+                            res.redirect("/login");
                         }
                     }
                 }
@@ -346,15 +346,14 @@ module.exports.register = function(req, res){
                 ], function(err, user){
                     if(!err)
                     {
-                        req.flash('success', user);
-                        console.log("User " + user);
-                        res.redirect('/login');
+                        req.flash("success", user);
+                        res.redirect("/login");
                     }
                     else
                     {
-                        req.flash('error', "Error registering a new user");
+                        req.flash("error", "Error registering a new user");
                         console.error("Error registering a new user: " + JSON.stringify(err));
-                        res.redirect('/register');
+                        res.redirect("/register");
                     }
                 });
             }

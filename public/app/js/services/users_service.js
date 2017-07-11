@@ -63,16 +63,16 @@ angular.module('dendroApp.services')
                     }
                 };
 
-                this.update_avatar = function(newAvatarPicture)
+                this.updateAvatar = function(newAvatarPicture)
                 {
                     var requestUri = "/user/avatar";
 
                     var params = {
-                        new_avatar : newAvatarPicture
+                        newAvatar : newAvatarPicture
                     };
 
                     return $http({
-                        method: 'POST',
+                        method: "POST",
                         url: requestUri,
                         data: params,
                         contentType: "application/json",
@@ -82,13 +82,12 @@ angular.module('dendroApp.services')
                     });
                 };
 
-                this.receive_avatar = function(username)
+                this.receiveAvatar = function(username)
                 {
-                    console.log('at get_avatar service');
                     var requestUri = "/user/" + username +"/avatar";
 
                     return $http({
-                        method: 'GET',
+                        method: "GET",
                         url: requestUri,
                         contentType: "application/json",
                         headers: {'Accept': "application/json"}

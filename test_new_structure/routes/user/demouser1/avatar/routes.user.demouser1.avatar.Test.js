@@ -53,9 +53,9 @@ describe("[GET] /user/demouser1/avatar", function (done) {
                 res.should.have.status(200);
                 let imageFromServerDemouser2 = res.body.toString('base64');
                 let imageFromServerDemouser2MD5 = md5(imageFromServerDemouser2);
-                let defaultAvatarForDemouser2MD5 = md5(demouser2.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
-                let defaultAvatarForDemouser1MD5 = md5(demouser1.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
-                let defaultAvatarForDemouser3MD5 = md5(demouser3.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser2MD5 = md5(demouser2.avatar.newAvatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser1MD5 = md5(demouser1.avatar.newAvatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser3MD5 = md5(demouser3.avatar.newAvatar.replace(/^data:image\/png;base64,/, ""));
                 imageFromServerDemouser2MD5.should.equal(defaultAvatarForDemouser2MD5);
                 imageFromServerDemouser2MD5.should.not.equal(defaultAvatarForDemouser1MD5);
                 imageFromServerDemouser2MD5.should.not.equal(defaultAvatarForDemouser3MD5);
@@ -70,9 +70,9 @@ describe("[GET] /user/demouser1/avatar", function (done) {
                 res.should.have.status(200);
                 let imageFromServerDemouser3 = res.body.toString('base64');
                 let imageFromServerDemouser3MD5 = md5(imageFromServerDemouser3);
-                let defaultAvatarForDemouser2MD5 = md5(demouser2.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
-                let defaultAvatarForDemouser1MD5 = md5(demouser1.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
-                let defaultAvatarForDemouser3MD5 = md5(demouser3.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser2MD5 = md5(demouser2.avatar.newAvatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser1MD5 = md5(demouser1.avatar.newAvatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser3MD5 = md5(demouser3.avatar.newAvatar.replace(/^data:image\/png;base64,/, ""));
                 imageFromServerDemouser3MD5.should.equal(defaultAvatarForDemouser3MD5);
                 imageFromServerDemouser3MD5.should.not.equal(defaultAvatarForDemouser1MD5);
                 imageFromServerDemouser3MD5.should.not.equal(defaultAvatarForDemouser2MD5);
@@ -88,9 +88,9 @@ describe("[GET] /user/demouser1/avatar", function (done) {
                 res.should.have.status(200);
                 let imageFromServerDemouser1 = res.body.toString('base64');
                 let imageFromServerDemouser1MD5 = md5(imageFromServerDemouser1);
-                let defaultAvatarForDemouser2MD5 = md5(demouser2.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
-                let defaultAvatarForDemouser1MD5 = md5(demouser1.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
-                let defaultAvatarForDemouser3MD5 = md5(demouser3.avatar.new_avatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser2MD5 = md5(demouser2.avatar.newAvatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser1MD5 = md5(demouser1.avatar.newAvatar.replace(/^data:image\/png;base64,/, ""));
+                let defaultAvatarForDemouser3MD5 = md5(demouser3.avatar.newAvatar.replace(/^data:image\/png;base64,/, ""));
                 imageFromServerDemouser1MD5.should.equal(defaultAvatarForDemouser1MD5);
                 imageFromServerDemouser1MD5.should.not.equal(defaultAvatarForDemouser2MD5);
                 imageFromServerDemouser1MD5.should.not.equal(defaultAvatarForDemouser3MD5);

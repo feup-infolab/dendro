@@ -18,8 +18,8 @@ const gfs = function () {
 const async = require('async');
 const _ = require('underscore');
 const fs = require("fs");
-const path = require('path');
-const tmp = require('tmp');
+const path = require("path");
+const tmp = require("tmp");
 
 const DendroMongoClient = require(Config.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
 
@@ -516,7 +516,7 @@ exports.get_avatar = function (req, res) {
 };
 
 exports.upload_avatar = function (req, res) {
-    let avatar = req.body["new_avatar"];
+    let avatar = req.body["newAvatar"];
     let currentUser = req.user;
     User.findByUri(currentUser.uri, function (err, user) {
         if (!err) {
