@@ -178,5 +178,104 @@ exports.sendingNewPassword = function (email, token, pass, passConfirm, cb) {
         });
 };
 
+exports.editUser = function (jsonOnly, agent, dataToEdit, cb) {
+    let path = "/user/edit";
+    if(jsonOnly){
+        agent
+            .post(path)
+            .set('Accept','application/json')
+            .send(dataToEdit)
+            .end(function(err,res){
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .post(path)
+            .send(dataToEdit)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+exports.uploadAvatar = function (jsonOnly, agent, avatar, cb) {
+    let path = "/user/avatar";
+    if(jsonOnly){
+        agent
+            .post(path)
+            .set('Accept','application/json')
+            .send(avatar)
+            .end(function(err,res){
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .post(path)
+            .send(avatar)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+
+function binaryParser(res, callback) {
+    res.setEncoding('binary');
+    res.data = '';
+    res.on('data', function (chunk) {
+        res.data += chunk;
+    });
+    res.on('end', function () {
+        callback(null, new Buffer(res.data, 'binary'));
+    });
+}
+
+/*// example mocha test
+it('my test', function(done) {
+    request(app)
+        .get('/path/to/image.png')
+        .expect(200)
+        .expect('Content-Type', 'image.png')
+        .buffer()
+        .parse(binaryParser)
+        .end(function(err, res) {
+            if (err) return done(err);
+
+            // binary response data is in res.body as a buffer
+            assert.ok(Buffer.isBuffer(res.body));
+            console.log("res=", res.body);
+
+            done();
+        });
+});*/
+
+
+exports.getAvatar = function (jsonOnly, username, agent, cb) {
+    let path = "/user/" + username + "/avatar";
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            //.set('Accept', 'image/webp,image/apng,image/*,*/*;q=0.8')
+            //.set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            //.set('Accept', 'image/webp,image/apng,image/*,*/*;q=0.8')
+            .buffer()
+            .parse(binaryParser)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports = exports;
 
