@@ -56,8 +56,8 @@ module.exports.login = function(req, res, next){
                                     {
                                         console.log("User " + user.ddr.username + " signed in.");
                                     }
-                                        
-                                    res.render('/projects/my');
+
+                                    res.redirect('/projects/my');
                                 }
                             }
                             else

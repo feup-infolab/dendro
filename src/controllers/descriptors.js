@@ -45,331 +45,464 @@ exports.from_ontology = function(req, res)
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        if (!isNull(req.query.project_handle))
+        const ontologyUri = req.params.ontology_uri;
+        if(!isNull(ontologyUri) && validator.isURL(ontologyUri))
         {
-            const project_handle = req.query.project_handle;
-
-            if(!isNull(req.params.ontology_prefix))
-            {
-                const prefix = req.params.ontology_prefix;
-                if(!isNull(prefix))
+            Ontology.findByUri(ontologyUri, function (err, ontology) {
+                if (isNull(err))
                 {
-                    Ontology.findByPrefix(prefix, function (err, ontology)
+                    if (!isNull(ontology))
                     {
-                        if (isNull(err))
+                        if (!ontology.private)
                         {
-                            if (!isNull(ontology))
+                            Descriptor.all_in_ontology(ontologyUri, function (err, descriptors)
                             {
-                                if (!ontology.private)
+                                if (isNull(err))
                                 {
-                                    Descriptor.all_in_ontology(ontology.uri, function (err, descriptors)
+                                    descriptors = _.sortBy(descriptors, function (descriptor)
                                     {
-                                        if (isNull(err))
-                                        {
-                                            /**
-                                             * Get User's favorite descriptors
-                                             * @param callback
-                                             */
-                                            const getUsersFavoriteDescriptors = function (userUri, callback) {
-                                                User.findByUri(userUri, function (err, user) {
-                                                    if (isNull(err)) {
-                                                        user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
-                                                            return callback(error, favorites);
-                                                        }, [ontology]);
-                                                    }
-                                                    else {
-                                                        const error = "Error fetching user : " + user + " : " + err;
-                                                        console.error(error);
-                                                        return callback(1, error);
-                                                    }
-                                                });
-                                            };
-
-                                            /**
-                                             * Get Project's favorite descriptors
-                                             * @param callback
-                                             */
-                                            const getProjectsFavoriteDescriptors = function (projectHandle, callback) {
-                                                Project.findByHandle(projectHandle, function (err, project) {
-                                                    if (isNull(err) && !isNull(project)) {
-                                                        project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
-                                                            return callback(error, favorites);
-                                                        }, [ontology]);
-                                                    }
-                                                    else {
-                                                        const error = "Error fetching project : " + project + " : " + err;
-                                                        console.error(error);
-                                                        return callback(1, error);
-                                                    }
-                                                });
-                                            };
-
-                                            /**
-                                             * Get User's favorite descriptors
-                                             * @param callback
-                                             */
-                                            const getUsersHiddenDescriptors = function (userUri, callback) {
-                                                User.findByUri(userUri, function (err, user) {
-                                                    if (isNull(err)) {
-                                                        user.hiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites) {
-                                                            return callback(error, favorites);
-                                                        }, [ontology]);
-                                                    }
-                                                    else {
-                                                        const error = "Error fetching user : " + user + " : " + err;
-                                                        console.error(error);
-                                                        return callback(1, error);
-                                                    }
-                                                });
-                                            };
-
-                                            const getProjectsHiddenDescriptors = function (projectHandle, callback) {
-                                                Project.findByHandle(projectHandle, function (err, project) {
-                                                    if (isNull(err)) {
-                                                        project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden) {
-                                                            return callback(error, hidden);
-                                                        }, [ontology]);
-                                                    }
-                                                    else {
-                                                        const error = "Error fetching project : " + project + " : " + err;
-                                                        console.error(error);
-                                                        return callback(1, error);
-                                                    }
-                                                });
-                                            };
-
-                                            const getDCTermsDescriptors = function (callback) {
-                                                Descriptor.DCElements(function (error, dcElementsDescriptors) {
-                                                    if (isNull(err)) {
-                                                        return callback(error, dcElementsDescriptors);
-                                                    }
-                                                    else {
-                                                        const error = "Error fetching DC Elements Descriptors : " + err;
-                                                        console.error(error);
-                                                        return callback(1, error);
-                                                    }
-                                                });
-                                            };
-
-                                            async.series(
-                                                [
-                                                    function (callback)
-                                                    {
-                                                        if (isNull(req.user))
-                                                        {
-                                                            return callback(null, []);
-                                                        }
-                                                        else
-                                                        {
-                                                            getUsersFavoriteDescriptors(req.user.uri, callback);
-                                                        }
-                                                    },
-                                                    function (callback)
-                                                    {
-                                                        if (typeof project_handle === "undefined")
-                                                        {
-                                                            return callback(null, []);
-                                                        }
-                                                        else
-                                                        {
-                                                            getProjectsFavoriteDescriptors(project_handle, callback);
-                                                        }
-                                                    },
-                                                    function (callback)
-                                                    {
-                                                        if (isNull(req.user))
-                                                        {
-                                                            return callback(null, []);
-                                                        }
-                                                        else
-                                                        {
-                                                            getUsersHiddenDescriptors(req.user.uri, callback);
-                                                        }
-                                                    },
-                                                    function (callback)
-                                                    {
-                                                        if (typeof project_handle === "undefined")
-                                                        {
-                                                            return callback(null, []);
-                                                        }
-                                                        else
-                                                        {
-                                                            getProjectsHiddenDescriptors(project_handle, callback);
-                                                        }
-                                                    },
-                                                    function(callback)
-                                                    {
-                                                        getDCTermsDescriptors(callback);
-                                                    }
-                                                ],
-                                                /**
-                                                 * Perform final ranking
-                                                 * @param callback
-                                                 */
-                                                function (err, results)
-                                                {
-                                                    if (isNull(err))
-                                                    {
-                                                        let typeDetected = function(results, descriptor)
-                                                        {
-                                                            return _.find(results, function (userFavoriteDescriptor)
-                                                            {
-                                                                return userFavoriteDescriptor.uri === descriptor.uri;
-                                                            });
-                                                        };
-                                                        
-                                                        for (let i = 0; i < descriptors.length; i++)
-                                                        {
-                                                            descriptors[i]["recommendation_types"] = {};
-
-                                                            if (typeDetected(results[0], descriptors[i]))
-                                                            {
-                                                                descriptors[i]["recommendation_types"][Descriptor.recommendation_types.user_favorite.key] = true;
-                                                            }
-
-                                                            if (typeDetected(results[1], descriptors[i]))
-                                                            {
-                                                                descriptors[i]["recommendation_types"][Descriptor.recommendation_types.project_favorite.key] = true;
-                                                            }
-
-                                                            if (typeDetected(results[2], descriptors[i]))
-                                                            {
-                                                                descriptors[i]["recommendation_types"][Descriptor.recommendation_types.user_hidden.key] = true;
-                                                            }
-
-                                                            if (typeDetected(results[3], descriptors[i]))
-                                                            {
-                                                                descriptors[i]["recommendation_types"][Descriptor.recommendation_types.project_hidden.key] = true;
-                                                            }
-
-                                                            if (typeDetected(results[4], descriptors[i]))
-                                                            {
-                                                                descriptors[i]["recommendation_types"][Descriptor.recommendation_types.dc_element_forced.key] = true;
-                                                            }
-                                                        }
-
-                                                        /*
-                                                         Sort descriptors alphabetically
-                                                         */
-                                                        descriptors = _.sortBy(descriptors, function (descriptor)
-                                                        {
-                                                            return descriptor.label;
-                                                        });
-
-                                                        const removeDuplicates = function (results) {
-                                                            const uniques = _.uniq(results, false, function (result) {
-                                                                return result.uri;
-                                                            });
-
-                                                            return uniques;
-                                                        };
-
-                                                        const removeLockedAndPrivate = function (results) {
-                                                            const filtered = _.filter(results, function (result) {
-                                                                let isLockedOrPrivate = (result.locked || result.private);
-                                                                return !isLockedOrPrivate;
-                                                            });
-
-                                                            return filtered;
-                                                        };
-
-
-                                                        descriptors = removeDuplicates(descriptors);
-                                                        descriptors = removeLockedAndPrivate(descriptors);
-
-                                                        const uuid = require('uuid');
-                                                        const recommendation_call_id = uuid.v4();
-                                                        const recommendation_call_timestamp = new Date().toISOString();
-
-                                                        for(let i = 0; i < descriptors.length; i++)
-                                                        {
-                                                            descriptors[i].recommendationCallId = recommendation_call_id;
-                                                            descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
-                                                        }
-
-                                                        res.json(
-                                                            {
-                                                                result: "ok",
-                                                                "descriptors": descriptors
-                                                            }
-                                                        );
-                                                    }
-                                                    else
-                                                    {
-                                                        res.status(500).json(
-                                                            {
-                                                                result: "error",
-                                                                error_messages: [results]
-                                                            }
-                                                        );
-                                                    }
-                                                });
-                                        }
-                                        else
-                                        {
-                                            res.status(500).json(
-                                                {
-                                                    result: "error",
-                                                    error_messages: [descriptors]
-                                                }
-                                            );
-                                        }
+                                        return descriptor.label;
                                     });
-                                }
-                                else
-                                {
-                                    res.status(401).json(
+
+                                    const removeDuplicates = function (results) {
+                                        let uniques = _.uniq(results, false, function (result) {
+                                            return result.uri;
+                                        });
+
+                                        return uniques;
+                                    };
+
+                                    const removeLockedAndPrivate = function (results) {
+                                        let filtered = _.filter(results, function (result) {
+                                            let isLockedOrPrivate = (result.locked || result.private);
+                                            return !isLockedOrPrivate;
+                                        });
+
+                                        return filtered;
+                                    };
+
+
+                                    descriptors = removeDuplicates(descriptors);
+                                    descriptors = removeLockedAndPrivate(descriptors);
+
+                                    const uuid = require('uuid');
+                                    const recommendation_call_id = uuid.v4();
+                                    const recommendation_call_timestamp = new Date().toISOString();
+
+                                    for(let i = 0; i < descriptors.length; i++)
+                                    {
+                                        descriptors[i].recommendationCallId = recommendation_call_id;
+                                        descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
+                                    }
+
+                                    res.json(
                                         {
-                                            result: "error",
-                                            error_messages: "Unauthorized. Ontology with prefix " + prefix + " is not public."
+                                            result: "ok",
+                                            "descriptors": descriptors
                                         }
                                     );
                                 }
-                            }
-                            else
-                            {
-                                res.status(404).json(
-                                    {
-                                        result: "error",
-                                        error_messages: "Ontology with prefix " + prefix + " does not exist in this Dendro instance."
-                                    }
-                                );
-                            }
+                                else
+                                {
+                                    res.status(500).json(
+                                        {
+                                            result: "error",
+                                            error_messages: [descriptors]
+                                        }
+                                    );
+                                }
+                            });
                         }
                         else
                         {
-                            res.status(500).json(
+                            res.status(401).json(
                                 {
                                     result: "error",
-                                    error_messages: "Error retrieving ontology with prefix " + prefix + " Error reported : " + ontology
+                                    error_messages: "Unauthorized. Ontology with prefix " + prefix + " is not public."
                                 }
                             );
                         }
-                    });
+                    }
+                    else
+                    {
+                        res.status(404).json(
+                            {
+                                result: "error",
+                                error_messages: "Ontology with prefix " + prefix + " does not exist in this Dendro instance."
+                            }
+                        );
+                    }
                 }
                 else
                 {
                     res.status(500).json(
                         {
                             result: "error",
-                            error_messages: "URL is incorrect. Should be /descriptors/from_ontology/<<existing ontology prefix>>"
+                            error_messages: "Error retrieving ontology with prefix " + prefix + " Error reported : " + ontology
                         }
                     );
                 }
-            }
-            else
-            {
-                res.status(400).json({
-                    result: "error",
-                    message : "Ontology prefix was not specified!"
-                })
-            }
+            });
         }
         else
         {
             res.status(400).json({
                 result: "error",
-                message : "Project handle was not specified!"
+                message : "Ontology uri was not specified or is invalid!"
+            })
+        }
+    }
+    else
+    {
+        const msg = "This method is only accessible via API. Accepts:\"application/json\" header missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        console.log(msg);
+        res.status(405).render('',
+            {
+            }
+        );
+    }
+};
+
+exports.from_ontology_in_project = function(req, res)
+{
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
+
+    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    {
+        const ontologyUri = req.params.ontology_uri;
+        if(!isNull(ontologyUri) && validator.isURL(ontologyUri))
+        {
+            Ontology.findByUri(ontologyUri, function (err, ontology)
+            {
+                if (isNull(err))
+                {
+                    if (isNull(err))
+                    {
+                        if (!isNull(ontology))
+                        {
+                            if (!ontology.private)
+                            {
+                                Descriptor.all_in_ontology(ontology.uri, function (err, descriptors)
+                                {
+                                    if (isNull(err))
+                                    {
+                                        /**
+                                         * Get User's favorite descriptors
+                                         * @param callback
+                                         */
+                                        const getUsersFavoriteDescriptors = function (userUri, callback)
+                                        {
+                                            User.findByUri(userUri, function (err, user)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    user.favoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
+                                                    {
+                                                        return callback(error, favorites);
+                                                    }, [ontology]);
+                                                }
+                                                else
+                                                {
+                                                    const error = "Error fetching user : " + user + " : " + err;
+                                                    console.error(error);
+                                                    return callback(1, error);
+                                                }
+                                            });
+                                        };
+
+                                        /**
+                                         * Get Project's favorite descriptors
+                                         * @param callback
+                                         */
+                                        const getProjectsFavoriteDescriptors = function (projectHandle, callback)
+                                        {
+                                            Project.findByHandle(projectHandle, function (err, project)
+                                            {
+                                                if (isNull(err) && !isNull(project))
+                                                {
+                                                    project.getFavoriteDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
+                                                    {
+                                                        return callback(error, favorites);
+                                                    }, [ontology]);
+                                                }
+                                                else
+                                                {
+                                                    const error = "Error fetching project : " + project + " : " + err;
+                                                    console.error(error);
+                                                    return callback(1, error);
+                                                }
+                                            });
+                                        };
+
+                                        /**
+                                         * Get User's favorite descriptors
+                                         * @param callback
+                                         */
+                                        const getUsersHiddenDescriptors = function (userUri, callback)
+                                        {
+                                            User.findByUri(userUri, function (err, user)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    user.hiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, favorites)
+                                                    {
+                                                        return callback(error, favorites);
+                                                    }, [ontology]);
+                                                }
+                                                else
+                                                {
+                                                    const error = "Error fetching user : " + user + " : " + err;
+                                                    console.error(error);
+                                                    return callback(1, error);
+                                                }
+                                            });
+                                        };
+
+                                        const getProjectsHiddenDescriptors = function (projectHandle, callback)
+                                        {
+                                            Project.findByHandle(projectHandle, function (err, project)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    project.getHiddenDescriptors(Config.recommendation.max_suggestions_of_each_type, function (error, hidden)
+                                                    {
+                                                        return callback(error, hidden);
+                                                    }, [ontology]);
+                                                }
+                                                else
+                                                {
+                                                    const error = "Error fetching project : " + project + " : " + err;
+                                                    console.error(error);
+                                                    return callback(1, error);
+                                                }
+                                            });
+                                        };
+
+                                        const getDCTermsDescriptors = function (callback)
+                                        {
+                                            Descriptor.DCElements(function (error, dcElementsDescriptors)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    return callback(error, dcElementsDescriptors);
+                                                }
+                                                else
+                                                {
+                                                    const error = "Error fetching DC Elements Descriptors : " + err;
+                                                    console.error(error);
+                                                    return callback(1, error);
+                                                }
+                                            });
+                                        };
+
+                                        async.series(
+                                            [
+                                                function (callback)
+                                                {
+                                                    if (isNull(req.user))
+                                                    {
+                                                        return callback(null, []);
+                                                    }
+                                                    else
+                                                    {
+                                                        getUsersFavoriteDescriptors(req.user.uri, callback);
+                                                    }
+                                                },
+                                                function (callback)
+                                                {
+                                                    if (typeof project_handle === "undefined")
+                                                    {
+                                                        return callback(null, []);
+                                                    }
+                                                    else
+                                                    {
+                                                        getProjectsFavoriteDescriptors(project_handle, callback);
+                                                    }
+                                                },
+                                                function (callback)
+                                                {
+                                                    if (isNull(req.user))
+                                                    {
+                                                        return callback(null, []);
+                                                    }
+                                                    else
+                                                    {
+                                                        getUsersHiddenDescriptors(req.user.uri, callback);
+                                                    }
+                                                },
+                                                function (callback)
+                                                {
+                                                    if (typeof project_handle === "undefined")
+                                                    {
+                                                        return callback(null, []);
+                                                    }
+                                                    else
+                                                    {
+                                                        getProjectsHiddenDescriptors(project_handle, callback);
+                                                    }
+                                                },
+                                                function (callback)
+                                                {
+                                                    getDCTermsDescriptors(callback);
+                                                }
+                                            ],
+                                            /**
+                                             * Perform final ranking
+                                             * @param callback
+                                             */
+                                            function (err, results)
+                                            {
+                                                if (isNull(err))
+                                                {
+                                                    let typeDetected = function (results, descriptor)
+                                                    {
+                                                        return _.find(results, function (userFavoriteDescriptor)
+                                                        {
+                                                            return userFavoriteDescriptor.uri === descriptor.uri;
+                                                        });
+                                                    };
+
+                                                    for (let i = 0; i < descriptors.length; i++)
+                                                    {
+                                                        descriptors[i]["recommendation_types"] = {};
+
+                                                        if (typeDetected(results[0], descriptors[i]))
+                                                        {
+                                                            descriptors[i]["recommendation_types"][Descriptor.recommendation_types.user_favorite.key] = true;
+                                                        }
+
+                                                        if (typeDetected(results[1], descriptors[i]))
+                                                        {
+                                                            descriptors[i]["recommendation_types"][Descriptor.recommendation_types.project_favorite.key] = true;
+                                                        }
+
+                                                        if (typeDetected(results[2], descriptors[i]))
+                                                        {
+                                                            descriptors[i]["recommendation_types"][Descriptor.recommendation_types.user_hidden.key] = true;
+                                                        }
+
+                                                        if (typeDetected(results[3], descriptors[i]))
+                                                        {
+                                                            descriptors[i]["recommendation_types"][Descriptor.recommendation_types.project_hidden.key] = true;
+                                                        }
+
+                                                        if (typeDetected(results[4], descriptors[i]))
+                                                        {
+                                                            descriptors[i]["recommendation_types"][Descriptor.recommendation_types.dc_element_forced.key] = true;
+                                                        }
+                                                    }
+
+                                                    /*
+                                                     Sort descriptors alphabetically
+                                                     */
+                                                    descriptors = _.sortBy(descriptors, function (descriptor)
+                                                    {
+                                                        return descriptor.label;
+                                                    });
+
+                                                    const removeDuplicates = function (results)
+                                                    {
+                                                        const uniques = _.uniq(results, false, function (result)
+                                                        {
+                                                            return result.uri;
+                                                        });
+
+                                                        return uniques;
+                                                    };
+
+                                                    const removeLockedAndPrivate = function (results)
+                                                    {
+                                                        const filtered = _.filter(results, function (result)
+                                                        {
+                                                            let isLockedOrPrivate = (result.locked || result.private);
+                                                            return !isLockedOrPrivate;
+                                                        });
+
+                                                        return filtered;
+                                                    };
+
+
+                                                    descriptors = removeDuplicates(descriptors);
+                                                    descriptors = removeLockedAndPrivate(descriptors);
+
+                                                    const uuid = require('uuid');
+                                                    const recommendation_call_id = uuid.v4();
+                                                    const recommendation_call_timestamp = new Date().toISOString();
+
+                                                    for (let i = 0; i < descriptors.length; i++)
+                                                    {
+                                                        descriptors[i].recommendationCallId = recommendation_call_id;
+                                                        descriptors[i].recommendationCallTimeStamp = recommendation_call_timestamp;
+                                                    }
+
+                                                    res.json(
+                                                        {
+                                                            result: "ok",
+                                                            "descriptors": descriptors
+                                                        }
+                                                    );
+                                                }
+                                                else
+                                                {
+                                                    res.status(500).json(
+                                                        {
+                                                            result: "error",
+                                                            error_messages: [results]
+                                                        }
+                                                    );
+                                                }
+                                            });
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json(
+                                            {
+                                                result: "error",
+                                                error_messages: [descriptors]
+                                            }
+                                        );
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                res.status(401).json(
+                                    {
+                                        result: "error",
+                                        error_messages: "Unauthorized. Ontology with prefix " + prefix + " is not public."
+                                    }
+                                );
+                            }
+                        }
+                        else
+                        {
+                            res.status(404).json(
+                                {
+                                    result: "error",
+                                    error_messages: "Ontology with prefix " + prefix + " does not exist in this Dendro instance."
+                                }
+                            );
+                        }
+                    }
+                }
+                else
+                {
+                    res.status(500).json(
+                        {
+                            result: "error",
+                            error_messages: "Error retrieving ontology with prefix " + prefix + " Error reported : " + ontology
+                        }
+                    );
+                }
+            });
+        }
+        else
+        {
+            res.status(400).json({
+                result: "error",
+                message : "Ontology uri was not specified or is invalid!"
             })
         }
     }

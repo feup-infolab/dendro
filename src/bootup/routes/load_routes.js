@@ -254,7 +254,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
     app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), ontologies.edit);
 
     //descriptors
-    app.get('/descriptors/from_ontology/:ontology_prefix', async.apply(Permissions.require, [ Permissions.settings.role.in_system.user]), descriptors.from_ontology);
+    app.get('/descriptors/from_ontology/:ontology_uri', async.apply(Permissions.require, [ Permissions.settings.role.in_system.user]), descriptors.from_ontology);
 
     //research domains
 
@@ -752,6 +752,13 @@ const loadRoutes = function(app, passport, recommendation, callback)
                             handler: evaluation.metadata_evaluation,
                             permissions: defaultPermissionsInProjectBranch,
                             authentication_error: "Permission denied : cannot calculate metadata evaluation for this resource because you do not have permissions to access resources inside this project."
+                        },
+                        //descriptors with annotations
+                        {
+                            queryKeys: ['descriptors_from_ontology'],
+                            handler: descriptors.from_ontology_in_project,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot fetch descriptors from ontology in this project because you do not have permissions to access resources inside it."
                         },
                         //default case
                         {

@@ -29,26 +29,23 @@ angular.module('dendroApp.services')
             }
         };
 
-        this.get_descriptors_from_ontology = function(ontologyPrefix)
+        this.get_descriptors_from_ontology = function(ontologyUri)
         {
-            if(ontologyPrefix != null)
+            if(ontologyUri != null)
             {
-                var requestUri = "/descriptors/from_ontology/"+ontologyPrefix;
-                var projectHandle = Utils.getCurrentProjectHandle();
-
                 return $http({
                     method: 'GET',
                     params : {
-                        project_handle : projectHandle
+                        descriptors_from_ontology : ontologyUri
                     },
-                    url: requestUri,
+                    url: $scope.get_calling_uri(),
                     responseType: 'json',
                     headers: {'Accept': "application/json"}
                 }).then(function(response) {
                         return response.data.descriptors;
                     }
                 ).catch(function(error){
-                    throw "Error fetching ontologies from ontology " + ontologyPrefix + " : " + JSON.stringify(error);
+                    throw "Error fetching ontologies from ontology " + ontologyUri + " : " + JSON.stringify(error);
                 });
             }
         };
