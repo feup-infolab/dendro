@@ -456,7 +456,7 @@ exports.getLoggedUser = function (req, res) {
 
 
 exports.get_avatar = function (req, res) {
-    var username = req.params['username'];
+    let username = req.params['username'];
 
     User.findByUsername(username, function (err, user) {
         if (!err) {
@@ -469,16 +469,10 @@ exports.get_avatar = function (req, res) {
             else {
                 if (!user.ddr.hasAvatar) {
                     //User does not have an avatar
-                    /*res.writeHead(200,
-                     {
-                     'Content-disposition': 'filename="' + "avatar" + "\"",
-                     'Content-type': "image/png"
-                     });*/
+                    let absPathOfFileToServe = Config.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
+                    let fileStream = fs.createReadStream(absPathOfFileToServe);
 
-                    var absPathOfFileToServe = Config.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
-                    var fileStream = fs.createReadStream(absPathOfFileToServe);
-
-                    var filename = path.basename(absPathOfFileToServe);
+                    let filename = path.basename(absPathOfFileToServe);
 
                     res.writeHead(200, {
                         "Content-Type": "application/octet-stream",
@@ -486,48 +480,17 @@ exports.get_avatar = function (req, res) {
                     });
 
                     fileStream.pipe(res);
-
-                    /*var stream = fileStream.pipe(res);
-
-                    stream.on('close', function (err, data) {
-                        res.writeHead(200,
-                            {
-                                'Content-disposition': 'filename="' + "avatar" + "\"",
-                                'Content-type': "image/png"
-                            });
-                    });*/
                 }
                 else {
                     //User has an avatar
                     getAvatarFromGfs(user, function (err, avatarFilePath) {
                         if (!err) {
-                            var fileStream = fs.createReadStream(avatarFilePath);
-                            var filename = path.basename(avatarFilePath);
-
-                            /*var stream = fileStream.pipe(res);
-
-                             stream.on('close', function (err, data) {
-                             res.writeHead(200,
-                             {
-                             'Content-disposition': 'filename="' + filename + "\"",
-                             'Content-type': path.extname(filename)
-                             });
-                             });*/
-
-                            /*res.writeHead(200, {
-                                "Content-Type": "application/octet-stream",
-                                "Content-Disposition": "attachment; filename=" + filename
-                            });*/
-
-                            /*res.writeHead(200, {
-                                "Content-Type": "application/octet-stream",
-                                "Content-Disposition": "attachment; filename=" + filename
-                            });*/
+                            let fileStream = fs.createReadStream(avatarFilePath);
+                            let filename = path.basename(avatarFilePath);
 
                             res.writeHead(200, {
                                 "Content-Type": "application/octet-stream",
                                 "Connection": "keep-alive",
-                                /*"Content-Disposition": "attachment; filename=" + filename*/
                                 "Content-Disposition": "attachment; filename=" + filename
                             });
 
@@ -553,13 +516,12 @@ exports.get_avatar = function (req, res) {
 };
 
 exports.upload_avatar = function (req, res) {
-    var avatar = req.body["new_avatar"];
-    //var currentUser = req.session.passport.user;
-    var currentUser = req.user;
+    let avatar = req.body["new_avatar"];
+    let currentUser = req.user;
     User.findByUri(currentUser.uri, function (err, user) {
         if (!err) {
-            var avatarExt = avatar.split(';')[0].split('/')[1];
-            var avatarUri = "/avatar/" + currentUser.ddr.username + "/avatar." + avatarExt;
+            let avatarExt = avatar.split(';')[0].split('/')[1];
+            let avatarUri = "/avatar/" + currentUser.ddr.username + "/avatar." + avatarExt;
 
             saveAvatarInGfs(avatar, user, avatarExt, function (err, data) {
                 if (!err) {
@@ -572,7 +534,7 @@ exports.upload_avatar = function (req, res) {
                             });
                         }
                         else {
-                            var msg = "Error updating hasAvatar for user " + user.uri + ". Error reported :" + newUser;
+                            let msg = "Error updating hasAvatar for user " + user.uri + ". Error reported :" + newUser;
                             console.error(msg);
                             res.status(500).json({
                                 result: "Error",
@@ -599,7 +561,7 @@ exports.upload_avatar = function (req, res) {
 };
 
 var checkIfIsEmail = function (email) {
-    var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    let re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     return re.test(email);
 };
 
@@ -681,7 +643,7 @@ exports.edit = function (req, res, next) {
                                                 res.redirect('back');
                                             }
                                             else {
-                                                var msg = "Error updating user session. Error reported:  " + JSON.stringify(err);
+                                                let msg = "Error updating user session. Error reported:  " + JSON.stringify(err);
                                                 console.error(msg);
                                                 req.flash('error', msg);
                                                 auth.logout(req, res);
@@ -695,7 +657,7 @@ exports.edit = function (req, res, next) {
                                 }
                             }
                             else {
-                                var msg = "Error editing user " + user.uri + ". Error reported :" + editedUser;
+                                let msg = "Error editing user " + user.uri + ". Error reported :" + editedUser;
                                 console.error(msg);
                                 req.flash('error', msg);
                                 res.redirect('/me');
@@ -703,7 +665,7 @@ exports.edit = function (req, res, next) {
                         });
                     }
                     else {
-                        var msg = "Error editing user " + user.uri + ". Error reported :" + JSON.stringify(results);
+                        let msg = "Error editing user " + user.uri + ". Error reported :" + JSON.stringify(results);
                         console.error(msg);
                         req.flash('error', msg);
                         res.redirect('/me');
@@ -727,12 +689,12 @@ exports.edit = function (req, res, next) {
 };
 
 var getAvatarFromGfs = function (user, callback) {
-    var tmp = require('tmp');
-    var fs = require('fs');
-    var avatarUri = user.getAvatarUri();
+    const tmp = require('tmp');
+    const fs = require('fs');
+    let avatarUri = user.getAvatarUri();
     // /avatar/" + user.ddr.username + "/avatar." + "png";
     if (avatarUri) {
-        var ext = avatarUri.split(".").pop();
+        let ext = avatarUri.split(".").pop();
 
         tmp.dir(
             {
@@ -741,8 +703,8 @@ var getAvatarFromGfs = function (user, callback) {
             },
             function (err, tempFolderPath) {
                 if (!err) {
-                    var avatarFilePath = path.join(tempFolderPath, user.ddr.username + "avatarOutput." + ext);
-                    var writeStream = fs.createWriteStream(avatarFilePath);
+                    let avatarFilePath = path.join(tempFolderPath, user.ddr.username + "avatarOutput." + ext);
+                    let writeStream = fs.createWriteStream(avatarFilePath);
 
                     gfs.connection.get(avatarUri, writeStream, function (err, result) {
                         if (!err) {
@@ -753,7 +715,6 @@ var getAvatarFromGfs = function (user, callback) {
                                 console.log("Deu finish");
                                 callback(null, avatarFilePath);
                             });
-                            //callback(null, avatarFilePath);
                         }
                         else {
                             let msg = "Error getting the avatar file from GridFS for user " + user.uri;
@@ -771,7 +732,7 @@ var getAvatarFromGfs = function (user, callback) {
         );
     }
     else {
-        var msg = "User has no avatar saved in gridFs";
+        let msg = "User has no avatar saved in gridFs";
         console.error(msg);
         callback(true, msg);
     }
@@ -785,20 +746,19 @@ var uploadAvatarToGrifs = function (user, avatarUri, base64Data, extension, call
         },
         function (err, tempFolderPath) {
             if (!err) {
-                var path = require('path');
-                var avatarFilePath = path.join(tempFolderPath, 'avatar.png');
+                let path = require('path');
+                let avatarFilePath = path.join(tempFolderPath, 'avatar.png');
                 fs.writeFile(avatarFilePath, base64Data, 'base64', function (error) {
                     if (!error) {
-                        var readStream = fs.createReadStream(avatarFilePath);
+                        let readStream = fs.createReadStream(avatarFilePath);
                         readStream.on('open', function () {
-                            // This just pipes the read stream to the response object (which goes to the client)
                             console.log("readStream is ready");
                             gfs.connection.put(
                                 avatarUri,
                                 readStream,
                                 function (err, result) {
                                     if (err != null) {
-                                        var msg = "Error saving avatar file in GridFS :" + result + " for user " + user.uri;
+                                        let msg = "Error saving avatar file in GridFS :" + result + " for user " + user.uri;
                                         console.error(msg);
                                         callback(err, msg);
                                     }
@@ -816,30 +776,10 @@ var uploadAvatarToGrifs = function (user, avatarUri, base64Data, extension, call
 
                         // This catches any errors that happen while creating the readable stream (usually invalid names)
                         readStream.on('error', function(err) {
-                            var msg = "Error creating readStream for avatar :" + err + " for user " + user.uri;
+                            let msg = "Error creating readStream for avatar :" + err + " for user " + user.uri;
                             console.error(msg);
                             callback(err, msg);
                         });
-
-                        /*gfs.connection.put(
-                         avatarUri,
-                         readStream,
-                         function (err, result) {
-                         if (err != null) {
-                         var msg = "Error saving avatar file in GridFS :" + result + " for user " + user.uri;
-                         console.error(msg);
-                         callback(err, msg);
-                         }
-                         else {
-                         callback(null, result);
-                         }
-                         },
-                         {
-                         user: user.uri,
-                         fileExtension: extension,
-                         type: "nie:File"
-                         }
-                         );*/
                     }
                     else {
                         let msg = "Error when creating a temp file for the avatar upload";
