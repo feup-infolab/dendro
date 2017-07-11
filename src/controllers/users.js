@@ -574,11 +574,11 @@ exports.edit = function (req, res, next) {
                     function (callback) {
                         if (!isNull(req.body.email) && checkIfIsEmail(req.body.email)) {
                             user.foaf.mbox = req.body.email;
-                            callback(null, null);
+                            return callback(null, null);
                         }
                         else {
                             let msg = "Invalid email format!";
-                            callback(true, msg);
+                            return callback(true, msg);
                         }
                     },
                     function (callback) {
@@ -601,14 +601,14 @@ exports.edit = function (req, res, next) {
                                     if (!err) {
                                         user.ddr.password = hashedPassword;
                                         changedPassword = true;
-                                        callback(null, null);
+                                        return callback(null, null);
                                     }
                                     else {
                                         let msg = "Error encrypting password";
                                         console.error(msg);
                                         /*req.flash('error', msg);
                                          res.redirect('/me');*/
-                                        callback(true, msg);
+                                        return callback(true, msg);
                                     }
                                 });
                             }
@@ -617,11 +617,11 @@ exports.edit = function (req, res, next) {
                                 console.error(msg);
                                 //req.flash('error', msg);
                                 //res.redirect('/me');
-                                callback(true, msg);
+                                return callback(true, msg);
                             }
                         }
                         else {
-                            callback(null, null);
+                            return callback(null, null);
                         }
                     }
                 ], function (err, results) {
@@ -719,14 +719,14 @@ var getAvatarFromGfs = function (user, callback) {
                         else {
                             let msg = "Error getting the avatar file from GridFS for user " + user.uri;
                             console.error(msg);
-                            callback(err, msg);
+                            return callback(err, msg);
                         }
                     });
                 }
                 else {
                     let msg = "Error when creating a temp dir when getting the avatar from GridFS for user " + user.uri;
                     console.error(msg);
-                    callback(err, msg);
+                    return callback(err, msg);
                 }
             }
         );
@@ -734,7 +734,7 @@ var getAvatarFromGfs = function (user, callback) {
     else {
         let msg = "User has no avatar saved in gridFs";
         console.error(msg);
-        callback(true, msg);
+        return callback(true, msg);
     }
 };
 
@@ -760,10 +760,10 @@ var uploadAvatarToGrifs = function (user, avatarUri, base64Data, extension, call
                                     if (err) {
                                         let msg = "Error saving avatar file in GridFS :" + result + " for user " + user.uri;
                                         console.error(msg);
-                                        callback(err, msg);
+                                        return callback(err, msg);
                                     }
                                     else {
-                                        callback(null, result);
+                                        return callback(null, result);
                                     }
                                 },
                                 {
@@ -784,14 +784,14 @@ var uploadAvatarToGrifs = function (user, avatarUri, base64Data, extension, call
                     else {
                         let msg = "Error when creating a temp file for the avatar upload";
                         console.error(msg);
-                        callback(error, msg);
+                        return callback(error, msg);
                     }
                 });
             }
             else {
                 let msg = "Error when creating a temp dir for the avatar upload";
                 console.error(msg);
-                callback(err, msg);
+                return callback(err, msg);
             }
         }
     );
@@ -831,14 +831,14 @@ var saveAvatarInGfs = function (avatar, user, extension, callback) {
                 else {
                     let msg = "Error when finding the latest file with uri : " + avatarUri + " in Mongo";
                     console.error(msg);
-                    callback(err, msg);
+                    return callback(err, msg);
                 }
             });
         }
         else {
             let msg = "Error when connencting to mongodb, error: " + JSON.stringify(err);
             console.error(msg);
-            callback(err, msg);
+            return callback(err, msg);
         }
     });
 };

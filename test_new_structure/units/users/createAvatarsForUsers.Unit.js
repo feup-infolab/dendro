@@ -46,7 +46,7 @@ module.exports.setup = function (finish) {
                 userUtils.loginUser(userData.username, userData.password, function (err, agent) {
                     if (err) {
                         end();
-                        cb(err, agent);
+                        return cb(err, agent);
                     }
                     else {
                         userUtils.uploadAvatar(false, agent, userData.avatar, function (err, res) {
