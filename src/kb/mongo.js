@@ -37,7 +37,7 @@ DendroMongoClient.prototype.findFileByFilenameOrderedByDate = function (db, file
        }
        else
        {
-           const msg = 'Error findind document with uri: ' + fileUri + ' in Mongo error: ' + JSON.stringify(error);
+           const msg = 'Error findind document with uri: ' + fileUri + ' in Mongo error: ' + JSON.stringify(err);
            return callback(true, msg);
        }
     });

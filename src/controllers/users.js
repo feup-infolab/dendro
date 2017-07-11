@@ -757,7 +757,7 @@ var uploadAvatarToGrifs = function (user, avatarUri, base64Data, extension, call
                                 avatarUri,
                                 readStream,
                                 function (err, result) {
-                                    if (err != null) {
+                                    if (err) {
                                         let msg = "Error saving avatar file in GridFS :" + result + " for user " + user.uri;
                                         console.error(msg);
                                         callback(err, msg);
