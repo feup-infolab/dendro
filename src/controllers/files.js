@@ -1399,7 +1399,7 @@ exports.rm = function(req, res){
                                         Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
                                             if(!err)
                                             {
-                                                FileSystemPost.buildFromRmdirOperation(req.session.user.uri, project, result, reallyDelete, function(err, post){
+                                                FileSystemPost.buildFromRmdirOperation(req.user.uri, project, result, reallyDelete, function(err, post){
                                                     if(!err)
                                                     {
                                                         post.save(function (err, post) {
@@ -1655,7 +1655,7 @@ exports.mkdir = function(req, res){
                                         Project.getOwnerProjectBasedOnUri(result.uri, function(err, project){
                                             if(!err)
                                             {
-                                                FileSystemPost.buildFromMkdirOperation(req.session.user.uri, project, result, function(err, post){
+                                                FileSystemPost.buildFromMkdirOperation(req.user.uri, project, result, function(err, post){
                                                     if(!err)
                                                     {
                                                         post.save(function(err, post)

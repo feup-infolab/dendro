@@ -8,7 +8,11 @@
 .createManualPost {
   opacity: 1;
 }
-.showPostContentID {
+.showPostContentID-overflow-hidden {
+  height: 10em;
+  overflow-y: hidden;
+}
+.showPostContentID-overflow-auto {
   height: 10em;
   overflow-y: hidden;
 }
