@@ -188,6 +188,32 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
 
 };
 
+
+GridFSConnection.prototype.deleteAvatar = function(fileUri, callback, customBucket) {
+    let self = this;
+
+    if(!isNull(self.gfs) && !isNull(self.db))
+    {
+        let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
+        bucket.delete(fileUri, function (err)
+        {
+            if (!err)
+            {
+                return callback(null, "File " + fileUri + "successfully deleted");
+            }
+            else
+            {
+                return callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
+            }
+        });
+    }
+    else
+    {
+        return callback(1, "Must open connection to database first!");
+    }
+
+};
+
 GridFSConnection.default = {};
 
 module.exports.GridFSConnection = GridFSConnection;

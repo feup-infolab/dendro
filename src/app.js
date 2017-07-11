@@ -1128,7 +1128,7 @@ async.series([
         app.use(methodOverride());
 
         app.use(cookieParser(appSecret));
-
+        
 
         const MongoStore = require('connect-mongo')(expressSession);
 
@@ -1214,7 +1214,7 @@ async.series([
         //app.get('/sparql', async.apply(Permissions.require, [Permissions.role.system.admin]), sparql.show);
 
         //authentication
-
+        
         if(Config.authentication.default.enabled)
         {
             const LocalStrategy = require('passport-local').Strategy;
@@ -1226,40 +1226,46 @@ async.series([
                 function(username, password, done) {
                     const User = require(Config.absPathInSrcFolder("/models/user.js")).User;
                     User.findByUsername(username, function (err, user) {
-
-                        const bcrypt = require('bcryptjs');
-                        bcrypt.hash(password, user.ddr.salt, function(err, hashedPassword) {
-                            if(!err) {
-                                if (!isNull(user)) {
-                                    if (user.ddr.password === hashedPassword) {
-                                        user.isAdmin(function (err, isAdmin) {
-                                            if (!err) {
-                                                return done(
-                                                    err,
-                                                    user,
-                                                    {
-                                                        isAdmin : isAdmin
-                                                    });
-                                            }
-                                            else {
-                                                return done("Unable to check for admin user when authenticating with username " + username, null);
-                                            }
-                                        });
+                        if(!err && !isNull(user))
+                        {
+                            const bcrypt = require('bcryptjs');
+                            bcrypt.hash(password, user.ddr.salt, function(err, hashedPassword) {
+                                if(!err) {
+                                    if (!isNull(user)) {
+                                        if (user.ddr.password === hashedPassword) {
+                                            user.isAdmin(function (err, isAdmin) {
+                                                if (!err) {
+                                                    return done(
+                                                        err,
+                                                        user,
+                                                        {
+                                                            isAdmin : isAdmin
+                                                        });
+                                                }
+                                                else {
+                                                    return done("Unable to check for admin user when authenticating with username " + username, false);
+                                                }
+                                            });
+                                        }
+                                        else {
+                                            return done("Invalid username/password combination.", false);
+                                        }
                                     }
                                     else {
-                                        return done("Invalid username/password combination.", null);
+                                        console.error(err.stack);
+                                        return done("Unknown error during authentication, calculating password hash.", false);
                                     }
                                 }
-                                else {
-                                    console.error(err.stack);
-                                    return done("Unknown error during authentication, calculating password hash.", null);
+                                else
+                                {
+                                    return done("There is no user with username " + username + " registered in this system.", false);
                                 }
-                            }
-                            else
-                            {
-                                return done("There is no user with username " + username + " registered in this system.", null);
-                            }
-                        });
+                            });
+                        }
+                        else
+                        {
+                            return done("Invalid username/password combination.", false);
+                        }
                     });
                 }
             ));
@@ -1339,6 +1345,7 @@ async.series([
         app.get('/users/loggedUser', users.getLoggedUser);
         app.get('/user/:username/avatar', async.apply(Permissions.require, [Permissions.role.system.user]), users.get_avatar);
         app.post('/user/avatar', async.apply(Permissions.require, [Permissions.role.system.user]), users.upload_avatar);
+        app.post('/user/edit', async.apply(Permissions.require, [Permissions.role.system.user]), users.edit);
 
         app.all('/reset_password', users.reset_password);
         app.all('/set_new_password', users.set_new_password);

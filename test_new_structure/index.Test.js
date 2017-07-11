@@ -306,6 +306,13 @@ require(Config.absPathInTestsFolder("/routes/project/private_project/data/testFo
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__parent_metadata/routes.project.metadataonlyProject.data.testFolder1.__parent_metadata.Test"));
 require(Config.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__parent_metadata/routes.project.metadataonlyProject.data.testFolder2.__parent_metadata.Test"));
 
+require(Config.absPathInTestsFolder("/routes/user/edit/routes.user.edit.Test.js"));
+require(Config.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
+require(Config.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
+require(Config.absPathInTestsFolder("/routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js"));
+require(Config.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js"));
+require(Config.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));
+
 //PUBLIC PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
 /*require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/routes.project.publicProject.data.testFolder1.Test"));
  require(Config.absPathInTestsFolder("/routes/project/public_project/data/testFolder2/routes.project.publicProject.data.testFolder2.Test"));
