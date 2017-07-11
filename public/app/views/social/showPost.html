@@ -47,9 +47,9 @@
     </div>-->
 
     <div class="panel-footer">
-        <a ng-model="checkModel.left" ng-class="postsContents[postUri].likesContent.usersWhoLiked.indexOf(loggedUser.uri) > -1 ? 'btn-sm btn-success' : 'btn-sm'" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="likePost(postsContents[postUri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</a> {{postsContents[postUri].likesContent.numLikes}},
-        <a class="btn-sm" ng-model="checkModel.middle" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="social-dendro-btn fa fa-comment" aria-hidden="true"></i> Comment</a> {{postsContents[postUri].commentsContent.length}},
-        <a class="btn-sm" ng-model="checkModel.right" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="social-dendro-btn fa fa-share" aria-hidden="true"></i> Share</a> {{postsContents[postUri].sharesContent.length}}
+        <a ng-model="checkModel.left" ng-class="postsContents[postUri].likesContent.usersWhoLiked.indexOf(loggedUser.uri) > -1 ? 'btn-sm btn-success' : 'btn-sm'" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="likePost(postsContents[postUri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</a> <span>{{postsContents[postUri].likesContent.numLikes}}, </span>
+        <a class="btn-sm" ng-model="checkModel.middle" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="social-dendro-btn fa fa-comment" aria-hidden="true"></i> Comment</a> <span>{{postsContents[postUri].commentsContent.length}}</span>,
+        <a class="btn-sm" ng-model="checkModel.right" uib-btn-checkbox data="{{postsContents[postUri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="social-dendro-btn fa fa-share" aria-hidden="true"></i> Share</a> <span>{{postsContents[postUri].sharesContent.length}} </span>
     </div>
 </div>
 

@@ -77,7 +77,6 @@ angular.module('dendroApp.controllers')
 
         $scope.likePost = function (postID) {
             $scope.doing_likePost = true;
-
             timelineService.likePost(postID)
                 .then(function(response)
                 {
@@ -114,11 +113,11 @@ angular.module('dendroApp.controllers')
             timelineService.postLikesInfo(postURI).then(function (response) {
                 $scope.doing_postLikesInfo = false;
                 $scope.postsContents[postURI].likesContent = response.data;
-                return response.data;
+                //return response.data;
             }).catch(function (error) {
                 console.error("Error at timeline_controller postLikesInfo" + JSON.stringify(error));
                 $scope.doing_postIsLiked = false;
-                return false;
+                //return false;
             });
         };
 

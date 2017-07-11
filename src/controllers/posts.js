@@ -27,7 +27,7 @@ exports.numPostsDatabase = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUserUri = req.session.user.uri;
+        var currentUserUri = req.user.uri;
         Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
             if(!err)
             {
@@ -113,7 +113,7 @@ exports.getUserPostsUris = function (userUri, currentPage, callback) {
 };
 
 exports.all = function(req, res){
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
     var currentPage = req.query.currentPage;
@@ -163,7 +163,7 @@ exports.all = function(req, res){
 };
 
 exports.new = function(req, res){
-    let currentUserUri = req.session.user.uri;
+    let currentUserUri = req.user.uri;
     if(req.body.newPostContent !==null && req.body.newPostTitle !==null && req.body.newPostProjectUri !==null)
     {
         Project.findByUri(req.body.newPostProjectUri, function (err, project) {
@@ -263,7 +263,7 @@ exports.getPost_controller = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         var postURI = req.body.postID;
 
         var debugGraph = db_social.graphUri;
@@ -315,7 +315,7 @@ exports.share = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         var shareMsg = req.body.shareMsg;
         Post.findByUri(req.body.postID, function(err, post)
         {
@@ -442,7 +442,7 @@ exports.getPostComments = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         var postUri = req.body.postID;
 
         Post.findByUri(req.body.postID, function(err, post)
@@ -490,7 +490,7 @@ exports.comment = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         var commentMsg = req.body.commentMsg;
 
         Post.findByUri(req.body.postID, function(err, post)
@@ -643,7 +643,7 @@ exports.checkIfPostIsLikedByUser = function (req, res) {
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var postID = req.body.postID;
-        var currentUser = req.session.user;
+        var currentUser = req.user;
 
         Post.findByUri(postID, function(err, post)
         {
@@ -686,7 +686,7 @@ exports.like = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         removeOrAdLike(req.body.postID, currentUser.uri, function (err, likeExists) {
             if(!err)
             {
@@ -1023,7 +1023,7 @@ exports.getPostShares = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         var postUri = req.body.postID;
 
         Post.findByUri(postUri, function(err, post)
@@ -1071,7 +1071,7 @@ exports.postLikesInfo = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var currentUser = req.session.user;
+        var currentUser = req.user;
         var postURI = req.body.postURI;
         var resultInfo;
 
@@ -1271,7 +1271,7 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
 exports.post = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var postUri = "http://"+Config.host + req.url;
 
     var getCommentsForAPost = function (post, cb) {
@@ -1413,7 +1413,7 @@ exports.getShare = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    var currentUser = req.session.user;
+    var currentUser = req.user;
     var shareUri = "http://"+req.headers.host + req.url;
 
     Share.findByUri(shareUri, function(err, share)

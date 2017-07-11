@@ -15,7 +15,7 @@ exports.get_unread_user_notifications = function (req ,res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var userUri = req.session.user.uri;
+        var userUri = req.user.uri;
 
         if(userUri)
         {
@@ -84,7 +84,7 @@ exports.get_notification_info = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var userUri = req.session.user.uri;
+        var userUri = req.user.uri;
         var notificationUri = req.query.notificationUri;
 
         if(userUri && notificationUri)
@@ -169,7 +169,7 @@ exports.delete = function (req, res) {
 
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
-        var userUri = req.session.user.uri;
+        var userUri = req.user.uri;
         var notificationUri = req.query.notificationUri;
 
         if(userUri && notificationUri)

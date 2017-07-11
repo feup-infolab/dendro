@@ -5,7 +5,7 @@ exports.my = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    postController.getUserPostsUris(req.session.user.uri, 1, function (err, postUris) {
+    postController.getUserPostsUris(req.user.uri, 1, function (err, postUris) {
         if(!err)
         {
             res.render('social/timeline', {
