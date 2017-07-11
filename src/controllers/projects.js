@@ -860,7 +860,7 @@ exports.administer = function(req, res) {
                                         if (isNull(err) && !isNull(user) && user.foaf.mbox) {
                                             //TODO Check if user already is a contributor so as to not send a notification
                                             notifyContributor(user);
-                                            return callback(false, user.uri);
+                                            return callback(null, user.uri);
                                         } else {
                                             return callback(true, contributor);
                                         }

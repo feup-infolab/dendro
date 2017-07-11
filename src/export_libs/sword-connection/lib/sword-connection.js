@@ -21,7 +21,7 @@ executeCommand = function(command,callback){
             const data = JSON.parse(stdout);
 
             if (data.success === 'true') {
-                return callback(false, data.message, data.response);
+                return callback(null, data.message, data.response);
             }
             else {
                 if ('message' in data) {

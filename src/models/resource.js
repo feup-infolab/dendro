@@ -2216,28 +2216,39 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                             return callback(null, false);
                         }
                     }
-                    else {
+                    else
+                    {
                         const msg = "Error verifying existence of triple \"" + self.uri + " " + predicateInPrefixedForm + " " + value + "\". Error reported " + JSON.stringify(result);
                         if (Config.debug.resources.log_all_type_checks === true) {
                             console.error(msg);
                         }
-                        return callback(1, msg);
+                        return callback(err, msg);
                     }
                 });
         };
 
-        Cache.getByGraphUri(customGraphUri).get(self.uri, function(err, cachedDescriptor){
-           if(isNull(err) && !isNull(cachedDescriptor))
+        Cache.getByGraphUri(customGraphUri).get(self.uri, function(err, cachedResource){
+           if(isNull(err) && !isNull(cachedResource))
            {
                const namespace = descriptorToCheck.getNamespacePrefix();
                const element = descriptorToCheck.getShortName();
                if(
-                   !isNull(cachedDescriptor[namespace]) &&
-                   !isNull(cachedDescriptor[namespace][element]) &&
-                   cachedDescriptor[namespace][element] === value
+                   !isNull(cachedResource[namespace]) &&
+                   !isNull(cachedResource[namespace][element])
                )
                {
-                   return callback(null, true);
+                   if(cachedResource[namespace][element] instanceof Array)
+                   {
+                       return callback(null,_.contains(cachedResource[namespace][element], Descriptor.getUriFromPrefixedForm(value)));
+                   }
+                   else if(typeof cachedResource[namespace][element] === "string")
+                   {
+                       return callback(null, true);
+                   }
+                   else
+                   {
+                       return callback(1, "Unable to determine type of descriptor from cached object when determining if resource " + self.uri + " has predicate "+ predicateInPrefixedForm +" with a value of" + value);
+                   }
                }
                else
                {
@@ -2346,7 +2357,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
                                                     function(err){
                                                         if(isNull(err)) {
                                                             // All tasks are done now
-                                                            return callback(false, metadataResult);
+                                                            return callback(null, metadataResult);
                                                         }
                                                         else{
                                                             return callback(true, null);
@@ -2355,7 +2366,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
                                                 );
                                             }
                                             else {
-                                                return callback(false, metadataResult);
+                                                return callback(null, metadataResult);
                                             }
                                         }
                                         else {
@@ -2366,7 +2377,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
                                 }
                                 else {
                                     console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
-                                    return callback(false, metadataResult);
+                                    return callback(null, metadataResult);
                                 }
 
                             });

@@ -26,7 +26,6 @@ module.exports.login = function(req, res, next){
             req.passport.authenticate(
                 'local',
                 {
-                    successRedirect: '/user/me',
                     failureRedirect: '/login',
                     failureFlash: true
                 },
@@ -58,7 +57,7 @@ module.exports.login = function(req, res, next){
                                         console.log("User " + user.ddr.username + " signed in.");
                                     }
                                         
-                                    res.redirect('/projects/my');
+                                    res.render('/projects/my');
                                 }
                             }
                             else

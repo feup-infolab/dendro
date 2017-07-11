@@ -37,7 +37,7 @@ B2Share.prototype.createDeposition = function(callback){
             }
             else{
                 console.log("[B2SHARE] Deposition Created");
-                return callback(false, deposition);
+                return callback(null, deposition);
             }
         }
     });
@@ -111,7 +111,7 @@ B2Share.prototype.depositionPublish = function(depositionID, metadata, callback)
             }
             else{
                 console.log("[B2SHARE] Success Committing Deposit: " + JSON.stringify(result));
-                return callback(false, result);
+                return callback(null, result);
             }
         }
     });

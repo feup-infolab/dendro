@@ -1021,7 +1021,7 @@ const getSharesForAPost = function (postID, cb) {
             if (isNull(err)) {
                 async.map(results, function (shareObject, callback) {
                     Share.findByUri(shareObject.shareURI, function (err, share) {
-                        return callback(false, share);
+                        return callback(null, share);
                         //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, shares) {
@@ -1034,18 +1034,8 @@ const getSharesForAPost = function (postID, cb) {
         });
 };
 
-function saveCurrentUserInRedis(req, res) {
-    const redis = require("redis");
-    client = redis.createClient();
-
-}
-
 exports.getPostShares = function (req, res) {
-    const currentUser = req.user;
-
     const postUri = req.body.postID;
-
-
     getSharesForAPost(postUri, function (err, shares) {
         if(err)
         {

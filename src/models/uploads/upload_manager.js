@@ -6,49 +6,50 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Upload = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload.js")).Upload;
 
-function UploadManager (tmp_files_dir)
+let UploadManager = function (tmp_files_dir)
 {
 
 }
 
-if(typeof UploadManager.__uploads === "undefined")
+if (typeof UploadManager.__uploads === "undefined")
 {
     UploadManager.__uploads = {};
 }
 
-UploadManager.add_upload = function(username, filename, size, md5_checksum, parent_folder, callback)
+UploadManager.add_upload = function (username, filename, size, md5_checksum, parent_folder, callback)
 {
     Upload.create(
         {
-            username : username,
-            filename : filename,
-            expected : size,
-            md5_checksum  : md5_checksum,
-            parent_folder : parent_folder
-    }, function(err, upload){
-        if(isNull(err))
+            username: username,
+            filename: filename,
+            expected: size,
+            md5_checksum: md5_checksum,
+            parent_folder: parent_folder
+        }, function (err, upload)
         {
-            const id = upload.id;
-            UploadManager.__uploads[id] = upload;
-            return callback(null, upload);
-        }
-        else
-        {
-            return callback(err, upload);
-        }
-    });
+            if (isNull(err))
+            {
+                const id = upload.id;
+                UploadManager.__uploads[id] = upload;
+                return callback(null, upload);
+            }
+            else
+            {
+                return callback(err, upload);
+            }
+        });
 };
 
 
-UploadManager.get_upload_by_id = function(id)
+UploadManager.get_upload_by_id = function (id)
 {
     return UploadManager.__uploads[id];
 };
 
-UploadManager.finished = function(id)
+UploadManager.finished = function (id)
 {
     const upload = UploadManager.__uploads[id];
-    if(!isNull(upload))
+    if (!isNull(upload))
     {
         return null;
     }
@@ -58,11 +59,11 @@ UploadManager.finished = function(id)
     }
 };
 
-UploadManager.setUploadExpectedBytes = function(id, bytes)
+UploadManager.setUploadExpectedBytes = function (id, bytes)
 {
     const upload = UploadManager.__uploads[id];
 
-    if(!isNull(upload))
+    if (!isNull(upload))
     {
         upload.set_expected(bytes);
     }
@@ -72,11 +73,11 @@ UploadManager.setUploadExpectedBytes = function(id, bytes)
     }
 };
 
-UploadManager.writeBytesToUpload = function(id, buffer, callback)
+UploadManager.writeBytesToUpload = function (id, buffer, callback)
 {
     const upload = UploadManager.__uploads[id];
 
-    if(!isNull(upload))
+    if (!isNull(upload))
     {
         upload.write_part(buffer, callback);
     }
@@ -86,11 +87,11 @@ UploadManager.writeBytesToUpload = function(id, buffer, callback)
     }
 };
 
-UploadManager.destroy_upload= function (id, callback)
+UploadManager.destroy_upload = function (id, callback)
 {
     const upload = UploadManager.__uploads[id];
 
-    if(!isNull(upload))
+    if (!isNull(upload))
     {
         upload.destroy(callback);
     }

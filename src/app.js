@@ -260,7 +260,6 @@ if(!isNull(Config.logging))
 }
 
 //set serialization and deserialization methods
-
 passport.serializeUser(function(user, done) {
     done(null, user);
 });

@@ -59,7 +59,7 @@ MongoDBCache.prototype.put = function(resourceUri, object, callback) {
         {
             if(!isNull(self.client))
             {
-                self.client.collection(self.collection).replaceOne(
+                self.client.collection(self.collection).update(
                     { "uri" : resourceUri },
                     object,
                     { "upsert" : true },
@@ -106,23 +106,31 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
             {
                 const cursor = self.client.collection(self.collection).find(query);
 
-                cursor.each(function(err, cachedJSON)
+                cursor.toArray(function(err, cachedResults)
                 {
                     if(isNull(err))
                     {
                         if(Config.cache.active && Config.debug.cache.log_cache_hits)
                         {
-                            if(!isNull(cachedJSON))
+                            if(!isNull(cachedResults))
                             {
-                                console.log("Cache HIT on " + resourceUri);
+                                console.log("Cache HIT on " + JSON.stringify(query)+"\n");
+                                console.log("Cached : \n " + JSON.stringify(cachedResults, null, 4));
                             }
                             else
                             {
-                                console.log("Cache MISS on " + resourceUri);
+                                console.log("Cache MISS on " + JSON.stringify(query));
                             }
                         }
 
-                        return callback(null, cachedJSON);
+                        if(cachedResults.length === 0)
+                        {
+                            return callback(null, null);
+                        }
+                        else
+                        {
+                            return callback(null, cachedResults);
+                        }
                     }
                     else
                     {
@@ -149,7 +157,34 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
 };
 
 MongoDBCache.prototype.get = function(resourceUri, callback) {
-    MongoDBCache.prototype.getByQuery({ uri : resourceUri}, callback);
+    const self = this;
+    self.getByQuery({ uri : resourceUri }, function(err, results){
+        if(isNull(err))
+        {
+            if(!isNull(results))
+            {
+                if(results instanceof Array)
+                {
+                    if(results.length === 1)
+                    {
+                        callback(null, results[0]);
+                    }
+                    else
+                    {
+                        callback(null, results);
+                    }
+                }
+            }
+            else
+            {
+                return callback(null, null);
+            }
+        }
+        else
+        {
+            return callback(err, results);
+        }
+    });
 };
 
 MongoDBCache.prototype.delete = function(resourceUriOrArrayOfResourceUris, callback) {

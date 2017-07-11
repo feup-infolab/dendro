@@ -96,7 +96,7 @@ exports.sendFiles = function(options, callback){
                     return callback(true, "Error sending files to " + options.collectionRef);
                 }
                 else{
-                    return callback(false, "Files sent successfully");
+                    return callback(null, "Files sent successfully");
                 }
             }
         );

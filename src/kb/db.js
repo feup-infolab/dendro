@@ -446,7 +446,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                             if (!isNull(parsedBody.boolean))
                             {
                                 cb();
-                                callback(null, parsedBody.boolean);
+                                return callback(null, parsedBody.boolean);
                             }
                             else
                             {
@@ -505,8 +505,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                                                         // default is a string value
                                                         default:
                                                         {
-                                                            const valueWithQuotes = decodeURIComponent(value).replace(/\"/g, "\\\"");
-                                                            transformedResults[i][cellHeader] = valueWithQuotes;
+                                                            transformedResults[i][cellHeader] = decodeURIComponent(value).replace(/\"/g, "\\\"");;
                                                             break;
                                                         }
                                                     }
@@ -522,6 +521,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                         })
                         .catch(function(err){
                             const error = "Virtuoso server returned error: \n " + util.inspect(err);
+                            console.error(error);
                             console.trace(err);
                             cb();
                             return callback(1, err);

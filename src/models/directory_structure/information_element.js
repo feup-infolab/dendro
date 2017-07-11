@@ -540,7 +540,7 @@ InformationElement.prototype.findMetadata = function(callback){
                                                     function(err){
                                                         if(isNull(err)) {
                                                             // All tasks are done now
-                                                            return callback(false, metadataResult);
+                                                            return callback(null, metadataResult);
                                                         }
                                                         else{
                                                             return callback(true, null);
@@ -549,7 +549,7 @@ InformationElement.prototype.findMetadata = function(callback){
                                                 );
                                             }
                                             else {
-                                                return callback(false, metadataResult);
+                                                return callback(null, metadataResult);
                                             }
                                         }
                                         else {
@@ -560,7 +560,7 @@ InformationElement.prototype.findMetadata = function(callback){
                                 }
                                 else {
                                     console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
-                                    return callback(false, metadataResult);
+                                    return callback(null, metadataResult);
                                 }
 
                             });

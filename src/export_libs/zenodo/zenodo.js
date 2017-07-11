@@ -38,7 +38,7 @@ Zenodo.prototype.getDeposition = function(depositionID, callback){
                 return callback(true);
             }
             else{
-                return callback(false, data);
+                return callback(null, data);
             }
         })
 };
@@ -54,7 +54,7 @@ Zenodo.prototype.getDepositionsList = function(callback){
                 return callback(true);
             }
             else{
-                return callback(false, depositions);
+                return callback(null, depositions);
             }
         })
 };
