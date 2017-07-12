@@ -87,5 +87,27 @@ angular.module('dendroApp.directives', [])
                 }
             }
         };
-    });
+    })
+    .directive('calculateIsOverflown' , ['$timeout' , function($timeout) {
+        return {
+            link: function ($scope , element , attrs) {
+
+                // Wait few milliseconds until element is re-rendered
+                // so that element properties reflect content size.
+                $timeout( function(){
+                    console.log("element[0].scrollHeight:", element[0].scrollHeight);
+                    console.log("element[0].offsetHeight", element[0].offsetHeight);
+                    if (element[0].scrollHeight > element[0].offsetHeight){
+                        console.log("Is overflown");
+                        $scope.overflowsOriginally = true;
+                    }
+                    else
+                    {
+                        console.log("Is not overflown");
+                        $scope.overflowsOriginally = false;
+                    }
+                }, 200); // $timeout
+            } // link
+        }; // return
+    }]);
 

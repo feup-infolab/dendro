@@ -8,11 +8,20 @@
 .createManualPost {
   opacity: 1;
 }
-.showPostContentID-overflow-hidden {
+.showPostContent-overflow-fixed {
   height: 10em;
-  overflow-y: hidden;
+/*overflow-y: hidden;*/
 }
-.showPostContentID-overflow-auto {
+.showPostContent-no-overflow {
+/*height: auto;*/
+/*overflow-y: scroll;*/
+  min-height: 50px;
+}
+.showPostContent-with-scroll {
+  height: 10em;
+  overflow-y: scroll;
+}
+.showPostContentContainer {
   height: 10em;
   overflow-y: hidden;
 }

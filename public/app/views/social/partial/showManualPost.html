@@ -1,11 +1,14 @@
-<div class="media">
-    <div class="media-left">
-        <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>
-    </div>
-    <!--<div class="media-body text-justify" style="padding-left: 0%; padding-top: 5%">-->
-    <div class="media-body">
-        <div class="showPostContentID-overflow-hidden">
-            {{postsContents[postUri].schema.sharedContent}}
+<div class="panel-body">
+    <div class="media">
+        <div class="media-left">
+            <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>
+        </div>
+
+        <div class="media-body">
+            <div ng-class="overflowsOriginally ? 'showPostContent-with-scroll' : 'showPostContent-overflow-fixed'"
+                 calculate-is-overflown>
+                <span> {{postsContents[postUri].schema.sharedContent}} </span>
+            </div>
         </div>
     </div>
 </div>
