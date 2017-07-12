@@ -262,6 +262,10 @@
             <%- include show/descriptor_selection_variants/descriptors_selection_area_rec.ejs %>
         </div>
 
+        <div class="col-md-3 col-xs-12 col-sm-12" id="statistics" ng-show="showing_statistics()" ng-controller="statisticsCtrl" ng-init="init()" ng-show="!(shared.multiple_selection_active && file_explorer_selected_something())">
+            <%- include show/project_stats.ejs %>
+        </div>
+
         <div ng-show="shared.multiple_selection_active && file_explorer_selected_something()" class="panel panel-warning">
             <div class="panel-heading">
                 <h3 class="panel-title">
