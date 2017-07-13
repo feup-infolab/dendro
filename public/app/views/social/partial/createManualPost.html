@@ -8,8 +8,142 @@
             </div>
         </div>
 
+
+        <script type="text/javascript">
+
+            function validate_form ()
+            {
+                //let ok = $('.parsley-error').length === 0;
+
+                console.log("At function validatinForm");
+                $('#new_manual_post_form').parsley().validate("validationGroup");
+                if ($('#new_manual_post_form').parsley().isValid()) {
+                    console.log('valid');
+                    $('#submit_new_post_button').prop("disabled", false );
+                } else {
+                    console.log('not valid');
+                    $('#submit_new_post_button').prop( "disabled", true );
+                }
+
+                /*$('.bs-callout-info').toggleClass('hidden', !ok);
+                $('.bs-callout-warning').toggleClass('hidden', ok);
+
+                if(!ok)
+                    $('#submit_new_post_button').prop("disabled", true );
+                else
+                    $('#submit_new_post_button').prop( "disabled", false );*/
+            }
+
+            $( document ).ready(function() {
+                $(function () {
+                    Parsley
+                        .addValidator('validateProjectSelector',{
+                            requirementType: "string",
+                            validateString: function (value, invalidCase) {
+                                let chooseProjectOption = $("#choosingProjectID").get(0);
+                                console.log("chooseProjectOption");
+                                console.log(chooseProjectOption);
+                                return chooseProjectOption.options[chooseProjectOption.options.selectedIndex].label !== invalidCase;
+                            },
+                            messages: {
+                                en: 'Choose a valid project',
+                                pt: 'Escolha um projeto válido'
+                            }
+                        }
+                    );
+
+                    /*$('#new_manual_post_form').parsley().on('field:validated', function() {
+                        validate_form();
+                    })
+                        .on('click', function() {
+                            let ok = $('.parsley-error').length === 0;
+
+                            if(!ok)
+                            {
+                                return false;
+                            }
+                        });*/
+
+
+
+
+                    /*let formInstance = $('#new_manual_post_form').parsley().whenValidate({group: 'validationGroup', force: true});
+                    console.log("form instance:");
+                    console.log(formInstance);*/
+
+
+                    //TODO https://stackoverflow.com/questions/22781490/trigger-parsley-validation-without-submit-form
+                    /*$('#new_manual_post_form').parsley().whenValidate({group: 'validationGroup', force: true}).on('form:validate', function (formInstance) {
+                        //var ok = formInstance.whenValidate({group: 'validationGroup', force: true});
+                        console.log("O ok é");
+                    });*/
+
+
+                    //$('#new_manual_post_form').parsley().validate();
+
+                    $("#choosingProjectID").click(function () {
+                        $('#new_manual_post_form').parsley().validate();
+                        if ($('#new_manual_post_form').parsley().isValid()) {
+                            console.log('valid');
+                            $('#submit_new_post_button').prop("disabled", false);
+                        } else {
+                            console.log('not valid');
+                            $('#choosingProjectID').focus();
+                            $('#submit_new_post_button').prop("disabled", true);
+                        }
+                    });
+
+                    $("#newPostTitleID").on('input', function () {
+                        $('#new_manual_post_form').parsley().validate();
+                        if ($('#new_manual_post_form').parsley().isValid()) {
+                            console.log('valid');
+                            $('#submit_new_post_button').prop("disabled", false);
+                        } else {
+                            console.log('not valid');
+                            $('#submit_new_post_button').prop("disabled", true);
+                            $('#newPostTitleID').focus();
+                        }
+                    });
+
+                    $("#newPostContentID").on('input', function () {
+                        $('#new_manual_post_form').parsley().validate();
+                        if ($('#new_manual_post_form').parsley().isValid()) {
+                            console.log('valid');
+                            $('#submit_new_post_button').prop("disabled", false);
+                        } else {
+                            console.log('not valid');
+                            $('#submit_new_post_button').prop("disabled", true);
+                            $('#newPostContentID').focus();
+                        }
+                    });
+
+                    $('#submit_new_post_button').on('click', function() {
+                        $('#new_manual_post_form').parsley().reset();
+                        $('#submit_new_post_button').prop( "disabled", true );
+                    });
+                });
+            });
+        </script>
+
         <div class="media-body">
-            <div ng-show="showCreatePostContent" class="input-group-btn form-inline">
+            <form id="new_manual_post_form">
+                <div style="padding-top: 1.5%">
+                    <div ng-show="showCreatePostContent">
+                        <select ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" class="form-control" id="choosingProjectID" ng-init="projectChosen"
+                                ng-model="$parent.projectChosen" ng-options="userProject.name for userProject in userProjects" data-parsley-group="validationGroup" data-parsley-validate-project-selector="Select the Project">
+                        </select>
+                        <input ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" type="text" class="form-control" aria-label="postTitle" id="newPostTitleID" ng-model="$parent.newPostTitle" placeholder="The title of your post" data-parsley-required="true" data-parsley-group="validationGroup">
+                    </div>
+
+                    <textarea ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" id="newPostContentID" ng-model="$parent.newPostContent" placeholder="What are you thinking ?" data-parsley-required="true" data-parsley-group="validationGroup"></textarea>
+
+                    <div ng-show="showCreatePostContent">
+                        <button id="submit_new_post_button" type="button" class="btn btn-primary" ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" ng-click="createNewManualPost();" disabled>Create</button>
+                    </div>
+                </div>
+            </form>
+
+            <!--<div ng-show="showCreatePostContent" class="input-group-btn form-inline">
                 <select ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" class="form-control" id="choosingProjectID" ng-init="projectChosen"
                         ng-model="$parent.projectChosen" ng-options="userProject.name for userProject in userProjects">
                 </select>
@@ -17,11 +151,11 @@
             </div>
 
             <div style="padding-top: 1.5%">
-                <textarea ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" id="newPostContentID" ng-model="$parent.newPostContent" placeholder="What are you thinking ?"></textarea>
+                <textarea ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" id="newPostContentID" ng-model="$parent.newPostContent" placeholder="What are you thinking ?" required></textarea>
                 <div ng-show="showCreatePostContent">
                     <button type="button" class="btn btn-primary" ng-blur="toggleNewPostModal(false)" ng-focus="toggleNewPostModal(true)" ng-click="createNewManualPost();">Create</button>
                 </div>
-            </div>
+            </div>-->
         </div>
 
     </div>
