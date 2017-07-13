@@ -80,13 +80,13 @@ angular.module('dendroApp.controllers')
             timelineService.likePost(postID)
                 .then(function(response)
                 {
-                    $scope.show_popup(response.data.message);
                     $scope.postLikesInfo(postID);
                     $scope.doing_likePost = false;
                 })
                 .catch(function(error){
                     console.error("Error liking a post" + JSON.stringify(error));
                     $scope.doing_likePost = false;
+                    Utils.show_popup("error", "Error liking post", JSON.stringify(error));
                 });
         };
 
@@ -173,12 +173,13 @@ angular.module('dendroApp.controllers')
             timelineService.commentPost(postID, commentMsg)
                 .then(function(response)
                 {
-                    $scope.show_popup(response.data.message);
                     $scope.getCommentsFromPost(postID);
                     $scope.doing_commentPost = false;
+                    Utils.show_popup("success", "Success", "Post was commented successfully");
                 })
                 .catch(function(error){
                     console.error("Error commenting a post" + JSON.stringify(error));
+                    Utils.show_popup("error", "Error commenting a post", JSON.stringify(error));
                     $scope.doing_commentPost = false;
                 });
         };
@@ -189,16 +190,16 @@ angular.module('dendroApp.controllers')
             timelineService.sharePost(postID, shareMsg)
                 .then(function(response)
                 {
-                    $scope.show_popup(response.data.message);
                     $scope.getSharesFromPost(postID);
-                    //$scope.get_all_posts($scope.pagination.current);//TODO remove this function call???
                     $scope.pagination.current = 1;
                     $scope.pageChangeHandler($scope.pagination.current);
                     $window.scrollTo(0, 0);//to scroll up to the top on page change
                     $scope.doing_sharePost = false;
+                    Utils.show_popup("success", "Success", "Post was shared successfully");
                 })
                 .catch(function(error){
                     console.error("Error sharing a post" + JSON.stringify(error));
+                    Utils.show_popup("error", "Error sharing a post", JSON.stringify(error));
                     $scope.doing_sharePost = false;
                 });
         };
@@ -364,19 +365,19 @@ angular.module('dendroApp.controllers')
                     $scope.newPostTitle = "";
                     $scope.newPostContent = "";
                     $scope.projectChosen = $scope.userProjects[0];
-                    $scope.show_popup(response.data.message);
                     $scope.pagination.current = 1;
                     $scope.pageChangeHandler($scope.pagination.current);
                     $window.scrollTo(0, 0);//to scroll up to the top on page change
                     $scope.doing_createNewPost = false;
                     $scope.toggleNewPostModal(false);
+                    Utils.show_popup("success", "Success", "Post was created successfully");
                 })
                 .catch(function (error) {
                     console.error("Error createNewManualPost" + JSON.stringify(error));
                     $scope.newPostTitle = "";
                     $scope.newPostContent = "";
                     $scope.projectChosen = $scope.userProjects[0];
-                    $scope.show_popup(error);
+                    Utils.show_popup("error", "Error creating a post", JSON.stringify(error));
                     $scope.doing_createNewPost = false;
                     $scope.toggleNewPostModal(false)
                 });

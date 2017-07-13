@@ -17,8 +17,8 @@
 
     <div class="panel-footer">
         <a ng-model="checkModel.left" ng-class="postsContents[shareUri].likesContent.usersWhoLiked.indexOf(loggedUser.uri) > -1 ? 'btn-sm btn-success' : 'btn-sm'" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="likePost(postsContents[shareUri].uri)"> <i class="fa fa-thumbs-o-up" aria-hidden="true"></i> Like</a> <span>{{postsContents[shareUri].likesContent.numLikes}},</span>
-        <a class="btn-sm" ng-model="checkModel.middle" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="social-dendro-btn fa fa-comment" aria-hidden="true"></i> Comment</a> <span> {{postsContents[shareUri].commentsContent.length}},</span>
-        <a class="btn-sm" ng-model="checkModel.right" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="social-dendro-btn fa fa-share" aria-hidden="true"></i> Share</a> <span>{{postsContents[shareUri].sharesContent.length}}</span>
+        <a class="btn-sm" ng-model="checkModel.middle" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="isReplyFormOpen = !isReplyFormOpen; isShareFormOpen = false;"> <i class="social-dendro-btn fa fa-comment" aria-hidden="true"></i> Comment</a> <span> {{postsContents[shareUri].commentsContent.length}}</span>
+        <!--<a class="btn-sm" ng-model="checkModel.right" uib-btn-checkbox data="{{postsContents[shareUri].uri}}" ng-click="isShareFormOpen = !isShareFormOpen;isReplyFormOpen = false;"> <i class="social-dendro-btn fa fa-share" aria-hidden="true"></i> Share</a> <span>{{postsContents[shareUri].sharesContent.length}}</span>-->
     </div>
 </div>
 
@@ -36,10 +36,11 @@
     </div>
 </div>
 
+<!--
 <div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare" style="margin-left: 20%; margin-right: 20%">
     <div class="wall">
         <label for="new_post_box_share">{{loggedUser.ddr.username}} :</label>
         <textarea class="form-control" rows="5" id="new_post_box_share" ng-model="share_content" placeholder="Write your share message here"></textarea>
         <a ng-click="sharePost(postsContents[shareUri].uri,share_content);share_content=''" class="btn btn-default btn-primary">Send</a>
     </div>
-</div>
+</div>-->

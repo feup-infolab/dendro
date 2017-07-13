@@ -46,7 +46,7 @@ Utils.show_popup = function(type, title, message)
 {
     if(type == "success")
     {
-        $.pnotify({
+        new PNotify({
             title: title,
             text: message,
             type: 'success',
@@ -68,7 +68,7 @@ Utils.show_popup = function(type, title, message)
             message = "Unknown error occurred!";
         }
 
-        $.pnotify({
+        new PNotify({
             title: title,
             text: message,
             type: 'error',
@@ -81,7 +81,7 @@ Utils.show_popup = function(type, title, message)
     }
     else if(type == "info")
     {
-        $.pnotify({
+        new PNotify({
             title: title,
             text: message,
             type: 'info',
