@@ -254,7 +254,27 @@ const loadRoutes = function(app, passport, recommendation, callback)
     app.post('/ontologies/edit', async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), ontologies.edit);
 
     //descriptors
-    app.get('/descriptors/from_ontology/:ontology_uri', async.apply(Permissions.require, [ Permissions.settings.role.in_system.user]), descriptors.from_ontology);
+    app.get('/descriptors', function(req, res, next){
+
+        const authenticatedUserPermissions = [
+            Permissions.settings.role.in_system.user
+        ];
+
+        const queryBasedRoutes = {
+            // route : "/descriptors?from_ontology=<<<uri>>>
+            get: [
+                //from_ontology
+                {
+                    queryKeys: ['from_ontology'],
+                    handler: descriptors.from_ontology,
+                    permissions: authenticatedUserPermissions,
+                    authentication_error: "Permission denied : You cannot access the list of descriptors of this ontology because you are not authenticated in the system."
+                }
+            ]
+        };
+
+        QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+    });
 
     //research domains
 
@@ -480,6 +500,13 @@ const loadRoutes = function(app, passport, recommendation, callback)
                             handler: projects.requestAccess,
                             permissions: [Permissions.settings.role.in_system.user],
                             authentication_error: "Permission denied : cannot request access to this project."
+                        },
+                        //descriptors with annotations
+                        {
+                            queryKeys: ['descriptors_from_ontology'],
+                            handler: descriptors.from_ontology_in_project,
+                            permissions: modificationPermissions,
+                            authentication_error: "Permission denied : cannot fetch descriptors from ontology in this project because you do not have permissions to access resources inside it."
                         },
                         //default case
                         {

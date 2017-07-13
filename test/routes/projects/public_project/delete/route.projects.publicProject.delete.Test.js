@@ -35,6 +35,13 @@ describe("Delete Public Project Tests", function () {
         });
     });
 
+    beforeEach(function(done) {
+        userUtils.logoutUser(function (err, agent)
+        {
+            done();
+        });
+    });
+
     describe("[JSON] [POST] /project/:handle?delete", function () {
         //TODO HTML AND API
         it("Should give an error message when a project does not exist", function (done) {

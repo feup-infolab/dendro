@@ -47,7 +47,7 @@ describe("Descriptors from invalid ontology", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
                     res.should.have.status(404);
-                    res.body.error_messages.should.contain("Ontology with prefix xy does not exist in this Dendro instance.");
+                    res.body.error_messages.should.contain("Ontology with prefix or uri xy does not exist in this Dendro instance.");
                     done();
                 });
             });
@@ -57,7 +57,7 @@ describe("Descriptors from invalid ontology", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
                     res.should.have.status(404);
-                    res.body.error_messages.should.contain("Ontology with prefix xy does not exist in this Dendro instance.");
+                    res.body.error_messages.should.contain("Ontology with prefix or uri xy does not exist in this Dendro instance.");
                     done();
                 });
             });
@@ -80,7 +80,7 @@ describe("Descriptors from invalid ontology", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
                     res.should.have.status(404);
-                    res.body.error_messages.should.contain("Ontology with prefix xy does not exist in this Dendro instance.");
+                    res.body.error_messages.should.contain("Ontology with prefix or uri xy does not exist in this Dendro instance.");
                     done();
                 });
             });
@@ -90,7 +90,7 @@ describe("Descriptors from invalid ontology", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
                     res.should.have.status(404);
-                    res.body.error_messages.should.contain("Ontology with prefix xy does not exist in this Dendro instance.");
+                    res.body.error_messages.should.contain("Ontology with prefix or uri xy does not exist in this Dendro instance.");
                     done();
                 });
             });
@@ -113,7 +113,7 @@ describe("Descriptors from invalid ontology", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
                     res.should.have.status(404);
-                    res.body.error_messages.should.contain("Ontology with prefix xy does not exist in this Dendro instance.");
+                    res.body.error_messages.should.contain("Ontology with prefix or uri xy does not exist in this Dendro instance.");
                     done();
                 });
             });
@@ -123,7 +123,7 @@ describe("Descriptors from invalid ontology", function (done) {
             userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
                     res.should.have.status(404);
-                    res.body.error_messages.should.contain("Ontology with prefix xy does not exist in this Dendro instance.");
+                    res.body.error_messages.should.contain("Ontology with prefix or uri xy does not exist in this Dendro instance.");
                     done();
                 });
             });

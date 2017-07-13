@@ -4,8 +4,7 @@ const _ = require('underscore');
 chai.use(chaiHttp);
 
 const getProjectDescriptorsFromOntology = function (jsonOnly, agent, ontologyPrefix, projectHandle, cb) {
-    //http://127.0.0.1:3001/descriptors/from_ontology/dcterms?project_handle=proj1
-    const path = '/descriptors/from_ontology/' + ontologyPrefix + '?project_handle=' + projectHandle;
+    const path = '/project/' + projectHandle+ '?descriptors_from_ontology=' + ontologyPrefix;
     if (jsonOnly) {
         agent
             .get(path)

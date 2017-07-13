@@ -13,50 +13,6 @@ global.Config = Config;
 
 global.tests = {};
 
-// /*
-//  require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
-//  */
-//
-// require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
-//
-//
-// //USERS
-// require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
-// require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));
-//
-// //USER
-// require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/route.user.demouser1.Test.js"));
-// require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/route.user.demouser2.Test.js"));
-// require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/route.user.demouser3.Test.js"));
-//
-//
-// require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
-//
-// require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
-// /*require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
-
-require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
-
-
-//USERS
-require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));
-
-//USER
-require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/route.user.demouser1.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/route.user.demouser2.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/route.user.demouser3.Test.js"));
-
-
-require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
-
-require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
-/*require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
-
-require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));
-require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
-
 /*require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));*/
 
 //PUBLIC PROJECT

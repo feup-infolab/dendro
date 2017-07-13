@@ -54,7 +54,9 @@ describe("Descriptors from foaf ontology", function (done) {
         it("[JSON] It should give an error when trying to get descriptors from foaf ontology when logged in as demouser1 and passing an unknown project handle in the query", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, "unknownProjectHandle", function (err, res) {
-                    res.should.have.status(500);
+                    res.body.message[0].should.include("Resource not found at ");
+                    res.body.message[0].should.include("unknownProjectHandle");
+                    res.should.have.status(404);
                     done();
                 });
             });
@@ -63,7 +65,9 @@ describe("Descriptors from foaf ontology", function (done) {
         it("[JSON] It should give an error when trying to get descriptors from foaf ontology when logged in as demouser1 and passing null project handle in the query", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, null, function (err, res) {
-                    res.should.have.status(500);
+                    res.body.message[0].should.include("Resource not found at ");
+                    res.body.message[0].should.include("null");
+                    res.should.have.status(404);
                     done();
                 });
             });

@@ -2237,13 +2237,14 @@ Resource.prototype.checkIfHasPredicateValue = function(predicateInPrefixedForm, 
                    !isNull(cachedResource[namespace][element])
                )
                {
-                   if(cachedResource[namespace][element] instanceof Array)
+                   let descriptorValue = cachedResource[namespace][element];
+                   if(descriptorValue instanceof Array)
                    {
                        return callback(null,_.contains(cachedResource[namespace][element], Descriptor.getUriFromPrefixedForm(value)));
                    }
-                   else if(typeof cachedResource[namespace][element] === "string")
+                   else if(typeof descriptorValue === "string")
                    {
-                       return callback(null, true);
+                       return callback(null, (descriptorValue === value));
                    }
                    else
                    {

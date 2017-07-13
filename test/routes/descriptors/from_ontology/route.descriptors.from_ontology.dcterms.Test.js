@@ -57,7 +57,9 @@ describe("Descriptors from dcterms ontology", function (done) {
             let ontologyPrefix = "dcterms";
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, "unknownProjectHandle", function (err, res) {
-                    res.should.have.status(500);
+                    res.body.message[0].should.include("Resource not found at ");
+                    res.body.message[0].should.include("unknownProjectHandle");
+                    res.should.have.status(404);
                     done();
                 });
             });
@@ -67,7 +69,9 @@ describe("Descriptors from dcterms ontology", function (done) {
             let ontologyPrefix = "dcterms";
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, null, function (err, res) {
-                    res.should.have.status(500);
+                    res.body.message[0].should.include("Resource not found at ");
+                    res.body.message[0].should.include("null");
+                    res.should.have.status(404);
                     done();
                 });
             });

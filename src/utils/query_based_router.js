@@ -18,7 +18,6 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
     let matchingRoute;
     let routeThatMatchesTheMostQueries;
 
-
     function extractFirstElementFromArray(array)
     {
         if(!isNull(array) && array instanceof Array && array.length === 1)
@@ -94,7 +93,6 @@ QueryBasedRouter.applyRoutes = function(routes, req, res, next)
         });
     }
 
-    var methodRoutes;
     if(!isNull(routes[method])) {
         matchingRoute = getMatchingRoute(routes[method]);
 
