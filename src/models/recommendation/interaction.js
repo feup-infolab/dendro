@@ -336,9 +336,10 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
             inserts.push(moment(self.ddr.recommendationCallTimeStamp, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"));
         }
 
-        console.log(insertNewInteractionQuery);
+        if(Config.debug.database.log_all_queries)
+            console.log(insertNewInteractionQuery);
 
-        mysql().getConnection(function (err, connection) {
+        mysql.pool.getConnection(function (err, connection) {
             if (isNull(err)) {
                 connection.query(
                     insertNewInteractionQuery,
@@ -372,7 +373,7 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
     }
     else
     {
-        mysql().getConnection(function(err, connection) {
+        mysql.pool.getConnection(function(err, connection) {
             if (isNull(err))
             {
                 connection.query('SELECT * from ?? WHERE uri = ?', [targetTable, self.uri], function (err, rows, fields)

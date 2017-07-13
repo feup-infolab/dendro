@@ -39,9 +39,7 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                 uri: resource.recommendedFor
             });
 
-            const projectUri = ie.getOwnerProjectFromUri();
-
-            Project.findByUri(projectUri, function (err, project) {
+            ie.getOwnerProject(function(err, project){
                 if (isNull(err)) {
                     if (!isNull(project)) {
                         project.getCreatorsAndContributors(function (err, contributors) {
@@ -124,6 +122,7 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                     });
                 }
             });
+
         }
         else {
             const msg = "Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.";
