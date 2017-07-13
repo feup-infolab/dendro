@@ -21,7 +21,7 @@ angular.module('dendroApp.factories')
                     {
                         var descriptor = JSON.parse(JSON.stringify(descriptorsArray[i]));
 
-                        if(descriptor.control == "date_picker")
+                        if(descriptor.control === "date_picker")
                         {
                             descriptor.value = new Date(descriptor.value);
                         }

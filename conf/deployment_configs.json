@@ -135,7 +135,6 @@
       "active": true,
       "database": {
         "log_all_queries": true,
-        "destroy_all_graphs_on_startup": false,
         "log_query_timeouts": false
       },
       "session": {
@@ -196,7 +195,8 @@
       "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": false,
       "clear_session_store": true,
-      "log_bootup_actions" : true
+      "log_bootup_actions" : true,
+      "destroy_all_graphs_on_startup": false
     },
     "baselines": {
     },
@@ -489,8 +489,7 @@
     "debug": {
       "active": true,
       "database": {
-        "log_all_queries": false,
-        "destroy_all_graphs_on_startup": true
+        "log_all_queries": false
       },
       "session": {
         "auto_login": false,
@@ -550,7 +549,8 @@
       "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": false,
       "clear_session_store": true,
-      "log_bootup_actions" : false
+      "log_bootup_actions" : false,
+      "destroy_all_graphs_on_startup": true
     },
     "baselines": {
     },
@@ -828,8 +828,7 @@
     "debug": {
       "active": true,
       "database": {
-        "log_all_queries": false,
-        "destroy_all_graphs_on_startup": true
+        "log_all_queries": false
       },
       "session": {
         "auto_login": false,
@@ -889,7 +888,8 @@
       "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": false,
       "clear_session_store": true,
-      "log_bootup_actions" : false
+      "log_bootup_actions" : false,
+      "destroy_all_graphs_on_startup": true
     },
     "baselines": {
     },

@@ -1778,25 +1778,35 @@ exports.ls = function(req, res){
         Project.findByUri(resourceURI, function(err, project) {
             if(isNull(err))
             {
-                project.getFirstLevelDirectoryContents(function(err, files){
-                    if(isNull(err))
-                    {
-                        if(!show_deleted)
+                if(!isNull(project))
+                {
+                    project.getFirstLevelDirectoryContents(function(err, files){
+                        if(isNull(err))
                         {
-                            const _ = require('underscore');
-                            files = _.reject(files, function(file) { return file.ddr.deleted; });
-                        }
+                            if(!show_deleted)
+                            {
+                                const _ = require('underscore');
+                                files = _.reject(files, function(file) { return file.ddr.deleted; });
+                            }
 
-                        res.json(files);
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result : "error",
-                            message : "Unable to fetch project foot folder contents."
-                        })
-                    }
-                });
+                            res.json(files);
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result : "error",
+                                message : "Unable to fetch project foot folder contents."
+                            })
+                        }
+                    });
+                }
+                else
+                {
+                    res.status(404).json({
+                        result : "error",
+                        message : "Unable to fetch project with uri : " + req.params.requestedResourceUri + ". Project not found! "
+                    });
+                }
             }
             else
             {

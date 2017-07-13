@@ -83,12 +83,20 @@ module.exports.login = function(req, res, next){
                     }
                     else
                     {
-                        res.status(401).json(
-                            {
-                                result : "error",
-                                message : err
-                            }
-                        );
+                        if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+                        {
+                            res.status(401).json(
+                                {
+                                    result : "error",
+                                    message : err
+                                }
+                            );
+                        }
+                        else
+                        {
+                            req.flash('error', err);
+                            res.redirect('/login');
+                        }
                     }
                 }
             )(req, res, next);

@@ -330,6 +330,8 @@ const signInDebugUser = function (req, res, next) {
 };
 
 const appendLocalsToUseInViews = function (req, res, next) {
+    const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+
     //append request and session to use directly in views and avoid passing around needless stuff
     res.locals.request = req;
     res.locals.baseURI = Config.baseUri;
@@ -448,7 +450,7 @@ const init = function(callback)
             });
         },
         function(callback) {
-            if(Config.debug.database.destroy_all_graphs_on_startup)
+            if(Config.startup.load_databases && Config.startup.destroy_all_graphs_on_startup)
             {
                 const graphs = Object.keys(Config.db);
                 const conn = Config.getDBByID().connection;

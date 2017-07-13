@@ -103,11 +103,12 @@ const loadRoutes = function(app, passport, recommendation, callback)
             function(username, password, done) {
                 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                 User.findByUsername(username, function (err, user) {
-
-                    const bcrypt = require('bcryptjs');
-                    bcrypt.hash(password, user.ddr.salt, function(err, hashedPassword) {
-                        if(isNull(err)) {
-                            if (!isNull(user)) {
+                    if(isNull(err))
+                    {
+                        if(!isNull(user))
+                        {
+                            const bcrypt = require('bcryptjs');
+                            bcrypt.hash(password, user.ddr.salt, function(err, hashedPassword) {
                                 if (user.ddr.password === hashedPassword) {
                                     user.isAdmin(function (err, isAdmin) {
                                         if (isNull(err)) {
@@ -119,27 +120,29 @@ const loadRoutes = function(app, passport, recommendation, callback)
                                                 });
                                         }
                                         else {
-                                            return done("Unable to check for admin user when authenticating with username " + username, null);
+                                            console.error(err.stack);
+                                            return done("Unable to check for admin user when authenticating with username " + username + " calculating password hash.", null);
                                         }
                                     });
                                 }
                                 else {
                                     return done("Invalid username/password combination.", null);
                                 }
-                            }
-                            else {
-                                console.error(err.stack);
-                                return done("Unknown error during authentication, calculating password hash.", null);
-                            }
+                            });
                         }
                         else
                         {
                             return done("There is no user with username " + username + " registered in this system.", null);
                         }
-                    });
+                    }
+                    else
+                    {
+                        console.error(err.stack);
+                        return done("Unknown error during authentication, fetching user with username " + username, null);
+                    }
                 });
-            }
-        ));
+            })
+        );
 
         app.get('/login', auth.login);
         app.post('/login', auth.login);
@@ -999,7 +1002,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
                     fs.readFile(requestedEJSPath, 'utf-8', function(err, data) {
                         if(isNull(err)) {
                             const ejs = require('ejs');
-                            res.send(ejs.render(data, { locals : res.locals} ));
+                            res.send(ejs.render(data, { Config : Config } ));
                         }
                         else
                         {
