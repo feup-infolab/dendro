@@ -5,13 +5,13 @@
             <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>
         </div>
 
-        <div class="media-left text-center" style="padding: 2%; padding-top: 8%">
+        <div class="media-left text-center social-dendro-metadata-thumbnail">
             <img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">
             <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>
         </div>
 
         <div class="media-body">
-            <div class="text-center" id="postNumChanges" style="padding-left: 5%; padding-right: 5%">
+            <div class="text-center postNumChanges">
                 <div class="progress" style="height: 10px;">
                     <div data-toggle="tooltip" data-placement="top" title="{{postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded}}" class="progress-bar progress-bar-success" style="width: {{100 * (postsContents[postUri].changesInfo.hasNumberOfDescriptorsAdded / postsContents[postUri].changesInfo.numberOfChanges)}}%">
                         <!--<span class="sr-only">35% Complete (success)</span>-->
@@ -28,7 +28,7 @@
                 </div>
             </div>
 
-            <div id="postContent" style="padding: 5%">
+            <div class="postContent">
                 <div ng-if="postsContents[postUri].changesInfo.editChanges">
                     <div ng-repeat="editChange in postsContents[postUri].changesInfo.editChanges | orderBy: 'dcterms.created' track by $index">
                         <p><span class="label label-info">EDITED </span> {{editChange.ddr.changedDescriptor}} : {{editChange.ddr.newValue}}</p>

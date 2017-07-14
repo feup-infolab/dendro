@@ -120,6 +120,8 @@ exports.all = function(req, res){
     var index = currentPage == 1? 0 : (currentPage*5) - 5;
     var maxResults = 5;
 
+    //TODO receber filters aqui para os posts da timeline de acordo com (order by numLikes, project, all my projects, etc)
+
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         Project.findByCreatorOrContributor(currentUser.uri, function (err, projects) {

@@ -4,12 +4,12 @@
             <ng-include src="'/app/views/social/partial/authorInformationPartial.html'" onload="postUri = postUri;"></ng-include>
         </div>
 
-        <div class="media-left text-center" style="padding: 2%">
+        <div class="media-left text-center social-dendro-filesystem-thumbnail">
             <img style="margin-bottom: 0%" ng-src="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}} + ?thumbnail">
             <a class="text-center" style="display: inline-block" ng-href="{{postsContents[postUri].schema.sharedContent.split('/version/')[0]}}"> {{postsContents[postUri].schema.sharedContent.split("/version/")[0].split('/data/').pop()}}   </a>
         </div>
 
-        <div class="media-body text-center" style="padding: 5%">
+        <div class="media-body text-center filesystem-post-content">
             <div ng-if="postsContents[postUri].ddr.changeType == 'mkdir'">
                 <div class="progress">
                     <div class="progress-bar progress-bar-success" style="width: 100%">

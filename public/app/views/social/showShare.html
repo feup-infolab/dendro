@@ -1,15 +1,11 @@
-<div class="panel panel-info" style="margin-left: 20%; margin-right: 20%">
-    <!--<p> Contents at showShare.html : </p>
-    <p> {{postsContents[shareUri]}} </p>-->
+<div class="panel panel-info show-share-panel">
     <div class="panel-heading">
-        <!--<h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <img width="5%" height="5%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" /> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>-->
         <h3 class="panel-title"> {{postsContents[shareUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <img class="img-circle" width="5%" height="5%" ng-src="/user/{{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}}/avatar"> <a ng-href="{{postsContents[shareUri].ddr.userWhoShared}}"> {{postsContents[shareUri].ddr.userWhoShared.split('/').pop()}} </a> : "{{postsContents[shareUri].ddr.shareMsg}}"</h3>
     </div>
 
     <div class="panel-body">
         <div class="media">
             <div class="media-left">
-                <!--<p>The post uri shared is : {{postsContents[shareUri].ddr.postURI}}</p>-->
                 <ng-include src="'/app/views/social/showPost.html'" onload="postUri = postsContents[shareUri].ddr.postURI;"></ng-include>
             </div>
         </div>
@@ -22,11 +18,11 @@
     </div>
 </div>
 
-<div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm" style="margin-left: 20%; margin-right: 20%">
+<div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm" class="comment-reply-form">
     <div class="wall">
         <div ng-repeat="comment in postsContents[shareUri].commentsContent | orderBy: 'dcterms.created' track by $index">
-            <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
-            <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
+            <a ng-href="{{comment.ddr.userWhoCommented}}"><strong> {{comment.ddr.userWhoCommented.split('/').pop()}} : </strong></a>
+            <p> <i> {{comment.ddr.commentMsg}} </i> </p>
             <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
             <hr>
         </div>

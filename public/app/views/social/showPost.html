@@ -53,11 +53,11 @@
     </div>
 </div>
 
-<div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm" style="margin-left: 20%; margin-right: 20%">
+<div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm" class="comment-reply-form">
     <div class="wall">
         <div ng-repeat="comment in postsContents[postUri].commentsContent | orderBy: 'dcterms.created' track by $index">
-            <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
-            <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
+            <a ng-href="{{comment.ddr.userWhoCommented}}"><strong> {{comment.ddr.userWhoCommented.split('/').pop()}} : </strong></a>
+            <p> <i> {{comment.ddr.commentMsg}} </i> </p>
             <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
             <hr>
         </div>
@@ -67,7 +67,7 @@
     </div>
 </div>
 
-<div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare" style="margin-left: 20%; margin-right: 20%">
+<div ng-init="isShareFormOpen = false" ng-show="isShareFormOpen" id="replyFormShare" class="share-reply-form">
     <div class="wall">
         <label for="new_post_box_share">{{loggedUser.ddr.username}} :</label>
         <textarea class="form-control" rows="5" id="new_post_box_share" ng-model="share_content" placeholder="Write your share message here"></textarea>
