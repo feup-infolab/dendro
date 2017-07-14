@@ -374,11 +374,12 @@ exports.show = function(req, res) {
         Descriptor : Descriptor
     };
 
+    let go_up_options;
+
     if(req.params.is_project_root)
     {
         viewVars.read_only = true;
         viewVars.is_project_root = true;
-
         Project.findByUri(resourceURI, function(err, project) {
             if(isNull(err) && !isNull(project))
             {
@@ -388,31 +389,31 @@ exports.show = function(req, res) {
                 viewVars.breadcrumbs = [];
 
                 if(userIsLoggedIn){
-                    viewVars.breadcrumbs.push(
-                        {
-                            uri : "/projects/my",
-                            title : "My Projects",
-                            show_home : true
-                        }
-                    );
+                    go_up_options =
+                    {
+                        uri : "/projects/my",
+                        title : "My Projects",
+                        icon : "fa-th-list"
+                    };
                 }
-                else
-                {
-                    viewVars.breadcrumbs.push(
-                        {
-                            uri : "/projects",
-                            title : "Public Projects",
-                            show_home : false
-                        }
-                    );
+                else {
+                    go_up_options =
+                    {
+                        uri : "/projects",
+                        title : "Public Projects",
+                        icon : "fa-globe"
+                    }
                 }
 
-                viewVars.breadcrumbs.push(
+                viewVars.breadcrumbs.push (go_up_options);
+                viewVars.breadcrumbs.push (
                     {
                         uri : "/project/" + req.params.handle,
                         title : project.dcterms.title
                     }
                 );
+
+                viewVars.go_up_options = go_up_options;
 
                 if(showing_history)
                 {
@@ -509,30 +510,45 @@ exports.show = function(req, res) {
                         {
                             const parents = results[0];
                             const ownerProject = results[1];
+                            const immediateParent =  parents[parents.length - 1];
 
                             const breadcrumbs = [];
 
                             if (userIsLoggedIn)
                             {
-                                breadcrumbs.push(
+                                if(immediateParent.uri === ownerProject.ddr.rootFolder)
+                                {
+                                    go_up_options = {
+                                        uri:ownerProject.uri,
+                                        title: ownerProject.dcterms.title,
+                                        icon : "fa-folder"
+                                    };
+                                }
+                                else
+                                {
+                                    if(immediateParent.uri === ownerProject.ddr.rootFolder)
                                     {
-                                        uri: "/projects/my",
-                                        title: "My Projects",
-                                        show_home: true
+                                        go_up_options = {
+                                            uri:ownerProject.uri,
+                                            title: ownerProject.dcterms.title,
+                                            icon : "fa-level-up"
+                                        };
                                     }
-                                );
+                                }
                             }
                             else
                             {
-                                breadcrumbs.push(
-                                    {
-                                        uri: "/projects",
-                                        title: "All Projects",
-                                        show_home: false
-                                    }
-                                );
+                                go_up_options =
+                                {
+                                    uri: "/projects",
+                                    title: "All Projects",
+                                    icon: "fa-globe"
+                                };
                             }
 
+                            breadcrumbs.push(
+                                go_up_options
+                            );
 
                             breadcrumbs.push(
                                 {
@@ -552,7 +568,12 @@ exports.show = function(req, res) {
                                 );
                             }
 
-                            return callback(null, breadcrumbs);
+                            return callback(null,
+                                {
+                                    breadcrumbs : breadcrumbs,
+                                    go_up_options : go_up_options
+                                }
+                            );
                         }
                         else
                         {
@@ -562,7 +583,9 @@ exports.show = function(req, res) {
                 };
 
                 const getResourceMetadata = function(breadcrumbs, callback) {
-                    viewVars.breadcrumbs = breadcrumbs;
+                    viewVars.breadcrumbs = breadcrumbs.breadcrumbs;
+                    viewVars.go_up_options = breadcrumbs.go_up_options;
+                    
                     resourceBeingAccessed.getOwnerProject(function(err, project) {
                         if(isNull(err) && !isNull(project))
                         {
