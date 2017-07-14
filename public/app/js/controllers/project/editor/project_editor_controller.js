@@ -105,11 +105,6 @@ angular.module('dendroApp.controllers')
             return ownerProject;
         };
 
-        $scope.showing_descriptor_selection_area = function()
-        {
-            return $scope.edit_mode && !$scope.showing_project_root();
-        };
-
         $scope.preview_available = function(){
 
             if(!$scope.shared.multiple_selection_active)

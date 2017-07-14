@@ -262,9 +262,17 @@ exports.show = function(req, res) {
         };
 
         const _ = require('underscore');
+
         const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
             const reason = authorization.role;
-            return _.isEqual(reason, Permissions.settings.role.in_project.creator) || _.isEqual(reason, Permissions.settings.role.in_project.contributor) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+            if(req.params.is_project_root)
+            {
+                return _.isEqual(reason, Permissions.settings.role.in_project.creator) || _.isEqual(reason, Permissions.settings.role.in_project.contributor) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+            }
+            else
+            {
+                return _.isEqual(reason, Permissions.settings.role.in_owner_project.creator) || _.isEqual(reason, Permissions.settings.role.in_owner_project.contributor) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+            }
         });
 
         if(isEditor.length > 0)
@@ -280,17 +288,38 @@ exports.show = function(req, res) {
         {
             const isPublicOrMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
                 const reason = authorization.role;
-                return _.isEqual(reason, Permissions.settings.privacy.of_project.metadata_only) || _.isEqual(reason, Permissions.settings.privacy.of_project.public) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+                if(req.params.is_project_root)
+                {
+                    return _.isEqual(reason, Permissions.settings.privacy.of_project.metadata_only) || _.isEqual(reason, Permissions.settings.privacy.of_project.public);
+                }
+                else
+                {
+                    return _.isEqual(reason, Permissions.settings.privacy.of_owner_project.public) || _.isEqual(reason, Permissions.settings.privacy.of_owner_project.metadata_only);
+                }
             });
 
             const isPublicProject = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
                 const reason = authorization.role;
-                return _.isEqual(reason, Permissions.settings.privacy.of_project.public) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+                if(req.params.is_project_root)
+                {
+                    return _.isEqual(reason, Permissions.settings.privacy.of_project.public);
+                }
+                else
+                {
+                    return _.isEqual(reason, Permissions.settings.privacy.of_owner_project.public);
+                }
             });
 
             const isMetadataOnlyProject = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
                 const reason = authorization.role;
-                return _.isEqual(reason, Permissions.settings.privacy.of_project.metadata_only) || _.isEqual(reason, Permissions.settings.role.in_system.admin);
+                if(req.params.is_project_root)
+                {
+                    return _.isEqual(reason, Permissions.settings.privacy.of_project.metadata_only);
+                }
+                else
+                {
+                    return _.isEqual(reason, Permissions.settings.privacy.of_owner_project.metadata_only);
+                }
             });
 
             if(isPublicOrMetadataOnlyProject.length > 0)
@@ -319,6 +348,14 @@ exports.show = function(req, res) {
                     res.render('projects/show_metadata',
                         viewVars
                     );
+                }
+            }
+            else
+            {
+                if(askedForHtml(req, res))
+                {
+                    req.flash("error", "There was an role calculation error accessing resource at " + requestedResource.uri);
+                    res.redirect('/projects/my');
                 }
             }
         }
@@ -373,7 +410,7 @@ exports.show = function(req, res) {
                 viewVars.breadcrumbs.push(
                     {
                         uri : res.locals.baseURI + "/project/" + req.params.handle,
-                        title : decodeURI(req.params.handle)
+                        title : project.dcterms.title
                     }
                 );
 
@@ -441,16 +478,38 @@ exports.show = function(req, res) {
     }
     else
     {
-        Folder.findByUri(resourceURI, function(err, containingFolder)
+        InformationElement.findByUri(resourceURI, function(err, resourceBeingAccessed)
         {
-            if(isNull(err) && !isNull(containingFolder) && containingFolder instanceof Folder)
+            if(isNull(err) && !isNull(resourceBeingAccessed) && resourceBeingAccessed instanceof InformationElement)
             {
                 viewVars.is_project_root = false;
+
                 const getBreadCrumbs = function(callback) {
-                    containingFolder.getAllParentsUntilProject(function (err, parents)
+
+                    const getParentProject = function(callback) {
+                        resourceBeingAccessed.getOwnerProject(function(err, project){
+                            return callback(err, project);
+                        });
+                    };
+                    const getParentFolders = function(callback) {
+                        resourceBeingAccessed.getAllParentsUntilProject(function (err, parents)
+                        {
+                            return callback(err, parents);
+                        });
+                    };
+
+                    async.series(
+                        [
+                            getParentFolders,
+                            getParentProject
+                        ],
+                        function(err, results)
                     {
                         if (isNull(err))
                         {
+                            const parents = results[0];
+                            const ownerProject = results[1];
+
                             const breadcrumbs = [];
 
                             if (userIsLoggedIn)
@@ -477,8 +536,8 @@ exports.show = function(req, res) {
 
                             breadcrumbs.push(
                                 {
-                                    uri: resourceURI,
-                                    title: req.params.handle
+                                    uri: ownerProject.uri,
+                                    title: ownerProject.dcterms.title
                                 }
                             );
 
@@ -497,13 +556,14 @@ exports.show = function(req, res) {
                         }
                         else
                         {
-                            return callback(err, parents);
+                            return callback(err, results);
                         }
                     });
                 };
+
                 const getResourceMetadata = function(breadcrumbs, callback) {
                     viewVars.breadcrumbs = breadcrumbs;
-                    containingFolder.getOwnerProject(function(err, project) {
+                    resourceBeingAccessed.getOwnerProject(function(err, project) {
                         if(isNull(err) && !isNull(project))
                         {
                             viewVars.project = project;
@@ -512,7 +572,7 @@ exports.show = function(req, res) {
 
                             if(showing_history)
                             {
-                                containingFolder.getArchivedVersions(null, null, function(err, archivedResources)
+                                resourceBeingAccessed.getArchivedVersions(null, null, function(err, archivedResources)
                                 {
                                     if(isNull(err))
                                     {
@@ -520,7 +580,7 @@ exports.show = function(req, res) {
                                             if(isNull(err))
                                             {
                                                 viewVars.versions = fullVersions;
-                                                sendResponse(viewVars, containingFolder);
+                                                sendResponse(viewVars, resourceBeingAccessed);
                                                 return callback(null);
                                             }
                                             else
@@ -537,14 +597,14 @@ exports.show = function(req, res) {
                             }
                             else
                             {
-                                containingFolder.getPropertiesFromOntologies(
+                                resourceBeingAccessed.getPropertiesFromOntologies(
                                     Ontology.getPublicOntologiesUris(),
                                     function(err, descriptors)
                                     {
                                         if(isNull(err))
                                         {
                                             viewVars.descriptors = descriptors;
-                                            sendResponse(viewVars, containingFolder);
+                                            sendResponse(viewVars, resourceBeingAccessed);
                                         }
                                         else
                                         {
@@ -556,7 +616,7 @@ exports.show = function(req, res) {
                         }
                         else
                         {
-                            return callback(err,"Unable to fetch contents of folder " + JSON.stringify(containingFolder));
+                            return callback(err,"Unable to fetch contents of folder " + JSON.stringify(resourceBeingAccessed));
                         }
                     });
                 };
@@ -576,7 +636,7 @@ exports.show = function(req, res) {
             else
             {
                 const flash = require('connect-flash');
-                flash('error', "Unable to fetch project");
+                flash('error', "Resource with uri " + resourceURI + " does not exist.");
                 if(!res._headerSent)
                 {
                     res.redirect('back');
