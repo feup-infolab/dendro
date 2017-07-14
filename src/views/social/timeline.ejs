@@ -10,40 +10,51 @@
 
             <hr>
             <ul class="list-group">
-                <div ng-show="posts.length==0" class="text-center" ng-cloak>
-                        <h4>There are no Posts</h4>
+                <div ng-show="posts.length==0 && !getting_posts && !doing_getPost" class="text-center" ng-cloak>
+                    <h4>There are no Posts</h4>
                     <i class="fa fa-file-o fa-5x" aria-hidden="true"></i>
                 </div>
 
-                <!--<p>posts : <%=posts%></p>
-                <p>posts.length : <%=posts.length%></p>
+                <!--<p>posts : <%= posts %></p>
+                <p>posts.length : <%= posts.length %></p>
                 <p> totalPosts : {{totalPosts}}</p>
                 <p> postsPerPage : {{postsPerPage}}</p>
                 <p> paginationCurrent : {{pagination.current}}</p>-->
 
-                <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts" current-page="pagination.current">
-                    <!--<p> The post URI is : {{post.uri}}</p>-->
-                    <div ng-init="getPost(post.uri, null);">
-                        <!--{{postsContents[post.uri].rdf.type}}-->
-                        <div ng-if="postsContents[post.uri].rdf.isShare">
-                            <!--<p> IS A SHARE </p>-->
-                            <ng-include src="'/app/views/social/showShare.html'" onload="initSingleShare(post.uri); shareUri = post.uri;"></ng-include>
-                        </div>
+                <div>
+                    <!--<span spinner-key="spinner-1" us-spinner="{radius:30, width:8, length: 16}" spinner-on="{{doing_getPost}}"></span>-->
+                    <span spinner-key="spinner-1" us-spinner="{radius:30, width:8, length: 16}"></span>
+                </div>
 
-                        <!--<div style="margin-left: 20%; margin-right: 20%" ng-if="!postsContents[post.uri].rdf.isShare">-->
-                        <div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.isShare">
-                            <ng-include src="'/app/views/social/showPost.html'" onload="initSinglePost(post.uri); postUri = post.uri;"></ng-include>
+                <div ng-show="posts.length > 0 && !getting_posts && !doing_getPost">
+                    <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts"
+                         current-page="pagination.current">
+                        <!--<p> The post URI is : {{post.uri}}</p>-->
+                        <div ng-init="getPost(post.uri, null);">
+                            <!--{{postsContents[post.uri].rdf.type}}-->
+                            <div ng-if="postsContents[post.uri].rdf.isShare">
+                                <!--<p> IS A SHARE </p>-->
+                                <ng-include src="'/app/views/social/showShare.html'"
+                                            onload="initSingleShare(post.uri); shareUri = post.uri;"></ng-include>
+                            </div>
+
+                            <!--<div style="margin-left: 20%; margin-right: 20%" ng-if="!postsContents[post.uri].rdf.isShare">-->
+                            <div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.isShare">
+                                <ng-include src="'/app/views/social/showPost.html'"
+                                            onload="initSinglePost(post.uri); postUri = post.uri;"></ng-include>
+                            </div>
+                            <hr>
                         </div>
-                        <hr>
                     </div>
                 </div>
                 </li>
             </ul>
         </div>
 
-        <div>
+        <div ng-show="!getting_posts && !doing_getPost">
             <div class="text-center">
-                <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)" template-url="/bower_components/angular-utils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
+                <dir-pagination-controls boundary-links="true" on-page-change="pageChangeHandler(newPageNumber)"
+                                         template-url="/bower_components/angular-utils-pagination/dirPagination.tpl.html"></dir-pagination-controls>
             </div>
         </div>
     </div>
@@ -51,6 +62,6 @@
 </div>
 
 <div>
-<%- include ../layout/footer.ejs %>
+    <%- include ../layout/footer.ejs %>
 
 </div>

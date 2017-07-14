@@ -2,7 +2,7 @@ angular.module('dendroApp.controllers')
     /**
      *  Project administration controller
      */
-    .controller('timelineCtrl', function ($scope, $http, $filter, timelineService, projectsService, $window, $element)
+    .controller('timelineCtrl', function ($scope, $http, $filter, timelineService, projectsService, $window, $element, usSpinnerService)
     {
         $scope.myTab = $element;
         $scope.posts = [];
@@ -144,6 +144,7 @@ angular.module('dendroApp.controllers')
             $scope.doing_getPost = true;
             $scope.queriedPost = null;
 
+            usSpinnerService.spin('spinner-1');
             timelineService.getPost_Service(postURI)
                 .then(function(response)
                 {
@@ -161,10 +162,12 @@ angular.module('dendroApp.controllers')
                     }
 
                     $scope.doing_getPost = false;
+                    usSpinnerService.stop('spinner-1');
                 })
                 .catch(function(error){
                     console.error("Error getting a post" + JSON.stringify(error));
                     $scope.doing_getPost = false;
+                    usSpinnerService.stop('spinner-1');
                 });
         };
 
