@@ -25,7 +25,7 @@ function Like (object)
 
     if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = Config.baseUri + "/likes/" + newId;
+        self.ddr.humanReadableURI = Config.baseUri + "/likes/" + newId;
     }
 
     return self;

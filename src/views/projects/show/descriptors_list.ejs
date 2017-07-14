@@ -30,7 +30,7 @@
     </div>
 
     <a class="list-group-item recommendation-item"
-       ng-repeat="recommendation in recommendations"
+       ng-repeat="recommendation in recommendations | filter:only_editable_metadata_descriptors"
        ng-show="    recommendation.label &&
                     recommendation.comment &&
                     (

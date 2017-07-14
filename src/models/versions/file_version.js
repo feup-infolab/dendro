@@ -50,7 +50,7 @@ function FileVersion (object)
 
     if(isNull(self.ddr.humanReadableURI))
     {
-        self.uri = Config.baseUri + "/file_version/" + newId;
+        self.ddr.humanReadableURI = Config.baseUri + "/file_version/" + newId;
     }
 
     return self;

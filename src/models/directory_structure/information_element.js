@@ -480,99 +480,74 @@ InformationElement.prototype.findMetadata = function(callback){
         if(isNull(err)){
             if(!isNull(resource))
             {
-                resource.getPropertiesFromOntologies(
-                    Ontology.getPublicOntologiesUris(),
-                    function(err, descriptors)
+                Folder.findByUri(resource.uri, function(err, folder) {
+                    const metadataResult = {
+                        title: resource.nie.title,
+                        descriptors: folder.getDescriptors([Config.types.private], [Config.types.api_readable]),
+                        file_extension: resource.ddr.fileExtension,
+                        hasLogicalParts: []
+                    };
+
+                    if(!isNull(folder.ddr) && !isNull(folder.ddr.metadataQuality))
                     {
-                        if(isNull(err))
-                        {
-                            //remove locked descriptors
-                            for(let i = 0 ; i < descriptors.length ; i++)
-                            {
-                                if(descriptors[i].locked)
-                                {
-                                    descriptors.splice(i, 1);
-                                    i--;
-                                }
-                            }
+                        metadataResult.metadata_quality = folder.ddr.metadataQuality;
+                    }
+                    else
+                    {
+                        metadataResult.metadata_quality = 0;
+                    }
 
-                            Folder.findByUri(resource.uri, function(err, folder) {
-                                const metadataResult = {
-                                    title: resource.nie.title,
-                                    descriptors: descriptors,
-                                    file_extension: resource.ddr.fileExtension,
-                                    hasLogicalParts: []
-                                };
+                    if(isNull(err)){
 
-                                if(!isNull(folder.ddr) && !isNull(folder.ddr.metadataQuality))
-                                {
-                                    metadataResult.metadata_quality = folder.ddr.metadataQuality;
-                                }
-                                else
-                                {
-                                    metadataResult.metadata_quality = 0;
-                                }
+                        folder.getLogicalParts(function (err, children) {
+                            if (isNull(err)) {
+                                const _ = require('underscore');
+                                children = _.reject(children, function (child) {
+                                    return child.ddr.deleted;
+                                });
 
-                                if(isNull(err)){
+                                if (children.length > 0) {
 
-                                    folder.getLogicalParts(function (err, children) {
-                                        if (isNull(err)) {
-                                            const _ = require('underscore');
-                                            children = _.reject(children, function (child) {
-                                                return child.ddr.deleted;
+                                    const async = require("async");
+
+                                    // 1st parameter in async.each() is the array of items
+                                    async.each(children,
+                                        // 2nd parameter is the function that each item is passed into
+                                        function(child, callback){
+                                            // Call an asynchronous function
+                                            metadataResult.hasLogicalParts.push({
+                                                'title':child.nie.title
                                             });
-
-                                            if (children.length > 0) {
-
-                                                const async = require("async");
-
-                                                // 1st parameter in async.each() is the array of items
-                                                async.each(children,
-                                                    // 2nd parameter is the function that each item is passed into
-                                                    function(child, callback){
-                                                        // Call an asynchronous function
-                                                        metadataResult.hasLogicalParts.push({
-                                                            'title':child.nie.title
-                                                        });
-                                                        return callback(null);
-                                                    },
-                                                    // 3rd parameter is the function call when everything is done
-                                                    function(err){
-                                                        if(isNull(err)) {
-                                                            // All tasks are done now
-                                                            return callback(null, metadataResult);
-                                                        }
-                                                        else{
-                                                            return callback(true, null);
-                                                        }
-                                                    }
-                                                );
-                                            }
-                                            else {
+                                            return callback(null);
+                                        },
+                                        // 3rd parameter is the function call when everything is done
+                                        function(err){
+                                            if(isNull(err)) {
+                                                // All tasks are done now
                                                 return callback(null, metadataResult);
                                             }
+                                            else{
+                                                return callback(true, null);
+                                            }
                                         }
-                                        else {
-                                            console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
-                                            return callback(true, null);
-                                        }
-                                    });
+                                    );
                                 }
                                 else {
-                                    console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
                                     return callback(null, metadataResult);
                                 }
+                            }
+                            else {
+                                console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
+                                return callback(true, null);
+                            }
+                        });
+                    }
+                    else {
+                        console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
+                        return callback(null, metadataResult);
+                    }
 
-                            });
-                        }
-                        else
-                        {
-
-                            console.error("[findMetadataRecursive] error accessing properties from ontologies in " + self.uri);
-
-                            return callback(true, [descriptors]);
-                        }
-                    });
+                });
             }
             else
             {
@@ -589,7 +564,7 @@ InformationElement.prototype.findMetadata = function(callback){
 
             return callback(true, msg);
         }
-    });
+    }, null, null, null, [Config.types.private], [Config.types.api_accessible]);
 };
 
 InformationElement = Class.extend(InformationElement, Resource, "nie:FileDataObject");

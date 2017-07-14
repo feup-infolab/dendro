@@ -377,7 +377,7 @@ exports.show = function(req, res) {
     if(req.params.is_project_root)
     {
         viewVars.read_only = true;
-        viewVars.is_project_root = 1;
+        viewVars.is_project_root = true;
 
         Project.findByUri(resourceURI, function(err, project) {
             if(isNull(err) && !isNull(project))
@@ -390,7 +390,7 @@ exports.show = function(req, res) {
                 if(userIsLoggedIn){
                     viewVars.breadcrumbs.push(
                         {
-                            uri : res.locals.baseURI + "/projects/my",
+                            uri : "/projects/my",
                             title : "My Projects",
                             show_home : true
                         }
@@ -400,7 +400,7 @@ exports.show = function(req, res) {
                 {
                     viewVars.breadcrumbs.push(
                         {
-                            uri : res.locals.baseURI + "/projects",
+                            uri : "/projects",
                             title : "Public Projects",
                             show_home : false
                         }
@@ -409,7 +409,7 @@ exports.show = function(req, res) {
 
                 viewVars.breadcrumbs.push(
                     {
-                        uri : res.locals.baseURI + "/project/" + req.params.handle,
+                        uri : "/project/" + req.params.handle,
                         title : project.dcterms.title
                     }
                 );
@@ -478,12 +478,12 @@ exports.show = function(req, res) {
     }
     else
     {
+        viewVars.is_project_root = false;
+
         InformationElement.findByUri(resourceURI, function(err, resourceBeingAccessed)
         {
             if(isNull(err) && !isNull(resourceBeingAccessed) && resourceBeingAccessed instanceof InformationElement)
             {
-                viewVars.is_project_root = false;
-
                 const getBreadCrumbs = function(callback) {
 
                     const getParentProject = function(callback) {
@@ -527,7 +527,7 @@ exports.show = function(req, res) {
                                 breadcrumbs.push(
                                     {
                                         uri: "/projects",
-                                        title: "Public Projects",
+                                        title: "All Projects",
                                         show_home: false
                                     }
                                 );

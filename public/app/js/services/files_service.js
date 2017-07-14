@@ -113,5 +113,5 @@ angular.module('dendroApp.services')
                 contentType: "application/json",
                 headers: {'Accept': "application/json"}
             });
-        }
+        };
     }]);

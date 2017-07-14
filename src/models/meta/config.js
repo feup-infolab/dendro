@@ -528,6 +528,7 @@ Config.acl = {
     deny : 0
 };
 
+/** Types of descriptors (manages visibility of certain types of triples to the outside world. Used in elements.js to parametrize the visibility of data in certain conditions) **/
 Config.types = {
     public : "public",                                  //can be shared, read and written
     private : "private",                                //cannot be shared to the outside world under any circumstance

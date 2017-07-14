@@ -108,7 +108,7 @@
         <%- include currently_selected_file.ejs %>
 
         <form id="metadataform" class="form-horizontal navbar-spacer" role="form">
-            <div ng-repeat="descriptor in shared.metadata track by $index">
+            <div ng-repeat="descriptor in shared.metadata | filter: only_editable_metadata_descriptors track by $index">
                 <div class="row">
                     <ng-include src="'/app/views/projects/show/partials/controls/descriptor_toolbar.html'"></ng-include>
                 </div>

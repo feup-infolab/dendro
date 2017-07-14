@@ -35,94 +35,118 @@ const addOntologyToListOfActiveOntologiesInSession = function (ontology, req) {
 const recordInteractionOverAResource = function (user, resource, req, res) {
     if (!isNull(user) && !isNull(resource.uri)) {
         if (!isNull(resource.recommendedFor) && typeof resource.recommendedFor === "string") {
-            const ie = new InformationElement({
-                uri: resource.recommendedFor
-            });
+            InformationElement.findByUri(resource.recommendedFor, function(err, ie){
+                if(!err)
+                {
+                    if(!isNull(ie))
+                    {
+                        ie.getOwnerProject(function(err, project){
+                            if (isNull(err)) {
+                                if (!isNull(project)) {
+                                    project.getCreatorsAndContributors(function (err, contributors) {
+                                        if (isNull(err) && !isNull(contributors) && contributors instanceof Array) {
+                                            for (let i = 0; i < contributors.length; i++) {
+                                                if (contributors[i].uri === user.uri) {
+                                                    const interaction = new Interaction({
+                                                        ddr: {
+                                                            performedBy: user.uri,
+                                                            interactionType: req.body.interactionType,
+                                                            executedOver: resource.uri,
+                                                            originallyRecommendedFor: req.body.recommendedFor,
+                                                            rankingPosition: req.body.rankingPosition,
+                                                            pageNumber: req.body.pageNumber,
+                                                            recommendationCallId: req.body.recommendationCallId,
+                                                            recommendationCallTimeStamp: req.body.recommendationCallTimeStamp
+                                                        }
+                                                    }, function (err, interaction) {
+                                                        interaction.save(
+                                                            function (err, result) {
+                                                                if (isNull(err)) {
+                                                                    interaction.saveToMySQL(function (err, result) {
+                                                                        if (isNull(err)) {
+                                                                            const msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
+                                                                            console.log(msg);
+                                                                            return res.json({
+                                                                                result: "OK",
+                                                                                message: msg
+                                                                            });
+                                                                        }
+                                                                        else {
+                                                                            const msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
+                                                                            console.log(msg);
+                                                                            return res.json({
+                                                                                result: "OK",
+                                                                                message: msg
+                                                                            });
+                                                                        }
+                                                                    });
+                                                                }
+                                                                else {
+                                                                    const msg = "Error recording interaction over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " : " + result;
+                                                                    console.error(msg);
+                                                                    return res.status(500).json({
+                                                                        result: "Error",
+                                                                        message: msg
+                                                                    });
+                                                                }
+                                                            });
+                                                    });
 
-            ie.getOwnerProject(function(err, project){
-                if (isNull(err)) {
-                    if (!isNull(project)) {
-                        project.getCreatorsAndContributors(function (err, contributors) {
-                            if (isNull(err) && !isNull(contributors) && contributors instanceof Array) {
-                                for (let i = 0; i < contributors.length; i++) {
-                                    if (contributors[i].uri === user.uri) {
-                                        const interaction = new Interaction({
-                                            ddr: {
-                                                performedBy: user.uri,
-                                                interactionType: req.body.interactionType,
-                                                executedOver: resource.uri,
-                                                originallyRecommendedFor: req.body.recommendedFor,
-                                                rankingPosition: req.body.rankingPosition,
-                                                pageNumber: req.body.pageNumber,
-                                                recommendationCallId: req.body.recommendationCallId,
-                                                recommendationCallTimeStamp: req.body.recommendationCallTimeStamp
+                                                    return;
+                                                }
                                             }
-                                        }, function (err, interaction) {
-                                            interaction.save(
-                                                function (err, result) {
-                                                    if (isNull(err)) {
-                                                        interaction.saveToMySQL(function (err, result) {
-                                                            if (isNull(err)) {
-                                                                const msg = "Interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " recorded successfully";
-                                                                console.log(msg);
-                                                                res.json({
-                                                                    result: "OK",
-                                                                    message: msg
-                                                                });
-                                                            }
-                                                            else {
-                                                                const msg = "Error saving interaction of type " + req.body.interactionType + " over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " to MYSQL. Error reported: " + result;
-                                                                console.log(msg);
-                                                                res.json({
-                                                                    result: "OK",
-                                                                    message: msg
-                                                                });
-                                                            }
-                                                        });
-                                                    }
-                                                    else {
-                                                        const msg = "Error recording interaction over resource " + resource.uri + " in the context of resource " + req.body.recommendedFor + " : " + result;
-                                                        console.error(msg);
-                                                        res.status(500).json({
-                                                            result: "Error",
-                                                            message: msg
-                                                        });
-                                                    }
-                                                });
-                                        });
 
-                                        return;
-                                    }
+                                            const msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  " + user.uri + ". Resource in question" + resource.uri + ". Owner project " + projectUri;
+                                            console.error(msg);
+                                            res.status(400).json({
+                                                result: "Error",
+                                                message: msg
+                                            });
+                                        }
+                                        else {
+                                            const msg = "Unable to retrieve creators and contributors of parent project " + projectUri + " of resource " + resource.uri;
+                                            console.error(msg);
+                                            res.status(500).json({
+                                                result: "Error",
+                                                message: msg
+                                            });
+                                        }
+                                    });
                                 }
-
-                                const msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  " + user.uri + ". Resource in question" + resource.uri + ". Owner project " + projectUri;
-                                console.error(msg);
-                                res.status(400).json({
-                                    result: "Error",
-                                    message: msg
-                                });
                             }
                             else {
-                                const msg = "Unable to retrieve creators and contributors of parent project " + projectUri + " of resource " + resource.uri;
+                                const msg = "Unable to retrieve parent project of resource " + resource.uri;
                                 console.error(msg);
-                                res.status(500).json({
+                                res.status(404).json({
                                     result: "Error",
                                     message: msg
                                 });
                             }
                         });
                     }
+                    else
+                    {
+                        const msg = "Resource with uri " + resource.recommendedFor + " not found in this system.";
+                        console.error(JSON.stringify(resource));
+                        console.error(msg);
+                        res.status(404).json({
+                            result: "Error",
+                            message: msg
+                        });
+                    }
+
                 }
-                else {
-                    const msg = "Unable to retrieve parent project of resource " + resource.uri;
+                else
+                {
+                    const msg = "Error retriving resource " + resource.recommendedFor;
+                    console.error(JSON.stringify(resource));
                     console.error(msg);
-                    res.status(404).json({
+                    res.status(500).json({
                         result: "Error",
                         message: msg
                     });
                 }
             });
-
         }
         else {
             const msg = "Request Body JSON is invalid since it has no 'recommendedFor' field, which should contain the current URL when the interaction took place. Either that, or the field is not a string as it should be.";

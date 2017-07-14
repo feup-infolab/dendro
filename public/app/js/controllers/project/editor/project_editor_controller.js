@@ -46,6 +46,11 @@ angular.module('dendroApp.controllers')
             }
         };
 
+        $scope.get_currently_selected_resource = function()
+        {
+            return window.location.pathname;
+        };
+
         $scope.get_calling_uri = function(queryParametersString, uri)
         {
             if(uri != null)
@@ -62,7 +67,7 @@ angular.module('dendroApp.controllers')
                     }
                     else
                     {
-                        uri = windowService.get_current_url() + queryParametersString;
+                        uri = $scope.get_currently_selected_resource() + queryParametersString;
                     }
                 }
                 else
@@ -73,7 +78,7 @@ angular.module('dendroApp.controllers')
                     }
                     else
                     {
-                        uri = windowService.get_current_url();
+                        uri = $scope.get_currently_selected_resource();
                     }
                 }
             }
@@ -91,18 +96,9 @@ angular.module('dendroApp.controllers')
             return $scope.get_last_section_of_url($scope.get_calling_uri());
         };
 
-        $scope.get_owner_project_uri = function() {
+        $scope.get_owner_project = function() {
             var currentUri = $scope.get_calling_uri();
-
-            var leadingPart = currentUri.match(new RegExp("http://[\/]*.*/project\/"));
-            var ownerProject = currentUri.replace(leadingPart, "");
-            if(ownerProject != null && leadingPart != null)
-            {
-                ownerProject = ownerProject.replace(new RegExp("\/.*"), "");
-                ownerProject = leadingPart + ownerProject;
-            }
-
-            return ownerProject;
+            return projectsService.get_owner_project(currentUri);
         };
 
         $scope.preview_available = function(){
@@ -166,20 +162,6 @@ angular.module('dendroApp.controllers')
             metadataService.save_as(format);
         };
 
-        $scope.get_owner_project_uri = function()
-        {
-            var currentUri = $scope.get_calling_uri();
-            var leadingPart = currentUri.match(new RegExp("http://[\/]*.*/project\/"));
-            var ownerProject = currentUri.replace(leadingPart, "");
-            if(ownerProject != null && leadingPart != null)
-            {
-                ownerProject = ownerProject.replace(new RegExp("\/.*"), "");
-                ownerProject = leadingPart + ownerProject;
-            }
-
-            return ownerProject;
-        };
-
         $scope.showing_project_root = function ()
         {
             if($scope.shared.selected_file != null)
@@ -188,12 +170,8 @@ angular.module('dendroApp.controllers')
             }
             else
             {
-                var currentUri = $scope.get_calling_uri();
-                var projectUri = $scope.get_owner_project_uri();
-
-                var showingProjectRoot = (currentUri === projectUri) || (currentUri === projectUri + "/data");
-
-                return showingProjectRoot;
+                if($scope.shared.initial_metadata != null && $scope.shared.initial_metadata.rdf != null && $scope.shared.initial_metadata.rdf.type instanceof Array)
+                    return _.contains($scope.shared.initial_metadata.rdf.type.rdf.type, "ddr:Project");
             }
         };
 
@@ -488,6 +466,12 @@ angular.module('dendroApp.controllers')
                     $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
                     $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
                 });
+        };
+
+        $scope.only_editable_metadata_descriptors = function(descriptor)
+        {
+            if(!descriptor.locked)
+                return true;
         };
 
         //initialization
