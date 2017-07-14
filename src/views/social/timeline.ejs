@@ -22,16 +22,13 @@
                 <p> paginationCurrent : {{pagination.current}}</p>-->
 
                 <div>
-                    <!--<span spinner-key="spinner-1" us-spinner="{radius:30, width:8, length: 16}" spinner-on="{{doing_getPost}}"></span>-->
                     <span spinner-key="spinner-1" us-spinner="{radius:30, width:8, length: 16}"></span>
                 </div>
 
                 <div ng-show="posts.length > 0 && !getting_posts && !doing_getPost">
                     <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts"
                          current-page="pagination.current">
-                        <!--<p> The post URI is : {{post.uri}}</p>-->
                         <div ng-init="getPost(post.uri, null);">
-                            <!--{{postsContents[post.uri].rdf.type}}-->
                             <div ng-if="postsContents[post.uri].rdf.isShare">
                                 <!--<p> IS A SHARE </p>-->
                                 <ng-include src="'/app/views/social/showShare.html'"

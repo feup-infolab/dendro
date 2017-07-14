@@ -171,6 +171,25 @@ angular.module('dendroApp.controllers')
                 });
         };
 
+        $scope.getPosts = function (postUris) {
+            $scope.doing_getPosts = true;
+            $scope.queriedPost = null;
+
+            usSpinnerService.spin('spinner-1');
+            timelineService.getPosts_Service(postUris)
+                .then(function(response)
+                {
+                    //TODO $scope.postsContents[postURI] = response.data;
+                    $scope.doing_getPost = false;
+                    usSpinnerService.stop('spinner-1');
+                })
+                .catch(function(error){
+                    console.error("Error at getPosts: " + JSON.stringify(error));
+                    $scope.doing_getPosts = false;
+                    usSpinnerService.stop('spinner-1');
+                });
+        };
+
         $scope.commentPost = function (postID, commentMsg) {
             $scope.doing_commentPost = true;
             timelineService.commentPost(postID, commentMsg)
@@ -262,16 +281,24 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.initSinglePost = function (postUri) {
+            $scope.doing_getPost = true;
+            usSpinnerService.spin('spinner-1');
             timelineService.getPostInfo(postUri).then(function(response)
             {
                 $scope.postsContents[postUri] = response.data;
+                $scope.doing_getPost = false;
+                usSpinnerService.stop('spinner-1');
             })
             .catch(function(error){
                 console.error("Error initSinglePost" + JSON.stringify(error));
+                $scope.doing_getPost = false;
+                usSpinnerService.stop('spinner-1');
             });
         };
 
         $scope.initSingleShare = function (shareUri) {
+            $scope.doing_getPost = true;
+            usSpinnerService.spin('spinner-1');
             timelineService.getShareInfo(shareUri).then(function(response)
             {
                 $scope.postsContents[shareUri] = response.data;
@@ -279,9 +306,13 @@ angular.module('dendroApp.controllers')
             }).then(function (shareContent) {
                 timelineService.getPostInfo(shareContent.ddr.postURI).then(function (response) {
                     $scope.postsContents[shareContent.ddr.postURI] = response.data;
+                    $scope.doing_getPost = false;
+                    usSpinnerService.stop('spinner-1');
                 });
             }).catch(function(error){
                 console.error("Error initSinglePost" + JSON.stringify(error));
+                $scope.doing_getPost = false;
+                usSpinnerService.stop('spinner-1');
             });
         };
 

@@ -1227,7 +1227,7 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
             var projectsUris = fullProjects.join(" ");
             var query =
                 "WITH [0] \n" +
-                "SELECT DISTINCT ?uri \n" +
+                "SELECT DISTINCT ?uri ?postTypes\n" +
                 "WHERE { \n" +
                 "VALUES ?project { \n" +
                 projectsUris +
