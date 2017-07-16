@@ -1851,34 +1851,51 @@ exports.ls = function(req, res){
 
 exports.thumbnail = function(req, res)
 {
-    if(!isNull(req.params.filepath))
+    if(!req.params.is_project_root)
     {
         const path = require('path');
-        const requestedExtension = path.extname(req.params.filepath).replace(".", "");
 
-        if(isNull(requestedExtension))
-        {
-            exports.serve_static(req, res, "/images/icons/document_empty.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-        }
-        else if(!isNull(requestedExtension) && !isNull(Config.thumbnailableExtensions[requestedExtension]))
-        {
-            exports.get_thumbnail(req, res);
-        }
-        else if(requestedExtension === "" || requestedExtension === "folder")
-        {
-            exports.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
-        }
-        else
-        {
-            if(Config.iconableFileExtensions[requestedExtension])
+        InformationElement.findByUri(req.params.requestedResourceUri, function(err, resource){
+            if(!err)
             {
-                exports.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                if(!isNull(resource))
+                {
+                    const requestedExtension = resource.ddr.fileExtension;
+
+                    if(isNull(requestedExtension))
+                    {
+                        exports.serve_static(req, res, "/images/icons/document_empty.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                    }
+                    else if(!isNull(requestedExtension) && !isNull(Config.thumbnailableExtensions[requestedExtension]))
+                    {
+                        exports.get_thumbnail(req, res);
+                    }
+                    else if(requestedExtension === "" || requestedExtension === "folder")
+                    {
+                        exports.serve_static(req, res, "/images/icons/folder.png", null, Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                    }
+                    else
+                    {
+                        if(Config.iconableFileExtensions[requestedExtension])
+                        {
+                            exports.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                        }
+                        else
+                        {
+                            exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                        }
+                    }
+                }
+                else
+                {
+                    exports.serve_static(req, res, "/images/icons/emotion_question.png", "/images/icons/emotion_question.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds, 404);
+                }
             }
             else
             {
-                exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                exports.serve_static(req, res, "/images/icons/exclamation.png", "/images/icons/exclamation.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds, 500);
             }
-        }
+        });
     }
     else
     {
@@ -1886,10 +1903,13 @@ exports.thumbnail = function(req, res)
     }
 };
 
-exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoot, pathOfFileToServeOnError, staticFileCaching, cachePeriodInSeconds){
+exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoot, pathOfFileToServeOnError, staticFileCaching, cachePeriodInSeconds, statusCode){
     const fs = require('fs');
     const path = require('path');
         appDir = path.dirname(require.main.filename);
+
+    if(isNull(statusCode))
+        statusCode = 200;
 
     const pipeFile = function (absPathOfFileToServe, filename, res, lastModified, cachePeriodInSeconds) {
         fs.createReadStream(absPathOfFileToServe);
@@ -1900,7 +1920,7 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
             res.setHeader('Date', new Date().toString());
         }
 
-        res.writeHead(200,
+        res.writeHead(statusCode,
             {
                 'Content-disposition': 'filename="' + filename + "\"",
                 'Content-type': mimeType
