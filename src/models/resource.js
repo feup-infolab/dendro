@@ -2292,122 +2292,160 @@ Resource.prototype.restoreFromArchivedVersion = function(version, callback, uriO
         ]);
 };
 
-
-Resource.prototype.findMetadataRecursive = function(callback){
-    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
-    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
-
+Resource.prototype.getLogicalParts = function(callback)
+{
     const self = this;
-    Resource.findByUri(self.uri, function(err, resource){
-        if(isNull(err)){
-            if(!isNull(resource))
-            {
-                resource.getPropertiesFromOntologies(
-                    Ontology.getPublicOntologiesUris(),
-                    function(err, descriptors)
+    const fs = require('fs');
+    const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+    const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
+
+    const childFoldersQuery =
+        "SELECT ?uri ?type\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:hasLogicalPart ?uri . \n" +
+        "   ?uri rdf:type nfo:Folder  \n" +
+        "} \n";
+
+    const childFilesQuery =
+        "SELECT ?uri ?type\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:hasLogicalPart ?uri . \n" +
+        "   ?uri rdf:type nfo:FileDataObject \n" +
+        "} \n";
+
+    async.map([
+        {
+            query : childFoldersQuery,
+            childClass : Folder
+        },
+        {
+            query : childFilesQuery,
+            childClass : File.findByUri
+        }
+    ], function(argument, callback){
+        db.connection.execute(argument.query,
+            [
+                {
+                    type: DbConnection.resourceNoEscape,
+                    value : db.graphUri
+                },
+                {
+                    type: DbConnection.resource,
+                    value : self.uri
+                }
+            ],
+            function(err, children) {
+                if(isNull(err))
+                {
+                    if(!isNull(children) && children instanceof Array)
                     {
-                        if(isNull(err))
-                        {
-                            //remove locked descriptors
-                            for(let i = 0 ; i < descriptors.length ; i++)
-                            {
-                                if(descriptors[i].locked)
-                                {
-                                    descriptors.splice(i, 1);
-                                }
-                            }
-
-                            Folder.findByUri(resource.uri, function(err, folder) {
-                                const metadataResult = {
-                                    title: resource.nie.title,
-                                    descriptors: descriptors,
-                                    metadata_quality: folder.ddr.metadataQuality | 0,
-                                    file_extension: resource.ddr.fileExtension,
-                                    hasLogicalParts: []
-                                };
-                                if(isNull(err)){
-
-                                    folder.getLogicalParts(function (err, children) {
-                                        if (isNull(err)) {
-                                            const _ = require('underscore');
-                                            children = _.reject(children, function (child) {
-                                                return child.ddr.deleted;
-                                            });
-
-                                            if (children.length > 0) {
-
-                                                const async = require("async");
-
-                                                // 1st parameter in async.each() is the array of items
-                                                async.each(children,
-                                                    // 2nd parameter is the function that each item is passed into
-                                                    function(child, callback){
-                                                        // Call an asynchronous function
-                                                        child.findMetadataRecursive( function (err, result2) {
-                                                            if (isNull(err)) {
-                                                                metadataResult.hasLogicalParts.push(result2);
-                                                                return callback(null);
-                                                            }
-                                                            else {
-                                                                console.info("[findMetadataRecursive] error accessing metadata of resource " + folder.nie.title);
-                                                                return callback(err);
-                                                            }
-                                                        });
-                                                    },
-                                                    // 3rd parameter is the function call when everything is done
-                                                    function(err){
-                                                        if(isNull(err)) {
-                                                            // All tasks are done now
-                                                            return callback(null, metadataResult);
-                                                        }
-                                                        else{
-                                                            return callback(true, null);
-                                                        }
-                                                    }
-                                                );
-                                            }
-                                            else {
-                                                return callback(null, metadataResult);
-                                            }
-                                        }
-                                        else {
-                                            console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
-                                            return callback(true, null);
-                                        }
-                                    });
-                                }
-                                else {
-                                    console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
-                                    return callback(null, metadataResult);
-                                }
-
+                        const getChildrenProperties = function (child, cb) {
+                            argument.childClass.findByUri(child.uri, function (err, child) {
+                                cb(err, child)
                             });
-                        }
-                        else
-                        {
+                        };
 
-                            console.error("[findMetadataRecursive] error accessing properties from ontologies in " + self.uri);
-
-                            return callback(true, [descriptors]);
-                        }
-                    });
-            }
-            else
-            {
-                const msg = self.uri + " does not exist in Dendro.";
-                console.error(msg);
-
-                return callback(true, msg);
-            }
+                        async.map(children, getChildrenProperties, function(err, children){
+                            if(isNull(err))
+                            {
+                                return callback(null, children);
+                            }
+                            else
+                            {
+                                return callback(err, children);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        return callback(1,"Unable to retrieve Information Element's metadata " + children);
+                    }
+                }
+            });
+    }, function(err, results){
+        if(err)
+        {
+            callback(err, results);
         }
         else
         {
-            const msg = "Error fetching " + self.uri + " from the Dendro platform.";
-            console.error(msg);
-
-            return callback(true, msg);
+            callback(err, _.flatten(results));
         }
     });
+};
+
+
+Resource.prototype.findMetadataRecursive = function(callback){
+    const self = this;
+    const async = require("async");
+    const myDescriptors = self.getDescriptors(
+        [Config.types.private, Config.types.locked], [Config.types.api_readable]
+    );
+
+    if(!isNull(myDescriptors) && myDescriptors instanceof Array)
+    {
+        const metadataResult = {
+            title: self.nie.title,
+            descriptors: myDescriptors,
+            metadata_quality: self.ddr.metadataQuality | 0,
+            file_extension: self.ddr.fileExtension,
+            hasLogicalParts: []
+        };
+
+        self.getLogicalParts(function (err, children) {
+        if (isNull(err)) {
+            const _ = require('underscore');
+            children = _.reject(children, function (child) {
+                return child.ddr.deleted;
+            });
+
+            if (children.length > 0) {
+                // 1st parameter in async.each() is the array of items
+                async.each(children,
+                    // 2nd parameter is the function that each item is passed into
+                    function(child, callback){
+                        // Call an asynchronous function
+                        child.findMetadataRecursive( function (err, result2) {
+                            if (isNull(err)) {
+                                metadataResult.hasLogicalParts.push(result2);
+                                return callback(null);
+                            }
+                            else {
+                                console.info("[findMetadataRecursive] error accessing metadata of resource " + folder.nie.title);
+                                return callback(err);
+                            }
+                        });
+                    },
+                    // 3rd parameter is the function call when everything is done
+                    function(err){
+                        if(isNull(err)) {
+                            // All tasks are done now
+                            return callback(null, metadataResult);
+                        }
+                        else{
+                            return callback(true, null);
+                        }
+                    }
+                );
+            }
+            else {
+                return callback(null, metadataResult);
+            }
+        }
+        else {
+            console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
+            return callback(true, null);
+        }
+    });
+    }
+    else
+    {
+        return callback(err, resource);
+    }
 };
 
 Resource.prototype.isOfClass = function(classNameInPrefixedForm, callback)

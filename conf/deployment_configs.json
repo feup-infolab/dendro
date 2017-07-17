@@ -196,7 +196,7 @@
       "reload_ontologies_on_startup": false,
       "clear_session_store": true,
       "log_bootup_actions" : true,
-      "destroy_all_graphs_on_startup": false
+      "destroy_all_graphs_on_startup": true
     },
     "baselines": {
     },

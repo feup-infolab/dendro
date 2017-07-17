@@ -6,7 +6,14 @@
                         <table class="explorer-table">
                             <tr>
                                 <td>
-                                    <i class="fa <%= locals.go_up_options.icon %> file_explorer_icon" aria-hidden="true" style="font-size:32px;"></i>
+                                    <div class="parent">
+                                        <%  if(locals.go_up_options.icons[0]){    %>
+                                                <img class="image1_stacked" src="<%= locals.go_up_options.icons[0] %>">
+                                        <%  }%>
+                                        <%  if(locals.go_up_options.icons[1]){  %>
+                                                <img class="image2_stacked" src="<%= locals.go_up_options.icons[1] %>">
+                                        <%  }%>
+                                    </div>
                                 </td>
                                 <td class="filename-tablecell">
                                     <%= locals.go_up_options.title %>

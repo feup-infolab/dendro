@@ -172,6 +172,8 @@ angular.module('dendroApp.controllers')
             {
                 if($scope.shared.initial_metadata != null && $scope.shared.initial_metadata.rdf != null && $scope.shared.initial_metadata.rdf.type instanceof Array)
                     return _.contains($scope.shared.initial_metadata.rdf.type.rdf.type, "ddr:Project");
+                else
+                    return false;
             }
         };
 

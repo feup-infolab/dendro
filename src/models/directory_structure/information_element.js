@@ -472,8 +472,8 @@ InformationElement.findByParentAndName = function(parentURI, name, callback)
 };
 
 InformationElement.prototype.findMetadata = function(callback){
-    const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder")).Folder;
+    const async = require("async");
 
     const self = this;
     InformationElement.findByUri(self.uri, function(err, resource){
@@ -507,9 +507,6 @@ InformationElement.prototype.findMetadata = function(callback){
                                 });
 
                                 if (children.length > 0) {
-
-                                    const async = require("async");
-
                                     // 1st parameter in async.each() is the array of items
                                     async.each(children,
                                         // 2nd parameter is the function that each item is passed into

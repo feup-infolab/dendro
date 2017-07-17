@@ -393,7 +393,10 @@ exports.show = function(req, res) {
                     {
                         uri : "/projects/my",
                         title : "My Projects",
-                        icon : "fa-th-list"
+                        icons : [
+                            "/images/icons/folders.png",
+                            "/images/icons/bullet_user.png"
+                        ]
                     };
                 }
                 else {
@@ -401,7 +404,10 @@ exports.show = function(req, res) {
                     {
                         uri : "/projects",
                         title : "Public Projects",
-                        icon : "fa-globe"
+                        icon : [
+                            "/images/icons/folders.png",
+                            "/images/icons/bullet_world.png"
+                        ]
                     }
                 }
 
@@ -446,23 +452,21 @@ exports.show = function(req, res) {
                 }
                 else
                 {
-                    project.getPropertiesFromOntologies(
-                        Ontology.getPublicOntologiesUris(),
-                        function(err, descriptors)
-                        {
-                            if(isNull(err))
-                            {
-                                viewVars.descriptors = descriptors;
-                                sendResponse(viewVars, project);
-                            }
-                            else
-                            {
-                                const flash = require('connect-flash');
-                                flash('error', "Unable to fetch descriptors. Reported Error: " + descriptors);
-                                res.redirect('back');
-                            }
-                        }
+                    const projectDescriptors = project.getDescriptors(
+                        [Config.types.private, Config.types.locked], [Config.types.api_readable]
                     );
+
+                    if(!isNull(projectDescriptors) && projectDescriptors instanceof Array)
+                    {
+                        viewVars.descriptors = projectDescriptors;
+                        sendResponse(viewVars, project);
+                    }
+                    else
+                    {
+                        const flash = require('connect-flash');
+                        flash('error', "Unable to fetch descriptors. Reported Error: " + descriptors);
+                        res.redirect('back');
+                    }
                 }
             }
             else
@@ -508,54 +512,77 @@ exports.show = function(req, res) {
                     {
                         if (isNull(err))
                         {
-                            const parents = results[0];
+                            const parents = results[0].reverse();
                             const ownerProject = results[1];
-                            const immediateParent =  parents[parents.length - 1];
+                            const immediateParent =  parents[0];
 
                             const breadcrumbs = [];
 
                             if (userIsLoggedIn)
+                            {
+                                breadcrumbs.push(
+                                    {
+                                        uri: "/projects/my",
+                                        title: "My Projects",
+                                        icons: [
+                                            "/images/icons/folders.png",
+                                            "/images/icons/bullet_user.png"
+                                        ]
+                                    }
+                                );
+                            }
+                            else
+                            {
+                                breadcrumbs.push(
+                                    {
+                                        uri: "/projects",
+                                        title: "All Projects",
+                                        icons : [
+                                            "/images/icons/folders.png",
+                                            "/images/icons/bullet_world.png"
+                                        ]
+                                    }
+                                );
+                            }
+
+
+                            if(!isNull(immediateParent))
                             {
                                 if(immediateParent.uri === ownerProject.ddr.rootFolder)
                                 {
                                     go_up_options = {
                                         uri:ownerProject.uri,
                                         title: ownerProject.dcterms.title,
-                                        icon : "fa-folder"
+                                        icons : [
+                                            "/images/icons/house.png",
+                                            "/images/icons/bullet_up.png"
+                                        ]
                                     };
                                 }
                                 else
                                 {
-                                    if(immediateParent.uri === ownerProject.ddr.rootFolder)
-                                    {
-                                        go_up_options = {
-                                            uri:ownerProject.uri,
-                                            title: ownerProject.dcterms.title,
-                                            icon : "fa-level-up"
-                                        };
-                                    }
+                                    go_up_options = {
+                                        uri:immediateParent.uri,
+                                        title: immediateParent.dcterms.title,
+                                        icons : [
+                                            "/images/icons/folder.png",
+                                            "/images/icons/bullet_up.png"
+                                        ]
+                                    };
                                 }
                             }
                             else
                             {
-                                go_up_options =
-                                {
-                                    uri: "/projects",
-                                    title: "All Projects",
-                                    icon: "fa-globe"
+                                go_up_options = {
+                                    uri: ownerProject.uri,
+                                    title: ownerProject.dcterms.title,
+                                    icons : [
+                                        "/images/icons/folder.png",
+                                        "/images/icons/bullet_up.png"
+                                    ]
                                 };
                             }
-
-                            breadcrumbs.push(
-                                go_up_options
-                            );
-
-                            breadcrumbs.push(
-                                {
-                                    uri: ownerProject.uri,
-                                    title: ownerProject.dcterms.title
-                                }
-                            );
+                            
 
                             for (let i = 0; i < parents.length; i++)
                             {
@@ -567,6 +594,14 @@ exports.show = function(req, res) {
                                     }
                                 );
                             }
+
+                            breadcrumbs.push(
+                                {
+                                    uri: resourceBeingAccessed.uri,
+                                    type: resourceBeingAccessed.rdf.type,
+                                    title: resourceBeingAccessed.nie.title
+                                }
+                            );
 
                             return callback(null,
                                 {

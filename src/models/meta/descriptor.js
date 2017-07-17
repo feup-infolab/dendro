@@ -636,8 +636,18 @@ Descriptor.prototype.isAuthorized = function(excludedDescriptorTypes, exceptione
     const self = this;
     const prefix = self.getNamespacePrefix();
     const shortName = self.getShortName();
-    const isAuthorized = Descriptor.isAuthorized(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes);
-    return isAuthorized;
+
+    //TODO shortname is coming undefined here on some conditions! check
+
+    if(!isNull(prefix) && !isNull(shortName))
+    {
+        const isAuthorized = Descriptor.isAuthorized(prefix, shortName, excludedDescriptorTypes, exceptionedDescriptorTypes);
+        return isAuthorized;
+    }
+    else
+    {
+        throw new Error("Invalid descriptor " + prefix + ":" + shortName);
+    }
 };
 
 Descriptor.prototype.getNamespacePrefix = function()

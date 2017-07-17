@@ -5,19 +5,13 @@ const Config = require(path.join(process.cwd(), "src", "models", "meta", "config
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
+const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
-
-const db = Config.getDBByID();
-const gfs = Config.getGFSByID();
 
 const _ = require('underscore');
 const request = require('request');
-
-const self = this;
 
 exports.show_deep = function(req, res) {
     const acceptsHTML = req.accepts('html');
@@ -32,44 +26,65 @@ exports.show_deep = function(req, res) {
     }
     else
     {
-        if(!isNull(req.params.filepath))
+        if(!req.params.showing_project_root)
         {
-            const requestedResource = new Resource({
-                uri: req.params.requestedResourceUri
-            });
-
-            requestedResource.findMetadataRecursive(function(err, result){
-                if(isNull(err)){
-
-                    const accept = req.header('Accept');
-                    let serializer = null;
-                    let contentType = null;
-                    if(isNull(accept) || accept in Config.metadataSerializers === false)
+            InformationElement.findByUri(req.params.requestedResourceUri, function(err, resource){
+                if(!err)
+                {
+                    if(!isNull(resource))
                     {
-                        serializer = Config.defaultMetadataSerializer;
-                        contentType = Config.defaultMetadataContentType;
-                    }
-                    else{
-                        serializer = Config.metadataSerializers[accept];
-                        contentType = Config.metadataContentTypes[accept];
-                    }
+                        requestedResource.findMetadataRecursive(function(err, result){
+                            if(isNull(err)){
 
-                    res.set('Content-Type', contentType);
-                    res.send(serializer(result));
+                                const accept = req.header('Accept');
+                                let serializer = null;
+                                let contentType = null;
+                                if(isNull(accept) || accept in Config.metadataSerializers === false)
+                                {
+                                    serializer = Config.defaultMetadataSerializer;
+                                    contentType = Config.defaultMetadataContentType;
+                                }
+                                else{
+                                    serializer = Config.metadataSerializers[accept];
+                                    contentType = Config.metadataContentTypes[accept];
+                                }
 
+                                res.set('Content-Type', contentType);
+                                res.send(serializer(result));
+
+                            }
+                            else{
+                                res.status(500).json({
+                                    error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(404).json({
+                            result: "error",
+                            message : "Resource " + req.params.requestedResourceUri + " not found.",
+                            error : resource
+                        });
+                    }
                 }
-                else{
+                else
+                {
                     res.status(500).json({
-                        error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
+                        result: "error",
+                        message : "Error fetching resource " + req.params.requestedResourceUri,
+                        error: resource
                     });
                 }
+
             });
         }
         else
         {
             res.status(400).json({
                 result: "error",
-                message : "filepath parameter was not specified."
+                message : "This is not the root of a project"
             });
         }
     }
@@ -88,38 +103,58 @@ exports.show = function(req, res) {
     }
     else
     {
-        const requestedResourceURI = req.params.requestedResourceUri;
-
-        const requestedResource = new InformationElement({
-            uri: requestedResourceURI
-        });
-
-        requestedResource.findMetadata(function(err, result){
-            if(isNull(err)){
-
-                const accept = req.header('Accept');
-                let serializer = null;
-                let contentType = null;
-                if(isNull(accept) || accept in Config.metadataSerializers === false)
+        if(!req.params.showing_project_root)
+        {
+            InformationElement.findByUri(req.params.requestedResourceUri, function(err, requestedResource){
+                if(!err)
                 {
-                    serializer = Config.defaultMetadataSerializer;
-                    contentType = Config.defaultMetadataContentType;
-                }
-                else{
-                    serializer = Config.metadataSerializers[accept];
-                    contentType = Config.metadataContentTypes[accept];
-                }
+                    if(!isNull(requestedResource))
+                    {
+                        requestedResource.findMetadataRecursive(function(err, result){
+                            if(isNull(err))
+                            {
+                                const accept = req.header('Accept');
+                                let serializer = null;
+                                let contentType = null;
+                                if(isNull(accept) || accept in Config.metadataSerializers === false)
+                                {
+                                    serializer = Config.defaultMetadataSerializer;
+                                    contentType = Config.defaultMetadataContentType;
+                                }
+                                else{
+                                    serializer = Config.metadataSerializers[accept];
+                                    contentType = Config.metadataContentTypes[accept];
+                                }
 
-                res.set('Content-Type', contentType);
-                res.send(serializer(result));
+                                res.set('Content-Type', contentType);
+                                res.send(serializer(result));
 
-            }
-            else{
-                res.status(500).json({
-                    error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
-                });
-            }
-        });
+                            }
+                            else{
+                                res.status(500).json({
+                                    error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        res.status(404).json({
+                            result: "error",
+                            message : "Resource " + req.params.requestedResourceUri + " not found.",
+                            error : resource
+                        });
+                    }
+                }
+                else
+                {
+                    res.status(400).json({
+                        result: "error",
+                        message : "This is not the root of a project"
+                    });
+                }
+            });
+        }
     }
 };
 
@@ -150,33 +185,21 @@ exports.show_parent = function(req, res) {
                             {
                                 if(!isNull(parent) && parent instanceof Object)
                                 {
-                                    parent.getPropertiesFromOntologies(
-                                        Ontology.getPublicOntologiesUris(),
-                                        function(err, descriptors)
-                                        {
-                                            if(isNull(err))
-                                            {
-                                                //remove sensitive descriptors
-                                                for(let i = 0 ; i < descriptors.length ; i++)
-                                                {
-                                                    if(descriptors[i].locked)
-                                                    {
-                                                        descriptors.splice(i, 1);
-                                                    }
-                                                }
+                                    const descriptors = parent.getDescriptors([Config.types.private, Config.types.locked], [Config.types.api_readable]);
 
-                                                res.json({
-                                                    result : "ok",
-                                                    descriptors : descriptors
-                                                });
-                                            }
-                                            else
-                                            {
-                                                res.status(500).json({
-                                                    error_messages : [descriptors]
-                                                });
-                                            }
+                                    if(!isNull(projectDescriptors) && projectDescriptors instanceof Array)
+                                    {
+                                        res.json({
+                                            result : "ok",
+                                            descriptors : descriptors
                                         });
+                                    }
+                                    else
+                                    {
+                                        res.status(500).json({
+                                            error_messages : [descriptors]
+                                        });
+                                    }
                                 }
                                 else
                                 {
