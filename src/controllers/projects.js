@@ -404,7 +404,7 @@ exports.show = function(req, res) {
                     {
                         uri : "/projects",
                         title : "Public Projects",
-                        icon : [
+                        icons : [
                             "/images/icons/folders.png",
                             "/images/icons/bullet_world.png"
                         ]
@@ -415,7 +415,10 @@ exports.show = function(req, res) {
                 viewVars.breadcrumbs.push (
                     {
                         uri : "/project/" + req.params.handle,
-                        title : project.dcterms.title
+                        title : project.dcterms.title,
+                        icons : [
+                            "/images/icons/house.png",
+                        ]
                     }
                 );
 
@@ -512,9 +515,9 @@ exports.show = function(req, res) {
                     {
                         if (isNull(err))
                         {
-                            const parents = results[0].reverse();
+                            const parents = results[0];
                             const ownerProject = results[1];
-                            const immediateParent =  parents[0];
+                            const immediateParent =  parents[parents.length - 1];
 
                             const breadcrumbs = [];
 
@@ -563,7 +566,7 @@ exports.show = function(req, res) {
                                 {
                                     go_up_options = {
                                         uri:immediateParent.uri,
-                                        title: immediateParent.dcterms.title,
+                                        title: immediateParent.nie.title,
                                         icons : [
                                             "/images/icons/folder.png",
                                             "/images/icons/bullet_up.png"
@@ -577,12 +580,21 @@ exports.show = function(req, res) {
                                     uri: ownerProject.uri,
                                     title: ownerProject.dcterms.title,
                                     icons : [
-                                        "/images/icons/folder.png",
+                                        "/images/icons/house.png",
                                         "/images/icons/bullet_up.png"
                                     ]
                                 };
                             }
-                            
+
+                            breadcrumbs.push({
+                                uri: ownerProject.uri,
+                                title: ownerProject.dcterms.title,
+                                icons : [
+                                    "/images/icons/house.png",
+                                    "/images/icons/bullet_up.png"
+                                ]
+                            });
+
 
                             for (let i = 0; i < parents.length; i++)
                             {
@@ -590,7 +602,10 @@ exports.show = function(req, res) {
                                     {
                                         uri: parents[i].uri,
                                         type: parents[i].rdf.type,
-                                        title: parents[i].nie.title
+                                        title: parents[i].nie.title,
+                                        icons : [
+                                            "/images/icons/folder.png"
+                                        ]
                                     }
                                 );
                             }
@@ -599,7 +614,10 @@ exports.show = function(req, res) {
                                 {
                                     uri: resourceBeingAccessed.uri,
                                     type: resourceBeingAccessed.rdf.type,
-                                    title: resourceBeingAccessed.nie.title
+                                    title: resourceBeingAccessed.nie.title,
+                                    icons : [
+                                        "/images/icons/folder.png",
+                                    ]
                                 }
                             );
 

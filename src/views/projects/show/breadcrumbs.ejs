@@ -2,28 +2,36 @@
     if(locals.breadcrumbs != null && locals.breadcrumbs instanceof Array && locals.breadcrumbs.length > 0)
     {
 %>
-        <ol class="breadcrumb">
+        <ol class="breadcrumb parent">
 
         <%
             for(var i = 0; i < locals.breadcrumbs.length; i++)
             {
                 var breadcrumb = locals.breadcrumbs[i];
-                if(i < locals.breadcrumbs.length)
+                if(i < locals.breadcrumbs.length - 1)
                 {
                 %>
-                        <li><a href="<%=breadcrumb.uri%>"><%=breadcrumb.title%></a></li>
+                    <li class="active">
                 <%
-                }
-                else
-                {
+                } else {
                 %>
-                        <li class="active"><%=breadcrumb.title%></li>
+                    <li>
                 <%
                 }
                 %>
-        <%
-            }
-        %>
+                        <a href="<%=breadcrumb.uri%>">
+                                <%  if(breadcrumb.icons && breadcrumb.icons[0]){    %>
+                                <img class="image1_stacked breadcrumb_icon" src="<%= breadcrumb.icons[0] %>">
+                                <%  }%>
+                                <%  if(breadcrumb.icons && breadcrumb.icons[1]){  %>
+                                <img class="image2_stacked breadcrumb_icon" src="<%= breadcrumb.icons[1] %>">
+                                <%  }%>
+                            <%=breadcrumb.title%>
+                        </a>
+                    </li>
+            <%
+                }
+            %>
         </ol>
 <%
     }

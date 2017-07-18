@@ -215,7 +215,11 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
         "   [1] nie:isLogicalPartOf+ ?uri. \n" +
         "   ?uri rdf:type ddr:Resource. \n" +
         "   ?uri rdf:type nie:FileDataObject \n" +
-        "} ";
+        "   FILTER NOT EXISTS \n" +
+        "   { \n" +
+        "       ?project ddr:rootFolder ?uri\n" +
+        "   }\n" +
+        "}\n ";
 
     db.connection.execute(query,
         [
