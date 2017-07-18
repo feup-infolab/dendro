@@ -25,10 +25,10 @@
 
                                 <thead>
                                     <tr>
-                                        <th>#</th>
                                         <th>Title</th>
                                         <th>Description</th>
                                         <th>Creator</th>
+                                        <th>Privacy</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -36,15 +36,13 @@
                                         {
                                         var project = locals.projects[i];
                                     %>
-                                        <%if(!project.ddr.deleted == 1 || (locals.user != null && locals.user.uri == project.dcterms.creator)) { %>
+                                        <%if(!project.ddr.deleted == 1 || (locals.user != null)) { %>
                                             <tr
                                                 <%if(project.ddr.deleted == 1) {%>
                                                     class="warning"
                                                 <%}%>
                                                 >
-                                                <td>
-                                                    <%=i%>
-                                                </td>
+
 
                                                 <td>
                                                     <b>
@@ -64,12 +62,6 @@
                                                             <%
                                                             }
                                                             %>
-                                                            <%if(locals.user != null && locals.user.uri == project.dcterms.creator) {%>
-                                                                <span class="label label-success">Creator</span>
-                                                            <%}%>
-                                                            <%if(project.ddr.deleted == 1) {%>
-                                                                <span class="label label-danger">Deleted</span>
-                                                            <%}%>
                                                         </a>
                                                     </b>
                                                 </td>
@@ -93,10 +85,42 @@
                                                 </td>
                                                 <td>
                                                     <b>
-                                                        <a href="<%=project.dcterms.creator%>">
-                                                            <%= project.dcterms.creator %>
-                                                        </a>
+                                                        <%if(locals.user != null && locals.user.uri == project.dcterms.creator) {%>
+                                                            <a href="<%=locals.user.uri%>">
+                                                                You
+                                                            </a>
+                                                        <%} else {%>
+                                                            <a href="<%=project.dcterms.creator%>">
+                                                                <%=project.dcterms.creator%>
+                                                            </a>
+                                                        <%} %>
+                                                        <%if(project.ddr.deleted == 1) {%>
+                                                            <span class="label label-danger">Deleted</span>
+                                                        <%}%>
                                                     </b>
+                                                </td>
+                                                <td>
+                                                    <div class="css_tooltip">
+                                                        <div class="parent">
+                                                            <img class="image1_stacked breadcrumb_icon" src="/images/icons/box_closed.png">
+                                                            <%if(project.ddr.privacyStatus === "private") {%>
+                                                            <img class="image2_stacked" src="/images/icons/bullet_key.png">
+                                                            <span class="tooltiptext">This project is fully invisible to the outside world</span>
+                                                            <%
+                                                            } else if(project.ddr.privacyStatus === "public") {
+                                                            %>
+                                                            <img class="image2_stacked" src="/images/icons/bullet_world.png">
+                                                            <span class="tooltiptext">Both data and metadata are fully visible to the outside world</span>
+                                                            <%
+                                                            } else if(project.ddr.privacyStatus === "metadata_only") {
+                                                            %>
+                                                            <img class="image2_stacked" src="/images/icons/bullet_document.png">
+                                                            <span class="tooltiptext">Only metadata is visible to the outside world</span>
+                                                            <%
+                                                            }
+                                                            %>
+                                                        </div>
+                                                    </div>
                                                 </td>
                                                 <%
                                                 if(locals.user != null && locals.user.uri == project.dcterms.creator)

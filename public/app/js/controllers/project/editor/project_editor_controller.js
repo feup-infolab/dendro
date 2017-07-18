@@ -34,18 +34,6 @@ angular.module('dendroApp.controllers')
             stats : null
         };
 
-        $scope.get_selected_file_name = function()
-        {
-            if($scope.shared.selected_file != null)
-            {
-                return $scope.shared.selected_file.nie.title;
-            }
-            else
-            {
-
-            }
-        };
-
         $scope.get_currently_selected_resource = function()
         {
             return window.location.pathname;
@@ -91,9 +79,34 @@ angular.module('dendroApp.controllers')
             return $scope.get_thumbnail_uri($scope.get_calling_uri());
         };
 
-        $scope.get_calling_uri_filename = function()
+        $scope.get_current_filename = function()
         {
-            return $scope.get_last_section_of_url($scope.get_calling_uri());
+            if($scope.shared.selected_file != null)
+            {
+                return $scope.shared.selected_file.nie.title;
+            }
+            else
+            {
+                //TODO to fix later
+                if($scope.shared.initial_metadata != null)
+                {
+                    for(var i = 0; i < $scope.shared.initial_metadata.length; i++)
+                    {
+                        if($scope.showing_project_root())
+                        {
+                            if($scope.shared.initial_metadata[i].prefixedForm === "dcterms:title")
+                                return $scope.shared.initial_metadata[i].value;
+                        }
+                        else
+                        {
+                            if($scope.shared.initial_metadata[i].prefixedForm === "nie:title")
+                                return $scope.shared.initial_metadata[i].value;
+                        }
+                    }
+                }
+
+                return "(No file name available)"
+            }
         };
 
         $scope.get_owner_project = function() {

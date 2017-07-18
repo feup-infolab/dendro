@@ -1849,6 +1849,19 @@ exports.ls = function(req, res){
     }
 };
 
+exports.extension_icon = function(req, res)
+{
+    const extension = req.params[0];
+    if(!isNull(extension) && !isNull(Config.iconableFileExtensions[extension]))
+    {
+        exports.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+    }
+    else
+    {
+        exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+    }
+};
+
 exports.thumbnail = function(req, res)
 {
     if(!req.params.is_project_root)
@@ -1876,7 +1889,7 @@ exports.thumbnail = function(req, res)
                     }
                     else
                     {
-                        if(Config.iconableFileExtensions[requestedExtension])
+                        if(!isNull(Config.iconableFileExtensions[requestedExtension]))
                         {
                             exports.serve_static(req, res, "/images/icons/extensions/file_extension_" + requestedExtension + ".png", "/images/icons/file.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
                         }
@@ -1899,7 +1912,7 @@ exports.thumbnail = function(req, res)
     }
     else
     {
-        exports.serve_static(req, res, "/images/icons/package.png", "/images/icons/package.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+        exports.serve_static(req, res, "/images/icons/box_closed.png", "/images/icons/emotion_question.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
     }
 };
 

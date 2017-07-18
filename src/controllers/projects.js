@@ -417,7 +417,7 @@ exports.show = function(req, res) {
                         uri : "/project/" + req.params.handle,
                         title : project.dcterms.title,
                         icons : [
-                            "/images/icons/house.png",
+                            "/images/icons/box_closed.png",
                         ]
                     }
                 );
@@ -557,7 +557,7 @@ exports.show = function(req, res) {
                                         uri:ownerProject.uri,
                                         title: ownerProject.dcterms.title,
                                         icons : [
-                                            "/images/icons/house.png",
+                                            "/images/icons/box_closed.png",
                                             "/images/icons/bullet_up.png"
                                         ]
                                     };
@@ -580,7 +580,7 @@ exports.show = function(req, res) {
                                     uri: ownerProject.uri,
                                     title: ownerProject.dcterms.title,
                                     icons : [
-                                        "/images/icons/house.png",
+                                        "/images/icons/box_closed.png",
                                         "/images/icons/bullet_up.png"
                                     ]
                                 };
@@ -590,7 +590,7 @@ exports.show = function(req, res) {
                                 uri: ownerProject.uri,
                                 title: ownerProject.dcterms.title,
                                 icons : [
-                                    "/images/icons/house.png",
+                                    "/images/icons/box_closed.png",
                                     "/images/icons/bullet_up.png"
                                 ]
                             });

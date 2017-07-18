@@ -992,6 +992,9 @@ const loadRoutes = function(app, passport, recommendation, callback)
     app.delete("/interactions/delete_all", async.apply(Permissions.require, [Permissions.settings.role.in_system.admin]), interactions.delete_all_interactions);
 
     //serve angular JS ejs-generated html partials
+    app.get(/\/images\/icons\/extensions\/file_extension_([a-z0-9]+)\.png$/, files.extension_icon);
+
+    //serve angular JS ejs-generated html partials
     app.get(/(\/app\/views\/.+)\.html$/,
         function(req, res, next){
 

@@ -10,7 +10,7 @@
         </div>
 
         <form id="metadataform" class="form-horizontal navbar-spacer" role="form">
-            <div class="control-group" ng-repeat="descriptor in shared.metadata track by $index">
+            <div class="control-group" ng-repeat="descriptor in shared.metadata | filter:only_editable_metadata_descriptors track by $index">
                 <div ng-switch="descriptor.control">
                     <div ng-switch-when="input_box">
                         <ng-include src="'/app/views/projects/show/partials/controls_read_only/input_box.html'"></ng-include>

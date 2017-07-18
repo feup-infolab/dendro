@@ -159,7 +159,7 @@ exports.show = function(req, res){
     let acceptsHTML = req.accepts('html');
     const acceptsJSON = req.accepts('json');
 
-    User.findByUsername(username, function(err, user)
+    User.findByUri(req.params.requestedResourceUri, function(err, user)
     {
         if(isNull(err))
         {
@@ -175,7 +175,7 @@ exports.show = function(req, res){
                 {
                     res.render('users/show',
                         {
-                            title : "Viewing user " + username,
+                            title : "Viewing user " + user.foaf.firstname + " " + user.foaf.surname,
                             user : user
                         }
                     )
@@ -485,7 +485,6 @@ exports.getLoggedUser = function (req, res) {
 
     if(!isNull(req.user))
     {
-        req.params.username = req.user.ddr.username;
         exports.show(req, res);
     }
     else

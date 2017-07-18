@@ -83,7 +83,7 @@ angular.module('dendroApp.controllers')
                             callback(1, "Unable to delete " + selectedFile.uri);
                         });
                     }, function(err, results){
-                        if(isNull(err))
+                        if(!err)
                         {
                             $scope.clear_selected_files();
                             $scope.load_folder_contents($scope.shared.showing_deleted_files);
@@ -129,7 +129,7 @@ angular.module('dendroApp.controllers')
                         });
                     }, function(err, results)
                     {
-                        if(isNull(err))
+                        if(!err)
                         {
                             $scope.clear_selected_files();
                             $scope.load_folder_contents($scope.shared.showing_deleted_files);
@@ -184,7 +184,7 @@ angular.module('dendroApp.controllers')
 
     $scope.upload_callback = function(err, result)
     {
-        if(isNull(err))
+        if(!err)
         {
             $scope.show_popup("success", "Success", "Files uploaded successfully.");
             $scope.get_folder_contents(true);
@@ -197,7 +197,7 @@ angular.module('dendroApp.controllers')
 
     $scope.restore_callback = function(err, result)
     {
-        if(isNull(err))
+        if(!err)
         {
             $scope.show_popup("success", "Success", "Backup successfully restored");
             $scope.load_metadata();
