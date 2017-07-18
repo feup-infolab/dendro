@@ -475,7 +475,7 @@ InformationElement.findByParentAndName = function(parentURI, name, callback)
     self.findByUri(ie.uri, callback);
 };
 
-InformationElement.prototype.findMetadata = function(callback){
+InformationElement.prototype.findMetadata = function(callback, cleanTypes){
     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder")).Folder;
     const async = require("async");
 
@@ -487,7 +487,7 @@ InformationElement.prototype.findMetadata = function(callback){
                 Folder.findByUri(resource.uri, function(err, folder) {
                     const metadataResult = {
                         title: resource.nie.title,
-                        descriptors: folder.getDescriptors([Config.types.private], [Config.types.api_readable]),
+                        descriptors: folder.getDescriptors([Config.types.private], [Config.types.api_readable], cleanTypes),
                         file_extension: resource.ddr.fileExtension,
                         hasLogicalParts: []
                     };

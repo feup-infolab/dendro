@@ -1,6 +1,7 @@
 const path = require('path');
 const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
 const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+const Controls = require(path.join(process.cwd(), "src", "models", "meta", "controls.js")).Controls;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
@@ -256,7 +257,7 @@ Ontology.initAllFromDatabase = function(callback)
                                 if (isNull(err)) {
                                     if (!isNull(result)) {
                                         element.hasRegex = result;
-                                        element.control = Elements.controls.regex_checking_input_box;
+                                        element.control = Controls.regex_checking_input_box;
                                     }
                                 }
 
@@ -270,7 +271,7 @@ Ontology.initAllFromDatabase = function(callback)
                                 if (isNull(err)) {
                                     if (!isNull(result)) {
                                         element.hasAlternative = result;
-                                        element.control = Elements.controls.combo_box;
+                                        element.control = Controls.combo_box;
                                     }
                                 }
 

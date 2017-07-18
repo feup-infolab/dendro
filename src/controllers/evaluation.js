@@ -102,7 +102,7 @@ exports.shared.evaluate_metadata = function(req, callback)
             else {
                 return callback(1, "Error finding metadata from " + requestedResource.uri + ". Error reported : " + metadata);
             }
-        });
+        }, true);
     };
 
     const evaluateMetadata = function (resource, metadata, recommendations) {

@@ -1,6 +1,6 @@
 const path = require('path');
 const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
-const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+const Config = require(Pathfinder.absPathInSrcFolder("/models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
@@ -12,7 +12,7 @@ const db = Config.getDBByID();
 const async = require('async');
 const _ = require('underscore');
 
-function Descriptor(object)
+function Descriptor(object, removeTypeSettings)
 {
     const self = this;
 
@@ -148,6 +148,17 @@ function Descriptor(object)
                     }
                 }
             }
+
+            if(removeTypeSettings)
+            {
+                /*for(let descriptorType in Config.types)
+                {
+                    delete self[descriptorType];
+                }*/
+
+                delete self.type;
+            }
+
             return self;
         }
     }

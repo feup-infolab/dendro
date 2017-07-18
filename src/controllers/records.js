@@ -58,7 +58,7 @@ exports.show_deep = function(req, res) {
                                     error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
                                 });
                             }
-                        });
+                        }, true);
                     }
                     else
                     {
@@ -135,7 +135,7 @@ exports.show = function(req, res) {
                                     error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
                                 });
                             }
-                        });
+                        }, true);
                     }
                     else
                     {

@@ -1952,13 +1952,19 @@ Resource.prototype.getPublicDescriptorsForAPICalls = function()
     return self.getDescriptors([Config.types.locked, Config.types.private], [Config.types.api_readable]);
 };
 
-Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet)
+Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet, cleanTypes)
 {
     const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;
     let descriptorsArray = [];
 
     const prefixes = Object.keys(Elements);
+
+    for(let prefix in Elements)
+    {
+
+    }
+
     for (let i = 0; i < prefixes.length; i++)
     {
         let prefix = prefixes[i];
@@ -1970,12 +1976,16 @@ Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptor
 
             if(!isNull(self[prefix]) && !isNull(self[prefix][element]))
             {
+                Descriptor.findByPrefixAndShortName(prefix, shortName, function(err, result){
+
+                });
                 const newDescriptor = new Descriptor(
                     {
                         prefix: prefix,
                         shortName: element,
-                        value: self[prefix][element]
-                    }
+                        value: self[prefix][element],
+                    },
+                    cleanTypes
                 );
 
                 if(newDescriptor.isAuthorized(descriptorTypesNotToGet, descriptorTypesToForcefullyGet))
@@ -2379,11 +2389,11 @@ Resource.prototype.getLogicalParts = function(callback)
 };
 
 
-Resource.prototype.findMetadataRecursive = function(callback){
+Resource.prototype.findMetadataRecursive = function(callback, cleanTypes){
     const self = this;
     const async = require("async");
     const myDescriptors = self.getDescriptors(
-        [Config.types.private, Config.types.locked], [Config.types.api_readable]
+        [Config.types.private, Config.types.locked], [Config.types.api_readable], cleanTypes
     );
 
     if(!isNull(myDescriptors) && myDescriptors instanceof Array)
@@ -2418,7 +2428,7 @@ Resource.prototype.findMetadataRecursive = function(callback){
                                 console.info("[findMetadataRecursive] error accessing metadata of resource " + folder.nie.title);
                                 return callback(err);
                             }
-                        });
+                        }, cleanTypes);
                     },
                     // 3rd parameter is the function call when everything is done
                     function(err){

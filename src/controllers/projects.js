@@ -236,7 +236,7 @@ exports.show = function(req, res) {
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    });
+                    }, true);
                 }
                 else {
                     requestedResource.findMetadata(function (err, result) {
@@ -251,7 +251,7 @@ exports.show = function(req, res) {
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    });
+                    }, true);
                 }
 
                 return false;
