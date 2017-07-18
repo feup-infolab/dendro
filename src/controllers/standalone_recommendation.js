@@ -64,7 +64,7 @@ exports.recommend_descriptors = function(req, res) {
                     if (!isNull(interactionType)) {
                         const lastRecommendationList = JSON.stringify(req.user.recommendations.lastRecommendationList);
 
-                        new Interaction(
+                        Interaction.create(
                             {
                                 ddr: {
                                     performedBy: req.user.uri,

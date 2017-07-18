@@ -412,7 +412,7 @@ User.prototype.getInteractions = function(callback)
             if(!isNull(results) && results instanceof Array)
             {
                 const createInteraction = function (result, callback) {
-                    new Interaction({
+                    Interaction.create({
                         uri: result.interaction,
                         ddr: {
                             performedBy: self.uri,

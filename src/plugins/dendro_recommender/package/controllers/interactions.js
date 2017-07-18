@@ -127,7 +127,7 @@ exports.generate_random_interactions = function(req, res)
 
                             if(!isNull(descriptor) && isNull(interactionType) && isNull(user) && isNull(resource))
                             {
-                                new Interaction({
+                                Interaction.create({
                                     ddr : {
                                         performedBy : user.uri,
                                         interactionType : interactionType.key,

@@ -48,28 +48,29 @@ Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumen
     const self = this;
 
     const ontologyPrefixes = Ontology.getAllOntologyPrefixes();
-    for(let i = 0; i < ontologyPrefixes.length; i++)
+
+    for(let prefix in Elements)
     {
-        const aPrefix = ontologyPrefixes[i];
-        if(isNull(self[aPrefix]))
+        if(Elements.hasOwnProperty(prefix))
         {
-            if(isNull(object) || (!isNull(object) && isNull(object[aPrefix])))
+            if(object.hasOwnProperty(prefix))
             {
-                self[aPrefix] = {};
-            }
-            else if(object[aPrefix] instanceof Object)
-            {
-                self[aPrefix] = object[aPrefix];
-            }
-        }
-        else if(!isNull(self[aPrefix]))
-        {
-            if(deleteIfNotInArgumentObject)
-            {
-                if(isNull(object[aPrefix]))
+                self[prefix] = object[prefix];
+
+                for(let shortName in self[prefix])
                 {
-                    self[aPrefix] = {};
+                    if(self[prefix].hasOwnProperty(shortName))
+                    {
+                        if(isNull(self[prefix][shortName]))
+                        {
+                            delete self[prefix][shortName];
+                        }
+                    }
                 }
+            }
+            else
+            {
+                self[prefix] = {};
             }
         }
     }

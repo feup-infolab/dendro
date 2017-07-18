@@ -49,7 +49,7 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                                         if (isNull(err) && !isNull(contributors) && contributors instanceof Array) {
                                             for (let i = 0; i < contributors.length; i++) {
                                                 if (contributors[i].uri === user.uri) {
-                                                    const interaction = new Interaction({
+                                                    Interaction.create({
                                                         ddr: {
                                                             performedBy: user.uri,
                                                             interactionType: req.body.interactionType,

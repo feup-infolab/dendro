@@ -13,11 +13,14 @@ const db = Config.getDBByID();
 
 const mysql = Config.getMySQLByID();
 
-function Interaction (object, callback)
+let Interaction = function(object)
 {
     Interaction.baseConstructor.call(this, object, Interaction);
-    const self = this;
+};
 
+Interaction.create = function(object, callback)
+{
+    let self = new Interaction(object);
     const now = new Date();
 
     if(isNull(object.dcterms))
