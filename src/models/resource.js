@@ -1958,39 +1958,27 @@ Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptor
     const self = this;
     let descriptorsArray = [];
 
-    const prefixes = Object.keys(Elements);
-
     for(let prefix in Elements)
     {
-
-    }
-
-    for (let i = 0; i < prefixes.length; i++)
-    {
-        let prefix = prefixes[i];
-        const elements = Object.keys(Elements[prefix]);
-
-        for (let j = 0; j < elements.length; j++)
+        if(Elements.hasOwnProperty(prefix) && self.hasOwnProperty(prefix))
         {
-            const element = elements[j];
-
-            if(!isNull(self[prefix]) && !isNull(self[prefix][element]))
+            for(let shortName in self[prefix])
             {
-                Descriptor.findByPrefixAndShortName(prefix, shortName, function(err, result){
-
-                });
-                const newDescriptor = new Descriptor(
-                    {
-                        prefix: prefix,
-                        shortName: element,
-                        value: self[prefix][element],
-                    },
-                    cleanTypes
-                );
-
-                if(newDescriptor.isAuthorized(descriptorTypesNotToGet, descriptorTypesToForcefullyGet))
+                if(self[prefix].hasOwnProperty(shortName))
                 {
-                    descriptorsArray.push(newDescriptor);
+                    const newDescriptor = new Descriptor(
+                        {
+                            prefix: prefix,
+                            shortName: shortName,
+                            value: self[prefix][shortName]
+                        },
+                        cleanTypes
+                    );
+
+                    if(newDescriptor.isAuthorized(descriptorTypesNotToGet, descriptorTypesToForcefullyGet))
+                    {
+                        descriptorsArray.push(newDescriptor);
+                    }
                 }
             }
         }

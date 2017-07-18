@@ -92,6 +92,8 @@ function Descriptor(object, removeTypeSettings)
             {
                 self.type = Elements[self.prefix][self.shortName].type;
                 self.control = Elements[self.prefix][self.shortName].control;
+                self.label = Elements[self.prefix][self.shortName].label;
+                self.comment = Elements[self.prefix][self.shortName].comment;
 
                 if(!isNull(Elements[self.prefix][self.shortName].hasAlternative))
                 {

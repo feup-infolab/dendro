@@ -131,6 +131,31 @@ Ontology.initAllFromDatabase = function(callback)
 {
     console.log("(Re) Loading ontology configurations from database...");
 
+    const addDescriptorInformation = function (ontology,callback) {
+        const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+        Descriptor.all_in_ontology(ontology.uri, function(err, descriptors){
+            if(isNull(err))
+            {
+                for(let i = 0; i < descriptors.length; i++)
+                {
+                    let descriptor = descriptors[i];
+                    if(Elements.hasOwnProperty(descriptor.prefix) && Elements[descriptor.prefix].hasOwnProperty(descriptor.shortName))
+                    {
+                        Elements[descriptor.prefix][descriptor.shortName].label = descriptors[i].label;
+                        Elements[descriptor.prefix][descriptor.shortName].comment = descriptors[i].comment;
+                    }
+                }
+
+                callback(err, ontology);
+            }
+            else
+            {
+                callback(err, ontology);
+            }
+
+        });
+    };
+
     const getFullResearchDomain = function (researchDomainUri, callback) {
         ResearchDomain.findByUri(researchDomainUri, callback);
     };
@@ -330,22 +355,52 @@ Ontology.initAllFromDatabase = function(callback)
                 async.waterfall(
                     [
                         function (callback) {
-                            async.map(ontologies, addResearchDomainsDetails, function (err, loadedOntologies) {
-                                if (isNull(err)) {
-                                    console.log("[INFO] Finished loading research domain configurations for descriptors from database");
-                                }
+                            if(Config.startup.reload_descriptors_on_startup)
+                            {
+                                async.map(ontologies, addDescriptorInformation, function (err, loadedOntologies) {
+                                    if (isNull(err)) {
+                                        console.log("[INFO] Finished loading configurations for descriptors from database");
+                                    }
 
-                                return callback(err, loadedOntologies);
-                            });
+                                    return callback(err, loadedOntologies);
+                                });
+                            }
+                            else
+                            {
+                                return callback(null, ontologies);
+                            }
                         },
-                        function (loadedOntologies, callback) {
-                            async.map(loadedOntologies, addValidationData, function (err, loadedOntologies) {
-                                if (isNull(err)) {
-                                    console.log("[INFO] Finished loading validation information (Regex + alternatives) for the descriptors in the database");
-                                }
+                        function (ontologies, callback) {
+                            if(Config.startup.reload_research_domains_on_startup)
+                            {
+                                async.map(ontologies, addResearchDomainsDetails, function (err, loadedOntologies) {
+                                    if (isNull(err)) {
+                                        console.log("[INFO] Finished loading research domain configurations for descriptors from database");
+                                    }
 
-                                return callback(err, loadedOntologies);
-                            });
+                                    return callback(err, loadedOntologies);
+                                });
+                            }
+                            else
+                            {
+                                return callback(null, ontologies);
+                            }
+                        },
+                        function (ontologies, callback) {
+                            if(Config.startup.reload_descriptor_validation_data)
+                            {
+                                async.map(ontologies, addValidationData, function (err, loadedOntologies) {
+                                    if (isNull(err)) {
+                                        console.log("[INFO] Finished loading validation information (Regex + alternatives) for the descriptors in the database");
+                                    }
+
+                                    return callback(err, loadedOntologies);
+                                });
+                            }
+                            else
+                            {
+                                return callback(null, ontologies);
+                            }
                         }
                     ],
                     function (err, loadedOntologies) {

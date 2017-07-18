@@ -507,7 +507,7 @@ const init = function(callback)
 
             const Ontology = require(Pathfinder.absPathInSrcFolder("./models/meta/ontology.js")).Ontology;
 
-            if(Config.startup.reload_ontologies_on_startup)
+            if(Config.startup.load_databases && Config.startup.reload_ontologies_on_startup)
             {
                 Ontology.initAllFromDatabase(function (err, ontologies)
                 {
