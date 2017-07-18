@@ -125,8 +125,23 @@ function Descriptor(object, removeTypeSettings)
                 }
             }
 
-            self.label = object.label;
-            self.comment = object.comment;
+            if(!isNull(object.label))
+            {
+                self.label = object.label;
+            }
+            else
+            {
+                self.label = Elements[self.prefix][self.shortName].label;
+            }
+
+            if(!isNull(object.comment))
+            {
+                self.comment = object.comment;
+            }
+            else
+            {
+                self.comment = Elements[self.prefix][self.shortName].comment;
+            }
 
             //override type if supplied in object argument
 

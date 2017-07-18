@@ -96,7 +96,8 @@ Permissions.sendResponse = function(allow_access, req, res, next, reasonsForAllo
             else
             {
                 return res.status(401).render('auth/login', {
-                    error_messages : [messageUser]
+                    error_messages : [messageUser],
+                    redirect : req.url
                 });
             }
         }

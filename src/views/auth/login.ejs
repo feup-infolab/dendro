@@ -48,6 +48,13 @@
                                 </div>
                             </div>
 
+                            <%if(locals.redirect) {%>
+                                <input type="hidden"
+                                       id="redirect"
+                                       name="redirect"
+                                       value="<%=locals.redirect%>">
+                            <%}%>
+
                             <div class="form-group">
                                 <div class="text-center">
                                     <button class="btn btn-primary btn-block">Sign in</button>

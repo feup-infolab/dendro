@@ -57,7 +57,15 @@ module.exports.login = function(req, res, next){
                                         console.log("User " + user.ddr.username + " signed in.");
                                     }
 
-                                    res.redirect('/projects/my');
+                                    if(req.body.redirect)
+                                    {
+                                        res.redirect(req.body.redirect);
+                                    }
+                                    else
+                                    {
+                                        res.redirect("/projects/my");
+                                    }
+
                                 }
                             }
                             else
@@ -95,7 +103,7 @@ module.exports.login = function(req, res, next){
                         else
                         {
                             req.flash('error', err);
-                            res.redirect('/login');
+                            res.redirect('/login?redirect='+req.url);
                         }
                     }
                 }
@@ -216,7 +224,7 @@ module.exports.register = function(req, res){
                     }
                 );
             }
-            else if(!isNull(req.body.username) && !req.body.username.mat0ch(/^[0-9a-zA-Z]+$/))
+            else if(!isNull(req.body.username) && !req.body.username.match(/^[0-9a-zA-Z]+$/))
             {
                 res.render('auth/register',
                     {
@@ -350,7 +358,7 @@ module.exports.register = function(req, res){
                 ], function(err, user){
                     if(isNull(err))
                     {
-                        res.render('/login', {
+                        res.render('auth/login', {
                             success_messages : [user]
                         });
                     }

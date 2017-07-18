@@ -863,18 +863,21 @@ const loadData = function(callback)
                     }
                 });
             };
-
-            async.map(Config.demo_mode.users, deleteUser, function(err, results) {
-                if (isNull(err)) {
-                    log_boot_message("info","Existing demo users deleted. ");
-                    if(Config.demo_mode.active)
+            if(Config.demo_mode.active)
+            {
+                if (Config.startup.load_databases && Config.startup.reload_demo_users_on_startup)
+                {
+                    async.map(Config.demo_mode.users, deleteUser, function (err, results)
                     {
-                        if(Config.startup.load_databases && Config.startup.reload_demo_users_on_startup)
+                        if (isNull(err))
                         {
-                            const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-                            log_boot_message("info","Loading Demo Users... ");
+                            log_boot_message("info", "Existing demo users deleted. ");
 
-                            const createUser = function (user, callback) {
+                            const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+                            log_boot_message("info", "Loading Demo Users... ");
+
+                            const createUser = function (user, callback)
+                            {
                                 User.createAndInsertFromObject({
                                         foaf: {
                                             mbox: user.mbox,
@@ -886,21 +889,25 @@ const loadData = function(callback)
                                             password: user.password
                                         }
                                     },
-                                    function (err, newUser) {
-                                        if (isNull(err) && !isNull(newUser)) {
+                                    function (err, newUser)
+                                    {
+                                        if (isNull(err) && !isNull(newUser))
+                                        {
                                             return callback(null, newUser);
                                         }
-                                        else {
+                                        else
+                                        {
                                             console.error("[ERROR] Error creating new demo User " + JSON.stringify(user));
                                             return callback(err, user);
                                         }
                                     });
                             };
 
-                            async.map(Config.demo_mode.users, createUser, function(err, results) {
-                                if(isNull(err))
+                            async.map(Config.demo_mode.users, createUser, function (err, results)
+                            {
+                                if (isNull(err))
                                 {
-                                    log_boot_message("info","Existing demo users recreated. ");
+                                    log_boot_message("info", "Existing demo users recreated. ");
                                     return callback(err);
                                 }
                                 else
@@ -911,18 +918,15 @@ const loadData = function(callback)
                         }
                         else
                         {
-                            return callback(null);
+                            return callback(err);
                         }
-                    }
-                    else
-                    {
-                        return callback(null);
-                    }
+                    });
                 }
-                else {
-                    return callback(err);
+                else
+                {
+                    return callback(null);
                 }
-            });
+            }
         },
         function(callback) {
             if(Config.startup.load_databases && Config.startup.reload_administrators_on_startup)

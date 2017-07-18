@@ -32,6 +32,8 @@ const addOntologyToListOfActiveOntologiesInSession = function (ontology, req) {
     return req;
 };
 
+
+//TODO resource has to be generic, and project has to be the project of the currently selected resource
 const recordInteractionOverAResource = function (user, resource, req, res) {
     if (!isNull(user) && !isNull(resource.uri)) {
         if (!isNull(resource.recommendedFor) && typeof resource.recommendedFor === "string") {
