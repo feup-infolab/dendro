@@ -229,7 +229,7 @@ MongoDBCache.prototype.delete = function(resourceUriOrArrayOfResourceUris, callb
                     }
                     else
                     {
-                        const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from MongoDB cache " + JSON.stringify(self) + "\n" + err;
+                        const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from MongoDB cache " + JSON.stringify(self.id) + "\n" + err;
                         console.log(msg);
                         return callback(err, msg);
                     }

@@ -177,7 +177,7 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
 
     if(Config.debug.users.log_fetch_by_username)
     {
-        console.log("finding by username " + username);
+        console.log("finding by "+propertyInPrefixedForm+ " : " + value);
     }
 
     const query =
@@ -210,7 +210,7 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
             {
                 if(user.length > 1)
                 {
-                    console.log("Duplicate username "+username+" found!!!!")
+                    console.log("There are more than one user with property "+propertyInPrefixedForm+ " equal to " + value + "!!");
                 }
 
                 else if(user.length === 1)
@@ -239,7 +239,7 @@ User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
                 }
                 else
                 {
-                    return callback(null,null);
+                    return callback(2,null);
                 }
             }
             else

@@ -103,7 +103,15 @@ module.exports.login = function(req, res, next){
                         else
                         {
                             req.flash('error', err);
-                            res.redirect('/login?redirect='+req.url);
+
+                            if(req.body.redirect)
+                            {
+                                res.redirect('/login?redirect='+req.body.redirect);
+                            }
+                            else
+                            {
+                                res.redirect("/login");
+                            }
                         }
                     }
                 }
