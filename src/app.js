@@ -494,7 +494,7 @@ const init = function(callback)
                 const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
                 Cache.initConnections(function(err, result){
                     callback(err);
-                });
+                }, Config.startup.clear_caches);
             }
             else
             {
@@ -653,7 +653,6 @@ const init = function(callback)
                     if (isNull(err)) {
                         const checkAndCreateTable = function (tablename, cb) {
                             connection.query("SHOW TABLES LIKE '" + tablename + "';", function (err, result, fields) {
-                                connection.release();
                                 if (isNull(err)) {
                                     if (result.length > 0) {
                                         log_boot_message("info","Interactions table " + tablename + " exists in the MySQL database.");
@@ -897,7 +896,8 @@ const loadData = function(callback)
                                         }
                                         else
                                         {
-                                            console.error("[ERROR] Error creating new demo User " + JSON.stringify(user));
+                                            console.error("[ERROR] Error creating new demo User ");
+                                            console.error(err.stack);
                                             return callback(err, user);
                                         }
                                     });

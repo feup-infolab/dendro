@@ -61,13 +61,13 @@ Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumen
 
             if(object.hasOwnProperty(prefix))
             {
-                for(let shortName in self[prefix])
+                for(let shortName in object[prefix])
                 {
-                    if(self[prefix].hasOwnProperty(shortName))
+                    if(object[prefix].hasOwnProperty(shortName))
                     {
-                        if(isNull(self[prefix][shortName]))
+                        if(isNull(self[prefix][shortName]) && !isNull(object[prefix][shortName]))
                         {
-                            delete self[prefix][shortName];
+                            self[prefix][shortName] = object[prefix][shortName];
                         }
                     }
                 }
@@ -1939,9 +1939,9 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                     }
                     else
                     {
-                        const msg = "Error. There are more than one resource with property " +descriptor.getPrefixedForm()+ " of value "+ descriptor.value + "  in Dendro.";
+                        const msg = "Error. There are more than one resource with property " +descriptor.getPrefixedForm()+ " of value "+ descriptor.value + " in this Dendro.";
                         console.error(msg);
-                        return callback(1, msg);
+                        return callback("error", msg);
                     }
                 }
                 else {
@@ -2999,7 +2999,7 @@ Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(d
         }
         else
         {
-            const msg = "Error deleting all CACHED resources of type with descriptor "+ descriptor.getPrefixedForm() +  " and value" + descriptor.value +" and their outgoing triples. Error returned: " + JSON.stringify(results);
+            const msg = "Error deleting all CACHED resources of type with descriptor "+ descriptor.getPrefixedForm() +  " and value" + descriptor.value +" and their outgoing triples. Error returned: " + JSON.stringify(err);
             console.error(msg);
             return callback(err, msg);
         }

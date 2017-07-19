@@ -259,28 +259,27 @@ MongoDBCache.prototype.deleteAll = function(callback) {
 
         if(!isNull(self.client))
         {
-            self.client.collection(self.collection)
-                .deleteMany(
-                    { },
-                    function (err)
+            self.client.collection(self.collection).remove(
+                { },
+                function (err)
+                {
+                    if (isNull(err))
                     {
-                        if (isNull(err))
+                        if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                         {
-                            if (Config.debug.active && Config.debug.cache.log_cache_deletes)
-                            {
-                                console.log("[DEBUG] Deleted ALL cache records");
-                            }
+                            console.log("[DEBUG] Deleted ALL cache records");
+                        }
 
-                            return callback(null);
-                        }
-                        else
-                        {
-                            const msg = "Unable to delete collection " + self.collection + " : " + JSON.stringify(err);
-                            console.log(msg);
-                            return callback(err, msg);
-                        }
+                        return callback(null);
                     }
-                );
+                    else
+                    {
+                        const msg = "Unable to delete collection " + self.collection + " : " + JSON.stringify(err);
+                        console.log(msg);
+                        return callback(err, msg);
+                    }
+                }
+            );
         }
         else
         {

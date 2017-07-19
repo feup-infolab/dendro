@@ -44,14 +44,14 @@
         "instances": {
           "default": {
             "database": "127.0.0.1:3001",
-            "collection": "default_cache_test",
+            "collection": "default_cache_dev",
             "host": "192.168.56.249",
             "port": "27017",
             "id": "default"
           },
           "social": {
             "database": "127.0.0.1:3001",
-            "collection": "social_cache_test",
+            "collection": "social_cache_dev",
             "host": "192.168.56.249",
             "port": "27017",
             "id": "social"
@@ -59,7 +59,7 @@
           "notifications": {
             "options": {
               "database": "127.0.0.1:3001",
-              "collection": "notifications_cache_test",
+              "collection": "notifications_cache_dev",
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
@@ -198,6 +198,7 @@
       "reload_research_domains_on_startup": true,
       "reload_descriptor_validation_data" : false,
       "clear_session_store": true,
+      "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs_on_startup": true
     },
@@ -410,8 +411,8 @@
     },
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
-    "mongoDbCollectionName": "dendro_data_dev",
-    "mongoDBSessionStoreCollection": "dendro_data_dev_sessions",
+    "mongoDbCollectionName": "dendro_data_test",
+    "mongoDBSessionStoreCollection": "dendro_data_test_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "user": "",
@@ -550,12 +551,13 @@
       "load_databases": true,
       "reload_administrators_on_startup": true,
       "reload_demo_users_on_startup": true,
-      "reload_ontologies_on_startup": false,
+      "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : true,
+      "reload_descriptor_validation_data" : false,
       "clear_session_store": true,
-      "log_bootup_actions" : false,
+      "clear_caches" : true,
+      "log_bootup_actions" : true,
       "destroy_all_graphs_on_startup": true
     },
     "baselines": {
@@ -895,9 +897,10 @@
       "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : true,
+      "reload_descriptor_validation_data" : false,
       "clear_session_store": true,
-      "log_bootup_actions" : false,
+      "clear_caches" : true,
+      "log_bootup_actions" : true,
       "destroy_all_graphs_on_startup": true
     },
     "baselines": {

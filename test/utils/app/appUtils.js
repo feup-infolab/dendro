@@ -103,16 +103,23 @@ exports.clearAppState = function (cb) {
     //var db = exports.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
     exports.clearAllData(function(err, results){
-        global.tests.server.close();
-        exports.endMysqlConnectionPool(function (err, results) {
-            should.equal(err, null);
+        if(!global.tests.server)
+        {
+            return cb(1, "Server did not start successfully");
+        }
+        else
+        {
+            global.tests.server.close();
+            exports.endMysqlConnectionPool(function (err, results) {
+                should.equal(err, null);
 
-            // add a timeout to help the tests not to crash
-            // sometimes because of overwhelming load.
-            setTimeout(function(){
-                cb(err, results);
-            }, 300);
-        });
+                // add a timeout to help the tests not to crash
+                // sometimes because of overwhelming load.
+                setTimeout(function(){
+                    cb(err, results);
+                }, 300);
+            });
+        }
     });
 };
 

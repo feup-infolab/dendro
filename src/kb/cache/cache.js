@@ -13,7 +13,7 @@ const Cache = function()
 
 };
 
-Cache.initConnections = function(callback)
+Cache.initConnections = function(callback, deleteAllCachedRecords)
 {
     const self = this;
     const _ = require('underscore');
@@ -53,19 +53,29 @@ Cache.initConnections = function(callback)
                                         {
                                             console.log("[OK] Connected to MongoDB cache service with ID : " + mongoDBConnection.id + " running on " +  mongoDBConnection.host + ":" + mongoDBConnection.port);
 
-                                            newMongoCacheConnection.deleteAll(function(err, result){
-                                                if(isNull(err))
-                                                {
-                                                    Cache.caches[cacheId] = newMongoCacheConnection;
-                                                    Cache.cachesByGraphUri[graphUri] = newMongoCacheConnection;
+                                            if(deleteAllCachedRecords)
+                                            {
+                                                newMongoCacheConnection.deleteAll(function(err, result){
+                                                    if(isNull(err))
+                                                    {
+                                                        Cache.caches[cacheId] = newMongoCacheConnection;
+                                                        Cache.cachesByGraphUri[graphUri] = newMongoCacheConnection;
 
-                                                    return callback(null, newMongoCacheConnection);
-                                                }
-                                                else
-                                                {
-                                                    throw new Error("[ERROR] Unable to delete all cache records on MongoDB instance \""+ instance.id +"\" during bootup:\n" + JSON.stringify(result));
-                                                }
-                                            });
+                                                        return callback(null, newMongoCacheConnection);
+                                                    }
+                                                    else
+                                                    {
+                                                        throw new Error("[ERROR] Unable to delete all cache records on MongoDB instance \""+ instance.id +"\" during bootup:\n" + JSON.stringify(result));
+                                                    }
+                                                });
+                                            }
+                                            else
+                                            {
+                                                Cache.caches[cacheId] = newMongoCacheConnection;
+                                                Cache.cachesByGraphUri[graphUri] = newMongoCacheConnection;
+
+                                                return callback(null, newMongoCacheConnection);
+                                            }
                                         }
                                     });
                                 }
