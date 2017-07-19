@@ -3,7 +3,7 @@ const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
 exports.loginUser = function (username, password, cb) {
-    const app = global.tests.app;
+    const app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
     agent
         .post('/login')
@@ -14,7 +14,7 @@ exports.loginUser = function (username, password, cb) {
 };
 
 exports.logoutUser = function (cb) {
-    const app = global.tests.app;
+    const app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
     agent
         .get('/logout')
@@ -102,8 +102,8 @@ exports.getCurrentLoggedUser= function (jsonOnly, agent, cb)
 };
 
 exports.addUserAscontributorToProject = function (jsonOnly, agent, username, projectHandle, cb) {
-    const contributors = {contributors: [username]};
-    const path = "/project/" + projectHandle + "?administer";
+    var contributors = {contributors:["http://" + Config.host + "/user/" + username]};
+    var path = "/project/" + projectHandle + "?administer";
     if(jsonOnly)
     {
         agent
@@ -127,9 +127,9 @@ exports.addUserAscontributorToProject = function (jsonOnly, agent, username, pro
 
 
 exports.newPassword = function (query, cb) {
-    const app = global.tests.app;
+    var app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
-    let path = '/set_new_password';
+    var path = '/set_new_password';
     if(query){
         path += query;
     }
@@ -143,7 +143,7 @@ exports.newPassword = function (query, cb) {
 };
 
 exports.sendingPassword = function (email, token, cb) {
-    const app = global.tests.app;
+    var app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
 
     agent
@@ -155,7 +155,7 @@ exports.sendingPassword = function (email, token, cb) {
 };
 
 exports.getResetPasswordView = function (cb) {
-    const app = global.tests.app;
+    var app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
     agent
         .get('/reset_password')
@@ -167,7 +167,7 @@ exports.getResetPasswordView = function (cb) {
 
 
 exports.sendingNewPassword = function (email, token, pass, passConfirm, cb) {
-    const app = global.tests.app;
+    var app = GLOBAL.tests.app;
     agent = chai.request.agent(app);
 
     agent
@@ -176,6 +176,105 @@ exports.sendingNewPassword = function (email, token, pass, passConfirm, cb) {
         .end(function (err, res) {
             cb(err, res);
         });
+};
+
+exports.editUser = function (jsonOnly, agent, dataToEdit, cb) {
+    let path = "/user/edit";
+    if(jsonOnly){
+        agent
+            .post(path)
+            .set('Accept','application/json')
+            .send(dataToEdit)
+            .end(function(err,res){
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .post(path)
+            .send(dataToEdit)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+exports.uploadAvatar = function (jsonOnly, agent, avatar, cb) {
+    let path = "/user/avatar";
+    if(jsonOnly){
+        agent
+            .post(path)
+            .set('Accept','application/json')
+            .send(avatar)
+            .end(function(err,res){
+                cb(err, res);
+            });
+    }
+    else{
+        agent
+            .post(path)
+            .send(avatar)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+
+function binaryParser(res, callback) {
+    res.setEncoding('binary');
+    res.data = '';
+    res.on('data', function (chunk) {
+        res.data += chunk;
+    });
+    res.on('end', function () {
+        callback(null, new Buffer(res.data, 'binary'));
+    });
+}
+
+/*// example mocha test
+ it('my test', function(done) {
+ request(app)
+ .get('/path/to/image.png')
+ .expect(200)
+ .expect('Content-Type', 'image.png')
+ .buffer()
+ .parse(binaryParser)
+ .end(function(err, res) {
+ if (err) return done(err);
+
+ // binary response data is in res.body as a buffer
+ assert.ok(Buffer.isBuffer(res.body));
+ console.log("res=", res.body);
+
+ done();
+ });
+ });*/
+
+
+exports.getAvatar = function (jsonOnly, username, agent, cb) {
+    let path = "/user/" + username + "/avatar";
+    if(jsonOnly)
+    {
+        agent
+            .get(path)
+            //.set('Accept', 'image/webp,image/apng,image/*,*/*;q=0.8')
+            //.set('Accept', 'application/json')
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(path)
+            //.set('Accept', 'image/webp,image/apng,image/*,*/*;q=0.8')
+            .buffer()
+            .parse(binaryParser)
+            .end(function (err, res) {
+                cb(err, res);
+            });
+    }
 };
 
 module.exports = exports;

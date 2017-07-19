@@ -13,6 +13,40 @@ global.Config = Config;
 
 global.tests = {};
 
+/*
+ require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
+ */
+
+require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
+
+
+//USERS
+require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/users/route.users.Test.js"));
+
+//USER
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/route.user.demouser1.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/route.user.demouser2.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/route.user.demouser3.Test.js"));
+
+//EDIT USERS
+require(Pathfinder.absPathInTestsFolder("/routes/user/edit/routes.user.edit.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));
+
+
+require(Pathfinder.absPathInTestsFolder("/routes/projects/route.projects.Test.js"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/projects/my/route.projects.my.Test.js"));
+/*require(Pathfinder.absPathInTestsFolder("/routes/projects/new/route.projects.new.Test.js"));*/
+
+/*require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.dcterms.Test.js"));
+ require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.foaf.Test.js"));*/
+require(Pathfinder.absPathInTestsFolder("/routes/descriptors/from_ontology/route.descriptors.from_ontology.Test.js"));
+
 /*require(Pathfinder.absPathInTestsFolder("/routes/projects/import/route.projects.import.Test.js"));*/
 
 //PUBLIC PROJECT
@@ -282,6 +316,13 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/te
 //METADATA ONLY PROJECT FOLDER LEVEL ?parent_metadata
 require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder1/__parent_metadata/routes.project.metadataonlyProject.data.testFolder1.__parent_metadata.Test"));
 require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/data/testFolder2/__parent_metadata/routes.project.metadataonlyProject.data.testFolder2.__parent_metadata.Test"));
+
+require(Pathfinder.absPathInTestsFolder("/routes/user/edit/routes.user.edit.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/avatar/routes.user.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser1/avatar/routes.user.demouser1.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser2/avatar/routes.user.demouser2.avatar.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/user/demouser3/avatar/routes.user.demouser3.avatar.Test.js"));
 
 //PUBLIC PROJECT FOLDER LEVEL /project/:handle/data/:folderHandle(default case)
 /*require(Pathfinder.absPathInTestsFolder("/routes/project/public_project/data/testFolder1/routes.project.publicProject.data.testFolder1.Test"));
