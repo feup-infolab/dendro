@@ -35,10 +35,12 @@ exports.clearAllData = function (cb) {
             });
         },
         function (cb) {
-            exports.quitAllCacheConnections(function (err, results) {
+            /*exports.quitAllCacheConnections(function (err, results) {
                 should.equal(err, null);
                 cb(err, results);
-            });
+            });*/
+
+            cb(null, null);
         },
         function (cb) {
             exports.quitGridFSConnections(function (err, results) {
@@ -110,15 +112,11 @@ exports.clearAppState = function (cb) {
         else
         {
             global.tests.server.close();
-            exports.endMysqlConnectionPool(function (err, results) {
-                should.equal(err, null);
-
-                // add a timeout to help the tests not to crash
-                // sometimes because of overwhelming load.
-                setTimeout(function(){
-                    cb(err, results);
-                }, 300);
-            });
+            // add a timeout to help the tests not to crash
+            // sometimes because of overwhelming load.
+            setTimeout(function(){
+                cb(err, results);
+            }, 300);
         }
     });
 };

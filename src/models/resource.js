@@ -666,9 +666,12 @@ Resource.prototype.validateDescriptorValues = function(callback)
             if(err)
             {
                 console.error("Error detected while validating descriptors: " + JSON.stringify(errors));
+                return callback(err, errors);
             }
-
-            return callback(err, errors);
+            else
+            {
+                return callback(err, errors);
+            }
         }
     );
 };
@@ -1787,8 +1790,12 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
             ]
         };
 
-        queryObject[descriptor.prefix] = {};
-        queryObject[descriptor.prefix][descriptor.shortName] = descriptor.value;
+        let valueRestriction = {};
+
+        valueRestriction[descriptor.prefix] = {};
+        valueRestriction[descriptor.prefix][descriptor.shortName] = descriptor.value;
+
+        queryObject["$and"].push(valueRestriction);
 
         Cache.getByGraphUri(customGraphUri).getByQuery(
             queryObject,

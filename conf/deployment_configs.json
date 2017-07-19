@@ -135,6 +135,7 @@
       "active": true,
       "database": {
         "log_all_queries": true,
+        "log_all_cache_queries" : true,
         "log_query_timeouts": false
       },
       "session": {
@@ -493,7 +494,8 @@
     "debug": {
       "active": true,
       "database": {
-        "log_all_queries": false
+        "log_all_queries": false,
+        "log_all_cache_queries": false
       },
       "session": {
         "auto_login": false,
@@ -836,7 +838,8 @@
     "debug": {
       "active": true,
       "database": {
-        "log_all_queries": false
+        "log_all_queries": false,
+        "log_all_cache_queries" : false
       },
       "session": {
         "auto_login": false,

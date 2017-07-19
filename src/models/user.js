@@ -203,7 +203,7 @@ User.createAndInsertFromObject = function(object, callback) {
                     }
                     else
                     {
-                        return callback(null, false);
+                        return callback(err, "The constructor should have returned an instance of User and returned something else: " + typeof newUser);
                     }
                 }
                 else

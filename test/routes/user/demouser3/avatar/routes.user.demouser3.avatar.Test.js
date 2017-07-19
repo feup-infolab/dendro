@@ -4,12 +4,14 @@ const should = chai.should();
 var _ = require("underscore");
 chai.use(chaiHttp);
 
-const Config = GLOBAL.Config;
+let path = require('path');
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
 
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
-const appUtils = require(Config.absPathInTestsFolder("utils/app/appUtils.js"));
-var createAvatarsForUsersUnit = appUtils.requireUncached(Config.absPathInTestsFolder("units/users/createAvatarsForUsers.Unit.js"));
+const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+var createAvatarsForUsersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/users/createAvatarsForUsers.Unit.js"));
 const md5 = require("md5");
 
 describe("[GET] /user/demouser3/avatar", function (done) {
@@ -22,12 +24,12 @@ describe("[GET] /user/demouser3/avatar", function (done) {
         });
     });
 
-    const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1.js"));
-    const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2.js"));
-    const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3.js"));
+    const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
+    const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
+    const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
     it("[HTML] should give an unauthorized error if the current user is not authenticated", function (done) {
-        var app = GLOBAL.tests.app;
+        var app = global.tests.app;
         var agent = chai.request.agent(app);
 
         userUtils.getAvatar(false, demouser3.username, agent, function (err, res) {

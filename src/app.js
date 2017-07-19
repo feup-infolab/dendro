@@ -19,6 +19,28 @@ else
 
 const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
 
+const log_boot_message = function(type, message)
+{
+    const colors = require('colors');
+    let intro = "[MISC]".cyan;
+    if(Config.startup.log_bootup_actions)
+    {
+        if(type === "info")
+        {
+            intro = "[INFO]".blue;
+        }
+        else if(type === "success")
+        {
+            intro = "[OK]".green;
+        }
+
+        console.log(intro + " " + message);
+    }
+};
+
+log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine");
+log_boot_message("info", "Starting Dendro support services...");
+
 /**
  * Module dependencies.
  */
@@ -41,7 +63,6 @@ let express = require('express'),
     YAML = require('yamljs'),
     csrf = require('csurf'),
     csrfProtection = csrf({ cookie: true }),
-    colors = require('colors'),
     swaggerDocument = YAML.load(Pathfinder.absPathInApp("swagger.yaml"));
 
 let bootupPromise = Q.defer();
@@ -65,24 +86,6 @@ let util = require('util');
 let mkdirp = require('mkdirp');
 let pid;
 let registeredUncaughtExceptionHandler;
-
-const log_boot_message = function(type, message)
-{
-    let intro = "[MISC]".cyan;
-    if(Config.startup.log_bootup_actions)
-    {
-        if(type === "info")
-        {
-            intro = "[INFO]".blue;
-        }
-        else if(type === "success")
-        {
-            intro = "[OK]".green;
-        }
-
-        console.log(intro + " " + message);
-    }
-};
 
 const MongoStore = require('connect-mongo')(expressSession);
 
@@ -418,9 +421,6 @@ const appendLocalsToUseInViews = function (req, res, next) {
         next(null, req, res);
     }
 };
-
-log_boot_message("info", "Welcome! Booting up a Dendro Node on this machine");
-log_boot_message("info", "Starting Dendro support services...");
 
 const init = function(callback)
 {
@@ -1019,7 +1019,9 @@ const loadData = function(callback)
             if(Config.startup.clear_session_store)
             {
                 log_boot_message("info","Clearing session store!");
-                sessionMongoStore.clear(callback);
+                sessionMongoStore.clear(function(err, result){
+                    callback(err, result);
+                });
             }
             else
             {

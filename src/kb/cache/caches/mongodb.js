@@ -104,6 +104,12 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
         {
             if(!isNull(query))
             {
+                if(Config.debug.active && Config.debug.database.log_all_cache_queries)
+                {
+                    console.log("Cache Query:\n");
+                    console.log(JSON.stringify(query, null, 5));
+                }
+
                 const cursor = self.client.collection(self.collection).find(query);
 
                 cursor.toArray(function(err, cachedResults)
@@ -256,30 +262,25 @@ MongoDBCache.prototype.deleteAll = function(callback) {
 
     if(Config.cache.active)
     {
-
         if(!isNull(self.client))
         {
-            self.client.collection(self.collection).remove(
-                { },
-                function (err)
+            self.client.collection(self.collection).drop(function (err) {
+                if (isNull(err) || err.message === "ns not found")
                 {
-                    if (isNull(err))
+                    if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                     {
-                        if (Config.debug.active && Config.debug.cache.log_cache_deletes)
-                        {
-                            console.log("[DEBUG] Deleted ALL cache records");
-                        }
+                        console.log("[DEBUG] Deleted ALL cache records");
+                    }
 
-                        return callback(null);
-                    }
-                    else
-                    {
-                        const msg = "Unable to delete collection " + self.collection + " : " + JSON.stringify(err);
-                        console.log(msg);
-                        return callback(err, msg);
-                    }
+                    return callback(null);
                 }
-            );
+                else
+                {
+                    const msg = "Unable to delete collection " + self.collection + " : " + JSON.stringify(err);
+                    console.log(msg);
+                    return callback(err, msg);
+                }
+            });
         }
         else
         {

@@ -301,9 +301,9 @@ const loadRoutes = function(app, passport, recommendation, callback)
     app.get('/users', users.all);
     app.get('/username_exists', users.username_exists);
     app.get('/users/loggedUser', users.getLoggedUser);
-    app.get('/user/:username/avatar', async.apply(Permissions.require, [Permissions.role.system.user]), users.get_avatar);
-    app.post('/user/avatar', async.apply(Permissions.require, [Permissions.role.system.user]), users.upload_avatar);
-    app.post('/user/edit', async.apply(Permissions.require, [Permissions.role.system.user]), users.edit);
+    app.get('/user/:username/avatar', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.get_avatar);
+    app.post('/user/avatar', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.upload_avatar);
+    app.post('/user/edit', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.edit);
 
     app.get([
             getNonHumanReadableRouteRegex("user"),

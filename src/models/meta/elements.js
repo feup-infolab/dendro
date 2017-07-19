@@ -685,7 +685,7 @@ Elements.ddr = {
     hasAvatar :
     {
         type : DbConnection.string,
-        control : Config.controls.input_box,
+        control : Controls.input_box,
         api_readable : true
     },
     contentType :

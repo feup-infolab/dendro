@@ -65,7 +65,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
                                                     }
                                                     else
                                                     {
-                                                        throw new Error("[ERROR] Unable to delete all cache records on MongoDB instance \""+ instance.id +"\" during bootup:\n" + JSON.stringify(result));
+                                                        throw new Error("[ERROR] Unable to delete all cache records on MongoDB instance \""+ newMongoCacheConnection.id +"\" during bootup:\n" + JSON.stringify(result));
                                                     }
                                                 });
                                             }

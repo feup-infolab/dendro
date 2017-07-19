@@ -1,18 +1,19 @@
 process.env.NODE_ENV = 'test';
 
-const Config = GLOBAL.Config;
-
 const chai = require('chai');
 chai.use(require('chai-http'));
 const should = chai.should();
 const async = require('async');
 const colors = require('colors');
+let path = require('path');
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
 
-const userUtils = require(Config.absPathInTestsFolder("utils/user/userUtils.js"));
+const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
-const demouser1 = require(Config.absPathInTestsFolder("mockdata/users/demouser1"));
-const demouser2 = require(Config.absPathInTestsFolder("mockdata/users/demouser2"));
-const demouser3 = require(Config.absPathInTestsFolder("mockdata/users/demouser3"));
+const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1"));
+const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2"));
+const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3"));
 
 function requireUncached(module) {
     delete require.cache[require.resolve(module)];
@@ -34,7 +35,7 @@ const end = function () {
 module.exports.setup = function (finish) {
     start();
     const usersData = [demouser1, demouser2, demouser3];
-    let createUsersUnit = requireUncached(Config.absPathInTestsFolder("units/users/createUsers.Unit.js"));
+    let createUsersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
     createUsersUnit.setup(function (err, results) {
         if (err) {

@@ -12,10 +12,9 @@ const db = Config.getDBByID();
 const async = require('async');
 const _ = require('underscore');
 const fs = require("fs");
-const path = require("path");
 const tmp = require("tmp");
 
-const DendroMongoClient = require(Config.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
+const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
 
 /*
  * GET users listing.
