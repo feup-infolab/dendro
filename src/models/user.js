@@ -61,7 +61,10 @@ function User (object)
 
 User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 {
-    User.findByPropertyValue(orcid, "ddr:orcid", function(err, user){
+    User.findByPropertyValue(new Descriptor({
+        value : orcid,
+        prefixedForm : "ddr:orcid"
+    }), function(err, user){
         if(isNull(err) && !isNull(user) && user instanceof User)
         {
             if(removePrivateDescriptors)
@@ -83,7 +86,11 @@ User.findByORCID = function(orcid, callback, removePrivateDescriptors)
 
 User.findByUsername = function(username, callback, removePrivateDescriptors)
 {
-    User.findByPropertyValue(username, "ddr:username", function(err, user){
+    User.findByPropertyValue(new Descriptor(
+        {
+            value : username,
+            prefixedForm : "ddr:username"
+        }), function(err, user){
         if(isNull(err) && !isNull(user) && user instanceof User)
         {
             if(removePrivateDescriptors)
@@ -105,7 +112,11 @@ User.findByUsername = function(username, callback, removePrivateDescriptors)
 
 User.findByEmail = function(email, callback)
 {
-    User.findByPropertyValue(email, "foaf:mbox", callback);
+    User.findByPropertyValue(new Descriptor(
+        {
+            value : email,
+            prefixedForm : "foaf:mbox"
+        }), callback);
 };
 
 User.autocomplete_search = function(value, maxResults, callback) {
@@ -173,84 +184,7 @@ User.autocomplete_search = function(value, maxResults, callback) {
         });
 };
 
-User.findByPropertyValue = function(value, propertyInPrefixedForm, callback) {
-
-    if(Config.debug.users.log_fetch_by_username)
-    {
-        console.log("finding by "+propertyInPrefixedForm+ " : " + value);
-    }
-
-    const query =
-        "SELECT * \n" +
-        "FROM [0] \n" +
-        "WHERE \n" +
-        "{ \n" +
-        " ?uri [1] [2] . \n" +
-        "} \n";
-
-
-    db.connection.execute(query,
-        [
-            {
-                type : DbConnection.resourceNoEscape,
-                value : db.graphUri
-            },
-            {
-                type : DbConnection.prefixedResource,
-                value : propertyInPrefixedForm
-            },
-            {
-                type : DbConnection.string,
-                value : value
-            }
-        ],
-
-        function(err, user) {
-            if(isNull(err))
-            {
-                if(user.length > 1)
-                {
-                    console.log("There are more than one user with property "+propertyInPrefixedForm+ " equal to " + value + "!!");
-                }
-
-                else if(user.length === 1)
-                {
-                    const uri = user[0].uri;
-                    User.findByUri(uri, function(err, fetchedUser)
-                    {
-                        if(isNull(err))
-                        {
-                            if(!isNull(fetchedUser))
-                            {
-                                let userToReturn = new User(fetchedUser);
-                                return callback(err, userToReturn);
-                            }
-                            else 
-                            {
-                                callback(err, null, "Unable to fetch user with uri " + uri);
-                            }
-
-                        }
-                        else
-                        {
-                            return callback(1, "Unable to fetch user with uri :" + uri + ". Error reported : " + fetchedUser);
-                        }
-                    });
-                }
-                else
-                {
-                    return callback(2,null);
-                }
-            }
-            else
-            {
-                return callback(err, user);
-            }
-        });
-};
-
 User.createAndInsertFromObject = function(object, callback) {
-
     const self = new User(object);
 
     //encrypt password

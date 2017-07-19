@@ -191,7 +191,7 @@
     },
     "startup": {
       "load_databases": true,
-      "reload_administrators_on_startup": false,
+      "reload_administrators_on_startup": true,
       "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
@@ -199,7 +199,7 @@
       "reload_descriptor_validation_data" : false,
       "clear_session_store": true,
       "log_bootup_actions" : true,
-      "destroy_all_graphs_on_startup": false
+      "destroy_all_graphs_on_startup": true
     },
     "baselines": {
     },

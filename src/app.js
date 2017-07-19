@@ -912,7 +912,7 @@ const loadData = function(callback)
                                 }
                                 else
                                 {
-                                    throw new Error("Unable to create demo users" + JSON.stringify(result));
+                                    throw new Error("Unable to create demo users" + JSON.stringify(results));
                                 }
                             });
                         }

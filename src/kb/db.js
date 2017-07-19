@@ -128,19 +128,19 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                                         transformedQuery = transformedQuery.replace(pattern, "<" + valueAsFullUri + ">");
                                     }
                                     else {
-                                        const error = "Value of argument " + currentArgument.value + " is null. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                                        const error = "Value of argument " + currentArgument.value + " is null. Query supplied was :\n " + query + " \n " + JSON.stringify(arguments);
                                         console.error(error);
                                         return callback(1, error);
                                     }
                                 }
                                 else {
-                                    const error = "Value of argument " + currentArgument.value + " is not valid for an argument of type Prefixed Resource... Did you mean to parametrize it as a string type in the elements.js file?. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                                    const error = "Value of argument " + currentArgument.value + " is not valid for an argument of type Prefixed Resource... Did you mean to parametrize it as a string type in the elements.js file?. Query supplied was : \n" + query + " \n " + JSON.stringify(arguments);
                                     console.error(error);
                                     return callback(1, error);
                                 }
                             }
                             else {
-                                const error = "Cannot Execute Query: Value of argument at index " + currentArgumentIndex + " is undefined. Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                                const error = "Cannot Execute Query: Value of argument at index " + currentArgumentIndex + " is undefined. Query supplied was :\n " + query + " \n " + JSON.stringify(arguments);
                                 console.error(error);
                                 return callback(1, error);
                             }
@@ -161,7 +161,7 @@ const queryObjectToString = function (query, argumentsArray, callback) {
                         transformedQuery = transformedQuery.replace(pattern, "\"" + currentArgument.value + "\"");
                         break;
                     default: {
-                        const error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was : " + query + " \n " + JSON.stringify(arguments);
+                        const error = "Unknown argument type for argument in position " + i + " with value " + currentArgument.value + ". Query supplied was \n: " + query + " \n " + JSON.stringify(arguments);
                         console.error(error);
                         return callback(1, error);
                     }

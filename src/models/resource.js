@@ -53,10 +53,14 @@ Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumen
     {
         if(Elements.hasOwnProperty(prefix))
         {
+            if(isNull(self[prefix]))
+            {
+                self[prefix] = {};
+            }
+
+
             if(object.hasOwnProperty(prefix))
             {
-                self[prefix] = object[prefix];
-
                 for(let shortName in self[prefix])
                 {
                     if(self[prefix].hasOwnProperty(shortName))
@@ -67,10 +71,6 @@ Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumen
                         }
                     }
                 }
-            }
-            else
-            {
-                self[prefix] = {};
             }
         }
     }
@@ -1742,6 +1742,263 @@ Resource.findByUri = function(uri, callback, allowedGraphsArray, customGraphUri,
                         {
                             const msg = "Unable to get resource with uri " + uri + " from triple store.";
                             console.error(msg);
+                            console.error(err);
+                        }
+                    }, customGraphUri);
+                }
+            }
+        ], function(err, result){
+            return callback(err, result);
+        });
+    }
+    else
+    {
+        getFromTripleStore(uri, function(err, result){
+            return callback(err, result);
+        }, customGraphUri);
+    }
+};
+
+Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray, customGraphUri, skipCache, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)
+{
+    const self = this;
+
+    const getFromCache = function (callback) {
+
+        let typesArray;
+        if(self.prefixedRDFType instanceof Array)
+        {
+            typesArray = self.prefixedRDFType;
+        }
+        else
+        {
+            typesArray = [self.prefixedRDFType];
+        }
+
+        let queryObject = {
+            "$and": [
+                {
+                    "rdf": {
+                        "type": {
+                            "$all": typesArray
+                        }
+                    }
+                }
+            ]
+        };
+
+        queryObject[descriptor.prefix] = {};
+        queryObject[descriptor.prefix][descriptor.shortName] = descriptor.value;
+
+        Cache.getByGraphUri(customGraphUri).getByQuery(
+            queryObject,
+            function (err, result) {
+                if (isNull(err)) {
+                    if (!isNull(result)) {
+                        const resource = Object.create(self.prototype);
+
+                        resource.uri = result.uri;
+
+                        //initialize all ontology namespaces in the new object as blank objects
+                        // if they are not already present
+                        resource.copyOrInitDescriptors(result);
+
+                        if (!isNull(descriptorTypesToRemove) && descriptorTypesToRemove instanceof Array) {
+                            resource.clearDescriptors(descriptorTypesToRemove, descriptorTypesToExemptFromRemoval);
+                        }
+
+                        return callback(null, resource);
+                    }
+                    else {
+                        return callback(null, null);
+                    }
+                }
+                else {
+                    return callback(err, result);
+                }
+            });
+    };
+
+    const saveToCache = function (uri, resource, callback) {
+        Cache.getByGraphUri(customGraphUri).put(uri, resource, function (err) {
+            if (isNull(err)) {
+                if (typeof callback === "function") {
+                    return callback(null, resource);
+                }
+            }
+            else {
+                const msg = "Unable to set value of " + resource.uri + " as " + JSON.stringify(resource) + " in cache : " + JSON.stringify(err);
+                console.log(msg);
+            }
+        });
+    };
+
+    const queryTripleStore = function(callback)
+    {
+        const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+        let typesRestrictions = "";
+        let types;
+
+        if(self.prefixedRDFType instanceof Array)
+        {
+            types = self.prefixedRDFType;
+        }
+        else
+        {
+            types = [self.prefixedRDFType];
+        }
+
+        for (let i = 0; i < types.length; i++)
+        {
+            typesRestrictions = typesRestrictions + "?uri rdf:type " + types[i];
+
+            if(i < types.length - 1)
+            {
+                typesRestrictions =  typesRestrictions + ".\n";
+            }
+        }
+
+        db.connection.execute(
+            "SELECT ?uri \n" +
+            "FROM [0]\n"+
+            "WHERE \n" +
+            "{ \n" +
+            "   {\n" +
+            "       ?uri [1] [2]. \n" +
+                    typesRestrictions +
+            "   }\n" +
+            "} \n",
+
+            [
+                {
+                    type : DbConnection.resourceNoEscape,
+                    value : graphUri
+                },
+                {
+                    type : DbConnection.prefixedResource,
+                    value : descriptor.getPrefixedForm()
+                },
+                {
+                    type : descriptor.type,
+                    value : descriptor.value
+                }
+            ],
+            function(err, result) {
+                if(isNull(err))
+                {
+                    return callback(null, result);
+                }
+                else
+                {
+                    const msg = "Error checking for the existence of resource with property value : " + descriptor.value;
+                    console.error(msg);
+                    return callback(err, msg);
+                }
+            });
+    };
+
+    const getFromTripleStore = function (callback, customGraphUri) {
+        const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
+
+        let ontologiesArray;
+        if (!isNull(allowedGraphsArray) && allowedGraphsArray instanceof Array) {
+            ontologiesArray = allowedGraphsArray;
+        }
+        else {
+            ontologiesArray = Ontology.getAllOntologiesUris();
+        }
+
+        queryTripleStore(function (err, result) {
+            if (isNull(err)) {
+                if (!isNull(result) && result instanceof Array && result.length > 0) {
+                    
+                    if(result.length === 1)
+                    {
+                        result = result[0];
+                        const resource = Object.create(self.prototype);
+                        //initialize all ontology namespaces in the new object as blank objects
+                        // if they are not already present
+
+                        resource.uri = result.uri;
+
+                        /**
+                         * TODO Handle the edge case where there is a resource with the same uri in different graphs in Dendro
+                         */
+                        resource.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject) {
+                            if (isNull(err)) {
+                                resource.baseConstructor(loadedObject);
+                                return callback(null, resource);
+                            }
+                            else {
+                                const msg = "Error " + resource + " while trying to retrieve resource with uri " + uri + " from triple store.";
+                                console.error(msg);
+                                return callback(1, msg);
+                            }
+                        }, customGraphUri);
+                    }
+                    else
+                    {
+                        const msg = "Error. There are more than one resource with property " +descriptor.getPrefixedForm()+ " of value "+ descriptor.value + "  in Dendro.";
+                        console.error(msg);
+                        return callback(1, msg);
+                    }
+                }
+                else {
+                    if (Config.debug.resources.log_missing_resources) {
+                        const msg = "Resource with property " +descriptor.getPrefixedForm()+ " of value "+ descriptor.value + "  does not exist in Dendro.";
+                        console.log(msg);
+                    }
+
+                    return callback(null, null);
+                }
+            }
+            else {
+                const msg = "Error " + result + " while trying to check existence of resource with value " + descriptor.value + " of property " + descriptor.prefixedForm + " from triple store.";
+                console.error(msg);
+                return callback(1, msg);
+            }
+        }, customGraphUri);
+    };
+
+
+    if(Config.cache.active)
+    {
+        async.waterfall([
+            function(cb)
+            {
+                getFromCache(function(err, object)
+                {
+                    cb(err, object);
+                });
+            },
+            function(object, cb)
+            {
+                if(!isNull(object))
+                {
+                    const resource = Object.create(self.prototype);
+                    resource.uri = uri;
+
+                    resource.copyOrInitDescriptors(object);
+
+                    cb(null, resource);
+                }
+                else
+                {
+                    getFromTripleStore(function(err, object)
+                    {
+                        if(isNull(err))
+                        {
+                            if(!isNull(object))
+                            {
+                                saveToCache(object.uri, object);
+                            }
+
+                            cb(err, object);
+                        }
+                        else
+                        {
+                            console.error(object);
                             console.error(err);
                         }
                     }, customGraphUri);
