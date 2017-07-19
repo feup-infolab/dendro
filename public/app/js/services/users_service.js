@@ -62,4 +62,35 @@ angular.module('dendroApp.services')
                             });
                     }
                 };
+
+                this.updateAvatar = function(newAvatarPicture)
+                {
+                    var requestUri = "/user/avatar";
+
+                    var params = {
+                        newAvatar : newAvatarPicture
+                    };
+
+                    return $http({
+                        method: "POST",
+                        url: requestUri,
+                        data: params,
+                        contentType: "application/json",
+                        headers: {'Accept': "application/json"}
+                        //contentType: "data:image/png;base64",
+                        //headers: {'Accept': "data:image/png;base64"}
+                    });
+                };
+
+                this.receiveAvatar = function(username)
+                {
+                    var requestUri = "/user/" + username +"/avatar";
+
+                    return $http({
+                        method: "GET",
+                        url: requestUri,
+                        contentType: "application/json",
+                        headers: {'Accept': "application/json"}
+                    });
+                };
             }]);

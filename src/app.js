@@ -1170,7 +1170,7 @@ async.series([
         }));
 
         const loadRoutes = require(Pathfinder.absPathInSrcFolder("bootup/routes/load_routes.js")).loadRoutes;
-        
+
         loadRoutes(app, passport, recommendation, function(err, result){
             PluginManager.registerPlugins(app, function(err, app){
                 //The 404 Route (ALWAYS Keep this as the last route)

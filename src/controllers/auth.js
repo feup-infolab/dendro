@@ -26,6 +26,7 @@ module.exports.login = function(req, res, next){
             req.passport.authenticate(
                 'local',
                 {
+                    //successRedirect: '/projects/my',
                     failureRedirect: '/login',
                     failureFlash: true
                 },
@@ -254,7 +255,7 @@ module.exports.register = function(req, res){
                             }
                             else
                             {
-                                if(typeof req.body.password === req.body.repeat_password)
+                                if(req.body.password === req.body.repeat_password)
                                 {
                                     const userData = {
                                         ddr : {
@@ -366,13 +367,14 @@ module.exports.register = function(req, res){
                 ], function(err, user){
                     if(isNull(err))
                     {
-                        res.render('auth/login', {
-                            success_messages : [user]
-                        });
+                        req.flash("success", user);
+                        res.redirect("/login");
                     }
                     else
                     {
-                        
+                        req.flash("error", "Error registering a new user");
+                        console.error("Error registering a new user: " + JSON.stringify(err));
+                        res.redirect("/register");
                     }
 
 
