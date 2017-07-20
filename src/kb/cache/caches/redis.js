@@ -186,7 +186,7 @@ RedisCache.prototype.delete = function(resourceUriOrArrayOfResourceUris, callbac
                     {
                         if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                         {
-                            console.log("[DEBUG] Deleted cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                            console.log("[DEBUG] Deleted redis cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
                         }
 
                         return callback(null, null);

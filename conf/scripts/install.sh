@@ -10,7 +10,7 @@ export NVM_DIR="$HOME/.nvm" &&
 #export NVM_DIR="$HOME/.nvm" &&
 #[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-nvm install v7.8.0
+nvm install v8.1.2
 npm install -g avn avn-nvm avn-n
 avn setup
 

@@ -84,23 +84,61 @@ User.findByORCID = function(orcid, callback, removePrivateDescriptors)
     });
 };
 
-User.findByUsername = function(username, callback, removePrivateDescriptors)
+User.findByUsername = function(username, callback, removeSensitiveDescriptors)
 {
     User.findByPropertyValue(new Descriptor(
         {
             value : username,
             prefixedForm : "ddr:username"
         }), function(err, user){
-        if(isNull(err) && !isNull(user) && user instanceof User)
+        if(isNull(err))
         {
-            if(removePrivateDescriptors)
+            if(!isNull(user) && user instanceof User)
             {
-                user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
-                return callback(err, user);
+                if(removeSensitiveDescriptors)
+                {
+                    user.clearDescriptors([Config.types.private, Config.types.locked], [Config.types.public, Config.types.api_readable]);
+                    return callback(err, user);
+                }
+                else
+                {
+                    return callback(err, user);
+                }
             }
             else
             {
-                return callback(err, user);
+                callback(err, null);
+
+                User.findByPropertyValue(new Descriptor(
+                    {
+                        value : username,
+                        prefixedForm : "ddr:username"
+                    }), function(err, user){
+                    if(isNull(err))
+                    {
+                        if(!isNull(user) && user instanceof User)
+                        {
+                            if(removeSensitiveDescriptors)
+                            {
+                                console.log(user);
+                            }
+                            else
+                            {
+                                console.log(user);
+                            }
+                        }
+                        else
+                        {
+                            console.log(user);
+                        }
+                    }
+                    else
+                    {
+                        console.log(user);
+                    }
+                });
+
+                return;
             }
         }
         else
@@ -185,7 +223,8 @@ User.autocomplete_search = function(value, maxResults, callback) {
 };
 
 User.createAndInsertFromObject = function(object, callback) {
-    const self = new User(object);
+    const self = Object.create(this.prototype);
+    self.constructor(object);
 
     //encrypt password
     const bcrypt = require('bcryptjs');
@@ -197,7 +236,7 @@ User.createAndInsertFromObject = function(object, callback) {
             self.save(function(err, newUser) {
                 if(isNull(err))
                 {
-                    if(newUser instanceof User)
+                    if(newUser instanceof self.constructor)
                     {
                         return callback(null, newUser);
                     }
@@ -1128,105 +1167,6 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
                 return callback(1, descriptors);
             }
         });
-};
-
-User.prototype.isAdmin = function(callback)
-{
-    const self = this;
-
-    if(typeof callback === "function")
-    {
-        self.checkIfHasPredicateValue("rdf:type", "ddr:Administrator", function(err, isAdmin)
-        {
-            return callback(err, isAdmin);
-        });
-    }
-    else
-    {
-        if(_.contains(self.rdf.type, "ddr:Administrator"))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-};
-
-User.prototype.makeGlobalAdmin = function(callback)
-{
-    const self = this;
-
-    self.isAdmin(function(err, isAdmin){
-        if(isNull(err))
-        {
-            if(!isAdmin)
-            {
-                const newAdminDescriptor = new Descriptor({
-                    prefixedForm: "rdf:type",
-                    type: DbConnection.prefixedResource,
-                    value: "ddr:Administrator"
-                });
-
-                self.insertDescriptors([newAdminDescriptor], function(err, result){
-                    if(isNull(err))
-                    {
-                        return callback(null, self);
-                    }
-                    else
-                    {
-                        const msg = "Error setting " + self.uri + " as global admin : " + result;
-                        console.error(msg);
-                        return callback(1, msg);
-                    }
-
-                });
-            }
-            else
-            {
-                const msg = "User " + self.uri + " is already an admin, nothing to be done.";
-                console.error(msg);
-                return callback(null, msg);
-            }
-        }
-        else
-        {
-            const msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
-            console.error(msg);
-            return callback(1, msg);
-        }
-    });
-};
-
-User.prototype.undoGlobalAdmin = function(callback)
-{
-    const self = this;
-
-    self.checkIfHasPredicateValue("rdf:type", "ddr:Administrator", function(err, isAdmin){
-        if(isNull(err))
-        {
-            if (isAdmin)
-            {
-                self.deleteDescriptorTriples("rdf:type", function(err, result){
-                    return callback(err, result);
-                }, "ddr:Administrator");
-            }
-            else
-            {
-                const msg = "User " + self.uri + " is not admin, no need to remove the triples.";
-                console.error(msg);
-                return callback(null, msg);
-            }
-        }
-        else
-        {
-            const msg = "Error seeing if "+ self.uri + " is global admin : " + isAdmin;
-            console.error(msg);
-            return callback(1, msg);
-        }
-    })
 };
 
 User.prototype.finishPasswordReset = function(newPassword, token, callback)

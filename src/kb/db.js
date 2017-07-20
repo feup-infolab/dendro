@@ -727,7 +727,7 @@ DbConnection.prototype.deleteTriples = function(triples, graphName, callback) {
          */
         if(Config.cache.active)
         {
-            let cache = Cache.caches.default;
+            let cache = Cache.getByGraphUri(graphName);
             cache.connection.delete(urisToDelete, function(err, result)
             {
                 if (!isNull(err))

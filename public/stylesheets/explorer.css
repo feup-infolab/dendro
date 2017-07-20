@@ -180,6 +180,9 @@ Animations (uncomment to have animations)
 .file_explorer_icon {
   text-shadow: 1px 1px 1px #ccc;
 }
+.social-dendro-btn {
+  font-size: 10px;
+}
 .parent_stacked_image {
   position: relative;
   top: 0;
@@ -194,35 +197,6 @@ Animations (uncomment to have animations)
   position: absolute;
   top: 0px;
   left: 0px;
-}
-.breadcrumb_icon {
-  width: 16px;
-  height: 16px;
-}
-.breadcrumb {
-  background: #f5f5f5;
-  border: 0px solid #f5f5f5;
-  border-radius: 4px;
-  display: block;
-}
-.breadcrumb li {
-  font-size: 14px;
-}
-.breadcrumb a {
-  color: #428bca;
-}
-.breadcrumb a:hover {
-  color: #2a6496;
-}
-.breadcrumb>.active {
-  color: #999;
-}
-.breadcrumb>li+li:before {
-  color: #ccc;
-  content: "\276D\00a0";
-}
-.social-dendro-btn {
-  font-size: 10px;
 }
 .cropArea {
   background: #e4e4e4;
@@ -249,4 +223,30 @@ Animations (uncomment to have animations)
 .show-author-avatar-partial {
   width: 50%;
   height: 50%;
+}
+.breadcrumb_icon {
+  width: 16px;
+  height: 16px;
+}
+.breadcrumb {
+  background: #f5f5f5;
+  border: 0px solid #f5f5f5;
+  border-radius: 4px;
+  display: block;
+}
+.breadcrumb li {
+  font-size: 14px;
+}
+.breadcrumb a {
+  color: #428bca;
+}
+.breadcrumb a:hover {
+  color: #2a6496;
+}
+.breadcrumb>.active {
+  color: #999;
+}
+.breadcrumb>li+li:before {
+  color: #ccc;
+  content: "\276D\00a0";
 }

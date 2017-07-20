@@ -8,7 +8,7 @@ exports.loginUser = function (username, password, cb) {
     agent
         .post('/login')
         .send({'username': username, 'password': password})
-        .end(function (err, res) {
+        .then(function (err, res) {
             cb(err, agent);
         });
 };

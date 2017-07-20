@@ -46,50 +46,7 @@ module.exports.setup = function(finish)
         else
         {
             const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-
-            const makeAdmin = function (newAdministrator, callback) {
-
-                const username = newAdministrator.username;
-                const password = newAdministrator.password;
-                const mbox = newAdministrator.mbox;
-                const firstname = newAdministrator.firstname;
-                const surname = newAdministrator.surname;
-
-                User.findByUsername(username, function (err, user) {
-
-                    if (isNull(err) && user !== null) {
-                        user.makeGlobalAdmin(function (err, result) {
-                            callback(err, result);
-                        });
-                    }
-                    else {
-                        User.createAndInsertFromObject({
-                                foaf: {
-                                    mbox: mbox,
-                                    firstName: firstname,
-                                    surname: surname
-                                },
-                                ddr: {
-                                    username: username,
-                                    password: password
-                                }
-                            },
-                            function (err, newUser) {
-                                if (isNull(err) && newUser !== null && newUser instanceof User) {
-                                    newUser.makeGlobalAdmin(function (err, newUser) {
-                                        callback(err, newUser);
-                                    });
-                                }
-                                else {
-                                    const msg = "Error creating new User" + JSON.stringify(newUser);
-                                    console.error(msg);
-                                    callback(err, msg);
-                                }
-                            });
-                    }
-                })
-            };
-
+            const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
 
             const createUser = function (user, callback) {
                 User.createAndInsertFromObject({
@@ -113,6 +70,44 @@ module.exports.setup = function(finish)
                         }
                     });
             };
+            const makeAdmin = function (newAdministrator, callback) {
+
+                const username = newAdministrator.username;
+                const password = newAdministrator.password;
+                const mbox = newAdministrator.mbox;
+                const firstname = newAdministrator.firstname;
+                const surname = newAdministrator.surname;
+
+                Administrator.findByUsername(username, function (err, administrator) {
+
+                    if (isNull(err) && administrator !== null) {
+                        callback(err, administrator);
+                    }
+                    else {
+                        Administrator.createAndInsertFromObject({
+                                foaf: {
+                                    mbox: mbox,
+                                    firstName: firstname,
+                                    surname: surname
+                                },
+                                ddr: {
+                                    username: username,
+                                    password: password
+                                }
+                            },
+                            function (err, newUser) {
+                                if (isNull(err) && newUser !== null && newUser instanceof Administrator) {
+                                    callback(err, null);
+                                }
+                                else {
+                                    const msg = "Error creating new Administrator" + JSON.stringify(newUser);
+                                    console.error(msg);
+                                    callback(err, msg);
+                                }
+                            });
+                    }
+                })
+            };
 
             async.mapSeries(Config.demo_mode.users, createUser, function(err, results) {
                 if(isNull(err))
@@ -120,7 +115,7 @@ module.exports.setup = function(finish)
                     async.series([
                             function(callback)
                             {
-                                User.removeAllAdmins(callback);
+                                Administrator.deleteAll(callback);
                             },
                             function(callback)
                             {

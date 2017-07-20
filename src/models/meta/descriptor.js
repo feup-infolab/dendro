@@ -1146,11 +1146,15 @@ Descriptor.validateDescriptorParametrization = function(callback)
                         }
                         catch(e)
                         {
+                            console.error(e.stack);
                             return callback(1, "Exception occurred when checking descriptor configuration " + JSON.stringify(e));
                         }
                     }
 
-                    return callback(null, null);
+                    if(error)
+                        console.error("[WARNING] There are unparametrized descriptors in ontology " + ontology);
+
+                    return callback(null);
                 }
                 else
                 {

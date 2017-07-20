@@ -104,38 +104,43 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
         {
             if(!isNull(query))
             {
-                if(Config.debug.active && Config.debug.database.log_all_cache_queries)
-                {
-                    console.log("Cache Query:\n");
-                    console.log(JSON.stringify(query, null, 5));
-                }
-
                 const cursor = self.client.collection(self.collection).find(query);
 
                 cursor.toArray(function(err, cachedResults)
                 {
+                    if(Config.debug.active && Config.debug.database.log_all_cache_queries)
+                    {
+                        console.log("Cache Query:\n");
+                        console.log(JSON.stringify(query, null, 2));
+                    }
+
                     if(isNull(err))
                     {
-                        if(Config.cache.active && Config.debug.cache.log_cache_hits)
+                        if(cachedResults.length === 0)
                         {
-                            if(!isNull(cachedResults))
+                            if(Config.cache.active && Config.debug.cache.log_cache_hits)
+                            {
+                                console.log("Cache MISS on " + JSON.stringify(query));
+                            }
+
+                            return callback(null, null);
+                        }
+                        else if(cachedResults.length === 1)
+                        {
+                            if(Config.cache.active && Config.debug.cache.log_cache_hits)
                             {
                                 console.log("Cache HIT on " + JSON.stringify(query)+"\n");
                                 console.log("Cached : \n " + JSON.stringify(cachedResults, null, 4));
                             }
-                            else
-                            {
-                                console.log("Cache MISS on " + JSON.stringify(query));
-                            }
-                        }
 
-                        if(cachedResults.length === 0)
-                        {
-                            return callback(null, null);
+                            return callback(null, cachedResults[0]);
                         }
                         else
                         {
-                            return callback(null, cachedResults);
+                            const msg = "There are more than one resource in cache when running query";
+                            console.error(msg);
+                            console.error(JSON.stringify(query, null, 4));
+                            return callback(1, "Unable to execute query " + JSON.stringify(query) +" from mongodb cache.");
                         }
                     }
                     else
@@ -228,7 +233,7 @@ MongoDBCache.prototype.delete = function(resourceUriOrArrayOfResourceUris, callb
                     {
                         if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                         {
-                            console.log("[DEBUG] Deleted cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                            console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
                         }
 
                         return callback(null, null);

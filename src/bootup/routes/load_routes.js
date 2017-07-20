@@ -102,6 +102,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
             },
             function(username, password, done) {
                 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+                const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
                 User.findByUsername(username, function (err, user) {
                     if(isNull(err))
                     {
@@ -110,14 +111,26 @@ const loadRoutes = function(app, passport, recommendation, callback)
                             const bcrypt = require('bcryptjs');
                             bcrypt.hash(password, user.ddr.salt, function(err, hashedPassword) {
                                 if (user.ddr.password === hashedPassword) {
-                                    user.isAdmin(function (err, isAdmin) {
+                                    Administrator.findByUri(user.uri, function (err, adminUser) {
                                         if (isNull(err)) {
-                                            return done(
-                                                err,
-                                                user,
-                                                {
-                                                    isAdmin : isAdmin
-                                                });
+                                            if(!isNull(adminUser))
+                                            {
+                                                return done(
+                                                    err,
+                                                    adminUser,
+                                                    {
+                                                        isAdmin : true
+                                                    });
+                                            }
+                                            else
+                                            {
+                                                return done(
+                                                    err,
+                                                    user,
+                                                    {
+                                                        isAdmin : false
+                                                    });
+                                            }
                                         }
                                         else {
                                             console.error(err.stack);

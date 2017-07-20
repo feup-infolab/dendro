@@ -1825,7 +1825,6 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                 }
             });
     };
-
     const saveToCache = function (uri, resource, callback) {
         Cache.getByGraphUri(customGraphUri).put(uri, resource, function (err) {
             if (isNull(err)) {
@@ -1839,73 +1838,8 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
             }
         });
     };
-
-    const queryTripleStore = function(callback)
-    {
-        const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
-
-        let typesRestrictions = "";
-        let types;
-
-        if(self.prefixedRDFType instanceof Array)
-        {
-            types = self.prefixedRDFType;
-        }
-        else
-        {
-            types = [self.prefixedRDFType];
-        }
-
-        for (let i = 0; i < types.length; i++)
-        {
-            typesRestrictions = typesRestrictions + "?uri rdf:type " + types[i];
-
-            if(i < types.length - 1)
-            {
-                typesRestrictions =  typesRestrictions + ".\n";
-            }
-        }
-
-        db.connection.execute(
-            "SELECT ?uri \n" +
-            "FROM [0]\n"+
-            "WHERE \n" +
-            "{ \n" +
-            "   {\n" +
-            "       ?uri [1] [2]. \n" +
-                    typesRestrictions +
-            "   }\n" +
-            "} \n",
-
-            [
-                {
-                    type : DbConnection.resourceNoEscape,
-                    value : graphUri
-                },
-                {
-                    type : DbConnection.prefixedResource,
-                    value : descriptor.getPrefixedForm()
-                },
-                {
-                    type : descriptor.type,
-                    value : descriptor.value
-                }
-            ],
-            function(err, result) {
-                if(isNull(err))
-                {
-                    return callback(null, result);
-                }
-                else
-                {
-                    const msg = "Error checking for the existence of resource with property value : " + descriptor.value;
-                    console.error(msg);
-                    return callback(err, msg);
-                }
-            });
-    };
-
     const getFromTripleStore = function (callback, customGraphUri) {
+
         const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")).Ontology;
 
         let ontologiesArray;
@@ -1916,40 +1850,105 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
             ontologiesArray = Ontology.getAllOntologiesUris();
         }
 
-        queryTripleStore(function (err, result) {
-            if (isNull(err)) {
-                if (!isNull(result) && result instanceof Array && result.length > 0) {
-                    
-                    if(result.length === 1)
+        const queryTripleStore = function(callback) {
+            const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+            let typesRestrictions = "";
+            let types;
+
+            if(self.prefixedRDFType instanceof Array)
+            {
+                types = self.prefixedRDFType;
+            }
+            else
+            {
+                types = [self.prefixedRDFType];
+            }
+
+            for (let i = 0; i < types.length; i++)
+            {
+                typesRestrictions = typesRestrictions + "?uri rdf:type " + types[i];
+
+                if(i < types.length - 1)
+                {
+                    typesRestrictions =  typesRestrictions + ".\n";
+                }
+            }
+
+            db.connection.execute(
+                "SELECT ?uri \n" +
+                "FROM [0]\n"+
+                "WHERE \n" +
+                "{ \n" +
+                "   {\n" +
+                "       ?uri [1] [2]. \n" +
+                typesRestrictions +
+                "   }\n" +
+                "} \n",
+
+                [
                     {
-                        result = result[0];
-                        const resource = Object.create(self.prototype);
-                        //initialize all ontology namespaces in the new object as blank objects
-                        // if they are not already present
-
-                        resource.uri = result.uri;
-
-                        /**
-                         * TODO Handle the edge case where there is a resource with the same uri in different graphs in Dendro
-                         */
-                        resource.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject) {
-                            if (isNull(err)) {
-                                resource.baseConstructor(loadedObject);
-                                return callback(null, resource);
-                            }
-                            else {
-                                const msg = "Error " + resource + " while trying to retrieve resource with uri " + uri + " from triple store.";
-                                console.error(msg);
-                                return callback(1, msg);
-                            }
-                        }, customGraphUri);
+                        type : DbConnection.resourceNoEscape,
+                        value : graphUri
+                    },
+                    {
+                        type : DbConnection.prefixedResource,
+                        value : descriptor.getPrefixedForm()
+                    },
+                    {
+                        type : descriptor.type,
+                        value : descriptor.value
+                    }
+                ],
+                function(err, result) {
+                    if(isNull(err))
+                    {
+                        if(!isNull(result) && result instanceof Array)
+                        {
+                            if(result.length === 1)
+                                return callback(null, result[0]);
+                            else if(result.length > 1)
+                                return callback(1, "There are more than one " + JSON.stringify(self.prefixedRDFType) + " with property " + descriptor.getPrefixedForm() + " with value " + descriptor.value + ". ");
+                            else if(result.length === 0)
+                                return callback(null, null);
+                        }
+                        else
+                        {
+                            return callback(null, null);
+                        }
                     }
                     else
                     {
-                        const msg = "Error. There are more than one resource with property " +descriptor.getPrefixedForm()+ " of value "+ descriptor.value + " in this Dendro.";
+                        const msg = "Error checking for the existence of resource with property value : " + descriptor.value;
                         console.error(msg);
-                        return callback("error", msg);
+                        return callback(err, msg);
                     }
+                });
+        };
+
+        queryTripleStore(function (err, result) {
+            if (isNull(err)) {
+                if (!isNull(result)) {
+                    const resource = Object.create(self.prototype);
+                    //initialize all ontology namespaces in the new object as blank objects
+                    // if they are not already present
+
+                    resource.uri = result.uri;
+
+                    /**
+                     * TODO Handle the edge case where there is a resource with the same uri in different graphs in Dendro
+                     */
+                    resource.loadPropertiesFromOntologies(ontologiesArray, function (err, loadedObject) {
+                        if (isNull(err)) {
+                            resource.baseConstructor(loadedObject);
+                            return callback(null, resource);
+                        }
+                        else {
+                            const msg = "Error " + resource + " while trying to retrieve resource with uri " + uri + " from triple store.";
+                            console.error(msg);
+                            return callback(1, msg);
+                        }
+                    }, customGraphUri);
                 }
                 else {
                     if (Config.debug.resources.log_missing_resources) {
@@ -1961,13 +1960,12 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                 }
             }
             else {
-                const msg = "Error " + result + " while trying to check existence of resource with value " + descriptor.value + " of property " + descriptor.prefixedForm + " from triple store.";
+                const msg = "Error " + result + " while trying to check existence of resource with value " + descriptor.value + " of property " + descriptor.getPrefixedForm() + " from triple store.";
                 console.error(msg);
                 return callback(1, msg);
             }
         }, customGraphUri);
     };
-
 
     if(Config.cache.active)
     {
@@ -1998,10 +1996,14 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                         {
                             if(!isNull(object))
                             {
-                                saveToCache(object.uri, object);
+                                saveToCache(object.uri, object, function(err) {
+                                    cb(err, object)
+                                });
                             }
-
-                            cb(err, object);
+                            else
+                            {
+                                cb(err, null);
+                            }
                         }
                         else
                         {
@@ -2879,6 +2881,79 @@ Resource.randomInstance = function(typeInPrefixedFormat, callback, customGraphUr
     ], function(err, randomResourceInstance){
         return callback(err, randomResourceInstance);
     });
+};
+
+Resource.deleteAll = function(callback, customGraphUri)
+{
+    const self = this;
+    const type = self.prefixedRDFType;
+
+    const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
+
+    const queryArguments = [
+        {
+            type: DbConnection.resourceNoEscape,
+            value: graphUri
+        }
+    ];
+
+    let query =
+        "WITH [0] \n" +
+        "DELETE { ?uri ?p ?o} \n" +
+        "WHERE { \n" +
+        "?uri ?p ?v. \n";
+
+    if(!isNull(type))
+    {
+        let rdfTypes;
+
+        if(!(self.prefixedRDFType instanceof Array))
+            rdfTypes = [self.prefixedRDFType];
+        else
+            rdfTypes = self.prefixedRDFType;
+
+
+        let argumentCount = 1;
+        let typeRestrictions = "";
+        for(let i = 0; i < rdfTypes.length; i++)
+        {
+            typeRestrictions = typeRestrictions + " ?uri rdf:type ["+argumentCount+"]";
+            argumentCount++;
+
+            queryArguments.push({
+                type: DbConnection.prefixedResource,
+                value: self.prefixedRDFType[i]
+            });
+
+            if(i < rdfTypes.length - 1)
+            {
+                typeRestrictions += ".\n";
+            }
+            else
+            {
+                typeRestrictions += "\n";
+            }
+        }
+
+        query = query + typeRestrictions;
+    }
+
+    query = query + "} \n";
+
+
+    db.connection.execute(
+        query,
+        queryArguments,
+        function(err, results) {
+            if(isNull(err))
+            {
+                return callback(null, "All resources of type " + self.prefixedRDFType+ " deleted successfully.");
+            }
+            else
+            {
+                return callback(1, "Unable to fetch all resources from the graph");
+            }
+        });
 };
 
 Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(descriptor, callback, customGraphUri)

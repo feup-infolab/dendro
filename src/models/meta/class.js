@@ -34,10 +34,10 @@ const copyPrototypeFromParent = function (parentClass, childClass) {
             }
         }
 
-        const grandparentClass = parentClass.baseConstructor;
+        //const grandparentClass = parentClass.baseConstructor;
 
-        const childClassWithGrandparentMethods = copyPrototypeFromParent(grandparentClass, childClass);
-        return childClassWithGrandparentMethods;
+        //const childClassWithGrandparentMethods = copyPrototypeFromParent(grandparentClass, childClass);
+        return childClass;
     }
 };
 

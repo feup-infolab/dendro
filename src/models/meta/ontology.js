@@ -131,208 +131,25 @@ Ontology.initAllFromDatabase = function(callback)
 {
     console.log("(Re) Loading ontology configurations from database...");
 
-    const addDescriptorInformation = function (ontology,callback) {
-        const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
-        Descriptor.all_in_ontology(ontology.uri, function(err, descriptors){
-            if(isNull(err))
-            {
-                for(let i = 0; i < descriptors.length; i++)
-                {
-                    let descriptor = descriptors[i];
-                    if(Elements.hasOwnProperty(descriptor.prefix) && Elements[descriptor.prefix].hasOwnProperty(descriptor.shortName))
-                    {
-                        Elements[descriptor.prefix][descriptor.shortName].label = descriptors[i].label;
-                        Elements[descriptor.prefix][descriptor.shortName].comment = descriptors[i].comment;
-                    }
-                }
-
-                callback(err, ontology);
-            }
-            else
-            {
-                callback(err, ontology);
-            }
-
-        });
-    };
-
-    const getFullResearchDomain = function (researchDomainUri, callback) {
-        ResearchDomain.findByUri(researchDomainUri, callback);
-    };
-
-    const addResearchDomainsDetails = function (ontology, callback) {
-        if (ontology.domain instanceof Array) {
-            async.map(ontology.domain, getFullResearchDomain, function (err, results) {
-                if (isNull(err)) {
-                    ontology.domain = results;
-                }
-
-                return callback(err, ontology);
-            });
-        }
-        else if (typeof ontology.domain === "string") {
-            async.map([ontology.domain], getFullResearchDomain, function (err, results) {
-                if (!isNull(results)) {
-                    ontology.domain = results;
-                }
-
-                return callback(err, ontology);
-            });
-        }
-        else {
-            return callback(null, ontology);
-        }
-    };
-
-    const addValidationData = function (ontology, callback) {
-        const getAlternativesForDescriptor = function (elementUri, callback) {
-            db.connection.execute(
-                "WITH [0] \n" +
-                "SELECT ?alternative \n" +
-                "WHERE \n" +
-                "{ \n" +
-                "   [1] ddr:hasAlternative ?alternative\n" +
-                "} \n",
-                [
-                    {
-                        type: DbConnection.resourceNoEscape,
-                        value: ontology.uri
-                    },
-                    {
-                        type: DbConnection.resourceNoEscape,
-                        value: elementUri
-                    }
-                ],
-                function (err, alternatives) {
-                    if (isNull(err)) {
-                        if (alternatives.length === 0) {
-                            return callback(null, null);
-                        }
-                        else {
-                            const results = [];
-
-                            for (let i = 0; i < alternatives.length; i++) {
-                                results.push(alternatives[i].alternative);
-                            }
-
-                            return callback(null, results);
-                        }
-                    }
-                    else {
-                        console.error("Error retrieving valid alternatives for descriptor " + elementUri + "! Error returned " + JSON.stringify(alternatives));
-                        return callback(null, null);
-                    }
-
-                }
-            );
-        };
-
-        const getRegexForDescriptor = function (elementUri, ontologyUri, callback) {
-            db.connection.execute(
-                "WITH [0] \n" +
-                "SELECT ?regex \n" +
-                "WHERE \n" +
-                "{ \n" +
-                "   [1] ddr:hasRegex ?regex\n" +
-                "} \n",
-                [
-                    {
-                        type: DbConnection.resourceNoEscape,
-                        value: ontologyUri
-                    },
-                    {
-                        type: DbConnection.resourceNoEscape,
-                        value: elementUri
-                    }
-                ],
-                function (err, regex) {
-                    if (isNull(err)) {
-                        if (regex.length > 1) {
-                            console.error("There are two different Regular Expressions for validating element " + elementUri + "! Please review the ontology with URI " + ontologyUri + " and delete hasRegex annotation properties until there is only one.");
-                            return callback(1, null);
-                        }
-                        else {
-                            if (regex.length === 1) {
-                                return callback(null, regex[0].regex);
-                            }
-                            else {
-                                return callback(null, null);
-                            }
-                        }
-                    }
-                    else {
-                        console.error("Error retrieving Regular Expression that validates " + elementUri + "! Error returned " + JSON.stringify(regex));
-                        return callback(null, null);
-                    }
-
-                }
-            );
-        };
-
-        if (!isNull(ontology.elements)) {
-            async.map(
-                Object.keys(ontology.elements),
-                function (elementShortName, callback) {
-                    const elementUri = Ontology.allOntologies[ontology.prefix].uri + elementShortName;
-                    const element = ontology.elements[elementShortName];
-
-                    async.waterfall([
-                        function (callback) {
-                            getRegexForDescriptor(elementUri, ontology.uri, function (err, result) {
-                                if (isNull(err)) {
-                                    if (!isNull(result)) {
-                                        element.hasRegex = result;
-                                        element.control = Controls.regex_checking_input_box;
-                                    }
-                                }
-
-                                return callback(err, element);
-                            });
-                        }
-                        ,
-                        function (element, callback) {
-                            getAlternativesForDescriptor(elementUri, function (err, result) {
-
-                                if (isNull(err)) {
-                                    if (!isNull(result)) {
-                                        element.hasAlternative = result;
-                                        element.control = Controls.combo_box;
-                                    }
-                                }
-
-                                return callback(err, element);
-                            });
-                        }
-                    ],
-                    function (err, results) {
-                        return callback(err, results);
-                    });
-                },
-                function (err, results) {
-                    return callback(err, results);
-                });
-        }
-    };
-
-    const checkForOntology = function (ontologyObject, callback) {
-        Ontology.findByUri(ontologyObject.uri, function (err, ontology) {
-            if (err) {
-                console.log("Error occurred when searching for ontology with URI : " + ontologyObject.uri + ". Error description : " + JSON.stringify(ontology));
-            }
-
-            return callback(err, ontology);
-        });
-    };
-
-    const createOntologyRecordInDatabase = function (ontologyObject, callback) {
-        const newOntology = new Ontology(ontologyObject);
-
-        newOntology.save(function (err, result) {
-            return callback(err, result);
-        });
-    };
-
     const recreateOntologiesInDatabase = function (ontologiesArray, callback) {
+        const checkForOntology = function (ontologyObject, callback) {
+            Ontology.findByUri(ontologyObject.uri, function (err, ontology) {
+                if (err) {
+                    console.log("Error occurred when searching for ontology with URI : " + ontologyObject.uri + ". Error description : " + JSON.stringify(ontology));
+                }
+
+                return callback(err, ontology);
+            });
+        };
+
+        const createOntologyRecordInDatabase = function (ontologyObject, callback) {
+            const newOntology = new Ontology(ontologyObject);
+
+            newOntology.save(function (err, result) {
+                return callback(err, result);
+            });
+        };
+
         async.map(ontologiesArray, function (ontologyObject, callback) {
             checkForOntology(ontologyObject, function (err, ontology) {
                 if (isNull(ontology)) {
@@ -348,8 +165,188 @@ Ontology.initAllFromDatabase = function(callback)
             return callback(err, results);
         });
     };
-
     const loadOntologyConfigurationsFromDatabase = function (callback) {
+
+        const addDescriptorInformation = function (ontology,callback) {
+            const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
+            Descriptor.all_in_ontology(ontology.uri, function(err, descriptors){
+                if(isNull(err))
+                {
+                    for(let i = 0; i < descriptors.length; i++)
+                    {
+                        let descriptor = descriptors[i];
+                        if(Elements.hasOwnProperty(descriptor.prefix) && Elements[descriptor.prefix].hasOwnProperty(descriptor.shortName))
+                        {
+                            Elements[descriptor.prefix][descriptor.shortName].label = descriptors[i].label;
+                            Elements[descriptor.prefix][descriptor.shortName].comment = descriptors[i].comment;
+                        }
+                    }
+
+                    callback(err, ontology);
+                }
+                else
+                {
+                    callback(err, ontology);
+                }
+
+            });
+        };
+        const getFullResearchDomain = function (researchDomainUri, callback) {
+            ResearchDomain.findByUri(researchDomainUri, callback);
+        };
+        const addResearchDomainsDetails = function (ontology, callback) {
+            if (ontology.domain instanceof Array) {
+                async.map(ontology.domain, getFullResearchDomain, function (err, results) {
+                    if (isNull(err)) {
+                        ontology.domain = results;
+                    }
+
+                    return callback(err, ontology);
+                });
+            }
+            else if (typeof ontology.domain === "string") {
+                async.map([ontology.domain], getFullResearchDomain, function (err, results) {
+                    if (!isNull(results)) {
+                        ontology.domain = results;
+                    }
+
+                    return callback(err, ontology);
+                });
+            }
+            else {
+                return callback(null, ontology);
+            }
+        };
+        const addValidationData = function (ontology, callback) {
+            const getAlternativesForDescriptor = function (elementUri, callback) {
+                db.connection.execute(
+                    "WITH [0] \n" +
+                    "SELECT ?alternative \n" +
+                    "WHERE \n" +
+                    "{ \n" +
+                    "   [1] ddr:hasAlternative ?alternative\n" +
+                    "} \n",
+                    [
+                        {
+                            type: DbConnection.resourceNoEscape,
+                            value: ontology.uri
+                        },
+                        {
+                            type: DbConnection.resourceNoEscape,
+                            value: elementUri
+                        }
+                    ],
+                    function (err, alternatives) {
+                        if (isNull(err)) {
+                            if (alternatives.length === 0) {
+                                return callback(null, null);
+                            }
+                            else {
+                                const results = [];
+
+                                for (let i = 0; i < alternatives.length; i++) {
+                                    results.push(alternatives[i].alternative);
+                                }
+
+                                return callback(null, results);
+                            }
+                        }
+                        else {
+                            console.error("Error retrieving valid alternatives for descriptor " + elementUri + "! Error returned " + JSON.stringify(alternatives));
+                            return callback(null, null);
+                        }
+
+                    }
+                );
+            };
+
+            const getRegexForDescriptor = function (elementUri, ontologyUri, callback) {
+                db.connection.execute(
+                    "WITH [0] \n" +
+                    "SELECT ?regex \n" +
+                    "WHERE \n" +
+                    "{ \n" +
+                    "   [1] ddr:hasRegex ?regex\n" +
+                    "} \n",
+                    [
+                        {
+                            type: DbConnection.resourceNoEscape,
+                            value: ontologyUri
+                        },
+                        {
+                            type: DbConnection.resourceNoEscape,
+                            value: elementUri
+                        }
+                    ],
+                    function (err, regex) {
+                        if (isNull(err)) {
+                            if (regex.length > 1) {
+                                console.error("There are two different Regular Expressions for validating element " + elementUri + "! Please review the ontology with URI " + ontologyUri + " and delete hasRegex annotation properties until there is only one.");
+                                return callback(1, null);
+                            }
+                            else {
+                                if (regex.length === 1) {
+                                    return callback(null, regex[0].regex);
+                                }
+                                else {
+                                    return callback(null, null);
+                                }
+                            }
+                        }
+                        else {
+                            console.error("Error retrieving Regular Expression that validates " + elementUri + "! Error returned " + JSON.stringify(regex));
+                            return callback(null, null);
+                        }
+
+                    }
+                );
+            };
+
+            if (!isNull(ontology.elements)) {
+                async.map(
+                    Object.keys(ontology.elements),
+                    function (elementShortName, callback) {
+                        const elementUri = Ontology.allOntologies[ontology.prefix].uri + elementShortName;
+                        const element = ontology.elements[elementShortName];
+
+                        async.waterfall([
+                                function (callback) {
+                                    getRegexForDescriptor(elementUri, ontology.uri, function (err, result) {
+                                        if (isNull(err)) {
+                                            if (!isNull(result)) {
+                                                element.hasRegex = result;
+                                                element.control = Controls.regex_checking_input_box;
+                                            }
+                                        }
+
+                                        return callback(err, element);
+                                    });
+                                }
+                                ,
+                                function (element, callback) {
+                                    getAlternativesForDescriptor(elementUri, function (err, result) {
+
+                                        if (isNull(err)) {
+                                            if (!isNull(result)) {
+                                                element.hasAlternative = result;
+                                                element.control = Controls.combo_box;
+                                            }
+                                        }
+
+                                        return callback(err, element);
+                                    });
+                                }
+                            ],
+                            function (err, results) {
+                                return callback(err, results);
+                            });
+                    },
+                    function (err, results) {
+                        return callback(err, results);
+                    });
+            }
+        };
+
         Ontology.all(function (err, ontologies) {
             if (isNull(err)) {
                 async.waterfall(
@@ -420,7 +417,6 @@ Ontology.initAllFromDatabase = function(callback)
             }
         });
     };
-
 
     async.series([
         function(callback)

@@ -79,7 +79,8 @@ let Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js")
 let Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 let UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 let RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
-let User = require('./models/user.js').User;
+const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
+const Administrator = require(Pathfinder.absPathInSrcFolder("/models/administrator.js")).Administrator;
 
 let async = require('async');
 let util = require('util');
@@ -839,9 +840,8 @@ const loadData = function(callback)
         function(callback) {
 
             //try to delete all demo users
-
+            const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
             const deleteUser = function (demoUser, callback) {
-                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                 User.findByUsername(demoUser.username, function (err, user) {
 
                     if (isNull(err)) {
@@ -862,6 +862,35 @@ const loadData = function(callback)
                     }
                 });
             };
+
+            const createUser = function (user, callback) {
+
+                User.createAndInsertFromObject({
+                        foaf: {
+                            mbox: user.mbox,
+                            firstName: user.firstname,
+                            surname: user.surname
+                        },
+                        ddr: {
+                            username: user.username,
+                            password: user.password
+                        }
+                    },
+                    function (err, newUser)
+                    {
+                        if (isNull(err) && !isNull(newUser))
+                        {
+                            return callback(null, newUser);
+                        }
+                        else
+                        {
+                            console.error("[ERROR] Error creating new demo User ");
+                            console.error(err.stack);
+                            return callback(err, user);
+                        }
+                    });
+            };
+
             if(Config.demo_mode.active)
             {
                 if (Config.startup.load_databases && Config.startup.reload_demo_users_on_startup)
@@ -872,36 +901,7 @@ const loadData = function(callback)
                         {
                             log_boot_message("info", "Existing demo users deleted. ");
 
-                            const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                             log_boot_message("info", "Loading Demo Users... ");
-
-                            const createUser = function (user, callback)
-                            {
-                                User.createAndInsertFromObject({
-                                        foaf: {
-                                            mbox: user.mbox,
-                                            firstName: user.firstname,
-                                            surname: user.surname
-                                        },
-                                        ddr: {
-                                            username: user.username,
-                                            password: user.password
-                                        }
-                                    },
-                                    function (err, newUser)
-                                    {
-                                        if (isNull(err) && !isNull(newUser))
-                                        {
-                                            return callback(null, newUser);
-                                        }
-                                        else
-                                        {
-                                            console.error("[ERROR] Error creating new demo User ");
-                                            console.error(err.stack);
-                                            return callback(err, user);
-                                        }
-                                    });
-                            };
 
                             async.map(Config.demo_mode.users, createUser, function (err, results)
                             {
@@ -937,7 +937,7 @@ const loadData = function(callback)
                 async.series([
                         function(callback)
                         {
-                            User.removeAllAdmins(callback);
+                            Administrator.deleteAll(callback);
                         },
                         function(callback)
                         {
@@ -949,17 +949,15 @@ const loadData = function(callback)
                                 const firstname = newAdministrator.firstname;
                                 const surname = newAdministrator.surname;
 
-                                User.findByUsername(username, function (err, user) {
+                                Administrator.findByUsername(username, function (err, user) {
 
                                     if (isNull(err) && !isNull(user)) {
-                                        user.makeGlobalAdmin(function (err, result) {
-                                            return callback(err, result);
-                                        });
+                                        return callback(err, result);
                                     }
                                     else {
-                                        log_boot_message("info","Non-existent user " + username + ". Creating new for promoting to admin.");
+                                        log_boot_message("info","Non-existent administrator " + username + ". Creating new admin...");
 
-                                        User.createAndInsertFromObject({
+                                        Administrator.createAndInsertFromObject({
                                                 foaf: {
                                                     mbox: mbox,
                                                     firstName: firstname,
@@ -971,13 +969,11 @@ const loadData = function(callback)
                                                 }
                                             },
                                             function (err, newUser) {
-                                                if (isNull(err) && !isNull(newUser) && newUser instanceof User) {
-                                                    newUser.makeGlobalAdmin(function (err, newUser) {
-                                                        return callback(err, newUser);
-                                                    });
+                                                if (isNull(err) && !isNull(newUser) && newUser instanceof Administrator) {
+                                                    return callback(err, newUser);
                                                 }
                                                 else {
-                                                    const msg = "Error creating new User" + JSON.stringify(newUser);
+                                                    const msg = "Error creating new Administrator" + JSON.stringify(newUser);
                                                     console.error(msg);
                                                     return callback(err, msg);
                                                 }
@@ -1250,7 +1246,6 @@ async.series([
                         console.log("[" + Config.version.name + "] RAM Usage : " + pretty(process.memoryUsage().rss));    //log memory usage
                         if (typeof gc === 'function')
                         {
-                            gc();
                             gc();
                         }
                     }, 2000);
