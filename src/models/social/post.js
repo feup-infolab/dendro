@@ -9,17 +9,14 @@ const uuid = require('uuid');
 
 function Post (object)
 {
-    Post.baseConstructor.call(this, object, Post);
+    const self = this;
+    self.addURIAndRDFType(object, "post", Post);
+    Post.baseConstructor.call(this, object);
     const self = this;
 
     self.copyOrInitDescriptors(object);
 
     const newId = uuid.v4();
-
-    if(isNull(self.uri))
-    {
-        self.uri = "/r/post/" + newId;
-    }
 
     if(isNull(self.ddr.humanReadableURI))
     {

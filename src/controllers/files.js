@@ -631,7 +631,7 @@ exports.upload = function(req, res)
             {
                 if (!isNull(upload))
                 {
-                    if (upload.username === upload.username && !isNull(req.user) && typeof req.user.ddr.username === username)
+                    if (upload.username === upload.username && !isNull(req.user) && req.user.ddr.username === username)
                     {
                         if(restart)
                         {
@@ -741,6 +741,8 @@ exports.upload = function(req, res)
     else if (req.originalMethod === "POST")
     {
         const requestedResourceURI = req.params.requestedResourceUri;
+
+
         const currentUserUri = req.user.uri;
 
         const processFiles = function (callback) {
@@ -777,21 +779,55 @@ exports.upload = function(req, res)
                         name: file.name
                     });
 
-                    const newFile = new File({
-                        nie: {
-                            title: file.name,
-                            isLogicalPartOf: requestedResourceURI
-                        }
-                    });
+                    const getNewFileParentFolder = function(callback)
+                    {
+                        async.tryEach([
+                            function(callback)
+                            {
+                                if(req.params.is_project_root)
+                                {
+                                    Project.findByUri(requestedResourceURI, function(err, project){
+                                        if(isNull(err))
+                                        {
+                                            if(!isNull(project))
+                                            {
+                                                callback(true, project.ddr.rootFolder);
+                                            }
+                                            else
+                                            {
+                                                callback(false);
+                                            }
+
+                                        }
+                                        else
+                                        {
+                                            callback(false, err);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    callback(true, requestedResourceURI);
+                                }
+                            }
+                        ], function(ok, result)
+                        {
+                            if(ok)
+                                callback(null, result);
+                            else
+                                callback(1, result);
+                        });
+                    };
+
 
                     const fs = require('fs');
-
                     const md5File = require('md5-file');
 
-                    /* Async usage */
+
+                    //TODO OMG this needs to be flattened using async!!! Callback onion!!
                     md5File(file.path, function (err, hash) {
                         if (isNull(err)) {
-                            if (typeof hash !== upload.md5_checksum) {
+                            if (hash !== upload.md5_checksum) {
                                 return callback(400, {
                                     result: "error",
                                     message: "File was corrupted during transfer. Please repeat.",
@@ -801,66 +837,87 @@ exports.upload = function(req, res)
                                 });
                             }
                             else {
-                                newFile.loadFromLocalFile(file.path, function (err, result) {
-                                    if (isNull(err)) {
+                                getNewFileParentFolder(function(err, parentFolderUri){
+                                    if(isNull(err))
+                                    {
+                                        const newFile = new File({
+                                            nie: {
+                                                title: file.name,
+                                                isLogicalPartOf: parentFolderUri
+                                            }
+                                        });
+
                                         newFile.save(function (err, result) {
                                             if (isNull(err)) {
-                                                console.log("File " + newFile.uri + " is now saved in GridFS");
-                                                newFile.connectToMongo(function (err, db) {
+                                                newFile.loadFromLocalFile(file.path, function (err, result) {
                                                     if (isNull(err)) {
-                                                        newFile.findFileInMongo(db, function (error, fileVersionsInMongoDb) {
-                                                            if (isNull(error)) {
-                                                                async.map(fileVersionsInMongoDb, function (fileVersion, cb) {
-                                                                    FileVersion.findByUri(fileVersion.filename, function (err, fileVersion) {
-                                                                        if (isNull(err)) {
-                                                                            if (isNull(fileVersion)) {
-                                                                                console.log('FileinfoFromMongo: ', fileVersion);
-                                                                                const newFileVersion = new FileVersion({
-                                                                                    nfo: {
-                                                                                        fileName: fileVersion.filename,
-                                                                                        hashValue: fileVersion.md5,
-                                                                                        hashAlgorithm: 'md5'
-                                                                                    },
-                                                                                    nie: {
-                                                                                        contentLastModified: fileVersion.uploadDate,
-                                                                                        byteSize: fileVersion.length
-                                                                                    },
-                                                                                    ddr: {
-                                                                                        contentType: fileVersion.contentType,
-                                                                                        chunkSize: fileVersion.chunkSize,
-                                                                                        projectUri: fileVersion.metadata.project,
-                                                                                        itemType: fileVersion.metadata.type,
-                                                                                        creatorUri: currentUserUri
-                                                                                    }
-                                                                                });
+                                                        console.log("File " + newFile.uri + " is now saved in GridFS");
+                                                        newFile.connectToMongo(function (err, db) {
+                                                            if (isNull(err)) {
+                                                                newFile.findFileInMongo(db, function (error, fileVersionsInMongoDb) {
+                                                                    if (isNull(error)) {
+                                                                        async.map(fileVersionsInMongoDb, function (fileVersion, cb) {
 
-                                                                                newFileVersion.save(function (err, fileVersion) {
-                                                                                    if (isNull(err)) {
-                                                                                        cb(null, fileVersion);
+                                                                            //TODO FIX THIS. something is wrong there...
+                                                                            FileVersion.findByUri(fileVersion.filename, function (err, fileVersion) {
+                                                                                if (isNull(err)) {
+                                                                                    if (isNull(fileVersion)) {
+                                                                                        console.log('FileinfoFromMongo: ', fileVersion);
+                                                                                        const newFileVersion = new FileVersion({
+                                                                                            nfo: {
+                                                                                                fileName: fileVersion.filename,
+                                                                                                hashValue: fileVersion.md5,
+                                                                                                hashAlgorithm: 'md5'
+                                                                                            },
+                                                                                            nie: {
+                                                                                                contentLastModified: fileVersion.uploadDate,
+                                                                                                byteSize: fileVersion.length
+                                                                                            },
+                                                                                            ddr: {
+                                                                                                contentType: fileVersion.contentType,
+                                                                                                chunkSize: fileVersion.chunkSize,
+                                                                                                projectUri: fileVersion.metadata.project,
+                                                                                                itemType: fileVersion.metadata.type,
+                                                                                                creatorUri: currentUserUri
+                                                                                            }
+                                                                                        });
+
+                                                                                        newFileVersion.save(function (err, fileVersion) {
+                                                                                            if (isNull(err)) {
+                                                                                                cb(null, fileVersion);
+                                                                                            }
+                                                                                            else {
+                                                                                                cb(true, fileVersion);
+                                                                                            }
+                                                                                        }, false, null, null, null, null, db_social.graphUri)
                                                                                     }
                                                                                     else {
-                                                                                        cb(true, fileVersion);
+                                                                                        cb(null, fileVersion);
                                                                                     }
-                                                                                }, false, null, null, null, null, db_social.graphUri)
+                                                                                }
+                                                                                else {
+                                                                                    cb(1, "Error fetching file version with URI " + fileVersion.uri);
+                                                                                }
+                                                                            });
+                                                                        }, function (err, results) {
+                                                                            if (isNull(err)) {
+                                                                                return callback(null, {
+                                                                                    result: "success",
+                                                                                    message: "File submitted successfully. Message returned : " + result,
+                                                                                    files: files
+                                                                                });
                                                                             }
                                                                             else {
-                                                                                cb(null, fileVersion);
+                                                                                const msg = "Error saving file version";
+                                                                                return callback(500, {
+                                                                                    result: "error",
+                                                                                    message: msg
+                                                                                });
                                                                             }
-                                                                        }
-                                                                        else {
-                                                                            cb(1, "Error fetching file version with URI " + fileVersion.uri);
-                                                                        }
-                                                                    });
-                                                                }, function (err, results) {
-                                                                    if (isNull(err)) {
-                                                                        return callback(null, {
-                                                                            result: "success",
-                                                                            message: "File submitted successfully. Message returned : " + result,
-                                                                            files: files
                                                                         });
                                                                     }
                                                                     else {
-                                                                        const msg = "Error saving file version";
+                                                                        const msg = "Database error";
                                                                         return callback(500, {
                                                                             result: "error",
                                                                             message: msg
@@ -869,46 +926,48 @@ exports.upload = function(req, res)
                                                                 });
                                                             }
                                                             else {
-                                                                const msg = "Database error";
+                                                                const msg = "Error submitting file : " + result;
                                                                 return callback(500, {
                                                                     result: "error",
-                                                                    message: msg
+                                                                    message: msg,
+                                                                    files: files
                                                                 });
+                                                            }
+                                                        });
+
+                                                        //try to generate thumbnails
+                                                        newFile.generateThumbnails(function (err, result) {
+                                                            if (!isNull(err)) {
+                                                                console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
                                                             }
                                                         });
                                                     }
                                                     else {
-                                                        const msg = "Error submitting file : " + result;
+                                                        const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
                                                         return callback(500, {
                                                             result: "error",
                                                             message: msg,
-                                                            files: files
+                                                            files: fileNames
                                                         });
-                                                    }
-                                                });
-
-                                                //try to generate thumbnails
-                                                newFile.generateThumbnails(function (err, result) {
-                                                    if (!isNull(err)) {
-                                                        console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
                                                     }
                                                 });
                                             }
                                             else {
-                                                const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
+                                                console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
                                                 return callback(500, {
                                                     result: "error",
-                                                    message: msg,
-                                                    files: fileNames
+                                                    message: "Error saving the file : " + result,
+                                                    files: files
                                                 });
                                             }
                                         });
                                     }
-                                    else {
-                                        console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
+                                    else
+                                    {
+                                        const msg = "Error determining the parent folder of the new file : " + parentFolderUri;
                                         return callback(500, {
                                             result: "error",
-                                            message: "Error saving the file : " + result,
+                                            message: msg,
                                             files: files
                                         });
                                     }
@@ -1795,7 +1854,7 @@ exports.ls = function(req, res){
                         {
                             res.status(500).json({
                                 result : "error",
-                                message : "Unable to fetch project foot folder contents."
+                                message : "Unable to fetch project root folder contents."
                             })
                         }
                     });

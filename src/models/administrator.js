@@ -9,21 +9,11 @@ const db = Config.getDBByID();
 
 function Administrator (object)
 {
-    Administrator.baseConstructor.call(this, object, User);
     const self = this;
 
-    if(isNull(self.uri))
-    {
-        if(isNull(object.uri))
-        {
-            const uuid = require('uuid');
-            self.uri = "/r/administrator/" + uuid.v4();
-        }
-        else
-        {
-            self.uri = object.uri;
-        }
-    }
+    self.addURIAndRDFType(object, "administrator");
+
+    Administrator.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 

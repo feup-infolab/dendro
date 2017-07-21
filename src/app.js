@@ -950,10 +950,10 @@ const loadData = function(callback)
                                 const firstname = newAdministrator.firstname;
                                 const surname = newAdministrator.surname;
 
-                                Administrator.findByUsername(username, function (err, user) {
+                                Administrator.findByUsername(username, function (err, administrator) {
 
-                                    if (isNull(err) && !isNull(user)) {
-                                        return callback(err, result);
+                                    if (isNull(err) && !isNull(administrator)) {
+                                        return callback(err, administrator);
                                     }
                                     else {
                                         log_boot_message("info","Non-existent administrator " + username + ". Creating new admin...");

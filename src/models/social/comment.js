@@ -9,17 +9,13 @@ const uuid = require('uuid');
 
 function Comment (object)
 {
-    Comment.baseConstructor.call(this, object, Comment);
-    let self = this;
+    const self = this;
+    self.addURIAndRDFType(object, "comment", Comment);
+    Comment.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
     const newId = uuid.v4();
-
-    if(isNull(self.uri))
-    {
-        self.uri = "/r/comment/" + newId;
-    }
     
     if(isNull(self.ddr.humanReadableURI))
     {

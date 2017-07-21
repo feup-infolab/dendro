@@ -11,7 +11,7 @@ const db = Config.getDBByID();
 
 function HarvestedResource(object)
 {
-    HarvestedResource.baseConstructor.call(this, object, HarvestedResource);
+    HarvestedResource.baseConstructor.call(this, object);
 
     const self = this;
 

@@ -578,15 +578,16 @@ const loadRoutes = function(app, passport, recommendation, callback)
                             permissions: administrationPermissions,
                             authentication_error: "Permission denied : cannot undelete project because you do not have permissions to administer this project."
                         }
-                    ]
-                    /*all: [
-                     //uploads
-                     {
-                     queryKeys: ['upload'],
-                     handler: files.upload,
-                     permissions: modificationPermissions
-                     }
-                     ]*/
+                    ],
+                    all:
+                    [
+                        //uploads
+                         {
+                             queryKeys: ['upload'],
+                             handler: files.upload,
+                             permissions: modificationPermissions
+                         }
+                     ]
                 };
 
                 QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);

@@ -18,21 +18,9 @@ const db = Config.getDBByID();
 
 function User (object)
 {
-    User.baseConstructor.call(this, object, User);
     const self = this;
-
-    if(isNull(self.uri))
-    {
-        if(isNull(object.uri))
-        {
-            const uuid = require('uuid');
-            self.uri = "/r/user/" + uuid.v4();
-        }
-        else
-        {
-            self.uri = object.uri;
-        }
-    }
+    self.addURIAndRDFType(object, "user", User);
+    User.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 

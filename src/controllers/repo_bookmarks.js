@@ -201,7 +201,7 @@ exports.new = function(req, res) {
                         hasOrganization: req.body.ddr.hasOrganization,
                         hasAPIKey: req.body.ddr.hasAPIKey
                     }
-                }, req.user.ddr.username);
+                });
 
                 if (newBookmark instanceof ExternalRepository) {
                     newBookmark.save(function (err, result) {

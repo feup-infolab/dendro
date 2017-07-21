@@ -9,16 +9,11 @@ const uuid = require('uuid');
 
 function Notification (object)
 {
-    Notification.baseConstructor.call(this, object, Notification);
     const self = this;
+    self.addURIAndRDFType(object, "notification", Notification);
+    Notification.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
-
-
-    if(isNull(self.uri))
-    {
-        self.uri = "/r/notifications/" + uuid.v4();
-    }
 
     if(isNull(self.ddr.humanReadableURI))
     {

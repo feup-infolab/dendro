@@ -7,11 +7,11 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
-const db = Config.getDBByID();
-
 const async = require('async');
 const _ = require('underscore');
 const fs = require("fs");
+const db = Config.getDBByID();
+const gfs = Config.getGFSByID();
 const tmp = require("tmp");
 
 const DendroMongoClient = require(Pathfinder.absPathInSrcFolder("/kb/mongo.js")).DendroMongoClient;
@@ -477,6 +477,7 @@ exports.getLoggedUser = function (req, res) {
 
     if(!isNull(req.user))
     {
+        req.params.requestedResourceUri = req.user.uri;
         exports.show(req, res);
     }
     else

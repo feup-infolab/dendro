@@ -22,9 +22,9 @@ const _ = require('underscore');
 
 function Folder (object)
 {
-    Folder.baseConstructor.call(this, object, Folder);
-
     const self = this;
+    self.addURIAndRDFType(object, "folder", Folder);
+    Folder.baseConstructor.call(this, object);
     
     if(
         isNull(self.ddr) &&
@@ -33,19 +33,6 @@ function Folder (object)
     )
     {
         self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
-    }
-
-    if(isNull(self.uri))
-    {
-        if(isNull(object.uri))
-        {
-            const uuid = require('uuid');
-            self.uri = "/r/folder/" + uuid.v4();
-        }
-        else
-        {
-            self.uri = object.uri;
-        }
     }
 
     self.ddr.fileExtension = "folder";

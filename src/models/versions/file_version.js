@@ -36,15 +36,11 @@ const uuid = require('uuid');
  }*/
 function FileVersion (object)
 {
-    FileVersion.baseConstructor.call(this, object, FileVersion);
     const self = this;
+    self.addURIAndRDFType(object, "file_version", FileVersion);
+    FileVersion.baseConstructor.call(this, object);
 
     const newId = uuid.v4();
-
-    if(isNull(self.uri))
-    {
-       self.uri = "/r/file_versions/" + newId;
-    }
 
     self.copyOrInitDescriptors(object);
 

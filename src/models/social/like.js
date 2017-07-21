@@ -9,19 +9,13 @@ const uuid = require('uuid');
 
 function Like (object)
 {
-    Like.baseConstructor.call(this, object, Like);
     const self = this;
+    self.addURIAndRDFType(object, "like", Like);
+    Like.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
-    //self.dcterms.postURI = "";
-
     const newId = uuid.v4();
-    
-    if(isNull(self.uri))
-    {
-        self.uri = "/r/like/" + newId;
-    }
 
     if(isNull(self.ddr.humanReadableURI))
     {

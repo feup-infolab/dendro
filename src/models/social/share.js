@@ -18,8 +18,9 @@ const async = require('async');
 
 function Share (object)
 {
-    Share.baseConstructor.call(this, object, Share);
     const self = this;
+    self.addURIAndRDFType(object, "share", Share);
+    Share.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
     
@@ -36,11 +37,6 @@ function Share (object)
 
 
     const newId = uuid.v4();
-    
-    if(isNull(self.uri))
-    {
-        self.uri = "/r/shares/" + newId;
-    }
 
     if(isNull(self.ddr.humanReadableURI))
     {
@@ -68,34 +64,6 @@ function Share (object)
 
     //return self;
 }
-
-/*Share.prototype.save = function (object, callback) {
- var self = Share.baseConstructor.call(this, object);
- console.log('Share.baseConstructor:', Share.baseConstructor);
- //var self = this;
- console.log('self is:', self);
- console.log('will use the share.prototype.save');
- console.log('share uri is:', self.uri);
- console.log('self.baseConstructor:', self.baseConstructor);
- self.baseConstructor.save(function (err, newShare) {
- if(isNull(err))
- {
- //self.insertDescriptors
- var descriptor = [new Descriptor ({prefixedForm : "rdf:type", value : "ddr:Post"})];
- self.insertDescriptors(descriptor, function(err, result){
- return callback(err, newShare);
- });
-
- //return callback(err, newShare);
- }
- else {
- return callback(err, newShare);
- }
- });
- };*/
-
-//TODO alterar aqui que extends o Post
-//Share = Class.extend(Share, Event);
 
 Share = Class.extend(Share, Post, "ddr:Share");
 

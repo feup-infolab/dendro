@@ -28,14 +28,9 @@ const _ = require('underscore');
 
 function Project(object)
 {
-    Project.baseConstructor.call(this, object, Project);
     const self = this;
-
-    if(isNull(self.uri))
-    {
-        const uuid = require('uuid');
-        self.uri = "/r/project/" + uuid.v4();
-    }
+    self.addURIAndRDFType(object, "project", Project);
+    Project.baseConstructor.call(this, object);
 
     if(isNull(self.ddr.humanReadableURI))
     {
@@ -616,18 +611,25 @@ Project.prototype.getFirstLevelDirectoryContents = function(callback)
     const self = this;
 
     self.getRootFolder(function(err, folder){
-        if(isNull(err) && !isNull(folder))
+        if(isNull(err))
         {
-            folder.getLogicalParts(function(err, children){
-                if(isNull(err))
-                {
-                    return callback(null, children);
-                }
-                else
-                {
-                    return callback(1, "Error fetching children of project root folder");
-                }
-            });
+            if(!isNull(folder) && folder instanceof Folder)
+            {
+                folder.getLogicalParts(function(err, children){
+                    if(isNull(err))
+                    {
+                        return callback(null, children);
+                    }
+                    else
+                    {
+                        return callback(1, "Error fetching children of project root folder");
+                    }
+                });
+            }
+            else
+            {
+                return callback(1, "unable to retrieve project " + self.ddr.handle + " 's root folder. Error :" + err);
+            }
         }
         else
         {

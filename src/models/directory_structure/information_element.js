@@ -13,14 +13,9 @@ const db = Config.getDBByID();
 
 function InformationElement (object)
 {
-    InformationElement.baseConstructor.call(this, object, InformationElement);
     const self = this;
-
-    if(isNull(self.uri))
-    {
-        const uuid = require('uuid');
-        self.uri = "/r/information_element/" + uuid.v4();
-    }
+    self.addURIAndRDFType(object, "information_element", InformationElement);
+    InformationElement.baseConstructor.call(this, object);
     
     if(!isNull(object.nie))
     {
@@ -36,7 +31,7 @@ function InformationElement (object)
 
         if(isNull(self.ddr.humanReadableURI))
         {
-            self.uri = object.nie.isLogicalPartOf + "/" + object.nie.title;
+            self.ddr.humanReadableURI = object.nie.isLogicalPartOf + "/" + object.nie.title;
         }
     }
 
@@ -247,7 +242,7 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
                 }
                 else
                 {
-                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent PROJECT of" + self.uri);
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
                 }
             }
             else
@@ -315,7 +310,7 @@ InformationElement.prototype.getOwnerProject = function(callback)
                 }
                 else
                 {
-                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent PROJECT of" + self.uri);
+                    return callback(1, "Invalid result set or no parent PROJECT found when querying for the parent project of" + self.uri);
                 }
             }
             else

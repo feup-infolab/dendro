@@ -17,14 +17,9 @@ const async = require('async');
 
 function File (object)
 {
-    File.baseConstructor.call(this, object, File);
     const self = this;
-
-    if(isNull(self.uri))
-    {
-        const uuid = require('uuid');
-        self.uri = "/r/file/" + uuid.v4();
-    }
+    self.addURIAndRDFType(object, "file", File);
+    File.baseConstructor.call(this, object);
 
     if(!isNull(object.nie))
     {
@@ -330,7 +325,8 @@ File.prototype.loadFromLocalFile = function(localFile, callback)
     const fs = require('fs');
 
     self.getOwnerProject(function(err, ownerProject){
-        if(isNull && project instanceof Project)
+        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+        if(isNull && ownerProject instanceof Project)
         {
             /**SAVE FILE**/
             gfs.connection.put(

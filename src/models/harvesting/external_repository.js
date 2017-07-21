@@ -11,24 +11,19 @@ const db = Config.getDBByID();
 
 const async = require('async');
 
-function ExternalRepository (object, creatorUsername)
+function ExternalRepository (object)
 {
-    ExternalRepository.baseConstructor.call(this, object, ExternalRepository);
     const self = this;
+    self.addURIAndRDFType(object, "external_repository", ExternalRepository);
+    ExternalRepository.baseConstructor.call(this, object);
 
     const slug = require('slug');
 
-    if(isNull(self.uri))
-    {
-        const uuid = require('uuid');
-        self.uri = "/r/external_repository/" + uuid.v4();
-    }
-
     if(isNull(self.ddr.humanReadableUri))
     {
-        if(!isNull(creatorUsername) && !isNull(self.dcterms.title))
+        if(!isNull(object.dcterms.creator) && !isNull(self.dcterms.title))
         {
-            self.humanReadableURI = Config.baseUri + "/external_repository/" + creatorUsername + "/" + slug(self.dcterms.title);
+            self.humanReadableURI = Config.baseUri + "/external_repository/" + object.dcterms.creator + "/" + slug(self.dcterms.title);
         }
         else
         {

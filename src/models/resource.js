@@ -14,25 +14,17 @@ const _ = require('underscore');
 
 const db = Config.getDBByID();
 
-function Resource (object, subclass)
+function Resource (object)
 {
     let self = this;
+    self.addURIAndRDFType(object, "resource", Resource);
     Resource.baseConstructor.call(this, object);
-
-    if(!isNull(object.uri))
-    {
-        self.uri = object.uri;
-    }
 
     self.copyOrInitDescriptors(object);
 
     if(!isNull(object.rdf) && !isNull(object.rdf.prefixedRDFType))
     {
         self.rdf.type = object.rdf.type;
-    }
-    else if(!isNull(subclass) && !isNull(subclass.prefixedRDFType))
-    {
-        self.rdf.type = subclass.prefixedRDFType;
     }
 
     if(!isNull(object.ddr) && !isNull(object.ddr.humanReadableUri)) {
@@ -1944,7 +1936,7 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                             return callback(null, resource);
                         }
                         else {
-                            const msg = "Error " + resource + " while trying to retrieve resource with uri " + uri + " from triple store.";
+                            const msg = "Error " + resource + " while trying to retrieve resource with uri " + self.uri + " from triple store.";
                             console.error(msg);
                             return callback(1, msg);
                         }
@@ -3112,6 +3104,36 @@ Resource.prototype.deleteAllOfMyTypeAndTheirOutgoingTriples = function(callback,
     Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples(typeDescriptor, callback, customGraphUri);
 };
 
+Resource.prototype.addURIAndRDFType = function(object, resourceTypeSection, classPrototype)
+{
+    const self = this;
+
+    if(isNull(self.rdf))
+    {
+        self.rdf = {};
+    }
+
+    if(isNull(self.rdf.type))
+        self.rdf.type = classPrototype.prefixedRDFType;
+
+    if(isNull(object.uri))
+    {
+        if(isNull(self.uri))
+        {
+            const uuid = require('uuid');
+            self.uri = "/r/"+resourceTypeSection+"/" + uuid.v4();
+        }
+    }
+    else
+    {
+        if(isNull(self.uri))
+        {
+            self.uri = object.uri;
+        }
+    }
+    
+    return self;
+};
 
 Resource.arrayToCSVFile = function(resourceArray, fileName, callback)
 {

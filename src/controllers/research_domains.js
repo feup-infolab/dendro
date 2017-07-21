@@ -111,7 +111,7 @@ exports.edit = function(req, res) {
     {
         async.map(newResearchDomains,
         function(domain, callback){
-            new ResearchDomain(domain, function(err, rd){
+            ResearchDomain.create(domain, function(err, rd){
                 rd.save(function(err, result){
                     if(err)
                     {

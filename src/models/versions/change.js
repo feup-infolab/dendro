@@ -14,19 +14,14 @@ const async = require('async');
 
 function Change (object)
 {
-    Change.baseConstructor.call(this, object, Change);
     const self = this;
+    self.addURIAndRDFType(object, "change", Change);
+    Change.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
     const now = new Date();
     self.dcterms.created = now.toISOString();
-
-    if(isNull(self.uri))
-    {
-        const uuid = require('uuid');
-        self.uri = "/r/change/" + uuid.v4();
-    }
 
     return self;
 }

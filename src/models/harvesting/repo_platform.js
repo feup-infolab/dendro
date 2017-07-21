@@ -10,14 +10,10 @@ const async = require('async');
 
 function RepositoryPlatform(object)
 {
-    RepositoryPlatform.baseConstructor.call(this, object, RepositoryPlatform);
     const self = this;
-
-    if(isNull(self.uri))
-    {
-        const uuid = require('uuid');
-        self.uri = "/r/repository_platform/" + uuid.v4();
-    }
+    self.addURIAndRDFType(object, "repo_platform", RepositoryPlatform);
+    RepositoryPlatform.baseConstructor.call(this, object);
+    const self = this;
 
     if(isNull(self.ddr.humanReadableURI))
     {

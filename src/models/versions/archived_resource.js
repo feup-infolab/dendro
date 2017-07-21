@@ -18,18 +18,13 @@ const async = require('async');
 
 function ArchivedResource (object)
 {
-    ArchivedResource.baseConstructor.call(this, object, ArchivedResource);
     const self = this;
+    self.addURIAndRDFType(object, "archived_resource", ArchivedResource);
+    ArchivedResource.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
     self.ddr.isVersionOf = object.ddr.isVersionOf;
-
-    if(isNull(self.uri))
-    {
-        const uuid = require('uuid');
-        self.uri = "/r/archived_resource/" + uuid.v4();
-    }
 
     if(isNull(self.ddr.humanReadableURI))
     {

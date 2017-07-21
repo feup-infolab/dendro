@@ -10,7 +10,7 @@ const db = Config.getDBByID();
 
 function Event (object)
 {
-    Event.baseConstructor.call(this, object, Event);
+    Event.baseConstructor.call(this, object);
     const self = this;
 
     self.copyOrInitDescriptors(object);

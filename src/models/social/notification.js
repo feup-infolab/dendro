@@ -9,17 +9,13 @@ const uuid = require('uuid');
 
 function Notification (object)
 {
-    Notification.baseConstructor.call(this, object, Notification);
     const self = this;
+    self.addURIAndRDFType(object, "notification", Notification);
+    Notification.baseConstructor.call(this, object);
 
     self.copyOrInitDescriptors(object);
 
     const newId = uuid.v4();
-
-    if(isNull(self.uri))
-    {
-        self.uri = "/r/notification" + newId;
-    }
 
     if(isNull(self.ddr.humanReadableURI))
     {
@@ -34,6 +30,6 @@ function Notification (object)
 //userWhoActed
 //actionType -> Like, Comment, Share
 
-Notification = Class.extend(Notification, Resource);
+Notification = Class.extend(Notification, Resource, "ddr:Notification");
 
 module.exports.Notification = Notification;

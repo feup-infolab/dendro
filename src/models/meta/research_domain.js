@@ -11,10 +11,16 @@ const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).R
 
 const db = Config.getGFSByID();
 
-function ResearchDomain (object, callback)
+function ResearchDomain (object)
 {
-    ResearchDomain.baseConstructor.call(this, object, ResearchDomain);
     const self = this;
+    self.addURIAndRDFType(object, "research_domain", ResearchDomain);
+    return ResearchDomain.baseConstructor.call(this, object);
+}
+
+ResearchDomain.create = function(object, callback)
+{
+    const self = new ResearchDomain(object);
 
     const now = new Date();
 
@@ -33,19 +39,6 @@ function ResearchDomain (object, callback)
         else
         {
             self.dcterms.created = object.dcterms.created;
-        }
-    }
-
-    if(isNull(self.uri))
-    {
-        if(!isNull(object.uri))
-        {
-            self.uri = object.uri;
-        }
-        else
-        {
-            const uuid = require('uuid');
-            self.uri = "/r/research_domains/" + uuid.v4();
         }
     }
 

@@ -15,7 +15,9 @@ const mysql = Config.getMySQLByID();
 
 let Interaction = function(object)
 {
-    Interaction.baseConstructor.call(this, object, Interaction);
+    const self = this;
+    self.addURIAndRDFType(object, "interaction", Interaction);
+    Interaction.baseConstructor.call(this, object);
 };
 
 Interaction.create = function(object, callback)
@@ -39,12 +41,6 @@ Interaction.create = function(object, callback)
         {
             self.dcterms.created = object.dcterms.created;
         }
-    }
-
-    if(isNull(self.uri))
-    {
-        const uuid = require('uuid');
-        self.uri = "/r/interaction/" + uuid.v4();
     }
 
     if(isNull(self.ddr.humanReadableURI))
