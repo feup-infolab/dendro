@@ -269,7 +269,8 @@ passport.serializeUser(function(user, done) {
 });
 
 passport.deserializeUser(function(user, done) {
-    done(null, new User(user));
+    const deserializedUser = new User(user);
+    done(null, deserializedUser);
 });
 
 //create temporary uploads folder if not exists

@@ -169,21 +169,25 @@ MongoDBCache.prototype.getByQuery = function(query, callback) {
 
 MongoDBCache.prototype.get = function(resourceUri, callback) {
     const self = this;
-    self.getByQuery({ uri : resourceUri }, function(err, results){
+    self.getByQuery({ uri : resourceUri }, function(err, result){
         if(isNull(err))
         {
-            if(!isNull(results))
+            if(!isNull(result))
             {
-                if(results instanceof Array)
+                if(result instanceof Array)
                 {
-                    if(results.length === 1)
+                    if(result.length === 1)
                     {
-                        callback(null, results[0]);
+                        callback(null, result[0]);
                     }
                     else
                     {
-                        callback(null, results);
+                        callback(1, "There are more than one resource with the same uri "+resourceUri+"in cache " + self.id + ". This is an error.");
                     }
+                }
+                else if(result instanceof Object)
+                {
+                    callback(null, result)
                 }
             }
             else
@@ -193,7 +197,7 @@ MongoDBCache.prototype.get = function(resourceUri, callback) {
         }
         else
         {
-            return callback(err, results);
+            return callback(err, result);
         }
     });
 };

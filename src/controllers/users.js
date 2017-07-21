@@ -514,7 +514,7 @@ exports.get_avatar = function (req, res) {
             else {
                 if (!user.ddr.hasAvatar) {
                     //User does not have an avatar
-                    let absPathOfFileToServe = Config.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
+                    let absPathOfFileToServe = Pathfinder.absPathInPublicFolder("images/default_avatar/defaultAvatar.png");
                     let fileStream = fs.createReadStream(absPathOfFileToServe);
 
                     let filename = path.basename(absPathOfFileToServe);
