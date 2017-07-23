@@ -731,6 +731,23 @@ Descriptor.prototype.getPrefixedForm = function()
     return shortDescriptor;
 };
 
+Descriptor.prefixedFormsToFullUris = function(arrayOfPrefixedForms)
+{
+    let arrayOfFullDescriptorUris = [arrayOfPrefixedForms.length];
+
+    for(let i = 0; i < arrayOfPrefixedForms.length; i++)
+    {
+        let prefixedForm = arrayOfPrefixedForms[i];
+        let descriptor = new Descriptor({
+            prefixedForm : prefixedForm
+        });
+
+        arrayOfFullDescriptorUris[i] = descriptor.uri;
+    }
+
+    return arrayOfFullDescriptorUris;
+}
+
 Descriptor.mergeDescriptors = function(descriptorsArray, callback)
 {
     const newDescriptors = {};

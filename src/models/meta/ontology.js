@@ -166,7 +166,6 @@ Ontology.initAllFromDatabase = function(callback)
         });
     };
     const loadOntologyConfigurationsFromDatabase = function (callback) {
-
         const addDescriptorInformation = function (ontology,callback) {
             const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
             Descriptor.all_in_ontology(ontology.uri, function(err, descriptors){
@@ -217,7 +216,7 @@ Ontology.initAllFromDatabase = function(callback)
                 return callback(null, ontology);
             }
         };
-        const addValidationData = function (ontology, callback) {
+        const addDescriptorValidationData = function (ontology, callback) {
             const getAlternativesForDescriptor = function (elementUri, callback) {
                 db.connection.execute(
                     "WITH [0] \n" +
@@ -348,6 +347,7 @@ Ontology.initAllFromDatabase = function(callback)
         };
 
         Ontology.all(function (err, ontologies) {
+
             if (isNull(err)) {
                 async.waterfall(
                     [
@@ -386,7 +386,7 @@ Ontology.initAllFromDatabase = function(callback)
                         function (ontologies, callback) {
                             if(Config.startup.reload_descriptor_validation_data)
                             {
-                                async.map(ontologies, addValidationData, function (err, loadedOntologies) {
+                                async.map(ontologies, addDescriptorValidationData, function (err, loadedOntologies) {
                                     if (isNull(err)) {
                                         console.log("[INFO] Finished loading validation information (Regex + alternatives) for the descriptors in the database");
                                     }
@@ -434,7 +434,26 @@ Ontology.initAllFromDatabase = function(callback)
     ],
     function(err, results)
     {
-        return callback(err, results);
+        if(isNull(err))
+        {
+            let allOntologies = {};
+            results = results[1];
+
+            for(let i = 0; i < results.length; i++)
+            {
+                let result = results[i];
+                if(isNull(allOntologies[result.prefix]))
+                    allOntologies[result.prefix] = {};
+
+                Object.assign(allOntologies[result.prefix], result);
+            }
+
+            return callback(err, allOntologies);
+        }
+        else
+        {
+            return callback(err);
+        }
     });
 };
 

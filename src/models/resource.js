@@ -3140,7 +3140,16 @@ Resource.prototype.isA = function (prototype) {
     let self = this;
 
     const myRDFType = self.rdf.type;
-    const objectRDFType = prototype.prefixedRDFType;
+
+    const getFullUri = function(prefixedForm)
+    {
+        const prefix = prefixedForm.split(":")[0];
+        const shortName = prefixedForm.split(":")[1];
+        return Config.allOntologies[prefix].uri + shortName;
+    };
+
+    const objectRDFType = _.map(prototype.prefixedRDFType, getFullUri);
+
     if(!isNull(myRDFType))
     {
         if(!isNull(objectRDFType))
@@ -3158,7 +3167,7 @@ Resource.prototype.isA = function (prototype) {
                 else
                 {
                     const myRDFTypeSorted = _.uniq(myRDFType.sort(), true);
-                    const objectRDFTypeSorted = _.uniq(myRDFType.sort(), true)
+                    const objectRDFTypeSorted = _.uniq(objectRDFType.sort(), true);
 
                     return _.isEqual(myRDFTypeSorted, objectRDFTypeSorted);
                 }

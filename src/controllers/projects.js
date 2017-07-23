@@ -616,7 +616,7 @@ exports.show = function(req, res) {
                                     type: resourceBeingAccessed.rdf.type,
                                     title: resourceBeingAccessed.nie.title,
                                     icons : [
-                                        "/images/icons/folder.png",
+                                        resourceBeingAccessed.uri+"?thumbnail&size=small",
                                     ]
                                 }
                             );
@@ -1164,7 +1164,7 @@ exports.bagit = function(req,res)
                         {
                             const error = "There was an error attempting to backup project : " + requestedProjectURI;
                             console.error(error);
-                            res.write("500 Error : "+ error +"\n");
+                            res.status(500).write("Error : "+ error +"\n");
                             res.end();
                         }
                     }

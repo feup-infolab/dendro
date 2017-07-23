@@ -20,16 +20,8 @@ const db_social = function () {
 
 exports.download = function(req, res){
     const self = this;
-    if(req.params.is_project_root)
-    {
-        const requestedResourceURI = req.params.requestedResourceUri + "/data";
-    }
-    else
-    {
-        const requestedResourceURI = req.params.requestedResourceUri;
-    }
 
-    const filePath = req.params.filepath;
+    let requestedResourceURI = req.params.requestedResourceUri;
 
     const downloadFolder = function (requestedResourceURI, res) {
         Folder.findByUri(requestedResourceURI, function (err, folderToDownload) {
@@ -98,7 +90,7 @@ exports.download = function(req, res){
                         else {
                             const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
                             console.error(error);
-                            res.write("500 Error : " + error + "\n");
+                            res.status(500).write("Error : " + error + "\n");
                             res.end();
                         }
                     }
@@ -124,92 +116,135 @@ exports.download = function(req, res){
             }
         });
     };
-
-    //we are fetching the root folder of a project
-    if(isNull(filePath))
-    {
-        downloadFolder(requestedResourceURI, res);
-    }
-    else
-    {
-        InformationElement.getType(requestedResourceURI,
-            function(err, type){
-                if(isNull(err))
+    const downloadFile = function(requestedResourceURI, res) {
+        File.findByUri(requestedResourceURI, function(err, file){
+            if(isNull(err))
+            {
+                const mimeType = Config.mimeType(file.ddr.fileExtension);
+                file.writeToTempFile(function(err, writtenFilePath)
                 {
-                    const path = require('path');
-                    if(type === File)
+                    if(isNull(err))
                     {
-                        File.findByUri(requestedResourceURI, function(err, file){
-                            if(isNull(err))
-                            {
-                                const mimeType = Config.mimeType(file.ddr.fileExtension);
-                                file.writeToTempFile(function(err, writtenFilePath)
+                        if(!isNull(writtenFilePath))
+                        {
+                            const fs = require('fs');
+                            const fileStream = fs.createReadStream(writtenFilePath);
+
+                            res.writeHead(200,
                                 {
-                                    if(isNull(err))
+                                    'Content-disposition': 'attachment; filename="' + file.nie.title+"\"",
+                                    'Content-type': mimeType
+                                });
+
+                            res.on('end', function () {
+                                Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
+                                    if(err)
                                     {
-                                        if(!isNull(writtenFilePath))
-                                        {
-                                            const fs = require('fs');
-                                            const fileStream = fs.createReadStream(writtenFilePath);
-
-                                            res.writeHead(200,
-                                                {
-                                                    'Content-disposition': 'attachment; filename="' + file.nie.title+"\"",
-                                                    'Content-type': mimeType
-                                                });
-
-                                            res.on('end', function () {
-                                                Folder.deleteOnLocalFileSystem(writtenFilePath, function(err, stdout, stderr){
-                                                    if(err)
-                                                    {
-                                                        console.error("Unable to delete " + writtenFilePath);
-                                                    }
-                                                    else
-                                                    {
-                                                        console.log("Deleted " + writtenFilePath);
-                                                    }
-                                                });
-                                            });
-
-                                            fileStream.pipe(res);
-                                        }
-                                        else
-                                        {
-                                            const error = "There was an error streaming the requested resource : " + requestedResourceURI;
-                                            console.error(error);
-                                            res.writeHead(500, error);
-                                            res.end();
-                                        }
+                                        console.error("Unable to delete " + writtenFilePath);
                                     }
                                     else
                                     {
-                                        if(err === 404)
-                                        {
-                                            const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                                            console.error(error);
-                                            res.writeHead(404, error);
-                                            res.end();
-                                        }
-                                        else
-                                        {
-                                            const error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
-                                            console.error(error);
-                                            res.writeHead(500, error);
-                                            res.end();
-                                        }
+                                        console.log("Deleted " + writtenFilePath);
                                     }
                                 });
+                            });
+
+                            fileStream.pipe(res);
+                        }
+                        else
+                        {
+                            const error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                            console.error(error);
+                            res.writeHead(500, error);
+                            res.end();
+                        }
+                    }
+                    else
+                    {
+                        if(err === 404)
+                        {
+                            const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                            console.error(error);
+                            res.writeHead(404, error);
+                            res.end();
+                        }
+                        else
+                        {
+                            const error = "Unable to produce temporary file to download "+requestedResourceURI +". Error reported :" + writtenFilePath;
+                            console.error(error);
+                            res.writeHead(500, error);
+                            res.end();
+                        }
+                    }
+                });
+            }
+            else
+            {
+                const error = "Non-existent file : " + requestedResourceURI;
+                console.error(error);
+                res.writeHead(404, error);
+                res.end();
+            }
+        });
+    };
+
+    //we are fetching the root folder of a project
+    if(req.params.is_project_root)
+    {
+        Project.findByUri(requestedResourceURI, function(err, project){
+            if(isNull(err))
+            {
+                if(!isNull(project))
+                {
+                    project.getRootFolder(function(err, rootFolder){
+                        if(isNull(err))
+                        {
+                            if(!(isNull(rootFolder)) && rootFolder instanceof Folder)
+                            {
+                                downloadFolder(rootFolder.uri, res);
                             }
                             else
                             {
-                                const error = "Non-existent file : " + requestedResourceURI;
+                                const error = "Unable to determine the root folder of project : " + requestedResourceURI;
                                 console.error(error);
-                                res.writeHead(404, error);
+                                res.status(500).write("Error : "+ error +"\n");
                                 res.end();
                             }
-                        });
+                        }
+
+                    });
+                }
+                else
+                {
+                    const error = "Non-existent project : " + requestedResourceURI;
+                    console.error(error);
+                    res.status(404).write("Error : "+ error +"\n");
+                    res.end();
+                }
+            }
+            else
+            {
+                const error = "Error occurred while retrieving project : " + requestedResourceURI;
+                console.error(error);
+                res.status(500).write("Error : "+ error +"\n");
+                res.end();
+            }
+        });
+
+    }
+    else
+    {
+        InformationElement.findByUri(requestedResourceURI, function(err, ie){
+            if(isNull(err))
+            {
+                if(!isNull(ie))
+                {
+                    const path = require('path');
+                    if(ie.isA(File))
+                    {
+                        downloadFile(requestedResourceURI, res);
                     }
-                    else if(type === Folder)
+                    else if(ie.isA(Folder))
                     {
                         downloadFolder(requestedResourceURI, res);
                     }
@@ -217,18 +252,26 @@ exports.download = function(req, res){
                     {
                         const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
                         console.error(error);
-                        res.write("500 Error : "+ error +"\n");
+                        res.status(500).write("Error : "+ error +"\n");
                         res.end();
                     }
                 }
                 else
                 {
-                    const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
+                    const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
                     console.error(error);
-                    res.write("500 Error : "+ error +"\n");
+                    res.status(404).write("error");
                     res.end();
                 }
-            });
+            }
+            else
+            {
+                const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
+                console.error(error);
+                res.status(500).write("Error : "+ error +"\n");
+                res.end();
+            }
+        });
     }
 };
 /*
@@ -275,7 +318,7 @@ exports.serve = function(req, res){
                         else {
                             const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
                             console.error(error);
-                            res.write("500 Error : " + error + "\n");
+                            res.status(500).write("Error : " + error + "\n");
                             res.end();
                         }
                     }
@@ -395,7 +438,7 @@ exports.serve = function(req, res){
                     {
                         const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
                         console.error(error);
-                        res.write("500 Error : "+ error +"\n");
+                        res.status(500).write("Error : "+ error +"\n");
                         res.end();
                     }
                 }
@@ -403,7 +446,7 @@ exports.serve = function(req, res){
                 {
                     const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
                     console.error(error);
-                    res.write("500 Error : "+ error +"\n");
+                    res.status(500).write("Error : "+ error +"\n");
                     res.end();
                 }
             });
@@ -494,14 +537,14 @@ exports.serve_base64 = function(req, res){
                 {
                     const error = "Resource : " + requestedResourceURI + " is a folder and cannot be represented in Base64";
                     console.error(error);
-                    res.write("500 Error : "+ error +"\n");
+                    res.status(500).write("Error : "+ error +"\n");
                     res.end();
                 }
                 else
                 {
                     const error = "Unable to determine the type of the requested resource : " + requestedResourceURI;
                     console.error(error);
-                    res.write("500 Error : "+ error +"\n");
+                    res.status(500).write("Error : "+ error +"\n");
                     res.end();
                 }
             }
@@ -509,7 +552,7 @@ exports.serve_base64 = function(req, res){
             {
                 const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
                 console.error(error);
-                res.write("500 Error : "+ error +"\n");
+                res.status(500).write("Error : "+ error +"\n");
                 res.end();
             }
         });
