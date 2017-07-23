@@ -146,12 +146,11 @@ exports.change_log = function(req, res){
         });
     };
 
-    //TODO make this an InformationElement instead of only a folder
-    Folder.findByUri(req.params.requestedResourceUri, function(err, containingFolder)
+    InformationElement.findByUri(req.params.requestedResourceUri, function(err, resource)
     {
-        if(isNull(err) && containingFolder !== "undefined" && containingFolder instanceof Folder)
+        if(isNull(err) && resource !== "undefined")
         {
-            containingFolder.getOwnerProject(function(err, project){
+            resource.getOwnerProject(function(err, project){
                 if(isNull(err) && !isNull(project))
                 {
                     let offset;
@@ -164,7 +163,7 @@ exports.change_log = function(req, res){
                         offset = 0;
                     }
 
-                    containingFolder.getArchivedVersions(offset, Config.change_log.default_page_length, function(err, archivedResources)
+                    resource.getArchivedVersions(offset, Config.change_log.default_page_length, function(err, archivedResources)
                     {
                         if(isNull(err))
                         {

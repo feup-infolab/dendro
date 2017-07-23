@@ -67,19 +67,17 @@
 
     <div class="row">
         <div class="col-md-3 col-xs-12 col-sm-3" ng-controller="fileBrowserCtrl" ng-init="init()">
-            <h4>Folder</h4>
             <div class="row">
                 <div class="col-xs-12">
-                    <button id="new_folder_button" class="btn btn-sm fa fa-plus-square" data-loading-text="Creating folder..." ng-click="mkdir()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-                    <button id="upload_button" ng-hide="showing_project_root()" class="btn btn-sm fa fa-upload" data-loading-text="Uploading..." ng-click="toggle_upload_area()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+                    <a href="#"><img id="upload_button" data-loading-text="Uploading..." ng-click="toggle_upload_area()" src="/images/icons/add.png"></a>
+                    <a href="#"><img id="new_folder_button" data-loading-text="Creating folder..." ng-click="mkdir()" src="/images/icons/folder_add.png"></a>
+                    <a href="#"><img id="download_folder_button" data-loading-text="Preparing Package..." ng-click="download_folder()" src="/images/icons/download.png"></a>
 
-                    <button id="download_folder_button" class="btn btn-sm fa fa-download" data-loading-text="Preparing Package..." ng-click="download_folder()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
+                    <a href="#"><img id="backup_button" ng-hide="showing_project_root()" data-loading-text="Preparing Package..." ng-click="backup_folder()" src="/images/icons/folder_vertical_zipper.png"></a>
+                    <a href="#"><img id="restore_button" ng-hide="showing_project_root()" data-loading-text="Restoring..." ng-click="toggle_restore_area()" src="/images/icons/site_backup_and_restore.png"></a>
 
-                    <button id="backup_button" ng-hide="showing_project_root()" class="btn btn-sm fa fa-archive" data-loading-text="Preparing Package..." ng-click="backup_folder()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-                    <button id="restore_button" ng-hide="showing_project_root()" class="btn btn-sm fa fa-undo" data-loading-text="Restoring..." ng-click="toggle_restore_area()" onmouseover="$(this).toggleClass('btn-primary');" onmouseout="$(this).toggleClass('btn-primary');"></button>
-
-                    <button id="show_deleted_files_button" ng-class="{active: shared.showing_deleted_files, 'btn-success': shared.showing_deleted_files}" class="btn btn-sm fa fa-eye" data-loading-text="Restoring..." ng-click="toggle_show_deleted_files()" onmouseover="$(this).addClass('btn-primary');" onmouseout="$(this).removeClass('btn-primary');"></button>
-                    <button id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-success': shared.multiple_selection_active}" class="btn btn-sm fa fa-check-square-o" ng-click="toggle_multiple_selection()" onmouseover="$(this).addClass('btn-primary');" onmouseout="$(this).removeClass('btn-primary');"></button>
+                    <a href="#"><img id="show_deleted_files_button" ng-class="{active: shared.showing_deleted_files, 'btn-info': shared.showing_deleted_files}" data-loading-text="Restoring..." ng-click="toggle_show_deleted_files()" src="/images/icons/bin_recycle.png"></a>
+                    <a href="#"><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
                 </div>
 
                 <script type="text/javascript">

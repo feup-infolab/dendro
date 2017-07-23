@@ -404,71 +404,68 @@ InformationElement.prototype.findMetadata = function(callback, cleanTypes){
         if(isNull(err)){
             if(!isNull(resource))
             {
-                Folder.findByUri(resource.uri, function(err, folder) {
-                    const metadataResult = {
-                        title: resource.nie.title,
-                        descriptors: folder.getDescriptors([Config.types.private], [Config.types.api_readable], cleanTypes),
-                        file_extension: resource.ddr.fileExtension,
-                        hasLogicalParts: []
-                    };
+                const metadataResult = {
+                    title: resource.nie.title,
+                    descriptors: resource.getDescriptors([Config.types.private], [Config.types.api_readable], cleanTypes),
+                    file_extension: resource.ddr.fileExtension,
+                    hasLogicalParts: []
+                };
 
-                    if(!isNull(folder.ddr) && !isNull(folder.ddr.metadataQuality))
-                    {
-                        metadataResult.metadata_quality = folder.ddr.metadataQuality;
-                    }
-                    else
-                    {
-                        metadataResult.metadata_quality = 0;
-                    }
+                if(!isNull(resource.ddr) && !isNull(resource.ddr.metadataQuality))
+                {
+                    metadataResult.metadata_quality = folder.ddr.metadataQuality;
+                }
+                else
+                {
+                    metadataResult.metadata_quality = 0;
+                }
 
-                    if(isNull(err)){
+                if(isNull(err)){
 
-                        folder.getLogicalParts(function (err, children) {
-                            if (isNull(err)) {
-                                const _ = require('underscore');
-                                children = _.reject(children, function (child) {
-                                    return child.ddr.deleted;
-                                });
+                    resource.getLogicalParts(function (err, children) {
+                        if (isNull(err)) {
+                            const _ = require('underscore');
+                            children = _.reject(children, function (child) {
+                                return child.ddr.deleted;
+                            });
 
-                                if (children.length > 0) {
-                                    // 1st parameter in async.each() is the array of items
-                                    async.each(children,
-                                        // 2nd parameter is the function that each item is passed into
-                                        function(child, callback){
-                                            // Call an asynchronous function
-                                            metadataResult.hasLogicalParts.push({
-                                                'title':child.nie.title
-                                            });
-                                            return callback(null);
-                                        },
-                                        // 3rd parameter is the function call when everything is done
-                                        function(err){
-                                            if(isNull(err)) {
-                                                // All tasks are done now
-                                                return callback(null, metadataResult);
-                                            }
-                                            else{
-                                                return callback(true, null);
-                                            }
+                            if (children.length > 0) {
+                                // 1st parameter in async.each() is the array of items
+                                async.each(children,
+                                    // 2nd parameter is the function that each item is passed into
+                                    function(child, callback){
+                                        // Call an asynchronous function
+                                        metadataResult.hasLogicalParts.push({
+                                            'title':child.nie.title
+                                        });
+                                        return callback(null);
+                                    },
+                                    // 3rd parameter is the function call when everything is done
+                                    function(err){
+                                        if(isNull(err)) {
+                                            // All tasks are done now
+                                            return callback(null, metadataResult);
                                         }
-                                    );
-                                }
-                                else {
-                                    return callback(null, metadataResult);
-                                }
+                                        else{
+                                            return callback(true, null);
+                                        }
+                                    }
+                                );
                             }
                             else {
-                                console.info("[findMetadataRecursive] error accessing logical parts of folder " + folder.nie.title);
-                                return callback(true, null);
+                                return callback(null, metadataResult);
                             }
-                        });
-                    }
-                    else {
-                        console.info("[findMetadataRecursive] " + folder.nie.title + " is not a folder.");
-                        return callback(null, metadataResult);
-                    }
-
-                });
+                        }
+                        else {
+                            console.info("[findMetadataRecursive] error accessing logical parts of folder " + resource.nie.title);
+                            return callback(true, null);
+                        }
+                    });
+                }
+                else {
+                    console.info("[findMetadataRecursive] " + resource.nie.title + " is not a folder.");
+                    return callback(null, metadataResult);
+                }
             }
             else
             {

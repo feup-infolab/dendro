@@ -347,6 +347,70 @@ const loadRoutes = function(app, passport, recommendation, callback)
     app.post('/external_repositories/sword_collections', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), datasets.sword_collections);
     app.post('/external_repositories/new', async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), repo_bookmarks.new);
 
+    app.get([
+            getNonHumanReadableRouteRegex("archived_resource"),
+            /\/archived_resource\/([^\/]+)\/?$/
+        ],
+        extractUriFromRequest,
+        function(req,res, next)
+        {
+            const getResourceUri = function(requestedResource, callback)
+            {
+                getRequestedResourceUriFromHumanReadableUri(
+                    requestedResource,
+                    "Cannot fetch resource " + requestedResource,
+                    "index",
+                    req,
+                    res,
+                    next,
+                    callback);
+            };
+
+            const processRequest = function(resourceUri){
+                req.params.requestedResourceUri = resourceUri;
+                const defaultPermissionsInProjectBranch = [
+                    Permissions.settings.privacy.of_owner_project.public,
+                    Permissions.settings.role.in_owner_project.contributor,
+                    Permissions.settings.role.in_owner_project.creator,
+                ];
+
+                req.params.is_project_root = false;
+
+                const queryBasedRoutes = {
+                    get: [
+                        {
+                            queryKeys: ['thumbnail'],
+                            handler: files.get_thumbnail,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot download this resource because you do not have permissions to access its project."
+                        }
+                    ]
+                };
+
+                QueryBasedRouter.applyRoutes(queryBasedRoutes, req, res, next);
+            };
+
+            async.waterfall([
+                function(callback)
+                {
+                    if(!isNull(req.params.requestedResourceUri))
+                    {
+                        const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
+                        ArchivedResource.findByUri(req.params.requestedResourceUri, function(err, archivedResource){
+                            req.params.requestedResourceUri = archivedResource.ddr.isVersionOf;
+                            callback(null, req.params.requestedResourceUri);
+                        });
+                    }
+                    else
+                    {
+                        const requestedArchivedVersionUrl = Config.baseUri + "/archived_version/" + req.params[0];
+                        getResourceUri(requestedArchivedVersionUrl, callback);
+                    }
+                },
+                processRequest
+            ]);
+        }
+    );
 
     app.delete([
             getNonHumanReadableRouteRegex("external_repository"),

@@ -562,93 +562,124 @@ exports.get_thumbnail = function(req, res) {
     const requestedResourceURI = req.params.requestedResourceUri;
     const size = req.query.size;
 
-    File.findByUri(requestedResourceURI, function(err, file){
+
+
+    InformationElement.findByUri(requestedResourceURI, function(err, ie){
         if(isNull(err))
         {
-            if(!isNull(file))
+            if(!isNull(ie))
             {
-                const mimeType = Config.mimeType(file.ddr.fileExtension);
-
-                if(!isNull(Config.thumbnailableExtensions[file.ddr.fileExtension]))
+                if(ie.isA(Folder))
                 {
-                    file.getThumbnail(size, function(err, writtenFilePath)
-                    {
+                    exports.serve_static(req, res, "/images/icons/folder.png", "/images/icons/folder.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds);
+                }
+                else if(ie.isA(File))
+                {
+                    File.findByUri(requestedResourceURI, function(err, file){
                         if(isNull(err))
                         {
-                            if(!isNull(writtenFilePath))
+                            if(!isNull(file))
                             {
-                                const fs = require('fs');
-                                const path = require('path');
-                                let fileStream = fs.createReadStream(writtenFilePath);
-                                let filename = path.basename(writtenFilePath);
+                                const mimeType = Config.mimeType(file.ddr.fileExtension);
 
-                                res.writeHead(200,
+                                if(!isNull(Config.thumbnailableExtensions[file.ddr.fileExtension]))
+                                {
+                                    file.getThumbnail(size, function(err, writtenFilePath)
                                     {
-                                        'Content-disposition': 'filename="' + filename+"\"",
-                                        'Content-type': mimeType
-                                    });
+                                        if(isNull(err))
+                                        {
+                                            if(!isNull(writtenFilePath))
+                                            {
+                                                const fs = require('fs');
+                                                const path = require('path');
+                                                let fileStream = fs.createReadStream(writtenFilePath);
+                                                let filename = path.basename(writtenFilePath);
 
-                                fileStream.pipe(res);
+                                                res.writeHead(200,
+                                                    {
+                                                        'Content-disposition': 'filename="' + filename+"\"",
+                                                        'Content-type': mimeType
+                                                    });
+
+                                                fileStream.pipe(res);
+                                            }
+                                            else
+                                            {
+                                                const error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                                                console.error(error);
+                                                res.writeHead(500, error);
+                                                res.end();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if(err === 404)
+                                            {
+                                                const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                                console.error(error);
+                                                res.writeHead(404, error);
+                                                res.end();
+                                            }
+                                            else
+                                            {
+                                                //try to regenerate thumbnails
+                                                file.generateThumbnails(function(err, result)
+                                                {
+                                                    const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
+                                                    console.error(error);
+                                                });
+
+                                                res.writeHead(404, error);
+                                                res.end();
+                                            }
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    exports.serve_static(
+                                        req,
+                                        res,
+                                        Pathfinder.absPathInPublicFolder("/images/icons/extensions/file_extension_" + file.ddr.fileExtension + ".png"),
+                                        Pathfinder.absPathInPublicFolder("/images/icons/file.png"),
+                                        Config.cache.static.etag_cache_active
+                                    );
+                                }
                             }
                             else
                             {
-                                const error = "There was an error streaming the requested resource : " + requestedResourceURI;
+                                const error = "Non-existent file : " + requestedResourceURI;
                                 console.error(error);
-                                res.writeHead(500, error);
+                                res.writeHead(404, error);
                                 res.end();
                             }
                         }
                         else
                         {
-                            if(err === 404)
-                            {
-                                const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                                console.error(error);
-                                res.writeHead(404, error);
-                                res.end();
-                            }
-                            else
-                            {
-                                //try to regenerate thumbnails
-                                file.generateThumbnails(function(err, result)
-                                {
-                                    const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
-                                    console.error(error);
-                                });
-
-                                res.writeHead(404, error);
-                                res.end();
-                            }
+                            const error = "Error fetching thumbnail for file " + requestedResourceURI;
+                            console.error(error);
+                            res.writeHead(500, error);
+                            res.end();
                         }
                     });
                 }
                 else
                 {
-                    exports.serve_static(
-                        req,
-                        res,
-                        Pathfinder.absPathInPublicFolder("/images/icons/extensions/file_extension_" + file.ddr.fileExtension + ".png"),
-                        Pathfinder.absPathInPublicFolder("/images/icons/file.png"),
-                        Config.cache.static.etag_cache_active
-                    );
+                    exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds, 500);
                 }
             }
             else
             {
-                const error = "Non-existent file : " + requestedResourceURI;
-                console.error(error);
-                res.writeHead(404, error);
-                res.end();
+                exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds, 404);
             }
         }
         else
         {
-            const error = "Error fetching thumbnail for file " + requestedResourceURI;
-            console.error(error);
-            res.writeHead(500, error);
-            res.end();
+            exports.serve_static(req, res, "/images/icons/document_empty.png", "/images/icons/document_empty.png", Config.cache.static.last_modified_caching, Config.cache.static.cache_period_in_seconds, 500);
         }
     });
+
+
 };
 
 exports.upload = function(req, res)
