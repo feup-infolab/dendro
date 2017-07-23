@@ -141,13 +141,22 @@ GridFSConnection.prototype.get = function(fileUri, outputStream, callback, custo
         });
 
         downloadStream.on('end', function() {
-            const msg = "EOF of file";
-            console.log(msg);
+            if(Config.debug.log_temp_file_reads)
+            {
+                const msg = "EOF of file";
+                console.log(msg);
+            }
         });
 
         downloadStream.on('close', function() {
             const msg = "Finished reading the file";
-            console.log(msg);
+
+            if(Config.debug.log_temp_file_reads)
+            {
+
+                console.log(msg);
+            }
+
             return callback(null, msg);
         });
 

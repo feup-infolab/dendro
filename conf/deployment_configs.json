@@ -147,7 +147,9 @@
         "log_delete_operations": true,
         "log_file_fetches": true,
         "delete_temp_folder_on_startup": true,
-        "log_file_version_fetches": false
+        "log_file_version_fetches": false,
+        "log_temp_file_writes": false,
+        "log_temp_file_reads": false
       },
       "resources": {
         "log_all_type_checks": false,

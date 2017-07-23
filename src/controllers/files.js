@@ -237,7 +237,6 @@ Used to serve some files in html like images, text files...
 exports.serve = function(req, res){
     const self = this;
     const requestedResourceURI = req.params.requestedResourceUri;
-    const filePath = req.params.filepath;
 
     const downloadFolder = function (requestedResourceURI, res) {
         Folder.findByUri(requestedResourceURI, function (err, folderToDownload) {
@@ -304,18 +303,18 @@ exports.serve = function(req, res){
     };
 
     //we are fetching the root folder of a project
-    if(isNull(filePath))
+    if(req.params.is_project_root)
     {
         downloadFolder(requestedResourceURI, res);
     }
     else
     {
-        InformationElement.getType(requestedResourceURI,
-            function(err, type){
+        InformationElement.findByUri(requestedResourceURI,
+            function(err, ie){
                 if(isNull(err))
                 {
                     const path = require('path');
-                    if(type === File)
+                    if(ie.isA(File))
                     {
                         File.findByUri(requestedResourceURI, function(err, file){
                             if(isNull(err))
@@ -388,7 +387,7 @@ exports.serve = function(req, res){
                             }
                         });
                     }
-                    else if(type === Folder)
+                    else if(ie.isA(Folder))
                     {
                         downloadFolder(requestedResourceURI, res);
                     }
@@ -402,7 +401,7 @@ exports.serve = function(req, res){
                 }
                 else
                 {
-                    const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
+                    const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
                     console.error(error);
                     res.write("500 Error : "+ error +"\n");
                     res.end();

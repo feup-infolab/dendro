@@ -3135,6 +3135,46 @@ Resource.prototype.addURIAndRDFType = function(object, resourceTypeSection, clas
     return self;
 };
 
+
+Resource.prototype.isA = function (prototype) {
+    let self = this;
+
+    const myRDFType = self.rdf.type;
+    const objectRDFType = prototype.prefixedRDFType;
+    if(!isNull(myRDFType))
+    {
+        if(!isNull(objectRDFType))
+        {
+            if(typeof objectRDFType === "string" && typeof myRDFType === "string")
+            {
+                return (objectRDFType === myRDFType);
+            }
+            else if(objectRDFType instanceof Array && myRDFType instanceof Array)
+            {
+                if(objectRDFType.length !== myRDFType.length)
+                {
+                    return false;
+                }
+                else
+                {
+                    const myRDFTypeSorted = _.uniq(myRDFType.sort(), true);
+                    const objectRDFTypeSorted = _.uniq(myRDFType.sort(), true)
+
+                    return _.isEqual(myRDFTypeSorted, objectRDFTypeSorted);
+                }
+            }
+        }
+        else
+        {
+            throw new Error("Unable to determine rdf:type of " + prototype.name);
+        }
+    }
+    else
+    {
+        throw new Error("Unable to determine rdf:type of " + self.uri);
+    }
+};
+
 Resource.arrayToCSVFile = function(resourceArray, fileName, callback)
 {
     const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;

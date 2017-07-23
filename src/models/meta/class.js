@@ -1,6 +1,7 @@
 const path = require('path');
 const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
 const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+const _ = require('underscore');
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
@@ -71,19 +72,5 @@ Class.extend = function(childClass, parentClass, rdfTypeForSavingInDatabase)
 
     return childClassWithFamilyTreePrototypes;
 };
-
-Class.prototype.isA = function (prototype) {
-    let object = this;
-
-    do {
-        if (object === prototype) return true;
-        object = Object.getPrototypeOf(object);  //for debugging
-    }
-    while (object);
-
-    return false;
-};
-
-
 
 module.exports.Class = Class;
