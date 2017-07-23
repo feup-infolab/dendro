@@ -209,7 +209,7 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
         "{ \n" +
         "   [1] nie:isLogicalPartOf+ ?uri. \n" +
         "   ?uri rdf:type ddr:Resource. \n" +
-        "   ?uri rdf:type nie:FileDataObject \n" +
+        "   ?uri rdf:type nfo:FileDataObject \n" +
         "   FILTER NOT EXISTS \n" +
         "   { \n" +
         "       ?project ddr:rootFolder ?uri\n" +
@@ -563,6 +563,6 @@ InformationElement.prototype.findMetadata = function(callback, cleanTypes){
     }, null, null, null, [Config.types.private], [Config.types.api_accessible]);
 };
 
-InformationElement = Class.extend(InformationElement, Resource, "nie:FileDataObject");
+InformationElement = Class.extend(InformationElement, Resource, "nie:InformationElement");
 
 module.exports.InformationElement = InformationElement;

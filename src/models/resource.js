@@ -2557,7 +2557,7 @@ Resource.prototype.getLogicalParts = function(callback)
     const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
     const childFoldersQuery =
-        "SELECT ?uri ?type\n" +
+        "SELECT ?uri\n" +
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
@@ -2566,7 +2566,7 @@ Resource.prototype.getLogicalParts = function(callback)
         "} \n";
 
     const childFilesQuery =
-        "SELECT ?uri ?type\n" +
+        "SELECT ?uri\n" +
         "FROM [0] \n" +
         "WHERE \n" +
         "{ \n" +
@@ -2581,7 +2581,7 @@ Resource.prototype.getLogicalParts = function(callback)
         },
         {
             query : childFilesQuery,
-            childClass : File.findByUri
+            childClass : File
         }
     ], function(argument, callback){
         db.connection.execute(argument.query,

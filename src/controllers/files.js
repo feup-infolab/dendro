@@ -851,17 +851,16 @@ exports.upload = function(req, res)
                                             if (isNull(err)) {
                                                 newFile.loadFromLocalFile(file.path, function (err, result) {
                                                     if (isNull(err)) {
-                                                        console.log("File " + newFile.uri + " is now saved in GridFS");
+                                                        //console.log("File " + newFile.uri + " is now saved in GridFS");
                                                         newFile.connectToMongo(function (err, db) {
                                                             if (isNull(err)) {
                                                                 newFile.findFileInMongo(db, function (error, fileVersionsInMongoDb) {
                                                                     if (isNull(error)) {
                                                                         async.map(fileVersionsInMongoDb, function (fileVersion, cb) {
-
                                                                             //TODO FIX THIS. something is wrong there...
                                                                             FileVersion.findByUri(fileVersion.filename, function (err, fileVersion) {
                                                                                 if (isNull(err)) {
-                                                                                    if (isNull(fileVersion)) {
+                                                                                    if (!isNull(fileVersion)) {
                                                                                         console.log('FileinfoFromMongo: ', fileVersion);
                                                                                         const newFileVersion = new FileVersion({
                                                                                             nfo: {

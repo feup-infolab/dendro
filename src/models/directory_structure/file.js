@@ -66,11 +66,11 @@ File.prototype.save = function(callback)
         {
             if(!isNull(text))
             {
-                self.ddr.text_content = text;
+                self.nie.plainTextContent = text;
             }
             else
             {
-                delete self.ddr.text_content;
+                delete self.nie.plainTextContent;
             }
         }
 
@@ -82,22 +82,18 @@ File.prototype.save = function(callback)
             {
                 if(isNull(err))
                 {
-                    const objectOfParentClass = new self.baseConstructor(self);
-
-                    objectOfParentClass.save(
-                        function(err, result)
+                    self.baseConstructor.prototype.save.call(self, function(err, result)
+                    {
+                        if(isNull(err))
                         {
-                            if(isNull(err))
-                            {
-                                return callback(null, self);
-                            }
-                            else
-                            {
-                                console.error("Error adding child file descriptors : " + result);
-                                return callback(1, "Error adding child file descriptors : " + result);
-                            }
+                            return callback(null, self);
                         }
-                    );
+                        else
+                        {
+                            console.error("Error adding child file descriptors : " + result);
+                            return callback(1, "Error adding child file descriptors : " + result);
+                        }
+                    });
                 }
                 else
                 {
@@ -601,7 +597,7 @@ File.prototype.generateThumbnails = function(callback)
                 );
             })
             .catch(function(err){
-                return callback(err,  + "Error saving thumbnail for file " + self.uri + " . \nCheck that you have the xpdf ghostscript-x tesseract-ocr dependencies installed in the server." + err);
+                return callback(err,  + "Error saving thumbnail for file " + self.uri + " . \nCheck that you have the xpdf ghostscript-x tesseract-ocr imagemagick dependencies installed in the server.\nIf you are on a Mac, you need XQuartz and all other dependencies: run this command: brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick" + err);
             });
     };
 
