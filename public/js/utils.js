@@ -191,7 +191,23 @@ Utils.replaceBaseUri = function(uri, newBaseUri)
 Utils.copyFromObjectToObject = function(fromObject, toObject)
 {
     for (var attrname in fromObject) { toObject[attrname] = fromObject[attrname]; }
-}
+};
+
+Utils.fade_messages = function()
+{
+    var timeout = 10000;
+    setTimeout(function(){
+        $("#error_messages").fadeOut("slow");
+    },timeout);
+
+    setTimeout(function(){
+        $("#success_messages").fadeOut("slow");
+    },timeout);
+
+    setTimeout(function(){
+        $("#info_messages").fadeOut("slow");
+    },timeout);
+};
 
 if(typeof exports != "undefined")
 {

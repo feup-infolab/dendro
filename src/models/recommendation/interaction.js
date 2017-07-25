@@ -33,13 +33,13 @@ Interaction.create = function(object, callback)
     }
     else
     {
-        if(isNull(object.dcterms.created))
+        if(isNull(object.ddr.created))
         {
-            self.dcterms.created = now.toISOString();
+            self.ddr.created = now.toISOString();
         }
         else
         {
-            self.dcterms.created = object.dcterms.created;
+            self.ddr.created = object.ddr.created;
         }
     }
 
@@ -48,7 +48,7 @@ Interaction.create = function(object, callback)
         const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
         if(self.ddr.performedBy instanceof Object)
         {
-            self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.performedBy.ddr.username+"/interaction/"+self.dcterms.created;
+            self.ddr.humanReadableURI = db.baseURI+"/user/"+self.ddr.performedBy.ddr.username+"/interaction/"+self.ddr.created;
             return callback(null, self);
         }
         else if(typeof self.ddr.performedBy === "string")
@@ -56,7 +56,7 @@ Interaction.create = function(object, callback)
             User.findByUri(self.ddr.performedBy, function(err, user){
                if(isNull(err) && !isNull(user))
                {
-                   self.ddr.humanReadableURI = db.baseURI+"/user/"+user.ddr.username+"/interaction/"+self.dcterms.created;
+                   self.ddr.humanReadableURI = db.baseURI+"/user/"+user.ddr.username+"/interaction/"+self.ddr.created;
                }
                else
                {
@@ -320,8 +320,8 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
             [
                 targetTable,
                 self.uri,
-                moment(self.dcterms.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
-                moment(self.dcterms.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
+                moment(self.ddr.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
+                moment(self.ddr.created, moment.ISO_8601).format("YYYY-MM-DD HH:mm:ss"),
                 self.ddr.performedBy,
                 self.ddr.interactionType,
                 self.ddr.executedOver,

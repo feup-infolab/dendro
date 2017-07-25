@@ -21,7 +21,7 @@ function Change (object)
     self.copyOrInitDescriptors(object);
 
     const now = new Date();
-    self.dcterms.created = now.toISOString();
+    self.ddr.created = now.toISOString();
 
     return self;
 }

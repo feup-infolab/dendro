@@ -17,7 +17,7 @@
     </tr>
     <tr ng-repeat="recent_version in shared.recent_versions">
         <td>
-            {{recent_version.dcterms.created}}
+            {{recent_version.ddr.created}}
         </td>
         <td>
             <a ng-show="recent_version.ddr.versionCreator != null" href="{{recent_version.ddr.versionCreator.uri}}">

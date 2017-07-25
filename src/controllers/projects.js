@@ -413,7 +413,7 @@ exports.show = function(req, res) {
                 viewVars.breadcrumbs.push (go_up_options);
                 viewVars.breadcrumbs.push (
                     {
-                        uri : "/project/" + req.params.handle,
+                        uri : "/project/" + project.ddr.handle,
                         title : project.dcterms.title,
                         icons : [
                             "/images/icons/box_closed.png",
@@ -890,9 +890,6 @@ exports.new = function(req, res) {
 };
 
 exports.administer = function(req, res) {
-
-    ////const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
-
     const viewVars = {
         title: "Administration Area"
     };
@@ -959,8 +956,8 @@ exports.administer = function(req, res) {
                         const email = {
                             from: Config.email.gmail.address,
                             to: user.foaf.mbox,
-                            subject: req.user.ddr.username +  ' added you as a contributor of project "' + req.params.handle + '"',
-                            text: 'User ' + req.user.uri + ' added you as a contributor for project "' + req.params.handle + '".'
+                            subject: req.user.ddr.username +  ' added you as a contributor of project "' + project.ddr.handle + '"',
+                            text: 'User ' + req.user.uri + ' added you as a contributor for project "' + project.ddr.handle + '".'
                         };
 
                         client.sendMail(email, function (err, info) {
@@ -1038,7 +1035,7 @@ exports.administer = function(req, res) {
                         if (isNull(err))
                         {
                             viewVars.project = project;
-                            viewVars.success_messages = ["Project " + req.params.handle + " successfully updated."];
+                            viewVars.success_messages = ["Project " + project.ddr.handle + " successfully updated."];
                             res.render('projects/administration/administer',
                                 viewVars
                             );
@@ -1062,7 +1059,7 @@ exports.administer = function(req, res) {
             }
             else
             {
-                viewVars.error_messages = ["Project " + req.params.handle + " does not exist."];
+                viewVars.error_messages = ["Project " + requestedResourceUri + " does not exist."];
                 res.status(401).render('index',
                     viewVars
                 );
@@ -1079,9 +1076,7 @@ exports.administer = function(req, res) {
 };
 
 exports.get_contributors = function(req, res){
-    ////const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
-
-    Project.findByUri(req.params.handle, function(err, project) {
+    Project.findByUri(req.params.requestedResourceUri, function(err, project) {
         if (isNull(err)) {
             if (!isNull(project)) {
                 //from http://www.dzone.com/snippets/validate-url-regexp
@@ -1171,7 +1166,7 @@ exports.bagit = function(req,res)
                     {
                         res.status(500).json({
                             result: "error",
-                            message : "project " + requestedProjectURI + " was found but it was impossible to delete because of error : " + baggedContentsZipFileAbsPath
+                            message : "project " + req.params.requestedResourceUri +  " was found but it was impossible to delete because of error : " + baggedContentsZipFileAbsPath
                         })
                     }
                 });
@@ -1180,7 +1175,7 @@ exports.bagit = function(req,res)
             {
                 res.status(404).json({
                     result : "error",
-                    message : "Unable to find project with handle : " + req.params.handle
+                    message : "Unable to find project with handle : " + req.params.requestedResourceUri
                 });
             }
         }
@@ -1188,7 +1183,7 @@ exports.bagit = function(req,res)
         {
             res.status(500).json({
                 result : "error",
-                message : "Invalid project : " + requestedProjectURI + " : " + project
+                message : "Invalid project : " + req.params.requestedResourceUri +  " : " + project
             });
         }
     });
@@ -1196,8 +1191,6 @@ exports.bagit = function(req,res)
 
 exports.delete = function(req,res)
 {
-    //const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
-
     Project.findByUri(req.params.requestedResourceUri, function(err, project){
         if(isNull(err))
         {
@@ -1206,7 +1199,7 @@ exports.delete = function(req,res)
                 project.delete(function(err, result){
                     if(isNull(err))
                     {
-                        const success_messages = ["Project " + req.params.handle + " successfully marked as deleted"];
+                        const success_messages = ["Project " + project.ddr.handle + " successfully marked as deleted"];
 
                         let acceptsHTML = req.accepts('html');
                         const acceptsJSON = req.accepts('json');
@@ -1229,7 +1222,7 @@ exports.delete = function(req,res)
                     {
                         res.status(500).json({
                             result: "error",
-                            message : "project " + requestedProjectURI + " was found but it was impossible to delete because of error : " + result
+                            message : "project " + req.params.requestedResourceUri + " was found but it was impossible to delete because of error : " + result
                         })
                     }
                 });
@@ -1238,7 +1231,7 @@ exports.delete = function(req,res)
             {
                 res.status(404).json({
                     result : "error",
-                    message : "Unable to find project with handle : " + req.params.handle
+                    message : "Unable to find project with handle : " + req.params.requestedResourceUri
                 });
             }
         }
@@ -1246,7 +1239,7 @@ exports.delete = function(req,res)
         {
             res.status(500).json({
                 result : "error",
-                message : "Invalid project : " + requestedProjectURI + " : " + project
+                message : "Invalid project : " + req.params.requestedResourceUri + " : " + project
             });
         }
     });
@@ -1262,7 +1255,7 @@ exports.undelete = function(req,res)
                 project.undelete(function(err, result){
                     if(isNull(err))
                     {
-                        const success_messages = ["Project " + req.params.handle + " successfully recovered"];
+                        const success_messages = ["Project " + project.ddr.handle + " successfully recovered"];
 
                         let acceptsHTML = req.accepts('html');
                         const acceptsJSON = req.accepts('json');
@@ -1285,7 +1278,7 @@ exports.undelete = function(req,res)
                     {
                         res.status(500).json({
                             result: "error",
-                            message : "project " + requestedProjectURI + " was found but it was impossible to undelete because of error : " + result
+                            message : "project " + req.params.requestedResourceUri + " was found but it was impossible to undelete because of error : " + result
                         })
                     }
                 });
@@ -1294,7 +1287,7 @@ exports.undelete = function(req,res)
             {
                 res.status(404).json({
                     result : "error",
-                    message : "Unable to find project with handle : " + req.params.handle
+                    message : "Unable to find project " + req.params.requestedResourceUri
                 });
             }
         }
@@ -1302,7 +1295,7 @@ exports.undelete = function(req,res)
         {
             res.status(500).json({
                 result : "error",
-                message : "Invalid project : " + requestedProjectURI + " : " + project
+                message : "Invalid project : " + req.params.requestedResourceUri +  " : " + project
             });
         }
     });
@@ -1347,7 +1340,7 @@ exports.recent_changes = function(req, res) {
                 {
                     res.status(404).json({
                         result : "error",
-                        message : "Unable to find project with handle : " + req.params.handle
+                        message : "Unable to find project " + req.params.requestedResourceUri
                     });
                 }
             }
@@ -1355,7 +1348,7 @@ exports.recent_changes = function(req, res) {
             {
                 res.status(500).json({
                     result : "error",
-                    message : "Invalid project : " + requestedProjectURI + " : " + project
+                    message : "Invalid project : " + req.params.requestedResourceUri +  " : " + project
                 });
             }
         });
@@ -1454,7 +1447,7 @@ exports.stats = function(req, res) {
                                 return callback(1,
                                     {
                                         result : "error",
-                                        message : "Error calculating size of project : " + requestedProjectURI + " . Error reported : " + JSON.stringify(err) + ".",
+                                        message : "Error calculating size of project : " + req.params.requestedResourceUri +  " . Error reported : " + JSON.stringify(err) + ".",
                                         solution :  "Did you install mongodb via apt-get? YOU NEED MONGODB 10GEN to run this, or it will give errors. Install the latest mongodb by .deb package instead of apt-get."
                                     });
                             }
@@ -1487,7 +1480,7 @@ exports.stats = function(req, res) {
         {
             res.status(500).json({
                 result : "error",
-                message : "Invalid project : " + requestedProjectURI + " : " + project
+                message : "Invalid project : " + req.params.requestedResourceUri +  " : " + project
             });
         }
     });
@@ -1522,7 +1515,7 @@ exports.interactions = function(req, res) {
                     {
                         res.status(500).json({
                             result : "Error",
-                            message : "Error retrieving interactions for project " + req.params.handle
+                            message : "Error retrieving interactions for project " + req.params.requestedResourceUri
                         });
                     }
                 });
@@ -1531,7 +1524,7 @@ exports.interactions = function(req, res) {
             {
                 res.status(404).json({
                     result : "Error",
-                    message : "Unable to find project " + req.params.handle
+                    message : "Unable to find project " + req.params.requestedResourceUri
                 });
             }
         });
@@ -1605,8 +1598,8 @@ exports.requestAccess = function(req, res){
                         const email = {
                             from: 'support@dendro.fe.up.pt',
                             to: 'ffjs1993@gmail.com',
-                            subject: 'Request for project "' + req.params.handle + '"',
-                            text: 'User ' + req.user.uri + ' requested access for project "' + req.params.handle + '".\ ' +
+                            subject: 'Request for project "' + project.ddr.handle + '"',
+                            text: 'User ' + req.user.uri + ' requested access for project "' + project.ddr.handle + '".\ ' +
                             'To accept this, please add him as a contributor.'
                         };
 

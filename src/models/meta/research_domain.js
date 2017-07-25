@@ -32,13 +32,13 @@ ResearchDomain.create = function(object, callback)
     }
     else
     {
-        if(isNull(object.dcterms.created))
+        if(isNull(object.ddr.created))
         {
-            self.dcterms.created = now.toISOString();
+            self.ddr.created = now.toISOString();
         }
         else
         {
-            self.dcterms.created = object.dcterms.created;
+            self.ddr.created = object.ddr.created;
         }
     }
 

@@ -4,7 +4,7 @@
     <div ng-init='getFileVersion("<%=fileVersionUri %>");fileVersionLikesInfo("<%=fileVersionUri %>");getCommentsFromFileVersion("<%=fileVersionUri %>");getSharesFromFileVersion("<%=fileVersionUri %>");'>
         <div class="panel panel-info" ng-if='fileVersionsList["<%=fileVersionUri %>"].rdf.isShare'>
             <div class="panel-heading">
-                <h3 class="panel-title"> {{fileVersionsList["<%=fileVersionUri %>"].dcterms.modified | date : 'dd/MMM/yyyy'}}  <a ng-href="{{fileVersionsList['<%=fileVersionUri %>'].ddr.userWhoShared}}">{{fileVersionsList["<%=fileVersionUri %>"].ddr.userWhoShared.split('/').pop()}}</a> : "{{fileVersionsList["<%=fileVersionUri %>"].ddr.shareMsg}}"</h3>
+                <h3 class="panel-title"> {{fileVersionsList["<%=fileVersionUri %>"].ddr.modified | date : 'dd/MMM/yyyy'}}  <a ng-href="{{fileVersionsList['<%=fileVersionUri %>'].ddr.userWhoShared}}">{{fileVersionsList["<%=fileVersionUri %>"].ddr.userWhoShared.split('/').pop()}}</a> : "{{fileVersionsList["<%=fileVersionUri %>"].ddr.shareMsg}}"</h3>
             </div>
             <div class="panel-body">
                 <!-- obtain the original post information-->
@@ -12,7 +12,7 @@
                     <!-- The info from the original post-->
                     <div class="btn-group panel panel-success" style="background-color:#e5e6e8; border-style: dashed; border-width:2px;">
                         <div class="panel-heading">
-                            <h3 class="panel-title"> {{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{fileVersionsList[fileVersionsList['<%=fileVersionUri %>'].ddr.fileVersionUri].ddr.creatorUri}}">{{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}}</a>  added a file version</h3>
+                            <h3 class="panel-title"> {{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].ddr.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{fileVersionsList[fileVersionsList['<%=fileVersionUri %>'].ddr.fileVersionUri].ddr.creatorUri}}">{{fileVersionsList[fileVersionsList["<%=fileVersionUri %>"].ddr.fileVersionUri].ddr.creatorUri.split('/').pop()}}</a>  added a file version</h3>
                         </div>
                         <div class="panel-body">
                             <table class="table changelog-table text-center">
@@ -54,7 +54,7 @@
         <!-- aqui -->
         <div class="panel panel-success" ng-if='!fileVersionsList["<%=fileVersionUri %>"].rdf.isShare'>
             <div class="panel-heading">
-                <h3 class="panel-title"> {{fileVersionsList["<%=fileVersionUri %>"].dcterms.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{fileVersionsList['<%=fileVersionUri %>'].ddr.creatorUri}}">{{fileVersionsList["<%=fileVersionUri %>"].ddr.creatorUri.split('/').pop()}}</a> added a file version </h3>
+                <h3 class="panel-title"> {{fileVersionsList["<%=fileVersionUri %>"].ddr.modified | date : 'dd/MMM/yyyy'}} <a ng-href="{{fileVersionsList['<%=fileVersionUri %>'].ddr.creatorUri}}">{{fileVersionsList["<%=fileVersionUri %>"].ddr.creatorUri.split('/').pop()}}</a> added a file version </h3>
             </div>
             <div class="panel-body">
                 <img width="10%" height="20%" ng-src="http://iconshow.me/media/images/ui/ios7-icons/png/256/contact-outline.png" alt="Description" />
@@ -100,10 +100,10 @@
     </div>
     <div ng-init="isReplyFormOpen = false" ng-show="isReplyFormOpen" id="replyForm">
         <div class="wall">
-            <div ng-repeat="comment in commentList['<%=fileVersionUri %>'] | orderBy: 'dcterms.created'">
+            <div ng-repeat="comment in commentList['<%=fileVersionUri %>'] | orderBy: 'ddr.created'">
                 <a ng-href="{{comment.ddr.userWhoCommented}}"><p style="font-weight:bold"> {{comment.ddr.userWhoCommented.split('/').pop()}} : </p></a>
                 <p style="font-style: italic">{{comment.ddr.commentMsg}}</p>
-                <span>{{comment.dcterms.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
+                <span>{{comment.ddr.created | date:'MM/dd/yyyy @ h:mma'}}</span><br>
                 <hr>
             </div>
             <label for="new_comment_box">{{loggedUser.split('/').pop()}} :</label>

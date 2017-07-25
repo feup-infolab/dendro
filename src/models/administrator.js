@@ -11,7 +11,7 @@ function Administrator (object)
 {
     const self = this;
 
-    self.addURIAndRDFType(object, "administrator");
+    self.addURIAndRDFType(object, "administrator", Administrator);
 
     Administrator.baseConstructor.call(this, object);
 

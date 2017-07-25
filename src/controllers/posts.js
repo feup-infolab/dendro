@@ -178,8 +178,8 @@ exports.all = function(req, res){
 };
 
 function sortPostsByModifiedDate(postA, postB) {
-    const a = new Date(postA.dcterms.modified),
-        b = new Date(postB.dcterms.modified);
+    const a = new Date(postA.ddr.modified),
+        b = new Date(postB.ddr.modified);
     return (a.getTime() - b.getTime());
 }
 

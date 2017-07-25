@@ -50,9 +50,9 @@ function ArchivedResource (object)
     }
 
     const now = new Date();
-    if(isNull(object.dcterms) || isNull(object.dcterms.created))
+    if(isNull(object.dcterms) || isNull(object.ddr.created))
     {
-        self.dcterms.created = now.toISOString();
+        self.ddr.created = now.toISOString();
     }
 
     return self;
@@ -190,9 +190,9 @@ ArchivedResource.prototype.getDetailedInformation = function(callback)
 
     const setHumanReadableDate = function (callback) {
         const moment = require('moment');
-        const humanReadableDate = moment(archivedResource.dcterms.created);
+        const humanReadableDate = moment(archivedResource.ddr.created);
 
-        archivedResource.dcterms.created = humanReadableDate.calendar();
+        archivedResource.ddr.created = humanReadableDate.calendar();
         return callback(null);
     };
 

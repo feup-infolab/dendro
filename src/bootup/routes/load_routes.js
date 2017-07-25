@@ -450,8 +450,6 @@ const loadRoutes = function(app, passport, recommendation, callback)
                     Permissions.settings.role.in_project.creator
                 ];
 
-                req.params.handle = req.params[0];
-
                 const modificationPermissions = [
                     Permissions.settings.role.in_project.contributor,
                     Permissions.settings.role.in_project.creator
@@ -591,6 +589,14 @@ const loadRoutes = function(app, passport, recommendation, callback)
                             permissions: modificationPermissions,
                             authentication_error: "Permission denied : cannot fetch descriptors from ontology in this project because you do not have permissions to access resources inside it."
                         },
+                        //auto completing descriptors
+                        {
+                            queryKeys: ['descriptors_autocomplete'],
+                            handler: descriptors.descriptors_autocomplete,
+                            permissions: defaultPermissionsInProjectRoot,
+                            authentication_error: "Permission denied : cannot get descriptor autocompletions in this project because you do not have permissions to access this project."
+
+                        },
                         //default case
                         {
                             queryKeys: [],
@@ -709,9 +715,6 @@ const loadRoutes = function(app, passport, recommendation, callback)
                     Permissions.settings.role.in_owner_project.contributor,
                     Permissions.settings.role.in_owner_project.creator
                 ];
-
-                req.params.handle = req.params[0];                      //project handle
-                req.params.filepath = req.params[1];
 
                 req.params.is_project_root = false;
 

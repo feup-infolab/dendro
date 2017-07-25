@@ -2164,7 +2164,6 @@ exports.recent_changes = function(req, res) {
     }
     else
     {
-        //const requestedProjectURI = db.baseURI + "/project/" + req.params.handle;
         InformationElement.findByUri(req.params.requestedResourceUri, function(err, fileOrFolder){
             if(isNull(err))
             {
@@ -2223,7 +2222,7 @@ exports.recent_changes = function(req, res) {
             {
                 res.status(500).json({
                     result : "error",
-                    message : "Invalid project : " + requestedProjectURI + " : " + project
+                    message : "Invalid project : " + req.params.requestedResourceUri +  " : " + project
                 });
             }
         });

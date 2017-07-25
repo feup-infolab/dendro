@@ -88,10 +88,7 @@ Elements.dcterms =
     created :
     {
         type : DbConnection.date,
-        control : Controls.date_picker,
-        api_readable : true,
-        locked : true,
-        audit : true
+        control : Controls.date_picker
     },
     creator :
     {
@@ -262,9 +259,7 @@ Elements.dcterms =
     hasVersion :
     {
         type : DbConnection.resource,
-        control : Controls.url_box,
-        locked : true,
-        private : true
+        control : Controls.url_box
     },
     hasPart :
     {
@@ -636,6 +631,14 @@ Elements.foaf =
  */
 
 Elements.ddr = {
+    created :
+    {
+        type : DbConnection.date,
+        control : Controls.date_picker,
+        api_readable : true,
+        locked : true,
+        audit : true
+    },
     modified :
     {
         type : DbConnection.string,

@@ -51,7 +51,7 @@ InteractionMapper.map = function(interactionObject, callback)
 
                     fields : {
                         value : interactionObject.ddr.interactionType,
-                        interaction_registered_on : interactionObject.dcterms.created
+                        interaction_registered_on : interactionObject.ddr.created
                     }
                 };
 

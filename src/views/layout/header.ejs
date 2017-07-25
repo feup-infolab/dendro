@@ -6,6 +6,7 @@
     <head>
 
         <%- include includes.ejs%>
+        <%- include onload.ejs%>
 
        <title>
             <% if (locals.title != null) { %>
@@ -37,7 +38,6 @@
 
             </script>
         <% } %>
-
     </head>
     <body>
     <div id="wrap" ng-controller="windowCtrl">
