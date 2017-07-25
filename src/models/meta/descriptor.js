@@ -12,7 +12,7 @@ const db = Config.getDBByID();
 const async = require('async');
 const _ = require('underscore');
 
-function Descriptor(object, removeTypeSettings)
+function Descriptor(object, typeConfigsToRetain)
 {
     const self = this;
 
@@ -109,7 +109,7 @@ function Descriptor(object, removeTypeSettings)
                 {
                     if(Config.types.hasOwnProperty(descriptorType))
                     {
-                        if (!isNull(Elements[self.prefix][self.shortName]))
+                        if (Elements[self.prefix][self.shortName][descriptorType])
                         {
                             self[descriptorType] = Elements[self.prefix][self.shortName][descriptorType];
                         }
@@ -166,14 +166,23 @@ function Descriptor(object, removeTypeSettings)
                 }
             }
 
-            if(removeTypeSettings)
+            if(!isNull(typeConfigsToRetain) && typeConfigsToRetain instanceof Array)
             {
-                /*for(let descriptorType in Config.types)
+                for(let i = 0; i < typeConfigsToRetain.length; i++)
                 {
-                    delete self[descriptorType];
-                }*/
-
-                delete self.type;
+                    let type = typeConfigsToRetain[i];
+                    if (Config.types.hasOwnProperty(type))
+                    {
+                        if(!isNull(object[type]))
+                        {
+                            self[type] = object[type];
+                        }
+                        else if(!isNull(Elements[self.prefix][self.shortName][type]))
+                        {
+                            self[type] = Elements[self.prefix][self.shortName][type];
+                        }
+                    }
+                }
             }
 
             return self;

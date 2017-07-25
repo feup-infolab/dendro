@@ -195,17 +195,17 @@ Utils.copyFromObjectToObject = function(fromObject, toObject)
 
 Utils.fade_messages = function()
 {
-    var timeout = 10000;
+    var timeout = 7000;
     setTimeout(function(){
-        $("#error_messages").fadeOut("slow");
+        $("#error_messages").slideUp("slow");
     },timeout);
 
     setTimeout(function(){
-        $("#success_messages").fadeOut("slow");
+        $("#success_messages").slideUp("slow");
     },timeout);
 
     setTimeout(function(){
-        $("#info_messages").fadeOut("slow");
+        $("#info_messages").slideUp("slow");
     },timeout);
 };
 

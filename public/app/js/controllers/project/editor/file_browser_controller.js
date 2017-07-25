@@ -371,8 +371,7 @@ angular.module('dendroApp.controllers')
                     .then(
                         function(metadata)
                         {
-                            $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
-                            $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
+                            $scope.reset_metadata(metadata);
                         }
                     );
 
@@ -413,8 +412,7 @@ angular.module('dendroApp.controllers')
 
                             metadataService.load_metadata($scope.get_calling_uri())
                                 .then(function(metadata){
-                                    $scope.shared.metadata = metadataService.deserialize_metadata(metadata);
-                                    $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata);
+                                    $scope.reset_metadata(metadata);
                                 });
 
                             if ($scope.preview_available()) // && !is_chrome())

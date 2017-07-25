@@ -1372,12 +1372,12 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         });
 };
 
-Project.prototype.findMetadata = function(callback)
+Project.prototype.findMetadata = function(callback, typeConfigsToRetain)
 {
     const self = this;
 
     self.getPropertiesFromOntologies(
-        Ontology.getPublicOntologiesUris(),
+        null,
         function(err, descriptors)
         {
             return callback(err,
@@ -1386,8 +1386,9 @@ Project.prototype.findMetadata = function(callback)
                     title : self.dcterms.title
                 }
             );
-        }
-    );
+        },
+        null,
+        typeConfigsToRetain);
 };
 
 Project.prototype.findMetadataOfRootFolder = function(callback)

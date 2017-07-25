@@ -226,6 +226,7 @@ exports.show = function(req, res) {
                 if (!isNull(req.query.deep)) {
                     requestedResource.findMetadataRecursive(function (err, result) {
                         if (isNull(err)) {
+                            result.is_project_root = true;
                             res.set('Content-Type', contentType);
                             res.send(serializer(result));
 
@@ -235,22 +236,21 @@ exports.show = function(req, res) {
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    }, true);
+                    }, [Config.types.locked, Config.types.locked_for_projects, Config.types.private]);
                 }
                 else {
                     requestedResource.findMetadata(function (err, result) {
                         if (isNull(err)) {
-
+                            result.is_project_root = true;
                             res.set('Content-Type', contentType);
                             res.send(serializer(result));
-
                         }
                         else {
                             res.status(500).json({
                                 error_messages: "Error finding metadata from " + requestedResource.uri + "\n" + result
                             });
                         }
-                    }, true);
+                    }, [Config.types.locked, Config.types.locked_for_projects, Config.types.private]);
                 }
 
                 return false;
@@ -455,7 +455,7 @@ exports.show = function(req, res) {
                 else
                 {
                     const projectDescriptors = project.getDescriptors(
-                        [Config.types.private, Config.types.locked], [Config.types.api_readable]
+                        [Config.types.private, Config.types.locked], [Config.types.api_readable], [Config.types.locked_for_projects, Config.types.locked]
                     );
 
                     if(!isNull(projectDescriptors) && projectDescriptors instanceof Array)

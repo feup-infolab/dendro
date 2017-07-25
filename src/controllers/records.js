@@ -49,6 +49,8 @@ exports.show_deep = function(req, res) {
                                     contentType = Config.metadataContentTypes[accept];
                                 }
 
+                                result.is_project_root = false;
+
                                 res.set('Content-Type', contentType);
                                 res.send(serializer(result));
 
@@ -125,6 +127,8 @@ exports.show = function(req, res) {
                                     serializer = Config.metadataSerializers[accept];
                                     contentType = Config.metadataContentTypes[accept];
                                 }
+
+                                result.is_project_root = false;
 
                                 res.set('Content-Type', contentType);
                                 res.send(serializer(result));

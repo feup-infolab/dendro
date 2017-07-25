@@ -505,7 +505,7 @@ Resource.prototype.loadPropertiesFromOntologies = function(ontologyURIsArray, ca
  * @param customGraphUri
  */
 
-Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, callback, customGraphUri)
+Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, callback, customGraphUri, typeConfigsToRetain)
 {
     const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;
@@ -564,11 +564,12 @@ Resource.prototype.getPropertiesFromOntologies = function(ontologyURIsArray, cal
             if(isNull(err))
             {
                 const formattedResults = [];
-
+                let formattedDescriptor;
+                
                 for(let i = 0; i < descriptors.length; i++)
                 {
                     try{
-                        var formattedDescriptor = new Descriptor(descriptors[i]);
+                        formattedDescriptor = new Descriptor(descriptors[i], typeConfigsToRetain);
                     }
                     catch(e)
                     {
@@ -2211,7 +2212,7 @@ Resource.prototype.getPublicDescriptorsForAPICalls = function()
     return self.getDescriptors([Config.types.locked, Config.types.private], [Config.types.api_readable]);
 };
 
-Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet, cleanTypes)
+Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptorTypesToForcefullyGet, typeConfigsToRetain)
 {
     const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
     const self = this;
@@ -2231,7 +2232,7 @@ Resource.prototype.getDescriptors = function(descriptorTypesNotToGet, descriptor
                             shortName: shortName,
                             value: self[prefix][shortName]
                         },
-                        cleanTypes
+                        typeConfigsToRetain
                     );
 
                     if(newDescriptor.isAuthorized(descriptorTypesNotToGet, descriptorTypesToForcefullyGet))
@@ -2636,11 +2637,11 @@ Resource.prototype.getLogicalParts = function(callback)
 };
 
 
-Resource.prototype.findMetadataRecursive = function(callback, cleanTypes){
+Resource.prototype.findMetadataRecursive = function(callback, typeConfigsToRetain ){
     const self = this;
     const async = require("async");
     const myDescriptors = self.getDescriptors(
-        [Config.types.private, Config.types.locked], [Config.types.api_readable], cleanTypes
+        [Config.types.private, Config.types.locked], [Config.types.api_readable], typeConfigsToRetain
     );
 
     if(!isNull(myDescriptors) && myDescriptors instanceof Array)
@@ -2675,7 +2676,7 @@ Resource.prototype.findMetadataRecursive = function(callback, cleanTypes){
                                 console.info("[findMetadataRecursive] error accessing metadata of resource " + folder.nie.title);
                                 return callback(err);
                             }
-                        }, cleanTypes);
+                        }, typeConfigsToRetain);
                     },
                     // 3rd parameter is the function call when everything is done
                     function(err){

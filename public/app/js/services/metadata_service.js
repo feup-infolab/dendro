@@ -94,7 +94,10 @@ angular.module('dendroApp.factories')
                 {
                     if(response.data != null && response.data instanceof Object)
                     {
-                        deserialize.resolve(self.deserialize_metadata(response.data.descriptors));
+                        deserialize.resolve({
+                            descriptors : self.deserialize_metadata(response.data.descriptors),
+                            is_project_root : response.data.is_project_root
+                        });
                     }
                     else
                     {
