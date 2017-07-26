@@ -179,10 +179,10 @@
                 <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
                     <li class="active">
                         <a href="#metadata-editor" data-toggle="tab" ng-click="load_metadata()">
-                            About <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_current_filename()}}
+                            <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_current_filename()}}
                         </a>
                     </li>
-                    <li>
+                    <li ng-show="!showing_project_root()">
                         <a href="#change_log"
                            data-toggle="tab"
                            ng-controller="changeLogController"
@@ -200,8 +200,6 @@
                             Changes
                         </a>
                     </li>
-
-
                     <li>
                         <a href="#stats" data-toggle="tab" ng-controller="changeLogController" ng-click="get_project_stats()" ><span class="label label-info">Project</span> Stats</a>
                     </li>

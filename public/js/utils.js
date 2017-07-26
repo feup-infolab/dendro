@@ -197,15 +197,15 @@ Utils.fade_messages = function()
 {
     var timeout = 7000;
     setTimeout(function(){
-        $("#error_messages").slideUp("slow");
+        $("#error_messages").fadeOut("slow");
     },timeout);
 
     setTimeout(function(){
-        $("#success_messages").slideUp("slow");
+        $("#success_messages").fadeOut("slow");
     },timeout);
 
     setTimeout(function(){
-        $("#info_messages").slideUp("slow");
+        $("#info_messages").fadeOut("slow");
     },timeout);
 };
 

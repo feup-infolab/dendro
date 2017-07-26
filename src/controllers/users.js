@@ -675,7 +675,7 @@ exports.edit = function (req, res, next) {
                         user.save(function (err, editedUser) {
                             if (!err) {
                                 req.flash('success', "User " + editedUser.ddr.username + " edited.");
-                                console.log("User " + editedUser.ddr.username + " edited.");
+                                //console.log("User " + editedUser.ddr.username + " edited.");
                                 //res.redirect('/me');
                                 if (changedPassword) {
                                     req.flash('info', "Since you changed your password, you need to login again!");
@@ -755,10 +755,10 @@ var getAvatarFromGfs = function (user, callback) {
                     gfs.connection.get(avatarUri, writeStream, function (err, result) {
                         if (!err) {
                             writeStream.on('error', function (err) {
-                                console.log("Deu error");
+                                //console.log("Deu error");
                                 callback(err, result);
                             }).on('finish', function () {
-                                console.log("Deu finish");
+                                //console.log("Deu finish");
                                 callback(null, avatarFilePath);
                             });
                         }
@@ -798,7 +798,7 @@ var uploadAvatarToGrifs = function (user, avatarUri, base64Data, extension, call
                     if (!error) {
                         let readStream = fs.createReadStream(avatarFilePath);
                         readStream.on('open', function () {
-                            console.log("readStream is ready");
+                            //console.log("readStream is ready");
                             gfs.connection.put(
                                 avatarUri,
                                 readStream,
