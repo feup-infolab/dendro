@@ -68,7 +68,7 @@ angular.module('dendroApp.controllers')
         {
             var getChangesOfProject = function(rootProject)
             {
-                if(!err && rootProject != null)
+                if(rootProject != null)
                 {
                     metadataService.get_recent_changes_of_project(rootProject.uri)
                         .then(function(response)

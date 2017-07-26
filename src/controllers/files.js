@@ -2306,6 +2306,68 @@ exports.data = function(req, res){
 };
 
 
+exports.owner_project = function(req, res){
+    const resourceURI = req.params.requestedResourceUri;
+
+    InformationElement.findByUri(resourceURI, function(err, ie){
+        if(isNull(err))
+        {
+            if(!isNull(ie))
+            {
+                ie.getOwnerProject(function(err, ownerProject){
+                    if(isNull(err))
+                    {
+                        if(!isNull(ownerProject))
+                        {
+                            res.json({
+                                result : "ok",
+                                uri : ownerProject.uri
+                            });
+                        }
+                        else
+                        {
+                            const error = "Resource : " + resourceURI  + " does not have an owner project.";
+                            console.error(error);
+                            res.status(404).json({
+                                result : "error",
+                                message : error
+                            });
+                        }
+                    }
+                    else
+                    {
+                        const error = "Error fetching owner project of resource : " + resourceURI + ":" + ownerProject;
+                        console.error(error);
+                        res.status(500).json({
+                            result : "error",
+                            message : error
+                        });
+                    }
+                });
+            }
+            else
+            {
+                const error = "Non-existent resource : " + resourceURI;
+                console.error(error);
+                res.status(404).json({
+                    result : "error",
+                    message : error
+                });
+            }
+        }
+        else
+        {
+            const error = "Error accessing resource : " + resourceURI + ":" + ie;
+            console.error(error);
+            res.status(500).json({
+                result : "error",
+                message : error
+            });
+        }
+
+    });
+};
+
 xlsFileParser = function (req, res, filePath){
     const excelParser = require('excel-parser');
 

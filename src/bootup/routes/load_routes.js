@@ -839,6 +839,13 @@ const loadRoutes = function(app, passport, recommendation, callback)
                             permissions: defaultPermissionsInProjectBranch,
                             authentication_error: "Permission denied : cannot get the recommended ontologies for this resource because you do not have permissions to access resources inside this project."
                         },
+                        //get project root
+                        {
+                            queryKeys: ['owner_project'],
+                            handler: files.owner_project,
+                            permissions: defaultPermissionsInProjectBranch,
+                            authentication_error: "Permission denied : cannot retrieve the owner project of this resource because you do not have permissions to access that project."
+                        },
                         //serve files
                         {
                             queryKeys: ['serve'],

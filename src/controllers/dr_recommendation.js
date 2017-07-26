@@ -170,135 +170,137 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
         }
     );
 
-    const projectUri = ie.getOwnerProjectFromUri();
-    const includeOnlyFavorites = !isNull(options) && options[exports.shared.recommendation_options.favorites];
-    const smartRecommendationMode = !isNull(options) && options[exports.shared.recommendation_options.smart];
-    const includeOnlyHiddenDescriptors = !isNull(options) && options[exports.shared.recommendation_options.hidden];
-    const recommendAlreadyFilledIn = !isNull(options) && options[exports.shared.recommendation_options.recommend_already_filled_in];
+    ie.getOwnerProject(function(err, project){
+        const projectUri = project.uri;
+        const includeOnlyFavorites = !isNull(options) && options[exports.shared.recommendation_options.favorites];
+        const smartRecommendationMode = !isNull(options) && options[exports.shared.recommendation_options.smart];
+        const includeOnlyHiddenDescriptors = !isNull(options) && options[exports.shared.recommendation_options.hidden];
+        const recommendAlreadyFilledIn = !isNull(options) && options[exports.shared.recommendation_options.recommend_already_filled_in];
 
-    const removeLockedAndPrivate = function (results) {
-        const filtered = _.filter(results, function (result) {
-            let isLockedOrPrivate = (result.locked || result.private);
-            return !isLockedOrPrivate;
-        });
+        const removeLockedAndPrivate = function (results) {
+            const filtered = _.filter(results, function (result) {
+                let isLockedOrPrivate = (result.locked || result.private);
+                return !isLockedOrPrivate;
+            });
 
-        return filtered;
-    };
+            return filtered;
+        };
 
-    const getRecommendationsFromDR = function (resourceUri, callback) {
-        const requestedResource = new InformationElement({
-            uri: resourceUri
-        });
+        const getRecommendationsFromDR = function (resourceUri, callback) {
+            const requestedResource = new InformationElement({
+                uri: resourceUri
+            });
 
-        requestedResource.findMetadata(function (err, metadata) {
-            if (isNull(err) && !isNull(metadata)) {
-                const request = require('request');
-                const DRUrl = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/recommendations/recommend";
+            requestedResource.findMetadata(function (err, metadata) {
+                if (isNull(err) && !isNull(metadata)) {
+                    const request = require('request');
+                    const DRUrl = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/recommendations/recommend";
 
-                const qs = {
-                    project: projectUri,
-                    current_resource: resourceUri,
-                    user: userUri,
-                    current_metadata: JSON.stringify(metadata),
-                    recommend_already_filled_in: recommendAlreadyFilledIn,
-                    allowed_ontologies: JSON.stringify(allowedOntologies)
-                };
+                    const qs = {
+                        project: projectUri,
+                        current_resource: resourceUri,
+                        user: userUri,
+                        current_metadata: JSON.stringify(metadata),
+                        recommend_already_filled_in: recommendAlreadyFilledIn,
+                        allowed_ontologies: JSON.stringify(allowedOntologies)
+                    };
 
-                if (recommendAlreadyFilledIn) {
-                    qs.recommend_already_filled_in = "true";
-                }
-                else {
-                    qs.recommend_already_filled_in = "false";
-                }
+                    if (recommendAlreadyFilledIn) {
+                        qs.recommend_already_filled_in = "true";
+                    }
+                    else {
+                        qs.recommend_already_filled_in = "false";
+                    }
 
-                if (isNull(page)) {
-                    qs.number_of_recommendations = Config.recommendation.recommendation_page_size;
-                }
-                else {
-                    qs.page = page;
-                    qs.page_size = Config.recommendation.recommendation_page_size;
-                }
+                    if (isNull(page)) {
+                        qs.number_of_recommendations = Config.recommendation.recommendation_page_size;
+                    }
+                    else {
+                        qs.page = page;
+                        qs.page_size = Config.recommendation.recommendation_page_size;
+                    }
 
-                if (includeOnlyFavorites) {
-                    qs.descriptor_filter = 'favorites';
-                }
-                else if (includeOnlyHiddenDescriptors) {
-                    qs.descriptor_filter = 'hidden';
-                }
-                else {
-                    qs.descriptor_filter = 'all';
-                }
-                request.post(
-                    {
-                        url: DRUrl,
-                        form: qs,
-                        headers: [
-                            {
-                                name: 'Accept',
-                                value: 'application/json'
-                            }
-                        ]
-                    },
-                    function (error, response) {
-                        if (isNull(error)) {
-                            if (!isNull(response.body)) {
-                                try {
-                                    const parsedBody = JSON.parse(response.body);
+                    if (includeOnlyFavorites) {
+                        qs.descriptor_filter = 'favorites';
+                    }
+                    else if (includeOnlyHiddenDescriptors) {
+                        qs.descriptor_filter = 'hidden';
+                    }
+                    else {
+                        qs.descriptor_filter = 'all';
+                    }
+                    request.post(
+                        {
+                            url: DRUrl,
+                            form: qs,
+                            headers: [
+                                {
+                                    name: 'Accept',
+                                    value: 'application/json'
+                                }
+                            ]
+                        },
+                        function (error, response) {
+                            if (isNull(error)) {
+                                if (!isNull(response.body)) {
+                                    try {
+                                        const parsedBody = JSON.parse(response.body);
 
-                                    const recommendations = parsedBody.recommendations;
+                                        const recommendations = parsedBody.recommendations;
 
-                                    if (!isNull(recommendations) && recommendations instanceof Array) {
-                                        async.map(recommendations, function (recommendation, cb) {
-                                                Descriptor.findByUri(recommendation.uri, function (err, fetchedDescriptor) {
-                                                    if (isNull(err)) {
-                                                        if (isNull(fetchedDescriptor)) {
-                                                            cb(1, "Descriptor " + recommendation.uri + " is not present in this Dendro instance. Check your Virtuoso parametrization to see if it exists in its own graph.");
-                                                        }
-                                                        else {
-                                                            fetchedDescriptor.score = recommendation.score;
-
-                                                            if (typeof recommendation.recommendation_types !== "undefined") {
-                                                                fetchedDescriptor.recommendation_types = recommendation.recommendation_types;
+                                        if (!isNull(recommendations) && recommendations instanceof Array) {
+                                            async.map(recommendations, function (recommendation, cb) {
+                                                    Descriptor.findByUri(recommendation.uri, function (err, fetchedDescriptor) {
+                                                        if (isNull(err)) {
+                                                            if (isNull(fetchedDescriptor)) {
+                                                                cb(1, "Descriptor " + recommendation.uri + " is not present in this Dendro instance. Check your Virtuoso parametrization to see if it exists in its own graph.");
                                                             }
                                                             else {
-                                                                fetchedDescriptor.recommendation_types = {};
-                                                            }
+                                                                fetchedDescriptor.score = recommendation.score;
 
-                                                            cb(0, fetchedDescriptor);
+                                                                if (typeof recommendation.recommendation_types !== "undefined") {
+                                                                    fetchedDescriptor.recommendation_types = recommendation.recommendation_types;
+                                                                }
+                                                                else {
+                                                                    fetchedDescriptor.recommendation_types = {};
+                                                                }
+
+                                                                cb(0, fetchedDescriptor);
+                                                            }
                                                         }
-                                                    }
-                                                    else {
-                                                        cb(1, "Unable to fetch descriptor data after getting recommendations from Dendro Recommender");
-                                                    }
+                                                        else {
+                                                            cb(1, "Unable to fetch descriptor data after getting recommendations from Dendro Recommender");
+                                                        }
+                                                    });
+                                                },
+                                                function (err, results) {
+                                                    return callback(err, results);
                                                 });
-                                            },
-                                            function (err, results) {
-                                                return callback(err, results);
-                                            });
+                                        }
+                                        else {
+                                            return callback(1, "Unable to fetch recommendations from Dendro Recommender : no \"recommendations\" field at the root of JSON response from Dendro Recommender or it is not an array of object recommendations.");
+                                        }
                                     }
-                                    else {
-                                        return callback(1, "Unable to fetch recommendations from Dendro Recommender : no \"recommendations\" field at the root of JSON response from Dendro Recommender or it is not an array of object recommendations.");
+                                    catch (exc) {
+                                        return callback(1, "Unable to fetch recommendations from Dendro Recommender : invalid JSON response from recommender server.");
                                     }
                                 }
-                                catch (exc) {
-                                    return callback(1, "Unable to fetch recommendations from Dendro Recommender : invalid JSON response from recommender server.");
+                                else {
+                                    return callback(1, "Unable to fetch recommendations from Dendro Recommender : Null Body on HTTP response from DR Server.");
                                 }
                             }
                             else {
-                                return callback(1, "Unable to fetch recommendations from Dendro Recommender : Null Body on HTTP response from DR Server.");
+                                return callback(1, "Unable to fetch recommendations from Dendro Recommender");
                             }
                         }
-                        else {
-                            return callback(1, "Unable to fetch recommendations from Dendro Recommender");
-                        }
-                    }
-                );
-            }
-            else {
-                return callback(err, "Unable to fetch resource with uri " + resourceUri + " when retrieving current metadata to send to the dendro recommender.");
-            }
-        });
-    };
+                    );
+                }
+                else {
+                    return callback(err, "Unable to fetch resource with uri " + resourceUri + " when retrieving current metadata to send to the dendro recommender.");
+                }
+            });
+        };
+    });
 
     getRecommendationsFromDR(resourceUri, function(err, results)
     {

@@ -960,7 +960,7 @@ var getCommentsForAPost = function (postID, cb) {
         "WHERE { \n" +
         "?commentURI rdf:type ddr:Comment. \n" +
         "?commentURI ddr:postURI [1]. \n" +
-        "?commentURI dcterms:modified ?date. \n " +
+        "?commentURI ddr:modified ?date. \n " +
         "} \n" +
         "ORDER BY ASC(?date) \n";
 
@@ -1216,7 +1216,7 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
                 "VALUES ?project { \n" +
                 projectsUris +
                 "} \n" +
-                "?uri dcterms:modified ?date. \n" +
+                "?uri ddr:modified ?date. \n" +
                 "?uri rdf:type ddr:Post. \n" +
                 "?uri ddr:projectUri ?project. \n" +
                 "} \n " +

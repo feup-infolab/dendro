@@ -20,7 +20,8 @@ angular.module('dendroApp.controllers')
         interactionsService,
         ontologiesService,
         storageService,
-        recommendationService
+        recommendationService,
+        projectsService
     ) {
 
         $scope.shared = {
@@ -110,8 +111,7 @@ angular.module('dendroApp.controllers')
         };
 
         $scope.get_owner_project = function() {
-            var currentUri = $scope.get_calling_uri();
-            return projectsService.get_owner_project(currentUri);
+            return projectsService.get_owner_project_of_resource($scope.get_calling_uri());
         };
 
         $scope.preview_available = function(){

@@ -50,7 +50,7 @@ function ArchivedResource (object)
     }
 
     const now = new Date();
-    if(isNull(object.dcterms) || isNull(object.ddr.created))
+    if(isNull(self.ddr.created))
     {
         self.ddr.created = now.toISOString();
     }

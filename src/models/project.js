@@ -649,7 +649,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
     /*WITH <http://127.0.0.1:3001/dendro_graph>
      SELECT ?dataUri
      WHERE {
-     ?dataUri dcterms:modified ?date.
+     ?dataUri ddr:modified ?date.
      <http://127.0.0.1:3001/project/testproject3/data> <http://www.semanticdesktop.org/ontologies/2007/01/19/nie#hasLogicalPart> ?dataUri.
      }
      ORDER BY DESC(?date)
@@ -662,7 +662,7 @@ Project.prototype.getProjectWideFolderFileCreationEvents = function (callback)
         "WITH [0] \n" +
         "SELECT ?dataUri \n" +
         "WHERE { \n" +
-        "?dataUri dcterms:modified ?date. \n" +
+        "?dataUri ddr:modified ?date. \n" +
         "[1] nie:hasLogicalPart ?dataUri. \n" +
         "} \n" +
         "ORDER BY DESC(?date) \n";
@@ -747,7 +747,7 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
         "WITH [0] \n" +
         "SELECT ?version \n" +
         "WHERE { \n" +
-        "?version dcterms:created ?date. \n" +
+        "?version ddr.created ?date. \n" +
         "filter ( \n" +
         "xsd:dateTime(?date) >= [2]" + "^^xsd:dateTime" + " ). \n" +
         "?version rdf:type ddr:ArchivedResource . \n" +
@@ -809,7 +809,7 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
         "WITH [0]\n" +
         "SELECT ?version\n" +
         "WHERE {\n" +
-        "   ?version dcterms:created ?date.\n" +
+        "   ?version ddr:created ?date.\n" +
         "   ?version rdf:type ddr:ArchivedResource .\n" +
         "   ?version ddr:isVersionOf ?resource.\n" +
         "   ?resource nie:isLogicalPartOf+ ?parent.\n" +
@@ -820,7 +820,7 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
     query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
 
     db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
+        [
             {
                 type : DbConnection.resourceNoEscape,
                 value : db.graphUri
@@ -829,7 +829,7 @@ Project.prototype.getRecentProjectWideChanges = function(callback, startingResul
                 type : DbConnection.resourceNoEscape,
                 value : self.uri
             }
-        ], startingResultPosition, maxResults),
+        ],
         function(err, results) {
             if(isNull(err))
             {
@@ -1167,7 +1167,7 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
     "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
     "				   	?favorite_interaction ddr:interactionType [2] . \n" +
     "					?favorite_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-    "				   	?favorite_interaction dcterms:created ?date_favorited. \n" +
+    "				   	?favorite_interaction ddr.created ?date_favorited. \n" +
     "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
     "				} \n" +
     "			}. \n" +
@@ -1181,7 +1181,7 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
     "				   	?unfavorite_interaction ddr:interactionType [3]. \n" +
 
     "				   	?unfavorite_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-    "				   	?unfavorite_interaction dcterms:created ?date_unfavorited. \n" +
+    "				   	?unfavorite_interaction ddr.created ?date_unfavorited. \n" +
     "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
     "				} \n" +
     "			} \n" +
@@ -1301,7 +1301,7 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         "				   	?hiding_interaction ddr:interactionType [2] . \n" +
 
         "					?hiding_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-        "				   	?hiding_interaction dcterms:created ?date_hidden. \n" +
+        "				   	?hiding_interaction ddr.created ?date_hidden. \n" +
         "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
         "				} \n" +
         "			}. \n" +
@@ -1315,7 +1315,7 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         "				   	?unhiding_interaction ddr:interactionType [3]. \n" +
 
         "				   	?unhiding_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-        "				   	?unhiding_interaction dcterms:created ?date_unhidden. \n" +
+        "				   	?unhiding_interaction ddr.created ?date_unhidden. \n" +
         "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
         "				} \n" +
         "			} \n" +

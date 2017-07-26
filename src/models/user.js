@@ -355,7 +355,7 @@ User.prototype.getInteractions = function(callback)
         " ?interaction ddr:performedBy [1] .\n" +
         " ?interaction ddr:interactionType ?type. \n" +
         " ?interaction ddr:executedOver ?object .\n" +
-        " ?interaction dcterms:created ?created. \n" +
+        " ?interaction ddr.created ?created. \n" +
         "} \n";
 
     db.connection.execute(query, [
@@ -510,7 +510,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "				   	?hide_interaction ddr:executedOver ?hidden_descriptor. \n" +
         "				   	?hide_interaction ddr:interactionType [2]. \n" +
         "				   	?hide_interaction ddr:performedBy [1] .  \n" +
-        "				   	?hide_interaction dcterms:created ?date_hidden. \n" +
+        "				   	?hide_interaction ddr.created ?date_hidden. \n" +
         "					FILTER NOT EXISTS \n" +
         "					{ \n" +
         "						SELECT ?unhidden_descriptor MAX(?date_unhidden) as ?last_unhidden \n" +
@@ -522,7 +522,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "				   			?unhide_interaction ddr:executedOver ?unhidden_descriptor. \n" +
         "				   			?unhide_interaction ddr:interactionType [3]. \n" +
         "				   			?unhide_interaction ddr:performedBy [1] .  \n" +
-        "				   			?unhide_interaction dcterms:created ?date_unhidden. \n" +
+        "				   			?unhide_interaction ddr.created ?date_unhidden. \n" +
         "						} \n" +
         "					} \n" +
         "				} \n" +
@@ -551,7 +551,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "				   	?hide_interaction ddr:executedOver ?hidden_descriptor. \n" +
         "				   	?hide_interaction ddr:interactionType [2] . \n" +
         "				   	?hide_interaction ddr:performedBy [1] .  \n" +
-        "				   	?hide_interaction dcterms:created ?date_hidden. \n" +
+        "				   	?hide_interaction ddr.created ?date_hidden. \n" +
         "				} \n" +
         "			}. \n" +
         "			{ \n" +
@@ -563,7 +563,7 @@ User.prototype.hiddenDescriptors = function(maxResults, callback, allowedOntolog
         "				   	?unhide_interaction ddr:executedOver ?hidden_descriptor. \n" +
         "				   	?unhide_interaction ddr:interactionType [3]. \n" +
         "				   	?unhide_interaction ddr:performedBy [1] .  \n" +
-        "				   	?unhide_interaction dcterms:created ?date_unhidden. \n" +
+        "				   	?unhide_interaction ddr.created ?date_unhidden. \n" +
         "				} \n" +
         "			} \n" +
         "		   	FILTER(bound(?last_unhidden) && ?last_hidden > ?last_unhidden) \n" +
@@ -701,7 +701,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
         "				   	?favorite_interaction ddr:interactionType [2]. \n" +
         "				   	?favorite_interaction ddr:performedBy [1] .  \n" +
-        "				   	?favorite_interaction dcterms:created ?date_favorited. \n" +
+        "				   	?favorite_interaction ddr.created ?date_favorited. \n" +
         "					FILTER NOT EXISTS \n" +
         "					{ \n" +
         "						SELECT ?unfavorited_descriptor MAX(?date_unfavorited) as ?last_unfavorited \n" +
@@ -713,7 +713,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "				   			?unfavorite_interaction ddr:executedOver ?unfavorited_descriptor. \n" +
         "				   			?unfavorite_interaction ddr:interactionType [3]. \n" +
         "				   			?unfavorite_interaction ddr:performedBy [1] .  \n" +
-        "				   			?unfavorite_interaction dcterms:created ?date_unfavorited. \n" +
+        "				   			?unfavorite_interaction ddr.created ?date_unfavorited. \n" +
         "						} \n" +
         "					} \n" +
         "				} \n" +
@@ -742,7 +742,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
         "				   	?favorite_interaction ddr:interactionType [2] . \n" +
         "				   	?favorite_interaction ddr:performedBy [1] .  \n" +
-        "				   	?favorite_interaction dcterms:created ?date_favorited. \n" +
+        "				   	?favorite_interaction ddr.created ?date_favorited. \n" +
         "				} \n" +
         "			}. \n" +
         "			{ \n" +
@@ -754,7 +754,7 @@ User.prototype.favoriteDescriptors = function(maxResults, callback, allowedOntol
         "				   	?unfavorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
         "				   	?unfavorite_interaction ddr:interactionType [3]. \n" +
         "				   	?unfavorite_interaction ddr:performedBy [1] .  \n" +
-        "				   	?unfavorite_interaction dcterms:created ?date_unfavorited. \n" +
+        "				   	?unfavorite_interaction ddr.created ?date_unfavorited. \n" +
         "				} \n" +
         "			} \n" +
         "		   	FILTER(bound(?last_unfavorited) && ?last_favorited > ?last_unfavorited) \n" +
@@ -1077,7 +1077,7 @@ User.prototype.mostRecentlyFilledInDescriptors = function(maxResults, callback, 
 
     "OPTIONAL { ?descriptor rdfs:label ?label. }\n" +
     "OPTIONAL { ?descriptor rdfs:comment ?comment. }\n" +
-    "?version dcterms:created ?used_date. \n" +
+    "?version ddr.created ?used_date. \n" +
     filterString + "\n" +
     "} " +
     "ORDER BY DESC(?last_use) \n" +

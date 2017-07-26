@@ -729,7 +729,7 @@ Ontology.prototype.save = function(callback)
     });
 
     const modified = new Descriptor({
-        prefixedForm: "dcterms:modified",
+        prefixedForm: "ddr:modified",
         value: new Date().toISOString()
     });
 

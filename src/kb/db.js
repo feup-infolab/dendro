@@ -203,21 +203,27 @@ DbConnection.addLimitsClauses = function(query, offset, maxResults) {
 };
 
 DbConnection.pushLimitsArguments = function(unpaginatedArgumentsArray, maxResults, offset) {
-    if(!isNull(offset) &&
+    if(
+        !isNull(offset) &&
         typeof offset === "number" &&
-        offset > 0)
+        offset > 0 &&
+        !isNaN(offset)
+    )
     {
-        unpaginatedArgumentsArray = unpaginatedArgumentsArray.push({
+        unpaginatedArgumentsArray.push({
             type : DbConnection.int,
-            value : maxResults
+            value : offset
         });
     }
 
-    if(!isNull(maxResults) &&
+    if(
+        !isNull(maxResults) &&
         typeof maxResults === "number" &&
-        maxResults > 0)
+        maxResults > 0 &&
+        !isNaN(maxResults)
+    )
     {
-        unpaginatedArgumentsArray = unpaginatedArgumentsArray.push({
+        unpaginatedArgumentsArray.push({
             type : DbConnection.int,
             value : maxResults
         });

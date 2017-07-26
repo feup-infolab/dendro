@@ -28,7 +28,7 @@ exports.get_unread_user_notifications = function (req ,res) {
             "WHERE {\n" +
             "?uri rdf:type ddr:Notification. \n" +
             "?uri ddr:resourceAuthorUri [1]. \n" +
-            "?uri dcterms:modified ?date. \n" +
+            "?uri ddr:modified ?date. \n" +
             "?uri foaf:status \"unread\". \n" +
             "} \n" +
             "ORDER BY DESC(?date)";
@@ -85,7 +85,7 @@ exports.get_notification_info = function (req, res) {
             "[1] ddr:userWhoActed ?userWhoActed. \n" +
             "[1] ddr:resourceTargetUri ?resourceTargetUri. \n" +
             "[1] ddr:resourceAuthorUri [2]. \n" +
-            "[1] dcterms:modified ?modified. \n" +
+            "[1] ddr:modified ?modified. \n" +
             "OPTIONAL { [1] ddr:shareURI ?shareURI. } \n" +
             "} \n";
 

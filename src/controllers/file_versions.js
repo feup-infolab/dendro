@@ -240,7 +240,7 @@ const getProjectFileVersions = function (projectUrisArray, startingResultPositio
                 "VALUES ?project { \n" +
                 projectsUris + "\n" +
                 "}. \n" +
-                "?fileVersion dcterms:modified ?date. \n" +
+                "?fileVersion ddr:modified ?date. \n" +
                 "{?fileVersion rdf:type ddr:FileVersion. }\n" +
                 "UNION \n" +
                 "{?fileVersion ddr:fileVersionUri ?x }\n" +

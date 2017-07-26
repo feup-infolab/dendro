@@ -89,7 +89,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                             "   WHERE \n" +
                             "   { \n" +
                             "       ?uri rdf:type ddr:Interaction. \n" +
-                            "       ?uri dcterms:created ?date_created. \n " +
+                            "       ?uri ddr.created ?date_created. \n " +
                             "       ?uri ddr:interactionType ?interaction_type \n " +
                             "   } \n" +
                             "   ORDER BY ?uri \n" +
@@ -149,7 +149,7 @@ InteractionAnalyser.average_descriptor_size_per_interaction = function(callback,
                                             "              }. \n" +
                                             "" +
                                             "              ?latest_version ddr:versionNumber ?latest_version_number. \n" +
-                                            "              ?latest_version dcterms:created ?date_last_version_created. \n" +
+                                            "              ?latest_version ddr.created ?date_last_version_created. \n" +
                                             "              ?latest_version ?descriptor ?value. \n" +
                                             "" +
                                             "              FILTER \n" +
@@ -294,7 +294,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                             "   WHERE \n" +
                             "   { \n" +
                             "       ?uri rdf:type ddr:Interaction. \n" +
-                            "       ?uri dcterms:created ?date_created. \n " +
+                            "       ?uri ddr.created ?date_created. \n " +
                             "       ?uri ddr:interactionType ?interaction_type \n " +
                             "   } \n" +
                             "   ORDER BY ?uri \n" +
@@ -354,7 +354,7 @@ InteractionAnalyser.number_of_descriptors_of_each_type_per_interaction = functio
                                             "              }. \n" +
                                             "" +
                                             "              ?latest_version ddr:versionNumber ?latest_version_number. \n" +
-                                            "              ?latest_version dcterms:created ?date_last_version_created. \n" +
+                                            "              ?latest_version ddr.created ?date_last_version_created. \n" +
                                             "              ?latest_version ?descriptor ?value. \n" +
                                             "" +
                                             "              FILTER \n" +
@@ -483,7 +483,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                             "   WHERE \n" +
                             "   { \n" +
                             "       ?uri rdf:type ddr:Interaction. \n" +
-                            "       ?uri dcterms:created ?date_created. \n " +
+                            "       ?uri ddr.created ?date_created. \n " +
                             "       ?uri ddr:interactionType ?interaction_type \n " +
                             "   } \n" +
                             "   ORDER BY ?uri \n" +
@@ -543,7 +543,7 @@ InteractionAnalyser.total_number_of_descriptors_per_interaction = function(callb
                                             "              }. \n" +
                                             "" +
                                             "              ?latest_version ddr:versionNumber ?latest_version_number. \n" +
-                                            "              ?latest_version dcterms:created ?date_last_version_created. \n" +
+                                            "              ?latest_version ddr.created ?date_last_version_created. \n" +
                                             "              ?latest_version ?descriptor ?value. \n" +
                                             "" +
                                             "              FILTER \n" +
@@ -672,7 +672,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                             "   WHERE \n" +
                             "   { \n" +
                             "       ?uri rdf:type ddr:Interaction. \n" +
-                            "       ?uri dcterms:created ?date_created. \n " +
+                            "       ?uri ddr.created ?date_created. \n " +
                             "       ?uri ddr:interactionType ?interaction_type \n " +
                             "   } \n" +
                             "   ORDER BY ?uri \n" +
@@ -732,7 +732,7 @@ InteractionAnalyser.average_metadata_sheet_size_per_interaction = function(callb
                                             "              }. \n" +
                                             "" +
                                             "              ?latest_version ddr:versionNumber ?latest_version_number. \n" +
-                                            "              ?latest_version dcterms:created ?date_last_version_created. \n" +
+                                            "              ?latest_version ddr.created ?date_last_version_created. \n" +
                                             "              ?latest_version ?descriptor ?value. \n" +
                                             "" +
                                             "              FILTER \n" +

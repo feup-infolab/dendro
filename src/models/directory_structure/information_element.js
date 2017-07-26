@@ -178,22 +178,6 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
     );
 };
 
-InformationElement.prototype.getOwnerProjectFromUri = function()
-{
-    const self = this;
-
-    const leadingPart = self.uri.match(new RegExp("http://[\/]*.*/project\/"));
-    let ownerProject = self.uri.replace(leadingPart, "");
-    if(!isNull(ownerProject) && !isNull(leadingPart))
-    {
-        ownerProject = ownerProject.replace(new RegExp("\/.*"), "");
-        ownerProject = leadingPart + ownerProject;
-    }
-
-    return ownerProject;
-};
-
-
 InformationElement.prototype.getOwnerProject = function(callback)
 {
     const self = this;
