@@ -932,9 +932,7 @@ const loadData = function(callback)
         function(callback) {
             if(Config.startup.load_databases && Config.startup.reload_administrators_on_startup)
             {
-                const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
                 log_boot_message("info","Loading default administrators.");
-
                 async.series([
                         function(callback)
                         {
@@ -942,7 +940,7 @@ const loadData = function(callback)
                         },
                         function(callback)
                         {
-                            const makeAdmin = function (newAdministrator, callback) {
+                            const createAdmin = function (newAdministrator, callback) {
 
                                 const username = newAdministrator.username;
                                 const password = newAdministrator.password;
@@ -983,7 +981,7 @@ const loadData = function(callback)
                                 })
                             };
 
-                            async.map(Config.administrators, makeAdmin, function(err){
+                            async.map(Config.administrators, createAdmin, function(err){
                                 if(isNull(err))
                                 {
                                     log_boot_message("success","Admins successfully loaded.");

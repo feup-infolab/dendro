@@ -321,9 +321,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
     app.get([
             getNonHumanReadableRouteRegex("user"),
             '/user/:username'
-        ],
-        extractUriFromRequest,
-        async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.show);
+        ], async.apply(Permissions.require, [Permissions.settings.role.in_system.user]), users.show);
 
 
     app.all('/reset_password', users.reset_password);

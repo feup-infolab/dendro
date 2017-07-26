@@ -163,7 +163,7 @@ exports.show = function(req, res){
     let acceptsHTML = req.accepts('html');
     const acceptsJSON = req.accepts('json');
 
-    User.findByUri(req.params.requestedResourceUri, function(err, user)
+    const sendResponse = function(err, user)
     {
         if(isNull(err))
         {
@@ -225,7 +225,23 @@ exports.show = function(req, res){
                 )
             }
         }
-    }, true);
+
+    };
+
+    if(!isNull(req.params.username))
+    {
+        User.findByUsername(req.params.username, function(err, user)
+        {
+            sendResponse(err, user);
+        }, true);
+    }
+    else if(!isNull(req.params.requestedResourceUri))
+    {
+        User.findByUri(req.params.requestedResource, function(err, user)
+        {
+            sendResponse(err, user);
+        }, true);
+    }
 };
 
 exports.me = function(req, res){

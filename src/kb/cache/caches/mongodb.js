@@ -46,8 +46,9 @@ MongoDBCache.prototype.openConnection = function(callback) {
 MongoDBCache.prototype.closeConnection = function(cb)
 {
     const self = this;
-    self.client.close();
-    cb(null, null);
+    self.client.close(function(err, result){
+        cb(err);
+    });
 };
 
 MongoDBCache.prototype.put = function(resourceUri, object, callback) {
@@ -232,23 +233,119 @@ MongoDBCache.prototype.delete = function(resourceUriOrArrayOfResourceUris, callb
                     .deleteMany(
                         filterObject,
                         function (err)
-                {
-                    if(isNull(err))
-                    {
-                        if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                         {
-                            console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
-                        }
+                            if(isNull(err))
+                            {
+                                if (Config.debug.active && Config.debug.cache.log_cache_deletes)
+                                {
+                                    console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                                }
 
-                        return callback(null, null);
-                    }
-                    else
+                                return callback(null, null);
+                            }
+                            else
+                            {
+                                const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from MongoDB cache " + JSON.stringify(self.id) + "\n" + err;
+                                console.log(msg);
+                                return callback(err, msg);
+                            }
+                        });
+            }
+            else
+            {
+                return callback(1, "Tried to fetch a resource from cache "+ JSON.stringify(self) + " providing a null resourceUri array!");
+            }
+        }
+        else
+        {
+            return callback(1, "Must open connection to MongoDB cache "+JSON.stringify(self)+"first!");
+        }
+    }
+    else
+    {
+        return callback(null, null);
+    }
+};
+
+MongoDBCache.prototype.deleteByQuery = function(queryObject, callback) {
+    const self = this;
+
+    if(Config.cache.active)
+    {
+        if(!isNull(self.client))
+        {
+            self.client.collection(self.collection)
+                .deleteMany(
+                    queryObject,
+                    function (err)
                     {
-                        const msg = "Unable to delete resource " + resourceUriOrArrayOfResourceUris + " from MongoDB cache " + JSON.stringify(self.id) + "\n" + err;
-                        console.log(msg);
-                        return callback(err, msg);
+                        if(isNull(err))
+                        {
+                            if (Config.debug.active && Config.debug.cache.log_cache_deletes)
+                            {
+                                console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                            }
+
+                            return callback(null, null);
+                        }
+                        else
+                        {
+                            const msg = "Unable to delete resources via query from MongoDB cache\n";
+                            console.error(JSON.stringify(queryObject, null, 4));
+                            console.error(msg);
+                            return callback(err, msg);
+                        }
+                    });
+        }
+        else
+        {
+            return callback(1, "Must open connection to MongoDB cache "+JSON.stringify(self)+"first!");
+        }
+    }
+    else
+    {
+        return callback(null, null);
+    }
+};
+
+MongoDBCache.prototype.deleteAlByType = function(typeOrTypesArray, callback) {
+    const self = this;
+
+    if(Config.cache.active)
+    {
+        if(!isNull(self.client))
+        {
+            if(!isNull(typeOrTypesArray))
+            {
+                let queryObject;
+                if(typeOrTypesArray instanceof Array)
+                {
+                    queryObject = {
+                        "rdf" :
+                            {
+                                "type" :
+                                    {
+                                        "$and" : []
+                                    }
+                            }
+                    };
+
+                    for(let i = 0; i < typeOrTypesArray.length; i++)
+                    {
+                        queryObject["rdf"]["type"]["$and"].push(typeOrTypesArray[i])
                     }
-                });
+
+                }
+                else if(typeof typeOrTypesArray === "string")
+                {
+                    queryObject = {
+                        rdf : {
+                            type : typeOrTypesArray
+                        }
+                    }
+                }
+
+                self.deleteByQuery(queryObject, callback);
             }
             else
             {

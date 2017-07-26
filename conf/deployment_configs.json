@@ -552,9 +552,9 @@
       }
     },
     "startup": {
-      "load_databases": true,
-      "reload_administrators_on_startup": false,
-      "reload_demo_users_on_startup": false,
+      "load_databases": false,
+      "reload_administrators_on_startup": true,
+      "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,
@@ -562,7 +562,7 @@
       "clear_session_store": true,
       "clear_caches" : true,
       "log_bootup_actions" : true,
-      "destroy_all_graphs_on_startup": false
+      "destroy_all_graphs_on_startup": true
     },
     "baselines": {
     },

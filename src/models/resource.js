@@ -1064,27 +1064,20 @@ Resource.prototype.updateDescriptors = function(descriptors, cannotChangeTheseDe
  *
  * Only triples with this resource as their subject will be deleted.
  */
-Resource.prototype.clearAllDescriptors = function()
-{
-    const self = this;
-    self.copyOrInitDescriptors({}, true);
-    return self;
-};
-
-/**
- * Used for deleting a resource.
- * Resources pointing to this resource will not be deleted.
- *
- * Only triples with this resource as their subject will be deleted.
- */
 Resource.prototype.clearDescriptors = function(descriptorTypesToClear, exceptionedDescriptorTypes)
 {
     const self = this;
 
-    const myDescriptors = self.getDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
-    self.clearAllDescriptors();
+    const allDescriptors = self.getDescriptors();
+    const filteredDescriptors = self.getDescriptors(descriptorTypesToClear, exceptionedDescriptorTypes);
 
-    self.updateDescriptors(myDescriptors);
+    for (let i = 0; i < allDescriptors.length; i++)
+    {
+        let descriptor = allDescriptors[i];
+        delete self[descriptor.prefix][descriptor.shortName];
+    }
+
+    self.updateDescriptors(filteredDescriptors);
 };
 
 /**
@@ -2933,20 +2926,30 @@ Resource.deleteAll = function(callback, customGraphUri)
 
     query = query + "} \n";
 
-
-    db.connection.execute(
-        query,
-        queryArguments,
-        function(err, results) {
-            if(isNull(err))
-            {
-                return callback(null, "All resources of type " + self.prefixedRDFType+ " deleted successfully.");
-            }
-            else
-            {
-                return callback(1, "Unable to fetch all resources from the graph");
-            }
-        });
+    Cache.getByGraphUri(graphUri).deleteAlByType(self.prefixedRDFType, function (err, result)
+    {
+        if (isNull(err))
+        {
+            db.connection.execute(
+                query,
+                queryArguments,
+                function (err, result)
+                {
+                    if (isNull(err))
+                    {
+                        return callback(null, "All resources of type " + self.prefixedRDFType + " deleted successfully.");
+                    }
+                    else
+                    {
+                        return callback(1, "Unable to fetch all resources from the graph");
+                    }
+                });
+        }
+        else
+        {
+            return callback(1, "Unable to delete all the resources of type " + self.prefixedRDFType + " from cache.")
+        }
+    });
 };
 
 Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(descriptor, callback, customGraphUri)

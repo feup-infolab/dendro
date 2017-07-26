@@ -63,7 +63,7 @@ describe("/user/demouser3", function (done) {
         userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
             userUtils.getUserInfo(demouser3.username, false, agent, function(err, res){
                 res.should.have.status(200);
-                res.text.should.contain("Viewing user demouser3");
+                res.text.should.contain("Viewing user Dendro 3 Demo User 3");
                 done();
             })
         })
