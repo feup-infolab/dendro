@@ -10,10 +10,34 @@ export NVM_DIR="$HOME/.nvm" &&
 #export NVM_DIR="$HOME/.nvm" &&
 #[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-nvm install v8.1.2
-npm install -g avn avn-nvm avn-n
-avn setup
 
-#install dependencies. Will also run bower install whenever needed
-npm install #this is needed when running npm install with sudo to install global modules
-grunt #use grunt to put everything in place
+INITIAL_DIR=`pwd`
+NODE_VERSION=`cat .node-version`
+
+if [ "$NODE_VERSION" == "" ]
+then
+    echo "Unable to determine the version of NodeJS to install!"
+    exit 1
+else
+
+    nvm install $NODE_VERSION
+    npm install -g avn avn-nvm avn-n
+    avn setup
+
+    #update npm
+    npm install npm
+
+    #clear npm cache
+    npm cache clean --force
+
+    #delete node_modules folder
+    rm -rf node_modules
+    rm -rf package-lock.json
+
+    #install dependencies. Will also run bower install whenever needed
+    npm install #this is needed when running npm install with sudo to install global modules
+
+    #use grunt to put everything in place
+    grunt
+fi
+

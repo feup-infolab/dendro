@@ -690,6 +690,7 @@ exports.edit = function (req, res, next) {
                     if (!err) {
                         user.save(function (err, editedUser) {
                             if (!err) {
+                                let auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth.js"));
                                 req.flash('success', "User " + editedUser.ddr.username + " edited.");
                                 //console.log("User " + editedUser.ddr.username + " edited.");
                                 //res.redirect('/me');

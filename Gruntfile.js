@@ -19,7 +19,6 @@ module.exports = function (grunt)
                 stderr: true,
                 failOnError: true,
                 recursive: true,
-                npm: '--production',
                 exclude: ['.git', 'node_modules', 'bower_components']
             },
         }
