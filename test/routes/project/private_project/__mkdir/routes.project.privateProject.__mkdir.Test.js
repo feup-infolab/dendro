@@ -26,7 +26,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Private Project mkdir", function (done) {
     before(function (done) {
-        this.timeout(3*global.Config.testsTimeout);
+        this.timeout(global.Config.testsTimeout);
         addContributorsToProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();

@@ -10,6 +10,7 @@ const Config = global.Config;
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
+const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
@@ -88,7 +89,8 @@ describe("Metadata only project testFolder2 level update_metadata", function () 
                     res.statusCode.should.equal(400);
                     itemUtils.getItemMetadata(true, agent, metadataProject.handle, testFolder2.name, function (error, response) {
                         response.statusCode.should.equal(200);
-                        JSON.parse(response.text).descriptors.length.should.equal(0);
+                        let validDescriptors = descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors);
+                        should.equal(validDescriptors, true);
                         done();
                     });
                 });
@@ -102,7 +104,7 @@ describe("Metadata only project testFolder2 level update_metadata", function () 
                     //jsonOnly, agent, projectHandle, itemPath, cb
                     itemUtils.getItemMetadata(true, agent, metadataProject.handle, folderForDemouser2.name, function (error, response) {
                         response.statusCode.should.equal(200);
-                        JSON.parse(response.text).descriptors.length.should.equal(folderForDemouser2.metadata.length);
+                        descriptorUtils.containsAllMetadata(folderForDemouser2.metadata, JSON.parse(response.text).descriptors).should.equal(true);
                         done();
                     });
                 });
@@ -129,7 +131,7 @@ describe("Metadata only project testFolder2 level update_metadata", function () 
                     //jsonOnly, agent, projectHandle, itemPath, cb
                     itemUtils.getItemMetadata(true, agent, metadataProject.handle, testFolder2.name, function (error, response) {
                         response.statusCode.should.equal(200);
-                        JSON.parse(response.text).descriptors.length.should.equal(testFolder2.metadata.length);
+                        descriptorUtils.containsAllMetadata(testFolder2.metadata, JSON.parse(response.text).descriptors).should.equal(true);
                         done();
                     });
                 });

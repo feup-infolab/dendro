@@ -24,6 +24,44 @@ const getProjectDescriptorsFromOntology = function (jsonOnly, agent, ontologyPre
     }
 };
 
+const noPrivateDescriptors = function (descriptors) {
+    for(let i = 0; i < descriptors.length; i++)
+    {
+        if((!descriptors[i].api_acessible && (descriptors.locked || descriptors.private || descriptors.locked_for_project || descriptors.immutable)))
+            return false;
+    }
+
+    return true
+};
+
+const containsAllMetadata = function (descriptorsArray, descriptorsThatShouldBePresent) {
+    for(let i = 0; i < descriptorsThatShouldBePresent.length; i++)
+    {
+        let found = false;
+        for(let j = 0; j < descriptorsArray.length; j++)
+        {
+            if( descriptorsThatShouldBePresent[i].prefix === descriptorsArray[j].prefix
+                &&
+                descriptorsThatShouldBePresent[i].shortname === descriptorsArray[j].shortName
+                &&
+                descriptorsThatShouldBePresent[i].value === descriptorsArray[j].value
+            )
+            {
+                found = true;
+            }
+        }
+
+        if(!found)
+        {
+            return false;
+        }
+    }
+
+    return true;
+};
+
 module.exports = {
-    getProjectDescriptorsFromOntology : getProjectDescriptorsFromOntology
+    getProjectDescriptorsFromOntology : getProjectDescriptorsFromOntology,
+    noPrivateDescriptors : noPrivateDescriptors,
+    containsAllMetadata: containsAllMetadata
 };
