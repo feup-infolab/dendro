@@ -115,9 +115,37 @@
         {
           "username": "demouser1",
           "password": "demouserpassword2015",
-          "firstname": "Dendro",
-          "surname": "Demo User",
-          "mbox": "demouser@dendro.fe.up.pt"
+          "firstname": "Dendro 1",
+          "surname": "Demo User 1",
+          "mbox": "demouser1@dendro.fe.up.pt"
+        },
+        {
+          "username": "demouser2",
+          "password": "demouserpassword2015",
+          "firstname": "Dendro 2",
+          "surname": "Demo User 2",
+          "mbox": "demouser2@dendro.fe.up.pt"
+        },
+        {
+          "username": "demouser3",
+          "password": "demouserpassword2015",
+          "firstname": "Dendro 3",
+          "surname": "Demo User 3",
+          "mbox": "demouser3@dendro.fe.up.pt"
+        },
+        {
+          "username": "demouser4",
+          "password": "demouserpassword2015",
+          "firstname": "Dendro 4",
+          "surname": "Demo User 4",
+          "mbox": "demouser4@dendro.fe.up.pt"
+        },
+        {
+          "username": "demouser5",
+          "password": "demouserpassword2015",
+          "firstname": "Dendro 5",
+          "surname": "Demo User 5",
+          "mbox": "demouser5@dendro.fe.up.pt"
         }
       ]
     },
@@ -194,8 +222,8 @@
     },
     "startup": {
       "load_databases": true,
-      "reload_administrators_on_startup": false,
-      "reload_demo_users_on_startup": false,
+      "reload_administrators_on_startup": true,
+      "reload_demo_users_on_startup": true,
       "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,

@@ -16,7 +16,6 @@ const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"
 
 const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser1.js"));
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
-const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
 const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
 const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
@@ -52,8 +51,8 @@ describe("Descriptors from invalid ontology", function (done) {
             });
         });
 
-        it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3(Collaborator of Public project "+publicProject.handle +")", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+        it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser2 (Collaborator of Public project "+publicProject.handle +")", function (done) {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, publicProject.handle, function (err, res) {
                     res.should.have.status(404);
                     res.body.error_messages.should.contain("Ontology with prefix or uri xy does not exist in this Dendro instance.");
@@ -85,8 +84,8 @@ describe("Descriptors from invalid ontology", function (done) {
             });
         });
 
-        it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) when logged in as demouser3(Collaborator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+        it("[JSON] It should not get descriptors from xy ontology (This ontology does not exist) when logged in as demouser2(Collaborator of the Metadata Only project "+metadataOnlyProject.handle +")", function (done) {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, metadataOnlyProject.handle, function (err, res) {
                     res.should.have.status(404);
                     res.body.error_messages.should.contain("Ontology with prefix or uri xy does not exist in this Dendro instance.");
@@ -118,8 +117,8 @@ describe("Descriptors from invalid ontology", function (done) {
             });
         });
 
-        it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser3 (Collaborator of the Private project "+privateProject.handle +")", function (done) {
-            userUtils.loginUser(demouser3.username, demouser3.password, function (err, agent) {
+        it("[JSON] It should not get descriptors from xy ontology(This ontology does not exist) when logged in as demouser2 (Collaborator of the Private project "+privateProject.handle +")", function (done) {
+            userUtils.loginUser(demouser2.username, demouser2.password, function (err, agent) {
                 descriptorUtils.getProjectDescriptorsFromOntology(true, agent, ontologyPrefix, privateProject.handle, function (err, res) {
                     res.should.have.status(404);
                     res.body.error_messages.should.contain("Ontology with prefix or uri xy does not exist in this Dendro instance.");

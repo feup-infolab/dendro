@@ -23,8 +23,6 @@ angular.module('dendroApp.controllers')
         $scope.active_tab = null;
         $scope.contributors = [];
 
-        $scope.hostUrl = window.location.protocol + "//" + window.location.host + "/user/";
-
         $scope.get_project = function()
         {
             var url = $scope.get_current_url()+"?metadata&deep=true";

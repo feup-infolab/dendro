@@ -109,7 +109,7 @@ exports.getCurrentLoggedUser= function (jsonOnly, agent, cb)
 };
 
 exports.addUserAscontributorToProject = function (jsonOnly, agent, username, projectHandle, cb) {
-    var contributors = {contributors:["http://" + Config.host + "/user/" + username]};
+    var contributors = {contributors:[username]};
     var path = "/project/" + projectHandle + "?administer";
     if(jsonOnly)
     {
