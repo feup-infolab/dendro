@@ -747,7 +747,7 @@ Project.prototype.getRecentProjectWideChangesSocial = function (callback, starti
         "WITH [0] \n" +
         "SELECT ?version \n" +
         "WHERE { \n" +
-        "?version ddr.created ?date. \n" +
+        "?version ddr:created ?date. \n" +
         "filter ( \n" +
         "xsd:dateTime(?date) >= [2]" + "^^xsd:dateTime" + " ). \n" +
         "?version rdf:type ddr:ArchivedResource . \n" +
@@ -1167,7 +1167,7 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
     "				   	?favorite_interaction ddr:executedOver ?favorited_descriptor. \n" +
     "				   	?favorite_interaction ddr:interactionType [2] . \n" +
     "					?favorite_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-    "				   	?favorite_interaction ddr.created ?date_favorited. \n" +
+    "				   	?favorite_interaction ddr:created ?date_favorited. \n" +
     "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
     "				} \n" +
     "			}. \n" +
@@ -1181,7 +1181,7 @@ Project.prototype.getFavoriteDescriptors = function(maxResults, callback, allowe
     "				   	?unfavorite_interaction ddr:interactionType [3]. \n" +
 
     "				   	?unfavorite_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-    "				   	?unfavorite_interaction ddr.created ?date_unfavorited. \n" +
+    "				   	?unfavorite_interaction ddr:created ?date_unfavorited. \n" +
     "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
     "				} \n" +
     "			} \n" +
@@ -1301,7 +1301,7 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         "				   	?hiding_interaction ddr:interactionType [2] . \n" +
 
         "					?hiding_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-        "				   	?hiding_interaction ddr.created ?date_hidden. \n" +
+        "				   	?hiding_interaction ddr:created ?date_hidden. \n" +
         "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
         "				} \n" +
         "			}. \n" +
@@ -1315,7 +1315,7 @@ Project.prototype.getHiddenDescriptors = function(maxResults, callback, allowedO
         "				   	?unhiding_interaction ddr:interactionType [3]. \n" +
 
         "				   	?unhiding_interaction ddr:originallyRecommendedFor ?information_element. \n" +
-        "				   	?unhiding_interaction ddr.created ?date_unhidden. \n" +
+        "				   	?unhiding_interaction ddr:created ?date_unhidden. \n" +
         "				    FILTER( STRSTARTS(STR(?information_element), [1] ) ) \n" +
         "				} \n" +
         "			} \n" +
