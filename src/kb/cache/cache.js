@@ -204,6 +204,16 @@ Cache.getByGraphUri = function(graphUri)
     }
 };
 
+
+Cache.deleteAllRecordsOfAllCaches = function(callback)
+{
+    async.map(Cache.caches, function(cache, callback){
+        cache.deleteAll(callback);
+    }, function(err, results){
+      callback(err, results);
+    });
+};
+
 Cache.caches = {};
 Cache.cachesByGraphUri = {};
 

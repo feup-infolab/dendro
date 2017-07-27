@@ -26,7 +26,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Public Project mkdir", function (done) {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         addContributorsToProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -107,7 +107,7 @@ describe("Public Project mkdir", function (done) {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

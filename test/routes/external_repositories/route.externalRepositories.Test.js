@@ -22,7 +22,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("List all external repository tests", function () {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         createExportToRepositoriesConfigsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -94,7 +94,7 @@ describe("List all external repository tests", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

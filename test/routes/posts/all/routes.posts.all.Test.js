@@ -26,7 +26,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Social Dendro get all user posts tests", function () {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         createPostsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -95,7 +95,7 @@ describe("Social Dendro get all user posts tests", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

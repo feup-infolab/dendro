@@ -28,7 +28,7 @@ const deleteProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFol
 
 describe("Undelete private Project Tests", function () {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         deleteProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -146,7 +146,7 @@ describe("Undelete private Project Tests", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

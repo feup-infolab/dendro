@@ -32,7 +32,7 @@ function requireUncached(module) {
 //THIS TEST SHOULD BE DELETED BECAUSE THIS FEATURE DOES NOT EXIST
 describe("Public project ?version tests", function(){
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         addMetadataToFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -77,7 +77,7 @@ describe("Public project ?version tests", function(){
 
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         db.deleteGraphs(function (err, data) {
             should.equal(err, null);
             global.tests.server.close();

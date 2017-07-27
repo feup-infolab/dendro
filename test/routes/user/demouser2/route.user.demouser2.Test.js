@@ -18,7 +18,7 @@ describe("/user/demouser2", function (done) {
     const falseUser = "demouser404";
 
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         createUserUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -128,7 +128,7 @@ describe("/user/demouser2", function (done) {
     })
 
     after(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

@@ -8,8 +8,15 @@ exports.loginUser = function (username, password, cb) {
     agent
         .post('/login')
         .send({'username': username, 'password': password})
-        .then(function (err, res) {
-            cb(err, agent);
+        .then(function (response, res) {
+            if(response.ok)
+            {
+                cb(null, agent);
+            }
+            else
+            {
+                cb("Error authenticating user " + username, agent);
+            }
         });
 };
 

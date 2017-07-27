@@ -27,7 +27,7 @@ let demouser1PostURIs;
 
 describe("Social Dendro get likes info for a post tests", function () {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         createLikesUnit.setup(function (err, results) {
             should.equal(err, null);
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -109,7 +109,7 @@ describe("Social Dendro get likes info for a post tests", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

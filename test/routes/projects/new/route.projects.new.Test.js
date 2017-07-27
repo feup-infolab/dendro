@@ -31,7 +31,7 @@ const bootup = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/b
 
 describe("New project tests", function (done) {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         bootup.setup(function (err, res) {
             should.equal(err, null);
             done();
@@ -201,7 +201,7 @@ describe("New project tests", function (done) {
     });
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

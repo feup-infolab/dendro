@@ -30,9 +30,8 @@ const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPat
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Descriptors from invalid ontology", function (done) {
-    this.timeout(20000);
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         addContributorsToProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -140,7 +139,7 @@ describe("Descriptors from invalid ontology", function (done) {
     });
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

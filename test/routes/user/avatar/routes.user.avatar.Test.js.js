@@ -17,7 +17,7 @@ const md5 = require("md5");
 describe("[POST] /user/avatar", function (done) {
 
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         createUserUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -37,7 +37,7 @@ describe("[POST] /user/avatar", function (done) {
         var agent = chai.request.agent(app);
 
         userUtils.uploadAvatar(false, agent, avatar, function (err, res) {
-            res.should.have.status(200);
+            res.should.have.status(401);
             res.text.should.contain("Please log into the system.");
             done();
         });
@@ -72,7 +72,7 @@ describe("[POST] /user/avatar", function (done) {
     });
 
     after(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

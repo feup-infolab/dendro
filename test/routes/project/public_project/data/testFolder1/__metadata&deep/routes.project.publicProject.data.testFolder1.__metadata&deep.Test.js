@@ -27,7 +27,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Public project testFolder1 level metadata&deep tests", function () {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         addMetadataToFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -139,7 +139,7 @@ describe("Public project testFolder1 level metadata&deep tests", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

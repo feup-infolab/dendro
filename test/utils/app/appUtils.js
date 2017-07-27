@@ -35,6 +35,12 @@ exports.clearAllData = function (cb) {
             });
         },
         function (cb) {
+            exports.deleteAllCaches(function (err, results) {
+                should.equal(err, null);
+                cb(err, results);
+            });
+        },
+        function (cb) {
             exports.quitAllCacheConnections(function (err, results) {
                 should.equal(err, null);
                 cb(err, results);
@@ -60,6 +66,11 @@ exports.clearAllData = function (cb) {
 exports.quitAllCacheConnections = function (cb) {
     const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
     Cache.closeConnections(cb);
+};
+
+exports.deleteAllCaches = function (cb) {
+    const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
+    Cache.deleteAllRecordsOfAllCaches(cb);
 };
 
 exports.quitGridFSConnections = function(cb)

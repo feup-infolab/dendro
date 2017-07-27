@@ -37,7 +37,7 @@ let b2shareData, ckanData, zenodoData, dspaceData, eprintsData,figshareData;
 
 describe("Export private project testFolder2 level to repositories tests", function () {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         createExportToRepositoriesConfig.setup(function (err, results) {
             should.equal(err, null);
             repositoryUtils.getMyExternalRepositories(true, agent, function (err, res) {
@@ -224,7 +224,7 @@ describe("Export private project testFolder2 level to repositories tests", funct
 
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

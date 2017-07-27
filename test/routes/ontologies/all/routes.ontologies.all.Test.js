@@ -22,7 +22,7 @@ describe('/ontologies/all', function () {
     const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         addBootUpUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -128,7 +128,7 @@ describe('/ontologies/all', function () {
     });
 
     after(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

@@ -27,7 +27,7 @@ const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFol
 
 describe("Request access to private project", function (done) {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         createProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -113,7 +113,7 @@ describe("Request access to private project", function (done) {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

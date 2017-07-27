@@ -10,7 +10,7 @@ console.log("Running in test mode and the app directory is : " + Pathfinder.appD
 
 global.Pathfinder = Pathfinder;
 global.Config = Config;
-global.global.Config.testsTimeout = 10000;
+global.Config.testsTimeout = 10000;
 
 global.tests = {};
 

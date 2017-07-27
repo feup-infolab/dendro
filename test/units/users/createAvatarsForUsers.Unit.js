@@ -8,6 +8,7 @@ const colors = require('colors');
 let path = require('path');
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder(path.join("utils", "null.js"))).isNull;
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 
@@ -38,27 +39,33 @@ module.exports.setup = function (finish) {
     let createUsersUnit = requireUncached(Pathfinder.absPathInTestsFolder("units/users/createUsers.Unit.js"));
 
     createUsersUnit.setup(function (err, results) {
-        if (err) {
-            end();
-            finish(err, results);
-        }
-        else {
+        if (isNull(err)) {
             async.mapSeries(usersData, function (userData, cb) {
                 userUtils.loginUser(userData.username, userData.password, function (err, agent) {
                     if (err) {
-                        end();
                         return cb(err, agent);
                     }
-                    else {
+                    else
+                    {
                         userUtils.uploadAvatar(false, agent, userData.avatar, function (err, res) {
-                            end();
-                            cb(err, res);
+                            return cb(err, res);
                         });
                     }
                 });
             }, function (err, results) {
-                finish(err, results);
+                if(isNull(err))
+                {
+                    return finish(null);
+                }
+                else
+                {
+                    end();
+                    return finish(err, results);
+                }
             });
+        }
+        else {
+            return finish(err, results);
         }
     });
 };

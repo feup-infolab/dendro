@@ -17,7 +17,7 @@ const md5 = require("md5");
 describe("[GET] /user/demouser1/avatar", function (done) {
 
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         createAvatarsForUsersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -33,7 +33,7 @@ describe("[GET] /user/demouser1/avatar", function (done) {
         var agent = chai.request.agent(app);
 
         userUtils.getAvatar(false, demouser1.username, agent, function (err, res) {
-            res.should.have.status(200);
+            res.should.have.status(401);
             //because the body in the utils(for test purposes in turned into a array)
             res.body.toString().should.contain("Please log into the system.");
             done();
@@ -102,7 +102,7 @@ describe("[GET] /user/demouser1/avatar", function (done) {
     });
 
     after(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

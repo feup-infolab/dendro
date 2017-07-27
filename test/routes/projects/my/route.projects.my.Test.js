@@ -28,7 +28,7 @@ const addContributorsToProjectsUnit = appUtils.requireUncached(Pathfinder.absPat
 
 describe("My Projects", function (done) {
     before(function (done) {
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         addContributorsToProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -161,7 +161,7 @@ describe("My Projects", function (done) {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(60000);
+        this.timeout(global.Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();
