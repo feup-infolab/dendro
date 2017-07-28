@@ -112,7 +112,7 @@ InformationElement.prototype.getParent = function(callback)
             }
             else
             {
-                return callback(1, "Error reported when querying for the parent of" + self.uri + " . Error was ->" + result);
+                return callback(1, "Error reported when querying for the parent of" + self.uri + " . Error was ->" + results);
             }
         }
     );

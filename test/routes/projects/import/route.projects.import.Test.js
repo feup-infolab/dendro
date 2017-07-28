@@ -4,7 +4,7 @@ const should = chai.should();
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = global.Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -23,7 +23,7 @@ const bootup = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/b
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
 describe("Import projects tests", function (done) {
-    this.timeout(20000);
+    this.timeout(Config.testsTimeout);
     before(function (done) {
         bootup.setup(function (err, results) {
             should.equal(err, null);

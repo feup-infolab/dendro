@@ -5,7 +5,7 @@ const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = global.Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
@@ -27,7 +27,7 @@ const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db
 
 describe("Public project testFolder1 level update_metadata", function () {
     before(function (done) {
-        this.timeout(global.Config.testsTimeout);
+        this.timeout(Config.testsTimeout);
         createFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -80,7 +80,8 @@ describe("Public project testFolder1 level update_metadata", function () {
                 //Because the project is public, the unauthenticated user can see metadata
                 itemUtils.getItemMetadata(true, agent, publicProject.handle, testFolder1.name, function (error, response) {
                     response.statusCode.should.equal(200);
-                    descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors);
+                    descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors).should.equal(true);
+                    done();
                 });
             });
         });
@@ -91,8 +92,7 @@ describe("Public project testFolder1 level update_metadata", function () {
                     res.statusCode.should.equal(400);
                     itemUtils.getItemMetadata(true, agent, publicProject.handle, testFolder1.name, function (error, response) {
                         response.statusCode.should.equal(200);
-                        let validDescriptors = descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors);
-                        should.equal(validDescriptors, true);
+                        descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors).should.equal(true);
                         done();
                     });
                 });
@@ -107,6 +107,7 @@ describe("Public project testFolder1 level update_metadata", function () {
                     itemUtils.getItemMetadata(true, agent, publicProject.handle, folderForDemouser2.name, function (error, response) {
                         response.statusCode.should.equal(200);
                         descriptorUtils.containsAllMetadata(folderForDemouser2.metadata, JSON.parse(response.text).descriptors).should.equal(true);
+                        descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors).should.equal(true);
                         done();
                     });
                 });
@@ -120,8 +121,7 @@ describe("Public project testFolder1 level update_metadata", function () {
                     //jsonOnly, agent, projectHandle, itemPath, cb
                     itemUtils.getItemMetadata(true, agent, publicProject.handle, testFolder1.name, function (error, response) {
                         response.statusCode.should.equal(200);
-                        let validDescriptors = descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors);
-                        should.equal(validDescriptors, true);
+                        descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors).should.equal(true);
                         done();
                     });
                 });
@@ -136,6 +136,7 @@ describe("Public project testFolder1 level update_metadata", function () {
                     itemUtils.getItemMetadata(true, agent, publicProject.handle, testFolder1.name, function (error, response) {
                         response.statusCode.should.equal(200);
                         descriptorUtils.containsAllMetadata(testFolder1.metadata, JSON.parse(response.text).descriptors).should.equal(true);
+                        descriptorUtils.noPrivateDescriptors(JSON.parse(response.text).descriptors).should.equal(true);
                         done();
                     });
                 });
@@ -145,7 +146,7 @@ describe("Public project testFolder1 level update_metadata", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(global.Config.testsTimeout);
+        this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

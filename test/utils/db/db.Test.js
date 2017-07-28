@@ -1,5 +1,5 @@
 const Pathfinder = global.Pathfinder;
-const Config = global.Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 process.env.NODE_ENV = 'test';
 
 const chai = require('chai');

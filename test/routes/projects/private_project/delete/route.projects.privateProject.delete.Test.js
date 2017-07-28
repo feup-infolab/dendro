@@ -5,7 +5,7 @@ const _ = require('underscore');
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
-const Config = global.Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
@@ -28,7 +28,7 @@ const createProjectsUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFol
 
 describe("Delete private Project Tests", function () {
     before(function (done) {
-        this.timeout(global.Config.testsTimeout);
+        this.timeout(Config.testsTimeout);
         createProjectsUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -145,7 +145,7 @@ describe("Delete private Project Tests", function () {
 
     after(function (done) {
         //destroy graphs
-        this.timeout(global.Config.testsTimeout);
+        this.timeout(Config.testsTimeout);
         appUtils.clearAppState(function (err, data) {
             should.equal(err, null);
             done();

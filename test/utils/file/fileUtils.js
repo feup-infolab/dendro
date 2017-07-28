@@ -13,7 +13,7 @@ module.exports.binaryParser = function (res, cb) {
 module.exports.uploadFile = function(acceptsJSON, agent, file, targetUrl, fileType, cb)
 {
     const Pathfinder = global.Pathfinder;
-const Config = global.Config;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     let supertest = require('supertest');
 
     let request = supertest(Config.host);

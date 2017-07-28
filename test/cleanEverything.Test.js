@@ -17,9 +17,7 @@ const demouser1 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demous
 const demouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser2.js"));
 const demouser3 = require(Pathfinder.absPathInTestsFolder("mockdata/users/demouser3.js"));
 
-const publicProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/public_project.js"));
-const metadataOnlyProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/metadata_only_project.js"));
-const privateProject = require(Pathfinder.absPathInTestsFolder("mockdata/projects/private_project.js"));
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const folder = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folder.js"));
 const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/folders/folderDemoUser2.js"));
@@ -30,7 +28,7 @@ let bootupUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units
 
 describe("Initial clean-up...", function () {
     before(function (done) {
-        this.timeout(global.Config.testsTimeout);
+        this.timeout(Config.testsTimeout);
         bootupUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -40,7 +38,7 @@ describe("Initial clean-up...", function () {
     describe("Clean everything", function () {
         it("Should destroy all test graphs", function (done) {
             //destroy graphs
-            this.timeout(global.Config.testsTimeout);
+            this.timeout(Config.testsTimeout);
             appUtils.clearAppState(function (err, data) {
                 should.equal(err, null);
                 done();

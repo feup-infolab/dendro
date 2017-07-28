@@ -31,10 +31,10 @@ const noPrivateDescriptors = function (descriptors) {
             return false;
     }
 
-    return true
+    return true;
 };
 
-const containsAllMetadata = function (descriptorsArray, descriptorsThatShouldBePresent) {
+const containsAllMetadata = function (descriptorsThatShouldBePresent, descriptorsArray) {
     for(let i = 0; i < descriptorsThatShouldBePresent.length; i++)
     {
         let found = false;
@@ -42,7 +42,7 @@ const containsAllMetadata = function (descriptorsArray, descriptorsThatShouldBeP
         {
             if( descriptorsThatShouldBePresent[i].prefix === descriptorsArray[j].prefix
                 &&
-                descriptorsThatShouldBePresent[i].shortname === descriptorsArray[j].shortName
+                descriptorsThatShouldBePresent[i].shortName === descriptorsArray[j].shortName
                 &&
                 descriptorsThatShouldBePresent[i].value === descriptorsArray[j].value
             )

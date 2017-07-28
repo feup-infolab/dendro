@@ -33,7 +33,7 @@ exports.show_deep = function(req, res) {
                 {
                     if(!isNull(resource))
                     {
-                        requestedResource.findMetadataRecursive(function(err, result){
+                        resource.findMetadataRecursive(function(err, result){
                             if(isNull(err)){
 
                                 const accept = req.header('Accept');
@@ -175,71 +175,67 @@ exports.show_parent = function(req, res) {
     }
     else
     {
-        if(!isNull(req.params.filepath))
-        {
-            const requestedResourceURI = req.params.requestedResourceUri;
-
-            InformationElement.findByUri(requestedResourceURI, function(err, ie){
-                if(isNull(err))
+        const requestedResourceURI = req.params.requestedResourceUri;
+        InformationElement.findByUri(requestedResourceURI, function(err, ie){
+            if(isNull(err))
+            {
+                if(!isNull(ie))
                 {
-                    if(!isNull(ie))
-                    {
-                        ie.getParent(function(err, parent){
-                            if(isNull(err))
+                    ie.getParent(function(err, parent){
+                        if(isNull(err))
+                        {
+                            if(!isNull(parent) && parent instanceof Object)
                             {
-                                if(!isNull(parent) && parent instanceof Object)
-                                {
-                                    const descriptors = parent.getDescriptors([Config.types.private, Config.types.locked], [Config.types.api_readable]);
+                                const descriptors = parent.getDescriptors([Config.types.private, Config.types.locked], [Config.types.api_readable]);
 
-                                    if(!isNull(projectDescriptors) && projectDescriptors instanceof Array)
-                                    {
-                                        res.json({
-                                            result : "ok",
-                                            descriptors : descriptors
-                                        });
-                                    }
-                                    else
-                                    {
-                                        res.status(500).json({
-                                            error_messages : [descriptors]
-                                        });
-                                    }
+                                if(!isNull(descriptors) && descriptors instanceof Array)
+                                {
+                                    res.json({
+                                        result : "ok",
+                                        descriptors : descriptors
+                                    });
                                 }
                                 else
                                 {
-                                    res.status(404).json({
-                                        result : "error",
-                                        message : "Unable to retrieve parent of " + requestedResourceURI + " .",
-                                        error : parent
+                                    res.status(500).json({
+                                        error_messages : [descriptors]
                                     });
                                 }
                             }
                             else
                             {
-                                res.status(500).json({
+                                res.status(404).json({
                                     result : "error",
-                                    message : "Error retrieving resource " + requestedResourceURI + " . Error reported " + parent
+                                    message : "Unable to retrieve parent of " + requestedResourceURI + " .",
+                                    error : parent
                                 });
                             }
-                        });
-                    }
-                    else
-                    {
-                        res.status(404).json({
-                            result : "error",
-                            message : "Unable to retrieve resource " + requestedResourceURI + " ."
-                        });
-                    }
+                        }
+                        else
+                        {
+                            res.status(500).json({
+                                result : "error",
+                                message : "Error retrieving resource " + requestedResourceURI + " . Error reported " + parent
+                            });
+                        }
+                    });
                 }
                 else
                 {
-                    res.status(500).json({
+                    res.status(404).json({
                         result : "error",
-                        message : "Unable to get metadata for " + requestedResourceURI
+                        message : "Unable to retrieve resource " + requestedResourceURI + " ."
                     });
                 }
-            });
-        }
+            }
+            else
+            {
+                res.status(500).json({
+                    result : "error",
+                    message : "Unable to get metadata for " + requestedResourceURI
+                });
+            }
+        });
     }
 };
 

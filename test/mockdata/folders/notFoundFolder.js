@@ -1,3 +1,6 @@
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+
 const folderName = "notFoundFolder";
 const publicProject = require("../projects/public_project");
 const privateProject = require("../projects/private_project");

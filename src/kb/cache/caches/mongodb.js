@@ -47,7 +47,7 @@ MongoDBCache.prototype.closeConnection = function(cb)
 {
     const self = this;
     self.client.close(function(err, result){
-        cb(err);
+        cb(err, result);
     });
 };
 

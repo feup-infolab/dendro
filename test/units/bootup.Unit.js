@@ -5,6 +5,9 @@ const chaiHttp = require('chai-http');
 const colors = require('colors');
 chai.use(chaiHttp);
 
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+
 const should = chai.should();
 function requireUncached(module) {
     delete require.cache[require.resolve(module)]

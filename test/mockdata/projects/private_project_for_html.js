@@ -1,3 +1,6 @@
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+
 const privateProjectHandle = 'privateprojecthtmlcreatedbydemouser1';
 
 const projectData = {
