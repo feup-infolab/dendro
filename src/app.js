@@ -63,6 +63,8 @@ let express = require('express'),
     YAML = require('yamljs'),
     csrf = require('csurf'),
     csrfProtection = csrf({ cookie: true }),
+    npid = require('npid'),
+    nodeCleanup = require('node-cleanup'),
     swaggerDocument = YAML.load(Pathfinder.absPathInApp("swagger.yaml"));
 
 let bootupPromise = Q.defer();
@@ -1202,40 +1204,93 @@ async.series([
 
                 });
 
-                //dont start server twice (for testing)
-                //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
-
+                //setup graceful server close
                 if(process.env.NODE_ENV !== 'test')
                 {
-                    server.listen(app.get('port'), function() {
-                        const npid = require('npid');
-                        pid = npid.create(Pathfinder.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
-
-                        pid.removeOnExit();
-
-                        process.on('SIGTERM', function (err)
-                        {
-                            pid.remove();
-                            process.exit(err);
-                        });
-
-                        process.on('SIGINT', function (err)
-                        {
-                            pid.remove();
-                            process.exit(err);
-                        });
-
-                        console.log('Express server listening on port ' + app.get('port'));
-                        const appInfo = {server: server, app: app};
-                        bootupPromise.resolve(appInfo);
-                    });
+                    pid = npid.create(Pathfinder.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
+                    pid.removeOnExit();
                 }
-                else
-                {
-                    console.log('Express server listening on port ' + app.get('port') + " in TEST Mode");
+
+                nodeCleanup(function (exitCode, signal) {
+
+                    const freeResources = function(callback)
+                    {
+                        const removePIDFile = function(cb)
+                        {
+                            if(process.env.NODE_ENV !== 'test')
+                            {
+                                pid.remove(cb);
+                            }
+                            else
+                            {
+                                cb(null);
+                            }
+                        };
+
+                        const closeCacheConnections = function(cb)
+                        {
+                            const Cache = require(Pathfinder.absPathInSrcFolder("kb/cache/cache.js")).Cache;
+                            Cache.closeConnections(function(err, result){
+                                cb(err, result);
+                            });
+                        };
+
+                        const closeGridFSConnections = function(cb)
+                        {
+                            async.map(global.gfs, function(gridFSConnection, cb){
+                                if(global.gfs.hasOwnProperty(gridFSConnection))
+                                {
+                                    global.gfs[gridFSConnection].connection.closeConnection(cb);
+                                }
+                            }, function(err, results){
+                                cb(err, results);
+                            });
+                        };
+
+                        const closeMySQLConnectionPool = function(cb)
+                        {
+                            Config.getMySQLByID().pool.end(function(err){
+                                if(err === undefined )
+                                    err = null;
+                                cb(err, null);
+                            });
+                        };
+
+                        async.series([
+                            closeCacheConnections,
+                            closeGridFSConnections,
+                            closeMySQLConnectionPool,
+                            removePIDFile
+                        ], function(err, results){
+                            // calling process.exit() won't inform parent process of signal
+                            callback(err, results);
+                        });
+                    };
+
+                    if(signal)
+                    {
+                        freeResources(function(err, results){
+                            process.kill(process.pid, signal);
+                            nodeCleanup.uninstall(); // don't call cleanup handler again
+                            return false;
+                        });
+                    }
+                    else
+                    {
+                        freeResources(function(err, results){
+                            process.kill(process.pid, signal);
+                        });
+                    }
+                });
+
+                //dont start server twice (for testing)
+                //http://www.marcusoft.net/2015/10/eaddrinuse-when-watching-tests-with-mocha-and-supertest.html
+                server.listen(app.get('port'), function() {
+                    console.log('Express server listening on port ' + app.get('port'));
                     const appInfo = {server: server, app: app};
                     bootupPromise.resolve(appInfo);
-                }
+                    server.close();
+                });
 
                 if(Config.debug.diagnostics.ram_usage_reports)
                 {
