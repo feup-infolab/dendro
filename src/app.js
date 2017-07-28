@@ -1211,68 +1211,127 @@ async.series([
                     pid.removeOnExit();
                 }
 
-                nodeCleanup(function (exitCode, signal) {
-
-                    const freeResources = function(callback)
+                app.freeResources = function(callback)
+                {
+                    const closeCacheConnections = function(cb)
                     {
-                        const removePIDFile = function(cb)
-                        {
-                            if(process.env.NODE_ENV !== 'test')
+                        const Cache = require(Pathfinder.absPathInSrcFolder("kb/cache/cache.js")).Cache;
+                        Cache.closeConnections(function(err, result){
+                            if(!err)
                             {
-                                pid.remove(cb);
+                                log_boot_message("success", "Closed all cache connections");
                             }
                             else
                             {
-                                cb(null);
+                                log_boot_message("error", "Error closing all cache connections");
                             }
-                        };
-
-                        const closeCacheConnections = function(cb)
-                        {
-                            const Cache = require(Pathfinder.absPathInSrcFolder("kb/cache/cache.js")).Cache;
-                            Cache.closeConnections(function(err, result){
-                                cb(err, result);
-                            });
-                        };
-
-                        const closeGridFSConnections = function(cb)
-                        {
-                            async.map(global.gfs, function(gridFSConnection, cb){
-                                if(global.gfs.hasOwnProperty(gridFSConnection))
-                                {
-                                    global.gfs[gridFSConnection].connection.closeConnection(cb);
-                                }
-                            }, function(err, results){
-                                cb(err, results);
-                            });
-                        };
-
-                        const closeMySQLConnectionPool = function(cb)
-                        {
-                            Config.getMySQLByID().pool.end(function(err){
-                                if(err === undefined )
-                                    err = null;
-                                cb(err, null);
-                            });
-                        };
-
-                        async.series([
-                            closeCacheConnections,
-                            closeGridFSConnections,
-                            closeMySQLConnectionPool,
-                            removePIDFile
-                        ], function(err, results){
-                            // calling process.exit() won't inform parent process of signal
-                            callback(err, results);
+                            cb(err, result);
                         });
                     };
 
+                    const closeGridFSConnections = function(cb)
+                    {
+                        async.map(global.gfs, function(gridFSConnection, cb){
+                            if(global.gfs.hasOwnProperty(gridFSConnection))
+                            {
+                                global.gfs[gridFSConnection].connection.closeConnection(cb);
+                            }
+                        }, function(err, results){
+                            if(!err)
+                            {
+                                log_boot_message("success", "Closed all GridFS connections");
+                            }
+                            else
+                            {
+                                log_boot_message("error", "Error closing all GridFS connections");
+                            }
+                            cb(err, results);
+                        });
+                    };
+
+                    const closeMySQLConnectionPool = function(cb)
+                    {
+                        Config.getMySQLByID().pool.end(function(err){
+                            if(err === undefined )
+                                err = null;
+
+                            if(!err)
+                            {
+                                log_boot_message("success", "Closed MySQL connection pool");
+                            }
+                            else
+                            {
+                                log_boot_message("error", "Error closing MySQL connection pool");
+                            }
+
+                            cb(err, null);
+                        });
+                    };
+
+                    const haltHTTPServer = function(cb)
+                    {
+                        log_boot_message("info", "Halting server...");
+                        server.close(function(err, result){
+                            if(!(err instanceof Error))
+                            {
+                                log_boot_message("success", "Server halted successfully.");
+                            }
+                            else
+                            {
+                                log_boot_message("error", "Error halting server: " + err.stack);
+                            }
+
+                            cb(null);
+                        })
+                    };
+
+                    const removePIDFile = function(cb)
+                    {
+                        log_boot_message("info", "Removing PID file...");
+                        if(process.env.NODE_ENV !== 'test')
+                        {
+                            pid.remove();
+                            log_boot_message("success", "Removed PID");
+                        }
+                        else
+                        {
+                            log_boot_message("info", "No need to remove PID, because this Dendro is running in TEST Mode");
+                        }
+
+                        cb(null);
+                    };
+
+                    async.series([
+                        closeCacheConnections,
+                        closeGridFSConnections,
+                        closeMySQLConnectionPool,
+                        haltHTTPServer,
+                        removePIDFile
+                    ], function(err, results){
+                        // calling process.exit() won't inform parent process of signal
+                        callback(err, results);
+                    });
+                };
+
+                nodeCleanup(function (exitCode, signal) {
+                    log_boot_message("warning", "Signal " + signal + " received!");
+
                     if(signal)
                     {
-                        freeResources(function(err, results){
-                            process.kill(process.pid, signal);
+                        app.freeResources(function(err){
+                            if(!err)
+                            {
+                                log_boot_message("success", "Freed all resources. Halting Dendro Server now.");
+                            }
+                            else
+                            {
+                                log_boot_message("error", "Unable to free all resources, but we are halting Dendro Server anyway.");
+                            }
+
+                            log_boot_message("success", "No need to remove PID, because this Dendro is running in TEST Mode");
                             nodeCleanup.uninstall(); // don't call cleanup handler again
-                            return false;
+                            process.kill(process.pid, signal);
+                            log_boot_message("success", "Freed all resources. Halting Dendro Server now.");
                         });
                     }
                     else
@@ -1281,6 +1340,8 @@ async.series([
                             process.kill(process.pid, signal);
                         });
                     }
+
+                    return signal === 0;
                 });
 
                 //dont start server twice (for testing)

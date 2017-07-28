@@ -65,7 +65,7 @@ exports.clearAppState = function (cb) {
         }
         else
         {
-            global.tests.server.close(function(err, results){
+            global.tests.app.freeResources(function(err, results){
                 cb(null);
             });
         }
