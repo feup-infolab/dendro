@@ -95,9 +95,11 @@ angular.module('dendroApp.services')
             });
         };
 
+        this.getPosts_Service = function (postsQueryInfo) {
             var requestUri = "/posts/posts";
 
             var params = {
+                postsQueryInfo : postsQueryInfo
             };
 
             return $http({
