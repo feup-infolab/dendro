@@ -111,6 +111,15 @@ else
     Config.tempFilesDir = Pathfinder.absPathInApp(getConfigParameter("tempFilesDir"));
 }
 
+if(path.isAbsolute(getConfigParameter("tempUploadsDir")))
+{
+    Config.tempUploadsDir = getConfigParameter("tempUploadsDir");
+}
+else
+{
+    Config.tempUploadsDir = Pathfinder.absPathInApp(getConfigParameter("tempUploadsDir"));
+}
+
 Config.tempFilesCreationMode = getConfigParameter("tempFilesCreationMode");
 
 Config.administrators = getConfigParameter("administrators");

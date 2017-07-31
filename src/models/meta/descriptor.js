@@ -1177,7 +1177,7 @@ Descriptor.validateDescriptorParametrization = function(callback)
                         }
                     }
 
-                    if(error)
+                    if(error && Config.debug.descriptors.log_missing_unknown_descriptors)
                         console.error("[WARNING] There are unparametrized descriptors in ontology " + ontology);
 
                     return callback(null);

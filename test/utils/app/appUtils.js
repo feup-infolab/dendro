@@ -45,11 +45,6 @@ exports.clearAllData = function (cb) {
     });
 };
 
-exports.quitAllCacheConnections = function (cb) {
-    const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
-    Cache.closeConnections(cb);
-};
-
 exports.deleteAllCaches = function (cb) {
     const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
     Cache.deleteAllRecordsOfAllCaches(cb);
@@ -66,7 +61,10 @@ exports.clearAppState = function (cb) {
         else
         {
             global.tests.app.freeResources(function(err, results){
-                cb(null);
+                /*setTimeout(function(){
+                    cb(err, results);
+                }, 1000);*/
+                cb(err, results);
             });
         }
     });

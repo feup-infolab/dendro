@@ -19,6 +19,8 @@ const async = require('async');
 function Ontology (object)
 {
     const self = this;
+    self.copyOrInitDescriptors(object);
+
     if(!isNull(object) && object instanceof Object)
     {
         if(!isNull(object.uri) && isNull(object.prefix))

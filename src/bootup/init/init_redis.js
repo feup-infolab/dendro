@@ -1,4 +1,4 @@
-const initRedis = function(callback)
+const initRedis = function(app, callback)
 {
 
 }

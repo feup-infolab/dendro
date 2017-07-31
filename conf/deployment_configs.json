@@ -99,6 +99,7 @@
     "maxSimultaneousConnectionsToDb": 10,
     "dbOperationTimeout": 5000,
     "tempFilesDir": "temp",
+    "tempUploadsDir": "temp_uploads",
     "tempFilesCreationMode": "0777",
     "administrators": [
       {
@@ -213,7 +214,7 @@
         "ram_usage_report": true
       },
       "index": {
-        "elasticsearch_connection_log_type": "trace"
+        "elasticsearch_connection_log_type": ""
       },
       "tests" :
       {
@@ -461,6 +462,7 @@
     "maxSimultaneousConnectionsToDb": 10,
     "dbOperationTimeout": 5000,
     "tempFilesDir": "temp",
+    "tempUploadsDir": "temp_uploads",
     "tempFilesCreationMode": "0777",
     "administrators": [
       {
@@ -589,7 +591,7 @@
       "reload_descriptor_validation_data" : false,
       "clear_session_store": true,
       "clear_caches" : true,
-      "log_bootup_actions" : true,
+      "log_bootup_actions" : false,
       "destroy_all_graphs_on_startup": true
     },
     "baselines": {
@@ -819,6 +821,7 @@
     "maxSimultaneousConnectionsToDb": 10,
     "dbOperationTimeout": 5000,
     "tempFilesDir": "temp",
+    "tempUploadsDir": "temp_uploads",
     "tempFilesCreationMode": "0777",
     "administrators": [
       {

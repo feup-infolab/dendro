@@ -1,6 +1,6 @@
 const path = require('path');
-const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
-const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
@@ -9,8 +9,6 @@ const QueryBasedRouter = Object.create(require(Pathfinder.absPathInSrcFolder("/u
 let RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
 //middlewares
-
-const parseRequest = require(Pathfinder.absPathInSrcFolder("/bootup/middleware/parse_request.js")).parseRequest;
 const sendResponse = require(Pathfinder.absPathInSrcFolder("/bootup/middleware/send_response.js")).sendResponse;
 
 //app's own requires
@@ -31,7 +29,27 @@ const datasets = require(Pathfinder.absPathInSrcFolder("/controllers/datasets"))
 const posts = require(Pathfinder.absPathInSrcFolder("/controllers/posts"));
 const fileVersions = require(Pathfinder.absPathInSrcFolder("/controllers/file_versions"));
 const notifications = require(Pathfinder.absPathInSrcFolder("/controllers/notifications"));
+
+let recommendation;
+
 const recommendation_mode = RecommendationUtils.getActiveRecommender();
+
+if(recommendation_mode === "dendro_recommender")
+{
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/dr_recommendation"));
+}
+else if(recommendation_mode === "standalone")
+{
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/standalone_recommendation"));
+}
+else if(recommendation_mode === "project_descriptors")
+{
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/project_descriptors_recommendation"));
+}
+else if(recommendation_mode === "none")
+{
+    recommendation = require(Pathfinder.absPathInSrcFolder("/controllers/no_recommendation"));
+}
 
 const auth = require(Pathfinder.absPathInSrcFolder("/controllers/auth"));
 const auth_orcid = require(Pathfinder.absPathInSrcFolder("/controllers/auth_orcid"));
@@ -67,7 +85,7 @@ const extractUriFromRequest = function (req, res, next) {
     return next(null, req, res);
 };
 
-const loadRoutes = function(app, passport, recommendation, callback)
+const loadRoutes = function(app, callback)
 {
     app.get('/', index.index);
 
@@ -197,7 +215,7 @@ const loadRoutes = function(app, passport, recommendation, callback)
 
         app.get('/auth/orcid', passport.authenticate('orcid'));
         app.get('/auth/orcid/callback', csrfProtection, function(req, res, next) {
-            passport.authenticate('orcid', auth_orcid.login(req, res, next));
+            req.passport.authenticate('orcid', auth_orcid.login(req, res, next));
         });
     }
 

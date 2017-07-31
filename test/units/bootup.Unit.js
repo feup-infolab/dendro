@@ -44,9 +44,7 @@ module.exports.setup = function(finish)
 
         appUtils.clearAllData(function (err, data) {
             should.equal(err, null);
-
-            let bootup = requireUncached(Pathfinder.absPathInSrcFolder("app.js")).bootup;
-            bootup.then(function(appInfo) {
+            requireUncached(Pathfinder.absPathInSrcFolder("app.js")).serverListening.then(function(appInfo) {
                 chai.request(appInfo.app)
                     .get('/')
                     .end((err, res) => {

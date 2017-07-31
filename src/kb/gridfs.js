@@ -64,8 +64,9 @@ GridFSConnection.prototype.openConnection = function(callback) {
 GridFSConnection.prototype.closeConnection = function(cb)
 {
     const self = this;
-    self.db.close();
-    cb(null, null);
+    self.db.close(function(err, result){
+        cb(err, result);
+    });
 };
 
 GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metadata, customBucket) {

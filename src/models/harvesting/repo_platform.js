@@ -13,7 +13,6 @@ function RepositoryPlatform(object)
     const self = this;
     self.addURIAndRDFType(object, "repo_platform", RepositoryPlatform);
     RepositoryPlatform.baseConstructor.call(this, object);
-    const self = this;
 
     if(isNull(self.ddr.humanReadableURI))
     {

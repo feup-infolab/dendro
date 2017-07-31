@@ -1,0 +1,78 @@
+const path = require('path');
+
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const User  = require(path.join(process.cwd(), "src", "models", "user.js")).User;
+const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+
+let slug = require('slug'),
+    session_key = "dendro_" + slug(Config.host) + "_sessionKey",
+    csrf = require('csurf'),
+    csrfProtection = csrf({cookie: true}),
+    cookieParser = require('cookie-parser'),
+    expressSession = require('express-session');
+
+const setupPassport = function(app, callback)
+{
+    app.use(cookieParser(Config.crypto.secret));
+
+    const MongoStore = require('connect-mongo')(expressSession);
+
+    const sessionMongoStore = new MongoStore(
+        {
+            "host": Config.mongoDBHost,
+            "port": Config.mongoDbPort,
+            "db": Config.mongoDBSessionStoreCollection,
+            "url": 'mongodb://' + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDBSessionStoreCollection
+        });
+
+    app.use(expressSession(
+        {
+            secret: Config.crypto.secret,
+            genid: function ()
+            {
+                const uuid = require('uuid');
+                return uuid.v4()
+            },
+            key: session_key,
+            cookie: {maxAge: 1000 * 60 * 60 * 24 * 5}, //5 days max session age
+            store: sessionMongoStore,
+            resave: false,
+            saveUninitialized: false
+        })
+    );
+
+    const passport = require('passport');
+    //set serialization and deserialization methods
+
+    passport.serializeUser(function(user, done) {
+        done(null, user);
+    });
+    passport.deserializeUser(function(user, done) {
+        const deserializedUser = new User(user);
+        done(null, deserializedUser);
+    });
+
+    app.use(passport.initialize());
+    app.use(passport.session());
+
+    app.use(function(req, res, next){
+        req.passport = passport;
+        next(null, req, res);
+    });
+
+    if (Config.startup.clear_session_store)
+    {
+        Logger.log_boot_message("info", "Clearing session store!");
+        sessionMongoStore.clear(function (err, result)
+        {
+            callback(err);
+        });
+    }
+    else
+    {
+        callback(null);
+    }
+};
+
+module.exports.setupPassport = setupPassport;

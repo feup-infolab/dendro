@@ -54,12 +54,5 @@ module.exports.login = function(req, res, next){
                 });
             }
         })(req, res, next);
-
-    /*req.passport.authenticate('orcid', module.exports.register);
-
-        // NOTE: `profile` is empty, use `params` instead
-    User.findByORCID(params.orcid, function (err, user) {
-        return done(err, user);
-    });*/
 };
 
