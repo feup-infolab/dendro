@@ -280,6 +280,7 @@ angular.module('dendroApp.controllers')
             //$scope.posts = [];
             $scope.likesPostInfo = [];
             $scope.postsContents = [];
+            $scope.getPosts($scope.posts);
             //$scope.pageChangeHandler($scope.pagination.current);
             $window.scrollTo(0, 0);//to scroll up to the top on page change
             usSpinnerService.stop('social-dendro-spinner');
