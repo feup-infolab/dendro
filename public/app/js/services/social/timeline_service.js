@@ -95,6 +95,20 @@ angular.module('dendroApp.services')
             });
         };
 
+            var requestUri = "/posts/posts";
+
+            var params = {
+            };
+
+            return $http({
+                method: 'POST',
+                url: requestUri,
+                data: params,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
         this.likePost = function(postID)
         {
             var requestUri = "/posts/like";

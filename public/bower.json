@@ -75,7 +75,8 @@
     "spin.js": "~2.0.0",
     "parsleyjs": "^2.7.2",
     "ng-img-crop": "^0.3.2",
-    "angular-image-compress": "^0.1.5"
+    "angular-image-compress": "^0.1.5",
+    "angular-spinner": "^1.0.1"
   },
   "resolutions": {
     "bootstrap": "~3",

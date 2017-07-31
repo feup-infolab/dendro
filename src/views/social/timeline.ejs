@@ -1,6 +1,6 @@
 <%- include ../layout/header.ejs %>
 
-<div ng-controller="timelineCtrl" ng-init="initTimeline();get_logged_user();">
+<div ng-controller="timelineCtrl" ng-init="initTimeline('<%= posts %>');get_logged_user();">
     <div ng-cloak>
         <div class="container">
             <h3 class="text-center">Social Dendro</h3>
@@ -15,32 +15,49 @@
                     <i class="fa fa-file-o fa-5x" aria-hidden="true"></i>
                 </div>
 
-                <!--<p>posts : <%= posts %></p>
-                <p>posts.length : <%= posts.length %></p>
+                <!--<p>posts : {{posts}}</p>
+                <p>posts.length : {{posts.length}}</p>
                 <p> totalPosts : {{totalPosts}}</p>
                 <p> postsPerPage : {{postsPerPage}}</p>
                 <p> paginationCurrent : {{pagination.current}}</p>-->
 
                 <div>
-                    <span spinner-key="spinner-1" us-spinner="{radius:30, width:8, length: 16}"></span>
+                    <span spinner-key="social-dendro-spinner" us-spinner="{radius:30, width:8, length: 16}"></span>
                 </div>
 
                 <div ng-show="posts.length > 0 && !getting_posts && !doing_getPost">
-                    <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts"
-                         current-page="pagination.current">
-                        <div ng-init="getPost(post.uri, null);">
-                            <div ng-if="postsContents[post.uri].rdf.isShare">
-                                <!--<p> IS A SHARE </p>-->
-                                <ng-include src="'/app/views/social/showShare.html'"
-                                            onload="initSingleShare(post.uri); shareUri = post.uri;"></ng-include>
-                            </div>
+                    <div ng-init="getPosts(posts);">
+                        <div dir-paginate="post in posts | filter:q | itemsPerPage: postsPerPage" total-items="totalPosts"
+                             current-page="pagination.current">
+                            <!--<div ng-init="getPost(post.uri, null);">
+                                <p> TYPE : {{postsContents[post.uri].rdf.type}}</p>
+                                <div ng-if="postsContents[post.uri].rdf.isShare">
+                                    &lt;!&ndash;<p> IS A SHARE </p>&ndash;&gt;
+                                    <ng-include src="'/app/views/social/showShare.html'"
+                                                onload="initSingleShare(post.uri); shareUri = post.uri;"></ng-include>
+                                </div>
 
-                            <!--<div style="margin-left: 20%; margin-right: 20%" ng-if="!postsContents[post.uri].rdf.isShare">-->
-                            <div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.isShare">
-                                <ng-include src="'/app/views/social/showPost.html'"
-                                            onload="initSinglePost(post.uri); postUri = post.uri;"></ng-include>
+                                &lt;!&ndash;<div style="margin-left: 20%; margin-right: 20%" ng-if="!postsContents[post.uri].rdf.isShare">&ndash;&gt;
+                                <div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.isShare">
+                                    <ng-include src="'/app/views/social/showPost.html'"
+                                                onload="initSinglePost(post.uri); postUri = post.uri;"></ng-include>
+                                </div>
+                                <hr>
+                            </div>-->
+                            <div>
+                                <div ng-if="postsContents[post.uri].rdf.isShare">
+                                    <!--<p> IS A SHARE </p>-->
+                                    <ng-include src="'/app/views/social/showShare.html'"
+                                                onload="shareUri = post.uri;"></ng-include>
+                                </div>
+
+                                <!--<div style="margin-left: 20%; margin-right: 20%" ng-if="!postsContents[post.uri].rdf.isShare">-->
+                                <div class="timelineShowShare" ng-if="!postsContents[post.uri].rdf.isShare">
+                                    <ng-include src="'/app/views/social/showPost.html'"
+                                                onload="postUri = post.uri;"></ng-include>
+                                </div>
+                                <!--<hr>-->
                             </div>
-                            <hr>
                         </div>
                     </div>
                 </div>
@@ -60,5 +77,4 @@
 
 <div>
     <%- include ../layout/footer.ejs %>
-
 </div>

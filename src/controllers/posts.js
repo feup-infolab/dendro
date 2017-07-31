@@ -10,14 +10,21 @@ var Share = require('../models/social/share.js').Share;
 var Ontology = require('../models/meta/ontology.js').Ontology;
 var Project = require('../models/project.js').Project;
 var DbConnection = require("../kb/db.js").DbConnection;
+const isNull = require(Config.absPathInSrcFolder("/utils/null.js")).isNull;
 
 var _ = require('underscore');
 
 var async = require('async');
 var flash = require('connect-flash');
-var db = function() { return GLOBAL.db.default; }();
-var db_social = function() { return GLOBAL.db.social; }();
-var db_notifications = function () { return GLOBAL.db.notifications;}();
+var db = function () {
+    return GLOBAL.db.default;
+}();
+var db_social = function () {
+    return GLOBAL.db.social;
+}();
+var db_notifications = function () {
+    return GLOBAL.db.notifications;
+}();
 
 var app = require('../app');
 
@@ -25,77 +32,69 @@ exports.numPostsDatabase = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var currentUserUri = req.user.uri;
         Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
-            if(!err)
-            {
+            if (!err) {
                 async.map(projects, function (project, cb1) {
                     cb1(null, project.uri);
                 }, function (err, projectsUris) {
-                    if(!err)
-                    {
-                        numPostsDatabaseAux(projectsUris,function (err, count) {
-                            if(!err)
-                            {
+                    if (!err) {
+                        numPostsDatabaseAux(projectsUris, function (err, count) {
+                            if (!err) {
                                 res.json(count);
                             }
-                            else{
+                            else {
                                 res.status(500).json({
-                                    result : "Error",
-                                    message : "Error counting posts. " + JSON.stringify(err)
+                                    result: "Error",
+                                    message: "Error counting posts. " + JSON.stringify(err)
                                 });
                             }
                         });
                     }
-                    else
-                    {
+                    else {
                         console.error("Error iterating over projects URIs");
                         console.log(err);
                         res.status(500).json({
-                            result : "Error",
-                            message : "Error counting posts. " + JSON.stringify(err)
+                            result: "Error",
+                            message: "Error counting posts. " + JSON.stringify(err)
                         });
                     }
                 })
             }
-            else
-            {
+            else {
                 res.status(500).json({
-                    result : "Error",
-                    message : "Error finding user projects"
+                    result: "Error",
+                    message: "Error finding user projects"
                 });
             }
         });
     }
-    else
-    {
+    else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
         });
     }
 };
 
 
 exports.getUserPostsUris = function (userUri, currentPage, callback) {
-    var index = currentPage == 1? 0 : (currentPage*5) - 5;
+    var index = currentPage == 1 ? 0 : (currentPage * 5) - 5;
     var maxResults = 5;
     Project.findByCreatorOrContributor(userUri, function (err, projects) {
-        if(!err)
-        {
+        if (!err) {
             async.map(projects, function (project, cb1) {
                 cb1(null, project.uri);
             }, function (err, fullProjectsUris) {
-                getAllPosts(fullProjectsUris,function (err, results) {
-                    if(!err)
-                    {
+                getAllPosts(fullProjectsUris, function (err, results) {
+                    if (!err) {
                         callback(err, results);
                     }
-                    else{
+                    else {
                         console.error("Error getting a user post");
                         console.error(err);
                         callback(err, results)
@@ -103,8 +102,7 @@ exports.getUserPostsUris = function (userUri, currentPage, callback) {
                 }, index, maxResults);
             })
         }
-        else
-        {
+        else {
             console.error("Error finding user projects");
             console.error(projects);
             callback(err, projects)
@@ -112,90 +110,79 @@ exports.getUserPostsUris = function (userUri, currentPage, callback) {
     });
 };
 
-exports.all = function(req, res){
+exports.all = function (req, res) {
     var currentUser = req.user;
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
     var currentPage = req.query.currentPage;
-    var index = currentPage == 1? 0 : (currentPage*5) - 5;
+    var index = currentPage == 1 ? 0 : (currentPage * 5) - 5;
     var maxResults = 5;
 
     //TODO receber filters aqui para os posts da timeline de acordo com (order by numLikes, project, all my projects, etc)
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         Project.findByCreatorOrContributor(currentUser.uri, function (err, projects) {
-            if(!err)
-            {
+            if (!err) {
                 async.map(projects, function (project, cb1) {
                     cb1(null, project.uri);
                 }, function (err, fullProjectsUris) {
-                    getAllPosts(fullProjectsUris,function (err, results) {
-                        if(!err)
-                        {
+                    getAllPosts(fullProjectsUris, function (err, results) {
+                        if (!err) {
                             res.json(results);
                         }
-                        else{
+                        else {
                             res.status(500).json({
-                                result : "Error",
-                                message : "Error getting posts. " + JSON.stringify(err)
+                                result: "Error",
+                                message: "Error getting posts. " + JSON.stringify(err)
                             });
                         }
                     }, index, maxResults);
                 })
             }
-            else
-            {
+            else {
                 res.status(500).json({
-                    result : "Error",
-                    message : "Error finding user projects"
+                    result: "Error",
+                    message: "Error finding user projects"
                 });
             }
         });
     }
-    else
-    {
+    else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
         });
     }
 };
 
-exports.new = function(req, res){
+exports.new = function (req, res) {
     let currentUserUri = req.user.uri;
-    if(req.body.newPostContent !==null && req.body.newPostTitle !==null && req.body.newPostProjectUri !==null)
-    {
+    if (req.body.newPostContent !== null && req.body.newPostTitle !== null && req.body.newPostProjectUri !== null) {
         Project.findByUri(req.body.newPostProjectUri, function (err, project) {
-            if(!err && project)
-            {
+            if (!err && project) {
                 project.isUserACreatorOrContributor(currentUserUri, function (err, results) {
-                    if(!err)
-                    {
-                        if(Array.isArray(results) && results.length > 0)
-                        {
+                    if (!err) {
+                        if (Array.isArray(results) && results.length > 0) {
                             //is a creator or contributor
                             //HERE BRO
                             let postInfo = {
-                                title : req.body.newPostTitle,
-                                body : req.body.newPostContent
+                                title: req.body.newPostTitle,
+                                body: req.body.newPostContent
                             };
 
                             ManualPost.buildManualPost(currentUserUri, project, postInfo, function (err, manualPost) {
-                                if(!err && manualPost!==null)
-                                {
+                                if (!err && manualPost !== null) {
                                     manualPost.save(function (err, result) {
-                                        if(!err)
-                                        {
+                                        if (!err) {
                                             res.status(200).json({
-                                                result : "OK",
-                                                message : "Manual Post " + manualPost.uri + " successfully created"
+                                                result: "OK",
+                                                message: "Manual Post " + manualPost.uri + " successfully created"
                                             });
                                         }
-                                        else
-                                        {
+                                        else {
                                             let errorMsg = "[Error] When saving a new manual post" + JSON.stringify(result);
                                             console.error(errorMsg);
                                             res.status(500).json({
@@ -205,8 +192,7 @@ exports.new = function(req, res){
                                         }
                                     }, false, null, null, null, null, db_social.graphUri);
                                 }
-                                else
-                                {
+                                else {
                                     let errorMsg = "[Error] When creating a new manual post" + JSON.stringify(manualPost);
                                     console.error(errorMsg);
                                     res.status(500).json({
@@ -216,8 +202,7 @@ exports.new = function(req, res){
                                 }
                             });
                         }
-                        else
-                        {
+                        else {
                             //is not a creator or contributor -> reject post creation
                             let errorMsg = "You are not creator or contributor of this Project";
                             res.status(401).json({
@@ -226,8 +211,7 @@ exports.new = function(req, res){
                             });
                         }
                     }
-                    else
-                    {
+                    else {
                         let errorMsg = "[Error] When checking if a user is a contributor or creator of a project: " + JSON.stringify(results);
                         res.status(500).json({
                             result: "Error",
@@ -236,8 +220,7 @@ exports.new = function(req, res){
                     }
                 });
             }
-            else
-            {
+            else {
                 let errorMsg = "[Error]: This project does not exist: " + JSON.stringify(project);
                 console.error(errorMsg);
                 res.status(404).json({
@@ -247,8 +230,7 @@ exports.new = function(req, res){
             }
         }, null, db.graphUri, false, null, null);
     }
-    else
-    {
+    else {
         let errorMsg = "Error saving post. The request body is missing a parameter(REQUIRED 'newPostContent'; 'newPostTitle', 'newPostProjectUri')";
         console.error(errorMsg);
         res.status(400).json({
@@ -263,27 +245,23 @@ exports.getPost_controller = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var currentUser = req.user;
         var postURI = req.body.postID;
 
         var debugGraph = db_social.graphUri;
-        Post.findByUri(req.body.postID, function(err, post)
-        {
-            if(!err)
-            {
+        Post.findByUri(req.body.postID, function (err, post) {
+            if (!err) {
 
-                if(!post)
-                {
+                if (!post) {
                     var errorMsg = "Invalid post uri";
                     res.status(404).json({
                         result: "Error",
                         message: errorMsg
                     });
                 }
-                else
-                {
+                else {
                     //app.io.emit('chat message', post);
                     var eventMsg = 'postURI:' + postURI.uri;
                     //var eventMsg = 'postURI:';
@@ -291,8 +269,7 @@ exports.getPost_controller = function (req, res) {
                     res.json(post);
                 }
             }
-            else
-            {
+            else {
                 res.status(500).json({
                     result: "Error",
                     message: "Error getting a post. " + JSON.stringify(post)
@@ -300,13 +277,88 @@ exports.getPost_controller = function (req, res) {
             }
         }, null, db_social.graphUri, false, null, null);
     }
-    else
-    {
+    else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
+        });
+    }
+};
+
+exports.getPosts_controller = function (req, res) {
+    var acceptsHTML = req.accepts('html');
+    var acceptsJSON = req.accepts('json');
+
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    {
+        var currentUser = req.user;
+        var postsQueryInfo = req.body.postsQueryInfo;
+
+        //TODO Check if the type is a string -> convert to array
+        //TODO Here iterate over the postUris and find the post info
+        //TODO add the post to the response array with the index being the postUri
+        //TODO build an aux function to get the specific post/share info -> use it here and in the exports.post and exports.getShare endpoint functions
+
+
+        /*if(typeof postsQueryInfo != String)
+         {
+         postsQueryInfo =
+         }*/
+        /*Post.findByUri(req.body.postID, function (err, post) {
+         if (!err) {
+
+         if (!post) {
+         var errorMsg = "Invalid post uri";
+         res.status(404).json({
+         result: "Error",
+         message: errorMsg
+         });
+         }
+         else {
+         //app.io.emit('chat message', post);
+         var eventMsg = 'postURI:' + postURI.uri;
+         //var eventMsg = 'postURI:';
+         //app.io.emit(eventMsg, post);
+         res.json(post);
+         }
+         }
+         else {
+         res.status(500).json({
+         result: "Error",
+         message: "Error getting a post. " + JSON.stringify(post)
+         });
+         }
+         }, null, db_social.graphUri, false, null, null);*/
+
+        getSharesOrPostsInfo(postsQueryInfo, function (err, postInfo) {
+            if (isNull(err)) {
+                if (isNull(postInfo) || postInfo.length == 0) {
+                    var errorMsg = "Post uris not found";
+                    res.status(404).json({
+                        result: "Error",
+                        message: errorMsg
+                    });
+                }
+                else {
+                    res.json(postInfo);
+                }
+            }
+            else {
+                res.status(500).json({
+                    result: "Error",
+                    message: "Error getting a post. " + JSON.stringify(postInfo)
+                });
+            }
+        });
+    }
+    else {
+        var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
+        req.flash('error', "Invalid Request");
+        res.status(400).json({
+            result: "Error",
+            message: msg
         });
     }
 };
@@ -315,42 +367,38 @@ exports.share = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var currentUser = req.user;
         var shareMsg = req.body.shareMsg;
-        Post.findByUri(req.body.postID, function(err, post)
-        {
-            if(!err)
-            {
-                if(!post)
-                {
+        Post.findByUri(req.body.postID, function (err, post) {
+            if (!err) {
+                if (!post) {
                     var errorMsg = "Invalid post uri";
                     res.status(404).json({
                         result: "Error",
                         message: errorMsg
                     });
                 }
-                else
-                {
+                else {
                     /*var newShare = new Share({
-                        ddr: {
-                            userWhoShared : currentUser.uri,
-                            postURI: post.uri,
-                            shareMsg: shareMsg,
-                            projectUri: post.ddr.projectUri
-                        },
-                        dcterms: {
-                            creator: currentUser.uri
-                        },
-                        rdf: {
-                            isShare : true
-                        }
-                    });*/
+                     ddr: {
+                     userWhoShared : currentUser.uri,
+                     postURI: post.uri,
+                     shareMsg: shareMsg,
+                     projectUri: post.ddr.projectUri
+                     },
+                     dcterms: {
+                     creator: currentUser.uri
+                     },
+                     rdf: {
+                     isShare : true
+                     }
+                     });*/
 
                     var newShareData = {
                         ddr: {
-                            userWhoShared : currentUser.uri,
+                            userWhoShared: currentUser.uri,
                             postURI: post.uri,
                             shareMsg: shareMsg,
                             projectUri: post.ddr.projectUri
@@ -359,44 +407,39 @@ exports.share = function (req, res) {
                             creator: currentUser.uri
                         },
                         rdf: {
-                            isShare : true
+                            isShare: true
                         }
                     };
 
                     Share.buildFromInfo(newShareData, function (err, newShare) {
                         var newNotification = new Notification({
                             ddr: {
-                                userWhoActed : currentUser.uri,
+                                userWhoActed: currentUser.uri,
                                 resourceTargetUri: post.uri,
                                 actionType: "Share",
                                 resourceAuthorUri: post.dcterms.creator,
-                                shareURI : newShare.uri
+                                shareURI: newShare.uri
                             },
-                            foaf :
-                                {
-                                    status : "unread"
-                                }
+                            foaf: {
+                                status: "unread"
+                            }
                         });
 
-                        newShare.save(function(err, resultShare)
-                        {
-                            if(!err)
-                            {
+                        newShare.save(function (err, resultShare) {
+                            if (!err) {
                                 /*
                                  res.json({
                                  result : "OK",
                                  message : "Post shared successfully"
                                  });*/
                                 newNotification.save(function (error, resultNotification) {
-                                    if(!error)
-                                    {
+                                    if (!error) {
                                         res.json({
-                                            result : "OK",
-                                            message : "Post shared successfully"
+                                            result: "OK",
+                                            message: "Post shared successfully"
                                         });
                                     }
-                                    else
-                                    {
+                                    else {
                                         res.status(500).json({
                                             result: "Error",
                                             message: "Error saving a notification for a Share " + JSON.stringify(resultNotification)
@@ -404,8 +447,7 @@ exports.share = function (req, res) {
                                     }
                                 }, false, null, null, null, null, db_notifications.graphUri);
                             }
-                            else
-                            {
+                            else {
                                 console.error("Error share a post");
                                 console.error(err);
                                 res.status(500).json({
@@ -418,8 +460,7 @@ exports.share = function (req, res) {
                     });
                 }
             }
-            else
-            {
+            else {
                 res.status(500).json({
                     result: "Error",
                     message: "Error sharing a post. " + JSON.stringify(post)
@@ -427,13 +468,12 @@ exports.share = function (req, res) {
             }
         }, null, db_social.graphUri, null);
     }
-    else
-    {
+    else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
         });
     }
 };
@@ -442,31 +482,26 @@ exports.getPostComments = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var currentUser = req.user;
         var postUri = req.body.postID;
 
-        Post.findByUri(req.body.postID, function(err, post)
-        {
-            if(!err && post != null)
-            {
+        Post.findByUri(req.body.postID, function (err, post) {
+            if (!err && post != null) {
                 getCommentsForAPost(postUri, function (err, comments) {
-                    if(err)
-                    {
+                    if (err) {
                         res.status(500).json({
                             result: "Error",
                             message: "Error getting comments from a post " + JSON.stringify(comments)
                         });
                     }
-                    else
-                    {
+                    else {
                         res.json(comments);
                     }
                 });
             }
-            else
-            {
+            else {
                 var errorMsg = "Invalid post uri";
                 res.status(404).json({
                     result: "Error",
@@ -475,13 +510,12 @@ exports.getPostComments = function (req, res) {
             }
         }, null, db_social.graphUri, null);
     }
-    else
-    {
+    else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
         });
     }
 };
@@ -490,18 +524,16 @@ exports.comment = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var currentUser = req.user;
         var commentMsg = req.body.commentMsg;
 
-        Post.findByUri(req.body.postID, function(err, post)
-        {
-            if(!err && post != null)
-            {
+        Post.findByUri(req.body.postID, function (err, post) {
+            if (!err && post != null) {
                 var newComment = new Comment({
                     ddr: {
-                        userWhoCommented : currentUser.uri,
+                        userWhoCommented: currentUser.uri,
                         postURI: post.uri,
                         commentMsg: commentMsg
                     }
@@ -509,36 +541,31 @@ exports.comment = function (req, res) {
 
                 var newNotification = new Notification({
                     ddr: {
-                        userWhoActed : currentUser.uri,
+                        userWhoActed: currentUser.uri,
                         resourceTargetUri: post.uri,
                         actionType: "Comment",
                         resourceAuthorUri: post.dcterms.creator
                     },
-                    foaf :
-                        {
-                            status : "unread"
-                        }
+                    foaf: {
+                        status: "unread"
+                    }
                 });
 
-                newComment.save(function(err, resultComment)
-                {
-                    if(!err)
-                    {
+                newComment.save(function (err, resultComment) {
+                    if (!err) {
                         /*
                          res.json({
                          result : "OK",
                          message : "Post commented successfully"
                          });*/
                         newNotification.save(function (error, resultNotification) {
-                            if(!error)
-                            {
+                            if (!error) {
                                 res.json({
-                                    result : "OK",
-                                    message : "Post commented successfully"
+                                    result: "OK",
+                                    message: "Post commented successfully"
                                 });
                             }
-                            else
-                            {
+                            else {
                                 res.status(500).json({
                                     result: "Error",
                                     message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
@@ -546,8 +573,7 @@ exports.comment = function (req, res) {
                             }
                         }, false, null, null, null, null, db_notifications.graphUri);
                     }
-                    else
-                    {
+                    else {
                         res.status(500).json({
                             result: "Error",
                             message: "Error Commenting a post. " + JSON.stringify(resultComment)
@@ -556,8 +582,7 @@ exports.comment = function (req, res) {
 
                 }, false, null, null, null, null, db_social.graphUri);
             }
-            else
-            {
+            else {
                 var errorMsg = "Invalid post uri";
                 res.status(404).json({
                     result: "Error",
@@ -566,93 +591,90 @@ exports.comment = function (req, res) {
             }
         }, null, db_social.graphUri, null);
     }
-    else
-    {
+    else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
         });
     }
 
     /*Post.findByUri(req.body.postID, function(err, post)
-    {
-        var newComment = new Comment({
-            ddr: {
-                userWhoCommented : currentUser.uri,
-                postURI: post.uri,
-                commentMsg: commentMsg
-            }
-        });
+     {
+     var newComment = new Comment({
+     ddr: {
+     userWhoCommented : currentUser.uri,
+     postURI: post.uri,
+     commentMsg: commentMsg
+     }
+     });
 
-        var newNotification = new Notification({
-            ddr: {
-                userWhoActed : currentUser.uri,
-                resourceTargetUri: post.uri,
-                actionType: "Comment",
-                resourceAuthorUri: post.dcterms.creator
-            },
-            foaf :
-            {
-                status : "unread"
-            }
-        });
+     var newNotification = new Notification({
+     ddr: {
+     userWhoActed : currentUser.uri,
+     resourceTargetUri: post.uri,
+     actionType: "Comment",
+     resourceAuthorUri: post.dcterms.creator
+     },
+     foaf :
+     {
+     status : "unread"
+     }
+     });
 
-        newComment.save(function(err, resultComment)
-        {
-            if(!err)
-            {
-                /!*
-                res.json({
-                    result : "OK",
-                    message : "Post commented successfully"
-                });*!/
-                newNotification.save(function (error, resultNotification) {
-                    if(!error)
-                    {
-                        res.json({
-                            result : "OK",
-                            message : "Post commented successfully"
-                        });
-                    }
-                    else
-                    {
-                        res.status(500).json({
-                            result: "Error",
-                            message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
-                        });
-                    }
-                }, false, null, null, null, null, db_notifications.graphUri);
-            }
-            else
-            {
-                res.status(500).json({
-                    result: "Error",
-                    message: "Error Commenting a post. " + JSON.stringify(resultComment)
-                });
-            }
+     newComment.save(function(err, resultComment)
+     {
+     if(!err)
+     {
+     /!*
+     res.json({
+     result : "OK",
+     message : "Post commented successfully"
+     });*!/
+     newNotification.save(function (error, resultNotification) {
+     if(!error)
+     {
+     res.json({
+     result : "OK",
+     message : "Post commented successfully"
+     });
+     }
+     else
+     {
+     res.status(500).json({
+     result: "Error",
+     message: "Error saving a notification for a Comment " + JSON.stringify(resultNotification)
+     });
+     }
+     }, false, null, null, null, null, db_notifications.graphUri);
+     }
+     else
+     {
+     res.status(500).json({
+     result: "Error",
+     message: "Error Commenting a post. " + JSON.stringify(resultComment)
+     });
+     }
 
-        }, false, null, null, null, null, db_social.graphUri);
+     }, false, null, null, null, null, db_social.graphUri);
 
-    }, null, db_social.graphUri, null);*/
+     }, null, db_social.graphUri, null);*/
 };
 
 exports.checkIfPostIsLikedByUser = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var postID = req.body.postID;
         var currentUser = req.user;
 
-        Post.findByUri(postID, function(err, post)
-        {
-            if(!err && post != null)
-            {
+        Post.findByUri(postID, function (err, post) {
+            if (!err && post != null) {
                 userLikedAPost(post.uri, currentUser.uri, function (err, isLiked) {
-                    if(!err)
+                    if (!err)
                         res.json(isLiked);
                     else
                         res.status(500).json({
@@ -661,8 +683,7 @@ exports.checkIfPostIsLikedByUser = function (req, res) {
                         });
                 });
             }
-            else
-            {
+            else {
                 var errorMsg = "Invalid post uri";
                 res.status(404).json({
                     result: "Error",
@@ -671,13 +692,12 @@ exports.checkIfPostIsLikedByUser = function (req, res) {
             }
         }, null, db_social.graphUri, null);
     }
-    else
-    {
+    else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
         });
     }
 };
@@ -686,29 +706,24 @@ exports.like = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var currentUser = req.user;
         removeOrAdLike(req.body.postID, currentUser.uri, function (err, likeExists) {
-            if(!err)
-            {
-                if(likeExists)
-                {
+            if (!err) {
+                if (likeExists) {
                     //like was removed
                     res.json({
-                        result : "OK",
-                        message : "Like was removed"
+                        result: "OK",
+                        message: "Like was removed"
                     });
                 }
-                else
-                {
-                    Post.findByUri(req.body.postID, function(err, post)
-                    {
-                        if(!err && post != null)
-                        {
+                else {
+                    Post.findByUri(req.body.postID, function (err, post) {
+                        if (!err && post != null) {
                             var newLike = new Like({
                                 ddr: {
-                                    userWhoLiked : currentUser.uri,
+                                    userWhoLiked: currentUser.uri,
                                     postURI: post.uri
                                 }
                             });
@@ -721,31 +736,26 @@ exports.like = function (req, res) {
 
                             var newNotification = new Notification({
                                 ddr: {
-                                    userWhoActed : currentUser.uri,
+                                    userWhoActed: currentUser.uri,
                                     resourceTargetUri: post.uri,
                                     actionType: "Like",
                                     resourceAuthorUri: post.dcterms.creator
                                 },
-                                foaf :
-                                    {
-                                        status : "unread"
-                                    }
+                                foaf: {
+                                    status: "unread"
+                                }
                             });
 
-                            newLike.save(function(err, resultLike)
-                            {
-                                if(!err)
-                                {
+                            newLike.save(function (err, resultLike) {
+                                if (!err) {
                                     newNotification.save(function (error, resultNotification) {
-                                        if(!error)
-                                        {
+                                        if (!error) {
                                             res.json({
-                                                result : "OK",
-                                                message : "Post liked successfully"
+                                                result: "OK",
+                                                message: "Post liked successfully"
                                             });
                                         }
-                                        else
-                                        {
+                                        else {
                                             res.status(500).json({
                                                 result: "Error",
                                                 message: "Error saving a notification for a Like " + JSON.stringify(resultNotification)
@@ -753,8 +763,7 @@ exports.like = function (req, res) {
                                         }
                                     }, false, null, null, null, null, db_notifications.graphUri);
                                 }
-                                else
-                                {
+                                else {
                                     res.status(500).json({
                                         result: "Error",
                                         message: "Error Liking a post. " + JSON.stringify(resultLike)
@@ -763,8 +772,7 @@ exports.like = function (req, res) {
 
                             }, false, null, null, null, null, db_social.graphUri);
                         }
-                        else
-                        {
+                        else {
                             var errorMsg = "Invalid post uri";
                             res.status(404).json({
                                 result: "Error",
@@ -776,13 +784,12 @@ exports.like = function (req, res) {
             }
         });
     }
-    else
-    {
+    else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
         });
     }
 };
@@ -793,10 +800,9 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
      WHERE {
      ?postURI rdf:type ddr:Post.
      }*/
-    if(projectUrisArray && projectUrisArray.length > 0)
-    {
+    if (projectUrisArray && projectUrisArray.length > 0) {
         async.map(projectUrisArray, function (uri, cb1) {
-            cb1(null, '<'+uri+ '>');
+            cb1(null, '<' + uri + '>');
         }, function (err, fullProjectsUris) {
             var projectsUris = fullProjectsUris.join(" ");
             var query =
@@ -816,24 +822,21 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type: DbConnection.resourceNoEscape,
                         value: db_social.graphUri
                     }
                 ]),
-                function(err, results) {
-                    if(!err)
-                    {
-                        callback(err,results[0].count);
+                function (err, results) {
+                    if (!err) {
+                        callback(err, results[0].count);
                     }
-                    else
-                    {
+                    else {
                         callback(true, "Error fetching numPosts in numPostsDatabaseAux");
                     }
                 });
         });
     }
-    else
-    {
+    else {
         //User has no projects
         var results = 0;
         callback(null, results);
@@ -859,26 +862,23 @@ var removeLike = function (likeID, userUri, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type: DbConnection.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : likeID
+                type: DbConnection.resource,
+                value: likeID
             }
         ]),
-        function(err, results) {
-            if(!err)
-            {
+        function (err, results) {
+            if (!err) {
                 var likeExists = false;
-                if(results.length > 0)
-                {
+                if (results.length > 0) {
                     likeExists = true;
                 }
                 cb(false, likeExists);
             }
-            else
-            {
+            else {
                 cb(true, "Error fetching children of project root folder");
             }
         });
@@ -899,24 +899,22 @@ var removeOrAdLike = function (postID, userUri, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type: DbConnection.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : postID
+                type: DbConnection.resource,
+                value: postID
             },
             {
-                type : DbConnection.resource,
-                value : userUri
+                type: DbConnection.resource,
+                value: userUri
             }
         ]),
-        function(err, results) {
-            if(!err)
-            {
+        function (err, results) {
+            if (!err) {
                 var likeExists = false;
-                if(results.length > 0)
-                {
+                if (results.length > 0) {
                     removeLike(results[0].likeURI, userUri, function (err, data) {
                         likeExists = true;
                         cb(err, likeExists);
@@ -925,8 +923,7 @@ var removeOrAdLike = function (postID, userUri, cb) {
                 else
                     cb(err, likeExists);
             }
-            else
-            {
+            else {
                 cb(true, "Error fetching children of project root folder");
             }
         });
@@ -949,29 +946,26 @@ var getCommentsForAPost = function (postID, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type: DbConnection.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : postID
+                type: DbConnection.resource,
+                value: postID
             }
         ]),
-        function(err, results) {
-            if(!err)
-            {
-                async.map(results, function(commentUri, callback){
-                    Comment.findByUri(commentUri.commentURI, function(err, comment)
-                    {
-                        callback(false,comment);
-                    //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+        function (err, results) {
+            if (!err) {
+                async.map(results, function (commentUri, callback) {
+                    Comment.findByUri(commentUri.commentURI, function (err, comment) {
+                        callback(false, comment);
+                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, comments) {
                     cb(false, comments);
                 });
             }
-            else
-            {
+            else {
                 cb(true, "Error fetching children of project root folder");
             }
         });
@@ -991,29 +985,26 @@ var getSharesForAPost = function (postID, cb) {
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type: DbConnection.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : postID
+                type: DbConnection.resource,
+                value: postID
             }
         ]),
-        function(err, results) {
-            if(!err)
-            {
-                async.map(results, function(shareObject, callback){
-                    Share.findByUri(shareObject.shareURI, function(err, share)
-                    {
-                        callback(false,share);
-                    //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+        function (err, results) {
+            if (!err) {
+                async.map(results, function (shareObject, callback) {
+                    Share.findByUri(shareObject.shareURI, function (err, share) {
+                        callback(false, share);
+                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
                     }, null, db_social.graphUri, null);
                 }, function (err, shares) {
                     cb(false, shares);
                 });
             }
-            else
-            {
+            else {
                 cb(true, "Error shares for a post");
             }
         });
@@ -1023,31 +1014,26 @@ exports.getPostShares = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var currentUser = req.user;
         var postUri = req.body.postID;
 
-        Post.findByUri(postUri, function(err, post)
-        {
-            if(!err && post != null)
-            {
+        Post.findByUri(postUri, function (err, post) {
+            if (!err && post != null) {
                 getSharesForAPost(postUri, function (err, shares) {
-                    if(err)
-                    {
+                    if (err) {
                         res.status(500).json({
                             result: "Error",
                             message: "Error getting shares from a post " + JSON.stringify(shares)
                         });
                     }
-                    else
-                    {
+                    else {
                         res.json(shares);
                     }
                 });
             }
-            else
-            {
+            else {
                 var errorMsg = "Invalid post uri";
                 res.status(404).json({
                     result: "Error",
@@ -1056,13 +1042,12 @@ exports.getPostShares = function (req, res) {
             }
         }, null, db_social.graphUri, null);
     }
-    else
-    {
+    else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
         });
     }
 };
@@ -1071,35 +1056,31 @@ exports.postLikesInfo = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
-    if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         var currentUser = req.user;
         var postURI = req.body.postURI;
         var resultInfo;
 
-        Post.findByUri(postURI, function(err, post)
-        {
-            if(!err && post != null)
-            {
+        Post.findByUri(postURI, function (err, post) {
+            if (!err && post != null) {
                 getNumLikesForAPost(post.uri, function (err, likesArray) {
-                    if(!err)
-                    {
-                        if(likesArray.length)
-                        {
+                    if (!err) {
+                        if (likesArray.length) {
                             resultInfo = {
-                                postURI: postURI, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
+                                postURI: postURI,
+                                numLikes: likesArray.length,
+                                usersWhoLiked: _.pluck(likesArray, 'userURI')
                             };
                         }
-                        else
-                        {
+                        else {
                             resultInfo = {
-                                postURI: postURI, numLikes : 0, usersWhoLiked : 'undefined'
+                                postURI: postURI, numLikes: 0, usersWhoLiked: 'undefined'
                             };
                         }
                         res.json(resultInfo);
                     }
-                    else
-                    {
+                    else {
                         res.status(500).json({
                             result: "Error",
                             message: "Error getting likesInfo from a post " + JSON.stringify(err)
@@ -1108,8 +1089,7 @@ exports.postLikesInfo = function (req, res) {
 
                 });
             }
-            else
-            {
+            else {
                 var errorMsg = "Invalid post uri";
                 res.status(404).json({
                     result: "Error",
@@ -1118,19 +1098,17 @@ exports.postLikesInfo = function (req, res) {
             }
         }, null, db_social.graphUri, null);
     }
-    else
-    {
+    else {
         var msg = "This method is only accessible via API. Accepts:\"application/json\" header is missing or is not the only Accept type";
         req.flash('error', "Invalid Request");
         res.status(400).json({
-            result : "Error",
-            message : msg
+            result: "Error",
+            message: msg
         });
     }
 };
 
-var userLikedAPost = function(postID, userUri, cb )
-{
+var userLikedAPost = function (postID, userUri, cb) {
     var self = this;
 
     var query =
@@ -1145,35 +1123,32 @@ var userLikedAPost = function(postID, userUri, cb )
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type: DbConnection.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : postID
+                type: DbConnection.resource,
+                value: postID
             },
             {
-                type : DbConnection.resource,
-                value : userUri
+                type: DbConnection.resource,
+                value: userUri
             }
         ]),
-        function(err, results) {
-            if(!err)
-            {
-                if(results.length > 0)
+        function (err, results) {
+            if (!err) {
+                if (results.length > 0)
                     cb(err, true);
                 else
                     cb(err, false);
             }
-            else
-            {
+            else {
                 cb(true, "Error checking if a post is liked by a user");
             }
         });
 };
 
-var getNumLikesForAPost = function(postID, cb)
-{
+var getNumLikesForAPost = function (postID, cb) {
     var self = this;
 
     var query =
@@ -1188,21 +1163,19 @@ var getNumLikesForAPost = function(postID, cb)
     db.connection.execute(query,
         DbConnection.pushLimitsArguments([
             {
-                type : DbConnection.resourceNoEscape,
+                type: DbConnection.resourceNoEscape,
                 value: db_social.graphUri
             },
             {
-                type : DbConnection.resource,
-                value : postID
+                type: DbConnection.resource,
+                value: postID
             }
         ]),
-        function(err, results) {
-            if(!err)
-            {
+        function (err, results) {
+            if (!err) {
                 cb(false, results);
             }
-            else
-            {
+            else {
                 cb(true, "Error fetching children of project root folder");
             }
         });
@@ -1219,10 +1192,9 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
     //based on getRecentProjectWideChangesSocial
     var self = this;
 
-    if(projectUrisArray && projectUrisArray.length > 0)
-    {
+    if (projectUrisArray && projectUrisArray.length > 0) {
         async.map(projectUrisArray, function (uri, cb1) {
-            cb1(null, '<'+uri+ '>');
+            cb1(null, '<' + uri + '>');
         }, function (err, fullProjects) {
             var projectsUris = fullProjects.join(" ");
             var query =
@@ -1233,12 +1205,12 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
                 projectsUris +
                 "} \n" +
                 "VALUES ?postTypes { \n" +
-                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost"  + " ddr:FileSystemPost" + " ddr:ManualPost"+
+                "ddr:Post" + " ddr:Share" + " ddr:MetadataChangePost" + " ddr:FileSystemPost" + " ddr:ManualPost" +
                 "} \n" +
                 "?uri dcterms:modified ?date. \n" +
                 "?uri rdf:type ?postTypes. \n" +
                 "?uri ddr:projectUri ?project. \n" +
-                "} \n "+
+                "} \n " +
                 "ORDER BY DESC(?date) \n";
 
             query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
@@ -1246,35 +1218,33 @@ var getAllPosts = function (projectUrisArray, callback, startingResultPosition, 
             db.connection.execute(query,
                 DbConnection.pushLimitsArguments([
                     {
-                        type : DbConnection.resourceNoEscape,
+                        type: DbConnection.resourceNoEscape,
                         value: db_social.graphUri
                     }
                 ]),
-                function(err, results) {
-                    if(!err)
-                    {
-                        callback(err,results);
+                function (err, results) {
+                    if (!err) {
+                        callback(err, results);
                     }
-                    else
-                    {
+                    else {
                         callback(true, "Error fetching posts in getAllPosts");
                     }
                 });
         });
     }
-    else
-    {
+    else {
         //User has no projects
         var results = [];
         callback(null, results);
     }
 };
 
+//Gets a specific post
 exports.post = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
     var currentUser = req.user;
-    var postUri = "http://"+Config.host + req.url;
+    var postUri = "http://" + Config.host + req.url;
 
     var getCommentsForAPost = function (post, cb) {
         post.getComments(function (err, commentsData) {
@@ -1302,24 +1272,22 @@ exports.post = function (req, res) {
 
     var getResourceInfoFromFileSystemPost = function (fileSystemPost, cb) {
         fileSystemPost.getResourceInfo(function (err, resourceInfo) {
-           cb(err, resourceInfo);
+            cb(err, resourceInfo);
         });
     };
 
-    Post.findByUri(postUri, function(err, post)
-    {
-        if(!err && post != null)
-        {
-            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    Post.findByUri(postUri, function (err, post) {
+        if (!err && post != null) {
+            if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
                 async.series([
-                        function(callback) {
+                        function (callback) {
                             getCommentsForAPost(post, function (err, commentsData) {
                                 post.commentsContent = commentsData;
                                 callback(err);
                             });
                         },
-                        function(callback) {
+                        function (callback) {
                             getLikesForAPost(post, function (err, likesData) {
                                 post.likesContent = likesData;
                                 callback(err);
@@ -1333,65 +1301,56 @@ exports.post = function (req, res) {
                         },
                         function (callback) {
                             //TODO HOW TO ACCESS THE FULL TYPE
-                            if(post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost")
-                            {
+                            if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost") {
                                 MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost) {
-                                    if(!err)
-                                    {
+                                    if (!err) {
                                         getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo) {
                                             //[editChanges, addChanges, deleteChanges]
                                             post.changesInfo = changesInfo;
                                             callback(err);
                                         });
                                     }
-                                    else
-                                    {
+                                    else {
                                         console.error("Error getting a metadataChangePost");
                                         console.error(err);
                                         callback(err);
                                     }
                                 }, null, db_social.graphUri, false, null, null);
                             }
-                            else if(post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/FileSystemPost")
-                            {
+                            else if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/FileSystemPost") {
                                 FileSystemPost.findByUri(post.uri, function (err, fileSystemPost) {
-                                    if(!err)
-                                    {
+                                    if (!err) {
                                         getResourceInfoFromFileSystemPost(fileSystemPost, function (err, resourceInfo) {
                                             post.resourceInfo = resourceInfo;
                                             callback(err);
                                         });
                                     }
-                                    else
-                                    {
+                                    else {
                                         console.error("Error getting a File System Post");
                                         console.error(err);
                                         callback(err);
                                     }
                                 }, null, db_social.graphUri, false, null, null);
                             }
-                            else
-                            {
+                            else {
                                 callback(null);
                             }
                         }
                     ],
-                    function(err, results) {
+                    function (err, results) {
                         res.json(post);
                     });
             }
-            else
-            {
+            else {
                 res.render('social/showPost',
                     {
-                        postUri : postUri
+                        postUri: postUri
                     }
                 );
             }
         }
-        else
-        {
-            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+        else {
+            if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
                 var errorMsg = "Invalid post uri";
                 res.status(404).json({
@@ -1399,39 +1358,37 @@ exports.post = function (req, res) {
                     message: errorMsg
                 });
             }
-            else
-            {
-                 flash('error', "Unable to retrieve the post : " + postUri);
-                 res.render('index',
-                 {
-                     error_messages : ["Post " + postUri + " not found."]
-                 });
+            else {
+                flash('error', "Unable to retrieve the post : " + postUri);
+                res.render('index',
+                    {
+                        error_messages: ["Post " + postUri + " not found."]
+                    });
             }
         }
     }, null, db_social.graphUri, false, null, null);
 };
 
+//Gets a specific share
 exports.getShare = function (req, res) {
     var acceptsHTML = req.accepts('html');
     var acceptsJSON = req.accepts('json');
 
     var currentUser = req.user;
-    var shareUri = "http://"+req.headers.host + req.url;
+    var shareUri = "http://" + req.headers.host + req.url;
 
-    Share.findByUri(shareUri, function(err, share)
-    {
-        if(!err && share != null)
-        {
-            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+    Share.findByUri(shareUri, function (err, share) {
+        if (!err && share != null) {
+            if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
 
                 async.parallel([
-                        function(callback) {
+                        function (callback) {
                             getCommentsForAPost(share.uri, function (err, commentsData) {
                                 callback(err, commentsData);
                             });
                         },
-                        function(callback) {
+                        function (callback) {
                             getLikesForAPost(share.uri, function (err, likesData) {
                                 callback(err, likesData);
                             });
@@ -1443,25 +1400,23 @@ exports.getShare = function (req, res) {
                         }
                     ],
                     // optional callback
-                    function(err, results) {
+                    function (err, results) {
                         share.commentsContent = results[0];
                         share.likesContent = results[1];
                         share.sharesContent = results[2];
                         res.json(share);
                     });
             }
-            else
-            {
+            else {
                 res.render('social/showShare',
                     {
-                        shareUri : shareUri
+                        shareUri: shareUri
                     }
                 );
             }
         }
-        else
-        {
-            if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
+        else {
+            if (acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
             {
                 var errorMsg = "Invalid share uri";
                 res.status(404).json({
@@ -1469,12 +1424,11 @@ exports.getShare = function (req, res) {
                     message: errorMsg
                 });
             }
-            else
-            {
+            else {
                 flash('error', "Unable to retrieve the share : " + shareUri);
                 res.render('index',
                     {
-                        error_messages : ["Share " + shareUri + " not found."]
+                        error_messages: ["Share " + shareUri + " not found."]
                     });
             }
         }
@@ -1485,29 +1439,25 @@ exports.getShare = function (req, res) {
 //AUX FUNCTIONS
 var getLikesForAPost = function (postUri, callback) {
     let resultInfo;
-    Post.findByUri(postUri, function(err, post)
-    {
-        if(!err && post != null)
-        {
+    Post.findByUri(postUri, function (err, post) {
+        if (!err && post != null) {
             getNumLikesForAPost(post.uri, function (err, likesArray) {
-                if(!err)
-                {
-                    if(likesArray.length)
-                    {
+                if (!err) {
+                    if (likesArray.length) {
                         resultInfo = {
-                            postURI: post.uri, numLikes : likesArray.length, usersWhoLiked : _.pluck(likesArray, 'userURI')
+                            postURI: post.uri,
+                            numLikes: likesArray.length,
+                            usersWhoLiked: _.pluck(likesArray, 'userURI')
                         };
                     }
-                    else
-                    {
+                    else {
                         resultInfo = {
-                            postURI: post.uri, numLikes : 0, usersWhoLiked : 'undefined'
+                            postURI: post.uri, numLikes: 0, usersWhoLiked: 'undefined'
                         };
                     }
                     callback(null, resultInfo);
                 }
-                else
-                {
+                else {
                     console.error("Error getting likesInfo from a post");
                     console.error(err);
                     callback(true, "Error getting likesInfo from a post");
@@ -1515,11 +1465,149 @@ var getLikesForAPost = function (postUri, callback) {
 
             });
         }
-        else
-        {
+        else {
             var errorMsg = "Invalid post uri";
             console.error(err);
             console.error(errorMsg);
         }
     }, null, db_social.graphUri, null);
+};
+
+var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
+    var getCommentsForAPost = function (post, cb) {
+        post.getComments(function (err, commentsData) {
+            cb(err, commentsData);
+        });
+    };
+
+    var getLikesForAPost = function (post, cb) {
+        post.getLikes(function (err, likesData) {
+            cb(err, likesData);
+        });
+    };
+
+    var getSharesForAPost = function (post, cb) {
+        post.getShares(function (err, sharesData) {
+            cb(err, sharesData);
+        });
+    };
+
+    var getChangesFromMetadataChangePost = function (metadataChangePost, cb) {
+        metadataChangePost.getChangesFromMetadataChangePost(function (err, changesData) {
+            cb(err, changesData);
+        });
+    };
+
+    var getResourceInfoFromFileSystemPost = function (fileSystemPost, cb) {
+        fileSystemPost.getResourceInfo(function (err, resourceInfo) {
+            cb(err, resourceInfo);
+        });
+    };
+
+    //postsQueryInfo = JSON.parse(postsQueryInfo);
+    /*let postsInfo = new Array(postsQueryInfo.length);*/
+    let postsInfo = {};
+
+    async.map(postsQueryInfo, function (postQueryInfo, callback) {
+        Post.findByUri(postQueryInfo.uri, function (err, post) {
+            if (!err && post != null) {
+                async.series([
+                        function (callback) {
+                            getCommentsForAPost(post, function (err, commentsData) {
+                                post.commentsContent = commentsData;
+                                callback(err);
+                            });
+                        },
+                        function (callback) {
+                            getLikesForAPost(post, function (err, likesData) {
+                                post.likesContent = likesData;
+                                callback(err);
+                            });
+                        },
+                        function (callback) {
+                            getSharesForAPost(post, function (err, sharesData) {
+                                post.sharesContent = sharesData;
+                                callback(err);
+                            });
+                        },
+                        function (callback) {
+                            //TODO HOW TO ACCESS THE FULL TYPE
+                            if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/MetadataChangePost") {
+                                MetadataChangePost.findByUri(post.uri, function (err, metadataChangePost) {
+                                    if (!err) {
+                                        getChangesFromMetadataChangePost(metadataChangePost, function (err, changesInfo) {
+                                            //[editChanges, addChanges, deleteChanges]
+                                            post.changesInfo = changesInfo;
+                                            callback(err);
+                                        });
+                                    }
+                                    else {
+                                        console.error("Error getting a metadataChangePost");
+                                        console.error(err);
+                                        callback(err);
+                                    }
+                                }, null, db_social.graphUri, false, null, null);
+                            }
+                            else if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/FileSystemPost") {
+                                FileSystemPost.findByUri(post.uri, function (err, fileSystemPost) {
+                                    if (!err) {
+                                        getResourceInfoFromFileSystemPost(fileSystemPost, function (err, resourceInfo) {
+                                            post.resourceInfo = resourceInfo;
+                                            callback(err);
+                                        });
+                                    }
+                                    else {
+                                        console.error("Error getting a File System Post");
+                                        console.error(err);
+                                        callback(err);
+                                    }
+                                }, null, db_social.graphUri, false, null, null);
+                            }
+                            else if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/Share") {
+                                console.log("IS A SHARE");
+                                Share.findByUri(post.uri, function (err, share) {
+                                    if (!err) {
+                                        getSharesOrPostsInfo([{uri: share.ddr.postURI}], function (err, originalPostInfo) {
+                                            if(err || isNull(originalPostInfo))
+                                            {
+                                                console.error("Error getting the original shared post");
+                                                console.error(err);
+                                                callback(err);
+                                            }
+                                            else
+                                            {
+                                                postsInfo[share.ddr.postURI] = originalPostInfo[share.ddr.postURI];
+                                                callback(err);
+                                            }
+                                        });
+                                    }
+                                    else {
+                                        console.error("Error getting a share Post");
+                                        console.error(err);
+                                        callback(err);
+                                    }
+                                }, null, db_social.graphUri, false, null, null);
+                                //callback(null);
+                            }
+                            else {
+                                callback(null);
+                            }
+                        }
+                    ],
+                    function (err, results) {
+                        if (isNull(err)) {
+                            postsInfo[postQueryInfo.uri] = post;
+                            //postsInfo.push(post);
+                        }
+                        callback(err, results);
+                    });
+            }
+            else {
+                var errorMsg = "Invalid post uri";
+                callback(true, errorMsg);
+            }
+        }, null, db_social.graphUri, false, null, null);
+    }, function (err, results) {
+        cb(err, postsInfo);
+    });
 };

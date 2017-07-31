@@ -1870,6 +1870,7 @@ async.series([
         app.get('/socialDendro/my', async.apply(Permissions.require, [Permissions.role.system.user]), timeline.my);
         app.get('/posts/all', async.apply(Permissions.require, [Permissions.role.system.user]), posts.all);
         app.post('/posts/post', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPost_controller);
+        app.post('/posts/posts', async.apply(Permissions.require, [Permissions.role.system.user]), posts.getPosts_controller);
         app.post('/posts/new', async.apply(Permissions.require, [Permissions.role.system.user]), posts.new);
         app.post('/posts/like', async.apply(Permissions.require, [Permissions.role.system.user]), posts.like);
         app.post('/posts/like/liked', async.apply(Permissions.require, [Permissions.role.system.user]), posts.checkIfPostIsLikedByUser);
