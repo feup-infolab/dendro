@@ -4,13 +4,14 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const nodeCleanup = require('node-cleanup');
 const npid = require('npid');
 const async = require('async');
+let pid;
 
 const setupGracefulClose = function(app, server, callback)
 {
     //setup graceful server close
     if(process.env.NODE_ENV !== 'test')
     {
-        const pid = npid.create(Pathfinder.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
+        pid = npid.create(Pathfinder.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
         pid.removeOnExit();
     }
 

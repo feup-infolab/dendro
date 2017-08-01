@@ -12,7 +12,6 @@ function Post (object)
     const self = this;
     self.addURIAndRDFType(object, "post", Post);
     Post.baseConstructor.call(this, object);
-    const self = this;
 
     self.copyOrInitDescriptors(object);
 

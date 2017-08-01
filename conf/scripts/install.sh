@@ -1,16 +1,5 @@
 #!/usr/bin/env bash
 
-#install NVM, Node, Node Automatic Version switcher
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash &&
-export NVM_DIR="$HOME/.nvm" &&
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-# Want NVM to be loaded on every terminal you open? Add to ~/.bash_profile this:
-
-#export NVM_DIR="$HOME/.nvm" &&
-#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-
 INITIAL_DIR=`pwd`
 NODE_VERSION=`cat .node-version`
 
@@ -19,10 +8,18 @@ then
     echo "Unable to determine the version of NodeJS to install!"
     exit 1
 else
+    #install NVM, Node, Node Automatic Version switcher
+    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.1/install.sh | bash &&
+    export NVM_DIR="$HOME/.nvm" &&
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && # This loads nvm
 
-    nvm install $NODE_VERSION
-    npm install -g avn avn-nvm avn-n
-    avn setup
+    nvm install $NODE_VERSION &&
+    npm install -g avn avn-nvm avn-n &&
+    avn setup &&
+
+    [[ -s "$HOME/.avn/bin/avn.sh" ]] && source "$HOME/.avn/bin/avn.sh" && # load avn
+
+    echo "loaded NVM and AVN."
 
     #update npm
     npm install npm
@@ -41,3 +38,7 @@ else
     grunt
 fi
 
+# Want NVM to be loaded on every terminal you open? Add to ~/.bash_profile this:
+
+#export NVM_DIR="$HOME/.nvm" &&
+#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
