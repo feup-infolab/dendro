@@ -111,7 +111,6 @@ const setupGracefulClose = function(app, server, callback)
             haltHTTPServer,
             removePIDFile
         ], function(err, results){
-            // calling process.exit() won't inform parent process of signal
             callback(err, results);
         });
     };

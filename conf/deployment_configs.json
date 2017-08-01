@@ -228,11 +228,12 @@
       "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : false,
+      "reload_descriptor_validation_data" : true,
       "clear_session_store": true,
       "clear_caches" : true,
       "log_bootup_actions" : true,
-      "destroy_all_graphs_on_startup": false
+      "destroy_all_graphs": false,
+      "destroy_all_indexes": false
     },
     "baselines": {
     },
@@ -582,17 +583,18 @@
       }
     },
     "startup": {
-      "load_databases": false,
+      "load_databases": true,
       "reload_administrators_on_startup": true,
-      "reload_demo_users_on_startup": true,
+      "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : false,
+      "reload_descriptor_validation_data" : true,
       "clear_session_store": true,
       "clear_caches" : true,
-      "log_bootup_actions" : false,
-      "destroy_all_graphs_on_startup": true
+      "log_bootup_actions" : true,
+      "destroy_all_graphs": true,
+      "destroy_all_indexes": true
     },
     "baselines": {
     },
@@ -929,15 +931,16 @@
     "startup": {
       "load_databases": true,
       "reload_administrators_on_startup": true,
-      "reload_demo_users_on_startup": true,
+      "reload_demo_users_on_startup": false,
       "reload_ontologies_on_startup": true,
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,
-      "reload_descriptor_validation_data" : false,
+      "reload_descriptor_validation_data" : true,
       "clear_session_store": true,
       "clear_caches" : true,
-      "log_bootup_actions" : false,
-      "destroy_all_graphs_on_startup": true
+      "log_bootup_actions" : true,
+      "destroy_all_graphs": true,
+      "destroy_all_indexes": true
     },
     "baselines": {
     },

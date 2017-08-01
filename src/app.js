@@ -37,12 +37,10 @@ let express = require('express'),
     Q = require('q');
 
 /**
- * Promises for reporting the progress of the bootup operation.
+ * Promise for reporting the bootup operation.
  */
 
-let bootupCompletePromise = Q.defer();
 let serverListeningPromise = Q.defer();
-let connectionsInitializedPromise = Q.defer();
 
 self.app = express();
 
@@ -121,15 +119,10 @@ const prepareEnvironment = function(callback)
         }
     ],function(err, results)
     {
-        if(isNull(err))
-        {
-            connectionsInitializedPromise.resolve();
-        }
-        else
+        if(!isNull(err))
         {
             console.error("There was an error performing preliminary setup operations during Dendro bootup!");
             console.error(err.stack);
-            connectionsInitializedPromise.reject(results);
         }
 
         return callback(err, results);
@@ -205,7 +198,6 @@ const startWebServer = function(callback)
         function(app, server, callback)
         {
             self.server = server;
-            bootupCompletePromise.resolve({server: self.server, app: self.app});
 
             if (process.env.NODE_ENV !== "test")
             {
@@ -260,6 +252,4 @@ async.series([
     }]
 );
 
-exports.bootupComplete = bootupCompletePromise.promise;
-exports.connectionsInitialized = connectionsInitializedPromise.promise;
 exports.serverListening = serverListeningPromise.promise;

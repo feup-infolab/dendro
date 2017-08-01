@@ -37,23 +37,14 @@ const end = function()
 module.exports.setup = function(finish)
 {
     start();
-    let connectionsInitalized = requireUncached(Pathfinder.absPathInSrcFolder("app.js")).connectionsInitialized;
-
-    connectionsInitalized.then(function(){
-        const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
-
-        appUtils.clearAllData(function (err, data) {
-            should.equal(err, null);
-            requireUncached(Pathfinder.absPathInSrcFolder("app.js")).serverListening.then(function(appInfo) {
-                chai.request(appInfo.app)
-                    .get('/')
-                    .end((err, res) => {
-                        global.tests.app = appInfo.app;
-                        global.tests.server = appInfo.server;
-                        end();
-                        finish(err, res);
-                    });
+    requireUncached(Pathfinder.absPathInSrcFolder("app.js")).serverListening.then(function(appInfo) {
+        chai.request(appInfo.app)
+            .get('/')
+            .end((err, res) => {
+                global.tests.app = appInfo.app;
+                global.tests.server = appInfo.server;
+                end();
+                finish(err, res);
             });
-        });
     });
 };
