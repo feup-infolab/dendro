@@ -1,5 +1,5 @@
 const path = require('path');
-const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+const Pathfinder = global.Pathfinder;const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const Loader = require(Pathfinder.absPathInSrcFolder("/kb/loaders/loader.js")).Loader;
 const HarvestedResource = require(Pathfinder.absPathInSrcFolder("/models/harvesting/harvested_resource.js")).HarvestedResource;

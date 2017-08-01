@@ -1,7 +1,7 @@
 var async = require('async');
 const path = require('path');
-const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
-const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 var needle = require('needle');
 var _ = require('underscore');

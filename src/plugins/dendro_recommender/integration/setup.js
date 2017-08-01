@@ -1,5 +1,5 @@
 const path = require('path');
-const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Pathfinder = global.Pathfinder;
 
 var PluginConfig = require("./config.json");
 

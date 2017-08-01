@@ -1,6 +1,6 @@
 const path = require('path');
-const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
-const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;

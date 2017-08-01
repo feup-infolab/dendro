@@ -8,7 +8,7 @@ const fs = require('fs');
 const path = require('path');
 const isNull = require("../../utils/null.js").isNull;
 
-const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Pathfinder = global.Pathfinder;
 const Elements = require('./elements.js').Elements;
 
 const configs_file_path = Pathfinder.absPathInApp("conf/deployment_configs.json");

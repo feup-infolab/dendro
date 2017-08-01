@@ -1,5 +1,5 @@
 const path = require("path");
-const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Pathfinder = global.Pathfinder;
 
 const util = require('util');
 
@@ -349,7 +349,7 @@ DbConnection.buildFilterStringForOntologies = function(ontologyURIsArray, filter
 DbConnection.prototype.create = function(callback) {
     const self = this;
     const xmlHttp = new XMLHttpRequest();
-    const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
     // prepare callback
     xmlHttp.onreadystatechange = function() {
@@ -391,7 +391,7 @@ DbConnection.prototype.create = function(callback) {
 };
 
 DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArray, callback, resultsFormat, maxRows) {
-    const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
     const self = this;
 
     queryObjectToString(queryStringWithArguments, argumentsArray, function(err, query){
@@ -654,7 +654,7 @@ DbConnection.prototype.insertTriple = function (triple, graphUri, callback) {
 };
 
 DbConnection.prototype.deleteTriples = function(triples, graphName, callback) {
-    const Config = require(path.join(process.cwd(), "src", "models", "meta", "config.js")).Config;
+    const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
     if(!isNull(triples) && triples instanceof Array && triples.length > 0)
     {

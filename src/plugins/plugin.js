@@ -1,5 +1,5 @@
 const path = require('path');
-const Pathfinder = require(path.join(process.cwd(), "src", "models", "meta", "pathfinder.js")).Pathfinder;
+const Pathfinder = global.Pathfinder;
 const async = require('async');
 
 const Permissions = require(Pathfinder.absPathInSrcFolder("models/meta/permissions.js")).Permissions;

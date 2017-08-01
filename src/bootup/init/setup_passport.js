@@ -2,7 +2,7 @@ const path = require('path');
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const User  = require(path.join(process.cwd(), "src", "models", "user.js")).User;
+const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 
 let slug = require('slug'),
