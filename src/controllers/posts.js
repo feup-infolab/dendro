@@ -1473,6 +1473,7 @@ var getLikesForAPost = function (postUri, callback) {
     }, null, db_social.graphUri, null);
 };
 
+//for processing various posts
 var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
     var getCommentsForAPost = function (post, cb) {
         post.getComments(function (err, commentsData) {
@@ -1504,8 +1505,6 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
         });
     };
 
-    //postsQueryInfo = JSON.parse(postsQueryInfo);
-    /*let postsInfo = new Array(postsQueryInfo.length);*/
     let postsInfo = {};
 
     async.map(postsQueryInfo, function (postQueryInfo, callback) {
@@ -1564,9 +1563,9 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
                                 }, null, db_social.graphUri, false, null, null);
                             }
                             else if (post.rdf.type === "http://dendro.fe.up.pt/ontology/0.1/Share") {
-                                console.log("IS A SHARE");
                                 Share.findByUri(post.uri, function (err, share) {
                                     if (!err) {
+                                        //Gets the info from the original post that was shared
                                         getSharesOrPostsInfo([{uri: share.ddr.postURI}], function (err, originalPostInfo) {
                                             if(err || isNull(originalPostInfo))
                                             {
@@ -1587,7 +1586,6 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
                                         callback(err);
                                     }
                                 }, null, db_social.graphUri, false, null, null);
-                                //callback(null);
                             }
                             else {
                                 callback(null);
@@ -1597,7 +1595,6 @@ var getSharesOrPostsInfo = function (postsQueryInfo, cb) {
                     function (err, results) {
                         if (isNull(err)) {
                             postsInfo[postQueryInfo.uri] = post;
-                            //postsInfo.push(post);
                         }
                         callback(err, results);
                     });
