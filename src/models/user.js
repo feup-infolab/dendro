@@ -95,38 +95,38 @@ User.findByUsername = function(username, callback, removeSensitiveDescriptors)
             }
             else
             {
-                callback(err, null);
+                return callback(err, null);
 
-                User.findByPropertyValue(new Descriptor(
-                    {
-                        value : username,
-                        prefixedForm : "ddr:username"
-                    }), function(err, user){
-                    if(isNull(err))
-                    {
-                        if(!isNull(user) && user instanceof User)
-                        {
-                            if(removeSensitiveDescriptors)
-                            {
-                                console.log(user);
-                            }
-                            else
-                            {
-                                console.log(user);
-                            }
-                        }
-                        else
-                        {
-                            console.log(user);
-                        }
-                    }
-                    else
-                    {
-                        console.log(user);
-                    }
-                });
-
-                return;
+                // User.findByPropertyValue(new Descriptor(
+                //     {
+                //         value : username,
+                //         prefixedForm : "ddr:username"
+                //     }), function(err, user){
+                //     if(isNull(err))
+                //     {
+                //         if(!isNull(user) && user instanceof User)
+                //         {
+                //             if(removeSensitiveDescriptors)
+                //             {
+                //                 console.log(user);
+                //             }
+                //             else
+                //             {
+                //                 console.log(user);
+                //             }
+                //         }
+                //         else
+                //         {
+                //             console.log(user);
+                //         }
+                //     }
+                //     else
+                //     {
+                //         console.log(user);
+                //     }
+                // });
+                //
+                // return;
             }
         }
         else
