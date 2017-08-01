@@ -1,6 +1,7 @@
 const path = require('path');
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Like = require('../models/social/like.js').Like;
 const Comment = require('../models/social/comment.js').Comment;

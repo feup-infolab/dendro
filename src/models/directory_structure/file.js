@@ -60,7 +60,7 @@ File.prototype.save = function(callback)
         })
     ];
 
-    self.extract_text(function(err, text)
+    /*self.extract_text(function(err, text)
     {
         if(isNull(err))
         {
@@ -102,7 +102,36 @@ File.prototype.save = function(callback)
                 }
             }
         );
-    });
+    });*/
+
+        db.connection.insertDescriptorsForSubject(
+            self.nie.isLogicalPartOf,
+            newDescriptorsOfParent,
+            db.graphUri,
+            function(err, result)
+            {
+                if(isNull(err))
+                {
+                    self.baseConstructor.prototype.save.call(self, function(err, result)
+                    {
+                        if(isNull(err))
+                        {
+                            return callback(null, self);
+                        }
+                        else
+                        {
+                            console.error("Error adding child file descriptors : " + result);
+                            return callback(1, "Error adding child file descriptors : " + result);
+                        }
+                    });
+                }
+                else
+                {
+                    console.error("Error adding parent file descriptors : " + result);
+                    return callback(1, "Error adding parent file descriptors: " + result);
+                }
+            }
+        );
 };
 
 File.prototype.deleteThumbnails = function()
@@ -380,7 +409,7 @@ File.prototype.extract_text = function(callback)
                         console.log("successfully deleted " + locationOfTempFile);
                     }
                 });
-                
+
                 if(isNull(err))
                 {
                     return callback(null, textContent);

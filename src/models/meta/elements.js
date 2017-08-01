@@ -1297,7 +1297,8 @@ Elements.nie = {
     plainTextContent :
     {
         control : Controls.markdown_box,
-        type : DbConnection.long_string
+        type : DbConnection.long_string,
+        locked: true
     },
     relatedTo :
     {
