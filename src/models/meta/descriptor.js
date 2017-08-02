@@ -95,6 +95,32 @@ function Descriptor(object, typeConfigsToRetain)
                 self.label = Elements[self.prefix][self.shortName].label;
                 self.comment = Elements[self.prefix][self.shortName].comment;
 
+
+                if(!isNull(object.label))
+                {
+                    self.label = object.label;
+                }
+                else
+                {
+                    self.label = Elements[self.prefix][self.shortName].label;
+                }
+
+                if(!isNull(object.comment))
+                {
+                    self.comment = object.comment;
+                }
+                else
+                {
+                    self.comment = Elements[self.prefix][self.shortName].comment;
+                }
+
+                //override type if supplied in object argument
+
+                if(!isNull(object.type))
+                {
+                    self.type = object.type;
+                }
+
                 if(!isNull(Elements[self.prefix][self.shortName].hasAlternative))
                 {
                     self.hasAlternative = Elements[self.prefix][self.shortName].hasAlternative;
@@ -123,31 +149,6 @@ function Descriptor(object, typeConfigsToRetain)
                 {
                     console.error("Unable to determine type of descriptor " + self.prefixedForm + ". Defaulting to string.");
                 }
-            }
-
-            if(!isNull(object.label))
-            {
-                self.label = object.label;
-            }
-            else
-            {
-                self.label = Elements[self.prefix][self.shortName].label;
-            }
-
-            if(!isNull(object.comment))
-            {
-                self.comment = object.comment;
-            }
-            else
-            {
-                self.comment = Elements[self.prefix][self.shortName].comment;
-            }
-
-            //override type if supplied in object argument
-
-            if(!isNull(object.type))
-            {
-                self.type = object.type;
             }
 
             self.setValue(object.value);
