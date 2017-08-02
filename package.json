@@ -13,7 +13,7 @@
     "report-coverage": "node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info && node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js < ./coverage/lcov.info && rm -rf coverage",
     "everything": "rm -rf node_modules && npm cache verify && npm install && npm run test && npm run calculate-coverage && npm run report-coverage",
     "remote_debug": "node app.js --debug=5858",
-    "profile": "cross-env NODE_ENV=test node --prof node_modules/.bin/_mocha ./test/index.Test.js -t 60000 --ui bdd"
+    "profile": "cross-env NODE_ENV=test node --prof node_modules/.bin/_mocha ./test/index.Test.js -t 10000 --ui bdd"
   },
   "dependencies": {
     "archiver": "*",
