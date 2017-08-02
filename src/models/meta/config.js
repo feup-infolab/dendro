@@ -30,7 +30,7 @@ if(process.env.NODE_ENV === 'test')
         console.log("[INFO] Running in test environment detected");
     }
 
-    Config.testsTimeOut = 10000;
+    Config.testsTimeOut = 15000;
 }
 else
 {
