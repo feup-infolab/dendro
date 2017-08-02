@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const _ = require('underscore');
+const fs = require("fs");
+const path = require("path");
+const _ = require("underscore");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;

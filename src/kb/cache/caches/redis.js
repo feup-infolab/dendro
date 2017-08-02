@@ -1,10 +1,10 @@
 const util = require('util');
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const colors = require('colors');
+const colors = require("colors");
 const redis = require('redis');
 
 function RedisCache (options)

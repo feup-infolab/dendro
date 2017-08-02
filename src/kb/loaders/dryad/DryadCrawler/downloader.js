@@ -14,7 +14,7 @@ const fs = require('fs'),
     sleep = require('sleep'),
     path = require('path'),
     rimraf = require('rimraf'),
-    request = require('request'),
+    request = require("request"),
     sem = require('semaphore')(numberOfConcurrentConnections);
 
 const makeRequestAndSaveToFile = function (url, absolutePath) {

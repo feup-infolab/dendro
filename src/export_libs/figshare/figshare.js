@@ -1,9 +1,9 @@
 /**
  * Created by Filipe on 09/07/2014.
  */
-const request = require('request');
+const request = require("request");
 
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -86,7 +86,7 @@ FigShare.prototype.deleteArticle = function(articleID, callback){
 };
 FigShare.prototype.addFileToArticle = function(articleID, file,callback){
 
-    const fs = require('fs');
+    const fs = require("fs");
     const r = request.put({
             url: FigShare.articlesURL + '/' + articleID + FigShare.filesURL,
             oauth: this.oauth,
@@ -109,7 +109,7 @@ FigShare.prototype.addFileToArticle = function(articleID, file,callback){
 FigShare.prototype.addMultipleFilesToArticle = function(articleID, files, callback){
 
     const self = this;
-    const async = require('async');
+    const async = require("async");
 
     async.each(files, function(file, callback){
             self.addFileToArticle(articleID, file,function(err){

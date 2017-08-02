@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -9,8 +9,8 @@ const Ontology = require(Pathfinder.absPathInSrcFolder("/models/meta/ontology.js
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 exports.recommend_descriptors = function(req, res) {
     if(!isNull(req.params.requestedResourceUri))
@@ -193,7 +193,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
 
             requestedResource.findMetadata(function (err, metadata) {
                 if (isNull(err) && !isNull(metadata)) {
-                    const request = require('request');
+                    const request = require("request");
                     const DRUrl = "http://" + Config.recommendation.modes.dendro_recommender.host + ":" + Config.recommendation.modes.dendro_recommender.port + "/recommendations/recommend";
 
                     const qs = {

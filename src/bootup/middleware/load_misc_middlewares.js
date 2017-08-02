@@ -1,9 +1,5 @@
-const path = require('path');
-
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
-let UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
 const appSecret = Config.crypto.secret,
     express = require('express'),
@@ -14,7 +10,7 @@ const appSecret = Config.crypto.secret,
     swaggerUi = require('swagger-ui-express'),
     bodyParser = require('body-parser'),
     methodOverride = require('method-override'),
-    flash = require('connect-flash'),
+    flash = require("connect-flash"),
     errorHandler = require('express-session');
 
 const loadMiscMiddlewares = function (app, callback)
@@ -66,11 +62,6 @@ const loadMiscMiddlewares = function (app, callback)
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, true, {
         docExpansion: "list"
     }));
-
-    if (Config.debug.active && Config.debug.session.auto_login)
-    {
-        app.use(signInDebugUser);
-    }
 
     callback(null);
 };

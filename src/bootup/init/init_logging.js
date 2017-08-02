@@ -1,5 +1,7 @@
-const async = require('async');
-const fs = require('fs');
+const async = require("async");
+const fs = require("fs");
+const mkdirp = require("mkdirp");
+const path = require("path");
 
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
@@ -7,6 +9,8 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const initLogging = function(app, callback)
 {
+    let registeredUncaughtExceptionHandler = false;
+    
     process.on('unhandledRejection', function(rejection){
         console.error(rejection.stack);
     });
@@ -98,9 +102,9 @@ const initLogging = function(app, callback)
                                     log_file.write("[ " + date + " ] [ uncaughtException ] " + util.format(err.stack) + "\n");
                                 }
 
-                                if(!isNull(pid))
+                                if(!isNull(app.pid))
                                 {
-                                    pid.remove();
+                                    app.pid.remove();
                                 }
 
                                 throw err;

@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -12,9 +12,9 @@ const Share = require('../models/social/share.js').Share;
 const Ontology = require('../models/meta/ontology.js').Ontology;
 const Project = require('../models/project.js').Project;
 const DbConnection = require("../kb/db.js").DbConnection;
-const _ = require('underscore');
+const _ = require("underscore");
 
-const async = require('async');
+const async = require("async");
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");
 const db_notifications = Config.getDBByID("notifications");
@@ -197,6 +197,20 @@ function pingNewPosts(sessionUser, cb) {
                         project.getRecentProjectWideChangesSocial(function(err, changes){
                             if(isNull(err))
                             {
+                                const updateResource = function(currentResource, newResource, db, cb)
+                                {
+                                    const newDescriptors = newResource.getDescriptors();
+
+                                    currentResource.replaceDescriptorsInTripleStore(
+                                        newDescriptors,
+                                        db,
+                                        function(err, result)
+                                        {
+                                            cb(err, result);
+                                        }
+                                    );
+                                };
+
                                 if(changes.length > 0)
                                 {
                                     async.map(changes, function(change, callback){
@@ -845,20 +859,6 @@ var numPostsDatabaseAux = function (projectUrisArray, callback) {
         var results = 0;
         return callback(null, results);
     }
-};
-
-var updateResource = function(currentResource, newResource, db, cb)
-{
-    const newDescriptors = newResource.getDescriptors();
-
-    currentResource.replaceDescriptorsInTripleStore(
-        newDescriptors,
-        db,
-        function(err, result)
-        {
-            cb(err, result);
-        }
-    );
 };
 
 const removeLike = function (likeID, userUri, cb) {

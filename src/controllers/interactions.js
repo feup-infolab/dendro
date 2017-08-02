@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -10,9 +10,9 @@ const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Pro
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
-const async = require('async');
+const async = require("async");
 const needle = require('needle');
-const _ = require('underscore');
+const _ = require("underscore");
 
 const addOntologyToListOfActiveOntologiesInSession = function (ontology, req) {
     if (isNull(req.user.recommendations)) {
@@ -98,7 +98,7 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                                                 }
                                             }
 
-                                            const msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  " + user.uri + ". Resource in question" + resource.uri + ". Owner project " + projectUri;
+                                            const msg = "Unable to record interactions for resources of projects of which you are not a creator or contributor. User uri:  " + user.uri + ". Resource in question" + resource.uri + ". Owner project " + project.uri;
                                             console.error(msg);
                                             res.status(400).json({
                                                 result: "Error",
@@ -106,7 +106,7 @@ const recordInteractionOverAResource = function (user, resource, req, res) {
                                             });
                                         }
                                         else {
-                                            const msg = "Unable to retrieve creators and contributors of parent project " + projectUri + " of resource " + resource.uri;
+                                            const msg = "Unable to retrieve creators and contributors of parent project " + project.uri + " of resource " + resource.uri;
                                             console.error(msg);
                                             res.status(500).json({
                                                 result: "Error",

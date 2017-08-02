@@ -1,18 +1,19 @@
+const Pathfinder = global.Pathfinder;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
 
-const nodeCleanup = require('node-cleanup');
-const npid = require('npid');
-const async = require('async');
-let pid;
+const nodeCleanup = require("node-cleanup");
+const npid = require("npid");
+const async = require("async");
 
 const setupGracefulClose = function(app, server, callback)
 {
     //setup graceful server close
     if(process.env.NODE_ENV !== 'test')
     {
-        pid = npid.create(Pathfinder.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
-        pid.removeOnExit();
+        app.pid = npid.create(Pathfinder.absPathInApp('running.pid'), true); //second arg = overwrite pid if exists
+        app.pid.removeOnExit();
     }
 
     app.freeResources = function(callback)
@@ -56,7 +57,7 @@ const setupGracefulClose = function(app, server, callback)
         const closeMySQLConnectionPool = function(cb)
         {
             Config.getMySQLByID().pool.end(function(err){
-                if(err === undefined )
+                if(isNull(err))
                     err = null;
 
                 if(!err)
@@ -94,7 +95,7 @@ const setupGracefulClose = function(app, server, callback)
             Logger.log_boot_message("info", "Removing PID file...");
             if(process.env.NODE_ENV !== 'test')
             {
-                pid.remove();
+                app.pid.remove();
                 Logger.log_boot_message("success", "Removed PID");
             }
             else

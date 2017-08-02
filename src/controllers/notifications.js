@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -6,9 +6,9 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const Notification = require('../models/notifications/notification.js').Notification;
 const DbConnection = require("../kb/db.js").DbConnection;
-const _ = require('underscore');
+const _ = require("underscore");
 
-const async = require('async');
+const async = require("async");
 const db = Config.getDBByID();
 
 const db_notifications = Config.getDBByID("notifications");

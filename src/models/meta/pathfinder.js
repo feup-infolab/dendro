@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 
 const Pathfinder = function()
 {
@@ -17,7 +17,7 @@ Pathfinder.absPathInTestsFolder = function(relativePath)
 
 Pathfinder.getAbsolutePathToPluginsFolder = function()
 {
-    const path = require('path');
+    const path = require("path");
     return path.join(Pathfinder.appDir, "src", "plugins");
 };
 

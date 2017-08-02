@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require("fs");
 const needle = require("needle");
 
 const Pathfinder = global.Pathfinder;

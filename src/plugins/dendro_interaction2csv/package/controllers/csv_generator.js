@@ -1,5 +1,5 @@
 var async = require('async');
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -54,7 +54,7 @@ var streamingExportToCSVFile = function(queryFunction, csvMappingFunction, fileN
             queryFunction(function(err, results, fetchNextPageCallback){
                 if(isNull(err))
                 {
-                    const fs = require('fs');
+                    const fs = require("fs");
 
                     if(!isNull(results) && results instanceof Array && results.length > 0)
                     {

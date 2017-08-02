@@ -37,8 +37,8 @@ Logger.override_console = function(window, morgan)
 
 Logger.log_boot_message = function(type, message)
 {
-    const path = require('path');
-    const colors = require('colors');
+    const path = require("path");
+    const colors = require("colors");
     let intro = "[MISC]".cyan;
     if(Config.startup.log_bootup_actions)
     {

@@ -1,10 +1,10 @@
 const util = require('util');
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
-const colors = require('colors');
+const colors = require("colors");
 const MongoClient = require('mongodb').MongoClient;
 
 function MongoDBCache (options)
@@ -283,7 +283,7 @@ MongoDBCache.prototype.deleteByQuery = function(queryObject, callback) {
                         {
                             if (Config.debug.active && Config.debug.cache.log_cache_deletes)
                             {
-                                console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(resourceUriOrArrayOfResourceUris));
+                                console.log("[DEBUG] Deleted mongodb cache records for " + JSON.stringify(queryObject));
                             }
 
                             return callback(null, null);

@@ -1,6 +1,6 @@
 process.env.NODE_ENV = 'test';
 
-const path = require('path');
+const path = require("path");
 const appDir = path.resolve(path.dirname(require.main.filename), "../../..");
 const Pathfinder = require(path.join(appDir, "src", "models", "meta", "pathfinder.js")).Pathfinder;
 global.Pathfinder = Pathfinder;

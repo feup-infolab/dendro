@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const self = this;
 
 let appDir;
@@ -29,7 +29,7 @@ Logger.log_boot_message("info", "Starting Dendro support services...");
 
 let express = require('express'),
     domain = require('domain'),
-    flash = require('connect-flash'),
+    flash = require("connect-flash"),
     http = require('http'),
     fs = require('fs'),
     morgan = require('morgan'),

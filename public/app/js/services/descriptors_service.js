@@ -23,7 +23,6 @@ angular.module('dendroApp.services')
                 })
                 .catch(function(error)
                 {
-                    var error = "Unable to fetch autocompleted descriptors. Query was: " + typed + " Error : " + JSON.stringify(error);
                     console.error(error);
                     throw error;
                 });

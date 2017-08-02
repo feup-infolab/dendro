@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -11,7 +11,7 @@ B2Share.depositionFilesPath =  "/files";
 B2Share.commitDepositionPath = "/commit";
 B2Share.recordPath = Config.eudatBaseUrl + "/record";
 
-const request = require('request');
+const request = require("request");
 
 function B2Share(accessToken){
     if(isNull(accessToken)){
@@ -44,7 +44,7 @@ B2Share.prototype.createDeposition = function(callback){
 };
 
 B2Share.prototype.uploadFileToDeposition = function(depositionID, file, callback){
-    const fs = require('fs');
+    const fs = require("fs");
     const r = request.post({
         url: B2Share.depositionURL + depositionID + B2Share.depositionFilesPath + "?access_token=" + this.accessToken,
         json: true,
@@ -71,7 +71,7 @@ B2Share.prototype.uploadFileToDeposition = function(depositionID, file, callback
 };
 
 B2Share.prototype.uploadMultipleFilesToDeposition = function (depositionID, files, callback) {
-    const async = require('async');
+    const async = require("async");
     const self = this;
 
     async.each(files, function(file, callback){

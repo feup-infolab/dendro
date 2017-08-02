@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -7,8 +7,8 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 const fs = require("fs");
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
@@ -268,11 +268,10 @@ exports.me = function(req, res){
 };
 
 exports.set_new_password = function(req, res) {
-
+    let email = req.query["email"];
+    let token = req.query["token"];
+    
     if (req.originalMethod === "GET") {
-
-        var email = req.query["email"];
-        var token = req.query["token"];
 
         if(isNull(email) || isNull(token))
         {
@@ -343,9 +342,6 @@ exports.set_new_password = function(req, res) {
     }
     else if (req.originalMethod === "POST")
     {
-        var email = req.body["email"];
-        var token = req.body["token"];
-
         if (isNull(token) || isNull(email)) {
             res.render('users/set_new_password',
                 {
@@ -753,7 +749,7 @@ exports.edit = function (req, res, next) {
 
 var getAvatarFromGfs = function (user, callback) {
     const tmp = require('tmp');
-    const fs = require('fs');
+    const fs = require("fs");
     let avatarUri = user.getAvatarUri();
     // /avatar/" + user.ddr.username + "/avatar." + "png";
     if (avatarUri) {

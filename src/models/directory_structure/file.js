@@ -1,6 +1,6 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -13,7 +13,7 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
-const async = require('async');
+const async = require("async");
 
 function File (object)
 {
@@ -192,7 +192,7 @@ File.prototype.undelete = function(callback, uriOfUserUnDeletingTheFile)
 File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetadata, includeTempFileLocations, includeOriginalNodes, callback)
 {
     const self = this;
-    const fs = require('fs');
+    const fs = require("fs");
 
     fs.exists(destinationFolderAbsPath, function(exists){
         if(!exists)
@@ -201,7 +201,7 @@ File.prototype.saveIntoFolder = function(destinationFolderAbsPath, includeMetada
         }
         else
         {
-            const fs = require('fs');
+            const fs = require("fs");
             const tempFilePath = destinationFolderAbsPath + path.sep + self.nie.title;
 
             const writeStream = fs.createWriteStream(tempFilePath);
@@ -234,7 +234,7 @@ File.prototype.writeToTempFile = function(callback)
                 if(Config.debug.log_temp_file_writes)
                     console.log("Temp file location: " + tempFilePath);
 
-                const fs = require('fs');
+                const fs = require("fs");
                 const writeStream = fs.createWriteStream(tempFilePath);
                 gfs.connection.get(self.uri, writeStream, function(err, result){
                     if(isNull(err))
@@ -278,7 +278,7 @@ File.prototype.getThumbnail = function(size, callback)
 {
     let self = this;
     const tmp = require('tmp');
-    const fs = require('fs');
+    const fs = require("fs");
 
     if(isNull(size))
     {
@@ -319,7 +319,7 @@ File.prototype.loadFromLocalFile = function(localFile, callback)
 {
     const self = this;
     const tmp = require('tmp');
-    const fs = require('fs');
+    const fs = require("fs");
 
     self.getOwnerProject(function(err, ownerProject){
         const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
@@ -369,7 +369,7 @@ File.prototype.extract_text = function(callback)
             textract.fromFileWithPath(locationOfTempFile, function(err, textContent){
 
                 //delete temporary file, we are done with it
-                const fs = require('fs');
+                const fs = require("fs");
                 fs.unlink(locationOfTempFile, function (err) {
                     if (err)
                     {
@@ -400,8 +400,8 @@ File.prototype.extract_text = function(callback)
 
 File.estimateUnzippedSize = function(pathOfZipFile, callback)
 {
-    const path = require('path');
-    const exec = require('child_process').exec;
+    const path = require("path");
+    const exec = require("child_process").exec;
 
     const command = 'unzip -l ' + pathOfZipFile + " | tail -n 1";
     const parentFolderPath = path.resolve(pathOfZipFile, "..");
@@ -432,8 +432,8 @@ File.estimateUnzippedSize = function(pathOfZipFile, callback)
  * @param callback
  */
 File.unzip = function(pathOfFile, callback) {
-    const fs = require('fs');
-    const exec = require('child_process').exec;
+    const fs = require("fs");
+    const exec = require("child_process").exec;
     const tmp = require('tmp');
 
     tmp.dir(
@@ -443,10 +443,9 @@ File.unzip = function(pathOfFile, callback) {
         },
         function(err, tmpFolderPath)
         {
+            let command = 'unzip -qq -o ' + pathOfFile;
             if(isNull(err))
             {
-                var command = 'unzip -qq -o ' + pathOfFile;
-
                 const unzip = exec(command, {cwd: tmpFolderPath}, function (error, stdout, stderr) {
                     if (isNull(error)) {
                         console.log("Contents are in folder " + tmpFolderPath);
@@ -558,7 +557,7 @@ File.prototype.generateThumbnails = function(callback)
         const fileName = path.basename(localFile, path.extname(localFile));
         const parentDir = path.dirname(localFile);
         const thumbnailFile = path.join(parentDir, fileName + "_thumbnail_"+ sizeTag +"." + Config.thumbnails.thumbnail_format_extension);
-        const fs = require('fs');
+        const fs = require("fs");
 
         easyimg.resize(
             {
@@ -645,7 +644,7 @@ File.prototype.generateThumbnails = function(callback)
 File.createBlankTempFile = function(fileName, callback)
 {
     const tmp = require('tmp');
-    const path = require('path');
+    const path = require("path");
 
     tmp.dir(
         {
@@ -672,7 +671,7 @@ File.createBlankTempFile = function(fileName, callback)
 
 File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
 {
-    const fs = require('fs');
+    const fs = require("fs");
     
     const absPathToFile = Pathfinder.absPathInApp(relativePathToFile);
     const parentFolder = path.resolve(absPathToFile, "..");
@@ -711,7 +710,7 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
 
 File.deleteOnLocalFileSystem = function(err, callback)
 {
-    const exec = require('child_process').exec;
+    const exec = require("child_process").exec;
     const command = "rm absPath";
     const rm = exec(command, {}, function (error, stdout, stderr) {
         return callback(error, stdout, stderr);

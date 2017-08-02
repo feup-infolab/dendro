@@ -1,12 +1,12 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const RedisCache = require(Pathfinder.absPathInSrcFolder("/kb/cache/caches/redis.js")).RedisCache;
 const MongoDBCache = require(Pathfinder.absPathInSrcFolder("/kb/cache/caches/mongodb.js")).MongoDBCache;
-const colors = require('colors');
-const async = require('async');
+const colors = require("colors");
+const async = require("async");
 
 const Cache = function()
 {
@@ -16,7 +16,7 @@ const Cache = function()
 Cache.initConnections = function(callback, deleteAllCachedRecords)
 {
     const self = this;
-    const _ = require('underscore');
+    const _ = require("underscore");
 
     let keys = _.filter(Object.keys(Config.db), function(key){
         return Config.db.hasOwnProperty(key);
@@ -106,7 +106,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
                                                 }
                                                 else
                                                 {
-                                                    throw new Error("[ERROR] Unable to delete all cache records on Redis instance \"" + instance.id + "\" during bootup");
+                                                    throw new Error("[ERROR] Unable to delete all cache records on Redis instance \"" + cacheId + "\" during bootup");
                                                 }
                                             });
                                         }
@@ -132,7 +132,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
                 }
                 else
                 {
-                    throw new Error("There was an error parametrizing the caches for graph " + JSON.stringify(db) + " .This is a bug. Please review the config.json file.");
+                    throw new Error("There was an error parametrizing the caches for graph " + graphUri + " .This is a bug. Please review the config.json file.");
                 }
             }
             else

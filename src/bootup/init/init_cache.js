@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require("fs");
 
 const Pathfinder = global.Pathfinder;
 const Cache = require(Pathfinder.absPathInSrcFolder("kb/cache/cache.js")).Cache;

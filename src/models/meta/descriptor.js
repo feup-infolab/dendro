@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("/models/meta/config.js")).Config;
 
@@ -9,8 +9,8 @@ const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js
 const ObjectManipulator = require(Pathfinder.absPathInSrcFolder("/utils/object_manipulation.js"));
 
 const db = Config.getDBByID();
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 function Descriptor(object, typeConfigsToRetain)
 {
@@ -251,7 +251,7 @@ Descriptor.recommendation_types = {
     }
 };
 
-Descriptor.DCElements = function(callback)
+Descriptor.dublinCoreElements = function(callback)
 {
     const DCDescriptors = [
         new Descriptor({prefixedForm: "dcterms:contributor"}),
@@ -385,7 +385,7 @@ Descriptor.prototype.setValue = function(value)
 
 Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesize) {
 
-    var query =
+    let query =
         " SELECT DISTINCT ?uri ?label ?comment \n"+
             " FROM [0] \n"+
             " WHERE \n" +
@@ -439,7 +439,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 
     if(typeof page_number === "number")
     {
-        const query = query  +
+        query = query  +
             " OFFSET [2] \n" +
             " LIMIT [3] \n";
 
@@ -481,7 +481,7 @@ Descriptor.all_in_ontology = function(ontologyURI, callback, page_number, pagesi
 
 
 Descriptor.all_in_ontologies = function(ontologyURIsArray, callback, page_number, page_size) {
-    const async = require('async');
+    const async = require("async");
     async.map(ontologyURIsArray, function(uri, cb){
         Descriptor.all_in_ontology(uri, function(err, descriptors){
             cb(err, descriptors);
@@ -567,7 +567,7 @@ Descriptor.isAuthorized = function(prefix, shortName, excludedDescriptorTypes, e
             exceptionedDescriptorTypes = [];
         }
         
-        const _ = require('underscore');
+        const _ = require("underscore");
         const sortedExcluded = excludedDescriptorTypes.sort();
         const sortedExceptioned = exceptionedDescriptorTypes.sort();
 

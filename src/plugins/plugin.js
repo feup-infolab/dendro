@@ -1,7 +1,8 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
-const async = require('async');
+const async = require("async");
 
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Permissions = require(Pathfinder.absPathInSrcFolder("models/meta/permissions.js")).Permissions;
 
 function Plugin (object)

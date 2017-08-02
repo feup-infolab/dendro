@@ -1,6 +1,6 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
-const _ = require('underscore');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
+const _ = require("underscore");
 chai.use(chaiHttp);
 
 exports.publicDisplay = function (jsonOnly, agent, cb) {

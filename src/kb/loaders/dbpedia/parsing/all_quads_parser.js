@@ -1,6 +1,6 @@
 module.exports.parseAllFiles = function(dbConnection, rootFolder, cb) {
 
-    const async = require('async');
+    const async = require("async");
     const allMessages = [];
 
     async.waterfall([

@@ -1,8 +1,13 @@
-var DescriptorMapper = require("mappers/descriptor_mapper.js").DescriptorMapper;
-var InteractionMapper = require("mappers/interaction_mapper.js").InteractionMapper;
-var UserMapper = require("mappers/user_mapper.js").UserMapper;
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-var DRConnection = require("connection.js").Connection;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+
+const DescriptorMapper = require("mappers/descriptor_mapper.js").DescriptorMapper;
+const InteractionMapper = require("mappers/interaction_mapper.js").InteractionMapper;
+const UserMapper = require("mappers/user_mapper.js").UserMapper;
+
+const DRConnection = require("connection.js").Connection;
 
 function Mapper (connection)
 {

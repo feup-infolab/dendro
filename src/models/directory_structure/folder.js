@@ -1,6 +1,6 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -13,12 +13,12 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
 const slug = require('slug');
-const fs = require('fs');
+const fs = require("fs");
 
 const db = Config.getDBByID();
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 function Folder (object)
 {
@@ -92,9 +92,9 @@ Folder.prototype.saveIntoFolder = function(
             });
         }
         else if (node instanceof Folder) {
-            const fs = require('fs');
+            const fs = require("fs");
             const nfs = require('node-fs');
-            const path = require('path');
+            const path = require("path");
             const destinationFolder = destinationFolderAbsPath + "/" + node.nie.title;
 
             //mode = 0777, recursive = true
@@ -208,7 +208,7 @@ Folder.prototype.createTempFolderWithContents = function(
     callback)
 {
     const self = this;
-    const fs = require('fs');
+    const fs = require("fs");
 
     const tmp = require('tmp');
     tmp.dir({
@@ -274,7 +274,7 @@ Folder.prototype.zipAndDownload = function(includeMetadata, callback, bagItOptio
                 function(cb){
                     if(includeMetadata)
                     {
-                        const fs = require('fs');
+                        const fs = require("fs");
 
                         const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
 
@@ -367,9 +367,9 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
                     if (isNull(err))
                     {
                         console.log("Produced temporary folder on " + absolutePathOfFinishedFolder + " to bagit " + self.uri);
-                        const path = require('path');
+                        const path = require("path");
 
-                        const fs = require('fs');
+                        const fs = require("fs");
                         const outputFilename = path.join(absolutePathOfFinishedFolder, Config.packageMetadataFileName);
 
                         console.log("FINAL METADATA : " + JSON.stringify(metadata));
@@ -422,7 +422,7 @@ Folder.prototype.bagit = function(bagItOptions, callback) {
 
 Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callback, nameForFinishedZipFile, zipContentsInsteadOfFolder)
 {
-    const path = require('path');
+    const path = require("path");
     if(!sourceFolderAbsPath.startsWith(path.sep))
     {
         return callback(1, "Invalid source folder absolute path specified. It does not start with " + path.sep);
@@ -433,8 +433,8 @@ Folder.zip = function(sourceFolderAbsPath, destinationFolderForZipAbsPath, callb
     }
     else
     {
-        const fs = require('fs');
-        const exec = require('child_process').exec;
+        const fs = require("fs");
+        const exec = require("child_process").exec;
 
         if(isNull(nameForFinishedZipFile))
         {
@@ -490,7 +490,7 @@ Folder.prototype.restoreFromLocalBackupZipFile = function(zipFileAbsLocation, us
         fs.exists(unzippedContentsLocation, function (exists) {
             if(exists)
             {
-                const fs = require('fs');
+                const fs = require("fs");
 
                 fs.readdir(unzippedContentsLocation, function(err, files){
 
@@ -533,7 +533,7 @@ Folder.prototype.restoreFromLocalBackupZipFile = function(zipFileAbsLocation, us
 Folder.prototype.loadContentsOfFolderIntoThis = function(absolutePathOfLocalFolder, replaceExistingFolder, callback, runningOnRoot, userPerformingTheOperation)
 {
     const self = this;
-    const path = require('path');
+    const path = require("path");
 
     console.error("Starting to load children of " + self.uri);
 
@@ -894,7 +894,7 @@ Folder.prototype.restoreFromFolder = function(absPathOfRootFolder,
                  * Restore metadata values from medatada.json file
                  */
                 const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
-                const fs = require('fs');
+                const fs = require("fs");
 
                 fs.exists(metadataFileLocation, function (existsMetadataFile) {
                     if(attemptToRestoreMetadata && existsMetadataFile)
@@ -1149,7 +1149,7 @@ Folder.prototype.undelete = function(callback, uriOfUserUnDeletingTheFolder, not
 
 Folder.deleteOnLocalFileSystem = function(absPath, callback)
 {
-    const exec = require('child_process').exec;
+    const exec = require("child_process").exec;
     const command = "rm -rf absPath";
     const rm = exec(command, {}, function (error, stdout, stderr) {
         return callback(error, stdout, stderr);

@@ -1,9 +1,9 @@
 /**
  * Created by Filipe on 01/10/2014.
  */
-const request = require('request');
+const request = require("request");
 
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -91,7 +91,7 @@ Zenodo.prototype.createDeposition = function(data, callback){
 
 Zenodo.prototype.uploadFileToDeposition = function(depositionID, file,callback){
 
-    const fs = require('fs');
+    const fs = require("fs");
     const r = request.post({
             url: Zenodo.depositionsURL + depositionID + Zenodo.depositionFilesPath + this.accessTokenURL,
             json: true
@@ -111,7 +111,7 @@ Zenodo.prototype.uploadFileToDeposition = function(depositionID, file,callback){
 };
 Zenodo.prototype.uploadMultipleFilesToDeposition = function(depositionID, files,callback){
 
-    const async = require('async');
+    const async = require("async");
     const self = this;
     async.each(files, function(file, callback){
             self.uploadFileToDeposition(depositionID, file,function(err){

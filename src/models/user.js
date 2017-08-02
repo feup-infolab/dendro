@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -11,8 +11,8 @@ const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).R
 const Interaction = require(Pathfinder.absPathInSrcFolder("/models/recommendation/interaction.js")).Interaction;
 
 const util = require('util');
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 const db = Config.getDBByID();
 
@@ -1208,7 +1208,7 @@ User.prototype.startPasswordReset = function(callback)
     self.ddr.password_reset_token = token;
 
     const sendConfirmationEmail = function (callback) {
-        const nodemailer = require('nodemailer');
+        const nodemailer = require("nodemailer");
 
         // create reusable transporter object using the default SMTP transport
 
@@ -1216,7 +1216,7 @@ User.prototype.startPasswordReset = function(callback)
         const gmailPassword = Config.email.gmail.password;
 
         const ejs = require('ejs');
-        const fs = require('fs');
+        const fs = require("fs");
 
 
         const appDir = path.dirname(require.main.filename);

@@ -3,11 +3,11 @@ process.env.NODE_ENV = 'test';
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
-const chai = require('chai');
+const chai = require("chai");
 chai.use(require('chai-http'));
 const should = chai.should();
-const async = require('async');
-const colors = require('colors');
+const async = require("async");
+const colors = require("colors");
 
 const projectUtils = require(Pathfinder.absPathInTestsFolder("utils/project/projectUtils.js"));
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
