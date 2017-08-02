@@ -950,8 +950,6 @@ exports.upload = function(req, res)
                                                                 newFile.save(function (err, result) {
                                                                     if(!err)
                                                                     {
-                                                                        //TODO
-                                                                        /*newFile.reindex()*/
                                                                         newFile.reindex(req.index, function (err, data) {
                                                                             if(isNull(err))
                                                                             {
@@ -984,13 +982,6 @@ exports.upload = function(req, res)
 
                                                                 });
                                                             });
-
-
-                                                            /*return callback(null, {
-                                                                result: "success",
-                                                                message: "File submitted successfully. Message returned : " + result,
-                                                                files: files
-                                                            });*/
                                                         });
                                                     }
                                                     else {
@@ -1012,32 +1003,6 @@ exports.upload = function(req, res)
                                                 });
                                             }
                                         });
-
-                                        /*newFile.loadFromLocalFile(file.path, function (err, result) {
-                                            if (isNull(err)) {
-                                                //console.log("File " + newFile.uri + " is now saved in GridFS");
-                                                //try to generate thumbnails
-                                                newFile.generateThumbnails(function (err, result) {
-                                                    if (!isNull(err)) {
-                                                        console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
-                                                    }
-
-                                                    return callback(null, {
-                                                        result: "success",
-                                                        message: "File submitted successfully. Message returned : " + result,
-                                                        files: files
-                                                    });
-                                                });
-                                            }
-                                            else {
-                                                const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                                return callback(500, {
-                                                    result: "error",
-                                                    message: msg,
-                                                    files: fileNames
-                                                });
-                                            }
-                                        });*/
                                     }
                                     else
                                     {

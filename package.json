@@ -108,7 +108,7 @@
     "stylus": "^0.54.5",
     "swagger-express-middleware": "^1.0.0-alpha.12",
     "swagger-ui-express": "latest",
-    "textract": "^2.1.1",
+    "textract": "^2.1.2",
     "tmp": "^0.0.31",
     "ui-router": "^1.0.0-alpha.3",
     "underscore": "1.8.3",
