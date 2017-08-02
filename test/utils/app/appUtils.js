@@ -13,61 +13,30 @@ exports.requireUncached = function(module) {
     return require(module);
 };
 
-exports.clearCacheConnections = function(cb)
-{
-
-}
-
-exports.clearAllData = function (cb) {
-    async.series([
-        function(cb)
-        {
-            db.deleteGraphs(function (err, data) {
-                should.equal(err, null);
-                cb(err, data);
-            });
-        },
-        function(cb)
-        {
-            index.deleteIndexes(function(err, data){
-                should.equal(err, null);
-                cb(err, data);
-            });
-        },
-        function (cb) {
-            exports.deleteAllCaches(function (err, results) {
-                should.equal(err, null);
-                cb(err, results);
-            });
-        }
-    ], function(err, results){
-        cb(err, results);
-    });
-};
-
 exports.deleteAllCaches = function (cb) {
     const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
     Cache.deleteAllRecordsOfAllCaches(cb);
 };
 
 exports.clearAppState = function (cb) {
-    //var db = exports.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
+    if(!global.tests.server)
+    {
+        return cb(1, "Server did not start successfully");
+    }
+    else
+    {
+        global.tests.app.freeResources(function(err, results){
+            // setTimeout(function(){
+            //     delete global.tests.app;
+            //     delete global.tests.server;
+            //     cb(err, results);
+            // }, 300);
 
-    exports.clearAllData(function(err, results){
-        if(!global.tests.server)
-        {
-            return cb(1, "Server did not start successfully");
-        }
-        else
-        {
-            global.tests.app.freeResources(function(err, results){
-                /*setTimeout(function(){
-                    cb(err, results);
-                }, 1000);*/
-                cb(err, results);
-            });
-        }
-    });
+            delete global.tests.app;
+            delete global.tests.server;
+            return cb(err, results);
+        });
+    }
 };
 
 exports.resource_id_uuid_regex = function(resource_type)

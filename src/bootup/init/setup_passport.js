@@ -4,6 +4,7 @@ const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const User = require(Pathfinder.absPathInSrcFolder("models/user.js")).User;
 const Logger = require(Pathfinder.absPathInSrcFolder("utils/logger.js")).Logger;
+const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
 
 let slug = require('slug'),
     session_key = "dendro_" + slug(Config.host) + "_sessionKey",
@@ -18,29 +19,35 @@ const setupPassport = function(app, callback)
 
     const MongoStore = require('connect-mongo')(expressSession);
 
-    const sessionMongoStore = new MongoStore(
+    const expressSessionParameters = {
+        secret: Config.crypto.secret,
+        genid: function ()
         {
-            "host": Config.mongoDBHost,
-            "port": Config.mongoDbPort,
-            "db": Config.mongoDBSessionStoreCollection,
-            "url": 'mongodb://' + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDBSessionStoreCollection
-        });
+            const uuid = require('uuid');
+            return uuid.v4()
+        },
+        key: session_key,
+        cookie: {maxAge: 1000 * 60 * 60 * 24 * 5}, //5 days max session age
+        resave: false,
+        saveUninitialized: false
+    };
 
-    app.use(expressSession(
-        {
-            secret: Config.crypto.secret,
-            genid: function ()
+
+    let sessionMongoStore;
+    if(process.env.NODE_ENV !== "test")
+    {
+        sessionMongoStore = new MongoStore(
             {
-                const uuid = require('uuid');
-                return uuid.v4()
-            },
-            key: session_key,
-            cookie: {maxAge: 1000 * 60 * 60 * 24 * 5}, //5 days max session age
-            store: sessionMongoStore,
-            resave: false,
-            saveUninitialized: false
-        })
-    );
+                "host": Config.mongoDBHost,
+                "port": Config.mongoDbPort,
+                "db": Config.mongoDBSessionStoreCollection,
+                "url": 'mongodb://' + Config.mongoDBHost + ":" + Config.mongoDbPort + "/" + Config.mongoDBSessionStoreCollection
+            });
+
+        expressSessionParameters.store = sessionMongoStore;
+    }
+
+    app.use(expressSession(expressSessionParameters));
 
     const passport = require('passport');
     //set serialization and deserialization methods
@@ -61,7 +68,7 @@ const setupPassport = function(app, callback)
         next(null, req, res);
     });
 
-    if (Config.startup.clear_session_store)
+    if (Config.startup.clear_session_store && !isNull(sessionMongoStore))
     {
         Logger.log_boot_message("info", "Clearing session store!");
         sessionMongoStore.clear(function (err, result)
