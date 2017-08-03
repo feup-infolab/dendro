@@ -972,7 +972,8 @@ Elements.ddr = {
         type: DbConnection.string,
         api_readable: true,
         control: Controls.input_box,
-        locked_for_project : true
+        locked_for_project : true,
+        locked : true
     },
     hasContent :
     {
