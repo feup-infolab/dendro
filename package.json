@@ -10,7 +10,7 @@
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js -t 15000 --ui bdd --bail",
     "watch": "npm test -w",
     "calculate-coverage": "nyc --temp-directory=coverage --reporter=lcov npm test",
-    "report-coverage": "node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info && node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js < ./coverage/lcov.info && rm -rf coverage",
+    "report-coverage": "node ./node_modules/coveralls/bin/coveralls.js < ./coverage/lcov.info && node ./node_modules/codeclimate-test-reporter/bin/codeclimate.js < ./coverage/lcov.info && node ./node_modules/.bin/codacy-coverage < ./coverage/lcov.info && rm -rf coverage",
     "everything": "rm -rf node_modules && npm cache verify && npm install && npm run test && npm run calculate-coverage && npm run report-coverage",
     "remote_debug": "node app.js --debug=5858",
     "profile": "cross-env NODE_ENV=test node --prof node_modules/.bin/_mocha ./test/index.Test.js -t 15000 --ui bdd"
@@ -24,6 +24,7 @@
     "bower": "^1.8.0",
     "chai-dom": "^1.4.3",
     "ckan": "git+https://github.com/feup-infolab-rdm/ckan.js.git",
+    "codacy-coverage": "^2.0.2",
     "colors": "^1.1.2",
     "connect-busboy": "0.0.2",
     "connect-flash": "0.1.1",
