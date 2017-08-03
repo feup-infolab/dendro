@@ -47,7 +47,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
                                     newMongoCacheConnection.openConnection(function(err, mongoDBConnection) {
                                         if(!isNull(err))
                                         {
-                                            throw new Error("[ERROR] Unable to connect to MongoDB instance with ID: " + mongoCacheConfig.options.id + " running on " + mongoCacheConfig.options.host + ":" + mongoCacheConfig.options.port + " : " + err.message);
+                                            throw new Error("[ERROR] Unable to connect to MongoDB instance with ID: " + mongoCacheConfig.id + " running on " + mongoCacheConfig.host + ":" + mongoCacheConfig.port + " : " + err);
                                         }
                                         else
                                         {

@@ -37,7 +37,7 @@ MongoDBCache.prototype.openConnection = function(callback) {
             }
             else
             {
-                callback(1, db);
+                callback(err, db);
             }
         });
     }
