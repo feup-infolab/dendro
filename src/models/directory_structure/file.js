@@ -182,7 +182,9 @@ File.prototype.writeToTempFile = function (callback) {
                 const tempFilePath = tempFolderPath + path.sep + self.nie.title;
 
                 if (Config.debug.log_temp_file_writes)
+                {
                     console.log("Temp file location: " + tempFilePath);
+                }
 
                 const fs = require('fs');
                 const writeStream = fs.createWriteStream(tempFilePath);

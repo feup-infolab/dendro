@@ -1,4 +1,5 @@
 const http = require('http');
+const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;
 
 const setupServer = function(app, callback)
