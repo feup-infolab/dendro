@@ -14,81 +14,62 @@ const loadDemoUsers = function(app, callback)
         Logger.log_boot_message("info", "Existing demo users recreated. ");
         //try to delete all demo users
         const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
-        const deleteUser = function (demoUser, callback) {
-            User.findByUsername(demoUser.username, function (err, user) {
 
+        const createUser = function (user, callback) {
+
+            User.findByUsername(user.username, function (err, fetchedUser) {
                 if (isNull(err)) {
-                    if (isNull(user)) {
-                        //everything ok, user simply does not exist
-                        return callback(null, null);
+                    if (isNull(fetchedUser)) {
+                        User.createAndInsertFromObject({
+                                foaf: {
+                                    mbox: user.mbox,
+                                    firstName: user.firstname,
+                                    surname: user.surname
+                                },
+                                ddr: {
+                                    username: user.username,
+                                    password: user.password
+                                }
+                            },
+                            function (err, newUser)
+                            {
+                                if (isNull(err) && !isNull(newUser))
+                                {
+                                    return callback(null, newUser);
+                                }
+                                else
+                                {
+                                    console.error("[ERROR] Error creating new demo User ");
+                                    console.error(err.stack);
+                                    return callback(err, user);
+                                }
+                            });
                     }
                     else {
-                        Logger.log_boot_message("info","Demo user with username " + user.ddr.username + " found. Attempting to delete...");
-                        user.deleteAllMyTriples(function (err, result) {
-                            return callback(err, result);
-                        });
+                        Logger.log_boot_message("info","Demo user with username " + fetchedUser.ddr.username + " found. Will not create again.");
+                        return callback(null, null);
                     }
                 }
                 else {
-                    console.error("[ERROR] Unable to delete user with username " + demoUser.username + ". Error: " + user);
+                    console.error("[ERROR] Unable to delete user with username " + user.username + ". Error: " + user);
                     return callback(err, user);
                 }
             });
         };
 
-        const createUser = function (user, callback) {
 
-            User.createAndInsertFromObject({
-                    foaf: {
-                        mbox: user.mbox,
-                        firstName: user.firstname,
-                        surname: user.surname
-                    },
-                    ddr: {
-                        username: user.username,
-                        password: user.password
-                    }
-                },
-                function (err, newUser)
-                {
-                    if (isNull(err) && !isNull(newUser))
-                    {
-                        return callback(null, newUser);
-                    }
-                    else
-                    {
-                        console.error("[ERROR] Error creating new demo User ");
-                        console.error(err.stack);
-                        return callback(err, user);
-                    }
-                });
-        };
+        Logger.log_boot_message("info", "Loading Demo Users... ");
 
-
-        async.map(Config.demo_mode.users, deleteUser, function (err, results)
+        async.map(Config.demo_mode.users, createUser, function (err, results)
         {
             if (isNull(err))
             {
-                Logger.log_boot_message("info", "Existing demo users deleted. ");
-
-                Logger.log_boot_message("info", "Loading Demo Users... ");
-
-                async.map(Config.demo_mode.users, createUser, function (err, results)
-                {
-                    if (isNull(err))
-                    {
-                        Logger.log_boot_message("success", "Existing demo users recreated. ");
-                        return callback(err);
-                    }
-                    else
-                    {
-                        return callback("Unable to create demo users" + JSON.stringify(results));
-                    }
-                });
+                Logger.log_boot_message("success", "Demo users creation complete. ");
+                return callback(null);
             }
             else
             {
-                return callback(err);
+                return callback("Unable to create demo users" + JSON.stringify(results));
             }
         });
     }
