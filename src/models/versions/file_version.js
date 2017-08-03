@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -13,8 +13,8 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
-const _ = require('underscore');
-const async = require('async');
+const _ = require("underscore");
+const async = require("async");
 const uuid = require('uuid');
 
 //NFO ontology or NIE ontology

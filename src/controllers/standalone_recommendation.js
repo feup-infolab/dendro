@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -11,8 +11,8 @@ const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).R
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 exports.recommend_descriptors = function(req, res) {
     if(!isNull(req.params.requestedResourceUri))
@@ -170,7 +170,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
     );
 
     ie.getOwnerProject(function(err, ownerProject) {
-        if (isNull(err) && project instanceof Project) {
+        if (isNull(err) && ownerProject instanceof Project) {
             const projectUri = ownerProject.uri;
 
 
@@ -448,13 +448,14 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
 
                             const flatResults = _.compact(_.flatten(results));
                             const descriptors = initDescriptorsHash(flatResults);
+                            let d;
 
                             for (var i = 0; i < flatResults.length; i++) {
                                 const dummyToParseUri = new Descriptor(flatResults[i]);
                                 const descriptorPrefix = dummyToParseUri.prefix;
                                 const descriptorShortName = dummyToParseUri.shortName;
 
-                                var d = descriptors[descriptorPrefix][descriptorShortName];
+                                d = descriptors[descriptorPrefix][descriptorShortName];
 
                                 if (isNull(d)) {
                                     d = new Descriptor(flatResults[i]);
@@ -480,7 +481,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                             }
 
                             for (var i = 0; i < flatResults.length; i++) {
-                                var d = new Descriptor(flatResults[i]);
+                                d = new Descriptor(flatResults[i]);
 
                                 let fused_result_types = descriptors[d.prefix][d.shortName].recommendation_types;
                                 if (typeof fused_result_types === "undefined") {

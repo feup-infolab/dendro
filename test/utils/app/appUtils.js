@@ -1,11 +1,11 @@
 const Pathfinder = require("../../../src/models/meta/pathfinder").Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-const async = require('async');
+const async = require("async");
 
 const db = require(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 const index = require(Pathfinder.absPathInTestsFolder("utils/index/index.Test.js"));
 
-const chai = require('chai');
+const chai = require("chai");
 const should = chai.should();
 
 exports.requireUncached = function(module) {

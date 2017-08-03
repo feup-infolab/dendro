@@ -7,7 +7,7 @@ DBPediaLoader = function(db)
 DBPediaLoader.prototype.load_dbpedia = function(callback)
 {
 	const allQuadsParser = require('./parsing/all_quads_parser.js');
-    const path = require('path');
+    const path = require("path");
     const self = this;
 
     allQuadsParser.parseAllFiles(

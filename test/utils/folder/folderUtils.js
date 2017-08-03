@@ -1,5 +1,5 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 const binaryParser = require('../file/fileUtils.js').binaryParser;

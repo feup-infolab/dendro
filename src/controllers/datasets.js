@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -16,11 +16,11 @@ const B2ShareClient = require('node-b2share-v2');
 const Zenodo = require(Pathfinder.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 
-const async = require('async');
-const nodemailer = require('nodemailer');
-const flash = require('connect-flash');
-const _ = require('underscore');
-const fs = require('fs');
+const async = require("async");
+const nodemailer = require("nodemailer");
+const flash = require("connect-flash");
+const _ = require("underscore");
+const fs = require("fs");
 
 const createPackage = function (parentFolderPath, folder, callback) {
 
@@ -309,7 +309,7 @@ export_to_repository_ckan = function(req, res){
             }
 
             const resources = [];
-            const path = require('path');
+            const path = require("path");
 
             for (var i = 0; i < files.length; i++) {
                 const file = files[i];

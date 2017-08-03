@@ -1,5 +1,5 @@
-const async = require('async');
-const fs = require('fs');
+const async = require("async");
+const fs = require("fs");
 
 const Pathfinder = global.Pathfinder;
 const isNull = require(Pathfinder.absPathInSrcFolder("utils/null.js")).isNull;

@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Controls = require(Pathfinder.absPathInSrcFolder("/models/meta/controls.js")).Controls;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;

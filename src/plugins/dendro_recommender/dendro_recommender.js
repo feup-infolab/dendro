@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;

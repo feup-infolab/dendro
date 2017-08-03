@@ -4,8 +4,8 @@
 
 function Config (){}
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 const isNull = require("../../utils/null.js").isNull;
 
 const Pathfinder = global.Pathfinder;
@@ -664,7 +664,7 @@ Config.demo_mode = getConfigParameter("demo_mode");
 
 if(Config.demo_mode.active)
 {
-    const exec = require('child_process').exec;
+    const exec = require("child_process").exec;
 
     Config.demo_mode.git_info = {};
 

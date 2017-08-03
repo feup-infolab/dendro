@@ -1,5 +1,5 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 module.exports.getRegisterUser = function (jsonOnly, agent, cb)

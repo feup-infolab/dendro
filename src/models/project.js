@@ -2,7 +2,7 @@
 // @see http://bloody-byte.net/rdf/dc_owl2dl/dc.ttl
 // creator is an URI to the author : http://dendro.fe.up.pt/user/<username>
 
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -23,8 +23,8 @@ const db = Config.getDBByID();
 const gfs = Config.getGFSByID();
 
 const util = require('util');
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 function Project(object)
 {
@@ -89,7 +89,7 @@ Project.prototype.backup = function(callback)
                             function(err, result, absolutePathOfFinishedFolder, parentFolderPath){
                                 if(isNull(err))
                                 {
-                                    const path = require('path');
+                                    const path = require("path");
 
                                     const finishedZipFileName = "bagit_backup.zip";
                                     const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
@@ -1433,8 +1433,8 @@ Project.privacy = function (projectUri, callback) {
 
 Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
 {
-    const fs = require('fs');
-    const path = require('path');
+    const fs = require("fs");
+    const path = require("path");
 
     fs.stat(absPathOfBagItFolder, function(err, stat)
     {
@@ -1528,7 +1528,7 @@ Project.validateBagItFolderStructure = function(absPathOfBagItFolder, callback)
 
 Project.getStructureFromBagItZipFolder = function(absPathToZipFile, maxStorageSize, callback)
 {
-    const path = require('path');
+    const path = require("path");
 
     File.estimateUnzippedSize(absPathToZipFile, function(err, size)
     {
@@ -1600,7 +1600,7 @@ Project.restoreFromFolder = function(absPathOfRootFolder,
                             )
 {
     const self = this;
-    const path = require('path');
+    const path = require("path");
 
     if(!isNull(entityLoadingTheMetadata) && entityLoadingTheMetadata instanceof User)
     {
@@ -1620,7 +1620,7 @@ Project.restoreFromFolder = function(absPathOfRootFolder,
                  * Restore metadata values from metadata.json file
                  */
                 const metadataFileLocation = path.join(absPathOfRootFolder, Config.packageMetadataFileName);
-                const fs = require('fs');
+                const fs = require("fs");
 
                 fs.exists(metadataFileLocation, function (existsMetadataFile) {
                     if(attemptToRestoreMetadata && existsMetadataFile)

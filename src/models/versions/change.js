@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -10,7 +10,7 @@ const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descripto
 
 const db = Config.getDBByID();
 
-const async = require('async');
+const async = require("async");
 
 function Change (object)
 {

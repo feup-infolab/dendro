@@ -1,5 +1,7 @@
-const path = require('path');
-const Pathfinder = global.Pathfinder;const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+const path = require("path");
+const Pathfinder = global.Pathfinder;
+const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const Loader = require(Pathfinder.absPathInSrcFolder("/kb/loaders/loader.js")).Loader;
 const HarvestedResource = require(Pathfinder.absPathInSrcFolder("/models/harvesting/harvested_resource.js")).HarvestedResource;
@@ -26,7 +28,7 @@ DryadLoader.prototype.downloadFiles = function() {
 
 DryadLoader.prototype.loadFromDownloadedFiles = function(indexConnection) {
     const dir = (__dirname + "/DryadCrawler/dryad_mets");
-    const fs = require('fs');
+    const fs = require("fs");
 
     const dryadRepository = new ExternalRepository({
         uri: "http://dryad.org",

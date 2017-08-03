@@ -1,10 +1,10 @@
 process.env.NODE_ENV = 'test';
 
-const chai = require('chai');
+const chai = require("chai");
 chai.use(require('chai-http'));
 const should = chai.should();
-const async = require('async');
-const colors = require('colors');
+const async = require("async");
+const colors = require("colors");
 let path = require('path');
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;

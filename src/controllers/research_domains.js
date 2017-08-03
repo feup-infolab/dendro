@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -6,8 +6,8 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
 const ResearchDomain = require(Pathfinder.absPathInSrcFolder("/models/meta/research_domain.js")).ResearchDomain;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 exports.autocomplete = function(req, res) {
 

@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -8,8 +8,8 @@ const Ontology = require(Pathfinder.absPathInSrcFolder("/models//meta/ontology.j
 const Project = require(Pathfinder.absPathInSrcFolder("/models//project.js")).Project;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 exports.descriptors_autocomplete = function(req, res) {
 
@@ -47,6 +47,7 @@ exports.from_ontology = function(req, res)
     {
         const ontologyIdentifier = req.query.descriptors_from_ontology;
         let fetchingFunction;
+        const validator = require('validator');
 
         if(validator.isURL(ontologyIdentifier))
         {
@@ -72,7 +73,7 @@ exports.from_ontology = function(req, res)
                 {
                     if (!ontology.private)
                     {
-                        Descriptor.all_in_ontology(ontologyUri, function (err, descriptors)
+                        Descriptor.all_in_ontology(ontology.uri, function (err, descriptors)
                         {
                             if (isNull(err))
                             {
@@ -139,7 +140,7 @@ exports.from_ontology = function(req, res)
                         res.status(401).json(
                             {
                                 result: "error",
-                                error_messages: "Unauthorized. Ontology with prefix or uri " + prefix + " is not public."
+                                error_messages: "Unauthorized. Ontology with prefix or uri " + ontologyIdentifier + " is not public."
                             }
                         );
                     }
@@ -149,7 +150,7 @@ exports.from_ontology = function(req, res)
                     res.status(404).json(
                         {
                             result: "error",
-                            error_messages: "Ontology with prefix or uri " + prefix + " does not exist in this Dendro instance."
+                            error_messages: "Ontology with prefix or uri " + ontologyIdentifier + " does not exist in this Dendro instance."
                         }
                     );
                 }
@@ -159,7 +160,7 @@ exports.from_ontology = function(req, res)
                 res.status(500).json(
                     {
                         result: "error",
-                        error_messages: "Error retrieving ontology with prefix " + prefix + " Error reported : " + ontology
+                        error_messages: "Error retrieving ontology with prefix " + ontologyIdentifier + " Error reported : " + ontology
                     }
                 );
             }
@@ -243,9 +244,9 @@ exports.from_ontology_in_project = function(req, res)
                                  * Get Project's favorite descriptors
                                  * @param callback
                                  */
-                                const getProjectsFavoriteDescriptors = function (projectHandle, callback)
+                                const getProjectsFavoriteDescriptors = function (projectUri, callback)
                                 {
-                                    Project.findByHandle(projectHandle, function (err, project)
+                                    Project.findByUri(projectUri, function (err, project)
                                     {
                                         if (isNull(err) && !isNull(project))
                                         {
@@ -287,9 +288,9 @@ exports.from_ontology_in_project = function(req, res)
                                     });
                                 };
 
-                                const getProjectsHiddenDescriptors = function (projectHandle, callback)
+                                const getProjectsHiddenDescriptors = function (projectUri, callback)
                                 {
-                                    Project.findByHandle(projectHandle, function (err, project)
+                                    Project.findByUri(projectUri, function (err, project)
                                     {
                                         if (isNull(err))
                                         {
@@ -309,7 +310,7 @@ exports.from_ontology_in_project = function(req, res)
 
                                 const getDCTermsDescriptors = function (callback)
                                 {
-                                    Descriptor.DCElements(function (error, dcElementsDescriptors)
+                                    Descriptor.dublinCoreElements(function (error, dcElementsDescriptors)
                                     {
                                         if (isNull(err))
                                         {
@@ -339,13 +340,13 @@ exports.from_ontology_in_project = function(req, res)
                                         },
                                         function (callback)
                                         {
-                                            if (typeof project_handle === "undefined")
+                                            if (typeof req.params.requestedResourceUri === "undefined")
                                             {
                                                 return callback(null, []);
                                             }
                                             else
                                             {
-                                                getProjectsFavoriteDescriptors(project_handle, callback);
+                                                getProjectsFavoriteDescriptors(req.params.requestedResourceUri, callback);
                                             }
                                         },
                                         function (callback)
@@ -361,13 +362,13 @@ exports.from_ontology_in_project = function(req, res)
                                         },
                                         function (callback)
                                         {
-                                            if (typeof project_handle === "undefined")
+                                            if (typeof req.params.requestedResourceUri === "undefined")
                                             {
                                                 return callback(null, []);
                                             }
                                             else
                                             {
-                                                getProjectsHiddenDescriptors(project_handle, callback);
+                                                getProjectsHiddenDescriptors(req.params.requestedResourceUri, callback);
                                             }
                                         },
                                         function (callback)

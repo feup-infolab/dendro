@@ -12,7 +12,7 @@ function SwordConnection(user, password, serviceDocumentRef){
     return newConnection;
 }
 executeCommand = function(command,callback){
-    const exec = require('child_process').exec;
+    const exec = require("child_process").exec;
 
     const child = exec(command, function (error, stdout, stderr) {
         if (error) {

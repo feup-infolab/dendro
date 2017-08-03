@@ -1,10 +1,10 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 
-const _ = require('underscore');
+const _ = require("underscore");
 
 const Permissions = Object.create(require(Pathfinder.absPathInSrcFolder("/models/meta/permissions.js")).Permissions);
 

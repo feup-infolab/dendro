@@ -1,11 +1,11 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const RecommendationUtils = require(Pathfinder.absPathInSrcFolder("/utils/recommendation.js")).RecommendationUtils;
 
-const _ = require('underscore');
-const async = require('async');
+const _ = require("underscore");
+const async = require("async");
 
 const recommendation_mode = RecommendationUtils.getActiveRecommender();
 let recommendation;

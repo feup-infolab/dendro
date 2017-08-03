@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -13,8 +13,8 @@ const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js
 
 const db = Config.getDBByID();
 
-const _ = require('underscore');
-const async = require('async');
+const _ = require("underscore");
+const async = require("async");
 
 function ArchivedResource (object)
 {

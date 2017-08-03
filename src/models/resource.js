@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -9,8 +9,8 @@ const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConne
 const IndexConnection = require(Pathfinder.absPathInSrcFolder("/kb/index.js")).IndexConnection;
 const Cache = require(Pathfinder.absPathInSrcFolder("/kb/cache/cache.js")).Cache;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 const db = Config.getDBByID();
 
@@ -306,7 +306,7 @@ Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, 
                     if(isNull(err))
                     {
                         //Invalidate cache record for the updated resources
-                        Cache.getByGraphUri(customGraphUri).delete([self.uri, valueInPrefixedForm], function(err, result){
+                        Cache.getByGraphUri(graphUri).delete([self.uri, valueInPrefixedForm], function(err, result){
                             return callback(err, result);
                         });
                     }
@@ -2546,7 +2546,7 @@ Resource.prototype.restoreFromArchivedVersion = function(version, callback, uriO
 Resource.prototype.getLogicalParts = function(callback)
 {
     const self = this;
-    const fs = require('fs');
+    const fs = require("fs");
     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
     const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 
@@ -2649,7 +2649,7 @@ Resource.prototype.findMetadataRecursive = function(callback, typeConfigsToRetai
 
         self.getLogicalParts(function (err, children) {
         if (isNull(err)) {
-            const _ = require('underscore');
+            const _ = require("underscore");
             children = _.reject(children, function (child) {
                 return child.ddr.deleted;
             });
@@ -2954,7 +2954,7 @@ Resource.deleteAll = function(callback, customGraphUri)
 
 Resource.deleteAllWithCertainDescriptorValueAndTheirOutgoingTriples = function(descriptor, callback, customGraphUri)
 {
-    const async = require('async');
+    const async = require("async");
     const graphUri = (!isNull(customGraphUri) && typeof customGraphUri === "string") ? customGraphUri : db.graphUri;
 
     const pagedFetchResourcesWithDescriptor = function (descriptor, page, pageSize, callback) {

@@ -1,6 +1,6 @@
 //complies with the NIE ontology (see http://www.semanticdesktop.org/ontologies/2007/01/19/nie/#InformationElement)
 
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -157,7 +157,7 @@ InformationElement.prototype.getAllParentsUntilProject = function(callback)
             {
                 if(result instanceof Array)
                 {
-                    const async = require('async');
+                    const async = require("async");
                     const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
                     async.map(result, function(result, callback){
                         Folder.findByUri(result.uri, function(err, parentFolder){
@@ -271,7 +271,7 @@ InformationElement.prototype.rename = function(newTitle, callback)
             }
         ],
         function(err, result) {
-            cache.delete(self.uri, function(err, result){
+            Cache.getByGraphUri(db.graphUri).delete(self.uri, function(err, result){
                 return callback(err, result);
             });
         }
@@ -344,7 +344,7 @@ InformationElement.prototype.isHiddenOrSystem = function()
 
 InformationElement.removeInvalidFileNames = function(fileNamesArray)
 {
-    const _ = require('underscore');
+    const _ = require("underscore");
 
     const validFiles = [];
 
@@ -396,7 +396,7 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
 
                 if(!isNull(resource.ddr) && !isNull(resource.ddr.metadataQuality))
                 {
-                    metadataResult.metadata_quality = folder.ddr.metadataQuality;
+                    metadataResult.metadata_quality = resource.ddr.metadataQuality;
                 }
                 else
                 {
@@ -407,7 +407,7 @@ InformationElement.prototype.findMetadata = function(callback, typeConfigsToReta
 
                     resource.getLogicalParts(function (err, children) {
                         if (isNull(err)) {
-                            const _ = require('underscore');
+                            const _ = require("underscore");
                             children = _.reject(children, function (child) {
                                 return child.ddr.deleted;
                             });

@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -118,7 +118,7 @@ module.exports.reindex = function(req, res)
     const graphsToBeIndexed = req.query.graphs;
     const graphsToDelete = req.query.graphs_to_delete;
 
-    const async = require('async');
+    const async = require("async");
 
     for(graph in graphsToBeIndexed)
     {
@@ -168,7 +168,7 @@ var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindex
 
     if(!isNull(index))
     {
-        const async = require('async');
+        const async = require("async");
 
         async.waterfall([
             function(callback) //delete current index if requested

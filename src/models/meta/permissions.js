@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -11,8 +11,8 @@ const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structur
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
 
-const async = require('async');
-const _ = require('underscore');
+const async = require("async");
+const _ = require("underscore");
 
 function Permissions (){}
 
@@ -497,7 +497,7 @@ Permissions.require = function(permissionsRequired, req, res, next) {
 
         }
 
-        const async = require('async');
+        const async = require("async");
 
         //Global Administrators are God, so they dont go through any checks
         if(!req.session.isAdmin)

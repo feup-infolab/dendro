@@ -1,5 +1,5 @@
-const chai = require('chai');
-const chaiHttp = require('chai-http');
+const chai = require("chai");
+const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
 const exportToRepository = function (jsonOnly, projectHandle, agent, exportData, cb) {

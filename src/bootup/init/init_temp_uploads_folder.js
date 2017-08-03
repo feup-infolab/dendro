@@ -1,5 +1,5 @@
-const fs = require('fs');
-const mkdirp = require('mkdirp');
+const fs = require("fs");
+const mkdirp = require("mkdirp");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;

@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -9,7 +9,7 @@ const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).R
 
 const db = Config.getDBByID();
 
-const async = require('async');
+const async = require("async");
 
 function ExternalRepository (object)
 {

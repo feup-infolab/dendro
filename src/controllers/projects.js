@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -13,10 +13,10 @@ const Permissions = require(Pathfinder.absPathInSrcFolder("/models/meta/permissi
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 const db = Config.getDBByID();
-const flash = require('connect-flash');
-const async = require('async');
+const flash = require("connect-flash");
+const async = require("async");
 
 exports.all = function(req, res) {
 
@@ -174,7 +174,7 @@ exports.change_log = function(req, res){
                                 }
                                 else
                                 {
-                                    const flash = require('connect-flash');
+                                    const flash = require("connect-flash");
                                     flash('error', "Unable to fetch descriptors. Reported Error: " + fullVersions);
                                     res.redirect('back');
                                 }
@@ -182,7 +182,7 @@ exports.change_log = function(req, res){
                         }
                         else
                         {
-                            const flash = require('connect-flash');
+                            const flash = require("connect-flash");
                             flash('error', "Unable to fetch project revisions. Reported Error: " + archivedResources);
                             res.redirect('back');
                         }
@@ -191,15 +191,15 @@ exports.change_log = function(req, res){
                 }
                 else
                 {
-                    const flash = require('connect-flash');
-                    flash('error', "Unable to fetch owner project of folder " + folder.uri);
+                    const flash = require("connect-flash");
+                    flash('error', "Unable to fetch owner project of folder " + resource.uri);
                     res.redirect('back');
                 }
             });
         }
         else
         {
-            const flash = require('connect-flash');
+            const flash = require("connect-flash");
             flash('error', "Unable to fetch project");
             if(!res._headerSent)
             {
@@ -260,7 +260,7 @@ exports.show = function(req, res) {
             }
         };
 
-        const _ = require('underscore');
+        const _ = require("underscore");
 
         const isEditor = _.filter(req.permissions_management.reasons_for_authorizing, function (authorization) {
             const reason = authorization.role;
@@ -438,7 +438,7 @@ exports.show = function(req, res) {
                                 }
                                 else
                                 {
-                                    const flash = require('connect-flash');
+                                    const flash = require("connect-flash");
                                     flash('error', "Unable to fetch information of the change authors. Reported Error: " + archivedResourcesWithFullAuthorInformation);
                                     res.redirect('back');
                                 }
@@ -446,7 +446,7 @@ exports.show = function(req, res) {
                         }
                         else
                         {
-                            const flash = require('connect-flash');
+                            const flash = require("connect-flash");
                             flash('error', "Unable to fetch project revisions. Reported Error: " + archivedResources);
                             res.redirect('back');
                         }
@@ -465,7 +465,7 @@ exports.show = function(req, res) {
                     }
                     else
                     {
-                        const flash = require('connect-flash');
+                        const flash = require("connect-flash");
                         flash('error', "Unable to fetch descriptors. Reported Error: " + descriptors);
                         res.redirect('back');
                     }
@@ -473,7 +473,7 @@ exports.show = function(req, res) {
             }
             else
             {
-                const flash = require('connect-flash');
+                const flash = require("connect-flash");
                 flash('error', "Unable to retrieve the project : " + resourceURI + " . " + project);
                 res.render('index',
                     {
@@ -702,7 +702,7 @@ exports.show = function(req, res) {
                 ], function(err, results){
                     if(!isNull(err))
                     {
-                        const flash = require('connect-flash');
+                        const flash = require("connect-flash");
                         flash('error', results);
                         res.redirect('back');
                     }
@@ -710,7 +710,7 @@ exports.show = function(req, res) {
             }
             else
             {
-                const flash = require('connect-flash');
+                const flash = require("connect-flash");
                 flash('error', "Resource with uri " + resourceURI + " does not exist.");
                 if(!res._headerSent)
                 {
@@ -1136,7 +1136,7 @@ exports.bagit = function(req,res)
                     {
                         if(!isNull(baggedContentsZipFileAbsPath))
                         {
-                            const fs = require('fs');
+                            const fs = require("fs");
                             const fileStream = fs.createReadStream(baggedContentsZipFileAbsPath);
 
                             res.on('end', function () {
@@ -1575,7 +1575,7 @@ exports.requestAccess = function(req, res){
     }
     else if(req.originalMethod === "POST")
     {
-        const flash = require('connect-flash');
+        const flash = require("connect-flash");
         console.log(req.user);
         Project.findByUri(req.params.requestedResourceUri, function (err, project) {
             if (isNull(err) && project instanceof Project) {
@@ -1664,7 +1664,7 @@ exports.import = function(req, res) {
         if(!isNull(req.files) && req.files.file instanceof Object)
         {
             const uploadedFile = req.files.file;
-            const path = require('path');
+            const path = require("path");
 
             const tempFilePath = uploadedFile.path;
 

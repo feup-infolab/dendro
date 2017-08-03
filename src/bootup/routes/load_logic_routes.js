@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -57,7 +57,7 @@ const auth_orcid = require(Pathfinder.absPathInSrcFolder("/controllers/auth_orci
 const express = require('express'),
     domain = require('domain'),
     passport = require('passport'),
-    flash = require('connect-flash'),
+    flash = require("connect-flash"),
     http = require('http'),
     fs = require('fs'),
     morgan = require('morgan'),

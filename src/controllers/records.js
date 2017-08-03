@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -10,8 +10,8 @@ const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/direct
 const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
-const _ = require('underscore');
-const request = require('request');
+const _ = require("underscore");
+const request = require("request");
 
 exports.show_deep = function(req, res) {
     const acceptsHTML = req.accepts('html');
@@ -57,7 +57,7 @@ exports.show_deep = function(req, res) {
                             }
                             else{
                                 res.status(500).json({
-                                    error_messages : "Error finding metadata from " + requestedResource.uri + "\n" + result
+                                    error_messages : "Error finding metadata from " + req.params.requestedResourceUri + "\n" + result
                                 });
                             }
                         }, true);
@@ -146,7 +146,7 @@ exports.show = function(req, res) {
                         res.status(404).json({
                             result: "error",
                             message : "Resource " + req.params.requestedResourceUri + " not found.",
-                            error : resource
+                            error : result
                         });
                     }
                 }

@@ -1,9 +1,9 @@
-const async = require('async');
+const async = require("async");
 const needle = require('needle');
-const _ = require('underscore');
+const _ = require("underscore");
 
 
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -309,14 +309,14 @@ exports.refresh_interactions = function(req, res)
      */
 
     const now = new Date();
-    const path = require('path');
+    const path = require("path");
     const appDir = path.dirname(require.main.filename);
 
     const dumpFileName = path.join(appDir, "temp", "interaction_dumps", now.toISOString() + ".txt");
 
     if(req.params.starting_instant_in_iso_format == null)
     {
-        const fs = require('fs');
+        const fs = require("fs");
         const stream = fs.createWriteStream(dumpFileName);
         stream.once('open', function(fd) {
 

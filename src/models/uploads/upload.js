@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -54,7 +54,7 @@ Upload.create = function(object, callback)
     if(typeof object.tmp_file_dir === "undefined")
     {
         const tmp = require('tmp');
-        const path = require('path');
+        const path = require("path");
 
         tmp.dir(
             {
@@ -121,7 +121,7 @@ Upload.prototype.set_expected = function(expected)
 Upload.prototype.pipe = function(part, callback)
 {
     const self = this;
-    const fs = require('fs');
+    const fs = require("fs");
 
     const targetStream = fs.createWriteStream(
         self.temp_file,
@@ -168,7 +168,7 @@ Upload.prototype.get_temp_file_size = function(callback)
 {
     const self = this;
 
-    const fs = require('fs');
+    const fs = require("fs");
     const stat = fs.statSync(self.temp_file);
     return callback(null, stat.size);
 };

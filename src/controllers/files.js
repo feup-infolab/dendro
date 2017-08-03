@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -12,7 +12,7 @@ const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 const FileVersion = require(Pathfinder.absPathInSrcFolder("/models/versions/file_version.js")).FileVersion;
 
-const async = require('async');
+const async = require("async");
 
 const db_social = function () {
     return Config.db.social;
@@ -39,7 +39,7 @@ exports.download = function(req, res){
                 const includeMetadata = (!isNull(req.query.backup));
                 const bagIt = (!isNull(req.query.bagit));
 
-                const async = require('async');
+                const async = require("async");
 
                 async.series([
                     function (cb) {
@@ -49,7 +49,7 @@ exports.download = function(req, res){
                             };
 
                             folderToDownload.bagit(bagitOptions, function (err, result, absolutePathOfFinishedFolder, parentFolderPath) {
-                                const path = require('path');
+                                const path = require("path");
 
                                 const finishedZipFileName = "bagit_backup.zip";
                                 const finishedZipFileAbsPath = path.join(parentFolderPath, finishedZipFileName);
@@ -71,7 +71,7 @@ exports.download = function(req, res){
                         if (!isNull(results) && !isNull(results[0])) {
                             var writtenFilePath = results[0];
 
-                            const fs = require('fs');
+                            const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
 
                             res.on('end', function () {
@@ -127,7 +127,7 @@ exports.download = function(req, res){
                     {
                         if(!isNull(writtenFilePath))
                         {
-                            const fs = require('fs');
+                            const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
 
                             res.writeHead(200,
@@ -239,8 +239,7 @@ exports.download = function(req, res){
             {
                 if(!isNull(ie))
                 {
-                    const path = require('path');
-
+                    const path = require("path");
                     if(ie.isA(File))
                     {
                         downloadFile(requestedResourceURI, res);
@@ -300,7 +299,7 @@ exports.serve = function(req, res){
                 folderToDownload.zipAndDownload(includeMetadata, function (err, writtenFilePath) {
                     if (isNull(err)) {
                         if (!isNull(writtenFilePath)) {
-                            const fs = require('fs');
+                            const fs = require("fs");
                             const fileStream = fs.createReadStream(writtenFilePath);
 
                             res.on('end', function () {
@@ -357,7 +356,7 @@ exports.serve = function(req, res){
             function(err, ie){
                 if(isNull(err))
                 {
-                    const path = require('path');
+                    const path = require("path");
                     if(ie.isA(File))
                     {
                         File.findByUri(requestedResourceURI, function(err, file){
@@ -371,7 +370,7 @@ exports.serve = function(req, res){
                                     {
                                         if(!isNull(writtenFilePath))
                                         {
-                                            const fs = require('fs');
+                                            const fs = require("fs");
                                             const fileStream = fs.createReadStream(writtenFilePath);
 
                                             res.writeHead(200,
@@ -461,7 +460,7 @@ exports.serve_base64 = function(req, res){
         {
             if(!isNull(ie))
             {
-                const path = require('path');
+                const path = require("path");
                 if(ie.isA(File))
                 {
                     File.findByUri(requestedResourceURI, function(err, file){
@@ -475,7 +474,7 @@ exports.serve_base64 = function(req, res){
                                 {
                                     if(!isNull(writtenFilePath))
                                     {
-                                        const fs = require('fs');
+                                        const fs = require("fs");
                                         const fileStream = fs.createReadStream(writtenFilePath);
 
                                         res.on('end', function(){
@@ -600,8 +599,8 @@ exports.get_thumbnail = function(req, res) {
                                         {
                                             if(!isNull(writtenFilePath))
                                             {
-                                                const fs = require('fs');
-                                                const path = require('path');
+                                                const fs = require("fs");
+                                                const path = require("path");
                                                 let fileStream = fs.createReadStream(writtenFilePath);
                                                 let filename = path.basename(writtenFilePath);
 
@@ -633,14 +632,12 @@ exports.get_thumbnail = function(req, res) {
                                             else
                                             {
                                                 //try to regenerate thumbnails
-                                                file.generateThumbnails(function(err, result)
-                                                {
-                                                    const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
-                                                    console.error(error);
-                                                });
+                                                file.generateThumbnails(function(err, result) {});
 
+                                                const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
                                                 res.writeHead(404, error);
                                                 res.end();
+                                                console.error(error);
                                             }
                                         }
                                     });
@@ -856,7 +853,7 @@ exports.upload = function(req, res)
             var files = getFilesArray(req);
 
             if (files instanceof Array) {
-                const async = require('async');
+                const async = require("async");
                 async.map(files, function (file, callback) {
                     fileNames.push({
                         name: file.name
@@ -903,32 +900,34 @@ exports.upload = function(req, res)
                     };
 
 
-                    const fs = require('fs');
+                    const fs = require("fs");
                     const md5File = require('md5-file');
 
 
-                    //TODO OMG this needs to be flattened using async!!! Callback onion!!
-                    md5File(file.path, function (err, hash) {
-                        if (isNull(err)) {
-                            if (hash !== upload.md5_checksum) {
-                                return callback(400, {
-                                    result: "error",
-                                    message: "File was corrupted during transfer. Please repeat.",
-                                    error: "invalid_checksum",
-                                    calculated_at_server: hash,
-                                    calculated_at_client: upload.md5_checksum
-                                });
-                            }
-                            else {
-                                getNewFileParentFolder(function(err, parentFolderUri){
-                                    if(isNull(err))
-                                    {
-                                        const newFile = new File({
-                                            nie: {
-                                                title: file.name,
-                                                isLogicalPartOf: parentFolderUri
-                                            }
-                                        });
+                    if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
+                    {
+                        //TODO OMG this needs to be flattened using async!!! Callback onion!!
+                        md5File(file.path, function (err, hash) {
+                            if (isNull(err)) {
+                                if (upload.md5_checksum !== hash) {
+                                    return callback(400, {
+                                        result: "error",
+                                        message: "File was corrupted during transfer. Please repeat.",
+                                        error: "invalid_checksum",
+                                        calculated_at_server: hash,
+                                        calculated_at_client: upload.md5_checksum
+                                    });
+                                }
+                                else {
+                                    getNewFileParentFolder(function(err, parentFolderUri){
+                                        if(isNull(err))
+                                        {
+                                            const newFile = new File({
+                                                nie: {
+                                                    title: file.name,
+                                                    isLogicalPartOf: parentFolderUri
+                                                }
+                                            });
 
                                         newFile.save(function (err, result) {
                                             if (isNull(err)) {
@@ -1026,15 +1025,24 @@ exports.upload = function(req, res)
                                 });
                             }
 
-                        }
-                        else {
-                            return callback(401, {
-                                result: "error",
-                                message: "Unable to calculate the MD5 checksum of the uploaded file: " + newFile.filename,
-                                error: result
-                            });
-                        }
-                    })
+                            }
+                            else {
+                                return callback(401, {
+                                    result: "error",
+                                    message: "Unable to calculate the MD5 checksum of the uploaded file: " + newFile.filename,
+                                    error: result
+                                });
+                            }
+                        })
+                    }
+                    else
+                    {
+                        return callback(400, {
+                            result: "error",
+                            message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
+                            files: fileNames
+                        });
+                    }
                 }, function (err, results) {
                     return callback(err, results);
                 });
@@ -1532,7 +1540,7 @@ exports.rm = function(req, res){
                             });
                         }
 
-                        const async = require('async');
+                        const async = require("async");
                         async.tryEach([
                             deleteFolder,
                             deleteFile
@@ -1673,7 +1681,7 @@ exports.undelete = function(req, res){
                             });
                         }
 
-                        const async = require('async');
+                        const async = require("async");
                         async.tryEach([
                             unDeleteFolder,
                             undeleteFile
@@ -1896,7 +1904,7 @@ exports.ls = function(req, res){
                         {
                             if(!show_deleted)
                             {
-                                const _ = require('underscore');
+                                const _ = require("underscore");
                                 files = _.reject(files, function(file) { return file.ddr.deleted; });
                             }
 
@@ -1941,7 +1949,7 @@ exports.ls = function(req, res){
                     {
                         if(!show_deleted)
                         {
-                            const _ = require('underscore');
+                            const _ = require("underscore");
                             children = _.reject(children, function(child) { return child.ddr.deleted; });
                         }
 
@@ -1977,7 +1985,7 @@ exports.thumbnail = function(req, res)
 {
     if(!req.params.is_project_root)
     {
-        const path = require('path');
+        const path = require("path");
 
         InformationElement.findByUri(req.params.requestedResourceUri, function(err, resource){
             if(!err)
@@ -2028,8 +2036,8 @@ exports.thumbnail = function(req, res)
 };
 
 exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoot, pathOfFileToServeOnError, staticFileCaching, cachePeriodInSeconds, statusCode){
-    const fs = require('fs');
-    const path = require('path');
+    const fs = require("fs");
+    const path = require("path");
         appDir = path.dirname(require.main.filename);
 
     if(isNull(statusCode))
@@ -2373,7 +2381,7 @@ xlsFileParser = function (req, res, filePath){
 csvFileParser = function (req,res,filePath){
 
 
-    const fs = require('fs');
+    const fs = require("fs");
     fs.readFile(filePath, 'utf8', function(err, data) {
         if (err) throw err;
         deleteTempFile(filePath);
@@ -2384,7 +2392,7 @@ csvFileParser = function (req,res,filePath){
 };
 
 textFileParser = function (req,res,filePath){
-    const fs = require('fs');
+    const fs = require("fs");
     fs.readFile(filePath, 'utf8', function(err, data) {
         if (err) throw err;
         deleteTempFile(filePath);
@@ -2403,7 +2411,7 @@ exports.dataParsers = {
 };
 
 deleteTempFile = function(filePath){
-    const fs = require('fs');
+    const fs = require("fs");
 
     fs.unlink(filePath, function (err) {
         if (err) throw err;

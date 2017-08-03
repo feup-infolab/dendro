@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -8,7 +8,7 @@ const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Cl
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 
 const moment = require('moment');
-const async = require('async');
+const async = require("async");
 const db = Config.getDBByID();
 
 const mysql = Config.getMySQLByID();

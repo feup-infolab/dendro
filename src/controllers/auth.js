@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 
@@ -6,7 +6,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const User = require(Pathfinder.absPathInSrcFolder("/models/user.js")).User;
 const UploadManager = require(Pathfinder.absPathInSrcFolder("/models/uploads/upload_manager.js")).UploadManager;
 
-const async = require('async');
+const async = require("async");
 
 module.exports.login = function(req, res, next){
 

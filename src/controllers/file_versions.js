@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
@@ -11,9 +11,9 @@ const Project = require('../models/project.js').Project;
 const FileVersion = require('../models/versions/file_version.js').FileVersion;
 const Notification = require('../models/notifications/notification.js').Notification;
 const DbConnection = require("../kb/db.js").DbConnection;
-const _ = require('underscore');
+const _ = require("underscore");
 
-const async = require('async');
+const async = require("async");
 const db = Config.getDBByID();
 
 const db_social = function () {
@@ -94,6 +94,39 @@ const removeOrAdLikeFileVersion = function (fileVersionUri, currentUserUri, cb) 
                 let likeExists = false;
                 if(results.length > 0)
                 {
+                    const removeLikeInFileVersion = function (likeUri, currentUserUri, cb) {
+                        const query =
+                            "WITH [0] \n" +
+                            "DELETE {[1] ?p ?v}\n" +
+                            "WHERE { \n" +
+                            "[1] ?p ?v \n" +
+                            "} \n";
+
+                        db.connection.execute(query,
+                            DbConnection.pushLimitsArguments([
+                                {
+                                    type: DbConnection.resourceNoEscape,
+                                    value: db_social.graphUri
+                                },
+                                {
+                                    type: DbConnection.resource,
+                                    value: likeUri
+                                }
+                            ]),
+                            function (err, results) {
+                                if (isNull(err)) {
+                                    let likeExists = false;
+                                    if (results.length > 0) {
+                                        likeExists = true;
+                                    }
+                                    cb(false, likeExists);
+                                }
+                                else {
+                                    cb(true, "Error Liking a fileVersion");
+                                }
+                            });
+                    };
+                    
                     removeLikeInFileVersion(results[0].likeURI, currentUserUri, function (err, data) {
                         likeExists = true;
                         cb(err, likeExists);
@@ -438,41 +471,6 @@ exports.like = function (req, res) {
             });
         }
     });
-};
-
-const removeLikeInFileVersion = function (likeUri, currentUserUri, cb) {
-    const self = this;
-
-    const query =
-        "WITH [0] \n" +
-        "DELETE {[1] ?p ?v}\n" +
-        "WHERE { \n" +
-        "[1] ?p ?v \n" +
-        "} \n";
-
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type: DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type: DbConnection.resource,
-                value: likeUri
-            }
-        ]),
-        function (err, results) {
-            if (isNull(err)) {
-                let likeExists = false;
-                if (results.length > 0) {
-                    likeExists = true;
-                }
-                cb(false, likeExists);
-            }
-            else {
-                cb(true, "Error Liking a fileVersion");
-            }
-        });
 };
 
 exports.comment = function (req, res) {

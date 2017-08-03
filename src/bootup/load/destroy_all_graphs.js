@@ -1,5 +1,5 @@
-const async = require('async');
-const fs = require('fs');
+const async = require("async");
+const fs = require("fs");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;

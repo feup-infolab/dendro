@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require("path");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder(path.join("models", "meta", "config.js"))).Config;

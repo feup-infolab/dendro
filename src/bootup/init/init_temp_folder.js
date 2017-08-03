@@ -1,6 +1,6 @@
-const fs = require('fs');
-const async = require('async');
-const mkdirp = require('mkdirp');
+const fs = require("fs");
+const async = require("async");
+const mkdirp = require("mkdirp");
 
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
@@ -48,8 +48,8 @@ const initTempFilesFolder = function(app, callback)
                         }
                         catch(e)
                         {
+                            callback("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
                             throw e;
-                            return callback("[ERROR] Unable to create temporary files directory at " + Config.tempFilesDir);
                         }
                     }
                     else
