@@ -240,6 +240,7 @@ exports.download = function(req, res){
                 if(!isNull(ie))
                 {
                     const path = require('path');
+
                     if(ie.isA(File))
                     {
                         downloadFile(requestedResourceURI, res);
@@ -455,12 +456,13 @@ exports.serve = function(req, res){
 exports.serve_base64 = function(req, res){
     const requestedResourceURI = req.params.requestedResourceUri;
 
-    InformationElement.getType(requestedResourceURI,
-        function(err, type){
-            if(isNull(err))
+    InformationElement.findByUri(requestedResourceURI, function(err, ie){
+        if(isNull(err))
+        {
+            if(!isNull(ie))
             {
                 const path = require('path');
-                if(type === File)
+                if(ie.isA(File))
                 {
                     File.findByUri(requestedResourceURI, function(err, file){
                         if(isNull(err))
@@ -533,7 +535,7 @@ exports.serve_base64 = function(req, res){
                         }
                     });
                 }
-                else if(type === Folder)
+                else if(ie.isA(Folder))
                 {
                     const error = "Resource : " + requestedResourceURI + " is a folder and cannot be represented in Base64";
                     console.error(error);
@@ -550,14 +552,22 @@ exports.serve_base64 = function(req, res){
             }
             else
             {
-                const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
+                const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
                 console.error(error);
-                res.status(500).write("Error : "+ error +"\n");
+                res.status(404).write("error");
                 res.end();
             }
-        });
-
+        }
+        else
+        {
+            const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
+            console.error(error);
+            res.status(500).write("Error : "+ error +"\n");
+            res.end();
+        }
+    });
 };
+
 exports.get_thumbnail = function(req, res) {
     const requestedResourceURI = req.params.requestedResourceUri;
     const size = req.query.size;
@@ -1715,7 +1725,7 @@ exports.mkdir = function(req, res){
                         "message" : "invalid file name specified"
                     }
                 );
-                
+
                 callback(1);
             }
             else
@@ -1801,7 +1811,7 @@ exports.mkdir = function(req, res){
                                                 "message" : "error 1 saving new folder :" + result
                                             }
                                         );
-                                        
+
                                         callback(1);
                                     }
                                 });
@@ -1814,7 +1824,7 @@ exports.mkdir = function(req, res){
                                         "message" : "error 2 saving new folder :" + result
                                     }
                                 );
-                                
+
                                 callback(1);
                             }
                         });
@@ -1827,7 +1837,7 @@ exports.mkdir = function(req, res){
                             "message" : "error 3 saving new folder :" + parentFolder
                         }
                     );
-                    
+
                     callback(1);
                 }
             });

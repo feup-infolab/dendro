@@ -339,10 +339,16 @@ Ontology.initAllFromDatabase = function(callback)
                                 }
                             ],
                             function (err, results) {
+                                //TODO check this !!!!!
+                                results.prefix = ontology.prefix;
+                                results.uri = ontology.uri;
                                 return callback(err, results);
                             });
                     },
                     function (err, results) {
+                        //TODO check this !!!!!
+                        results.prefix = ontology.prefix;
+                        results.uri = ontology.uri;
                         return callback(err, results);
                     });
             }
