@@ -5,8 +5,8 @@
   "scripts": {
     "start": "node src/app.js",
     "reinstall": "npm cache clean --force && rm -rf node_modules && npm install",
-    "preinstall": "npm i -g npm && npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
-    "post-install": "",
+    "preinstall": "npm i -g npm",
+    "postinstall": "npm i -g gladstone && npm install -g istanbul && npm i -g nyc && npm i -g coveralls",
     "test": "cross-env NODE_ENV=test node node_modules/.bin/_mocha ./test/index.Test.js -t 15000 --ui bdd --bail",
     "watch": "npm test -w",
     "calculate-coverage": "nyc --temp-directory=coverage --reporter=lcov npm test",
