@@ -389,7 +389,7 @@ exports.show = function(req, res){
     }
     else if(!isNull(req.params.requestedResourceUri))
     {
-        User.findByUri(req.params.requestedResource, function(err, user)
+        User.findByUri(req.params.requestedResourceUri, function(err, user)
         {
             sendResponse(err, user);
         }, true);

@@ -455,12 +455,13 @@ exports.serve = function(req, res){
 exports.serve_base64 = function(req, res){
     const requestedResourceURI = req.params.requestedResourceUri;
 
-    InformationElement.getType(requestedResourceURI,
-        function(err, type){
-            if(isNull(err))
+    InformationElement.findByUri(requestedResourceURI, function(err, ie){
+        if(isNull(err))
+        {
+            if(!isNull(ie))
             {
                 const path = require("path");
-                if(type === File)
+                if(ie.isA(File))
                 {
                     File.findByUri(requestedResourceURI, function(err, file){
                         if(isNull(err))
@@ -533,7 +534,7 @@ exports.serve_base64 = function(req, res){
                         }
                     });
                 }
-                else if(type === Folder)
+                else if(ie.isA(Folder))
                 {
                     const error = "Resource : " + requestedResourceURI + " is a folder and cannot be represented in Base64";
                     console.error(error);
@@ -550,14 +551,22 @@ exports.serve_base64 = function(req, res){
             }
             else
             {
-                const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + type;
+                const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
                 console.error(error);
-                res.status(500).write("Error : "+ error +"\n");
+                res.status(404).write("error");
                 res.end();
             }
-        });
-
+        }
+        else
+        {
+            const error = "Unable to determine the type of the requested resource, error 2 : " + requestedResourceURI + ie;
+            console.error(error);
+            res.status(500).write("Error : "+ error +"\n");
+            res.end();
+        }
+    });
 };
+
 exports.get_thumbnail = function(req, res) {
     const requestedResourceURI = req.params.requestedResourceUri;
     const size = req.query.size;
@@ -624,7 +633,7 @@ exports.get_thumbnail = function(req, res) {
                                             {
                                                 //try to regenerate thumbnails
                                                 file.generateThumbnails(function(err, result) {});
-                                                
+
                                                 const error = "Unable to produce temporary file to download " + requestedResourceURI + ". Error reported :" + writtenFilePath;
                                                 res.writeHead(404, error);
                                                 res.end();
@@ -920,131 +929,101 @@ exports.upload = function(req, res)
                                                 }
                                             });
 
-                                            newFile.save(function (err, result) {
-                                                if (isNull(err)) {
-                                                    newFile.loadFromLocalFile(file.path, function (err, result) {
-                                                        if (isNull(err)) {
-                                                            //console.log("File " + newFile.uri + " is now saved in GridFS");
-                                                            newFile.connectToMongo(function (err, db) {
-                                                                if (isNull(err)) {
-                                                                    newFile.findFileInMongo(db, function (error, fileVersionsInMongoDb) {
-                                                                        if (isNull(error)) {
-                                                                            async.map(fileVersionsInMongoDb, function (fileVersion, cb) {
-                                                                                //TODO FIX THIS. something is wrong there...
-                                                                                FileVersion.findByUri(fileVersion.filename, function (err, fileVersion) {
-                                                                                    if (isNull(err)) {
-                                                                                        if (!isNull(fileVersion)) {
-                                                                                            console.log('FileinfoFromMongo: ', fileVersion);
-                                                                                            const newFileVersion = new FileVersion({
-                                                                                                nfo: {
-                                                                                                    fileName: fileVersion.filename,
-                                                                                                    hashValue: fileVersion.md5,
-                                                                                                    hashAlgorithm: 'md5'
-                                                                                                },
-                                                                                                nie: {
-                                                                                                    contentLastModified: fileVersion.uploadDate,
-                                                                                                    byteSize: fileVersion.length
-                                                                                                },
-                                                                                                ddr: {
-                                                                                                    contentType: fileVersion.contentType,
-                                                                                                    chunkSize: fileVersion.chunkSize,
-                                                                                                    projectUri: fileVersion.metadata.project,
-                                                                                                    itemType: fileVersion.metadata.type,
-                                                                                                    creatorUri: currentUserUri
-                                                                                                }
-                                                                                            });
+                                        newFile.save(function (err, result) {
+                                            if (isNull(err)) {
+                                                newFile.loadFromLocalFile(file.path, function (err, result) {
+                                                    if (isNull(err)) {
+                                                        //console.log("File " + newFile.uri + " is now saved in GridFS");
+                                                        //try to generate thumbnails
 
-                                                                                            newFileVersion.save(function (err, fileVersion) {
-                                                                                                if (isNull(err)) {
-                                                                                                    cb(null, fileVersion);
-                                                                                                }
-                                                                                                else {
-                                                                                                    cb(true, fileVersion);
-                                                                                                }
-                                                                                            }, false, null, null, null, null, db_social.graphUri)
-                                                                                        }
-                                                                                        else {
-                                                                                            cb(null, fileVersion);
-                                                                                        }
-                                                                                    }
-                                                                                    else {
-                                                                                        cb(1, "Error fetching file version with URI " + fileVersion.uri);
-                                                                                    }
+                                                        newFile.generateThumbnails(function (err, result) {
+                                                            if (!isNull(err)) {
+                                                                console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
+                                                            }
+
+
+                                                            newFile.extract_text(function(err, text)
+                                                            {
+                                                                if(isNull(err))
+                                                                {
+                                                                    if(!isNull(text))
+                                                                    {
+                                                                        newFile.nie.plainTextContent = text;
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        delete newFile.nie.plainTextContent;
+                                                                    }
+                                                                }
+
+                                                                newFile.save(function (err, result) {
+                                                                    if(!err)
+                                                                    {
+                                                                        newFile.reindex(req.index, function (err, data) {
+                                                                            if(isNull(err))
+                                                                            {
+                                                                                return callback(null, {
+                                                                                    result: "success",
+                                                                                    message: "File submitted successfully. Message returned : " + result,
+                                                                                    files: files
                                                                                 });
-                                                                            }, function (err, results) {
-                                                                                if (isNull(err)) {
-                                                                                    return callback(null, {
-                                                                                        result: "success",
-                                                                                        message: "File submitted successfully. Message returned : " + result,
-                                                                                        files: files
-                                                                                    });
-                                                                                }
-                                                                                else {
-                                                                                    const msg = "Error saving file version";
-                                                                                    return callback(500, {
-                                                                                        result: "error",
-                                                                                        message: msg
-                                                                                    });
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                        else {
-                                                                            const msg = "Database error";
-                                                                            return callback(500, {
-                                                                                result: "error",
-                                                                                message: msg
-                                                                            });
-                                                                        }
-                                                                    });
-                                                                }
-                                                                else {
-                                                                    const msg = "Error submitting file : " + result;
-                                                                    return callback(500, {
-                                                                        result: "error",
-                                                                        message: msg,
-                                                                        files: files
-                                                                    });
-                                                                }
-                                                            });
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                const msg = "Error [" + err + "]reindexing file [" + newFile.uri + "]in GridFS :" + data;
+                                                                                return callback(500, {
+                                                                                    result: "error",
+                                                                                    message: msg,
+                                                                                    files: files
+                                                                                });
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                    else
+                                                                    {
+                                                                        const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
+                                                                        return callback(500, {
+                                                                            result: "error",
+                                                                            message: msg,
+                                                                            files: fileNames
+                                                                        });
+                                                                    }
 
-                                                            //try to generate thumbnails
-                                                            newFile.generateThumbnails(function (err, result) {
-                                                                if (!isNull(err)) {
-                                                                    console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
-                                                                }
+                                                                });
                                                             });
-                                                        }
-                                                        else {
-                                                            const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                                            return callback(500, {
-                                                                result: "error",
-                                                                message: msg,
-                                                                files: fileNames
-                                                            });
-                                                        }
-                                                    });
-                                                }
-                                                else {
-                                                    console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
-                                                    return callback(500, {
-                                                        result: "error",
-                                                        message: "Error saving the file : " + result,
-                                                        files: files
-                                                    });
-                                                }
-                                            });
-                                        }
-                                        else
-                                        {
-                                            const msg = "Error determining the parent folder of the new file : " + parentFolderUri;
-                                            return callback(500, {
-                                                result: "error",
-                                                message: msg,
-                                                files: files
-                                            });
-                                        }
-                                    });
-                                }
+                                                        });
+                                                    }
+                                                    else {
+                                                        const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
+                                                        return callback(500, {
+                                                            result: "error",
+                                                            message: msg,
+                                                            files: fileNames
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                            else {
+                                                console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
+                                                return callback(500, {
+                                                    result: "error",
+                                                    message: "Error saving the file : " + result,
+                                                    files: files
+                                                });
+                                            }
+                                        });
+                                    }
+                                    else
+                                    {
+                                        const msg = "Error determining the parent folder of the new file : " + parentFolderUri;
+                                        return callback(500, {
+                                            result: "error",
+                                            message: msg,
+                                            files: files
+                                        });
+                                    }
+                                });
+                            }
 
                             }
                             else {
@@ -1754,7 +1733,7 @@ exports.mkdir = function(req, res){
                         "message" : "invalid file name specified"
                     }
                 );
-                
+
                 callback(1);
             }
             else
@@ -1840,7 +1819,7 @@ exports.mkdir = function(req, res){
                                                 "message" : "error 1 saving new folder :" + result
                                             }
                                         );
-                                        
+
                                         callback(1);
                                     }
                                 });
@@ -1853,7 +1832,7 @@ exports.mkdir = function(req, res){
                                         "message" : "error 2 saving new folder :" + result
                                     }
                                 );
-                                
+
                                 callback(1);
                             }
                         });
@@ -1866,7 +1845,7 @@ exports.mkdir = function(req, res){
                             "message" : "error 3 saving new folder :" + parentFolder
                         }
                     );
-                    
+
                     callback(1);
                 }
             });

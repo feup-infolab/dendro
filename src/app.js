@@ -124,7 +124,6 @@ const prepareEnvironment = function(callback)
             console.error("There was an error performing preliminary setup operations during Dendro bootup!");
             console.error(err.stack);
         }
-
         return callback(err, results);
     });
 };
