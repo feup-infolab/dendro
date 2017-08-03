@@ -91,7 +91,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
                                     newRedisCacheConnection.openConnection(function(err, newRedisConnection) {
                                         if(!isNull(err))
                                         {
-                                            throw new Error("[ERROR] Unable to connect to Redis instance with ID: " + redisCacheConfig.id + " running on " + redisCacheConfig.options.host + ":" + redisCacheConfig.options.port + " : " + err.message);
+                                            throw new Error("[ERROR] Unable to connect to Redis instance with ID: " + redisCacheConfig.id + " running on " + redisCacheConfig.host + ":" + redisCacheConfig.port + " : " + err.message);
                                         }
                                         else {
                                             console.log("[OK] Connected to Redis cache service with ID : " + newRedisConnection.id + " running on " + newRedisConnection.host + ":" + newRedisConnection.port);
