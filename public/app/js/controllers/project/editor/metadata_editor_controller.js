@@ -146,7 +146,7 @@ angular.module('dendroApp.controllers')
                 {
                     console.log(fault);
                     windowService.show_popup("error", "Error", fault);
-                    deferred.reject(msg);
+                    deferred.reject(fault);
                 };
 
                 save_metadata()

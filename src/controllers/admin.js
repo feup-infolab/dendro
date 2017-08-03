@@ -112,8 +112,6 @@ module.exports.reload = function(req, res)
 
 module.exports.reindex = function(req, res)
 {
-    const self = this;
-
     const indexConnection = req.index;
     const graphsToBeIndexed = req.query.graphs;
     const graphsToDelete = req.query.graphs_to_delete;
@@ -126,6 +124,88 @@ module.exports.reindex = function(req, res)
         {
             const graphShortName = graphsToBeIndexed[graph];
             const deleteTheIndex = !isNull(graphsToDelete[graph]);
+
+            const rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindexing, callback)
+            {
+                const self = this;
+                let index = null;
+
+                for(let graph in IndexConnection.indexes)
+                {
+                    if(IndexConnection.indexes.hasOwnProperty(graph) && IndexConnection.indexes[graph].short_name === graphShortName)
+                    {
+                        index = IndexConnection.indexes[graph];
+                        break;
+                    }
+                }
+
+                if(!isNull(index))
+                {
+                    const async = require("async");
+
+                    async.waterfall([
+                            function(callback) //delete current index if requested
+                            {
+                                indexConnection.create_new_index(1, 1, deleteBeforeReindexing, function(err,result)
+                                {
+                                    if(isNull(err) && result)
+                                    {
+                                        console.log("Index "+indexConnection.index.short_name+" recreated .");
+                                        return callback(null);
+
+                                    }
+                                    else
+                                    {
+                                        console.log("Error recreating index "+indexConnection.index.short_name+" . " + result);
+                                        return callback(1); //delete success, move on
+                                    }
+                                });
+                            },
+                            function(callback) //select all elements in the knowledge base
+                            {
+                                Resource.all(null, function(err, resources) {
+                                    if(isNull(err))
+                                    {
+                                        for(let i = 0; i < resources.length; i++)
+                                        {
+                                            const resource = resources[i];
+                                            console.log("Resource " + resource.uri + " now being reindexed.");
+
+                                            resource.reindex(indexConnection, function(err, results)
+                                            {
+                                                if(err)
+                                                {
+                                                    console.error("Error indexing Resource " + resource.uri + " : " + results);
+                                                }
+                                            });
+                                        }
+
+                                        return callback(null, null);
+                                    }
+                                    else
+                                    {
+                                        return callback(1, "Error fetching all resources in the graph : " + results);
+                                    }
+                                });
+                            }
+                        ],
+                        function(err, results)
+                        {
+                            if(isNull(err))
+                            {
+                                return callback(null, results);
+                            }
+                            else
+                            {
+                                return callback(1, results);
+                            }
+                        });
+                }
+                else
+                {
+                    return callback(1, "Non-existent index : " + graphShortName);
+                }
+            };
 
             rebuildIndex(indexConnection, graphShortName, deleteTheIndex, function(err, result)
             {
@@ -152,86 +232,5 @@ module.exports.reindex = function(req, res)
     }
 };
 
-var rebuildIndex = function(indexConnection, graphShortName, deleteBeforeReindexing, callback)
-{
-    const self = this;
-    let index = null;
-
-    for(let graph in IndexConnection.indexes)
-    {
-        if(IndexConnection.indexes.hasOwnProperty(graph) && IndexConnection.indexes[graph].short_name === graphShortName)
-        {
-            index = IndexConnection.indexes[graph];
-            break;
-        }
-    }
-
-    if(!isNull(index))
-    {
-        const async = require("async");
-
-        async.waterfall([
-            function(callback) //delete current index if requested
-            {
-                indexConnection.create_new_index(1, 1, deleteBeforeReindexing, function(err,result)
-                {
-                    if(isNull(err) && result)
-                    {
-                        console.log("Index "+indexConnection.index.short_name+" recreated .");
-                        return callback(null);
-
-                    }
-                    else
-                    {
-                        console.log("Error recreating index "+indexConnection.index.short_name+" . " + result);
-                        return callback(1); //delete success, move on
-                    }
-                });
-            },
-            function(callback) //select all elements in the knowledge base
-            {
-                Resource.all(null, function(err, resources) {
-                    if(isNull(err))
-                    {
-                        for(let i = 0; i < resources.length; i++)
-                        {
-                            const resource = resources[i];
-                            console.log("Resource " + resource.uri + " now being reindexed.");
-
-                            resource.reindex(indexConnection, function(err, results)
-                            {
-                                if(err)
-                                {
-                                    console.error("Error indexing Resource " + resource.uri + " : " + results);
-                                }
-                            });
-                        }
-
-                        return callback(null, null);
-                    }
-                    else
-                    {
-                        return callback(1, "Error fetching all resources in the graph : " + results);
-                    }
-                });
-            }
-        ],
-            function(err, results)
-            {
-                if(isNull(err))
-                {
-                    return callback(null, results);
-                }
-                else
-                {
-                    return callback(1, results);
-                }
-            });
-    }
-    else
-    {
-        return callback(1, "Non-existent index : " + graphShortName);
-    }
-};
 
 

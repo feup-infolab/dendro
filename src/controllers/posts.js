@@ -21,6 +21,316 @@ const db_notifications = Config.getDBByID("notifications");
 
 const app = require('../app');
 
+
+/**
+ * Gets all the posts ordered by modified date and using pagination
+ * @param callback the function callback
+ * @param startingResultPosition the starting position to start the query
+ * @param maxResults the limit for the query
+ */
+const getAllPosts = function (projectUrisArray, callback, startingResultPosition, maxResults) {
+    //based on getRecentProjectWideChangesSocial
+    const self = this;
+
+    if(projectUrisArray && projectUrisArray.length > 0)
+    {
+        async.map(projectUrisArray, function (uri, cb1) {
+            cb1(null, '<'+uri+ '>');
+        }, function (err, fullProjects) {
+            const projectsUris = fullProjects.join(" ");
+            let query =
+                "WITH [0] \n" +
+                "SELECT DISTINCT ?uri \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
+                projectsUris +
+                "} \n" +
+                "?uri ddr:modified ?date. \n" +
+                "?uri rdf:type ddr:Post. \n" +
+                "?uri ddr:projectUri ?project. \n" +
+                "} \n " +
+                "ORDER BY DESC(?date) \n";
+
+            query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
+
+            db.connection.execute(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type : DbConnection.resourceNoEscape,
+                        value: db_social.graphUri
+                    }
+                ]),
+                function(err, results) {
+                    if(isNull(err))
+                    {
+                        return callback(err,results);
+                    }
+                    else
+                    {
+                        return callback(true, "Error fetching posts in getAllPosts");
+                    }
+                });
+        });
+    }
+    else
+    {
+        //User has no projects
+        var results = [];
+        return callback(null, results);
+    }
+};
+const getNumLikesForAPost = function(postID, cb) {
+    const query =
+        "SELECT ?likeURI ?userURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked ?userURI . \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : postID
+            }
+        ]),
+        function(err, results) {
+            if(isNull(err))
+            {
+                cb(false, results);
+            }
+            else
+            {
+                cb(true, "Error fetching children of project root folder");
+            }
+        });
+};
+const numPostsDatabaseAux = function (projectUrisArray, callback) {
+    /*WITH <http://127.0.0.1:3001/social_dendro>
+     SELECT (COUNT(DISTINCT ?postURI) AS ?count)
+     WHERE {
+     ?postURI rdf:type ddr:Post.
+     }*/
+    if(projectUrisArray && projectUrisArray.length > 0)
+    {
+        async.map(projectUrisArray, function (uri, cb1) {
+            cb1(null, '<'+uri+ '>');
+        }, function (err, fullProjectsUris) {
+            const projectsUris = fullProjectsUris.join(" ");
+            const query =
+                "WITH [0] \n" +
+                "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
+                "WHERE { \n" +
+                "VALUES ?project { \n" +
+                projectsUris +
+                "} \n" +
+                "?uri rdf:type ddr:Post. \n" +
+                "?uri ddr:projectUri ?project. \n" +
+                "} \n ";
+
+            db.connection.execute(query,
+                DbConnection.pushLimitsArguments([
+                    {
+                        type : DbConnection.resourceNoEscape,
+                        value: db_social.graphUri
+                    }
+                ]),
+                function(err, results) {
+                    if(isNull(err))
+                    {
+                        return callback(err,results[0].count);
+                    }
+                    else
+                    {
+                        return callback(true, "Error fetching numPosts in numPostsDatabaseAux");
+                    }
+                });
+        });
+    }
+    else
+    {
+        //User has no projects
+        var results = 0;
+        return callback(null, results);
+    }
+};
+const userLikedAPost = function(postID, userUri, cb ) {
+    const self = this;
+
+    const query =
+        "SELECT ?likeURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked [2]. \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : postID
+            },
+            {
+                type : DbConnection.resource,
+                value : userUri
+            }
+        ]),
+        function(err, results) {
+            if(isNull(err))
+            {
+                if(results.length > 0)
+                    cb(err, true);
+                else
+                    cb(err, false);
+            }
+            else
+            {
+                cb(true, "Error checking if a post is liked by a user");
+            }
+        });
+};
+const removeOrAddLike = function (postID, userUri, cb) {
+    const self = this;
+
+    const query =
+        "SELECT ?likeURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?likeURI rdf:type ddr:Like. \n" +
+        "?likeURI ddr:postURI [1]. \n" +
+        "?likeURI ddr:userWhoLiked [2]. \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : postID
+            },
+            {
+                type : DbConnection.resource,
+                value : userUri
+            }
+        ]),
+        function(err, results) {
+            if(isNull(err))
+            {
+                let likeExists = false;
+                if(results.length > 0)
+                {
+                    removeLike(results[0].likeURI, userUri, function (err, data) {
+                        likeExists = true;
+                        cb(err, likeExists);
+                    });
+                }
+                else
+                    cb(err, likeExists);
+            }
+            else
+            {
+                cb(true, "Error fetching children of project root folder");
+            }
+        });
+};
+const getCommentsForAPost = function (postID, cb) {
+    const self = this;
+
+    const query =
+        "SELECT ?commentURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?commentURI rdf:type ddr:Comment. \n" +
+        "?commentURI ddr:postURI [1]. \n" +
+        "?commentURI ddr:modified ?date. \n " +
+        "} \n" +
+        "ORDER BY ASC(?date) \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type : DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type : DbConnection.resource,
+                value : postID
+            }
+        ]),
+        function(err, results) {
+            if(isNull(err))
+            {
+                async.map(results, function(commentUri, callback){
+                    Comment.findByUri(commentUri.commentURI, function(err, comment)
+                    {
+                        return callback(false,comment);
+                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                    }, null, db_social.graphUri, null);
+                }, function (err, comments) {
+                    cb(false, comments);
+                });
+            }
+            else
+            {
+                cb(true, "Error fetching children of project root folder");
+            }
+        });
+};
+const getSharesForAPost = function (postID, cb) {
+    const self = this;
+
+    const query =
+        "SELECT ?shareURI \n" +
+        "FROM [0] \n" +
+        "WHERE { \n" +
+        "?shareURI rdf:type ddr:Share. \n" +
+        "?shareURI ddr:postURI [1]. \n" +
+        "} \n";
+
+    db.connection.execute(query,
+        DbConnection.pushLimitsArguments([
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db_social.graphUri
+            },
+            {
+                type: DbConnection.resource,
+                value: postID
+            }
+        ]),
+        function (err, results) {
+            if (isNull(err)) {
+                async.map(results, function (shareObject, callback) {
+                    Share.findByUri(shareObject.shareURI, function (err, share) {
+                        return callback(null, share);
+                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
+                    }, null, db_social.graphUri, null);
+                }, function (err, shares) {
+                    cb(false, shares);
+                });
+            }
+            else {
+                cb(true, "Error shares for a post");
+            }
+        });
+};
+
+
 exports.numPostsDatabase = function (req, res) {
     const currentUserUri = req.user.uri;
     Project.findByCreatorOrContributor(currentUserUri, function (err, projects) {
@@ -68,6 +378,128 @@ exports.all = function(req, res){
     {
         if(pingForNewPosts)
         {
+            //function that pings metadata changes from dendro_graph to build the posts in social_dendro graph
+            function pingNewPosts(sessionUser, cb) {
+                const currentUserUri = sessionUser.uri;
+                let numPostsCreated = 0;
+                Project.findByCreatorOrContributor(currentUserUri, function(err, projects) {
+                    if(isNull(err))
+                    {
+                        if(projects.length > 0)
+                        {
+                            async.map(projects, function (project, cb1) {
+                                    const socialUpdatedAt = project.dcterms.socialUpdatedAt ? project.dcterms.socialUpdatedAt : '1970-09-21T19:27:46.578Z';
+                                    project.getRecentProjectWideChangesSocial(function(err, changes){
+                                        if(isNull(err))
+                                        {
+                                            const updateResource = function(currentResource, newResource, db, cb)
+                                            {
+                                                const newDescriptors = newResource.getDescriptors();
+
+                                                currentResource.replaceDescriptorsInTripleStore(
+                                                    newDescriptors,
+                                                    db,
+                                                    function(err, result)
+                                                    {
+                                                        cb(err, result);
+                                                    }
+                                                );
+                                            };
+
+                                            if(changes.length > 0)
+                                            {
+                                                async.map(changes, function(change, callback){
+                                                        if(change.changes && change.changes[0])// change.changes[0])
+                                                        {
+                                                            const newPost = new Post({
+                                                                ddr: {
+                                                                    changeType: change.changes[0].ddr.changeType,
+                                                                    newValue: change.changes[0].ddr.newValue,
+                                                                    changedDescriptor: change.changes[0].ddr.changedDescriptor ? change.changes[0].ddr.changedDescriptor.label : 'undefined',
+                                                                    hasContent: change.changes[0].uri,
+                                                                    numLikes: 0,
+                                                                    projectUri: project.uri
+                                                                },
+                                                                dcterms: {
+                                                                    creator: currentUserUri,
+                                                                    title: project.dcterms.title
+                                                                }
+                                                            });
+
+                                                            newPost.save(function(err, post)
+                                                            {
+                                                                if (isNull(err))
+                                                                {
+                                                                    numPostsCreated++;
+                                                                    return callback(err, post);
+                                                                }
+                                                                else
+                                                                {
+                                                                    return callback(err, post);
+                                                                }
+                                                            }, false, null, null, null, null, db_social.graphUri);
+                                                        }
+                                                        else
+                                                        {
+                                                            return callback(null,null);
+                                                        }
+                                                    },
+                                                    function(err, fullDescriptors)
+                                                    {
+                                                        if(isNull(err))
+                                                        {
+                                                            const updatedProject = project;
+                                                            updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
+                                                            updateResource(project, updatedProject, db, function (error, data) {
+                                                                cb1(error, fullDescriptors);
+                                                            });
+                                                        }
+                                                        else
+                                                        {
+                                                            const errorMsg = "Error at project changes";
+                                                            console.log(errorMsg);
+                                                            cb1(err, errorMsg);
+                                                        }
+                                                    });
+                                            }
+                                            else
+                                            {
+                                                //no changes detected
+                                                let updatedProject = project;
+                                                updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
+                                                updateResource(project, updatedProject, db, function (error, data) {
+                                                    cb1(error,data);
+                                                });
+                                            }
+                                        }
+                                        else
+                                        {
+                                            const errorMsg = "Error getting recent project wide social changes";
+                                            cb1(err,errorMsg);
+                                        }
+                                    },null,null,socialUpdatedAt);
+                                },
+                                function (err, fullProjects) {
+                                    //fullProjects.length is fullProjects.length
+                                    //numPostCreated is numPostsCreated
+                                    cb(err, fullProjects);
+                                });
+                        }
+                        else
+                        {
+                            cb(null,null);
+                        }
+                    }
+                    else
+                    {
+                        const errorMsg = "Error finding projects by creator or contributor";
+                        return callback(err, errorMsg);
+                    }
+
+                });
+
+            }
+
             pingNewPosts(currentUser, function (error, newposts) {
                 if(error)
                 {
@@ -84,6 +516,7 @@ exports.all = function(req, res){
                             async.map(projects, function (project, cb1) {
                                 cb1(null, project.uri);
                             }, function (err, fullProjectsUris) {
+                                
                                 getAllPosts(fullProjectsUris,function (err, results) {
                                     if(isNull(err))
                                     {
@@ -143,6 +576,11 @@ exports.all = function(req, res){
                     }, function(err, loadedPosts){
                         if(isNull(err))
                         {
+                            function sortPostsByModifiedDate(postA, postB) {
+                                const a = new Date(postA.ddr.modified),
+                                    b = new Date(postB.ddr.modified);
+                                return (a.getTime() - b.getTime());
+                            }
                             loadedPosts.sort(sortPostsByModifiedDate);//sort posts by modified date
                             res.json(loadedPosts);
                         }
@@ -176,134 +614,6 @@ exports.all = function(req, res){
         });
     }
 };
-
-function sortPostsByModifiedDate(postA, postB) {
-    const a = new Date(postA.ddr.modified),
-        b = new Date(postB.ddr.modified);
-    return (a.getTime() - b.getTime());
-}
-
-//function that pings metadata changes from dendro_graph to build the posts in social_dendro graph
-function pingNewPosts(sessionUser, cb) {
-    const currentUserUri = sessionUser.uri;
-    let numPostsCreated = 0;
-    Project.findByCreatorOrContributor(currentUserUri, function(err, projects) {
-        if(isNull(err))
-        {
-            if(projects.length > 0)
-            {
-                async.map(projects, function (project, cb1) {
-                        const socialUpdatedAt = project.dcterms.socialUpdatedAt ? project.dcterms.socialUpdatedAt : '1970-09-21T19:27:46.578Z';
-                        project.getRecentProjectWideChangesSocial(function(err, changes){
-                            if(isNull(err))
-                            {
-                                const updateResource = function(currentResource, newResource, db, cb)
-                                {
-                                    const newDescriptors = newResource.getDescriptors();
-
-                                    currentResource.replaceDescriptorsInTripleStore(
-                                        newDescriptors,
-                                        db,
-                                        function(err, result)
-                                        {
-                                            cb(err, result);
-                                        }
-                                    );
-                                };
-
-                                if(changes.length > 0)
-                                {
-                                    async.map(changes, function(change, callback){
-                                            if(change.changes && change.changes[0])// change.changes[0])
-                                            {
-                                                const newPost = new Post({
-                                                    ddr: {
-                                                        changeType: change.changes[0].ddr.changeType,
-                                                        newValue: change.changes[0].ddr.newValue,
-                                                        changedDescriptor: change.changes[0].ddr.changedDescriptor ? change.changes[0].ddr.changedDescriptor.label : 'undefined',
-                                                        hasContent: change.changes[0].uri,
-                                                        numLikes: 0,
-                                                        projectUri: project.uri
-                                                    },
-                                                    dcterms: {
-                                                        creator: currentUserUri,
-                                                        title: project.dcterms.title
-                                                    }
-                                                });
-
-                                                newPost.save(function(err, post)
-                                                {
-                                                    if (isNull(err))
-                                                    {
-                                                        numPostsCreated++;
-                                                        return callback(err, post);
-                                                    }
-                                                    else
-                                                    {
-                                                        return callback(err, post);
-                                                    }
-                                                }, false, null, null, null, null, db_social.graphUri);
-                                            }
-                                            else
-                                            {
-                                                return callback(null,null);
-                                            }
-                                        },
-                                        function(err, fullDescriptors)
-                                        {
-                                            if(isNull(err))
-                                            {
-                                                const updatedProject = project;
-                                                updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
-                                                updateResource(project, updatedProject, db, function (error, data) {
-                                                    cb1(error, fullDescriptors);
-                                                });
-                                            }
-                                            else
-                                            {
-                                                const errorMsg = "Error at project changes";
-                                                console.log(errorMsg);
-                                                cb1(err, errorMsg);
-                                            }
-                                        });
-                                }
-                                else
-                                {
-                                    //no changes detected
-                                    let updatedProject = project;
-                                    updatedProject.dcterms.socialUpdatedAt = new Date().toISOString();
-                                    updateResource(project, updatedProject, db, function (error, data) {
-                                        cb1(error,data);
-                                    });
-                                }
-                            }
-                            else
-                            {
-                                const errorMsg = "Error getting recent project wide social changes";
-                                cb1(err,errorMsg);
-                            }
-                        },null,null,socialUpdatedAt);
-                    },
-                    function (err, fullProjects) {
-                        //fullProjects.length is fullProjects.length
-                        //numPostCreated is numPostsCreated
-                        cb(err, fullProjects);
-                    });
-            }
-            else
-            {
-                cb(null,null);
-            }
-        }
-        else
-        {
-            const errorMsg = "Error finding projects by creator or contributor";
-            return callback(err, errorMsg);
-        }
-
-    });
-
-}
 
 exports.new = function(req, res){
     /*
@@ -698,7 +1008,7 @@ exports.like = function (req, res) {
     if(acceptsJSON && !acceptsHTML)  //will be null if the client does not accept html
     {
         const currentUser = req.user;
-        removeOrAdLike(req.body.postID, currentUser.uri, function (err, likeExists) {
+        removeOrAddLike(req.body.postID, currentUser.uri, function (err, likeExists) {
             if(isNull(err))
             {
                 if(likeExists)
@@ -811,56 +1121,6 @@ exports.like = function (req, res) {
     );
 };*/
 
-var numPostsDatabaseAux = function (projectUrisArray, callback) {
-    /*WITH <http://127.0.0.1:3001/social_dendro>
-    SELECT (COUNT(DISTINCT ?postURI) AS ?count)
-    WHERE {
-        ?postURI rdf:type ddr:Post.
-    }*/
-    if(projectUrisArray && projectUrisArray.length > 0)
-    {
-        async.map(projectUrisArray, function (uri, cb1) {
-            cb1(null, '<'+uri+ '>');
-        }, function (err, fullProjectsUris) {
-            const projectsUris = fullProjectsUris.join(" ");
-            const query =
-                "WITH [0] \n" +
-                "SELECT (COUNT(DISTINCT ?uri) AS ?count) \n" +
-                "WHERE { \n" +
-                "VALUES ?project { \n" +
-                projectsUris +
-                "} \n" +
-                "?uri rdf:type ddr:Post. \n" +
-                "?uri ddr:projectUri ?project. \n" +
-                "} \n ";
-
-            db.connection.execute(query,
-                DbConnection.pushLimitsArguments([
-                    {
-                        type : DbConnection.resourceNoEscape,
-                        value: db_social.graphUri
-                    }
-                ]),
-                function(err, results) {
-                    if(isNull(err))
-                    {
-                        return callback(err,results[0].count);
-                    }
-                    else
-                    {
-                        return callback(true, "Error fetching numPosts in numPostsDatabaseAux");
-                    }
-                });
-        });
-    }
-    else
-    {
-        //User has no projects
-        var results = 0;
-        return callback(null, results);
-    }
-};
-
 const removeLike = function (likeID, userUri, cb) {
     const self = this;
 
@@ -898,138 +1158,6 @@ const removeLike = function (likeID, userUri, cb) {
             }
             else {
                 cb(true, "Error fetching children of project root folder");
-            }
-        });
-};
-
-var removeOrAdLike = function (postID, userUri, cb) {
-    const self = this;
-
-    const query =
-        "SELECT ?likeURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked [2]. \n" +
-        "} \n";
-
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type : DbConnection.resource,
-                value : postID
-            },
-            {
-                type : DbConnection.resource,
-                value : userUri
-            }
-        ]),
-        function(err, results) {
-            if(isNull(err))
-            {
-                let likeExists = false;
-                if(results.length > 0)
-                {
-                    removeLike(results[0].likeURI, userUri, function (err, data) {
-                        likeExists = true;
-                        cb(err, likeExists);
-                    });
-                }
-                else
-                    cb(err, likeExists);
-            }
-            else
-            {
-                cb(true, "Error fetching children of project root folder");
-            }
-        });
-};
-
-
-var getCommentsForAPost = function (postID, cb) {
-    const self = this;
-
-    const query =
-        "SELECT ?commentURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?commentURI rdf:type ddr:Comment. \n" +
-        "?commentURI ddr:postURI [1]. \n" +
-        "?commentURI ddr:modified ?date. \n " +
-        "} \n" +
-        "ORDER BY ASC(?date) \n";
-
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type : DbConnection.resource,
-                value : postID
-            }
-        ]),
-        function(err, results) {
-            if(isNull(err))
-            {
-                async.map(results, function(commentUri, callback){
-                    Comment.findByUri(commentUri.commentURI, function(err, comment)
-                    {
-                        return callback(false,comment);
-                    //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
-                    }, null, db_social.graphUri, null);
-                }, function (err, comments) {
-                    cb(false, comments);
-                });
-            }
-            else
-            {
-                cb(true, "Error fetching children of project root folder");
-            }
-        });
-};
-
-const getSharesForAPost = function (postID, cb) {
-    const self = this;
-
-    const query =
-        "SELECT ?shareURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?shareURI rdf:type ddr:Share. \n" +
-        "?shareURI ddr:postURI [1]. \n" +
-        "} \n";
-
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type: DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type: DbConnection.resource,
-                value: postID
-            }
-        ]),
-        function (err, results) {
-            if (isNull(err)) {
-                async.map(results, function (shareObject, callback) {
-                    Share.findByUri(shareObject.shareURI, function (err, share) {
-                        return callback(null, share);
-                        //}, Ontology.getAllOntologiesUris(), db_social.graphUri);
-                    }, null, db_social.graphUri, null);
-                }, function (err, shares) {
-                    cb(false, shares);
-                });
-            }
-            else {
-                cb(true, "Error shares for a post");
             }
         });
 };
@@ -1111,143 +1239,6 @@ exports.postLikesInfo = function (req, res) {
             result : "Error",
             message : msg
         });
-    }
-};
-
-var userLikedAPost = function(postID, userUri, cb )
-{
-    const self = this;
-
-    const query =
-        "SELECT ?likeURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked [2]. \n" +
-        "} \n";
-
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type : DbConnection.resource,
-                value : postID
-            },
-            {
-                type : DbConnection.resource,
-                value : userUri
-            }
-        ]),
-        function(err, results) {
-            if(isNull(err))
-            {
-                if(results.length > 0)
-                    cb(err, true);
-                else
-                    cb(err, false);
-            }
-            else
-            {
-                cb(true, "Error checking if a post is liked by a user");
-            }
-        });
-};
-
-var getNumLikesForAPost = function(postID, cb)
-{
-    const self = this;
-
-    const query =
-        "SELECT ?likeURI ?userURI \n" +
-        "FROM [0] \n" +
-        "WHERE { \n" +
-        "?likeURI rdf:type ddr:Like. \n" +
-        "?likeURI ddr:postURI [1]. \n" +
-        "?likeURI ddr:userWhoLiked ?userURI . \n" +
-        "} \n";
-
-    db.connection.execute(query,
-        DbConnection.pushLimitsArguments([
-            {
-                type : DbConnection.resourceNoEscape,
-                value: db_social.graphUri
-            },
-            {
-                type : DbConnection.resource,
-                value : postID
-            }
-        ]),
-        function(err, results) {
-            if(isNull(err))
-            {
-                cb(false, results);
-            }
-            else
-            {
-                cb(true, "Error fetching children of project root folder");
-            }
-        });
-};
-
-/**
- * Gets all the posts ordered by modified date and using pagination
- * @param callback the function callback
- * @param startingResultPosition the starting position to start the query
- * @param maxResults the limit for the query
- */
-var getAllPosts = function (projectUrisArray, callback, startingResultPosition, maxResults) {
-    //based on getRecentProjectWideChangesSocial
-    const self = this;
-
-    if(projectUrisArray && projectUrisArray.length > 0)
-    {
-        async.map(projectUrisArray, function (uri, cb1) {
-            cb1(null, '<'+uri+ '>');
-        }, function (err, fullProjects) {
-            const projectsUris = fullProjects.join(" ");
-            let query =
-                "WITH [0] \n" +
-                "SELECT DISTINCT ?uri \n" +
-                "WHERE { \n" +
-                "VALUES ?project { \n" +
-                projectsUris +
-                "} \n" +
-                "?uri ddr:modified ?date. \n" +
-                "?uri rdf:type ddr:Post. \n" +
-                "?uri ddr:projectUri ?project. \n" +
-                "} \n " +
-                "ORDER BY DESC(?date) \n";
-
-            query = DbConnection.addLimitsClauses(query, startingResultPosition, maxResults);
-
-            db.connection.execute(query,
-                DbConnection.pushLimitsArguments([
-                    {
-                        type : DbConnection.resourceNoEscape,
-                        value: db_social.graphUri
-                    }
-                ]),
-                function(err, results) {
-                    if(isNull(err))
-                    {
-                        return callback(err,results);
-                    }
-                    else
-                    {
-                        return callback(true, "Error fetching posts in getAllPosts");
-                    }
-                });
-        });
-    }
-    else
-    {
-        //User has no projects
-        var results = [];
-        return callback(null, results);
     }
 };
 

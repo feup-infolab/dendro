@@ -138,7 +138,7 @@ exports.shared.evaluate_metadata = function(req, callback)
 
         let metadata_evaluation_value = 0;
 
-        if (typeof recommendations_score !== 0) {
+        if (recommendations_score !== 0) {
             metadata_evaluation_value = Math.round((metadata_score / recommendations_score) * 100);
         }
 
