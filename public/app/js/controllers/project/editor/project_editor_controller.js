@@ -118,7 +118,14 @@ angular.module('dendroApp.controllers')
 
             if(!$scope.shared.multiple_selection_active)
             {
-                return preview.available($scope.shared.selected_file);
+                if($scope.shared.selected_file)
+                {
+                    return preview.available($scope.shared.selected_file.ddr.fileExtension);
+                }
+                else
+                {
+                    return preview.available($scope.shared.file_extension);
+                }
             }
             else
             {
@@ -207,19 +214,7 @@ angular.module('dendroApp.controllers')
         {
             return $scope.edit_mode && !$scope.showing_project_root();
         };
-
-        $scope.preview_available = function()
-        {
-            if(!$scope.shared.multiple_selection_active)
-            {
-                return preview.available($scope.shared.selected_file);
-            }
-            else
-            {
-                return false;
-            }
-        };
-
+        
         $scope.load_preview = function(){
             if($scope.shared.selected_file == null )
             {
@@ -498,6 +493,7 @@ angular.module('dendroApp.controllers')
             $scope.shared.initial_metadata = metadataService.deserialize_metadata(metadata.descriptors);
             $scope.shared.is_project_root = metadata.is_project_root;
             $scope.shared.is_a_file = metadata.is_a_file;
+            $scope.shared.file_extension = metadata.file_extension;
         };
 
         $scope.load_metadata = function()

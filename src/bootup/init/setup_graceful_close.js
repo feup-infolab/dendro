@@ -141,11 +141,11 @@ const setupGracefulClose = function(app, server, callback)
         else
         {
             app.freeResources(function(err, results){
-                process.kill(process.pid, signal);
+                process.kill(process.pid);
             });
         }
 
-        return signal === 0;
+        return (signal === 0);
     });
 
     callback(null);

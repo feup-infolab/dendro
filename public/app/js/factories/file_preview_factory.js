@@ -4,13 +4,13 @@
 angular.module('dendroApp.factories')
     .factory('preview', function($http) {
         return {
-            available : function(file){
-                if(file == null )
+            available : function(fileExtension){
+                if(fileExtension == null )
                 {
                     return false;
                 }
                 else{
-                    var fileExtension = file.ddr.fileExtension.toLowerCase();
+                    var fileExtension = fileExtension.toLowerCase();
                     if(this.load_views()[fileExtension] != null){
                         return true;
                     }

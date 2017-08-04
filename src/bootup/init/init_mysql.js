@@ -58,7 +58,6 @@ const initMySQL = function(app, callback)
                             connection.query(
                                 createTableQuery,
                                 function (err, result, fields) {
-                                    connection.release();
                                     if (isNull(err)) {
                                         Logger.log_boot_message("info","Interactions table " + tablename + " succesfully created in the MySQL database.");
 

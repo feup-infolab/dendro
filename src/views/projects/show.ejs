@@ -223,11 +223,11 @@
 
                                     </div>
                                     <div ng-show="!edit_mode">
-                                        <div ng-show="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
+                                        <div>
                                             <%- include show/file_preview.ejs %>
                                         </div>
 
-                                        <div ng-show="shared.metadata != null">
+                                        <div ng-show="has_editable_metadata()">
                                             <%- include show/metadata_viewer.ejs %>
                                         </div>
                                     </div>

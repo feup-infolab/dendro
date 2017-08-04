@@ -97,7 +97,8 @@ angular.module('dendroApp.factories')
                         deserialize.resolve({
                             descriptors : self.deserialize_metadata(response.data.descriptors),
                             is_project_root : response.data.is_project_root,
-                            is_a_file : response.data.is_a_file
+                            is_a_file : response.data.is_a_file,
+                            file_extension : response.data.file_extension
                         });
                     }
                     else

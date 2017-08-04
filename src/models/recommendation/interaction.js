@@ -328,6 +328,8 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                     insertNewInteractionQuery,
                     inserts,
                     function (err, rows, fields) {
+                        connection.release();
+                        
                         if (isNull(err)) {
                             return callback(null, rows, fields);
                         }
@@ -336,7 +338,6 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
                             console.error(msg);
                             return callback(1, msg);
                         }
-
                     });
             }
             else {
@@ -361,6 +362,7 @@ Interaction.prototype.saveToMySQL = function(callback, overwrite)
             {
                 connection.query('SELECT * from ?? WHERE uri = ?', [targetTable, self.uri], function (err, rows, fields)
                 {
+                    connection.release();
                     if (isNull(err))
                     {
                         if (!isNull(rows) && rows instanceof Array && rows.length > 0)
