@@ -49,10 +49,10 @@
                 <%- include show/file_explorer.ejs %>
             </div>
             <div class="col-xs-6 col-sm-9" ng-controller="metadataEditorCtrl" ng-init="init()">
-                <div ng-if="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
+                <div ng-if="shared.is_a_file">
                     <%- include show/file_preview.ejs %>
                 </div>
-
+                <br/>
                 <%- include show/metadata_viewer.ejs %>
             </div>
         </div>

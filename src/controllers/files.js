@@ -2233,6 +2233,9 @@ exports.data = function(req, res){
                         {
                             if(!isNull(exports.dataParsers[file.ddr.fileExtension]))
                             {
+                                res.set('Content-Type', mimeType);
+                                res.set('Content-disposition', 'attachment; filename="' + file.nie.title + "\"");
+
                                 exports.dataParsers[file.ddr.fileExtension](req, res, writtenFilePath);
                             }
                             else
@@ -2351,7 +2354,7 @@ exports.owner_project = function(req, res){
     });
 };
 
-xlsFileParser = function (req, res, filePath){
+const xlsFileParser = function (req, res, filePath){
     const excelParser = require('excel-parser');
 
     excelParser.parse({
@@ -2373,20 +2376,60 @@ xlsFileParser = function (req, res, filePath){
     });
 };
 
-csvFileParser = function (req,res,filePath){
-
-
+const csvFileParser = function (req,res,filePath){
     const fs = require("fs");
-    fs.readFile(filePath, 'utf8', function(err, data) {
+    fs.readFile(filePath, 'utf8', function(err, data)
+    {
         if (err) throw err;
         deleteTempFile(filePath);
-        const CSV = require('csv-string'),
-            arr = CSV.parse(data);
-        res.json(arr);
+        const csv = require('csv');
+
+        if(req.query.from != null && req.query.to != null)
+        {
+            if(req.query.to - req.query.from > 100) // max 1000 lines for preview
+            {
+                req.query.to = req.query.from + 100;
+            }
+        }
+
+        const parser = csv.parse(data, {
+            from: req.query.from,
+            to: req.query.to,
+        });
+        
+        const transformer = csv.transform(function(data){
+            return data;
+        });
+        
+        const stringifier = csv.stringify();
+
+        parser.on('readable', function(){
+            while(data = parser.read()){
+                transformer.write(data);
+            }
+        });
+
+        parser.on('error', function(){
+            res.status(500).send();
+        });
+
+        transformer.on('readable', function(){
+            while(data = transformer.read()){
+                stringifier.write(data);
+            }
+        });
+
+        stringifier.on('readable', function(){
+            while(data = stringifier.read()){
+                res.write(data);
+            }
+
+            res.send();
+        });
     });
 };
 
-textFileParser = function (req,res,filePath){
+const textFileParser = function (req,res,filePath){
     const fs = require("fs");
     fs.readFile(filePath, 'utf8', function(err, data) {
         if (err) throw err;

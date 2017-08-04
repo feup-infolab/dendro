@@ -65,7 +65,7 @@
 <script type="text/javascript" src="/bower_components/reclinejs/src/backend.memory.js"></script>
 <script type="text/javascript" src="/bower_components/reclinejs/src/backend.dataproxy.js"></script>
 <script type="text/javascript" src="http://okfnlabs.org/recline.backend.gdocs/backend.gdocs.js"></script>
-<!-- <script type="text/javascript" src="/bower_components/reclinejs/src/backend.csv.js"></script> -->
+<script type="text/javascript" src="/bower_components/reclinejs/src/backend.csv.js"></script>
 
 <!-- views -->
 <script type="text/javascript" src="/bower_components/reclinejs/src/view.grid.js"></script>
@@ -83,16 +83,19 @@
 <script type="text/javascript" src="/bower_components/reclinejs/src/view.multiview.js"></script>
 
 <div>
-    <div><h4>File Preview Area</h4></div>
-
-    <div class="row" ng-if="!preview_available()">
-        <br/>
-        <div class="col-xs-12">
-            <div class="alert alert-info">
-                Dendro is not ready to build a preview for this resource.
+    <div class="container">
+        <div class="row" ng-if="!preview_available()">
+            <br/>
+            <div class="col-xs-12">
+                <div class="alert alert-info">
+                    Dendro is not ready to build a preview for this resource.
+                </div>
             </div>
         </div>
-    </div>
-    <div id="data-viewer" class="row" ng-if="preview_available()">
+        <div class="row" ng-if="preview_available()">
+            <br/>
+            <div id="data-viewer" class="col-xs-12">
+            </div>
+        </div>
     </div>
 </div>

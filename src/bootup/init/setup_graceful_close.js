@@ -76,18 +76,8 @@ const setupGracefulClose = function(app, server, callback)
         const haltHTTPServer = function(cb)
         {
             Logger.log_boot_message("info", "Halting server...");
-            server.close(function(err, result){
-                if(!(err instanceof Error))
-                {
-                    Logger.log_boot_message("success", "Server halted successfully.");
-                }
-                else
-                {
-                    Logger.log_boot_message("error", "Error halting server: " + err.stack);
-                }
-
-                cb(null);
-            })
+            server.close();
+            cb(null);
         };
 
         const removePIDFile = function(cb)
@@ -134,18 +124,17 @@ const setupGracefulClose = function(app, server, callback)
 
                 Logger.log_boot_message("success", "No need to remove PID, because this Dendro is running in TEST Mode");
                 nodeCleanup.uninstall(); // don't call cleanup handler again
+                Logger.log_boot_message("success", "Freed all resources. Halting Dendro Server with PID "+process.pid+" now. ");
                 process.kill(process.pid, signal);
-                Logger.log_boot_message("success", "Freed all resources. Halting Dendro Server now.");
+                return false;
             });
+
+            return false;
         }
         else
         {
-            app.freeResources(function(err, results){
-                process.kill(process.pid);
-            });
+            return true;
         }
-
-        return (signal === 0);
     });
 
     callback(null);

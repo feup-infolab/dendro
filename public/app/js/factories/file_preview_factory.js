@@ -33,78 +33,73 @@ angular.module('dendroApp.factories')
             load_dataset: function($scope, file) {
                 var fileUri = file.uri + '?data';
 
-                $http.get(fileUri).
-                    then(function(response) {
-                        var data = response.data;
-                        var dataset = new recline.Model.Dataset({
-                            records:data
-                        });
-                        var views = [
-                            {
-                                id: 'grid',
-                                label: 'Grid',
-                                view: new recline.View.SlickGrid({
-                                    model: dataset,
-                                    state: {
-                                        gridOptions: {
-                                            autoHeight:true,
-                                            editable: false,
-                                            // Enable support for row add
-                                            enabledAddRow: false,
-                                            // Enable support for row delete
-                                            enabledDelRow: false,
-                                            // Enable support for row Reoder
-                                            enableReOrderRow: false,
-                                            autoEdit: false,
-                                            enableCellNavigation: true,
-                                            enableColumnReorder : false
-                                        }
-                                    }
-                                })
-                            },
-                            {
-                                id: 'graph',
-                                label: 'Graph',
-                                view: new recline.View.Graph({
-                                    model: dataset
+                var dataset = new recline.Model.Dataset({
+                    url: fileUri,
+                    backend : 'csv'
+                });
 
-                                })
-                            },
-                            {
-                                id: 'map',
-                                label: 'Map',
-                                view: new recline.View.Map({
-                                    model: dataset,
-                                    state:{
-                                        autoZoom: true,
-                                        cluster: false
-                                    }
-                                })
-                            }
-                        ];
-                        var sidebarViews = [
-                            {
-                                id: 'filterEditor', // used for routing
-                                label: 'Filters', // used for view switcher
-                                view: new recline.View.FilterEditor({
-                                    model: dataset
-                                })
-                            }
-                        ];
-                        var multi_view = new recline.View.MultiView({
-                            model: dataset,
-                            views: views,
-                            sidebarViews: sidebarViews,
-                            el: angular.element("#data-viewer")
-                        });
-
-                    })
-                    .catch(function(error) {
-                        if(error.message != null)
+                dataset.fetch().done(function(loadedData){
+                    var views = [
                         {
-                            $scope.show_popup("error", "Error", error.message);
+                            id: 'grid',
+                            label: 'Grid',
+                            view: new recline.View.SlickGrid({
+                                model: dataset,
+                                state: {
+                                    gridOptions: {
+                                        autoHeight:true,
+                                        editable: false,
+                                        // Enable support for row add
+                                        enabledAddRow: false,
+                                        // Enable support for row delete
+                                        enabledDelRow: false,
+                                        // Enable support for row Reoder
+                                        enableReOrderRow: false,
+                                        autoEdit: false,
+                                        enableCellNavigation: true,
+                                        enableColumnReorder : false
+                                    }
+                                }
+                            })
+                        },
+                        {
+                            id: 'graph',
+                            label: 'Graph',
+                            view: new recline.View.Graph({
+                                model: dataset
+
+                            })
+                        },
+                        {
+                            id: 'map',
+                            label: 'Map',
+                            view: new recline.View.Map({
+                                model: dataset,
+                                state:{
+                                    autoZoom: true,
+                                    cluster: false
+                                }
+                            })
                         }
+                    ];
+                    var sidebarViews = [
+                        {
+                            id: 'filterEditor', // used for routing
+                            label: 'Filters', // used for view switcher
+                            view: new recline.View.FilterEditor({
+                                model: dataset
+                            })
+                        }
+                    ];
+                    var multi_view = new recline.View.MultiView({
+                        model: dataset,
+                        views: views,
+                        sidebarViews: sidebarViews,
+                        el: angular.element("#data-viewer")
                     });
+
+                    multi_view.visible = true;
+                });
             },
             load_text: function($scope, file) {
                 angular.element("#data-viewer").html('');
