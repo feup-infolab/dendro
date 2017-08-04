@@ -83,7 +83,7 @@
                 <script type="text/javascript">
                     $('#new_folder_button').tooltip({title : "<h4>Add folder</h4>Create a new folder here", html: true});
                     $('#upload_button').tooltip({title : "<h4>Upload</h4>Upload files to the current folder", html: true});
-                    $('#download_folder_button').tooltip({title : "<h4>Download</h4>Download the current folder" , html: true});
+                    $('#download_folder_button').tooltip({title : "<h4>Download</h4>Download the current folder or file" , html: true});
                     $('#backup_button').tooltip({title : "<h4>Backup</h4>Download the current folder, including information", html:true});
                     $('#restore_button').tooltip({title : "<h4>Restore</h4>Replace the contents of the current folder with the contents of a backup package", html:true});
                     $('#show_deleted_files_button').tooltip({title : "<h4>Show Deleted</h4>Show Deleted Files", html:true});
@@ -178,7 +178,7 @@
                 <ul id="tabs" class="nav nav-tabs" data-tabs="tabs">
                     <li class="active">
                         <a href="#metadata-editor" data-toggle="tab" ng-click="load_metadata()">
-                            <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_current_filename()}}
+                            Information
                         </a>
                     </li>
                     <li ng-show="!showing_project_root()">
@@ -207,37 +207,53 @@
                 <div>
                         <!-- Tab panes -->
                         <div class="tab-content">
-
-
                             <div class="tab-pane active" id="metadata-editor" ng-init="init()">
                                 <br/>
+                                <div class="panel panel-default" ng-show="has_editable_metadata()">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">
+                                            Information about <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_current_filename()}}
+                                        </h3>
+                                    </div>
+                                    <div class="panel-body">
+                                        <div ng-show="showing_project_root()">
+                                            <div ng-show="shared.metadata != null">
+                                                <%- include show/metadata_viewer.ejs %>
+                                            </div>
+                                        </div>
+                                        <div ng-show="!showing_project_root()">
+                                            <div ng-show="edit_mode">
 
-                                <div ng-show="showing_project_root()">
-                                    <div ng-show="shared.metadata != null">
-                                        <%- include show/metadata_viewer.ejs %>
+                                                <div ng-show="shared.metadata != null">
+                                                    <%- include show/metadata_editor.ejs %>
+                                                </div>
+
+                                            </div>
+                                            <div ng-show="!edit_mode">
+
+                                                <div ng-show="has_editable_metadata()"  class="alert alert-info" >
+                                                    Select one of the resource on the file explorer to view its metadata.
+                                                </div>
+
+                                                <div ng-show="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
+                                                    <%- include show/file_preview.ejs %>
+                                                </div>
+
+                                                <div ng-show="shared.metadata != null">
+                                                    <%- include show/metadata_viewer.ejs %>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div ng-show="!showing_project_root()">
-                                    <div ng-show="edit_mode">
-
-                                        <div ng-show="shared.metadata != null">
-                                            <%- include show/metadata_editor.ejs %>
-                                        </div>
-
+                                <div ng-show="!has_editable_metadata()" class="panel panel-info">
+                                    <div class="panel-heading">
+                                        <h3 class="panel-title">
+                                            Information about <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_current_filename()}}
+                                        </h3>
                                     </div>
-                                    <div ng-show="!edit_mode">
-
-                                        <div ng-show="has_editable_metadata()"  class="alert alert-info" >
-                                            Select one of the resource on the file explorer to view its metadata.
-                                        </div>
-
-                                        <div ng-show="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
-                                            <%- include show/file_preview.ejs %>
-                                        </div>
-
-                                        <div ng-show="shared.metadata != null">
-                                            <%- include show/metadata_viewer.ejs %>
-                                        </div>
+                                    <div class="panel-body">
+                                        There is no information available for this resource. Add some using the Edit Mode.
                                     </div>
                                 </div>
                             </div>

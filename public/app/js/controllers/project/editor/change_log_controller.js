@@ -26,24 +26,35 @@ angular.module('dendroApp.controllers')
 
         $scope.get_project_stats = function()
         {
-            $scope.get_owner_project()
-                .then(function(ownerProject)
-                {
-                    if(ownerProject != null)
+            function getStats(uri)
+            {
+                filesService.get_stats(uri)
+                    .then(function(response)
                     {
-                        filesService.get_stats(ownerProject.uri)
-                            .then(function(response)
-                            {
-                                $scope.shared.project_stats = response.data;
-                            });
-                    }
-                })
-                .catch(function(e){
-                    console.error("Unable to fetch parent project of the currently selected file.");
-                    console.error(JSON.stringify(e));
-                    windowService.show_popup("error", "Error", e.statusText);
-                });
+                        $scope.shared.project_stats = response.data;
+                    });
+            };
 
+            if($scope.showing_project_root())
+            {
+                getStats($scope.get_calling_uri());
+            }
+            else
+            {
+                $scope.get_owner_project()
+                    .then(function(ownerProject)
+                    {
+                        if(ownerProject != null)
+                        {
+                            getStats(ownerProject.uri);
+                        }
+                    })
+                    .catch(function(e){
+                        console.error("Unable to fetch parent project of the currently selected file.");
+                        console.error(JSON.stringify(e));
+                        windowService.show_popup("error", "Error", e.statusText);
+                    });
+            }
         };
 
         $scope.get_recent_changes_of_resource = function()
@@ -66,11 +77,11 @@ angular.module('dendroApp.controllers')
 
         $scope.get_recent_changes_of_project = function()
         {
-            var getChangesOfProject = function(rootProject)
+            function getChangesOfProject(rootProject)
             {
                 if(rootProject != null)
                 {
-                    metadataService.get_recent_changes_of_project(rootProject.uri)
+                    metadataService.get_recent_changes_of_project(rootProject)
                         .then(function(response)
                         {
                             var recent_versions = response.data;
@@ -93,7 +104,7 @@ angular.module('dendroApp.controllers')
                 projectsService.get_owner_project_of_resource($scope.get_calling_uri())
                     .then(function(rootProject)
                     {
-                        getChangesOfProject(rootProject);
+                        getChangesOfProject(rootProject.uri);
                     });
             }
         };

@@ -109,7 +109,7 @@ exports.download = function(req, res){
                 });
             }
             else {
-                const error = "Non-existent folder : " + requestedResourceURI;
+                const error = "Non-existent folder. Is this a file instead of a folder? : " + requestedResourceURI;
                 console.error(error);
                 res.writeHead(404, error);
                 res.end();
@@ -337,7 +337,7 @@ exports.serve = function(req, res){
                 });
             }
             else {
-                const error = "Non-existent folder : " + requestedResourceURI;
+                const error = "Non-existent folder. Is this a file instead of a folder? : " + requestedResourceURI;
                 console.error(error);
                 res.writeHead(404, error);
                 res.end();
@@ -1290,8 +1290,6 @@ exports.restore = function(req, res){
 
                 if(file.ddr.fileExtension === "zip")
                 {
-                    //var restoringProjectRoot = (req.params.filepath == null || req.params.filepath.length == 0);
-
                     Folder.findByUri(requestedResourceUri, function(err, folder)
                     {
                         if(isNull(err))
@@ -1959,9 +1957,9 @@ exports.ls = function(req, res){
             }
             else
             {
-                res.status(500).json({
+                res.status(404).json({
                     result : "Error",
-                    message : "Non-existent folder"
+                    error : "Non-existent folder. Is this a file instead of a folder? : " + resourceURI
                 });
             }
         });
@@ -2219,12 +2217,9 @@ exports.recent_changes = function(req, res) {
 
 exports.data = function(req, res){
     let path = require('path');
-    const requestedExtension = path.extname(req.params.filepath).replace(".", "");
-
-    if(!isNull(exports.dataParsers[requestedExtension]))
+    if(isNull(req.params.showing_project_root))
     {
         const resourceURI = req.params.requestedResourceUri;
-
         File.findByUri(resourceURI, function(err, file){
             if(isNull(err))
             {

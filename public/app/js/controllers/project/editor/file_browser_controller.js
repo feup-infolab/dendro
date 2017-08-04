@@ -476,7 +476,6 @@ angular.module('dendroApp.controllers')
         $scope.set_from_local_storage_and_then_from_value("upload_area_visible", false);
         $scope.set_from_local_storage_and_then_from_value("restore_area_visible", false);
         $scope.set_from_local_storage_and_then_from_value("showing_deleted_files", false, $scope, "shared");
-        $scope.get_folder_contents(true);
 
         $scope.modelOptionsObj = {
             debounce:100

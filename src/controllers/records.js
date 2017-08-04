@@ -7,7 +7,7 @@ const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
 const ArchivedResource = require(Pathfinder.absPathInSrcFolder("/models/versions/archived_resource.js")).ArchivedResource;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const Folder = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/folder.js")).Folder;
+const File = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/file.js")).File;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
 const _ = require("underscore");
@@ -50,6 +50,7 @@ exports.show_deep = function(req, res) {
                                 }
 
                                 result.is_project_root = false;
+                                result.is_a_file = resource.isA(File);
 
                                 res.set('Content-Type', contentType);
                                 res.send(serializer(result));
@@ -129,6 +130,7 @@ exports.show = function(req, res) {
                                 }
 
                                 result.is_project_root = false;
+                                result.is_a_file = requestedResource.isA(File);
 
                                 res.set('Content-Type', contentType);
                                 res.send(serializer(result));

@@ -413,7 +413,7 @@ angular.module('dendroApp.controllers')
 
         $scope.init = function()
         {
-            $scope.load_metadata();
+
         };
     })
 ;
