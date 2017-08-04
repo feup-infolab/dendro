@@ -66,6 +66,17 @@ Resource.prototype.copyOrInitDescriptors = function(object, deleteIfNotInArgumen
             }
         }
     }
+
+    if((!isNull(object.ddr) && !isNull(object.ddr.created)))
+    {
+
+        self.ddr.created = object.ddr.created;
+    }
+    else
+    {
+        const now = new Date();
+        self.ddr.created = now.toISOString();
+    }
 };
 
 Resource.all = function(callback, req, customGraphUri, descriptorTypesToRemove, descriptorTypesToExemptFromRemoval)

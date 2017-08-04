@@ -15,32 +15,15 @@ function ResearchDomain (object)
 {
     const self = this;
     self.addURIAndRDFType(object, "research_domain", ResearchDomain);
-    return ResearchDomain.baseConstructor.call(this, object);
+    ResearchDomain.baseConstructor.call(this, object);
+
+    self.copyOrInitDescriptors(object);
+    return self;
 }
 
 ResearchDomain.create = function(object, callback)
 {
     const self = new ResearchDomain(object);
-
-    const now = new Date();
-
-    if(isNull(object.dcterms))
-    {
-        self.dcterms = {
-            created : now.toISOString()
-        }
-    }
-    else
-    {
-        if(isNull(object.ddr.created))
-        {
-            self.ddr.created = now.toISOString();
-        }
-        else
-        {
-            self.ddr.created = object.ddr.created;
-        }
-    }
 
     if(!isNull(self.ddr) && isNull(self.ddr.humanReadableName))
     {

@@ -209,51 +209,27 @@
                         <div class="tab-content">
                             <div class="tab-pane active" id="metadata-editor" ng-init="init()">
                                 <br/>
-                                <div class="panel panel-default" ng-show="has_editable_metadata()">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title">
-                                            Information about <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_current_filename()}}
-                                        </h3>
-                                    </div>
-                                    <div class="panel-body">
-                                        <div ng-show="showing_project_root()">
-                                            <div ng-show="shared.metadata != null">
-                                                <%- include show/metadata_viewer.ejs %>
-                                            </div>
-                                        </div>
-                                        <div ng-show="!showing_project_root()">
-                                            <div ng-show="edit_mode">
-
-                                                <div ng-show="shared.metadata != null">
-                                                    <%- include show/metadata_editor.ejs %>
-                                                </div>
-
-                                            </div>
-                                            <div ng-show="!edit_mode">
-
-                                                <div ng-show="has_editable_metadata()"  class="alert alert-info" >
-                                                    Select one of the resource on the file explorer to view its metadata.
-                                                </div>
-
-                                                <div ng-show="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
-                                                    <%- include show/file_preview.ejs %>
-                                                </div>
-
-                                                <div ng-show="shared.metadata != null">
-                                                    <%- include show/metadata_viewer.ejs %>
-                                                </div>
-                                            </div>
-                                        </div>
+                                <div ng-show="showing_project_root()">
+                                    <div ng-show="shared.metadata != null">
+                                        <%- include show/metadata_viewer.ejs %>
                                     </div>
                                 </div>
-                                <div ng-show="!has_editable_metadata()" class="panel panel-info">
-                                    <div class="panel-heading">
-                                        <h3 class="panel-title">
-                                            Information about <img height="16xp" ng-src="{{get_calling_uri_thumbnail() | trustAsResourceUrl}}"/> {{get_current_filename()}}
-                                        </h3>
+                                <div ng-show="!showing_project_root()">
+                                    <div ng-show="edit_mode">
+
+                                        <div ng-show="shared.metadata != null">
+                                            <%- include show/metadata_editor.ejs %>
+                                        </div>
+
                                     </div>
-                                    <div class="panel-body">
-                                        There is no information available for this resource. Add some using the Edit Mode.
+                                    <div ng-show="!edit_mode">
+                                        <div ng-show="(shared.selected_file != null) && shared.selected_file.ddr.fileExtension != 'folder'">
+                                            <%- include show/file_preview.ejs %>
+                                        </div>
+
+                                        <div ng-show="shared.metadata != null">
+                                            <%- include show/metadata_viewer.ejs %>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -18,30 +18,14 @@ let Interaction = function(object)
     const self = this;
     self.addURIAndRDFType(object, "interaction", Interaction);
     Interaction.baseConstructor.call(this, object);
+    self.copyOrInitDescriptors(object);
+    return self;
 };
 
 Interaction.create = function(object, callback)
 {
     let self = new Interaction(object);
     const now = new Date();
-
-    if(isNull(object.dcterms))
-    {
-        self.dcterms = {
-            created : now.toISOString()
-        }
-    }
-    else
-    {
-        if(isNull(object.ddr.created))
-        {
-            self.ddr.created = now.toISOString();
-        }
-        else
-        {
-            self.ddr.created = object.ddr.created;
-        }
-    }
 
     if(isNull(self.ddr.humanReadableURI))
     {
