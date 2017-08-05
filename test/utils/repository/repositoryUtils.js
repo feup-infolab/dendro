@@ -9,7 +9,7 @@ const exportToRepository = function (jsonOnly, projectHandle, agent, exportData,
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(exportData)
             .end(function (err, res) {
                 cb(err, res);
@@ -32,7 +32,7 @@ const exportFolderToRepository = function (jsonOnly, projectHandle, folderPath, 
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(exportData)
             .end(function (err, res) {
                 cb(err, res);
@@ -53,7 +53,7 @@ const createExportConfig = function (jsonOnly, agent, externalRepositoryData, cb
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(externalRepositoryData)
             .end(function (err, res) {
                 cb(err, res);
@@ -75,8 +75,8 @@ const getMyExternalRepositories = function (jsonOnly, agent, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -84,7 +84,7 @@ const getMyExternalRepositories = function (jsonOnly, agent, cb) {
     else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -97,8 +97,8 @@ const getAllExternalRepositories = function (jsonOnly, agent, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -107,7 +107,7 @@ const getAllExternalRepositories = function (jsonOnly, agent, cb) {
         agent
             .get(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

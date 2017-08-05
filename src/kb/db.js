@@ -5,7 +5,7 @@ const util = require('util');
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
-const uuid = require('uuid');
+const uuid = require("uuid");
 let queue = require('queue');
 
 function DbConnection (host, port, username, password, maxSimultaneousConnections) {
@@ -422,7 +422,7 @@ DbConnection.prototype.execute = function(queryStringWithArguments, argumentsArr
                 query = "DEFINE sql:log-enable 3\n" + query;
 
                 const options = {
-                    method: 'POST',
+                    method: "POST",
                     uri: fullUrl,
                     form: {
                         query: query,

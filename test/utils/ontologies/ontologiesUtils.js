@@ -9,7 +9,7 @@ exports.publicDisplay = function (jsonOnly, agent, cb) {
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -30,7 +30,7 @@ exports.allDisplay = function (jsonOnly, agent, cb) {
     {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

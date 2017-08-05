@@ -170,6 +170,8 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
     );
 
     ie.getOwnerProject(function(err, ownerProject) {
+        const Project = require(Pathfinder.absPathInSrcFolder("/models/project.js")).Project;
+
         if (isNull(err) && ownerProject instanceof Project) {
             const projectUri = ownerProject.uri;
 
@@ -449,8 +451,9 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                             const flatResults = _.compact(_.flatten(results));
                             const descriptors = initDescriptorsHash(flatResults);
                             let d;
+                            let i;
 
-                            for (var i = 0; i < flatResults.length; i++) {
+                            for (i = 0; i < flatResults.length; i++) {
                                 const dummyToParseUri = new Descriptor(flatResults[i]);
                                 const descriptorPrefix = dummyToParseUri.prefix;
                                 const descriptorShortName = dummyToParseUri.shortName;
@@ -480,7 +483,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                                 descriptors[descriptorPrefix][descriptorShortName] = d;
                             }
 
-                            for (var i = 0; i < flatResults.length; i++) {
+                            for (i = 0; i < flatResults.length; i++) {
                                 d = new Descriptor(flatResults[i]);
 
                                 let fused_result_types = descriptors[d.prefix][d.shortName].recommendation_types;
@@ -488,9 +491,10 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                                     fused_result_types = {};
                                 }
 
+                                let result_rec_types;
                                 if (flatResults[i].recommendation_types instanceof Object) {
                                     try {
-                                        var result_rec_types = Object.keys(flatResults[i].recommendation_types);
+                                        result_rec_types = Object.keys(flatResults[i].recommendation_types);
                                     }
                                     catch (e) {
                                         console.error("Estourei onde devia");
@@ -664,7 +668,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
                         results = rankDescriptors(results);
                         results = removeLockedAndPrivate(results);
 
-                        const uuid = require('uuid');
+                        const uuid = require("uuid");
                         const recommendation_call_id = uuid.v4();
                         const recommendation_call_timestamp = new Date().toISOString();
                         for(var i = 0; i < results.length; i++)

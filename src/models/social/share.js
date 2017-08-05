@@ -7,7 +7,7 @@ const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Cl
 const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 const Post = require(Pathfinder.absPathInSrcFolder("/models/social/post.js")).Post;
-const uuid = require('uuid');
+const uuid = require("uuid");
 
 const db = Config.getDBByID();
 const db_social = Config.getDBByID("social");

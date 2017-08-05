@@ -227,7 +227,7 @@ exports.show = function(req, res) {
                     requestedResource.findMetadataRecursive(function (err, result) {
                         if (isNull(err)) {
                             result.is_project_root = true;
-                            res.set('Content-Type', contentType);
+                            res.set("Content-Type", contentType);
                             res.send(serializer(result));
 
                         }
@@ -242,7 +242,7 @@ exports.show = function(req, res) {
                     requestedResource.findMetadata(function (err, result) {
                         if (isNull(err)) {
                             result.is_project_root = true;
-                            res.set('Content-Type', contentType);
+                            res.set("Content-Type", contentType);
                             res.send(serializer(result));
                         }
                         else {
@@ -466,7 +466,7 @@ exports.show = function(req, res) {
                     else
                     {
                         const flash = require("connect-flash");
-                        flash('error', "Unable to fetch descriptors. Reported Error: " + descriptors);
+                        flash('error', "Unable to fetch descriptors.");
                         res.redirect('back');
                     }
                 }

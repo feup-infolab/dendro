@@ -1201,7 +1201,7 @@ User.prototype.finishPasswordReset = function(newPassword, token, callback)
 User.prototype.startPasswordReset = function(callback)
 {
     const self = this;
-    const uuid = require('uuid');
+    const uuid = require("uuid");
 
     const token = uuid.v4();
 

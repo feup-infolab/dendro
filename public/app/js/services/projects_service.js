@@ -20,7 +20,7 @@ angular.module('dendroApp.services')
                     var URL = windowService.get_current_url();
 
                     $http({
-                        method: 'POST',
+                        method: "POST",
                         url: URL,
                         data: requestPayload,
                         contentType: "application/json",
@@ -54,7 +54,7 @@ angular.module('dendroApp.services')
                     URL += "?administer";
 
                     $http({
-                        method: 'POST',
+                        method: "POST",
                         url: URL,
                         data: requestPayload,
                         contentType: "application/json",

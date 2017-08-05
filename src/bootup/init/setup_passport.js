@@ -23,7 +23,7 @@ const setupPassport = function(app, callback)
         secret: Config.crypto.secret,
         genid: function ()
         {
-            const uuid = require('uuid');
+            const uuid = require("uuid");
             return uuid.v4()
         },
         key: session_key,
