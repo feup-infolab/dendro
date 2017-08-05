@@ -36,7 +36,7 @@ function Upload (object)
             self.loaded = object.loaded;
         }
 
-        const uuid = require('uuid');
+        const uuid = require("uuid");
         self.id = uuid.v4();
     }
     else

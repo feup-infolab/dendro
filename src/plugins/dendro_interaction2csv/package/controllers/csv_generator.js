@@ -135,11 +135,11 @@ var sendFile = function(err, fileName, tempFileAbsPath, req, res)
     if(isNull(err))
     {
         console.log("Wrote headers to file..." + tempFileAbsPath);
-        mimeType = Config.mimeType("csv");
+        var mimeType = Config.mimeType("csv");
         res.writeHead(200,
             {
-                'Content-disposition': 'attachment; filename="' + fileName+"\"",
-                'Content-Type': mimeType
+                "Content-disposition": "attachment; filename=\"" + fileName+"\"",
+                "Content-Type": mimeType
             }
         );
 

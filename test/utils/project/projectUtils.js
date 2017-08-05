@@ -9,7 +9,7 @@ const listAllMyProjects = function (jsonOnly, agent, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -28,7 +28,7 @@ const listAllProjects = function (jsonOnly, agent, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -47,7 +47,7 @@ const getNewProjectPage = function (jsonOnly, agent, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -65,7 +65,7 @@ const createNewProject = function (jsonOnly, agent, projectData, cb) {
     if (jsonOnly) {
         agent
             .post('/projects/new')
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(projectData)
             .end(function (err, res) {
                 cb(err, res);
@@ -85,7 +85,7 @@ const viewProject = function (jsonOnly, agent, projectHandle, cb) {
     if (jsonOnly) {
         agent
             .get('/project/' + projectHandle)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -94,7 +94,7 @@ const viewProject = function (jsonOnly, agent, projectHandle, cb) {
         agent
             .get('/project/' + projectHandle)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -105,7 +105,7 @@ const updateMetadataWrongRoute = function (jsonOnly, agent, projectHandle, metad
     if (jsonOnly) {
         agent
             .post('/project/' + projectHandle + '?update_metadata')
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(metadata)
             .end(function (err, res) {
                 cb(err, res);
@@ -128,8 +128,8 @@ const updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, fol
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send(metadata)
             .end(function (err, res) {
                 cb(err, res);
@@ -138,7 +138,7 @@ const updateMetadataCorrectRoute = function (jsonOnly, agent, projectHandle, fol
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send(metadata)
             .end(function (err, res) {
                 cb(err, res);
@@ -150,7 +150,7 @@ const getMetadataRecomendationsForProject = function (jsonOnly, agent, projectHa
     if (jsonOnly) {
         agent
             .get('/project/' + projectHandle + '?metadata_recommendations')
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -171,7 +171,7 @@ const getRecommendationOntologiesForProject = function (jsonOnly, agent, project
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -191,7 +191,7 @@ const getProjectRootContent = function (jsonOnly, agent, projectHandle, cb) {
     if (jsonOnly) {
         agent
             .get('/project/' + projectHandle + '?ls')
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -212,8 +212,8 @@ const getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -221,7 +221,7 @@ const getResourceMetadata = function (jsonOnly, agent, projectHandle, folderPath
     else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -233,8 +233,8 @@ const getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -243,7 +243,7 @@ const getProjectMetadata = function (jsonOnly, agent, projectHandle, cb) {
         agent
             .get(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -255,8 +255,8 @@ const getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -265,7 +265,7 @@ const getProjectMetadataDeep = function (jsonOnly, agent, projectHandle, cb) {
         agent
             .get(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -291,8 +291,8 @@ const getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
         agent
             .get(path)
             .query({version: version})
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -301,7 +301,7 @@ const getProjectVersion = function (jsonOnly, agent, projectHandle, version, cb)
         agent
             .get(path)
             .query({version: version})
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -314,8 +314,8 @@ const importProjectHTMLPage = function (jsonOnly, agent, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -323,7 +323,7 @@ const importProjectHTMLPage = function (jsonOnly, agent, cb) {
     else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -336,8 +336,8 @@ const importProject = function (jsonOnly, agent, projectBackupPath, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .attach('file', projectBackupPath)
             .end(function (err, res) {
                 cb(err, res);
@@ -346,7 +346,7 @@ const importProject = function (jsonOnly, agent, projectBackupPath, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .attach('file', projectBackupPath)
             .end(function (err, res) {
                 cb(err, res);
@@ -360,8 +360,8 @@ const getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -369,7 +369,7 @@ const getRequestProjectAccessPage = function (jsonOnly, agent, projectHandle, cb
     else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -382,8 +382,8 @@ const requestAccessToProject = function (jsonOnly, agent, projectHandle, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -391,7 +391,7 @@ const requestAccessToProject = function (jsonOnly, agent, projectHandle, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -404,8 +404,8 @@ const deleteProject = function (jsonOnly, agent, projectHandle, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -413,7 +413,7 @@ const deleteProject = function (jsonOnly, agent, projectHandle, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -426,8 +426,8 @@ const undeleteProject = function (jsonOnly, agent, projectHandle, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -435,7 +435,7 @@ const undeleteProject = function (jsonOnly, agent, projectHandle, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -448,8 +448,8 @@ const createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, fold
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .query({mkdir: folderName})
             .end(function (err, res) {
                 cb(err, res);
@@ -459,7 +459,7 @@ const createFolderInProjectRoot = function (jsonOnly, agent, projectHandle, fold
         agent
             .post(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .query({mkdir: folderName})
             .end(function (err, res) {
                 cb(err, res);
@@ -473,8 +473,8 @@ const getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -483,7 +483,7 @@ const getProjectRecentChanges = function (jsonOnly, agent, projectHandle, cb) {
         agent
             .get(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

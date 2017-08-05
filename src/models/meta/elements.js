@@ -1082,6 +1082,12 @@ Elements.ddr = {
         control : Controls.input_box,
         private : true,
         locked : true,
+    },
+    hasDataContent :
+    {
+        type : DbConnection.boolean,
+        control : Controls.input_box,
+        locked : true
     }
 };
 

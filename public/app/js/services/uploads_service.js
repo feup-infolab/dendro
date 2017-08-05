@@ -13,9 +13,9 @@ angular.module('dendroApp.services')
                 this.uploadUsing$http = function(file, upload_url) {
                     file.upload = Upload.http({
                         url: upload_url,
-                        method: 'POST',
+                        method: "POST",
                         headers: {
-                            'Content-Type': file.type
+                            "Content-Type": file.type
                         },
                         data: file
                     });

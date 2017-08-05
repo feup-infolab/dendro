@@ -68,6 +68,7 @@ Config.elasticSearchHost =  getConfigParameter("elasticSearchHost");
 Config.elasticSearchPort =  getConfigParameter("elasticSearchPort");
 
 Config.cache =  getConfigParameter("cache");
+Config.datastore =  getConfigParameter("datastore");
 
 Config.virtuosoHost =  getConfigParameter("virtuosoHost");
 Config.virtuosoPort =  getConfigParameter("virtuosoPort");
@@ -475,6 +476,19 @@ Config.allOntologies = {
         domain: "Generic",
         domain_specific: false
     }
+};
+
+/**
+ * DataStore configuration
+ */
+
+Config.dataStoreCompatibleExtensions = {
+    "xls" : 1,
+    "xlsx" : 1,
+    "csv" : 1,
+    "txt" : 1,
+    "log" : 1,
+    "xml" : 1
 };
 
 /**

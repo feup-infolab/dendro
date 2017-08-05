@@ -15,7 +15,7 @@ const gfs = Config.getGFSByID();
 
 const _ = require("underscore");
 const async = require("async");
-const uuid = require('uuid');
+const uuid = require("uuid");
 
 //NFO ontology or NIE ontology
 /*

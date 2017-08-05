@@ -5,7 +5,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Resource = require(Pathfinder.absPathInSrcFolder("/models/resource.js")).Resource;
-const uuid = require('uuid');
+const uuid = require("uuid");
 
 function Notification (object)
 {

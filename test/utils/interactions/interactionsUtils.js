@@ -6,7 +6,7 @@ exports.recordInteraction= function (jsonOnly, folderUri, projectHandle, interac
         agent
             .post(path)
             .send(interactionData)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

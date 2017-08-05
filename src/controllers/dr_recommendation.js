@@ -308,7 +308,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
         {
             results = removeLockedAndPrivate(results);
 
-            const uuid = require('uuid');
+            const uuid = require("uuid");
             const recommendation_call_id = uuid.v4();
             const recommendation_call_timestamp = new Date().toISOString();
             

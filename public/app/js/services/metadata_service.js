@@ -144,7 +144,7 @@ angular.module('dendroApp.factories')
                 var url = resource_uri + "?update_metadata";
 
                 return $http({
-                    method: 'POST',
+                    method: "POST",
                     url: url,
                     data: metadataString,
                     contentType: "application/json",

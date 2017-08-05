@@ -9,8 +9,8 @@ const getAllPostsFromUserProjects = function (jsonOnly, agent, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -19,7 +19,7 @@ const getAllPostsFromUserProjects = function (jsonOnly, agent, cb) {
         agent
             .get(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -32,8 +32,8 @@ const getAPostInfo = function (jsonOnly, agent, postID, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
@@ -43,7 +43,7 @@ const getAPostInfo = function (jsonOnly, agent, postID, cb) {
         agent
             .post(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
@@ -57,8 +57,8 @@ const likeOrUnlikeAPost = function (jsonOnly, agent, postID, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
@@ -67,7 +67,7 @@ const likeOrUnlikeAPost = function (jsonOnly, agent, postID, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
@@ -80,8 +80,8 @@ const checkIfPostIsLikedByUser = function (jsonOnly, agent, postID, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
@@ -90,7 +90,7 @@ const checkIfPostIsLikedByUser = function (jsonOnly, agent, postID, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
@@ -103,8 +103,8 @@ const getLikesInfoForAPost = function (jsonOnly, agent, postURI, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send({postURI: postURI})
             .end(function (err, res) {
                 cb(err, res);
@@ -113,7 +113,7 @@ const getLikesInfoForAPost = function (jsonOnly, agent, postURI, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send({postURI: postURI})
             .end(function (err, res) {
                 cb(err, res);
@@ -126,8 +126,8 @@ const addCommentToPost = function (jsonOnly, agent, postID, commentMsg, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send({postID: postID, commentMsg: commentMsg})
             .end(function (err, res) {
                 cb(err, res);
@@ -136,7 +136,7 @@ const addCommentToPost = function (jsonOnly, agent, postID, commentMsg, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send({postID: postID, commentMsg: commentMsg})
             .end(function (err, res) {
                 cb(err, res);
@@ -149,8 +149,8 @@ const getPostComments = function (jsonOnly, agent, postID, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
@@ -159,7 +159,7 @@ const getPostComments = function (jsonOnly, agent, postID, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
@@ -172,8 +172,8 @@ const shareAPost = function (jsonOnly, agent, postID, shareMsg, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send({postID: postID, shareMsg: shareMsg})
             .end(function (err, res) {
                 cb(err, res);
@@ -182,7 +182,7 @@ const shareAPost = function (jsonOnly, agent, postID, shareMsg, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send({postID: postID, shareMsg: shareMsg})
             .end(function (err, res) {
                 cb(err, res);
@@ -195,8 +195,8 @@ const getSharesForAPost = function (jsonOnly, agent, postID, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
@@ -205,7 +205,7 @@ const getSharesForAPost = function (jsonOnly, agent, postID, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send({postID: postID})
             .end(function (err, res) {
                 cb(err, res);
@@ -218,8 +218,8 @@ const countNumPostInDB = function (jsonOnly, agent, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -227,7 +227,7 @@ const countNumPostInDB = function (jsonOnly, agent, cb) {
     else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -240,8 +240,8 @@ const getPostHTMLPageWithInfo = function (jsonOnly, agent, postURL, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -249,7 +249,7 @@ const getPostHTMLPageWithInfo = function (jsonOnly, agent, postURL, cb) {
     else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -262,8 +262,8 @@ const getAShareInfo = function (jsonOnly, agent, shareURL, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -271,7 +271,7 @@ const getAShareInfo = function (jsonOnly, agent, shareURL, cb) {
     else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

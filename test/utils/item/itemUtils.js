@@ -11,8 +11,8 @@ const createFolder = function (jsonOnly, agent, projectHandle, parentFolderName,
         agent
             .post(path)
             .query({mkdir: newFolderName})
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -22,7 +22,7 @@ const createFolder = function (jsonOnly, agent, projectHandle, parentFolderName,
             .post(path)
             .query({mkdir: newFolderName})
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -35,8 +35,8 @@ const updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, m
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send(metadata)
             .end(function (err, res) {
                 cb(err, res);
@@ -46,7 +46,7 @@ const updateItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, m
         agent
             .post(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send(metadata)
             .end(function (err, res) {
                 cb(err, res);
@@ -60,8 +60,8 @@ const getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) 
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -70,7 +70,7 @@ const getItemMetadata = function (jsonOnly, agent, projectHandle, itemPath, cb) 
         agent
             .get(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -83,8 +83,8 @@ const getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, 
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -93,7 +93,7 @@ const getItemMetadataDeep = function (jsonOnly, agent, projectHandle, itemPath, 
         agent
             .get(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -106,8 +106,8 @@ const getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -116,7 +116,7 @@ const getItemParentMetadata = function (jsonOnly, agent, projectHandle, itemPath
         agent
             .get(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -129,8 +129,8 @@ const getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath,
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -139,7 +139,7 @@ const getItemRecentChanges = function (jsonOnly, agent, projectHandle, itemPath,
         agent
             .get(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -153,8 +153,8 @@ const getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemV
         agent
             .get(path)
             .query({version: itemVersion})
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -164,7 +164,7 @@ const getItemVersion = function (jsonOnly, agent, projectHandle, itemPath, itemV
             .get(path)
             .query({version: itemVersion})
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -179,8 +179,8 @@ const deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reall
         agent
             .del(path)
             .query({really_delete: reallyDelete})
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -190,7 +190,7 @@ const deleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb, reall
             .del(path)
             .query({really_delete: reallyDelete})
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -202,8 +202,8 @@ const undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -211,7 +211,7 @@ const undeleteItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     else {
         agent
             .post(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -224,8 +224,8 @@ const itemRestoreMetadataVersion = function (jsonOnly, agent, projectHandle, ite
     if (jsonOnly) {
         agent
             .post(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .send({version: version})
             .end(function (err, res) {
                 cb(err, res);
@@ -235,7 +235,7 @@ const itemRestoreMetadataVersion = function (jsonOnly, agent, projectHandle, ite
         agent
             .post(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .send({version: version})
             .end(function (err, res) {
                 cb(err, res);
@@ -249,8 +249,8 @@ const getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb)
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -258,7 +258,7 @@ const getItemChangeLog = function (jsonOnly, agent, projectHandle, itemPath, cb)
     else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -270,7 +270,7 @@ const getItemMetadataRecommendations = function (jsonOnly, agent, projectHandle,
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -291,7 +291,7 @@ const getItemRecommendationOntologies = function (jsonOnly, agent, projectHandle
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -311,7 +311,7 @@ const viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -320,7 +320,7 @@ const viewItem = function (jsonOnly, agent, projectHandle, itemPath, cb) {
         agent
             .get(path)
             .set('Accept', 'text/html')
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

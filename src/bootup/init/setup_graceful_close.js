@@ -39,7 +39,7 @@ const setupGracefulClose = function(app, server, callback)
             async.map(global.gfs, function(gridFSConnection, cb){
                 if(global.gfs.hasOwnProperty(gridFSConnection))
                 {
-                    global.gfs[gridFSConnection].connection.closeConnection(cb);
+                    global.gfs[gridFSConnection].connection.close(cb);
                 }
             }, function(err, results){
                 if(!err)

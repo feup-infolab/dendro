@@ -36,7 +36,7 @@ exports.getLoggedUserDetails = function (jsonOnly, agent, cb)
     {
         agent
             .get('/me')
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -55,7 +55,7 @@ exports.listAllUsers= function (jsonOnly, agent, cb) {
     if(jsonOnly){
         agent
             .get('/users')
-            .set('Accept','application/json')
+            .set('Accept',"application/json")
             .end(function(err,res){
                 cb(err, res);
             });
@@ -73,7 +73,7 @@ exports.getUserInfo= function (user, jsonOnly, agent, cb) {
     if(jsonOnly){
         agent
             .get('/user/' + user)
-            .set('Accept','application/json')
+            .set('Accept',"application/json")
             .end(function(err,res){
                 cb(err, res);
             });
@@ -93,7 +93,7 @@ exports.getCurrentLoggedUser= function (jsonOnly, agent, cb)
     {
         agent
             .get('/users/loggedUser')
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -115,7 +115,7 @@ exports.addUserAscontributorToProject = function (jsonOnly, agent, username, pro
     {
         agent
             .post(path)
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(contributors)
             .end(function (err, res) {
                 cb(err, res);
@@ -190,7 +190,7 @@ exports.editUser = function (jsonOnly, agent, dataToEdit, cb) {
     if(jsonOnly){
         agent
             .post(path)
-            .set('Accept','application/json')
+            .set('Accept',"application/json")
             .send(dataToEdit)
             .end(function(err,res){
                 cb(err, res);
@@ -211,7 +211,7 @@ exports.uploadAvatar = function (jsonOnly, agent, avatar, cb) {
     if(jsonOnly){
         agent
             .post(path)
-            .set('Accept','application/json')
+            .set('Accept',"application/json")
             .send(avatar)
             .end(function(err,res){
                 cb(err, res);
@@ -244,7 +244,7 @@ function binaryParser(res, callback) {
  request(app)
  .get('/path/to/image.png')
  .expect(200)
- .expect('Content-Type', 'image.png')
+ .expect("Content-Type", 'image.png')
  .buffer()
  .parse(binaryParser)
  .end(function(err, res) {
@@ -266,7 +266,7 @@ exports.getAvatar = function (jsonOnly, username, agent, cb) {
         agent
             .get(path)
             //.set('Accept', 'image/webp,image/apng,image/*,*/*;q=0.8')
-            //.set('Accept', 'application/json')
+            //.set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

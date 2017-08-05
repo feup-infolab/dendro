@@ -8,8 +8,8 @@ const getProjectDescriptorsFromOntology = function (jsonOnly, agent, ontologyPre
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -17,7 +17,7 @@ const getProjectDescriptorsFromOntology = function (jsonOnly, agent, ontologyPre
     else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

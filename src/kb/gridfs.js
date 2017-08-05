@@ -19,7 +19,7 @@ function GridFSConnection (mongodbHost, mongodbPort, collectionName, username, p
     self.password = password;
 }
 
-GridFSConnection.prototype.openConnection = function(callback) {
+GridFSConnection.prototype.open = function(callback) {
     const self = this;
 
     if(!isNull(self.gfs))
@@ -61,7 +61,7 @@ GridFSConnection.prototype.openConnection = function(callback) {
     }
 };
 
-GridFSConnection.prototype.closeConnection = function(cb)
+GridFSConnection.prototype.close = function(cb)
 {
     const self = this;
     self.db.close(function(err, result){

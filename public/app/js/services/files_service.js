@@ -77,7 +77,7 @@ angular.module('dendroApp.services')
                 var mkdirUrl = parentFolderUri + "?mkdir=" +newFolderName;
 
                 return $http({
-                    method: 'POST',
+                    method: "POST",
                     url: mkdirUrl,
                     data: JSON.stringify({}),
                     contentType: "application/json",
@@ -107,7 +107,7 @@ angular.module('dendroApp.services')
         this.undelete = function(fileOrFolder)
         {
             return $http({
-                method: 'POST',
+                method: "POST",
                 url: fileOrFolder.uri + "?undelete",
                 data: JSON.stringify({}),
                 contentType: "application/json",

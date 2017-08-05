@@ -16,7 +16,7 @@ Plugin.registerStaticFilesRoute = function(app)
 {
     const self = this;
     self.pluginBaseFolderName = self.config.plugin_folder_name;
-    self.fullRoute = '/plugins/' + self.pluginBaseFolderName +  "/public";
+    self.fullRoute = "/plugins/" + self.pluginBaseFolderName +  "/public";
     const absPathToPluginPublicFolder = path.join(self.getPluginRootFolder(), "package", "public");
 
     const express = require('express');
@@ -34,7 +34,7 @@ Plugin.registerRoute = function(app, method, route, permissions, controllerMetho
 
     if(route instanceof RegExp)
     {
-        fullRoute = '\\/plugins\\/' + pluginBaseFolderName + "\\" + route.toString();
+        fullRoute = "\\/plugins\\/" + pluginBaseFolderName + "\\" + route.toString();
         if(fullRoute[fullRoute.length - 1] === "/")
         {
             fullRoute = fullRoute.substring(0, fullRoute.length - 1);
@@ -43,26 +43,26 @@ Plugin.registerRoute = function(app, method, route, permissions, controllerMetho
     }
     else if(route === "/")
     {
-        self.fullRoute = '/plugins/' + pluginBaseFolderName;
+        self.fullRoute = "/plugins/" + pluginBaseFolderName;
     }
     else
     {
-        self.fullRoute = '/plugins/' + pluginBaseFolderName + "/" + route;
+        self.fullRoute = "/plugins/" + pluginBaseFolderName + "/" + route;
     }
 
-    if(method.toLowerCase() === 'get')
+    if(method.toLowerCase() === "get")
     {
         app = app.get(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
     }
-    else if(method.toLowerCase() === 'post')
+    else if(method.toLowerCase() === "post")
     {
         app = app.post(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
     }
-    else if(method.toLowerCase() === 'put')
+    else if(method.toLowerCase() === "put")
     {
         app = app.put(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
     }
-    else if(method.toLowerCase() === 'delete')
+    else if(method.toLowerCase() === "delete")
     {
         app = app.delete(self.fullRoute, async.apply(Permissions.require, permissions), controllerMethod);
     }

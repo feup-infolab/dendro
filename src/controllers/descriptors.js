@@ -107,7 +107,7 @@ exports.from_ontology = function(req, res)
                                 descriptors = removeDuplicates(descriptors);
                                 descriptors = removeLockedAndPrivate(descriptors);
 
-                                const uuid = require('uuid');
+                                const uuid = require("uuid");
                                 const recommendation_call_id = uuid.v4();
                                 const recommendation_call_timestamp = new Date().toISOString();
 
@@ -455,7 +455,7 @@ exports.from_ontology_in_project = function(req, res)
                                             descriptors = removeDuplicates(descriptors);
                                             descriptors = removeLockedAndPrivate(descriptors);
 
-                                            const uuid = require('uuid');
+                                            const uuid = require("uuid");
                                             const recommendation_call_id = uuid.v4();
                                             const recommendation_call_timestamp = new Date().toISOString();
 

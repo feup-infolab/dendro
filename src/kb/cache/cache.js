@@ -44,7 +44,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
                                 {
                                     const newMongoCacheConnection = new MongoDBCache(mongoCacheConfig);
 
-                                    newMongoCacheConnection.openConnection(function(err, mongoDBConnection) {
+                                    newMongoCacheConnection.open(function(err, mongoDBConnection) {
                                         if(!isNull(err))
                                         {
                                             throw new Error("[ERROR] Unable to connect to MongoDB instance with ID: " + mongoCacheConfig.id + " running on " + mongoCacheConfig.host + ":" + mongoCacheConfig.port + " : " + err);
@@ -88,7 +88,7 @@ Cache.initConnections = function(callback, deleteAllCachedRecords)
                                 {
                                     const newRedisCacheConnection = new RedisCache(redisCacheConfig);
 
-                                    newRedisCacheConnection.openConnection(function(err, newRedisConnection) {
+                                    newRedisCacheConnection.open(function(err, newRedisConnection) {
                                         if(!isNull(err))
                                         {
                                             throw new Error("[ERROR] Unable to connect to Redis instance with ID: " + redisCacheConfig.id + " running on " + redisCacheConfig.host + ":" + redisCacheConfig.port + " : " + err.message);
@@ -161,7 +161,7 @@ Cache.closeConnections = function(cb)
     async.map(Object.keys(self.caches), function(cacheKey, cb){
         if(self.caches.hasOwnProperty(cacheKey))
         {
-            self.caches[cacheKey].closeConnection(cb);
+            self.caches[cacheKey].close(cb);
         }
         else
         {

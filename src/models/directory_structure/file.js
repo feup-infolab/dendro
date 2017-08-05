@@ -6,7 +6,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const isNull = require(Pathfinder.absPathInSrcFolder("/utils/null.js")).isNull;
 const InformationElement = require(Pathfinder.absPathInSrcFolder("/models/directory_structure/information_element.js")).InformationElement;
-const DbConnection = require(Pathfinder.absPathInSrcFolder("/kb/db.js")).DbConnection;
+const DataStoreConnection = require(Pathfinder.absPathInSrcFolder("/kb/datastore/datastore_connection.js")).DataStoreConnection;
 const Class = require(Pathfinder.absPathInSrcFolder("/models/meta/class.js")).Class;
 const Descriptor = require(Pathfinder.absPathInSrcFolder("/models/meta/descriptor.js")).Descriptor;
 
@@ -43,6 +43,144 @@ function File(object) {
 
     return self;
 }
+
+File.estimateUnzippedSize = function(pathOfZipFile, callback)
+{
+    const path = require("path");
+    const exec = require("child_process").exec;
+
+    const command = 'unzip -l ' + pathOfZipFile + " | tail -n 1";
+    const parentFolderPath = path.resolve(pathOfZipFile, "..");
+
+
+    exec(command, {cwd: parentFolderPath}, function (error, stdout, stderr) {
+        if (isNull(error)) {
+            const regex = new RegExp(" *[0-9]* [0-9]* file[s]?");
+
+            let size = stdout.replace(regex, "");
+            size = size.replace(/ /g, "");
+            size = size.replace(/\n/g, "");
+            console.log("Estimated unzipped file size is " + size);
+            return callback(null, Number.parseInt(size));
+
+        } else {
+            const errorMessage = "[INFO] There was an error estimating unzipped file size with command " + command + ". Code Returned by Zip Command " + JSON.stringify(error);
+            console.error(errorMessage);
+            return callback(1, errorMessage);
+        }
+    });
+};
+
+/**
+ * unzip a file into a directory
+ * @param pathOfFile absolute path of file to be unzipped
+ * @param callback
+ */
+File.unzip = function(pathOfFile, callback) {
+    const fs = require("fs");
+    const exec = require("child_process").exec;
+    const tmp = require('tmp');
+
+    tmp.dir(
+        {
+            mode: Config.tempFilesCreationMode,
+            dir: Config.tempFilesDir
+        },
+        function(err, tmpFolderPath)
+        {
+            let command = 'unzip -qq -o ' + pathOfFile;
+            if(isNull(err))
+            {
+                const unzip = exec(command, {cwd: tmpFolderPath}, function (error, stdout, stderr) {
+                    if (isNull(error)) {
+                        console.log("Contents are in folder " + tmpFolderPath);
+                        return callback(null, tmpFolderPath);
+
+                    } else {
+                        const errorMessage = "[INFO] There was an error unzipping file with command " + command + " on folder " + tmpFolderPath + ". Code Returned by Zip Command " + JSON.stringify(error);
+                        console.error(errorMessage);
+                        return callback(1, tmpFolderPath);
+                    }
+                });
+            }
+            else {
+                const errorMessage = "Error unzipping the backup file with command " + command + " on folder " + tmpFolderPath + ". Code Returned by Zip Command " + JSON.stringify(tmpFolderPath);
+                console.error(errorMessage);
+                return callback(1, errorMessage);
+            }
+
+        }
+    );
+};
+
+File.createBlankTempFile = function (fileName, callback) {
+    const tmp = require('tmp');
+    const path = require("path");
+
+    tmp.dir(
+        {
+            mode: Config.tempFilesCreationMode,
+            dir: Config.tempFilesDir
+        },
+        function (err, tempFolderAbsPath) {
+            const tempFilePath = path.join(tempFolderAbsPath, fileName);
+
+            if (isNull(err)) {
+                console.log("Temp File Created! Location: " + tempFilePath);
+            }
+            else {
+                console.error("Error creating temp file : " + tempFolderAbsPath);
+            }
+
+            return callback(err, tempFilePath);
+        }
+    );
+};
+
+File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
+{
+    const fs = require("fs");
+
+    const absPathToFile = Pathfinder.absPathInApp(relativePathToFile);
+    const parentFolder = path.resolve(absPathToFile, "..");
+
+    fs.stat(absPathToFile, function (err, stat) {
+        if (isNull(err)) {
+            return callback(null, absPathToFile, parentFolder);
+        } else if (err.code === 'ENOENT') {
+            // file does not exist
+            const mkpath = require('mkpath');
+
+            mkpath(parentFolder, function (err) {
+                if (err) {
+                    return callback(1, "Error creating file " + err);
+                }
+                else {
+                    const fs = require("fs");
+                    fs.open(absPathToFile, "wx", function (err, fd) {
+                        // handle error
+                        fs.close(fd, function (err) {
+                            console.log('Directory structure ' + parentFolder + ' created. File ' + absPathToFile + " also created.");
+                            return callback(null, absPathToFile, parentFolder);
+                        });
+                    });
+                }
+            });
+        }
+        else {
+            return callback(1, "Error creating file " + err);
+        }
+    });
+};
+
+File.deleteOnLocalFileSystem = function(err, callback)
+{
+    const exec = require("child_process").exec;
+    const command = "rm absPath";
+    const rm = exec(command, {}, function (error, stdout, stderr) {
+        return callback(error, stdout, stderr);
+    });
+};
 
 File.prototype.save = function (callback) {
     const self = this;
@@ -173,6 +311,36 @@ File.prototype.saveIntoFolder = function (destinationFolderAbsPath, includeMetad
     });
 };
 
+File.prototype.writeFileToStream = function (stream, callback) {
+    let self = this;
+
+    let writeCallback = function (callback) {
+        gfs.connection.get(self.uri, stream, function (err, result) {
+            if (isNull(err)) {
+                return callback(null);
+            }
+            else {
+                return callback(1, result);
+            }
+        });
+    };
+
+    if (isNull(self.nie.title)) {
+        self.findByUri(function (err) {
+            writeCallback(callback);
+        });
+    }
+    else {
+        writeCallback(callback);
+    }
+};
+
+File.prototype.writeDataContentToStream = function (stream, callback) {
+    let self = this;
+
+
+};
+
 File.prototype.writeToTempFile = function (callback) {
     let self = this;
     const tmp = require('tmp');
@@ -293,6 +461,151 @@ File.prototype.loadFromLocalFile = function (localFile, callback) {
 
 };
 
+File.prototype.extract_data_and_save_into_datastore = function(callback, tempFileLocation, deleteFileAfterExtracting)
+{
+    const self = this;
+    DataStoreConnection.create(self.uri, function(err, conn){
+        conn.getStream(function(err, stream){
+            stream.on('close', callback);
+            self.extractData(writeStream, tempFileLocation, deleteFileAfterExtracting);
+        });
+    });
+};
+
+File.prototype.extract_data = function(writeStream, tempFileLocation, deleteFileAfterExtracting)
+{
+    const self = this;
+
+    const deleteTempFile = function(filePath){
+        const fs = require("fs");
+
+        fs.unlink(filePath, function (err) {
+            if (err) throw err;
+            console.log('successfully deleted temporary file ' +filePath);
+        });
+    };
+    const xlsFileParser = function (filePath){
+        const excelParser = require('excel-parser');
+
+        excelParser.parse({
+            inFile: filePath,
+            worksheet: 1,
+            skipEmpty: false
+        },function(err, records){
+            if(err){
+                const error = "Unable to produce JSON representation of file :" + filePath + "Error reported: " + err + ".\n Cause : " + records + " \n ";
+                callback(1, error);
+            }
+            else{
+                writeStream.write(JSON.stringify(records));
+            }
+
+        });
+    };
+    const csvFileParser = function (filePath){
+        const fs = require("fs");
+        fs.readFile(filePath, 'utf8', function(err, data)
+        {
+            if(!isNull(err))
+            {
+                const csv = require('csv');
+                const parser = csv.parse(data);
+
+                const transformer = csv.transform(function(data){
+                    return data;
+                });
+
+                const stringifier = csv.stringify();
+
+                parser.on('readable', function(){
+                    while(data = parser.read()){
+                        transformer.write(data);
+                    }
+                });
+
+                parser.on('error', function(){
+                    callback(1, "Error parsing CSV file.")
+                });
+
+                transformer.on('readable', function(){
+                    while(data = transformer.read()){
+                        stringifier.write(data);
+                    }
+                });
+
+                stringifier.on('readable', function(){
+                    while(data = stringifier.read()){
+                        writeStream.write(data);
+                    }
+
+                    callback(null);
+                });
+            }
+            else
+            {
+                callback(err, "Unable to read file at " + tempFileLocation);
+            }
+
+        });
+    };
+    const textFileParser = function (filePath){
+        const fs = require("fs");
+        fs.readFile(filePath, 'utf8', function(err, data) {
+            if (err) throw err;
+            stream.write(data);
+        });
+    };
+
+    const dataParsers = {
+        "xls" : xlsFileParser,
+        "xlsx" : xlsFileParser,
+        "csv" : csvFileParser,
+        "txt" : textFileParser,
+        "log" : textFileParser,
+        "xml" : textFileParser
+    };
+
+    async.waterfall([
+        function(callback)
+        {
+            if(tempFileLocation)
+            {
+                callback(null, tempFileLocation);
+            }
+            else
+            {
+                self.writeToTempFile(callback);
+            }
+        },
+        function(location, callback)
+        {
+            const parser = Config.dataStoreCompatibleExtensions[self.nie.fileExtension];
+            if(!isNull(parser))
+            {
+                parser(location, function (err, dataContent)
+                {
+                    if(deleteFileAfterExtracting)
+                    {
+                        deleteTempFile(location);
+                    }
+
+                    callback(err, dataContent);
+                });
+            }
+            else
+            {
+                callback(null, "There is no data parser for this format file : " + self.nie.fileExtension);
+            }
+        },
+        function(dataContent, callback)
+        {
+            callback(null, dataContent);
+        }
+    ], function(err, res){
+        callback(err, res);
+    });
+};
+
 File.prototype.extract_text = function (callback) {
     let self = this;
 
@@ -308,7 +621,7 @@ File.prototype.extract_text = function (callback) {
                         console.log("Error deleting file " + locationOfTempFile);
                     }
                     else {
-                        console.log("successfully deleted " + locationOfTempFile);
+                        //console.log("successfully deleted " + locationOfTempFile);
                     }
                 });
 
@@ -324,75 +637,6 @@ File.prototype.extract_text = function (callback) {
     else {
         return callback(null, null);
     }
-};
-
-File.estimateUnzippedSize = function(pathOfZipFile, callback)
-{
-    const path = require("path");
-    const exec = require("child_process").exec;
-
-    const command = 'unzip -l ' + pathOfZipFile + " | tail -n 1";
-    const parentFolderPath = path.resolve(pathOfZipFile, "..");
-
-
-    exec(command, {cwd: parentFolderPath}, function (error, stdout, stderr) {
-        if (isNull(error)) {
-            const regex = new RegExp(" *[0-9]* [0-9]* file[s]?");
-
-            let size = stdout.replace(regex, "");
-            size = size.replace(/ /g, "");
-            size = size.replace(/\n/g, "");
-            console.log("Estimated unzipped file size is " + size);
-            return callback(null, Number.parseInt(size));
-
-        } else {
-            const errorMessage = "[INFO] There was an error estimating unzipped file size with command " + command + ". Code Returned by Zip Command " + JSON.stringify(error);
-            console.error(errorMessage);
-            return callback(1, errorMessage);
-        }
-    });
-};
-
-/**
- * unzip a file into a directory
- * @param pathOfFile absolute path of file to be unzipped
- * @param callback
- */
-File.unzip = function(pathOfFile, callback) {
-    const fs = require("fs");
-    const exec = require("child_process").exec;
-    const tmp = require('tmp');
-
-    tmp.dir(
-        {
-            mode: Config.tempFilesCreationMode,
-            dir: Config.tempFilesDir
-        },
-        function(err, tmpFolderPath)
-        {
-            let command = 'unzip -qq -o ' + pathOfFile;
-            if(isNull(err))
-            {
-                const unzip = exec(command, {cwd: tmpFolderPath}, function (error, stdout, stderr) {
-                    if (isNull(error)) {
-                        console.log("Contents are in folder " + tmpFolderPath);
-                        return callback(null, tmpFolderPath);
-
-                    } else {
-                        const errorMessage = "[INFO] There was an error unzipping file with command " + command + " on folder " + tmpFolderPath + ". Code Returned by Zip Command " + JSON.stringify(error);
-                        console.error(errorMessage);
-                        return callback(1, tmpFolderPath);
-                    }
-                });
-            }
-            else {
-                const errorMessage = "Error unzipping the backup file with command " + command + " on folder " + tmpFolderPath + ". Code Returned by Zip Command " + JSON.stringify(tmpFolderPath);
-                console.error(errorMessage);
-                return callback(1, errorMessage);
-            }
-
-        }
-    );
 };
 
 File.prototype.connectToMongo = function (callback) {
@@ -539,75 +783,6 @@ File.prototype.generateThumbnails = function (callback) {
         else {
             return callback(null, "Unable to retrieve owner project of " + self.uri + " for thumbnail generation.");
         }
-    });
-};
-
-File.createBlankTempFile = function (fileName, callback) {
-    const tmp = require('tmp');
-    const path = require("path");
-
-    tmp.dir(
-        {
-            mode: Config.tempFilesCreationMode,
-            dir: Config.tempFilesDir
-        },
-        function (err, tempFolderAbsPath) {
-            const tempFilePath = path.join(tempFolderAbsPath, fileName);
-
-            if (isNull(err)) {
-                console.log("Temp File Created! Location: " + tempFilePath);
-            }
-            else {
-                console.error("Error creating temp file : " + tempFolderAbsPath);
-            }
-
-            return callback(err, tempFilePath);
-        }
-    );
-};
-
-File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
-{
-    const fs = require("fs");
-    
-    const absPathToFile = Pathfinder.absPathInApp(relativePathToFile);
-    const parentFolder = path.resolve(absPathToFile, "..");
-
-    fs.stat(absPathToFile, function (err, stat) {
-        if (isNull(err)) {
-            return callback(null, absPathToFile, parentFolder);
-        } else if (err.code === 'ENOENT') {
-            // file does not exist
-            const mkpath = require('mkpath');
-
-            mkpath(parentFolder, function (err) {
-                if (err) {
-                    return callback(1, "Error creating file " + err);
-                }
-                else {
-                    const fs = require("fs");
-                    fs.open(absPathToFile, "wx", function (err, fd) {
-                        // handle error
-                        fs.close(fd, function (err) {
-                            console.log('Directory structure ' + parentFolder + ' created. File ' + absPathToFile + " also created.");
-                            return callback(null, absPathToFile, parentFolder);
-                        });
-                    });
-                }
-            });
-        }
-        else {
-            return callback(1, "Error creating file " + err);
-        }
-    });
-};
-
-File.deleteOnLocalFileSystem = function(err, callback)
-{
-    const exec = require("child_process").exec;
-    const command = "rm absPath";
-    const rm = exec(command, {}, function (error, stdout, stderr) {
-        return callback(error, stdout, stderr);
     });
 };
 

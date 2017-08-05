@@ -16,7 +16,7 @@ const initGridFS = function(app, callback)
         Config.mongoDBAuth.password
     );
 
-    gfs.openConnection(function(err, gfsConn) {
+    gfs.open(function(err, gfsConn) {
         if(err)
         {
             return callback("[ERROR] Unable to connect to MongoDB file storage cluster running on " + Config.mongoDBHost + ":" + Config.mongoDbPort + "\n Error description : " + gfsConn);

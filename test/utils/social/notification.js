@@ -8,8 +8,8 @@ const getUserNotifications = function (jsonOnly, agent, cb) {
     if (jsonOnly) {
         agent
             .get(path)
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -17,7 +17,7 @@ const getUserNotifications = function (jsonOnly, agent, cb) {
     else {
         agent
             .get(path)
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -30,8 +30,8 @@ const getNotificationContent = function (jsonOnly, agent, notificationUri, cb) {
         agent
             .get(path)
             .query({notificationUri: notificationUri})
-            .set('Accept', 'application/json')
-            .set('Content-Type', 'application/json')
+            .set("Accept", "application/json")
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -40,7 +40,7 @@ const getNotificationContent = function (jsonOnly, agent, notificationUri, cb) {
         agent
             .get(path)
             .query({notificationUri: notificationUri})
-            .set('Content-Type', 'application/json')
+            .set("Content-Type", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });

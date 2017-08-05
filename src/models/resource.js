@@ -1979,7 +1979,11 @@ Resource.findByPropertyValue = function(descriptor, callback, allowedGraphsArray
                 if(!isNull(object))
                 {
                     const resource = Object.create(self.prototype);
-                    resource.uri = uri;
+
+                    if(!isNull(object.uri) && isNull(resource.uri))
+                    {
+                        resource.uri = object.uri;
+                    }
 
                     resource.copyOrInitDescriptors(object);
 
@@ -3135,7 +3139,7 @@ Resource.prototype.addURIAndRDFType = function(object, resourceTypeSection, clas
     {
         if(isNull(self.uri))
         {
-            const uuid = require('uuid');
+            const uuid = require("uuid");
             self.uri = "/r/"+resourceTypeSection+"/" + uuid.v4();
         }
     }

@@ -52,8 +52,8 @@ exports.show_deep = function(req, res) {
                                 result.is_project_root = false;
                                 result.is_a_file = resource.isA(File);
 
-                                res.set('Content-Type', contentType);
-                                res.set('Content-disposition', 'attachment; filename="' + file.nie.title + "\"");
+                                res.set("Content-Type", contentType);
+                                res.set("Content-disposition", "attachment; filename=\"" + result.nie.title + "\"");
                                 res.send(serializer(result));
 
                             }
@@ -133,8 +133,8 @@ exports.show = function(req, res) {
                                 result.is_project_root = false;
                                 result.is_a_file = requestedResource.isA(File);
 
-                                res.set('Content-Type', contentType);
-                                res.set('Content-disposition', 'attachment; filename="' + requestedResource.nie.title + "\"");
+                                res.set("Content-Type", contentType);
+                                res.set("Content-disposition", "attachment; filename=\"" + requestedResource.nie.title + "\"");
                                 
                                 res.send(serializer(result));
 
@@ -151,7 +151,7 @@ exports.show = function(req, res) {
                         res.status(404).json({
                             result: "error",
                             message : "Resource " + req.params.requestedResourceUri + " not found.",
-                            error : result
+                            error : requestedResource
                         });
                     }
                 }

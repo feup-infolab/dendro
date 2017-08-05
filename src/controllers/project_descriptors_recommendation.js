@@ -86,7 +86,7 @@ exports.shared.recommend_descriptors = function(resourceUri, userUri, page, allo
     Descriptor.all_in_ontologies(allowedOntologies, function(err, descriptors){
         if(isNull(err))
         {
-            const uuid = require('uuid');
+            const uuid = require("uuid");
             const recommendation_call_id = uuid.v4();
             const recommendation_call_timestamp = new Date().toISOString();
             

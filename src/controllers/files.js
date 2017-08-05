@@ -31,8 +31,8 @@ exports.download = function(req, res){
 
                 res.writeHead(200,
                     {
-                        'Content-disposition': 'attachment; filename="' + fileName + "\"",
-                        'Content-Type': mimeType
+                        "Content-disposition": "attachment; filename=\"" + fileName + "\"",
+                        "Content-Type": mimeType
                     }
                 );
 
@@ -132,7 +132,7 @@ exports.download = function(req, res){
 
                             res.writeHead(200,
                                 {
-                                    'Content-disposition': 'attachment; filename="' + file.nie.title+"\"",
+                                    "Content-disposition": "attachment; filename=\"" + file.nie.title+"\"",
                                     'Content-type': mimeType
                                 });
 
@@ -289,8 +289,8 @@ exports.serve = function(req, res){
 
                 res.writeHead(200,
                     {
-                        'Content-disposition': 'attachment; filename="' + fileName + "\"",
-                        'Content-Type': mimeType
+                        "Content-disposition": "attachment; filename=\"" + fileName + "\"",
+                        "Content-Type": mimeType
                     }
                 );
 
@@ -375,7 +375,7 @@ exports.serve = function(req, res){
 
                                             res.writeHead(200,
                                                 {
-                                                    'Content-disposition': 'filename="' + file.nie.title+"\"",
+                                                    "Content-disposition": 'filename="' + file.nie.title+"\"",
                                                     'Content-type': mimeType
                                                 });
 
@@ -606,7 +606,7 @@ exports.get_thumbnail = function(req, res) {
 
                                                 res.writeHead(200,
                                                     {
-                                                        'Content-disposition': 'filename="' + filename+"\"",
+                                                        "Content-disposition": 'filename="' + filename+"\"",
                                                         'Content-type': mimeType
                                                     });
 
@@ -918,7 +918,8 @@ exports.upload = function(req, res)
                                         calculated_at_client: upload.md5_checksum
                                     });
                                 }
-                                else {
+                                else
+                                {
                                     getNewFileParentFolder(function(err, parentFolderUri){
                                         if(isNull(err))
                                         {
@@ -929,108 +930,103 @@ exports.upload = function(req, res)
                                                 }
                                             });
 
-                                        newFile.save(function (err, result) {
-                                            if (isNull(err)) {
-                                                newFile.loadFromLocalFile(file.path, function (err, result) {
-                                                    if (isNull(err)) {
-                                                        //console.log("File " + newFile.uri + " is now saved in GridFS");
-                                                        //try to generate thumbnails
-
-                                                        newFile.generateThumbnails(function (err, result) {
-                                                            if (!isNull(err)) {
-                                                                console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
-                                                            }
-
-
-                                                            newFile.extract_text(function(err, text)
-                                                            {
-                                                                if(isNull(err))
-                                                                {
-                                                                    if(!isNull(text))
-                                                                    {
-                                                                        newFile.nie.plainTextContent = text;
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        delete newFile.nie.plainTextContent;
-                                                                    }
+                                            newFile.save(function (err, result) {
+                                                if (isNull(err)) {
+                                                    newFile.loadFromLocalFile(file.path, function (err, result) {
+                                                        if (isNull(err)) {
+                                                            newFile.generateThumbnails(function (err, result) {
+                                                                if (!isNull(err)) {
+                                                                    console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
                                                                 }
 
-                                                                newFile.save(function (err, result) {
-                                                                    if(!err)
+                                                                newFile.extract_text(function(err, text)
+                                                                {
+                                                                    if(isNull(err))
                                                                     {
-                                                                        newFile.reindex(req.index, function (err, data) {
-                                                                            if(isNull(err))
-                                                                            {
-                                                                                return callback(null, {
-                                                                                    result: "success",
-                                                                                    message: "File submitted successfully. Message returned : " + result,
-                                                                                    files: files
-                                                                                });
-                                                                            }
-                                                                            else
-                                                                            {
-                                                                                const msg = "Error [" + err + "]reindexing file [" + newFile.uri + "]in GridFS :" + data;
-                                                                                return callback(500, {
-                                                                                    result: "error",
-                                                                                    message: msg,
-                                                                                    files: files
-                                                                                });
-                                                                            }
-                                                                        });
-                                                                    }
-                                                                    else
-                                                                    {
-                                                                        const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                                                        return callback(500, {
-                                                                            result: "error",
-                                                                            message: msg,
-                                                                            files: fileNames
-                                                                        });
+                                                                        if(!isNull(text))
+                                                                        {
+                                                                            newFile.nie.plainTextContent = text;
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            delete newFile.nie.plainTextContent;
+                                                                        }
                                                                     }
 
+                                                                    newFile.save(function (err, result) {
+                                                                        if(!err)
+                                                                        {
+                                                                            newFile.reindex(req.index, function (err, data) {
+                                                                                if(isNull(err))
+                                                                                {
+                                                                                    return callback(null, {
+                                                                                        result: "success",
+                                                                                        message: "File submitted successfully. Message returned : " + result,
+                                                                                        files: files
+                                                                                    });
+                                                                                }
+                                                                                else
+                                                                                {
+                                                                                    const msg = "Error [" + err + "]reindexing file [" + newFile.uri + "]in GridFS :" + data;
+                                                                                    return callback(500, {
+                                                                                        result: "error",
+                                                                                        message: msg,
+                                                                                        files: files
+                                                                                    });
+                                                                                }
+                                                                            });
+                                                                        }
+                                                                        else
+                                                                        {
+                                                                            const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
+                                                                            return callback(500, {
+                                                                                result: "error",
+                                                                                message: msg,
+                                                                                files: fileNames
+                                                                            });
+                                                                        }
+
+                                                                    });
                                                                 });
                                                             });
-                                                        });
-                                                    }
-                                                    else {
-                                                        const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                                        return callback(500, {
-                                                            result: "error",
-                                                            message: msg,
-                                                            files: fileNames
-                                                        });
-                                                    }
-                                                });
-                                            }
-                                            else {
-                                                console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
-                                                return callback(500, {
-                                                    result: "error",
-                                                    message: "Error saving the file : " + result,
-                                                    files: files
-                                                });
-                                            }
-                                        });
-                                    }
-                                    else
-                                    {
-                                        const msg = "Error determining the parent folder of the new file : " + parentFolderUri;
-                                        return callback(500, {
-                                            result: "error",
-                                            message: msg,
-                                            files: files
-                                        });
-                                    }
-                                });
-                            }
-
+                                                        }
+                                                        else {
+                                                            const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
+                                                            return callback(500, {
+                                                                result: "error",
+                                                                message: msg,
+                                                                files: fileNames
+                                                            });
+                                                        }
+                                                    });
+                                                }
+                                                else {
+                                                    console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
+                                                    return callback(500, {
+                                                        result: "error",
+                                                        message: "Error saving the file : " + result,
+                                                        files: files
+                                                    });
+                                                }
+                                            });
+                                        }
+                                        else
+                                        {
+                                            const msg = "Error determining the parent folder of the new file : " + parentFolderUri;
+                                            return callback(500, {
+                                                result: "error",
+                                                message: msg,
+                                                files: files
+                                            });
+                                        }
+                                    });
+                                }
                             }
                             else {
                                 return callback(401, {
                                     result: "error",
-                                    message: "Unable to calculate the MD5 checksum of the uploaded file: " + newFile.filename,
-                                    error: result
+                                    message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
+                                    error: hash
                                 });
                             }
                         })
@@ -2052,7 +2048,7 @@ exports.serve_static = function(req, res, pathOfIntendedFileRelativeToProjectRoo
 
         res.writeHead(statusCode,
             {
-                'Content-disposition': 'filename="' + filename + "\"",
+                "Content-disposition": 'filename="' + filename + "\"",
                 'Content-type': mimeType
             });
 
@@ -2223,57 +2219,19 @@ exports.data = function(req, res){
         File.findByUri(resourceURI, function(err, file){
             if(isNull(err))
             {
-                const mimeType = Config.mimeType(file.ddr.fileExtension);
-
-                file.writeToTempFile(function(err, writtenFilePath)
+                if(!file.ddr.hasDataContent)
                 {
-                    if(isNull(err))
-                    {
-                        if(!isNull(writtenFilePath))
-                        {
-                            if(!isNull(exports.dataParsers[file.ddr.fileExtension]))
-                            {
-                                res.set('Content-Type', mimeType);
-                                res.set('Content-disposition', 'attachment; filename="' + file.nie.title + "\"");
-
-                                exports.dataParsers[file.ddr.fileExtension](req, res, writtenFilePath);
-                            }
-                            else
-                            {
-                                const error = "Doesn't exist data parser for this format file : " + resourceURI;
-                                console.error(error);
-                                res.writeHead(500, error);
-                                res.end();
-                            }
-
-
-                        }
-                        else
-                        {
-                            const error = "There was an error streaming the requested resource : " + resourceURI;
-                            console.error(error);
-                            res.writeHead(500, error);
-                            res.end();
-                        }
-                    }
-                    else
-                    {
-                        if(err === 404)
-                        {
-                            const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceURI;
-                            console.error(error);
-                            res.writeHead(404, error);
-                            res.end();
-                        }
-                        else
-                        {
-                            const error = "Unable to produce temporary file to download "+resourceURI +". Error reported :" + writtenFilePath;
-                            console.error(error);
-                            res.writeHead(500, error);
-                            res.end();
-                        }
-                    }
-                });
+                    const mimeType = Config.mimeType(file.ddr.fileExtension);
+                    res.set("Content-Type", mimeType);
+                    res.set("Content-disposition", "attachment; filename=\"" + file.nie.title + "\"");
+                    file.pipe_(req, res);
+                }
+                else
+                {
+                    const result = "File : " + resourceURI + " does not have any data associated to it";
+                    res.writeHead(400, result);
+                    res.end();
+                }
             }
             else
             {
@@ -2354,105 +2312,3 @@ exports.owner_project = function(req, res){
     });
 };
 
-const xlsFileParser = function (req, res, filePath){
-    const excelParser = require('excel-parser');
-
-    excelParser.parse({
-        inFile: filePath,
-        worksheet: 1,
-        skipEmpty: false
-    },function(err, records){
-        deleteTempFile(filePath);
-        if(err){
-        const error = "Unable to produce JSON representation of file :" + filePath + "Error reported: " + err + ".\n Cause : " + records + " \n ";
-            console.error(err);
-            res.writeHead(500, error);
-            res.end();
-        }
-        else{
-            res.json(records);
-        }
-
-    });
-};
-
-const csvFileParser = function (req,res,filePath){
-    const fs = require("fs");
-    fs.readFile(filePath, 'utf8', function(err, data)
-    {
-        if (err) throw err;
-        deleteTempFile(filePath);
-        const csv = require('csv');
-
-        if(req.query.from != null && req.query.to != null)
-        {
-            if(req.query.to - req.query.from > 100) // max 1000 lines for preview
-            {
-                req.query.to = req.query.from + 100;
-            }
-        }
-
-        const parser = csv.parse(data, {
-            from: req.query.from,
-            to: req.query.to,
-        });
-        
-        const transformer = csv.transform(function(data){
-            return data;
-        });
-        
-        const stringifier = csv.stringify();
-
-        parser.on('readable', function(){
-            while(data = parser.read()){
-                transformer.write(data);
-            }
-        });
-
-        parser.on('error', function(){
-            res.status(500).send();
-        });
-
-        transformer.on('readable', function(){
-            while(data = transformer.read()){
-                stringifier.write(data);
-            }
-        });
-
-        stringifier.on('readable', function(){
-            while(data = stringifier.read()){
-                res.write(data);
-            }
-
-            res.send();
-        });
-    });
-};
-
-const textFileParser = function (req,res,filePath){
-    const fs = require("fs");
-    fs.readFile(filePath, 'utf8', function(err, data) {
-        if (err) throw err;
-        deleteTempFile(filePath);
-        res.send(data);
-    });
-};
-
-exports.dataParsers = {
-    "xls" : xlsFileParser,
-    "xlsx" : xlsFileParser,
-    "csv" : csvFileParser,
-    "txt" : textFileParser,
-    "log" : textFileParser,
-    "xml" : textFileParser
-
-};
-
-deleteTempFile = function(filePath){
-    const fs = require("fs");
-
-    fs.unlink(filePath, function (err) {
-        if (err) throw err;
-        console.log('successfully deleted temporary file ' +filePath);
-    });
-};

@@ -8,7 +8,7 @@ module.exports.getRegisterUser = function (jsonOnly, agent, cb)
     {
         agent
             .get('/register')
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .end(function (err, res) {
                 cb(err, res);
             });
@@ -29,7 +29,7 @@ module.exports.postRegisterUser = function (jsonOnly, agent, user, cb)
     {
         agent
             .post('/register')
-            .set('Accept', 'application/json')
+            .set("Accept", "application/json")
             .send(user)
             .end(function (err, res) {
                 cb(err, res);
