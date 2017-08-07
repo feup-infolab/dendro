@@ -25,11 +25,20 @@ const folderForDemouser2 = require(Pathfinder.absPathInTestsFolder("mockdata/fol
 const createFoldersUnit = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("units/folders/createFolders.Unit.js"));
 const db = appUtils.requireUncached(Pathfinder.absPathInTestsFolder("utils/db/db.Test.js"));
 
-const zipFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
+const csvMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/csvMockFile.js"));
+const docMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/docMockFile.js"));
+const docxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/docxMockFile.js"));
+const pdfMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pdfMockFile.js"));
+const pngMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/pngMockFile.js"));
+const xlsMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsMockFile.js"));
+const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"));
+const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
+const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
+
 
 describe("Upload files into testFolder1 of Private project", function () {
     before(function (done) {
-        this.timeout(Config.testsTimeout);
+        this.timeout(60000);
         createFoldersUnit.setup(function (err, results) {
             should.equal(err, null);
             done();
@@ -40,7 +49,7 @@ describe("Upload files into testFolder1 of Private project", function () {
         //API ONLY
         it("Should give an error if the request type for this route is HTML", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                fileUtils.uploadFile(false, agent, privateProject.handle, testFolder1.name, zipFile, function (err, res) {
+                fileUtils.uploadFile(false, agent, privateProject.handle, testFolder1.name, zipMockFile, function (err, res) {
                     res.statusCode.should.equal(400);
                     done();
                 });
@@ -49,9 +58,9 @@ describe("Upload files into testFolder1 of Private project", function () {
 
         it("Should give an error message when a project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                fileUtils.uploadFile(true, agent, invalidProject.handle, testFolder1.name, zipFile, function (err, res) {
+                fileUtils.uploadFile(true, agent, invalidProject.handle, testFolder1.name, zipMockFile, function (err, res) {
                     res.statusCode.should.equal(404);
-                    fileUtils.downloadFile(true, agent, invalidProject.handle, testFolder1.name, zipFile, function (error, response) {
+                    fileUtils.downloadFile(true, agent, invalidProject.handle, testFolder1.name, zipMockFile, function (error, response) {
                         response.statusCode.should.equal(404);
                         done();
                     });
@@ -61,9 +70,9 @@ describe("Upload files into testFolder1 of Private project", function () {
 
         it("Should give an error message when the folder does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
-                fileUtils.uploadFile(true, agent, invalidProject.handle, testFolder1.name, zipFile, function (err, res) {
+                fileUtils.uploadFile(true, agent, invalidProject.handle, testFolder1.name, zipMockFile, function (err, res) {
                     res.statusCode.should.equal(404);
-                    fileUtils.downloadFile(true, agent, invalidProject.handle, testFolder1.name, zipFile, function (error, response) {
+                    fileUtils.downloadFile(true, agent, invalidProject.handle, testFolder1.name, zipMockFile, function (error, response) {
                         response.statusCode.should.equal(404);
                         done();
                     });
@@ -75,9 +84,9 @@ describe("Upload files into testFolder1 of Private project", function () {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
 
-            fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, zipFile, function (err, res) {
+            fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, zipMockFile, function (err, res) {
                 res.statusCode.should.equal(401);
-                fileUtils.downloadFile(true, agent, privateProject.handle, testFolder1.name, zipFile, function (error, response) {
+                fileUtils.downloadFile(true, agent, privateProject.handle, testFolder1.name, zipMockFile, function (error, response) {
                     response.statusCode.should.equal(404);
                     done();
                 });
@@ -85,14 +94,140 @@ describe("Upload files into testFolder1 of Private project", function () {
         });
     });
 
-    describe("[POST] [PRIVATE PROJECT] /project/" + privateProject.handle + "/data/:foldername?upload", function() {
+    describe("[POST] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function() {
         it("Should upload a ZIP file successfully", function (done) {
             const app = global.tests.app;
             const agent = chai.request.agent(app);
 
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, zipFile, function (err, res)
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, zipMockFile, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
+
+                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    {
+                        res.statusCode.should.equal(200);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should upload a TXT file successfully and extract its text for content-based indexing", function (done) {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, txtMockFile, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
+
+                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    {
+                        res.statusCode.should.equal(200);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should upload a PDF file successfully and extract its text for content-based indexing", function (done) {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, pdfMockFile, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
+
+                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    {
+                        res.statusCode.should.equal(200);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should upload a Word DOCX file successfully and extract its text for content-based indexing", function (done) {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, docxMockFile, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
+
+                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    {
+                        res.statusCode.should.equal(200);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should upload a Word DOC file successfully and extract its text for content-based indexing", function (done) {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, docMockFile, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
+
+                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    {
+                        res.statusCode.should.equal(200);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should upload a CSV file successfully and extract its data content to the datastore", function (done) {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, csvMockFile, function (err, res)
+                {
+                    res.statusCode.should.equal(200);
+                    res.body.should.be.instanceof(Array);
+                    res.body.length.should.equal(1);
+
+                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    {
+                        res.statusCode.should.equal(200);
+                        done();
+                    });
+                });
+            });
+        });
+
+        it("Should upload a XLSX file successfully and extract its data content to the datastore", function (done) {
+            const app = global.tests.app;
+            const agent = chai.request.agent(app);
+
+            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+            {
+                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, xlsxMockFile, function (err, res)
                 {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Array);
