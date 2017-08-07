@@ -1416,7 +1416,8 @@ exports.rm = function(req, res){
                                 {
                                     if(isNull(folder))
                                     {
-                                        callback(null, null);
+                                        //callback(null, null);
+                                        callback(true, "Resource is not a folder");
                                     }
                                     else
                                     {
@@ -1482,7 +1483,7 @@ exports.rm = function(req, res){
                                 {
                                     if(isNull(file))
                                     {
-                                        callback(null, null);
+                                        callback(true, "Resource is not a file");
                                     }
                                     else
                                     {

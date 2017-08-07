@@ -58,13 +58,21 @@ const createPackage = function (parentFolderPath, folder, callback) {
                 const archiver = require('archiver');
 
                 const output = fs.createWriteStream(outputFilenameZip);
-                const zipArchive = archiver('zip');
+
+                const zipArchive = archiver('zip', {
+                    zlib: { level: 9 } // Sets the compression level.
+                });
+
+                //const zipArchive = archiver('zip');
 
                 zipArchive.pipe(output);
 
-                zipArchive.bulk([
+                /*zipArchive.bulk([
                     {expand: true, src: ["**"], cwd: folderToZip}
-                ]);
+                ]);*/
+
+                //TODO
+                zipArchive.directory(folderToZip, outputFilenameZip);
 
                 zipArchive.finalize(function (err, bytes) {
 
@@ -275,7 +283,9 @@ export_to_repository_sword = function(req, res){
 
 export_to_repository_ckan = function(req, res){
     try{
-        const CKAN = require('ckan');
+        //const CKAN = require("ckan");
+        //const CKAN = require("/node_modules/ckan.js/ckan.js");
+        const CKAN = require("ckan.js");
 
         const requestedResourceUri = req.params.requestedResourceUri;
         const targetRepository = req.body.repository;
@@ -349,7 +359,8 @@ export_to_repository_ckan = function(req, res){
                         mimetype: Config.mimeType(fileExtension),
                         extension: fileExtension,
                         format: fileExtension.toUpperCase(),
-                        overwrite_if_exists: overwrite
+
+                        _if_exists: overwrite
                     };
 
                 if (typeof Config.exporting.generated_files_metadata[fileExtension] !== "undefined") {
