@@ -50,6 +50,7 @@ const setupGracefulClose = function(app, server, callback)
                 {
                     Logger.log_boot_message("error", "Error closing all GridFS connections");
                 }
+
                 cb(err, results);
             });
         };
@@ -133,6 +134,7 @@ const setupGracefulClose = function(app, server, callback)
         }
         else
         {
+            process.kill(process.pid, signal);
             return true;
         }
     });
