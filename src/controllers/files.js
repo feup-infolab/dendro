@@ -691,370 +691,190 @@ exports.get_thumbnail = function(req, res) {
 
 exports.upload = function(req, res)
 {
+    const async = require("async");
+
+    let acceptsHTML = req.accepts('html');
+    const acceptsJSON = req.accepts('json');
+    const fs = require("fs");
+    const md5File = require('md5-file');
+    const multiparty = require('multiparty');
+    const tmp = require('tmp');
+    const path = require('path');
+
+    const requestedResourceURI = req.params.requestedResourceUri;
     const upload_id = req.query.upload_id;
     const upload = UploadManager.get_upload_by_id(upload_id);
     const username = req.query.username;
-    const file_md5 = req.query.md5_checksum;
     const filename = req.query.filename;
     const size = req.query.size;
     const restart = req.query.restart;
+    let md5_checksum = req.query.md5_checksum;
 
-    if (req.originalMethod === "GET")
-    {
-        if (
-            !isNull(upload_id) &&
-            upload_id !== "" &&
-            !isNull(username)
-        )
-        {
-            if (typeof req.session.upload_manager !== "undefined" && !isNull(req.user))
-            {
-                if (!isNull(upload))
-                {
-                    if (upload.username === upload.username && !isNull(req.user) && req.user.ddr.username === username)
-                    {
-                        if(restart)
-                        {
-                            upload.restart(function (err, result)
-                            {
-                                if(isNull(err))
-                                {
-                                    res.json({
-                                        size: upload.loaded
-                                    });
-                                }
-                                else
-                                {
-                                    res.status(400).json({
-                                        result : "result",
-                                        message : "Error resetting upload."
-                                    });
-                                }
+    const saveTemporaryFilesAfterFinishingUpload = function (files, callback) {
+        const fileNames = [];
 
-                            });
-                        }
-                        else
-                        {
-                            res.json({
-                                size: upload.loaded
-                            });
-                        }
-                    }
-                    else
-                    {
-                        res.status(400).json(
-                            {
-                                result: "error",
-                                message: "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
-                            });
-                    }
-                }
-                else
-                {
-                    res.status(400).json(
-                        {
-                            result: "error",
-                            message: "The upload id is invalid."
-                        });
-                }
-
-            }
-        }
-        else
-        {
-            if (!isNull(username))
-            {
-                if (
-                    !isNull(filename) &&
-                    filename !== "" &&
-
-                    typeof file_md5 !== "undefined" &&
-                    file_md5 !== "" &&
-
-                    !isNull(req.params.requestedResourceUri) &&
-                    req.params.requestedResourceUri !== ""
-                )
-                {
-                    UploadManager.add_upload(
-                        username,
-                        filename,
-                        size,
-                        file_md5,
-                        req.params.requestedResourceUri,
-                        function (err, newUpload)
-                        {
-                            if (isNull(err))
-                            {
-                                res.json({
-                                    size: newUpload.loaded,
-                                    upload_id: newUpload.id
-                                });
-                            }
-                            else
-                            {
-                                res.status(500).json({
-                                    result: "error",
-                                    message: "There was an error registering the new upload.",
-                                    error: err
-                                });
-                            }
-
-                        });
-                }
-                else
-                {
-                    res.status(400).json({
-                        result: "error",
-                        message: "Request must include: the 'filename' field. which is the title of the uploaded file, complete with its file type extension ; the 'md5_checksum' field, which is the md5 checksum of the uploaded file."
-                    });
-                }
-            }
-            else
-            {
-                res.status(400).json({
-                    result: "error",
-                    message: "User must be authenticated in the system to upload files."
+        if (files instanceof Array) {
+            async.map(files, function (file, callback) {
+                fileNames.push({
+                    name: file.name
                 });
-            }
-        }
-    }
-    else if (req.originalMethod === "POST")
-    {
-        const requestedResourceURI = req.params.requestedResourceUri;
 
-
-        const currentUserUri = req.user.uri;
-
-        const processFiles = function (callback) {
-            const fileNames = [];
-
-            const getFilesArray = function (req) {
-                let files = [];
-
-                if (req.files instanceof Object) {
-                    if (req.files.file instanceof Object) {
-                        files[0] = req.files.file
-                    }
-                    else {
-                        files[0] = req.files;
-                    }
-
-                    return files;
-                }
-                else if (!isNull(req.files.files) && req.files.files instanceof Array) {
-                    files = req.files.files;
-                    return files;
-                }
-                else {
-                    return null;
-                }
-            };
-
-            var files = getFilesArray(req);
-
-            if (files instanceof Array) {
-                const async = require("async");
-                async.map(files, function (file, callback) {
-                    fileNames.push({
-                        name: file.name
-                    });
-
-                    const getNewFileParentFolder = function(callback)
-                    {
-                        async.tryEach([
-                            function(callback)
-                            {
-                                if(req.params.is_project_root)
-                                {
-                                    Project.findByUri(requestedResourceURI, function(err, project){
-                                        if(isNull(err))
-                                        {
-                                            if(!isNull(project))
-                                            {
-                                                callback(true, project.ddr.rootFolder);
-                                            }
-                                            else
-                                            {
-                                                callback(false);
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            callback(false, err);
-                                        }
-                                    });
-                                }
-                                else
-                                {
-                                    callback(true, requestedResourceURI);
-                                }
-                            }
-                        ], function(ok, result)
+                const getNewFileParentFolder = function(callback) {
+                    async.tryEach([
+                        function(callback)
                         {
-                            if(ok)
-                                callback(null, result);
-                            else
-                                callback(1, result);
-                        });
-                    };
-
-
-                    const fs = require("fs");
-                    const md5File = require('md5-file');
-
-
-                    if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
-                    {
-                        //TODO OMG this needs to be flattened using async!!! Callback onion!!
-                        md5File(file.path, function (err, hash) {
-                            if (isNull(err)) {
-                                if (upload.md5_checksum !== hash) {
-                                    return callback(400, {
-                                        result: "error",
-                                        message: "File was corrupted during transfer. Please repeat.",
-                                        error: "invalid_checksum",
-                                        calculated_at_server: hash,
-                                        calculated_at_client: upload.md5_checksum
-                                    });
-                                }
-                                else
-                                {
-                                    getNewFileParentFolder(function(err, parentFolderUri){
-                                        if(isNull(err))
+                            if(req.params.is_project_root)
+                            {
+                                Project.findByUri(requestedResourceURI, function(err, project){
+                                    if(isNull(err))
+                                    {
+                                        if(!isNull(project))
                                         {
-                                            const newFile = new File({
-                                                nie: {
-                                                    title: file.name,
-                                                    isLogicalPartOf: parentFolderUri
-                                                }
-                                            });
-
-                                            newFile.save(function (err, result) {
-                                                if (isNull(err)) {
-                                                    newFile.loadFromLocalFile(file.path, function (err, result) {
-                                                        if (isNull(err)) {
-                                                            newFile.generateThumbnails(function (err, result) {
-                                                                if (!isNull(err)) {
-                                                                    console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
-                                                                }
-
-                                                                newFile.extract_text(function(err, text)
-                                                                {
-                                                                    if(isNull(err))
-                                                                    {
-                                                                        if(!isNull(text))
-                                                                        {
-                                                                            newFile.nie.plainTextContent = text;
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            delete newFile.nie.plainTextContent;
-                                                                        }
-                                                                    }
-
-                                                                    newFile.save(function (err, result) {
-                                                                        if(!err)
-                                                                        {
-                                                                            newFile.reindex(req.index, function (err, data) {
-                                                                                if(isNull(err))
-                                                                                {
-                                                                                    return callback(null, {
-                                                                                        result: "success",
-                                                                                        message: "File submitted successfully. Message returned : " + result,
-                                                                                        files: files
-                                                                                    });
-                                                                                }
-                                                                                else
-                                                                                {
-                                                                                    const msg = "Error [" + err + "]reindexing file [" + newFile.uri + "]in GridFS :" + data;
-                                                                                    return callback(500, {
-                                                                                        result: "error",
-                                                                                        message: msg,
-                                                                                        files: files
-                                                                                    });
-                                                                                }
-                                                                            });
-                                                                        }
-                                                                        else
-                                                                        {
-                                                                            const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                                                            return callback(500, {
-                                                                                result: "error",
-                                                                                message: msg,
-                                                                                files: fileNames
-                                                                            });
-                                                                        }
-
-                                                                    });
-                                                                });
-                                                            });
-                                                        }
-                                                        else {
-                                                            const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                                            return callback(500, {
-                                                                result: "error",
-                                                                message: msg,
-                                                                files: fileNames
-                                                            });
-                                                        }
-                                                    });
-                                                }
-                                                else {
-                                                    console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
-                                                    return callback(500, {
-                                                        result: "error",
-                                                        message: "Error saving the file : " + result,
-                                                        files: files
-                                                    });
-                                                }
-                                            });
+                                            callback(true, project.ddr.rootFolder);
                                         }
                                         else
                                         {
-                                            const msg = "Error determining the parent folder of the new file : " + parentFolderUri;
-                                            return callback(500, {
-                                                result: "error",
-                                                message: msg,
-                                                files: files
-                                            });
+                                            callback(false);
                                         }
-                                    });
-                                }
+
+                                    }
+                                    else
+                                    {
+                                        callback(false, err);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                callback(true, requestedResourceURI);
+                            }
+                        }
+                    ], function(ok, result)
+                    {
+                        if(ok)
+                            callback(null, result);
+                        else
+                            callback(1, result);
+                    });
+                };
+
+                getNewFileParentFolder(function(err, parentFolderUri){
+                    if(isNull(err))
+                    {
+                        const newFile = new File({
+                            nie: {
+                                title: file.name,
+                                isLogicalPartOf: parentFolderUri
+                            }
+                        });
+
+                        newFile.save(function (err, result) {
+                            if (isNull(err)) {
+                                newFile.loadFromLocalFile(file.path, function (err, result) {
+                                    if (isNull(err)) {
+                                        newFile.generateThumbnails(function (err, result) {
+                                            if (!isNull(err)) {
+                                                console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
+                                            }
+
+                                            newFile.extract_text(function(err, text)
+                                            {
+                                                if(isNull(err))
+                                                {
+                                                    if(!isNull(text))
+                                                    {
+                                                        newFile.nie.plainTextContent = text;
+                                                    }
+                                                    else
+                                                    {
+                                                        delete newFile.nie.plainTextContent;
+                                                    }
+                                                }
+
+                                                newFile.save(function (err, result) {
+                                                    if(!err)
+                                                    {
+                                                        newFile.reindex(req.index, function (err, data) {
+                                                            if(isNull(err))
+                                                            {
+                                                                return callback(null, {
+                                                                    result: "success",
+                                                                    message: "File submitted successfully.",
+                                                                    uri : newFile.uri
+                                                                });
+                                                            }
+                                                            else
+                                                            {
+                                                                const msg = "Error [" + err + "]reindexing file [" + newFile.uri + "]in GridFS :" + data;
+                                                                return callback(500, {
+                                                                    result: "error",
+                                                                    message: msg,
+                                                                    files: files
+                                                                });
+                                                            }
+                                                        });
+                                                    }
+                                                    else
+                                                    {
+                                                        const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
+                                                        return callback(500, {
+                                                            result: "error",
+                                                            message: msg,
+                                                            files: fileNames
+                                                        });
+                                                    }
+
+                                                });
+                                            });
+                                        });
+                                    }
+                                    else {
+                                        const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
+                                        return callback(500, {
+                                            result: "error",
+                                            message: msg,
+                                            files: fileNames
+                                        });
+                                    }
+                                });
                             }
                             else {
-                                return callback(401, {
+                                console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
+                                return callback(500, {
                                     result: "error",
-                                    message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
-                                    error: hash
+                                    message: "Error saving the file : " + result,
+                                    files: files
                                 });
                             }
-                        })
+                        });
                     }
                     else
                     {
-                        return callback(400, {
+                        const msg = "Error determining the parent folder of the new file : " + parentFolderUri;
+                        return callback(500, {
                             result: "error",
-                            message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
-                            files: fileNames
+                            message: msg,
+                            files: files
                         });
                     }
-                }, function (err, results) {
-                    return callback(err, results);
                 });
-            }
-            else {
-                return callback(500, {
-                    result: "error",
-                    message: "Unknown error submitting files. Malformed message?",
-                    files: fileNames
-                });
-            }
-        };
 
+            }, function (err, results) {
+                return callback(err, results);
+            });
+        }
+        else {
+            return callback(500, {
+                result: "error",
+                message: "Unknown error submitting files. Malformed message?",
+                files: fileNames
+            });
+        }
+    };
+
+    const processChunkedUpload = function() {
         if (!isNull(upload))
         {
-            const multiparty = require('multiparty');
             const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
 
             form.on('error', function (err)
@@ -1079,13 +899,6 @@ exports.upload = function(req, res)
                 });
             });
 
-            /*form.on('progress', function (bytesReceived, bytesExpected)
-            {
-                console.log(upload.filename + " ---> " + upload.temp_file + ".  " + ((bytesReceived / bytesExpected) * 100) + "% uploaded");
-                console.log("Size of " + upload.temp_file + " : " + upload.loaded);
-            });*/
-
-
             // Parts are emitted when parsing the form
             form.on('part', function(part) {
 
@@ -1094,20 +907,17 @@ exports.upload = function(req, res)
                 }
 
                 if (part.filename) {
-                    // filename is defined when this is a file
-                    console.log('got file named ' + part.name);
-
                     upload.pipe(part, function(err){
                         if(isNull(err))
                         {
                             if(upload.is_finished())
                             {
-                                req.files = {
+                                req.files = [{
                                     path: upload.temp_file,
                                     name: upload.filename
-                                };
+                                }];
 
-                                processFiles(function(status, responseObject){
+                                saveTemporaryFilesAfterFinishingUpload(function(status, responseObject){
                                     if (isNull(status))
                                     {
                                         res.json(responseObject);
@@ -1153,6 +963,252 @@ exports.upload = function(req, res)
                     message: "Upload ID not recognized. Please restart uploading " + req.query.filename + "from the beginning."
                 });
         }
+    };
+
+    const processNormalUpload = function() {
+        const readFilesFromRequestBody = function(callback) {
+            let files = [],
+                filesCounter = 0,
+                finished = false,
+                fstream;
+
+            req.busboy.on('file', function (fieldname, file, filename) {
+                ++filesCounter;
+
+                tmp.dir({dir : Config.tempFilesDir}, function _tempDirCreated(err, tempFolderPath) {
+                    if(isNull(err))
+                    {
+                        let newFileLocalPath = path.join(tempFolderPath, filename);
+                        fstream = fs.createWriteStream(newFileLocalPath);
+
+                        fstream.on('error', function () {
+                            return callback(1, "Error saving file from request into temporary file");
+                        });
+
+                        fstream.on('finish', function() {
+
+                            files.push({
+                                path : newFileLocalPath,
+                                name : filename
+                            });
+
+                            if (--filesCounter === 0 && finished) {
+                                callback(null, files);
+                            }
+                        });
+
+                        file.pipe(fstream);
+                    }
+                    else
+                    {
+                        return callback(1, "Error creating temporary folder for receiving file from request into temporary file");
+                    }
+                });
+            });
+
+            req.busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
+                stream.resume();
+            });
+
+            req.busboy.on('finish', function() {
+                finished = true;
+            });
+
+            req.pipe(req.busboy);
+        };
+
+        async.waterfall([
+            readFilesFromRequestBody,
+            function(files)
+            {
+                saveTemporaryFilesAfterFinishingUpload(files, function(status, responseObject){
+                    if (isNull(status))
+                    {
+                        res.json(responseObject);
+                    }
+                    else
+                    {
+                        res.status(status).json(responseObject);
+                    }
+                });
+            }
+        ]);
+    };
+
+    if(acceptsJSON && !acceptsHTML)
+    {
+        if (req.originalMethod === "GET")
+        {
+            if (
+                !isNull(upload_id) &&
+                upload_id !== "" &&
+                !isNull(username)
+            )
+            {
+                if (typeof req.session.upload_manager !== "undefined" && !isNull(req.user))
+                {
+                    if (!isNull(upload))
+                    {
+                        if (upload.username === upload.username && !isNull(req.user) && req.user.ddr.username === username)
+                        {
+                            if(restart)
+                            {
+                                upload.restart(function (err, result)
+                                {
+                                    if(isNull(err))
+                                    {
+                                        res.json({
+                                            size: upload.loaded
+                                        });
+                                    }
+                                    else
+                                    {
+                                        res.status(400).json({
+                                            result : "result",
+                                            message : "Error resetting upload."
+                                        });
+                                    }
+
+                                });
+                            }
+                            else
+                            {
+                                res.json({
+                                    size: upload.loaded
+                                });
+                            }
+                        }
+                        else
+                        {
+                            res.status(400).json(
+                                {
+                                    result: "error",
+                                    message: "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
+                                });
+                        }
+                    }
+                    else
+                    {
+                        res.status(400).json(
+                            {
+                                result: "error",
+                                message: "The upload id is invalid."
+                            });
+                    }
+
+                }
+            }
+            else
+            {
+                if (!isNull(username))
+                {
+                    if (
+                        !isNull(filename) &&
+                        filename !== "" &&
+
+                        typeof md5_checksum !== "undefined" &&
+                        md5_checksum !== "" &&
+
+                        !isNull(req.params.requestedResourceUri) &&
+                        req.params.requestedResourceUri !== ""
+                    )
+                    {
+                        UploadManager.add_upload(
+                            username,
+                            filename,
+                            size,
+                            md5_checksum,
+                            req.params.requestedResourceUri,
+                            function (err, newUpload)
+                            {
+                                if (isNull(err))
+                                {
+                                    res.json({
+                                        size: newUpload.loaded,
+                                        upload_id: newUpload.id
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(500).json({
+                                        result: "error",
+                                        message: "There was an error registering the new upload.",
+                                        error: err
+                                    });
+                                }
+
+                            });
+                    }
+                    else
+                    {
+                        res.status(400).json({
+                            result: "error",
+                            message: "Request must include: the 'filename' field. which is the title of the uploaded file, complete with its file type extension ; the 'md5_checksum' field, which is the md5 checksum of the uploaded file."
+                        });
+                    }
+                }
+                else
+                {
+                    res.status(400).json({
+                        result: "error",
+                        message: "User must be authenticated in the system to upload files."
+                    });
+                }
+            }
+        }
+        else if (req.originalMethod === "POST")
+        {
+            if(!isNull(username) && !isNull(filename) && !isNull(size) && !isNull(md5_checksum))
+            {
+                if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
+                {
+                    //TODO OMG this needs to be flattened using async!!! Callback onion!!
+                    md5File(file.path, function (err, hash) {
+                        if (isNull(err)) {
+                            if (md5_checksum !== hash) {
+                                return callback(400, {
+                                    result: "error",
+                                    message: "File was corrupted during transfer. Please repeat.",
+                                    error: "invalid_checksum",
+                                    calculated_at_server: hash,
+                                    calculated_at_client: md5_checksum
+                                });
+                            }
+                            else
+                            {
+                                processChunkedUpload();
+                            }
+                        }
+                        else {
+                            return callback(500, {
+                                result: "error",
+                                message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
+                                error: hash
+                            });
+                        }
+                    });
+                }
+                else
+                {
+                    return callback(400, {
+                        result: "error",
+                        message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
+                        files: fileNames
+                    });
+                }
+            }
+            else
+            {
+                processNormalUpload();
+            }
+        }
+    }
+    else
+    {
+        res.status(400).json({
+            result : "error",
+            msg : "This functionality is only accessible via API. Missing Accept: 'application/json' header."
+        });
     }
 };
 

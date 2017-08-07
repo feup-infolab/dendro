@@ -1,3 +1,8 @@
+const Pathfinder = global.Pathfinder;
+const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
+let supertest = require('supertest');
+let targetUrl;
+
 module.exports.binaryParser = function (res, cb) {
     res.setEncoding("binary");
     res.data = "";
@@ -10,18 +15,76 @@ module.exports.binaryParser = function (res, cb) {
 };
 
 
-module.exports.uploadFile = function(acceptsJSON, agent, file, targetUrl, fileType, cb)
+module.exports.uploadFile = function(acceptsJSON, agent, projectHandle, folderName, file, cb)
 {
-    const Pathfinder = global.Pathfinder;
-const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
-    let supertest = require('supertest');
+    targetUrl = "/project/" + projectHandle + "/data/" + folderName + "?upload";
 
-    let request = supertest(Config.host);
-    request.set("Cookie", agent.cookies); //TODO FIX
+    if(acceptsJSON)
+    {
+        agent
+            .post(targetUrl)
+            .send({ md5_checksum: file.md5_checksum})
+            .set("Accept", "application/json")
+            .attach('file', file.location)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .post(targetUrl)
+            .send({ md5_checksum: file.md5_checksum})
+            .attach('file', file.location)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+};
 
-    request.post(targetUrl)
-        .field('extra_info', '{"in":"case you want to send json along with your file"}')
-        .attach(fileType, file.location)
-        .end(cb);
+module.exports.downloadFileByUri = function(acceptsJSON, agent, uri, cb)
+{
+    targetUrl = uri + "?download";
+
+    if(acceptsJSON)
+    {
+        agent
+            .get(targetUrl)
+            .set("Accept", "application/json")
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(targetUrl)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+};
+
+module.exports.downloadFile = function(acceptsJSON, agent, projectHandle, folderName, file, cb)
+{
+    targetUrl = "/project/" + projectHandle + "/data/" + folderName + "/" + file.name + "?download";
+
+    if(acceptsJSON)
+    {
+        agent
+            .get(targetUrl)
+            .set("Accept", "application/json")
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(targetUrl)
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
 };
 

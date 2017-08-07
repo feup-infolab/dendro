@@ -15,7 +15,7 @@
     "elasticSearchPort": "9200",
     "datastore" :
     {
-      "database": "127.0.0.1:3001_datastore",
+      "database": "127.0.0.1:3001_datastore_dev",
       "host": "192.168.56.249",
       "port": "27017",
       "id": "default",
@@ -387,6 +387,16 @@
     "sendGridPassword": "__FIXME",
     "elasticSearchHost": "192.168.56.249",
     "elasticSearchPort": "9200",
+    "datastore" :
+    {
+      "database": "127.0.0.1:3001_datastore_test",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "id": "default",
+      "log" : {
+        "log_datastore_ops" : true
+      }
+    },
     "cache": {
       "active": true,
       "type": "mongodb",
@@ -749,6 +759,16 @@
     "sendGridPassword": "__FIXME",
     "elasticSearchHost": "127.0.0.1",
     "elasticSearchPort": "9200",
+    "datastore" :
+    {
+      "database": "127.0.0.1:3001_jenkins_test_datastore",
+      "host": "192.168.56.249",
+      "port": "27017",
+      "id": "default",
+      "log" : {
+        "log_datastore_ops" : true
+      }
+    },
     "cache": {
       "active": true,
       "type": "mongodb",

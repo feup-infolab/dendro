@@ -95,8 +95,8 @@ GridFSConnection.prototype.put = function(fileUri, inputStream, callback, metada
 
         //callback on complete
         uploadStream.once('finish', function (file) {
-            console.log('GridFS: Write stream closed for file with uri :'+fileUri);
-            
+            //console.log('GridFS: Write stream closed for file with uri :'+fileUri);
+
             if(!hasError)
             {
                 

@@ -17,8 +17,11 @@ global.tests = {};
  require(Pathfinder.absPathInTestsFolder("/routes/search/routes.search.Test.js"));
  */
 
-require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
+//require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
 
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__upload/routes.project.privateProject.data.testFolder1.__upload.Test.js"));
+
+return;
 
 //USERS
 require(Pathfinder.absPathInTestsFolder("/routes/users/loggedUser/route.users.loggedUser.Test.js"));
