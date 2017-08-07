@@ -969,8 +969,21 @@ exports.upload = function(req, res)
         const readFilesFromRequestBody = function(callback) {
             let files = [],
                 filesCounter = 0,
-                finished = false,
+                allFinished = false,
                 fstream;
+
+            function allDone(filesCounter, finished)
+            {
+                if(finished)
+                {
+                    allFinished = true;
+                }
+
+                if(filesCounter === 0 && allFinished)
+                {
+                    callback(null, files);
+                }
+            }
 
             req.busboy.on('file', function (fieldname, file, filename) {
                 ++filesCounter;
@@ -986,15 +999,14 @@ exports.upload = function(req, res)
                         });
 
                         fstream.on('finish', function() {
+                            --filesCounter;
 
                             files.push({
                                 path : newFileLocalPath,
                                 name : filename
                             });
 
-                            if (--filesCounter === 0 && finished) {
-                                callback(null, files);
-                            }
+                            allDone(filesCounter, false);
                         });
 
                         file.pipe(fstream);
@@ -1011,7 +1023,7 @@ exports.upload = function(req, res)
             });
 
             req.busboy.on('finish', function() {
-                finished = true;
+                allDone(filesCounter, true);
             });
 
             req.pipe(req.busboy);
