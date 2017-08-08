@@ -285,7 +285,7 @@ export_to_repository_ckan = function(req, res){
     try{
         //const CKAN = require("ckan");
         //const CKAN = require("/node_modules/ckan.js/ckan.js");
-        const CKAN = require("ckan.js");
+        const CKAN = require("ckan");
 
         const requestedResourceUri = req.params.requestedResourceUri;
         const targetRepository = req.body.repository;
@@ -498,6 +498,98 @@ export_to_repository_ckan = function(req, res){
                                                                             Utils.copyFromObjectToObject(packageContents[0], result.result);
 
                                                                             client.action(
+                                                                                "package_delete",
+                                                                                result.result,
+                                                                                function (err, result)
+                                                                                {
+                                                                                    if (result.success)
+                                                                                    {
+                                                                                        //TODO create the package again
+                                                                                        client.action(
+                                                                                            "package_create",
+                                                                                            packageContents[0],
+                                                                                            function (response, result)
+                                                                                            {
+                                                                                                if(result.success)
+                                                                                                {
+                                                                                                    createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function(err, response){
+                                                                                                        if(isNull(err))
+                                                                                                        {
+                                                                                                            const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
+                                                                                                            const msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/>";
+
+                                                                                                            res.json(
+                                                                                                                {
+                                                                                                                    "result": "OK",
+                                                                                                                    "message": msg
+                                                                                                                }
+                                                                                                            );
+                                                                                                        }
+                                                                                                        else
+                                                                                                        {
+                                                                                                            let msg = "Error uploading files in the dataset to CKAN.";
+                                                                                                            if (!isNull(response))
+                                                                                                            {
+                                                                                                                msg += " Error returned : " + response;
+                                                                                                            }
+
+                                                                                                            res.json(
+                                                                                                                {
+                                                                                                                    "result": "Error",
+                                                                                                                    "message": msg,
+                                                                                                                    "error" : response
+                                                                                                                }
+                                                                                                            );
+                                                                                                        }
+
+                                                                                                        deleteFolderRecursive(parentFolderPath);
+                                                                                                    }, overwrite, extraFiles);
+                                                                                                }
+                                                                                                else
+                                                                                                {
+                                                                                                    let msg = "Error exporting dataset to CKAN.";
+                                                                                                    if (!isNull(response))
+                                                                                                    {
+                                                                                                        msg += " Error returned : " + response;
+                                                                                                    }
+
+                                                                                                    res.json(
+                                                                                                        {
+                                                                                                            "result": "Error",
+                                                                                                            "message": msg
+                                                                                                        }
+                                                                                                    );
+
+                                                                                                    deleteFolderRecursive(parentFolderPath);
+                                                                                                }
+
+                                                                                            }
+                                                                                        );
+                                                                                    }
+                                                                                    else
+                                                                                    {
+                                                                                        const msg = "Error refreshing existing CKAN Dataset.";
+                                                                                        var response = {
+                                                                                            "result": "Error",
+                                                                                            "message": msg
+                                                                                        };
+
+                                                                                        if (!isNull(result))
+                                                                                        {
+                                                                                            response.result = result;
+                                                                                        }
+
+                                                                                        res.json(
+                                                                                            response
+                                                                                        );
+
+                                                                                        deleteFolderRecursive(parentFolderPath);
+                                                                                    }
+                                                                                }
+                                                                            );
+
+
+                                                                            /*client.action(
                                                                                 "package_update",
                                                                                 result.result,
                                                                                 function (err, result)
@@ -555,7 +647,7 @@ export_to_repository_ckan = function(req, res){
                                                                                         deleteFolderRecursive(parentFolderPath);
                                                                                     }
                                                                                 }
-                                                                            );
+                                                                            );*/
                                                                         }
                                                                     }
                                                                     //dataset not found
