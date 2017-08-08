@@ -83,6 +83,7 @@
     "node-b2share-v2": "^2.0.0",
     "node-cleanup": "^2.1.2",
     "node-fs": "0.1.7",
+    "node-xlsx": "^0.10.0",
     "nodemailer": "^4.0.1",
     "npid": "^0.4.0",
     "npm": "^5.3.0",

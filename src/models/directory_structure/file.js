@@ -626,6 +626,8 @@ File.prototype.extractTextAndSaveIntoGraph = function (callback) {
                     self.save(callback);
                 }
                 else {
+                    console.error("Error extracting text from " + locationOfTempFile + " : ");
+                    console.error(err);
                     return callback(1, err);
                 }
             });
@@ -747,7 +749,7 @@ File.prototype.generateThumbnails = function (callback) {
             );
         })
             .catch(function (err) {
-                return callback(err, +"Error saving thumbnail for file " + self.uri + " . \nCheck that you have the xpdf ghostscript-x tesseract-ocr imagemagick dependencies installed in the server.\nIf you are on a Mac, you need XQuartz and all other dependencies: run this command: brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick" + err);
+                return callback(err, +"Error saving thumbnail for file " + self.uri + " . \nCheck that you have the xpdf ghostscript-x tesseract-ocr imagemagick dependencies installed in the server.\nIf you are on a Mac, you need XQuartz and all other dependencies: run this command: brew cask install xquartz && brew install ghostscript xpdf tesseract imagemagick && brew cask install pdftotext" + err);
             });
     };
 

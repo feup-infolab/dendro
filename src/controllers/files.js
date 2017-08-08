@@ -779,7 +779,7 @@ exports.upload = function(req, res)
                             }
                             else
                             {
-                                const msg = "Error [" + err + "]reindexing file [" + newFile.uri + "]in GridFS :" + data;
+                                const msg = "Error [" + err + "]reindexing file [" + newFile.uri + "]in GridFS :" + newFile;
                                 return callback(500, {
                                     result: "error",
                                     message: msg,
