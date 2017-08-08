@@ -173,12 +173,28 @@ File.createBlankFileRelativeToAppRoot = function(relativePathToFile, callback)
     });
 };
 
-File.deleteOnLocalFileSystem = function(err, callback)
+File.deleteOnLocalFileSystem = function(absPathToFile, callback)
 {
-    const exec = require("child_process").exec;
-    const command = "rm absPath";
-    const rm = exec(command, {}, function (error, stdout, stderr) {
-        return callback(error, stdout, stderr);
+    const isWin = /^win/.test(process.platform);
+    let command;
+
+    if(isWin)
+    {
+        command = `rd /s /q "${absPath}"`
+    }
+    else
+    {
+        command = `rm -rf ${absPath}`;
+    }
+
+    InformationElement.isSafePath(absPath, function(err, isSafe){
+        if(!err && isSafe)
+        {
+            exec(command, {}, function (error, stdout, stderr)
+            {
+                return callback(error, stdout, stderr);
+            });
+        }
     });
 };
 
@@ -214,6 +230,40 @@ File.prototype.save = function (callback) {
             }
         }
     );
+};
+
+File.prototype.saveWithFileAndContents = function(localFilePath, indexConnectionToReindexContents, callback) {
+    const self = this;
+    const _ = require('underscore');
+
+    async.series([
+        function(callback)
+        {
+            self.save(callback);
+        },
+        function(callback)
+        {
+            self.loadFromLocalFile(localFilePath, callback);
+        },
+        function(callback)
+        {
+            self.generateThumbnails(callback);
+        },
+        function(callback)
+        {
+            self.extractTextAndSaveIntoGraph(callback);
+        },
+        function(callback)
+        {
+            self.reindex(indexConnectionToReindexContents, callback);
+        },
+        function(callback)
+        {
+            self.extractDataAndSaveIntoDataStore(localFilePath, callback);
+        }
+    ], function(err){
+        callback(err, self);
+    });
 };
 
 File.prototype.deleteThumbnails = function () {
@@ -461,152 +511,94 @@ File.prototype.loadFromLocalFile = function (localFile, callback) {
 
 };
 
-File.prototype.extract_data_and_save_into_datastore = function(callback, tempFileLocation, deleteFileAfterExtracting)
+
+File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, callback)
 {
     const self = this;
-    DataStoreConnection.create(self.uri, function(err, conn){
-        conn.getStream(function(err, stream){
-            stream.on('close', callback);
-            self.extractData(writeStream, tempFileLocation, deleteFileAfterExtracting);
-        });
-    });
-};
-
-File.prototype.extract_data = function(writeStream, tempFileLocation, deleteFileAfterExtracting)
-{
-    const self = this;
-
-    const deleteTempFile = function(filePath){
-        const fs = require("fs");
-
-        fs.unlink(filePath, function (err) {
-            if (err) throw err;
-            console.log('successfully deleted temporary file ' +filePath);
-        });
-    };
+    let dataStoreWriter;
     const xlsFileParser = function (filePath){
-        const excelParser = require('excel-parser');
-
-        excelParser.parse({
-            inFile: filePath,
-            worksheet: 1,
-            skipEmpty: false
-        },function(err, records){
-            if(err){
-                const error = "Unable to produce JSON representation of file :" + filePath + "Error reported: " + err + ".\n Cause : " + records + " \n ";
-                callback(1, error);
-            }
-            else{
-                writeStream.write(JSON.stringify(records));
-            }
-
-        });
+        const xlsx = require('node-xlsx').default;
+        const workSheetsFromFile = xlsx.parse(filePath);
+        dataStoreWriter.updateDataFromArrayOfObjects(workSheetsFromFile, callback);
     };
+
     const csvFileParser = function (filePath){
         const fs = require("fs");
-        fs.readFile(filePath, 'utf8', function(err, data)
-        {
-            if(!isNull(err))
-            {
-                const csv = require('csv');
-                const parser = csv.parse(data);
+        const parse = require('csv-parse');
+        const transform = require('stream-transform');
 
-                const transformer = csv.transform(function(data){
-                    return data;
-                });
+        const input = fs.createReadStream(filePath);
+        const parser = parse({delimiter: ','});
 
-                const stringifier = csv.stringify();
-
-                parser.on('readable', function(){
-                    while(data = parser.read()){
-                        transformer.write(data);
-                    }
-                });
-
-                parser.on('error', function(){
-                    callback(1, "Error parsing CSV file.")
-                });
-
-                transformer.on('readable', function(){
-                    while(data = transformer.read()){
-                        stringifier.write(data);
-                    }
-                });
-
-                stringifier.on('readable', function(){
-                    while(data = stringifier.read()){
-                        writeStream.write(data);
-                    }
-
-                    callback(null);
-                });
-            }
-            else
-            {
-                callback(err, "Unable to read file at " + tempFileLocation);
-            }
-
+        const saver = transform(function(record, callback){
+            dataStoreWriter.appendArrayOfObjects([record], function(err, result){
+                callback(err, JSON.stringify(record));
+            });
         });
-    };
-    const textFileParser = function (filePath){
-        const fs = require("fs");
-        fs.readFile(filePath, 'utf8', function(err, data) {
-            if (err) throw err;
-            stream.write(data);
+
+        input.on("error", function(){
+            callback(1, "Unable to read file into CSV Parser");
         });
+
+        input.on("close", function(){
+            callback(null);
+        });
+
+        input.pipe(parser).pipe(saver);
     };
 
-    const dataParsers = {
+    /**
+     * DataStore Compatible file Extensions
+     * Files that contain data that can be extracted for later querying
+     */
+
+    const dataFileParsers = {
         "xls" : xlsFileParser,
         "xlsx" : xlsFileParser,
         "csv" : csvFileParser,
-        "txt" : textFileParser,
-        "log" : textFileParser,
-        "xml" : textFileParser
     };
 
-    async.waterfall([
-        function(callback)
-        {
-            if(tempFileLocation)
+    const parser = dataFileParsers[self.ddr.fileExtension];
+    if(Config.dataStoreCompatibleExtensions[self.ddr.fileExtension] && !isNull(parser))
+    {
+        async.waterfall([
+            function(callback)
             {
-                callback(null, tempFileLocation);
-            }
-            else
-            {
-                self.writeToTempFile(callback);
-            }
-        },
-        function(location, callback)
-        {
-            const parser = Config.dataStoreCompatibleExtensions[self.nie.fileExtension];
-            if(!isNull(parser))
-            {
-                parser(location, function (err, dataContent)
+                DataStoreConnection.create(self.uri, function(err, conn)
                 {
-                    if(deleteFileAfterExtracting)
-                    {
-                        deleteTempFile(location);
-                    }
-
-                    callback(err, dataContent);
+                    dataStoreWriter = conn;
+                    callback(err);
+                });
+            },
+            function(callback)
+            {
+                if(tempFileLocation)
+                {
+                    callback(null, tempFileLocation);
+                }
+                else
+                {
+                    self.writeToTempFile(callback);
+                }
+            },
+            function(location, callback)
+            {
+                parser(location, function (err)
+                {
+                    callback(err);
                 });
             }
-            else
-            {
-                callback(null, "There is no data parser for this format file : " + self.nie.fileExtension);
-            }
-        },
-        function(dataContent, callback)
-        {
-            callback(null, dataContent);
-        }
-    ], function(err, res){
-        callback(err, res);
-    });
+        ], function(err, results){
+            callback(err, results);
+        });
+    }
+    else
+    {
+        callback(null, "There is no data parser for this format file : " + self.ddr.fileExtension);
+    }
 };
 
-File.prototype.extract_text = function (callback) {
+File.prototype.extractTextAndSaveIntoGraph = function (callback) {
     let self = this;
 
     if (!isNull(Config.indexableFileExtensions[self.ddr.fileExtension])) {
@@ -620,13 +612,18 @@ File.prototype.extract_text = function (callback) {
                     if (err) {
                         console.log("Error deleting file " + locationOfTempFile);
                     }
-                    else {
-                        //console.log("successfully deleted " + locationOfTempFile);
-                    }
                 });
 
                 if (isNull(err)) {
-                    return callback(null, textContent);
+                    if (!isNull(textContent))
+                    {
+                        self.nie.plainTextContent = textContent;
+                    }
+                    else
+                    {
+                        delete newFile.nie.plainTextContent;
+                    }
+                    self.save(callback);
                 }
                 else {
                     return callback(1, err);
@@ -706,8 +703,8 @@ File.prototype.loadMetadata = function (node, callback, entityLoadingTheMetadata
 };
 
 File.prototype.generateThumbnails = function (callback) {
+    let _= require("underscore");
     let self = this;
-
     const generateThumbnail = function (localFile, ownerProject, sizeTag, cb) {
         let easyimg = require('easyimage');
         const fileName = path.basename(localFile, path.extname(localFile));
@@ -754,36 +751,43 @@ File.prototype.generateThumbnails = function (callback) {
             });
     };
 
-    self.getOwnerProject(function (err, project) {
-        if (isNull(err)) {
-            if (!isNull(Config.thumbnailableExtensions[self.ddr.fileExtension])) {
-                self.writeToTempFile(function (err, tempFileAbsPath) {
-                    if (isNull(err)) {
-                        async.map(Config.thumbnails.sizes, function (thumbnailSize, callback) {
-                                generateThumbnail(tempFileAbsPath, project.uri, thumbnailSize, callback);
-                            },
-                            function (err, results) {
-                                if (isNull(err)) {
-                                    return callback(null, null);
-                                }
-                                else {
-                                    return callback(err, "Error generating thumbnail for file " + self.uri + ". Errors reported by generator : " + JSON.stringify(results));
-                                }
-                            });
-                    }
-                    else {
-                        return callback(1, "Error generating thumbnail for file " + self.uri + ". Errors reported by generator : " + tempFileAbsPath);
-                    }
-                });
+    if(_.contains(Config.thumbnailableExtensions, self.ddr.fileExtension))
+    {
+        self.getOwnerProject(function (err, project) {
+            if (isNull(err)) {
+                if (!isNull(Config.thumbnailableExtensions[self.ddr.fileExtension])) {
+                    self.writeToTempFile(function (err, tempFileAbsPath) {
+                        if (isNull(err)) {
+                            async.map(Config.thumbnails.sizes, function (thumbnailSize, callback) {
+                                    generateThumbnail(tempFileAbsPath, project.uri, thumbnailSize, callback);
+                                },
+                                function (err, results) {
+                                    if (isNull(err)) {
+                                        return callback(null, null);
+                                    }
+                                    else {
+                                        return callback(err, "Error generating thumbnail for file " + self.uri + ". Errors reported by generator : " + JSON.stringify(results));
+                                    }
+                                });
+                        }
+                        else {
+                            return callback(1, "Error generating thumbnail for file " + self.uri + ". Errors reported by generator : " + tempFileAbsPath);
+                        }
+                    });
+                }
+                else {
+                    return callback(null, "Nothing to be done for this file, since " + self.ddr.fileExtension + " is not a thumbnailable extension.");
+                }
             }
             else {
-                return callback(null, "Nothing to be done for this file, since " + self.ddr.fileExtension + " is not a thumbnailable extension.");
+                return callback(null, "Unable to retrieve owner project of " + self.uri + " for thumbnail generation.");
             }
-        }
-        else {
-            return callback(null, "Unable to retrieve owner project of " + self.uri + " for thumbnail generation.");
-        }
-    });
+        });
+    }
+    else
+    {
+        callback(null);
+    }
 };
 
 File = Class.extend(File, InformationElement, "nfo:FileDataObject");

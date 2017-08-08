@@ -768,81 +768,21 @@ exports.upload = function(req, res)
                             }
                         });
 
-                        newFile.save(function (err, result) {
-                            if (isNull(err)) {
-                                newFile.loadFromLocalFile(file.path, function (err, result) {
-                                    if (isNull(err)) {
-                                        newFile.generateThumbnails(function (err, result) {
-                                            if (!isNull(err)) {
-                                                console.error("Error generating thumbnails for file " + newFile.uri + " : " + result);
-                                            }
-
-                                            newFile.extract_text(function(err, text)
-                                            {
-                                                if(isNull(err))
-                                                {
-                                                    if(!isNull(text))
-                                                    {
-                                                        newFile.nie.plainTextContent = text;
-                                                    }
-                                                    else
-                                                    {
-                                                        delete newFile.nie.plainTextContent;
-                                                    }
-                                                }
-
-                                                newFile.save(function (err, result) {
-                                                    if(!err)
-                                                    {
-                                                        newFile.reindex(req.index, function (err, data) {
-                                                            if(isNull(err))
-                                                            {
-                                                                return callback(null, {
-                                                                    result: "success",
-                                                                    message: "File submitted successfully.",
-                                                                    uri : newFile.uri
-                                                                });
-                                                            }
-                                                            else
-                                                            {
-                                                                const msg = "Error [" + err + "]reindexing file [" + newFile.uri + "]in GridFS :" + data;
-                                                                return callback(500, {
-                                                                    result: "error",
-                                                                    message: msg,
-                                                                    files: files
-                                                                });
-                                                            }
-                                                        });
-                                                    }
-                                                    else
-                                                    {
-                                                        const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                                        return callback(500, {
-                                                            result: "error",
-                                                            message: msg,
-                                                            files: fileNames
-                                                        });
-                                                    }
-
-                                                });
-                                            });
-                                        });
-                                    }
-                                    else {
-                                        const msg = "Error [" + err + "]saving file [" + newFile.uri + "]in GridFS :" + result;
-                                        return callback(500, {
-                                            result: "error",
-                                            message: msg,
-                                            files: fileNames
-                                        });
-                                    }
+                        newFile.saveWithFileAndContents(file.path, req.index, function(err, newFile){
+                            if(isNull(err))
+                            {
+                                return callback(null, {
+                                    result: "success",
+                                    message: "File submitted successfully.",
+                                    uri : newFile.uri
                                 });
                             }
-                            else {
-                                console.log("Error [" + err + "] saving file [" + newFile.uri + "]in GridFS :" + result);
+                            else
+                            {
+                                const msg = "Error [" + err + "]reindexing file [" + newFile.uri + "]in GridFS :" + data;
                                 return callback(500, {
                                     result: "error",
-                                    message: "Error saving the file : " + result,
+                                    message: msg,
                                     files: files
                                 });
                             }

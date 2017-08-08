@@ -379,6 +379,31 @@ InformationElement.findByParentAndName = function(parentURI, name, callback)
     self.findByUri(ie.uri, callback);
 };
 
+InformationElement.isSafePath = function(absPath, callback)
+{
+    let fs = require('fs');
+    fs.realpath(absPath, function(err, realPath){
+        function b_in_a (b, a)
+        {
+            return (b.indexOf(a) === 0);
+        }
+
+        const validDirs = [Config.tempFilesCreationMode, Config.tempUploadsDir];
+
+        for(let i = 0; i < validDirs.length; i++)
+        {
+            if(b_in_a(realPath, validDirs[i]))
+            {
+                return callback(null, true);
+            }
+        }
+
+        console.error("Path " + absPath + " is not within safe paths!! Some operation is trying to modify files outside of Dendro's installation directory!");
+        return callback(null, false);
+    });
+};
+
+
 InformationElement.prototype.findMetadata = function(callback, typeConfigsToRetain){
     const async = require("async");
 

@@ -1149,10 +1149,27 @@ Folder.prototype.undelete = function(callback, uriOfUserUnDeletingTheFolder, not
 
 Folder.deleteOnLocalFileSystem = function(absPath, callback)
 {
+    const isWin = /^win/.test(process.platform);
     const exec = require("child_process").exec;
-    const command = "rm -rf absPath";
-    const rm = exec(command, {}, function (error, stdout, stderr) {
-        return callback(error, stdout, stderr);
+    let command;
+
+    if(isWin)
+    {
+        command = `rd /s /q "${absPath}"`
+    }
+    else
+    {
+        command = `rm -rf ${absPath}`;
+    }
+
+    InformationElement.isSafePath(absPath, function(err, isSafe){
+        if(!err && isSafe)
+        {
+            exec(command, {}, function (error, stdout, stderr)
+            {
+                return callback(error, stdout, stderr);
+            });
+        }
     });
 };
 

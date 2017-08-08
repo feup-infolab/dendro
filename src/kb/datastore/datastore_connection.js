@@ -16,6 +16,7 @@ function DataStoreConnection (options) {
     self.database = options.database;
     self.resourceUri = options.resourceUri;
     self.collection = slug(self.resourceUri, '_');
+    self.counter = 0;
 }
 
 DataStoreConnection.prototype.open = function(callback) {
@@ -41,10 +42,17 @@ DataStoreConnection.prototype.open = function(callback) {
         });
     }
 };
-DataStoreConnection.prototype.close = function(callback) {
+DataStoreConnection.prototype.close = function() {
     const self = this;
     self.client.close(function(err, result){
-        callback(err, result);
+        if(!err)
+        {
+            self.emit("close");
+        }
+        else
+        {
+            self.emit("error");
+        }
     });
 };
 DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, callback) {
@@ -73,30 +81,18 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, call
         return callback(1, "Must open connection to MongoDB cache "+JSON.stringify(self)+"first!");
     }
 };
-DataStoreConnection.prototype.getWholeData = function(writeStream, callback) {
+DataStoreConnection.prototype.getData = function(writeStream, callback) {
     DataStoreConnection.prototype.getDataByQuery({}, writeStream, callback);
 };
 DataStoreConnection.prototype.clearData = function(callback) {
     const self = this;
     if(!isNull(self.client))
     {
-        db.collectionNames(self.collection, function(err, names) {
-            if(isNull(err))
-            {
-                if(names.length > 0){
-                    self.client.collection(self.collection).drop(function(err, result){
-                        callback(err, result);
-                    });
-                }
-                else
-                {
-                    callback(null, "Collection " + self.collection + " does not exist, so there was no need to clear the data.");
-                }
-            }
+        self.client.collection(self.collection).drop(function(err, result){
+            if(isNull(err) || err.errmsg === "ns not found")
+                callback(null, result);
             else
-            {
-                callback(err, "Error checking for collection " + self.collection);
-            }
+                callback(err, result);
         });
     }
     else
@@ -104,88 +100,80 @@ DataStoreConnection.prototype.clearData = function(callback) {
         return callback(1, "Must open connection to MongoDB cache "+JSON.stringify(self)+"first!");
     }
 };
-DataStoreConnection.prototype.updateDataFromStream = function(sourceStream, callback) {
+
+DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, callback) {
     const self = this;
-    if(!isNull(self.client))
+
+    if(self.counter === 0 && arrayOfRecords.length > 0)
     {
-        self.clearData(function(err, result){
-            const bulkMongo = require('bulk-mongo');
-            const factory_function = bulkMongo(self.client);
-            const bulkWriter = factory_function(self.collection);
+        self.header = arrayOfRecords[0];
+    }
 
-            sourceStream.on("end", function(err, result){
-                self.close(function(err, result){
-                    if(isNull(err))
+    const createNewEntries = function(entries, callback) {
+
+        //from https://stackoverflow.com/questions/34530348/correct-way-to-insert-many-records-into-mongodb-with-node-js
+        // Get the collection and bulk api artefacts
+        let collection = self.client.collection(self.collection),
+            bulk = collection.initializeOrderedBulkOp(); // Initialize the Ordered Batch
+
+        // Execute the forEach method, triggers for each entry in the array
+
+        for(let i = 0; i < entries.length; i++)
+        {
+            let obj = {};
+            obj[self.counter] = entries[i];
+
+            bulk.insert(obj);
+            self.counter++;
+
+            if (self.counter % 1000 === 0)
+            {
+                // Execute the operation
+                bulk.execute(function (err, result)
+                {
+                    // re-initialise batch operation
+                    if(!err)
                     {
-                        if (Config.datastore.log.log_datastore_ops)
-                        {
-                            console.log("[DEBUG] Saved data record for " + self.resourceUri + " in DataStoreConnection");
-                        }
-
-                        return callback(null);
+                        bulk = collection.initializeOrderedBulkOp();
                     }
                     else
                     {
-                        return callback(1, "Unable to set data contained in " + self.resourceUri + " as " + JSON.stringify(object) + " into monogdb cache. Error : " + JSON.stringify(results));
+                        callback(err, result);
                     }
                 });
-            });
+            }
+        }
 
-            sourceStream.pipe(bulkWriter);
-
-            bulkWriter.on("close", function(err, result){
-                callback(null, result);
-            });
-
-            bulkWriter.on("error", function(err, result){
+        if (self.counter % 1000 !== 0 ){
+            bulk.execute(function(err, result) {
+                // do something with result
                 callback(err, result);
             });
-        });
+        }
+        else
+        {
+            callback(null);
+        }
+
+    };
+
+    if(!isNull(self.client))
+    {
+        createNewEntries(arrayOfRecords, callback);
     }
     else
     {
         return callback(1, "Open the connection to the DataStoreConnection first !");
     }
 };
-DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfDataObjects, callback) {
+
+DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfRecords, callback) {
     const self = this;
+
     if(!isNull(self.client))
     {
         self.clearData(function(err, result){
-
-            const createNewEntries = function(db, entries, callback) {
-
-                //from https://stackoverflow.com/questions/34530348/correct-way-to-insert-many-records-into-mongodb-with-node-js
-                // Get the collection and bulk api artefacts
-                let collection = self.client,
-                    bulk = collection.initializeOrderedBulkOp(), // Initialize the Ordered Batch
-                    counter = 0;
-
-                // Execute the forEach method, triggers for each entry in the array
-                entries.forEach(function(obj) {
-
-                    bulk.insert(obj);
-                    counter++;
-
-                    if (counter % 1000 === 0 ) {
-                        // Execute the operation
-                        bulk.execute(function(err, result) {
-                            // re-initialise batch operation
-                            bulk = collection.initializeOrderedBulkOp();
-                            callback(err, result);
-                        });
-                    }
-                });
-
-                if (counter % 1000 !== 0 ){
-                    bulk.execute(function(err, result) {
-                        // do something with result
-                        callback(err, result);
-                    });
-                }
-            };
-
-            createNewEntries(arrayOfDataObjects, callback);
+            self.appendArrayOfObjects(arrayOfRecords, callback);
         });
     }
     else
@@ -193,11 +181,12 @@ DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfDat
         return callback(1, "Open the connection to the DataStoreConnection first !");
     }
 };
+
 DataStoreConnection.create = function(resourceUri, callback) {
     const parameters = JSON.parse(JSON.stringify(Config.datastore));
     parameters.resourceUri = resourceUri;
 
-    const newDataStore = new DataStoreConnection(Config.datastore);
+    const newDataStore = new DataStoreConnection(parameters);
     newDataStore.open(function(err, openDataStore){
         callback(err, openDataStore);
     });
@@ -205,31 +194,40 @@ DataStoreConnection.create = function(resourceUri, callback) {
 DataStoreConnection.deleteAllDataOfAllResources = function(callback) {
     const self = this;
 
-    if(!isNull(self.client))
-    {
-        self.client.drop(function (err) {
-            if (isNull(err) || err.message === "ns not found")
+    DataStoreConnection.create("NO_RES", function(err, openDataStore){
+        if(!err)
+        {
+            if(!isNull(openDataStore))
             {
-                if (Config.debug.active && Config.datastore.log.log_datastore_ops)
-                {
-                    console.log("[DEBUG] Deleted ALL datastore records");
-                }
+                openDataStore.client.dropDatabase(function (err) {
+                    if (isNull(err) || err.message === "ns not found")
+                    {
+                        if (Config.debug.active && Config.datastore.log.log_datastore_ops)
+                        {
+                            console.log("[DEBUG] Deleted ALL datastore records");
+                        }
 
-                return callback(null);
+                        return callback(null);
+                    }
+                    else
+                    {
+                        const msg = "Unable to delete database " + self.database + " : " + JSON.stringify(err);
+                        console.log(msg);
+                        return callback(err, msg);
+                    }
+                });
             }
             else
             {
-                const msg = "Unable to delete database " + self.database + " : " + JSON.stringify(err);
-                console.log(msg);
-                return callback(err, msg);
+                return callback(1, "Open the connection to the DataStoreConnection first !");
             }
-        });
-    }
-    else
-    {
-        return callback(1, "Open the connection to the DataStoreConnection first !");
-    }
+        }
+        else
+        {
+            return callback(err, "Unable to open the connection to the DataStoreConnection!");
+        }
 
+    });
 };
 
 module.exports.DataStoreConnection = DataStoreConnection;

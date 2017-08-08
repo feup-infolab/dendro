@@ -54,14 +54,14 @@
         "instances": {
           "default": {
             "database": "127.0.0.1:3001",
-            "collection": "default_cache_dev",
+            "collection": "default_cache",
             "host": "192.168.56.249",
             "port": "27017",
             "id": "default"
           },
           "social": {
             "database": "127.0.0.1:3001",
-            "collection": "social_cache_dev",
+            "collection": "social_cache",
             "host": "192.168.56.249",
             "port": "27017",
             "id": "social"
@@ -69,7 +69,7 @@
           "notifications": {
             "options": {
               "database": "127.0.0.1:3001",
-              "collection": "notifications_cache_dev",
+              "collection": "notifications_cache",
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
@@ -90,8 +90,8 @@
     },
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
-    "mongoDbCollectionName": "dendro_data_dev",
-    "mongoDBSessionStoreCollection": "dendro_data_dev_sessions",
+    "mongoDbCollectionName": "127.0.0.1:3001_files",
+    "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "user": "",
@@ -243,7 +243,8 @@
       "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": false,
-      "destroy_all_indexes": false
+      "destroy_all_indexes": false,
+      "destroy_datastore": false
     },
     "baselines": {
     },
@@ -389,7 +390,7 @@
     "elasticSearchPort": "9200",
     "datastore" :
     {
-      "database": "127.0.0.1:3001_datastore_test",
+      "database": "127.0.0.1:3002_datastore",
       "host": "192.168.56.249",
       "port": "27017",
       "id": "default",
@@ -427,23 +428,23 @@
         "active": true,
         "instances": {
           "default": {
-            "database": "127.0.0.1:3001",
-            "collection": "default_cache_test",
+            "database": "127.0.0.1:3002",
+            "collection": "default_cache",
             "host": "192.168.56.249",
             "port": "27017",
             "id": "default"
           },
           "social": {
-            "database": "127.0.0.1:3001",
-            "collection": "social_cache_test",
+            "database": "127.0.0.1:3002",
+            "collection": "social_cache",
             "host": "192.168.56.249",
             "port": "27017",
             "id": "social"
           },
           "notifications": {
             "options": {
-              "database": "127.0.0.1:3001",
-              "collection": "notifications_cache_test",
+              "database": "127.0.0.1:3002",
+              "collection": "notifications_cache",
               "host": "192.168.56.249",
               "port": "27017",
               "id": "notifications"
@@ -464,8 +465,8 @@
     },
     "mongoDBHost": "192.168.56.249",
     "mongoDbPort": "27017",
-    "mongoDbCollectionName": "dendro_data_test",
-    "mongoDBSessionStoreCollection": "dendro_data_test_sessions",
+    "mongoDbCollectionName": "127.0.0.1:3002_files",
+    "mongoDBSessionStoreCollection": "127.0.0.1:3002_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "user": "",
@@ -614,7 +615,8 @@
       "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
-      "destroy_all_indexes": true
+      "destroy_all_indexes": true,
+      "destroy_datastore": true
     },
     "baselines": {
     },
@@ -834,8 +836,8 @@
     },
     "mongoDBHost": "127.0.0.1",
     "mongoDbPort": "27017",
-    "mongoDbCollectionName": "dendro_data_dev_jenkins_test",
-    "mongoDBSessionStoreCollection": "dendro_data_dev_sessions_jenkins_test",
+    "mongoDbCollectionName": "127.0.0.1:3001_files",
+    "mongoDBSessionStoreCollection": "127.0.0.1:3001_sessions",
     "mongoDbVersion": "",
     "mongoDBAuth": {
       "user": "",
@@ -970,7 +972,8 @@
       "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": true,
-      "destroy_all_indexes": true
+      "destroy_all_indexes": true,
+      "destroy_datastore": true
     },
     "baselines": {
     },

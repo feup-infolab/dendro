@@ -2,6 +2,7 @@ const chai = require("chai");
 const chaiHttp = require("chai-http");
 const should = chai.should();
 const _ = require("underscore");
+const md5 = require("md5");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
@@ -9,6 +10,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 
 const userUtils = require(Pathfinder.absPathInTestsFolder("utils/user/userUtils.js"));
 const fileUtils = require(Pathfinder.absPathInTestsFolder("utils/file/fileUtils.js"));
+const itemUtils = require(Pathfinder.absPathInTestsFolder("utils/item/itemUtils.js"));
 const appUtils = require(Pathfinder.absPathInTestsFolder("utils/app/appUtils.js"));
 const descriptorUtils = require(Pathfinder.absPathInTestsFolder("utils/descriptor/descriptorUtils.js"));
 
@@ -96,9 +98,6 @@ describe("Upload files into testFolder1 of Private project", function () {
 
     describe("[POST] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function() {
         it("Should upload a ZIP file successfully", function (done) {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, zipMockFile, function (err, res)
@@ -117,9 +116,6 @@ describe("Upload files into testFolder1 of Private project", function () {
         });
 
         it("Should upload a TXT file successfully and extract its text for content-based indexing", function (done) {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, txtMockFile, function (err, res)
@@ -138,9 +134,6 @@ describe("Upload files into testFolder1 of Private project", function () {
         });
 
         it("Should upload a PDF file successfully and extract its text for content-based indexing", function (done) {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, pdfMockFile, function (err, res)
@@ -148,20 +141,31 @@ describe("Upload files into testFolder1 of Private project", function () {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Array);
                     res.body.length.should.equal(1);
+                    const newResourceUri = res.body[0].uri;
 
-                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
+                        pdfMockFile.md5.should.equal(md5(res.body));
                         res.statusCode.should.equal(200);
-                        done();
+
+                        itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res) {
+                            res.statusCode.should.equal(200);
+                            res.body.descriptors.should.be.instanceof(Array);
+                            descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
+
+                            descriptorUtils.containsAllMetadata(
+                                pdfMockFile.metadata,
+                                JSON.parse(res.text).descriptors
+                            );
+
+                            done();
+                        });
                     });
                 });
             });
         });
 
         it("Should upload a Word DOCX file successfully and extract its text for content-based indexing", function (done) {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, docxMockFile, function (err, res)
@@ -169,20 +173,31 @@ describe("Upload files into testFolder1 of Private project", function () {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Array);
                     res.body.length.should.equal(1);
+                    const newResourceUri = res.body[0].uri;
 
-                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
+                        docxMockFile.md5.should.equal(md5(res.body));
                         res.statusCode.should.equal(200);
-                        done();
+
+                        itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res) {
+                            res.statusCode.should.equal(200);
+                            res.body.descriptors.should.be.instanceof(Array);
+                            descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
+
+                            descriptorUtils.containsAllMetadata(
+                                docxMockFile.metadata,
+                                JSON.parse(res.text).descriptors
+                            );
+
+                            done();
+                        });
                     });
                 });
             });
         });
 
         it("Should upload a Word DOC file successfully and extract its text for content-based indexing", function (done) {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, docMockFile, function (err, res)
@@ -190,20 +205,31 @@ describe("Upload files into testFolder1 of Private project", function () {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Array);
                     res.body.length.should.equal(1);
+                    const newResourceUri = res.body[0].uri;
 
-                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
+                        docMockFile.md5.should.equal(md5(res.body));
                         res.statusCode.should.equal(200);
-                        done();
+
+                        itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res) {
+                            res.statusCode.should.equal(200);
+                            res.body.descriptors.should.be.instanceof(Array);
+                            descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
+
+                            descriptorUtils.containsAllMetadata(
+                                docMockFile.metadata,
+                                JSON.parse(res.text).descriptors
+                            );
+
+                            done();
+                        });
                     });
                 });
             });
         });
 
         it("Should upload a CSV file successfully and extract its data content to the datastore", function (done) {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, csvMockFile, function (err, res)
@@ -214,6 +240,7 @@ describe("Upload files into testFolder1 of Private project", function () {
 
                     fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
                     {
+                        csvMockFile.md5.should.equal(md5(res.body));
                         res.statusCode.should.equal(200);
                         done();
                     });
@@ -222,9 +249,6 @@ describe("Upload files into testFolder1 of Private project", function () {
         });
 
         it("Should upload a XLSX file successfully and extract its data content to the datastore", function (done) {
-            const app = global.tests.app;
-            const agent = chai.request.agent(app);
-
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
             {
                 fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, xlsxMockFile, function (err, res)
@@ -235,6 +259,7 @@ describe("Upload files into testFolder1 of Private project", function () {
 
                     fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
                     {
+                        xlsxMockFile.md5.should.equal(md5(res.body));
                         res.statusCode.should.equal(200);
                         done();
                     });

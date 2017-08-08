@@ -28,10 +28,11 @@ GridFSConnection.prototype.open = function(callback) {
     }
     else
     {
-        const mongo = require('mongodb');
-        const Grid = require('gridfs-stream');
+        const mongo = require("mongodb");
+        const Grid = require("gridfs-stream");
+        const slug = require("slug");
 
-        const db = new mongo.Db(self.collectionName, new mongo.Server(
+        const db = new mongo.Db(slug(self.collectionName, "_"), new mongo.Server(
             self.hostname,
             self.port,
             {

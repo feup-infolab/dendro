@@ -6,5 +6,10 @@ const md5File = require('md5-file');
 module.exports = {
     md5 : md5File.sync(Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/docTest.doc")),
     name : "docTest.doc",
-    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/docTest.doc")
+    location : Pathfinder.absPathInApp("/test/mockdata/files/test_uploads/docTest.doc"),
+    metadata: [{
+        prefix:"nie",
+        shortName:"plainTextContent",
+        value:"This is a test of an upload for the Dendro platform in Word Document (DOC) Format."
+    }]
 };

@@ -3,7 +3,7 @@ const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).C
 let supertest = require('supertest');
 let targetUrl;
 
-module.exports.binaryParser = function (res, cb) {
+const binaryParser = function (res, cb) {
     res.setEncoding("binary");
     res.data = "";
     res.on("data", function (chunk) {
@@ -51,6 +51,8 @@ module.exports.downloadFileByUri = function(acceptsJSON, agent, uri, cb)
         agent
             .get(targetUrl)
             .set("Accept", "application/json")
+            .buffer()
+            .parse(binaryParser)
             .end(function(err, res) {
                 cb(err, res);
             });

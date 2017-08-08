@@ -114,6 +114,10 @@ const prepareEnvironment = function(callback)
             require(Pathfinder.absPathInSrcFolder("bootup/init/init_temp_uploads_folder.js")).initTempUploadsFolder(self.app, callback);
         },
         function(callback) {
+            //clear datastore
+            require(Pathfinder.absPathInSrcFolder("bootup/load/clear_datastore.js")).clearDataStore(self.app, callback);
+        },
+        function(callback) {
             //add RAM usage monitor if enabled
             require(Pathfinder.absPathInSrcFolder("bootup/monitoring/monitor_ram_usage.js")).monitorRAMUsage(self.app, callback);
         }
