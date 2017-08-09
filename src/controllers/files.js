@@ -2220,32 +2220,42 @@ exports.recent_changes = function(req, res) {
 };
 
 exports.data = function(req, res){
-    let path = require('path');
     if(isNull(req.params.showing_project_root))
     {
         const resourceURI = req.params.requestedResourceUri;
         File.findByUri(resourceURI, function(err, file){
             if(isNull(err))
             {
-                if(!file.ddr.hasDataContent)
+                if(!isNull(file) && file instanceof File)
                 {
-                    const mimeType = Config.mimeType(file.ddr.fileExtension);
-                    res.set("Content-Type", mimeType);
-                    res.set("Content-disposition", "attachment; filename=\"" + file.nie.title + "\"");
-                    file.pipe_(req, res);
+                    if(file.ddr.hasDataContent)
+                    {
+                        res.set("Content-Type", "text/csv");
+                        file.pipeData(req, res);
+                    }
+                    else
+                    {
+                        const error = resourceURI + " has no data.";
+                        console.error(error);
+                        res.status(400).json({
+                            result : "error",
+                            message : error
+                        });
+                    }
                 }
                 else
                 {
-                    const result = "File : " + resourceURI + " does not have any data associated to it";
-                    res.writeHead(400, result);
+                    const error = "Non-existent file : " + resourceURI;
+                    console.error(error);
+                    res.writeHead(404, error);
                     res.end();
                 }
             }
             else
             {
-                const error = "Non-existent file : " + resourceURI;
+                const error = "Error retrieving file : " + resourceURI;
                 console.error(error);
-                res.writeHead(404, error);
+                res.writeHead(500, error);
                 res.end();
             }
         });

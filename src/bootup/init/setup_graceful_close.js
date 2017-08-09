@@ -109,9 +109,9 @@ const setupGracefulClose = function(app, server, callback)
     };
 
     nodeCleanup(function (exitCode, signal) {
-        Logger.log_boot_message("warning", "Signal " + signal + " received!");
+        Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code "+exitCode+"!");
 
-        if(signal)
+        if(exitCode || signal)
         {
             app.freeResources(function(err){
                 if(!err)
@@ -127,7 +127,6 @@ const setupGracefulClose = function(app, server, callback)
                 nodeCleanup.uninstall(); // don't call cleanup handler again
                 Logger.log_boot_message("success", "Freed all resources. Halting Dendro Server with PID "+process.pid+" now. ");
                 process.kill(process.pid, signal);
-                return false;
             });
 
             return false;

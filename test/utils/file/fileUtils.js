@@ -67,6 +67,29 @@ module.exports.downloadFileByUri = function(acceptsJSON, agent, uri, cb)
     }
 };
 
+module.exports.downloadDataByUri = function(acceptsJSON, agent, uri, cb, sheet)
+{
+    if(acceptsJSON)
+    {
+        agent
+            .get(uri)
+            .query({sheet: sheet, data : ""})
+            .set("Accept", "application/json")
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+    else
+    {
+        agent
+            .get(uri)
+            .query({sheet: sheet, data : ""})
+            .end(function(err, res) {
+                cb(err, res);
+            });
+    }
+};
+
 module.exports.downloadFile = function(acceptsJSON, agent, projectHandle, folderName, file, cb)
 {
     targetUrl = "/project/" + projectHandle + "/data/" + folderName + "/" + file.name + "?download";

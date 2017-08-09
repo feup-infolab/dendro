@@ -3,6 +3,7 @@ const chaiHttp = require("chai-http");
 const should = chai.should();
 const _ = require("underscore");
 const md5 = require("md5");
+const fs = require("fs");
 chai.use(chaiHttp);
 
 const Pathfinder = global.Pathfinder;
@@ -36,6 +37,8 @@ const xlsMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsM
 const xlsxMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/xlsxMockFile.js"));
 const zipMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/zipMockFile.js"));
 const txtMockFile = require(Pathfinder.absPathInTestsFolder("mockdata/files/txtMockFile.js"));
+
+const csvResult = fs.readFileSync(Pathfinder.absPathInTestsFolder("mockdata/files/test_data_serialization/xlsInCSV.csv"), "utf-8") ;
 
 
 describe("Upload files into testFolder1 of Private project", function () {
@@ -97,137 +100,137 @@ describe("Upload files into testFolder1 of Private project", function () {
     });
 
     describe("[POST] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function() {
-        it("Should upload a ZIP file successfully", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, zipMockFile, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Array);
-                    res.body.length.should.equal(1);
-
-                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
-                    {
-                        res.statusCode.should.equal(200);
-                        done();
-                    });
-                });
-            });
-        });
-
-        it("Should upload a TXT file successfully and extract its text for content-based indexing", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, txtMockFile, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Array);
-                    res.body.length.should.equal(1);
-
-                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
-                    {
-                        res.statusCode.should.equal(200);
-                        done();
-                    });
-                });
-            });
-        });
-
-        it("Should upload a PDF file successfully and extract its text for content-based indexing", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, pdfMockFile, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Array);
-                    res.body.length.should.equal(1);
-                    const newResourceUri = res.body[0].uri;
-
-                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
-                    {
-                        pdfMockFile.md5.should.equal(md5(res.body));
-                        res.statusCode.should.equal(200);
-
-                        itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res) {
-                            res.statusCode.should.equal(200);
-                            res.body.descriptors.should.be.instanceof(Array);
-                            descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
-
-                            descriptorUtils.containsAllMetadata(
-                                pdfMockFile.metadata,
-                                JSON.parse(res.text).descriptors
-                            );
-
-                            done();
-                        });
-                    });
-                });
-            });
-        });
-
-        it("Should upload a Word DOCX file successfully and extract its text for content-based indexing", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, docxMockFile, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Array);
-                    res.body.length.should.equal(1);
-                    const newResourceUri = res.body[0].uri;
-
-                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
-                    {
-                        docxMockFile.md5.should.equal(md5(res.body));
-                        res.statusCode.should.equal(200);
-
-                        itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res) {
-                            res.statusCode.should.equal(200);
-                            res.body.descriptors.should.be.instanceof(Array);
-                            descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
-
-                            descriptorUtils.containsAllMetadata(
-                                docxMockFile.metadata,
-                                JSON.parse(res.text).descriptors
-                            );
-
-                            done();
-                        });
-                    });
-                });
-            });
-        });
-
-        it("Should upload a Word DOC file successfully and extract its text for content-based indexing", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, docMockFile, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Array);
-                    res.body.length.should.equal(1);
-                    const newResourceUri = res.body[0].uri;
-
-                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
-                    {
-                        docMockFile.md5.should.equal(md5(res.body));
-                        res.statusCode.should.equal(200);
-
-                        itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res) {
-                            res.statusCode.should.equal(200);
-                            res.body.descriptors.should.be.instanceof(Array);
-                            descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
-
-                            descriptorUtils.containsAllMetadata(
-                                docMockFile.metadata,
-                                JSON.parse(res.text).descriptors
-                            );
-
-                            done();
-                        });
-                    });
-                });
-            });
-        });
+        // it("Should upload a ZIP file successfully", function (done) {
+        //     userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        //     {
+        //         fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, zipMockFile, function (err, res)
+        //         {
+        //             res.statusCode.should.equal(200);
+        //             res.body.should.be.instanceof(Array);
+        //             res.body.length.should.equal(1);
+        //
+        //             fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+        //             {
+        //                 res.statusCode.should.equal(200);
+        //                 done();
+        //             });
+        //         });
+        //     });
+        // });
+        //
+        // it("Should upload a TXT file successfully and extract its text for content-based indexing", function (done) {
+        //     userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        //     {
+        //         fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, txtMockFile, function (err, res)
+        //         {
+        //             res.statusCode.should.equal(200);
+        //             res.body.should.be.instanceof(Array);
+        //             res.body.length.should.equal(1);
+        //
+        //             fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+        //             {
+        //                 res.statusCode.should.equal(200);
+        //                 done();
+        //             });
+        //         });
+        //     });
+        // });
+        //
+        // it("Should upload a PDF file successfully and extract its text for content-based indexing", function (done) {
+        //     userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        //     {
+        //         fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, pdfMockFile, function (err, res)
+        //         {
+        //             res.statusCode.should.equal(200);
+        //             res.body.should.be.instanceof(Array);
+        //             res.body.length.should.equal(1);
+        //             const newResourceUri = res.body[0].uri;
+        //
+        //             fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
+        //             {
+        //                 pdfMockFile.md5.should.equal(md5(res.body));
+        //                 res.statusCode.should.equal(200);
+        //
+        //                 itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res) {
+        //                     res.statusCode.should.equal(200);
+        //                     res.body.descriptors.should.be.instanceof(Array);
+        //                     descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
+        //
+        //                     descriptorUtils.containsAllMetadata(
+        //                         pdfMockFile.metadata,
+        //                         JSON.parse(res.text).descriptors
+        //                     );
+        //
+        //                     done();
+        //                 });
+        //             });
+        //         });
+        //     });
+        // });
+        //
+        // it("Should upload a Word DOCX file successfully and extract its text for content-based indexing", function (done) {
+        //     userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        //     {
+        //         fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, docxMockFile, function (err, res)
+        //         {
+        //             res.statusCode.should.equal(200);
+        //             res.body.should.be.instanceof(Array);
+        //             res.body.length.should.equal(1);
+        //             const newResourceUri = res.body[0].uri;
+        //
+        //             fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
+        //             {
+        //                 docxMockFile.md5.should.equal(md5(res.body));
+        //                 res.statusCode.should.equal(200);
+        //
+        //                 itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res) {
+        //                     res.statusCode.should.equal(200);
+        //                     res.body.descriptors.should.be.instanceof(Array);
+        //                     descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
+        //
+        //                     descriptorUtils.containsAllMetadata(
+        //                         docxMockFile.metadata,
+        //                         JSON.parse(res.text).descriptors
+        //                     );
+        //
+        //                     done();
+        //                 });
+        //             });
+        //         });
+        //     });
+        // });
+        //
+        // it("Should upload a Word DOC file successfully and extract its text for content-based indexing", function (done) {
+        //     userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        //     {
+        //         fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, docMockFile, function (err, res)
+        //         {
+        //             res.statusCode.should.equal(200);
+        //             res.body.should.be.instanceof(Array);
+        //             res.body.length.should.equal(1);
+        //             const newResourceUri = res.body[0].uri;
+        //
+        //             fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
+        //             {
+        //                 docMockFile.md5.should.equal(md5(res.body));
+        //                 res.statusCode.should.equal(200);
+        //
+        //                 itemUtils.getItemMetadataByUri(true, agent, newResourceUri, function (error, res) {
+        //                     res.statusCode.should.equal(200);
+        //                     res.body.descriptors.should.be.instanceof(Array);
+        //                     descriptorUtils.noPrivateDescriptors(JSON.parse(res.text).descriptors).should.equal(true);
+        //
+        //                     descriptorUtils.containsAllMetadata(
+        //                         docMockFile.metadata,
+        //                         JSON.parse(res.text).descriptors
+        //                     );
+        //
+        //                     done();
+        //                 });
+        //             });
+        //         });
+        //     });
+        // });
 
         it("Should upload a CSV file successfully and extract its data content to the datastore", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -237,12 +240,20 @@ describe("Upload files into testFolder1 of Private project", function () {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Array);
                     res.body.length.should.equal(1);
+                    const newResourceUri = res.body[0].uri;
 
-                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
                         csvMockFile.md5.should.equal(md5(res.body));
                         res.statusCode.should.equal(200);
-                        done();
+                        
+                        fileUtils.downloadDataByUri(true, agent, newResourceUri, function (error, res)
+                        {
+                            should.equal(error, null);
+                            res.statusCode.should.equal(200);
+                            res.text.should.equal(csvResult);
+                            done();
+                        });
                     });
                 });
             });
@@ -256,12 +267,20 @@ describe("Upload files into testFolder1 of Private project", function () {
                     res.statusCode.should.equal(200);
                     res.body.should.be.instanceof(Array);
                     res.body.length.should.equal(1);
+                    const newResourceUri = res.body[0].uri;
 
-                    fileUtils.downloadFileByUri(true, agent, res.body[0].uri, function (error, res)
+                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
                     {
                         xlsxMockFile.md5.should.equal(md5(res.body));
                         res.statusCode.should.equal(200);
-                        done();
+
+                        fileUtils.downloadDataByUri(true, agent, newResourceUri, function (error, res)
+                        {
+                            should.equal(error, null);
+                            res.statusCode.should.equal(200);
+                            res.text.should.equal(csvResult);
+                            done();
+                        }, "Sheet 1");
                     });
                 });
             });

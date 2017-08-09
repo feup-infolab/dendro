@@ -516,32 +516,69 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
 {
     const self = this;
     let dataStoreWriter;
-    const xlsFileParser = function (filePath){
+    const xlsFileParser = function (filePath, callback){
         const xlsx = require('node-xlsx').default;
-        const workSheetsFromFile = xlsx.parse(filePath);
-        dataStoreWriter.updateDataFromArrayOfObjects(workSheetsFromFile, callback);
+        const workSheetsFromFile = xlsx.parse(
+            filePath,
+            {
+                type: "file",
+                raw : true
+            }
+        );
+
+        async.mapLimit(workSheetsFromFile, 1, function(sheet, callback){
+            dataStoreWriter.updateDataFromArrayOfObjects(sheet.data, callback, sheet.name);
+        }, function(err, result){
+            callback(err, result);
+        });
     };
 
-    const csvFileParser = function (filePath){
+    const csvFileParser = function (filePath, callback){
         const fs = require("fs");
-        const parse = require('csv-parse');
-        const transform = require('stream-transform');
+        const parse = require("csv-parse");
+        const transform = require("stream-transform");
 
         const input = fs.createReadStream(filePath);
         const parser = parse({delimiter: ','});
 
+        let pendingRecords = [];
+        let chunkSize = 1000;
+        let streamEnded;
+        function sendData(records, callback)
+        {
+            dataStoreWriter.appendArrayOfObjects(records, function (err, result)
+            {
+                callback(err, result);
+            });
+        }
+
         const saver = transform(function(record, callback){
-            dataStoreWriter.appendArrayOfObjects([record], function(err, result){
-                callback(err, JSON.stringify(record));
+            pendingRecords.push(record);
+
+            if(!streamEnded && pendingRecords.length % chunkSize === 0)
+            {
+                sendData(pendingRecords, function(err, result){});
+                pendingRecords = [];
+            }
+            else
+            {
+                callback(null);
+            }
+        }, {consume: true});
+
+        saver.on("finish", function(){
+            dataStoreWriter.appendArrayOfObjects(pendingRecords, function (err, result)
+            {
+                sendData(pendingRecords, function(err, result){
+                    callback(err, result);
+                });
+                
+                pendingRecords = [];
             });
         });
-
+        
         input.on("error", function(){
             callback(1, "Unable to read file into CSV Parser");
-        });
-
-        input.on("close", function(){
-            callback(null);
         });
 
         input.pipe(parser).pipe(saver);
@@ -589,7 +626,17 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
                 });
             }
         ], function(err, results){
-            callback(err, results);
+            if(!err)
+            {
+                self.ddr.hasDataContent = true;
+                self.save(function(err, result){
+                    callback(err, result);
+                });
+            }
+            else
+            {
+                callback(err, results);
+            }
         });
     }
     else
@@ -637,6 +684,33 @@ File.prototype.extractTextAndSaveIntoGraph = function (callback) {
         return callback(null, null);
     }
 };
+
+File.prototype.pipeData = function(req, res)
+{
+    const self = this;
+    if(self.ddr.hasDataContent)
+    {
+        DataStoreConnection.create(self.uri, function(err, conn){
+
+            const skip = parseInt(req.query.from);
+            const limit = parseInt(req.query.pageSize);
+            /* if(!isNull(req.sheet))
+            {
+                req.sheet = req.sheet.match(/[a-zA-Z0-09 ]+/);
+            } */
+            
+            const sheetName = req.query.sheet;
+
+            conn.getDataByQuery({}, skip, limit, res, sheetName);
+        });
+    }
+    else
+    {
+        const result = "File : " + resourceURI + " does not have any data associated to it";
+        res.writeHead(400, result);
+        res.end();
+    }
+}
 
 File.prototype.connectToMongo = function (callback) {
     const MongoClient = require('mongodb').MongoClient;

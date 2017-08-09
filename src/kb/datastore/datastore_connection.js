@@ -19,6 +19,8 @@ function DataStoreConnection (options) {
     self.counter = 0;
 }
 
+DataStoreConnection.defaultSheetName = "DefaultSheet";
+
 DataStoreConnection.prototype.open = function(callback) {
     const self = this;
 
@@ -55,20 +57,72 @@ DataStoreConnection.prototype.close = function() {
         }
     });
 };
-DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, callback) {
+DataStoreConnection.prototype.getDataByQuery = function(query, skip, limit, writeStream, sheetName) {
     const self = this;
     if(!isNull(self.client))
     {
         if(!isNull(query))
         {
-            self.client.collection(self.collection).find(query);
+            const queryObject = {
+                "$and": []
+            };
 
-            cursor.on('data', function(doc) {
-                writeStream.write(doc);
+            if(JSON.stringify(query) !== "{}")
+            {
+                queryObject["$and"].push({
+                    data: query
+                });
+            }
+
+            if(isNull(skip) || isNaN(skip))
+            {
+                skip = 0;
+            }
+
+            if(isNull(limit) || isNaN(limit))
+            {
+                limit = 1000; //1000 rows by default
+            }
+
+            if(isNull(sheetName))
+            {
+                sheetName = DataStoreConnection.defaultSheetName;
+            }
+
+            //pagination
+            queryObject["$and"].push({row : { "$gt" : skip}});
+            queryObject["$and"].push({row : { "$lte" : skip + limit}});
+
+            //sheet name
+            queryObject["$and"].push({sheet : sheetName});
+
+            const cursor = self.client.collection(self.collection)
+                .find(queryObject)
+                .skip(skip)
+                .limit(limit)
+                .sort(
+                        { row : 1 }
+                    );
+
+            cursor.on('data', function(data) {
+                for(let i = 0; i < data.data.length; i++)
+                {
+                    if(typeof data.data[i] === "string")
+                        writeStream.write(data.data[i]);
+                    else if(typeof data.data[i] === "number")
+                        writeStream.write(data.data[i].toString());
+                    
+                    if( i < data.data.length - 1)
+                    {
+                        writeStream.write(",");
+                    }
+                }
+
+                writeStream.write("\n");
             });
 
             cursor.once('end', function(error, result) {
-                callback(error, result);
+                writeStream.end();
             });
         }
         else
@@ -101,7 +155,7 @@ DataStoreConnection.prototype.clearData = function(callback) {
     }
 };
 
-DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, callback) {
+DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, callback, sheetName) {
     const self = this;
 
     if(self.counter === 0 && arrayOfRecords.length > 0)
@@ -109,57 +163,41 @@ DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, ca
         self.header = arrayOfRecords[0];
     }
 
+    if(isNull(sheetName))
+        sheetName = DataStoreConnection.defaultSheetName;
+
     const createNewEntries = function(entries, callback) {
+        
+        let collection = self.client.collection(self.collection);
 
-        //from https://stackoverflow.com/questions/34530348/correct-way-to-insert-many-records-into-mongodb-with-node-js
-        // Get the collection and bulk api artefacts
-        let collection = self.client.collection(self.collection),
-            bulk = collection.initializeOrderedBulkOp(); // Initialize the Ordered Batch
-
-        // Execute the forEach method, triggers for each entry in the array
-
+        let formattedEntries = [];
         for(let i = 0; i < entries.length; i++)
         {
             let obj = {};
-            obj[self.counter] = entries[i];
+            obj["sheet"] = sheetName;
+            obj["row"] = self.counter;
+            obj["data"] = entries[i];
 
-            bulk.insert(obj);
+            formattedEntries.push(obj);
             self.counter++;
-
-            if (self.counter % 1000 === 0)
-            {
-                // Execute the operation
-                bulk.execute(function (err, result)
-                {
-                    // re-initialise batch operation
-                    if(!err)
-                    {
-                        bulk = collection.initializeOrderedBulkOp();
-                    }
-                    else
-                    {
-                        callback(err, result);
-                    }
-                });
-            }
         }
 
-        if (self.counter % 1000 !== 0 ){
-            bulk.execute(function(err, result) {
-                // do something with result
+        // Execute the operation
+        collection.insertMany(
+            formattedEntries,
+            {
+                ordered: false
+            },
+            function(err, result){
                 callback(err, result);
             });
-        }
-        else
-        {
-            callback(null);
-        }
-
     };
 
     if(!isNull(self.client))
     {
-        createNewEntries(arrayOfRecords, callback);
+        createNewEntries(arrayOfRecords, function(err, result){
+            callback(err, result);
+        });
     }
     else
     {
@@ -167,13 +205,13 @@ DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, ca
     }
 };
 
-DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfRecords, callback) {
+DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfRecords, callback, sheetName) {
     const self = this;
 
     if(!isNull(self.client))
     {
         self.clearData(function(err, result){
-            self.appendArrayOfObjects(arrayOfRecords, callback);
+            self.appendArrayOfObjects(arrayOfRecords, callback, sheetName);
         });
     }
     else
