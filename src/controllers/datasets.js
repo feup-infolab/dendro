@@ -16,6 +16,7 @@ const B2ShareClient = require('node-b2share-v2');
 const Zenodo = require(Pathfinder.absPathInSrcFolder("/export_libs/zenodo/zenodo.js"));
 const Utils = require(Pathfinder.absPathInPublicFolder("/js/utils.js")).Utils;
 const Elements = require(Pathfinder.absPathInSrcFolder("/models/meta/elements.js")).Elements;
+const CKAN = require("ckan.js");
 
 const async = require("async");
 const nodemailer = require("nodemailer");
@@ -283,113 +284,92 @@ export_to_repository_sword = function (req, res) {
 };
 
 
-exports.calculate_ckan_repository_diffs = function (req, res) {
-    try {
-        const CKAN = require("ckan.js");
-        const requestedResourceUri = req.params.requestedResourceUri;
-        const targetRepository = req.body.repository;
-        const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
-        let exportedAtDate = null;
-        let changedResourcesInCkan = null;
-        let changedResourcesInDendro = null;
+const calculateDiffsBetweenDendroCkan = function (requestedResourceUri, targetRepository, callback) {
+    const client = new CKAN.Client(targetRepository.ddr.hasExternalUri, targetRepository.ddr.hasAPIKey);
+    let exportedAtDate = null;
+    let changedResourcesInCkan = null;
 
-        //TODO saber o packageID
-        //TODO verificar as changes do lado do ckan desde o ultimo export pelo Dendro
-
-        Folder.findByUri(requestedResourceUri, function (err, folder) {
-            if (isNull(err)) {
-                if (!isNull(folder)) {
-                    const slug = require('slug');
-                    let packageId = slug(folder.uri, "-");
-                    packageId = packageId.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
-
-                    client.action("package_show",
-                        {
-                            id: packageId
-                        },
-                        function (err, result) {
-                            if (result.success) {
-                                console.log("package Exists");
-                                getExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
-                                    if (isNull(err)) {
-                                        //package exists and was exported by Dendro before
-                                        exportedAtDate = result;
-                                        client.getChangesInDataSetAfterDate(exportedAtDate, packageId, function (err, result) {
-                                            if (result.success) {
-                                                if (result.result.changedResources) {
-                                                    changedResourcesInCkan = result.result.changedResources;
+    Folder.findByUri(requestedResourceUri, function (err, folder) {
+        if (isNull(err)) {
+            if (!isNull(folder)) {
+                const slug = require('slug');
+                let packageId = slug(folder.uri, "-");
+                packageId = packageId.replace(/[^A-Za-z0-9-]/g, "-").replace(/\./g, "-").toLowerCase();
+                client.action("package_show",
+                    {
+                        id: packageId
+                    },
+                    function (err, result) {
+                        if (result.success) {
+                            getExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
+                                if (isNull(err)) {
+                                    //package exists and was exported by Dendro before
+                                    exportedAtDate = result;
+                                    client.getChangesInDataSetAfterDate(exportedAtDate, packageId, function (err, result) {
+                                        if (result.success) {
+                                            if (result.result.changedResources) {
+                                                changedResourcesInCkan = result.result.changedResources;
+                                            }
+                                            compareDendroPackageWithCkanPackage(folder, packageId, client, function (err, diffs) {
+                                                if (isNull(err)) {
+                                                    callback(err, {
+                                                        dendroDiffs: diffs,
+                                                        ckanDiffs: changedResourcesInCkan
+                                                    });
                                                 }
-
-                                                //TODO verificar as alterações do lado do dendro -> se os ficheiros foram apagados etc
-                                                compareDendroPackageWithCkanPackage(folder, packageId, client, function (err, diffs) {
-                                                    if (isNull(err)) {
-                                                        //TODO both these arrays may have the same files ->
-                                                        res.json({
-                                                            dendroDiffs: diffs,
-                                                            ckanDiffs: changedResourcesInCkan
-                                                        });
-                                                    }
-                                                    else {
-                                                        let msg = "Error comparing a dendro package with a ckan package";
-                                                        console.error(msg);
-                                                        res.status(500).json(
-                                                            {
-                                                                "result": "error",
-                                                                "message": msg
-                                                            }
-                                                        );
-                                                    }
-                                                });
-                                            }
-                                            else {
-                                                let msg = "Error getting changedResources from ckan repository";
-                                                console.error(msg);
-                                                res.status(500).json(
-                                                    {
-                                                        "result": "error",
-                                                        "message": msg
-                                                    }
-                                                );
-                                            }
-                                        });
-                                    }
-                                    else {
-                                        let msg = "Error getting the exportedAt property from ckan";
-                                        console.error(msg);
-                                        res.status(500).json(
-                                            {
-                                                "result": "error",
-                                                "message": msg
-                                            }
-                                        );
-                                    }
-                                });
-                            }
-                            else {
-                                let msg = "The ckan package to export does not exist";
-                                console.error(msg);
-                                res.status(404).json(
-                                    {
-                                        "result": "error",
-                                        "message": msg
-                                    }
-                                );
-                            }
-                        });
-                }
-                else {
-                    let msg = "The folder to export to ckan does not exist";
-                    console.error(msg);
-                    res.status(404).json(
-                        {
-                            "result": "error",
-                            "message": msg
+                                                else {
+                                                    let msg = "Error comparing a dendro package with a ckan package";
+                                                    console.error(msg);
+                                                    callback(err, diffs);
+                                                }
+                                            });
+                                        }
+                                        else {
+                                            let msg = "Error getting changedResources from ckan repository";
+                                            console.error(msg);
+                                            callback(err, result);
+                                        }
+                                    });
+                                }
+                                else {
+                                    let msg = "Error getting the exportedAt property from ckan";
+                                    console.error(msg);
+                                    callback(err, result);
+                                }
+                            });
                         }
-                    );
-                }
+                        else {
+                            let msg = "The ckan package to export does not exist";
+                            console.error(msg);
+                            callback(err, result);
+                        }
+                    });
             }
             else {
-                let msg = "Error when looking for the folder to export to ckan";
+                let msg = "The folder to export to ckan does not exist";
+                console.error(msg);
+                callback(true, msg);
+            }
+        }
+        else {
+            let msg = "Error when looking for the folder to export to ckan";
+            console.error(msg);
+            callback(true, msg);
+        }
+    });
+};
+
+exports.calculate_ckan_repository_diffs = function (req, res) {
+    try {
+        const requestedResourceUri = req.params.requestedResourceUri;
+        const targetRepository = req.body.repository;
+
+        calculateDiffsBetweenDendroCkan(requestedResourceUri, targetRepository, function (err, diffs) {
+            if (isNull(err)) {
+                res.json(diffs);
+            }
+            else {
+                const msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
                 console.error(msg);
                 res.status(500).json(
                     {
@@ -417,8 +397,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
     let lastExportedAtDate = null;
     let folderResourcesInDendro = null;
     let folderResourcesInCkan = null;
-    let resourcesToDeleteInCkan = null;
-    let calculatedDiffs = [];
+    let dendroDiffs = [];
     getExportedAtByDendroForCkanDataset(packageId, client, function (err, exportedAtDate) {
         if (isNull(err)) {
             lastExportedAtDate = exportedAtDate;
@@ -430,8 +409,6 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                     if (result.success) {
                         folderResourcesInCkan = result.result.resources;
                         folder.getChildren(function (err, children) {
-                            console.log(err);
-                            console.log(children);
                             if (isNull(err)) {
                                 folderResourcesInDendro = children;
                                 let namesOfResourcesInDendro = _.pluck(folderResourcesInDendro, 'name');
@@ -441,10 +418,6 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                 let dendroIsMissing = _.difference(namesOfResourcesInCkan, namesOfResourcesInDendro);
                                 let ckanIsMissing = _.difference(namesOfResourcesInDendro, namesOfResourcesInCkan);
 
-                                //TODO look in ckan for modified dates for resources with the ID equal to the name in dendro that is missing
-                                //TODO if the file ckan modified date is less than the exportedAT date
-                                //TODO The file was not created in ckan after the last export -> was deleted in dendro -> has to be deleted in ckan ->  add to the list of diffs with event "deleted_in_local"
-                                //TODO else the file was created in ckan -> add to the list of diffs with the event "created_in_ckan"
                                 async.parallel([
                                         function (callback) {
                                             if (dendroIsMissing.length > 0) {
@@ -459,14 +432,11 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                                             id: ckanFile.id,
                                                             event: "deleted_in_local"
                                                         };
+                                                        dendroDiffs.push(ckanfileEvent);
                                                         callback(err, ckanfileEvent);
                                                     }
                                                     else {
-                                                        let ckanfileEvent = {
-                                                            id: ckanFile.id,
-                                                            event: "created_in_ckan"
-                                                        };
-                                                        callback(err, ckanfileEvent);
+                                                        callback(err, null);
                                                     }
                                                 }, function (err, results) {
                                                     callback(err, results);
@@ -483,6 +453,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                                         id: missingFile,
                                                         event: "created_in_local"
                                                     };
+                                                    dendroDiffs.push(ckanfileEvent);
                                                     callback(err, ckanfileEvent);
                                                 }, function (err, results) {
                                                     callback(err, results);
@@ -494,7 +465,8 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                         }
                                     ],
                                     function (err, results) {
-                                        callback(err, results);
+                                        //callback(err, results);
+                                        callback(err, dendroDiffs);
                                     });
                             }
                             else {
@@ -538,10 +510,6 @@ const getExportedAtByDendroForCkanDataset = function (packageID, client, callbac
 
 export_to_repository_ckan = function (req, res) {
     try {
-        //const CKAN = require("ckan");
-        //const CKAN = require("/node_modules/ckan.js/ckan.js");
-        const CKAN = require("ckan.js");
-
         const requestedResourceUri = req.params.requestedResourceUri;
         const targetRepository = req.body.repository;
 
@@ -554,6 +522,22 @@ export_to_repository_ckan = function (req, res) {
             console.error("Invalid value supplied to overwrite parameter. Not overwriting by default.");
         }
 
+
+        const deleteResourceInCkan = function (resourceID, packageID, client, callback) {
+            client.action("resource_delete",
+                {
+                    id: resourceID
+                },
+                function (err, result) {
+                    if (result.success) {
+                        console.log("The resource with id: " + resourceID + " was deleted");
+                        callback(err, result);
+                    }
+                    else {
+                        callback(err, result);
+                    }
+                });
+        };
 
         const updateOrInsertExportedAtByDendroForCkanDataset = function (packageID, client, callback) {
             client.action("package_show",
@@ -787,152 +771,27 @@ export_to_repository_ckan = function (req, res) {
                                                                         else //package was found BUT we are OVERWRITING
                                                                         {
                                                                             Utils.copyFromObjectToObject(packageContents[0], result.result);
-
-                                                                            /*client.action(
-                                                                             "package_delete",
-                                                                             result.result,
-                                                                             function (err, result)
-                                                                             {
-                                                                             if (result.success)
-                                                                             {
-                                                                             //TODO create the package again
-                                                                             client.action(
-                                                                             "package_create",
-                                                                             packageContents[0],
-                                                                             function (response, result)
-                                                                             {
-                                                                             if(result.success)
-                                                                             {
-                                                                             createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function(err, response){
-                                                                             if(isNull(err))
-                                                                             {
-                                                                             const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
-                                                                             const msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/>";
-
-                                                                             res.json(
-                                                                             {
-                                                                             "result": "OK",
-                                                                             "message": msg
-                                                                             }
-                                                                             );
-                                                                             }
-                                                                             else
-                                                                             {
-                                                                             let msg = "Error uploading files in the dataset to CKAN.";
-                                                                             if (!isNull(response))
-                                                                             {
-                                                                             msg += " Error returned : " + response;
-                                                                             }
-
-                                                                             res.json(
-                                                                             {
-                                                                             "result": "Error",
-                                                                             "message": msg,
-                                                                             "error" : response
-                                                                             }
-                                                                             );
-                                                                             }
-
-                                                                             deleteFolderRecursive(parentFolderPath);
-                                                                             }, overwrite, extraFiles);
-                                                                             }
-                                                                             else
-                                                                             {
-                                                                             let msg = "Error exporting dataset to CKAN.";
-                                                                             if (!isNull(response))
-                                                                             {
-                                                                             msg += " Error returned : " + response;
-                                                                             }
-
-                                                                             res.json(
-                                                                             {
-                                                                             "result": "Error",
-                                                                             "message": msg
-                                                                             }
-                                                                             );
-
-                                                                             deleteFolderRecursive(parentFolderPath);
-                                                                             }
-
-                                                                             }
-                                                                             );
-                                                                             }
-                                                                             else
-                                                                             {
-                                                                             const msg = "Error refreshing existing CKAN Dataset.";
-                                                                             var response = {
-                                                                             "result": "Error",
-                                                                             "message": msg
-                                                                             };
-
-                                                                             if (!isNull(result))
-                                                                             {
-                                                                             response.result = result;
-                                                                             }
-
-                                                                             res.json(
-                                                                             response
-                                                                             );
-
-                                                                             deleteFolderRecursive(parentFolderPath);
-                                                                             }
-                                                                             }
-                                                                             );*/
-
-                                                                            let resourcesInExportPackage = _.map(datasetFolderMetadata.children, function (children) {
-                                                                                /*return children.original_node.nie.title;*/
-                                                                                let resultData = {
-                                                                                    //name : children.original_node.nie.title, last_modified:  children.original_node.ddr.modified
-                                                                                    name: children.original_node.nie.title
-                                                                                };
-                                                                                return resultData;
+                                                                            calculateDiffsBetweenDendroCkan(requestedResourceUri, targetRepository, function (err, diffs) {
+                                                                                if (isNull(err)) {
+                                                                                    console.log(diffs);
+                                                                                    //res.json(diffs);
+                                                                                    /*deleteResourceInCkan(diffs.dendroDiffs[0][0].id, packageId, client, function (err, result) {
+                                                                                        console.log(err);
+                                                                                        console.log(result);
+                                                                                        res.json(diffs);
+                                                                                    });*/
+                                                                                }
+                                                                                else {
+                                                                                    const msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
+                                                                                    console.error(msg);
+                                                                                    res.status(500).json(
+                                                                                        {
+                                                                                            "result": "error",
+                                                                                            "message": msg
+                                                                                        }
+                                                                                    );
+                                                                                }
                                                                             });
-                                                                            let metadataFiles = _.map(extraFiles, function (extraFile) {
-                                                                                let resultData = {
-                                                                                    //name : extraFile.split("\\").pop(), last_modified:  datasetFolderMetadata.original_node.ddr.modified
-                                                                                    name: extraFile.split("\\").pop()
-                                                                                };
-                                                                                return resultData;
-                                                                                //return extraFile.split("\\").pop()
-                                                                            });
-                                                                            resourcesInExportPackage = resourcesInExportPackage.concat(metadataFiles);
-                                                                            //TODO CHECK the date of this export
-
-                                                                            //CASOS de teste -> criar um ficheiro pela interface do ckan mesmo e verificar se esse é apagado
-                                                                            /*client.getChangesInDataSetAfterDate("2017-08-08T15:17:53.102332", packageId, function (err, result) {
-                                                                             console.log(err);
-                                                                             });*/
-
-                                                                            /*client.calculateDiffBetweenFileLists(resourcesInExportPackage, packageId, function (err, result) {
-                                                                             console.log(err);
-                                                                             });
-                                                                             return;*/
-                                                                            //TODO esta função abaixo não vai ser chamada aqui -> tem de ser independente para aparecer na pagina de export com um warning
-                                                                            /*getExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
-                                                                             let exportedAtDate = null;
-                                                                             if(isNull(err))
-                                                                             {
-                                                                             //package exists and was exported by Dendro before
-                                                                             exportedAtDate = result;
-                                                                             resourcesInExportPackage = _.map(resourcesInExportPackage, function(resource){
-                                                                             let resultData = {
-                                                                             name : resource.name, last_modified:  exportedAtDate
-                                                                             };
-                                                                             return resultData;
-                                                                             });
-                                                                             //TODO calculateDiffBetweenFileLists with the exportedAtDate and check if there are changed files in ckan
-                                                                             client.calculateDiffBetweenFileLists(resourcesInExportPackage, packageId, function (err, result) {
-                                                                             console.log(err);
-                                                                             });
-                                                                             }
-                                                                             else
-                                                                             {
-                                                                             //package exists but was not exported by Dendro before
-                                                                             //warn the user that information will be lost and if he wants to overwrite data
-                                                                             console.log("package exists but was not exported by Dendro before");
-                                                                             }
-                                                                             });*/
-
                                                                             return;
                                                                             client.action(
                                                                                 "package_update",
