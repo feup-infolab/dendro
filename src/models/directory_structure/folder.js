@@ -201,6 +201,55 @@ Folder.prototype.saveIntoFolder = function(
     saveIntoFolder(self, destinationFolderAbsPath, includeMetadata, includeTempFilesLocations, includeOriginalNodes, callback);
 };
 
+Folder.prototype.getChildren = function (callback) {
+    const self = this;
+
+    /**
+     *   Note the PLUS sign (+) on the nie:isLogicalPartOf+ of the query below.
+     *    (Recursive querying through inference).
+     *   @type {string}
+     */
+    const query =
+        "SELECT ?uri, ?last_modified, ?name\n" +
+        "FROM [0] \n" +
+        "WHERE \n" +
+        "{ \n" +
+        "   [1] nie:hasLogicalPart+ ?uri. \n" +
+        "   ?uri ddr:modified ?last_modified. \n" +
+        "   ?uri nie:title ?name. \n" +
+        "} ";
+
+    db.connection.execute(query,
+        [
+            {
+                type: DbConnection.resourceNoEscape,
+                value: db.graphUri
+            },
+            {
+                type: DbConnection.resource,
+                value: self.uri
+            }
+        ],
+        function(err, result) {
+            if(isNull(err))
+            {
+                if(result instanceof Array && result.length > 0)
+                {
+                    callback(err,result);
+                }
+                else
+                {
+                    return callback(1, "Resource: " + self.uri + " has no children");
+                }
+            }
+            else
+            {
+                return callback(1, "Error reported when querying for the children of" + self.uri + " . Error was ->" + result);
+            }
+        }
+    );
+};
+
 Folder.prototype.createTempFolderWithContents = function(
     includeMetadata,
     includeTempFilesLocations,

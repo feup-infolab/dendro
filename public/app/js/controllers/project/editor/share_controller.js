@@ -17,6 +17,46 @@ angular.module('dendroApp.controllers')
             return newURL;
         };
 
+        $scope.calculateCkanRepositoryDiffs = function (target_repository) {
+            var payload = {
+                repository : target_repository,
+                new_dataset : $scope.new_dataset
+            };
+
+            var requestString = JSON.stringify(payload);
+
+            var url = $scope.get_calling_uri() + "?calculate_ckan_repository_diffs";
+
+            $scope.show_popup("info", "Notice", "Calculating diffs with target repository");
+            $scope.is_sending_data = true;
+
+            $http({
+                method: "POST",
+                url: url,
+                data: requestString,
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            }).then(function(response) {
+                var data = response.data;
+                console.log("data is:");
+                console.log(data);
+                $scope.is_sending_data = false;
+                $scope.show_popup("info", "Deleted in dendro", JSON.stringify(data.dendroDiffs[0]));
+                $scope.show_popup("info", "Created in dendro", JSON.stringify(data.dendroDiffs[1]));
+                $scope.show_popup("info", "Ckan diffs", JSON.stringify(data.ckanDiffs));
+            }).catch(function(error){
+                if(error.data != null && error.data.message != null)
+                {
+                    $scope.show_popup("error", error.data.title, error.data.message);
+                }
+                else
+                {
+                    $scope.show_popup("error", "Error occurred", JSON.stringify(error));
+                }
+                $scope.is_sending_data = false;
+            });
+        };
+
         $scope.datepickerOptions = {
             "close-on-date-selection" : true
         };

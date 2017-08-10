@@ -647,6 +647,12 @@ const loadRoutes = function(app, callback)
                             authentication_error: "Permission denied : cannot export project because you do not have permissions to edit this project."
                         },
                         {
+                            queryKeys: ['calculate_ckan_repository_diffs'],
+                            handler: datasets.calculate_ckan_repository_diffs,
+                            permissions: modificationPermissions,
+                            authentication_error: "Permission denied : cannot calculate ckan repository diffs because you do not have permissions to edit this project."
+                        },
+                        {
                             queryKeys: ['request_access'],
                             handler: projects.requestAccess,
                             permissions: [Permissions.settings.role.in_system.user],
@@ -953,6 +959,12 @@ const loadRoutes = function(app, callback)
                             handler: datasets.export_to_repository,
                             permissions: modificationPermissionsBranch,
                             authentication_error: "Permission denied : cannot export resource because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['calculate_ckan_repository_diffs'],
+                            handler: datasets.calculate_ckan_repository_diffs,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot calculate ckan repository diffs because you do not have permissions to edit this project."
                         }
                     ],
                     delete: [

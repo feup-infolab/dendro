@@ -229,7 +229,7 @@
       "reload_descriptors_on_startup": true,
       "reload_research_domains_on_startup": true,
       "reload_descriptor_validation_data" : true,
-      "clear_session_store": true,
+      "clear_session_store": false,
       "clear_caches" : true,
       "log_bootup_actions" : true,
       "destroy_all_graphs": false,

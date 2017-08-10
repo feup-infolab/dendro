@@ -981,6 +981,12 @@ Elements.ddr = {
         api_readable: true,
         control : Controls.input_box
     },
+    exportedAt :
+    {
+        type : DbConnection.string,
+        control : Controls.input_box,
+        locked : true
+    },
     numLikes :
     {
         type : DbConnection.int,
