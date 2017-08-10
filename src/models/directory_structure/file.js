@@ -517,33 +517,30 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
     const self = this;
     let dataStoreWriter;
     const xlsFileParser = function (filePath, callback){
-        const xlsx = require('node-xlsx').default;
-        const workSheetsFromFile = xlsx.parse(
-            filePath,
-            {
-                type: "file",
-                raw : true
-            }
-        );
 
-        async.mapLimit(workSheetsFromFile, 1, function(sheet, callback){
-            dataStoreWriter.updateDataFromArrayOfObjects(sheet.data, callback, sheet.name);
+        const XLSX = require('xlsx');
+        let workbook = XLSX.readFile(filePath);
+
+        async.mapLimit(workbook.SheetNames, 1, function(sheetName, callback){
+            let sheet = workbook.Sheets[sheetName];
+            let sheetJSON = XLSX.utils.sheet_to_json(sheet);
+            
+            for(let i = 0; i < sheetJSON.length; i++)
+            {
+                delete sheetJSON[i].__proto__["__rowNum__"];
+            }
+            
+            dataStoreWriter.updateDataFromArrayOfObjects(sheetJSON, callback, sheetName);
         }, function(err, result){
             callback(err, result);
         });
     };
 
     const csvFileParser = function (filePath, callback){
-        const fs = require("fs");
-        const parse = require("csv-parse");
-        const transform = require("stream-transform");
-
-        const input = fs.createReadStream(filePath);
-        const parser = parse({delimiter: ','});
-
+        const Baby = require("babyparse");
         let pendingRecords = [];
         let chunkSize = 1000;
-        let streamEnded;
+
         function sendData(records, callback)
         {
             dataStoreWriter.appendArrayOfObjects(records, function (err, result)
@@ -552,36 +549,48 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
             });
         }
 
-        const saver = transform(function(record, callback){
-            pendingRecords.push(record);
+        const processRecord = function(record){
+            pendingRecords.push(record.data[0]);
 
-            if(!streamEnded && pendingRecords.length % chunkSize === 0)
+            if(pendingRecords.length % chunkSize === 0)
             {
                 sendData(pendingRecords, function(err, result){});
                 pendingRecords = [];
             }
-            else
-            {
-                callback(null);
-            }
-        }, {consume: true});
+        };
 
-        saver.on("finish", function(){
-            dataStoreWriter.appendArrayOfObjects(pendingRecords, function (err, result)
-            {
-                sendData(pendingRecords, function(err, result){
-                    callback(err, result);
-                });
-                
-                pendingRecords = [];
+        const finishProcessing = function()
+        {
+            sendData(pendingRecords, function(err, result){
+                callback(err, result);
             });
-        });
-        
-        input.on("error", function(){
-            callback(1, "Unable to read file into CSV Parser");
-        });
 
-        input.pipe(parser).pipe(saver);
+            pendingRecords = [];
+        };
+
+        const handleProcessingError = function()
+        {
+            callback(1, "Unable to read file into CSV Parser");
+        };
+
+        Baby.parseFiles(filePath, {
+            delimiter: "",	// auto-detect
+            newline: "",	// auto-detect
+            quoteChar: '"',
+            header: true,
+            dynamicTyping: true,
+            preview: 0,
+            encoding: "",
+            worker: true,
+            comments: false,
+            step: processRecord,
+            complete: finishProcessing,
+            error: handleProcessingError,
+            download: false,
+            skipEmptyLines: false,
+            chunk: null,
+            fastMode: null
+        });
     };
 
     /**

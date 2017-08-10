@@ -14,6 +14,17 @@ const binaryParser = function (res, cb) {
     });
 };
 
+const jsonParser = function (res, cb) {
+    res.setEncoding("utf8");
+    res.text = "";
+    res.on("data", function (chunk) {
+        res.text += chunk;
+    });
+    res.on("end", function () {
+        cb(null, res.text);
+    });
+};
+
 
 module.exports.uploadFile = function(acceptsJSON, agent, projectHandle, folderName, file, cb)
 {
@@ -75,6 +86,8 @@ module.exports.downloadDataByUri = function(acceptsJSON, agent, uri, cb, sheet)
             .get(uri)
             .query({sheet: sheet, data : ""})
             .set("Accept", "application/json")
+            .buffer()
+            .parse(jsonParser)
             .end(function(err, res) {
                 cb(err, res);
             });
@@ -84,6 +97,8 @@ module.exports.downloadDataByUri = function(acceptsJSON, agent, uri, cb, sheet)
         agent
             .get(uri)
             .query({sheet: sheet, data : ""})
+            .buffer()
+            .parse(jsonParser)
             .end(function(err, res) {
                 cb(err, res);
             });

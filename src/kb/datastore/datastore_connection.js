@@ -16,7 +16,7 @@ function DataStoreConnection (options) {
     self.database = options.database;
     self.resourceUri = options.resourceUri;
     self.collection = slug(self.resourceUri, '_');
-    self.counter = 0;
+    self.counter = 1;
 }
 
 DataStoreConnection.defaultSheetName = "DefaultSheet";
@@ -96,34 +96,19 @@ DataStoreConnection.prototype.getDataByQuery = function(query, skip, limit, writ
             //sheet name
             queryObject["$and"].push({sheet : sheetName});
 
+
+            let JSONStream = require('JSONStream');
+
             const cursor = self.client.collection(self.collection)
-                .find(queryObject)
+                .find(queryObject,  { "sheet" : 0, "_id" : 0})
                 .skip(skip)
                 .limit(limit)
                 .sort(
                         { row : 1 }
                     );
 
-            cursor.on('data', function(data) {
-                for(let i = 0; i < data.data.length; i++)
-                {
-                    if(typeof data.data[i] === "string")
-                        writeStream.write(data.data[i]);
-                    else if(typeof data.data[i] === "number")
-                        writeStream.write(data.data[i].toString());
-                    
-                    if( i < data.data.length - 1)
-                    {
-                        writeStream.write(",");
-                    }
-                }
 
-                writeStream.write("\n");
-            });
-
-            cursor.once('end', function(error, result) {
-                writeStream.end();
-            });
+            cursor.stream().pipe(JSONStream.stringify()).pipe(writeStream);
         }
         else
         {
@@ -157,11 +142,6 @@ DataStoreConnection.prototype.clearData = function(callback) {
 
 DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, callback, sheetName) {
     const self = this;
-
-    if(self.counter === 0 && arrayOfRecords.length > 0)
-    {
-        self.header = arrayOfRecords[0];
-    }
 
     if(isNull(sheetName))
         sheetName = DataStoreConnection.defaultSheetName;
