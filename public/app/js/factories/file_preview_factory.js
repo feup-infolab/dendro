@@ -31,7 +31,7 @@ angular.module('dendroApp.factories')
                 }
             },
             load_dataset: function($scope, file) {
-                var fileUri = file.uri + '?data';
+                var fileUri = file.uri + '?data&format=csv';
 
                 var dataset = new recline.Model.Dataset({
                     url: fileUri,

@@ -663,6 +663,51 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
     }
 };
 
+File.prototype.rebuildData = function(callback)
+{
+    const self = this;
+    const tmp = require('tmp');
+
+    tmp.dir(
+        {
+            mode: Config.tempFilesCreationMode,
+            dir: Config.tempFilesDir
+        },
+        function(err, folderPath){
+            if(isNull(err) && !isNull(folderPath))
+            {
+                self.saveIntoFolder(folderPath, null, null, null, function(err, tempFilePath){
+                    if(isNull(err) && !isNull(tempFilePath))
+                    {
+                        self.extractDataAndSaveIntoDataStore(tempFilePath, function(err, result){
+                            if(isNull(err) && !isNull(result))
+                            {
+                                File.deleteOnLocalFileSystem(tempFilePath, function (err, result)
+                                {
+                                    callback(err, result);
+                                })
+                            }
+                            else
+                            {
+                                callback(err, result);
+                            }
+                        });
+                    }
+                    else
+                    {
+                        callback(err, tempFilePath);
+                    }
+                })
+            }
+            else
+            {
+                callback(err, folderPath);
+            }
+
+        });
+};
+
+
 File.prototype.extractTextAndSaveIntoGraph = function (callback) {
     let self = this;
 
@@ -703,28 +748,18 @@ File.prototype.extractTextAndSaveIntoGraph = function (callback) {
     }
 };
 
-File.prototype.pipeData = function(req, res)
+File.prototype.pipeData = function(writeStream, skipRows, pageSize, sheetName, outputFormat)
 {
     const self = this;
     if(self.ddr.hasDataContent)
     {
         DataStoreConnection.create(self.uri, function(err, conn){
-
-            const skip = parseInt(req.query.from);
-            const limit = parseInt(req.query.pageSize);
-            /* if(!isNull(req.sheet))
-            {
-                req.sheet = req.sheet.match(/[a-zA-Z0-09 ]+/);
-            } */
-            
-            const sheetName = req.query.sheet;
-
-            conn.getDataByQuery({}, skip, limit, res, sheetName);
+            conn.getDataByQuery({}, writeStream, skipRows, pageSize, sheetName, outputFormat);
         });
     }
     else
     {
-        const result = "File : " + resourceURI + " does not have any data associated to it";
+        const result = "File : " + self.uri + " does not have any data associated to it";
         res.writeHead(400, result);
         res.end();
     }

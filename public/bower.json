@@ -75,7 +75,8 @@
     "spin.js": "~2.0.0",
     "parsleyjs": "^2.7.2",
     "ng-img-crop": "^0.3.2",
-    "angular-image-compress": "^0.1.5"
+    "angular-image-compress": "^0.1.5",
+    "elasticsearch-okfn-reclinejs-backend" : "git://github.com/okfn/elasticsearch.js#7fd7b9783e27faf20b34e4a72532c686f8138194"
   },
   "resolutions": {
     "bootstrap": "~3",

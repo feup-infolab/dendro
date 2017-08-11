@@ -692,9 +692,6 @@ exports.get_thumbnail = function(req, res) {
 exports.upload = function(req, res)
 {
     const async = require("async");
-
-    let acceptsHTML = req.accepts('html');
-    const acceptsJSON = req.accepts('json');
     const fs = require("fs");
     const md5File = require('md5-file');
     const multiparty = require('multiparty');
@@ -960,7 +957,7 @@ exports.upload = function(req, res)
             });
 
             req.busboy.on('field', function(fieldname, val, fieldnameTruncated, valTruncated) {
-                stream.resume();
+                req.resume();
             });
 
             req.busboy.on('finish', function() {
@@ -988,56 +985,45 @@ exports.upload = function(req, res)
         ]);
     };
 
-    if(acceptsJSON && !acceptsHTML)
+    if (req.originalMethod === "GET")
     {
-        if (req.originalMethod === "GET")
+        if (
+            !isNull(upload_id) &&
+            upload_id !== "" &&
+            !isNull(username)
+        )
         {
-            if (
-                !isNull(upload_id) &&
-                upload_id !== "" &&
-                !isNull(username)
-            )
+            if (typeof req.session.upload_manager !== "undefined" && !isNull(req.user))
             {
-                if (typeof req.session.upload_manager !== "undefined" && !isNull(req.user))
+                if (!isNull(upload))
                 {
-                    if (!isNull(upload))
+                    if (upload.username === upload.username && !isNull(req.user) && req.user.ddr.username === username)
                     {
-                        if (upload.username === upload.username && !isNull(req.user) && req.user.ddr.username === username)
+                        if(restart)
                         {
-                            if(restart)
+                            upload.restart(function (err, result)
                             {
-                                upload.restart(function (err, result)
+                                if(isNull(err))
                                 {
-                                    if(isNull(err))
-                                    {
-                                        res.json({
-                                            size: upload.loaded
-                                        });
-                                    }
-                                    else
-                                    {
-                                        res.status(400).json({
-                                            result : "result",
-                                            message : "Error resetting upload."
-                                        });
-                                    }
+                                    res.json({
+                                        size: upload.loaded
+                                    });
+                                }
+                                else
+                                {
+                                    res.status(400).json({
+                                        result : "result",
+                                        message : "Error resetting upload."
+                                    });
+                                }
 
-                                });
-                            }
-                            else
-                            {
-                                res.json({
-                                    size: upload.loaded
-                                });
-                            }
+                            });
                         }
                         else
                         {
-                            res.status(400).json(
-                                {
-                                    result: "error",
-                                    message: "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
-                                });
+                            res.json({
+                                size: upload.loaded
+                            });
                         }
                     }
                     else
@@ -1045,123 +1031,124 @@ exports.upload = function(req, res)
                         res.status(400).json(
                             {
                                 result: "error",
-                                message: "The upload id is invalid."
+                                message: "Unable to validate upload request. Are you sure that the username and upload_id parameters are correct?"
                             });
                     }
-
                 }
-            }
-            else
-            {
-                if (!isNull(username))
+                else
                 {
-                    if (
-                        !isNull(filename) &&
-                        filename !== "" &&
-
-                        typeof md5_checksum !== "undefined" &&
-                        md5_checksum !== "" &&
-
-                        !isNull(req.params.requestedResourceUri) &&
-                        req.params.requestedResourceUri !== ""
-                    )
-                    {
-                        UploadManager.add_upload(
-                            username,
-                            filename,
-                            size,
-                            md5_checksum,
-                            req.params.requestedResourceUri,
-                            function (err, newUpload)
-                            {
-                                if (isNull(err))
-                                {
-                                    res.json({
-                                        size: newUpload.loaded,
-                                        upload_id: newUpload.id
-                                    });
-                                }
-                                else
-                                {
-                                    res.status(500).json({
-                                        result: "error",
-                                        message: "There was an error registering the new upload.",
-                                        error: err
-                                    });
-                                }
-
-                            });
-                    }
-                    else
-                    {
-                        res.status(400).json({
+                    res.status(400).json(
+                        {
                             result: "error",
-                            message: "Request must include: the 'filename' field. which is the title of the uploaded file, complete with its file type extension ; the 'md5_checksum' field, which is the md5 checksum of the uploaded file."
+                            message: "The upload id is invalid."
                         });
-                    }
+                }
+
+            }
+        }
+        else
+        {
+            if (!isNull(username))
+            {
+                if (
+                    !isNull(filename) &&
+                    filename !== "" &&
+
+                    typeof md5_checksum !== "undefined" &&
+                    md5_checksum !== "" &&
+
+                    !isNull(req.params.requestedResourceUri) &&
+                    req.params.requestedResourceUri !== ""
+                )
+                {
+                    UploadManager.add_upload(
+                        username,
+                        filename,
+                        size,
+                        md5_checksum,
+                        req.params.requestedResourceUri,
+                        function (err, newUpload)
+                        {
+                            if (isNull(err))
+                            {
+                                res.json({
+                                    size: newUpload.loaded,
+                                    upload_id: newUpload.id
+                                });
+                            }
+                            else
+                            {
+                                res.status(500).json({
+                                    result: "error",
+                                    message: "There was an error registering the new upload.",
+                                    error: err
+                                });
+                            }
+
+                        });
                 }
                 else
                 {
                     res.status(400).json({
                         result: "error",
-                        message: "User must be authenticated in the system to upload files."
-                    });
-                }
-            }
-        }
-        else if (req.originalMethod === "POST")
-        {
-            if(!isNull(username) && !isNull(filename) && !isNull(size) && !isNull(md5_checksum))
-            {
-                if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
-                {
-                    //TODO OMG this needs to be flattened using async!!! Callback onion!!
-                    md5File(file.path, function (err, hash) {
-                        if (isNull(err)) {
-                            if (md5_checksum !== hash) {
-                                return callback(400, {
-                                    result: "error",
-                                    message: "File was corrupted during transfer. Please repeat.",
-                                    error: "invalid_checksum",
-                                    calculated_at_server: hash,
-                                    calculated_at_client: md5_checksum
-                                });
-                            }
-                            else
-                            {
-                                processChunkedUpload();
-                            }
-                        }
-                        else {
-                            return callback(500, {
-                                result: "error",
-                                message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
-                                error: hash
-                            });
-                        }
-                    });
-                }
-                else
-                {
-                    return callback(400, {
-                        result: "error",
-                        message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
-                        files: fileNames
+                        message: "Request must include: the 'filename' field. which is the title of the uploaded file, complete with its file type extension ; the 'md5_checksum' field, which is the md5 checksum of the uploaded file."
                     });
                 }
             }
             else
             {
-                processNormalUpload();
+                res.status(400).json({
+                    result: "error",
+                    message: "User must be authenticated in the system to upload files."
+                });
             }
         }
     }
-    else
+    else if (req.originalMethod === "POST")
     {
-        res.status(400).json({
-            result : "error",
-            msg : "This functionality is only accessible via API. Missing Accept: 'application/json' header."
-        });
+        if(!isNull(username) && !isNull(filename) && !isNull(size) && !isNull(md5_checksum))
+        {
+            if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
+            {
+                //TODO OMG this needs to be flattened using async!!! Callback onion!!
+                md5File(file.path, function (err, hash) {
+                    if (isNull(err)) {
+                        if (md5_checksum !== hash) {
+                            return callback(400, {
+                                result: "error",
+                                message: "File was corrupted during transfer. Please repeat.",
+                                error: "invalid_checksum",
+                                calculated_at_server: hash,
+                                calculated_at_client: md5_checksum
+                            });
+                        }
+                        else
+                        {
+                            processChunkedUpload();
+                        }
+                    }
+                    else {
+                        return callback(500, {
+                            result: "error",
+                            message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
+                            error: hash
+                        });
+                    }
+                });
+            }
+            else
+            {
+                return callback(400, {
+                    result: "error",
+                    message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
+                    files: fileNames
+                });
+            }
+        }
+        else
+        {
+            processNormalUpload();
+        }
     }
 };
 
@@ -2224,6 +2211,11 @@ exports.data = function(req, res){
     if(isNull(req.params.showing_project_root))
     {
         const resourceURI = req.params.requestedResourceUri;
+        const skip = parseInt(req.query.skip);
+        const pageSize = parseInt(req.query.pageSize);
+        const sheetName = req.query.sheetName;
+        const format = req.query.format;
+        
         File.findByUri(resourceURI, function(err, file){
             if(isNull(err))
             {
@@ -2231,17 +2223,55 @@ exports.data = function(req, res){
                 {
                     if(file.ddr.hasDataContent)
                     {
-                        res.set("Content-Type", "text/csv");
-                        file.pipeData(req, res);
+                        if(req.query.format === "csv")
+                        {
+                            res.set("Content-Type", "text/csv");
+                        }
+                        else
+                        {
+                            res.set("Content-Type", "application/json");
+                        }
+
+                        file.pipeData(res, skip, pageSize, sheetName, format);
                     }
                     else
                     {
-                        const error = resourceURI + " has no data.";
-                        console.error(error);
-                        res.status(400).json({
-                            result : "error",
-                            message : error
-                        });
+                        if(!isNull(Config.dataStoreCompatibleExtensions[file.ddr.fileExtension]))
+                        {
+                            file.rebuildData(function(err, result){
+                                if(!err)
+                                {
+                                    if(req.query.format === "csv")
+                                    {
+                                        res.set("Content-Type", "text/csv");
+                                    }
+                                    else
+                                    {
+                                        res.set("Content-Type", "application/json");
+                                    }
+
+                                    file.pipeData(res, null, null, null, format);
+                                }
+                                else
+                                {
+                                    const error = resourceURI + " has no data.";
+                                    console.error(error);
+                                    res.status(400).json({
+                                        result : "error",
+                                        message : error
+                                    });
+                                }
+                            });
+                        }
+                        else
+                        {
+                            const error = resourceURI + " has no data.";
+                            console.error(error);
+                            res.status(400).json({
+                                result : "error",
+                                message : error
+                            });
+                        }
                     }
                 }
                 else

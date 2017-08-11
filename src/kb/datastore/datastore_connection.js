@@ -57,7 +57,7 @@ DataStoreConnection.prototype.close = function() {
         }
     });
 };
-DataStoreConnection.prototype.getDataByQuery = function(query, skip, limit, writeStream, sheetName) {
+DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip, limit, sheetName, outputFormat) {
     const self = this;
     if(!isNull(self.client))
     {
@@ -104,20 +104,55 @@ DataStoreConnection.prototype.getDataByQuery = function(query, skip, limit, writ
                 .skip(skip)
                 .limit(limit)
                 .sort(
-                        { row : 1 }
-                    );
+                    { row : 1 }
+                );
 
+            if(outputFormat !== "csv")
+            {
+                cursor.stream().pipe(JSONStream.stringify()).pipe(writeStream);
+            }
+            else
+            {
+                const stream = JSONStream.parse(["true"]);
+                let finished = false;
 
-            cursor.stream().pipe(JSONStream.stringify()).pipe(writeStream);
+                stream.on("data", function(data) {
+                    let row = "";
+                    for(let i = 0; i < data.length; i++)
+                    {
+                        row += data[i];
+
+                        if(i < data.length - 1)
+                        {
+                            row += ","
+                        }
+                    }
+
+                    if(!finished)
+                        row += "\n";
+
+                    return row;
+                });
+
+                stream.on("end", function () {
+                    finished = true;
+                });
+
+                stream.on("header", function (data) {
+                    console.log('header:', data) // => {"total_rows":129,"offset":0}
+                });
+
+                cursor.stream().pipe(JSON.stringify()).pipe(process.stdout);
+            }
         }
         else
         {
-            return callback(1, "Tried to fetch a resource from cache "+ JSON.stringify(self) + " providing a null resourceUri!");
+            return callback(1, "Tried to fetch data from "+ JSON.stringify(self) + " providing a null resourceUri!");
         }
     }
     else
     {
-        return callback(1, "Must open connection to MongoDB cache "+JSON.stringify(self)+"first!");
+        return callback(1, "Must open connection to MongoDB datastore "+JSON.stringify(self)+"first!");
     }
 };
 DataStoreConnection.prototype.getData = function(writeStream, callback) {

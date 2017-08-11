@@ -105,6 +105,18 @@ module.exports.downloadDataByUri = function(acceptsJSON, agent, uri, cb, sheet)
     }
 };
 
+module.exports.downloadDataByUriInCSV = function(agent, uri, cb, sheet)
+{
+    agent
+        .get(uri)
+        .query({sheet: sheet, data : "", format : "csv"})
+        .buffer()
+        .parse(jsonParser)
+        .end(function(err, res) {
+            cb(err, res);
+        });
+};
+
 module.exports.downloadFile = function(acceptsJSON, agent, projectHandle, folderName, file, cb)
 {
     targetUrl = "/project/" + projectHandle + "/data/" + folderName + "/" + file.name + "?download";

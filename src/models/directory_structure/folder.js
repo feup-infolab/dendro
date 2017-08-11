@@ -85,7 +85,7 @@ Folder.prototype.saveIntoFolder = function(
                     return callback(null, absPathOfFinishedFile, fileNode);
                 }
                 else {
-                    const error = "Error saving a file node (leaf) at " + node.uri + " " + message;
+                    const error = "Error saving a file node (leaf) at " + node.uri + " " + absPathOfFinishedFile;
                     console.log(error);
                     return callback(1, error);
                 }
