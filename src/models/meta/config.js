@@ -486,9 +486,7 @@ Config.dataStoreCompatibleExtensions = {
     "xls" : 1,
     "xlsx" : 1,
     "csv" : 1,
-    "txt" : 1,
-    "log" : 1,
-    "xml" : 1
+    "ods" : 1
 };
 
 /**

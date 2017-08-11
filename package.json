@@ -117,6 +117,7 @@
     "underscore": "1.8.3",
     "uuid": "*",
     "validator": "^8.0.0",
+    "xlsx": "^0.11.2",
     "xml-writer": "^1.4.1",
     "xml2js": "^0.4.17",
     "xmlhttprequest": "^1.8.0",

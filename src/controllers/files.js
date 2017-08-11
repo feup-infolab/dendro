@@ -783,7 +783,8 @@ exports.upload = function(req, res)
                                 return callback(500, {
                                     result: "error",
                                     message: msg,
-                                    files: files
+                                    files: files,
+                                    errors: newFile
                                 });
                             }
                         });

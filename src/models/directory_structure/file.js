@@ -516,14 +516,22 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
 {
     const self = this;
     let dataStoreWriter;
-    const xlsFileParser = function (filePath, callback){
+
+    const xlsxFileParser = function (filePath, callback){
 
         const XLSX = require('xlsx');
-        let workbook = XLSX.readFile(filePath);
+        let workbook;
+        try{
+            workbook = XLSX.readFile(filePath);
+        }
+        catch(error)
+        {
+            return callback(error);
+        }
 
         async.mapLimit(workbook.SheetNames, 1, function(sheetName, callback){
             let sheet = workbook.Sheets[sheetName];
-            let sheetJSON = XLSX.utils.sheet_to_json(sheet);
+            let sheetJSON = XLSX.utils.sheet_to_json(sheet, {raw:true});
             
             for(let i = 0; i < sheetJSON.length; i++)
             {
@@ -599,8 +607,9 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
      */
 
     const dataFileParsers = {
-        "xls" : xlsFileParser,
-        "xlsx" : xlsFileParser,
+        "xls" : xlsxFileParser,
+        "xlsx" : xlsxFileParser,
+        "ods" : xlsxFileParser,
         "csv" : csvFileParser,
     };
 
