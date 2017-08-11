@@ -369,14 +369,22 @@ exports.calculate_ckan_repository_diffs = function (req, res) {
                 res.json(diffs);
             }
             else {
-                const msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
-                console.error(msg);
-                res.status(500).json(
-                    {
-                        "result": "error",
-                        "message": msg
-                    }
-                );
+                let msg = "";
+                if(!isNull(diffs.error.message) && diffs.error.message === "Not found")
+                {
+                    //There are no diffs because the package was not exported previously
+                    res.json([]);
+                }
+                else
+                {
+                    msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
+                    res.status(500).json(
+                        {
+                            "result": "error",
+                            "message": msg
+                        }
+                    );
+                }
             }
         });
     }
@@ -398,6 +406,8 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
     let folderResourcesInDendro = null;
     let folderResourcesInCkan = null;
     let dendroDiffs = [];
+    let createdInLocal = [];
+    let deletedInLocal = [];
     getExportedAtByDendroForCkanDataset(packageId, client, function (err, exportedAtDate) {
         if (isNull(err)) {
             lastExportedAtDate = exportedAtDate;
@@ -432,7 +442,8 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                                             id: ckanFile.id,
                                                             event: "deleted_in_local"
                                                         };
-                                                        dendroDiffs.push(ckanfileEvent);
+                                                        //dendroDiffs.push(ckanfileEvent);
+                                                        deletedInLocal.push(ckanfileEvent);
                                                         callback(err, ckanfileEvent);
                                                     }
                                                     else {
@@ -453,7 +464,8 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                                         id: missingFile,
                                                         event: "created_in_local"
                                                     };
-                                                    dendroDiffs.push(ckanfileEvent);
+                                                    //dendroDiffs.push(ckanfileEvent);
+                                                    createdInLocal.push(ckanfileEvent);
                                                     callback(err, ckanfileEvent);
                                                 }, function (err, results) {
                                                     callback(err, results);
@@ -466,6 +478,7 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                     ],
                                     function (err, results) {
                                         //callback(err, results);
+                                        dendroDiffs = createdInLocal.concat(deletedInLocal);
                                         callback(err, dendroDiffs);
                                     });
                             }
@@ -774,12 +787,111 @@ export_to_repository_ckan = function (req, res) {
                                                                             calculateDiffsBetweenDendroCkan(requestedResourceUri, targetRepository, function (err, diffs) {
                                                                                 if (isNull(err)) {
                                                                                     console.log(diffs);
-                                                                                    //res.json(diffs);
-                                                                                    /*deleteResourceInCkan(diffs.dendroDiffs[0][0].id, packageId, client, function (err, result) {
-                                                                                        console.log(err);
-                                                                                        console.log(result);
-                                                                                        res.json(diffs);
-                                                                                    });*/
+                                                                                    client.action(
+                                                                                        "package_update",
+                                                                                        result.result,
+                                                                                        function (err, result) {
+                                                                                            if (result.success) {
+                                                                                                createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function (err, response) {
+                                                                                                    if (isNull(err)) {
+                                                                                                        const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
+                                                                                                        const msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten.";
+
+                                                                                                        updateOrInsertExportedAtByDendroForCkanDataset(packageId, client, function (err, result) {
+                                                                                                            if (isNull(err)) {
+                                                                                                                /*res.json(
+                                                                                                                    {
+                                                                                                                        "result": "OK",
+                                                                                                                        "message": msg
+                                                                                                                    }
+                                                                                                                );
+                                                                                                                deleteFolderRecursive(parentFolderPath);*/
+                                                                                                                //TODO diffs.dendroDiffs -> iterar em todos os que têm o evento "deleted_in_local" e apagar os ficheiros com a função deleteResourceInCkan
+                                                                                                                async.map(diffs.dendroDiffs, function (dendroDiff, cb) {
+                                                                                                                    if(dendroDiff.event === "deleted_in_local")
+                                                                                                                    {
+                                                                                                                        deleteResourceInCkan(dendroDiff.id, packageId, client, function (err, result) {
+                                                                                                                            cb(err, result);
+                                                                                                                        });
+                                                                                                                    }
+                                                                                                                    else
+                                                                                                                    {
+                                                                                                                        cb(err, diffs);
+                                                                                                                    }
+                                                                                                                },function (err, results) {
+                                                                                                                    if(isNull(err))
+                                                                                                                    {
+                                                                                                                        res.json(
+                                                                                                                            {
+                                                                                                                                "result": "OK",
+                                                                                                                                "message": msg
+                                                                                                                            }
+                                                                                                                        );
+                                                                                                                        deleteFolderRecursive(parentFolderPath);
+                                                                                                                    }
+                                                                                                                    else
+                                                                                                                    {
+                                                                                                                        const msg = "Error uploading files in the dataset to CKAN.";
+                                                                                                                        res.json(
+                                                                                                                            {
+                                                                                                                                "result": "error",
+                                                                                                                                "message": msg,
+                                                                                                                                "error": response
+                                                                                                                            }
+                                                                                                                        );
+                                                                                                                        deleteFolderRecursive(parentFolderPath);
+                                                                                                                    }
+                                                                                                                });
+                                                                                                            }
+                                                                                                            else {
+                                                                                                                let msg = "Error updating exportedAt property in the dataset to CKAN.";
+                                                                                                                if (!isNull(response)) {
+                                                                                                                    msg += " Error returned : " + response;
+                                                                                                                }
+
+                                                                                                                res.json(
+                                                                                                                    {
+                                                                                                                        "result": "Error",
+                                                                                                                        "message": msg
+                                                                                                                    }
+                                                                                                                );
+                                                                                                                deleteFolderRecursive(parentFolderPath);
+                                                                                                            }
+                                                                                                        });
+                                                                                                    }
+                                                                                                    else {
+                                                                                                        const msg = "Error uploading files in the dataset to CKAN.";
+                                                                                                        res.json(
+                                                                                                            {
+                                                                                                                "result": "error",
+                                                                                                                "message": msg,
+                                                                                                                "error": response
+                                                                                                            }
+                                                                                                        );
+
+                                                                                                        deleteFolderRecursive(parentFolderPath);
+                                                                                                    }
+                                                                                                }, overwrite, extraFiles);
+                                                                                            }
+                                                                                            else {
+                                                                                                const msg = "Error refreshing existing CKAN Dataset.";
+                                                                                                var response = {
+                                                                                                    "result": "Error",
+                                                                                                    "message": msg
+                                                                                                };
+
+                                                                                                if (!isNull(result)) {
+                                                                                                    response.result = result;
+                                                                                                }
+
+                                                                                                res.json(
+                                                                                                    response
+                                                                                                );
+
+                                                                                                deleteFolderRecursive(parentFolderPath);
+                                                                                            }
+                                                                                        }
+                                                                                    );
                                                                                 }
                                                                                 else {
                                                                                     const msg = "Error when calculating diffs between Dendro and Ckan: " + JSON.stringify(diffs);
@@ -792,59 +904,6 @@ export_to_repository_ckan = function (req, res) {
                                                                                     );
                                                                                 }
                                                                             });
-                                                                            return;
-                                                                            client.action(
-                                                                                "package_update",
-                                                                                result.result,
-                                                                                function (err, result) {
-                                                                                    if (result.success) {
-                                                                                        createOrUpdateFilesInPackage(datasetFolderMetadata, packageId, client, function (err, response) {
-                                                                                            if (isNull(err)) {
-                                                                                                const dataSetLocationOnCkan = targetRepository.ddr.hasExternalUri + "/dataset/" + packageId;
-                                                                                                const msg = "This dataset was exported to the CKAN instance and should be available at: <a href=\"" + dataSetLocationOnCkan + "\">" + dataSetLocationOnCkan + "</a> <br/><br/> The previous version was overwritten.";
-
-                                                                                                res.json(
-                                                                                                    {
-                                                                                                        "result": "OK",
-                                                                                                        "message": msg
-                                                                                                    }
-                                                                                                );
-
-                                                                                                deleteFolderRecursive(parentFolderPath);
-                                                                                            }
-                                                                                            else {
-                                                                                                const msg = "Error uploading files in the dataset to CKAN.";
-                                                                                                res.json(
-                                                                                                    {
-                                                                                                        "result": "error",
-                                                                                                        "message": msg,
-                                                                                                        "error": response
-                                                                                                    }
-                                                                                                );
-
-                                                                                                deleteFolderRecursive(parentFolderPath);
-                                                                                            }
-                                                                                        }, overwrite, extraFiles);
-                                                                                    }
-                                                                                    else {
-                                                                                        const msg = "Error refreshing existing CKAN Dataset.";
-                                                                                        var response = {
-                                                                                            "result": "Error",
-                                                                                            "message": msg
-                                                                                        };
-
-                                                                                        if (!isNull(result)) {
-                                                                                            response.result = result;
-                                                                                        }
-
-                                                                                        res.json(
-                                                                                            response
-                                                                                        );
-
-                                                                                        deleteFolderRecursive(parentFolderPath);
-                                                                                    }
-                                                                                }
-                                                                            );
                                                                         }
                                                                     }
                                                                     //dataset not found
