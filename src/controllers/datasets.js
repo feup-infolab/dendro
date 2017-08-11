@@ -433,8 +433,8 @@ const compareDendroPackageWithCkanPackage = function (folder, packageId, client,
                                                     let ckanFile = _.find(folderResourcesInCkan, function (folderResourcesInCkan) {
                                                         return folderResourcesInCkan.id === missingFile;
                                                     });
-                                                    //Nos ficheiros criados pelo ckan o id não é o mesmo que o nome
-                                                    if (ckanFile.last_modified < exportedAtDate && ckanFile.id === ckanFile.name) {
+
+                                                    if (ckanFile.last_modified < exportedAtDate) {
                                                         //it was deleted in dendro
                                                         //delete in ckan
                                                         let ckanfileEvent = {

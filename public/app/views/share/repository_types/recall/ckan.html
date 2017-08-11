@@ -42,6 +42,19 @@
                 <label><input type="checkbox" ng-model="overwrite"><span class="label label-warning"><span class="glyphicon glyphicon-warning-sign"></span>Overwrite if exists</span></label>
             </div>
         </div>
+
+        <div class="col-lg-2" ng-show="deleteCkanChanges.length > 0">
+            <div class="checkbox">
+                <label><input type="checkbox" ng-model="deleteCkanChanges"><span class="label label-warning"><span class="glyphicon glyphicon-warning-sign"></span> Delete changes made in Ckan </span></label>
+            </div>
+        </div>
+
+        <div class="col-lg-2" ng-show="deleteInCkanDeletedDendroFiles.length > 0">
+            <div class="checkbox">
+                <label><input type="checkbox" ng-model="deleteInCkanDeletedDendroFiles"><span class="label label-warning"><span class="glyphicon glyphicon-warning-sign"></span> Propagate file deletions in Dendro to Ckan </span></label>
+            </div>
+        </div>
+
     </div>
 
     <br>
