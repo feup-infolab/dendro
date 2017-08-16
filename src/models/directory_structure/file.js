@@ -632,17 +632,32 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
     const csvFileParser = function (filePath, callback){
         const Baby = require("babyparse");
         let pendingRecords = [];
-        let chunkSize = 1000;
+        let chunkSize = 5000;
+        let header;
 
         function sendData(records, callback)
         {
             dataStoreWriter.appendArrayOfObjects(records, function (err, result)
             {
                 callback(err, result);
-            });
+            }, null, 0);
         }
 
         const processRecord = function(record){
+
+            if(isNull(header) && !isNull(record.meta.fields))
+            {
+                header = record.meta.fields;
+                dataStoreWriter.createSheetRecord(null, 0, header, function(err, result){
+                    if(!isNull(err))
+                    {
+                        console.error("Error occurred while recording header of sheet " + 0 + " of resource " + self.uri);
+                        console.error(err.stack);
+
+                    }
+                });
+            }
+
             pendingRecords.push(record.data[0]);
 
             if(pendingRecords.length % chunkSize === 0)

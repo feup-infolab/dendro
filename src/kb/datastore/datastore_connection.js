@@ -125,7 +125,7 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
 
         //pagination
         queryObject["$and"].push({row : { "$gte" : skip}});
-        queryObject["$and"].push({row : { "$lte" : skip + limit}});
+        queryObject["$and"].push({row : { "$lte" : skip + Math.abs(limit)}});
 
         //sheet index
         queryObject["$and"].push({sheet_index : sheetIndex});
@@ -190,7 +190,7 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
                             for(let i = 0; i < header.length; i++)
                             {
                                 let headerColumn = header[i];
-                                headerRow+= header[i];
+                                headerRow+= "\"" + header[i] + "\"";
 
                                 if(i < header.length - 1)
                                 {

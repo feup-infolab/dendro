@@ -109,8 +109,6 @@ const setupGracefulClose = function(app, server, callback)
     };
 
     nodeCleanup(function (exitCode, signal) {
-        Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code "+exitCode+"!");
-
         if(exitCode || signal)
         {
             app.freeResources(function(err){
@@ -133,13 +131,12 @@ const setupGracefulClose = function(app, server, callback)
         }
         else if(exitCode === 0)
         {
-            return true;
+            process.exit(0);
         }
-        else
-        {
-            process.kill(process.pid, signal);
-            return true;
-        }
+
+        return true;
+
+        Logger.log_boot_message("warning", "Signal " + signal + " received, with exit code "+exitCode+"!");
     });
 
     callback(null);
