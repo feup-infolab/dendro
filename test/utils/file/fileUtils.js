@@ -78,38 +78,37 @@ module.exports.downloadFileByUri = function(acceptsJSON, agent, uri, cb)
     }
 };
 
-module.exports.downloadDataByUri = function(acceptsJSON, agent, uri, cb, sheet)
-{
-    if(acceptsJSON)
-    {
-        agent
-            .get(uri)
-            .query({sheet: sheet, data : ""})
-            .set("Accept", "application/json")
-            .buffer()
-            .parse(jsonParser)
-            .end(function(err, res) {
-                cb(err, res);
-            });
-    }
-    else
-    {
-        agent
-            .get(uri)
-            .query({sheet: sheet, data : ""})
-            .buffer()
-            .parse(jsonParser)
-            .end(function(err, res) {
-                cb(err, res);
-            });
-    }
-};
-
-module.exports.downloadDataByUriInCSV = function(agent, uri, cb, sheet)
+module.exports.downloadDataByUri = function(agent, uri, cb, sheet, skip, page_size)
 {
     agent
         .get(uri)
-        .query({sheet: sheet, data : "", format : "csv"})
+        .query(
+            {
+                sheet: sheet,
+                data : "",
+                skip : skip,
+                page_size: page_size
+            })
+        .set("Accept", "application/json")
+        .buffer()
+        .parse(jsonParser)
+        .end(function(err, res) {
+            cb(err, res);
+        });
+};
+
+module.exports.downloadDataByUriInCSV = function(agent, uri, cb, sheet, skip, page_size)
+{
+    agent
+        .get(uri)
+        .query(
+            {
+                sheet: sheet,
+                data : "",
+                format : "csv",
+                skip : skip,
+                page_size: page_size
+            })
         .buffer()
         .parse(jsonParser)
         .end(function(err, res) {

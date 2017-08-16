@@ -2211,10 +2211,22 @@ exports.data = function(req, res){
     if(isNull(req.params.showing_project_root))
     {
         const resourceURI = req.params.requestedResourceUri;
-        const skip = parseInt(req.query.skip);
-        const pageSize = parseInt(req.query.pageSize);
-        const sheetName = req.query.sheetName;
-        const format = req.query.format;
+        let skip;
+        let pageSize;
+        let sheetName;
+        let format;
+
+        if(!isNull(req.query.skip))
+            skip = parseInt(req.query.skip);
+
+        if(!isNull(req.query.page_size))
+            pageSize = parseInt(req.query.page_size);
+
+        if(!isNull(req.query.sheet))
+            sheetName = req.query.sheet;
+
+        if(!isNull(req.query.format))
+            format = req.query.format;
         
         File.findByUri(resourceURI, function(err, file){
             if(isNull(err))

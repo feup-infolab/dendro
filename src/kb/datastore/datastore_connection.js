@@ -59,95 +59,92 @@ DataStoreConnection.prototype.close = function() {
 };
 DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip, limit, sheetName, outputFormat) {
     const self = this;
+    let JSONStream = require("JSONStream");
     if(!isNull(self.client))
     {
-        if(!isNull(query))
+        const queryObject = {
+            "$and": []
+        };
+
+
+        if(!isNull(query) && JSON.stringify(query) !== "{}")
         {
-            const queryObject = {
-                "$and": []
-            };
+            queryObject["$and"].push({
+                data: query
+            });
+        }
 
-            if(JSON.stringify(query) !== "{}")
+        if(isNull(skip) || isNaN(skip))
+        {
+            skip = 0;
+        }
+
+        if(isNull(limit) || isNaN(limit))
+        {
+            limit = 1000; //1000 rows by default
+        }
+
+        if(isNull(sheetName) || sheetName === "")
+        {
+            sheetName = DataStoreConnection.defaultSheetName;
+        }
+
+        //pagination
+        queryObject["$and"].push({row : { "$gte" : skip}});
+        queryObject["$and"].push({row : { "$lte" : skip + limit}});
+
+        //sheet name
+        queryObject["$and"].push({sheet : sheetName});
+
+        const cursor = self.client.collection(self.collection)
+            .find(queryObject,  { "sheet" : 0, "_id" : 0})
+            .sort([["row", 1]]);
+
+        if(outputFormat === "csv")
+        {
+            const getRowInCSV = function(data)
             {
-                queryObject["$and"].push({
-                    data: query
-                });
-            }
+                let row = "";
+                if(!isNull(data))
+                {
+                    let keys = Object.keys(data);
 
-            if(isNull(skip) || isNaN(skip))
-            {
-                skip = 0;
-            }
-
-            if(isNull(limit) || isNaN(limit))
-            {
-                limit = 1000; //1000 rows by default
-            }
-
-            if(isNull(sheetName))
-            {
-                sheetName = DataStoreConnection.defaultSheetName;
-            }
-
-            //pagination
-            queryObject["$and"].push({row : { "$gt" : skip}});
-            queryObject["$and"].push({row : { "$lte" : skip + limit}});
-
-            //sheet name
-            queryObject["$and"].push({sheet : sheetName});
-
-
-            let JSONStream = require('JSONStream');
-
-            const cursor = self.client.collection(self.collection)
-                .find(queryObject,  { "sheet" : 0, "_id" : 0})
-                .skip(skip)
-                .limit(limit)
-                .sort(
-                    { row : 1 }
-                );
-
-            if(outputFormat !== "csv")
-            {
-                cursor.stream().pipe(JSONStream.stringify()).pipe(writeStream);
-            }
-            else
-            {
-                const stream = JSONStream.parse(["true"]);
-                let finished = false;
-
-                stream.on("data", function(data) {
-                    let row = "";
-                    for(let i = 0; i < data.length; i++)
+                    for(let i = 0; i < keys.length; i++)
                     {
-                        row += data[i];
-
-                        if(i < data.length - 1)
+                        let key = keys[i];
+                        if(data.hasOwnProperty(key))
                         {
-                            row += ","
+                            row += data[key];
+                        }
+
+                        if(i < keys.length - 1)
+                        {
+                            row += ",";
                         }
                     }
+                }
 
-                    if(!finished)
-                        row += "\n";
+                return row;
+            };
 
-                    return row;
-                });
+            cursor.toArray(function(err, results) {
+                for(let i = 0; i < results.length; i++)
+                {
+                    let csvRow = getRowInCSV(results[i].data);
+                    writeStream.write(csvRow);
 
-                stream.on("end", function () {
-                    finished = true;
-                });
+                    if(i < results.length - 1)
+                    {
+                        writeStream.write("\n");
+                    }
+                }
 
-                stream.on("header", function (data) {
-                    console.log('header:', data) // => {"total_rows":129,"offset":0}
-                });
-
-                cursor.stream().pipe(JSON.stringify()).pipe(process.stdout);
-            }
+                writeStream.end();
+            });
         }
         else
         {
-            return callback(1, "Tried to fetch data from "+ JSON.stringify(self) + " providing a null resourceUri!");
+            cursor.stream().pipe(JSONStream.stringify()).pipe(writeStream);
         }
     }
     else
@@ -155,8 +152,8 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
         return callback(1, "Must open connection to MongoDB datastore "+JSON.stringify(self)+"first!");
     }
 };
-DataStoreConnection.prototype.getData = function(writeStream, callback) {
-    DataStoreConnection.prototype.getDataByQuery({}, writeStream, callback);
+DataStoreConnection.prototype.getData = function(writeStream, callback, sheetName, outputFormat) {
+    DataStoreConnection.prototype.getDataByQuery({}, writeStream, null, null, sheetName, callback, outputFormat);
 };
 DataStoreConnection.prototype.clearData = function(callback) {
     const self = this;
@@ -200,9 +197,6 @@ DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, ca
         // Execute the operation
         collection.insertMany(
             formattedEntries,
-            {
-                ordered: false
-            },
             function(err, result){
                 callback(err, result);
             });
