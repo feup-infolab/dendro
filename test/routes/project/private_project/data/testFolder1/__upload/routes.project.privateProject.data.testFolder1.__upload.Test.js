@@ -286,20 +286,19 @@ describe("Upload files into testFolder1 of Private project", function () {
                             res.statusCode.should.equal(200);
                             
                             const downloadJSON = path.join(Config.tempFilesDir,"json_dump2.json");
-
                             fs.writeFileSync(downloadJSON, res.text);
-
                             md5(res.text).should.equal(jsonResultMD5);
 
                             fileUtils.downloadDataByUriInCSV(agent, newResourceUri, function (error, res)
                             {
                                 res.statusCode.should.equal(200);
+                                const downloadCSV = path.join(Config.tempFilesDir,"csv_dump2.csv");
+                                fs.writeFileSync(downloadCSV, res.text);
+                                //fs.unlinkSync(downloadCSV);
+
+
                                 md5(res.text).should.equal(csvResultMD5);
                                 done();
-
-                                // const downloadCSV = path.join(Config.tempFilesDir,"csv_dump2.csv");
-                                // //fs.writeFileSync(downloadCSV, res.text);
-                                // fs.unlinkSync(downloadCSV);
                             }, 0);
                         }, 0);
                     });
@@ -401,7 +400,7 @@ describe("Upload files into testFolder1 of Private project", function () {
                             fileUtils.downloadDataByUriInCSV(agent, newResourceUri, function (error, res)
                             {
                                 const downloadCSV = path.join(Config.tempFilesDir,"csv_dump1_paginated.csv");
-                                //fs.writeFileSync(downloadCSV, res.text);
+                                fs.writeFileSync(downloadCSV, res.text);
 
                                 res.statusCode.should.equal(200);
                                 md5(res.text).should.equal(csvResultMD5WithPageAndSkip);

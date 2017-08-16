@@ -131,6 +131,10 @@ const setupGracefulClose = function(app, server, callback)
 
             return false;
         }
+        else if(exitCode === 0)
+        {
+            return true;
+        }
         else
         {
             process.kill(process.pid, signal);

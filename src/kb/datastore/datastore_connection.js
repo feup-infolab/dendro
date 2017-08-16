@@ -63,7 +63,7 @@ DataStoreConnection.prototype.getSheets = function(callback) {
     });
 };
 
-DataStoreConnection.prototype.createSheetRecord = function(sheetName, sheetIndex, callback) {
+DataStoreConnection.prototype.createSheetRecord = function(sheetName, sheetIndex, sheetHeader, callback) {
     const self = this;
     const newSheetObject = {
         "resource": self.resourceUri
@@ -77,6 +77,11 @@ DataStoreConnection.prototype.createSheetRecord = function(sheetName, sheetIndex
     if(!isNull(sheetName))
     {
         newSheetObject.name = sheetName;
+    }
+
+    if(!isNull(sheetHeader))
+    {
+        newSheetObject.header = sheetHeader;
     }
 
     self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
@@ -156,18 +161,89 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
                 return row;
             };
 
-            cursor.toArray(function(err, results) {
-                for(let i = 0; i < results.length; i++)
-                {
-                    let csvRow = getRowInCSV(results[i].data);
-                    writeStream.write(csvRow);
+            const getHeader = function(callback)
+            {
+                const headerCursor = self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
+                    .find(
+                        {
 
-                    if(i < results.length - 1)
+                            "$and": [
+                                {
+                                    "resource": self.resourceUri
+                                },
+                                {
+                                    "index": sheetIndex
+                                }
+                            ]
+                        },
+                        {
+                            "_id" : 0
+                        });
+
+                headerCursor.toArray(function(err, results) {
+                    if(isNull(err))
                     {
-                        writeStream.write("\n");
-                    }
-                }
+                        if (!isNull(results) && results instanceof Array && results.length === 1)
+                        {
+                            let headerRow = "";
+                            let header = results[0].header;
+                            for(let i = 0; i < header.length; i++)
+                            {
+                                let headerColumn = header[i];
+                                headerRow+= header[i];
 
+                                if(i < header.length - 1)
+                                {
+                                    headerRow += ",";
+                                }
+                            }
+
+                            writeStream.write(headerRow);
+                            writeStream.write("\n");
+
+                            callback(null);
+                        }
+                        else
+                        {
+                            callback(1, "Unable to fetch header of sheet " + sheetIndex + " of resource " + self.resourceUri + ": Sheet or resource does not exist in the sheet records collection!");
+                        }
+                    }
+                    else
+                    {
+                        callback(1, "unable to fetch header of sheet " + sheetIndex + " of resource " + self.resourceUri + ". Error reported: " + err);
+                    }
+                });
+            }
+
+            const getData = function(callback)
+            {
+                cursor.toArray(function(err, results) {
+                    if(isNull(err))
+                    {
+                        for(let i = 0; i < results.length; i++)
+                        {
+                            let csvRow = getRowInCSV(results[i].data);
+                            writeStream.write(csvRow);
+
+                            if(i < results.length - 1)
+                            {
+                                writeStream.write("\n");
+                            }
+                        }
+                        callback(null);
+                    }
+                    else
+                    {
+                        callback(err, results)
+                    }
+                });
+            }
+
+            const async = require("async");
+            async.series([
+                getHeader,
+                getData
+            ], function(err, result){
                 writeStream.end();
                 self.close();
             });
@@ -302,7 +378,7 @@ DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, ca
     }
 };
 
-DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfRecords, callback, sheetName, sheetIndex) {
+DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfRecords, callback, sheetName, sheetIndex, sheetHeader) {
     const self = this;
 
     if(!isNull(self.client))
@@ -310,7 +386,7 @@ DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfRec
         self.clearData(function(err, result){
             if(isNull(err))
             {
-                self.createSheetRecord(sheetName, sheetIndex, function(err, result){
+                self.createSheetRecord(sheetName, sheetIndex, sheetHeader, function(err, result){
                     if(isNull(err))
                     {
                         self.appendArrayOfObjects(arrayOfRecords, callback, sheetName, sheetIndex);
