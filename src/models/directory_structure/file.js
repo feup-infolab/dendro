@@ -461,7 +461,7 @@ File.prototype.getThumbnail = function (size, callback) {
                 if (err === 404) {
                     //try to regenerate thumbnails, fire and forget
                     self.generateThumbnails(function (err, result) {
-                        return callback(null, Pathfinder.absPathInPublicFolder("images/icons/extensions/file_generating_thumbnail.png"));
+                        return callback(null, Pathfinder.absPathInPublicFolder("images/icons/page_white_gear.png"));
                     })
                 }
                 else if (isNull(err)) {
@@ -529,7 +529,14 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
             return callback(error);
         }
 
-        async.mapLimit(workbook.SheetNames, 1, function(sheetName, callback){
+        const sheetNamesWithIndexes = workbook.SheetNames.map(function (name, index) {
+            return {index: index, name: name};
+        });
+
+        async.mapLimit(sheetNamesWithIndexes, 1, function(sheetNameAndIndex, callback){
+            let sheetName = sheetNameAndIndex.name;
+            let sheetIndex = sheetNameAndIndex.index;
+
             let sheet = workbook.Sheets[sheetName];
             let sheetJSON = XLSX.utils.sheet_to_json(sheet, {raw:true});
             
@@ -538,7 +545,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
                 delete sheetJSON[i].__proto__["__rowNum__"];
             }
             
-            dataStoreWriter.updateDataFromArrayOfObjects(sheetJSON, callback, sheetName);
+            dataStoreWriter.updateDataFromArrayOfObjects(sheetJSON, callback, sheetName, sheetIndex);
         }, function(err, result){
             callback(err, result);
         });
@@ -748,13 +755,15 @@ File.prototype.extractTextAndSaveIntoGraph = function (callback) {
     }
 };
 
-File.prototype.pipeData = function(writeStream, skipRows, pageSize, sheetName, outputFormat)
+File.prototype.getSheets = function(callback)
 {
     const self = this;
     if(self.ddr.hasDataContent)
     {
         DataStoreConnection.create(self.uri, function(err, conn){
-            conn.getDataByQuery({}, writeStream, skipRows, pageSize, sheetName, outputFormat);
+            conn.getSheets(function(err, sheets){
+                callback(err, sheets);
+            });
         });
     }
     else
@@ -763,7 +772,24 @@ File.prototype.pipeData = function(writeStream, skipRows, pageSize, sheetName, o
         res.writeHead(400, result);
         res.end();
     }
-}
+};
+
+File.prototype.pipeData = function(writeStream, skipRows, pageSize, sheetIndex, outputFormat)
+{
+    const self = this;
+    if(self.ddr.hasDataContent)
+    {
+        DataStoreConnection.create(self.uri, function(err, conn){
+            conn.getDataByQuery({}, writeStream, skipRows, pageSize, sheetIndex, outputFormat);
+        });
+    }
+    else
+    {
+        const result = "File : " + self.uri + " does not have any data associated to it";
+        res.writeHead(400, result);
+        res.end();
+    }
+};
 
 File.prototype.connectToMongo = function (callback) {
     const MongoClient = require('mongodb').MongoClient;

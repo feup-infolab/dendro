@@ -78,13 +78,13 @@ module.exports.downloadFileByUri = function(acceptsJSON, agent, uri, cb)
     }
 };
 
-module.exports.downloadDataByUri = function(agent, uri, cb, sheet, skip, page_size)
+module.exports.downloadDataByUri = function(agent, uri, cb, sheet_index, skip, page_size)
 {
     agent
         .get(uri)
         .query(
             {
-                sheet: sheet,
+                sheet_index: sheet_index,
                 data : "",
                 skip : skip,
                 page_size: page_size

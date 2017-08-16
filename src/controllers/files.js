@@ -2207,13 +2207,61 @@ exports.recent_changes = function(req, res) {
     }
 };
 
+exports.sheets = function(req, res){
+    if(isNull(req.params.showing_project_root))
+    {
+        const resourceURI = req.params.requestedResourceUri;
+        File.findByUri(resourceURI, function (err, file)
+        {
+            if (isNull(err))
+            {
+                if (!isNull(file) && file instanceof File)
+                {
+                    file.getSheets(function(err, sheets){
+                        if(!err)
+                        {
+                            res.json(sheets);
+                        }
+                        else
+                        {
+                            const error = "Error occurred while fetching sheets for " + resourceURI;
+                            console.error(error);
+                            res.status(500).json({
+                                result : "error",
+                                message : error,
+                                error : err
+                            });
+                        }
+
+                    })
+                }
+                else
+                {
+                    const error = resourceURI + " does not exist or is not a file.";
+                    console.error(error);
+                    res.status(404).json({
+                        result : "error",
+                        message : error
+                    });
+                }
+
+            }
+        });
+    }
+    else
+    {
+        const projects = require(Pathfinder.absPathInSrcFolder("/controllers/projects.js"));
+        projects.show(req, res);
+    }
+};
+
 exports.data = function(req, res){
     if(isNull(req.params.showing_project_root))
     {
         const resourceURI = req.params.requestedResourceUri;
         let skip;
         let pageSize;
-        let sheetName;
+        let sheetIndex;
         let format;
 
         if(!isNull(req.query.skip))
@@ -2222,8 +2270,8 @@ exports.data = function(req, res){
         if(!isNull(req.query.page_size))
             pageSize = parseInt(req.query.page_size);
 
-        if(!isNull(req.query.sheet))
-            sheetName = req.query.sheet;
+        if(!isNull(req.query.sheet_index))
+            sheetIndex = parseInt(req.query.sheet_index);
 
         if(!isNull(req.query.format))
             format = req.query.format;
@@ -2244,7 +2292,7 @@ exports.data = function(req, res){
                             res.set("Content-Type", "application/json");
                         }
 
-                        file.pipeData(res, skip, pageSize, sheetName, format);
+                        file.pipeData(res, skip, pageSize, sheetIndex, format);
                     }
                     else
                     {

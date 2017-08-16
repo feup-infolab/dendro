@@ -19,8 +19,6 @@ function DataStoreConnection (options) {
     self.counter = 1;
 }
 
-DataStoreConnection.defaultSheetName = "DefaultSheet";
-
 DataStoreConnection.prototype.open = function(callback) {
     const self = this;
 
@@ -46,18 +44,48 @@ DataStoreConnection.prototype.open = function(callback) {
 };
 DataStoreConnection.prototype.close = function() {
     const self = this;
-    self.client.close(function(err, result){
-        if(!err)
-        {
-            self.emit("close");
-        }
-        else
-        {
-            self.emit("error");
-        }
+    self.client.close();
+};
+
+DataStoreConnection.prototype.getSheets = function(callback) {
+    const self = this;
+    const queryObject = {
+        "resource": self.uri
+    };
+
+    const cursor = self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
+        .find(queryObject,   {"_id" : 0} )
+        .sort([["index", 1]]);
+
+    cursor.toArray(function(err, results) {
+        callback(err, results);
+        self.close();
     });
 };
-DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip, limit, sheetName, outputFormat) {
+
+DataStoreConnection.prototype.createSheetRecord = function(sheetName, sheetIndex, callback) {
+    const self = this;
+    const newSheetObject = {
+        "resource": self.resourceUri
+    };
+
+    if(!isNull(sheetIndex))
+    {
+        newSheetObject.index = sheetIndex;
+    }
+
+    if(!isNull(sheetName))
+    {
+        newSheetObject.name = sheetName;
+    }
+
+    self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
+        .insert(newSheetObject, function(err, result){
+            callback(err, result);
+        });
+};
+
+DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip, limit, sheetIndex, outputFormat) {
     const self = this;
     let JSONStream = require("JSONStream");
     if(!isNull(self.client))
@@ -84,20 +112,21 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
             limit = 1000; //1000 rows by default
         }
 
-        if(isNull(sheetName) || sheetName === "")
+        if(isNull(sheetIndex) || isNaN(sheetIndex))
         {
-            sheetName = DataStoreConnection.defaultSheetName;
+            sheetIndex = 0;
         }
+
 
         //pagination
         queryObject["$and"].push({row : { "$gte" : skip}});
         queryObject["$and"].push({row : { "$lte" : skip + limit}});
 
-        //sheet name
-        queryObject["$and"].push({sheet : sheetName});
+        //sheet index
+        queryObject["$and"].push({sheet_index : sheetIndex});
 
         const cursor = self.client.collection(self.collection)
-            .find(queryObject,  { "sheet" : 0, "_id" : 0})
+            .find(queryObject,  { "sheet_index" : 0, "_id" : 0})
             .sort([["row", 1]]);
 
         if(outputFormat === "csv")
@@ -140,11 +169,15 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
                 }
 
                 writeStream.end();
+                self.close();
             });
         }
         else
         {
             cursor.stream().pipe(JSONStream.stringify()).pipe(writeStream);
+            cursor.on('end', function(){
+                self.close();
+            })
         }
     }
     else
@@ -155,16 +188,71 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
 DataStoreConnection.prototype.getData = function(writeStream, callback, sheetName, outputFormat) {
     DataStoreConnection.prototype.getDataByQuery({}, writeStream, null, null, sheetName, callback, outputFormat);
 };
-DataStoreConnection.prototype.clearData = function(callback) {
+DataStoreConnection.prototype.clearData = function(callback, sheetIndex) {
     const self = this;
     if(!isNull(self.client))
     {
-        self.client.collection(self.collection).drop(function(err, result){
-            if(isNull(err) || err.errmsg === "ns not found")
-                callback(null, result);
-            else
-                callback(err, result);
-        });
+        const clearDataRecords = function(callback)
+        {
+            self.client.collection(self.collection).deleteMany({ "sheet_index" : sheetIndex }, function(err, result){
+                if(isNull(err))
+                {
+                    self.client.collection(self.collection).count({}, function(err, result){
+                        if(isNull(err))
+                        {
+                            if(result === 0)
+                            {
+                                self.client.collection(self.collection).drop(function(err, result){
+                                    if(isNull(err) || err.errmsg === "ns not found")
+                                    {
+                                        callback(null);
+                                    }
+                                    else
+                                    {
+                                        callback(err, result);
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                callback(null);
+                            }
+                        }
+                        else
+                        {
+                            callback(err, result);
+                        }
+                    });
+                }
+                else
+                {
+                    callback(err, result);
+                }
+            });
+        }
+
+        const clearSheetRecord = function(callback)
+        {
+            let clearSheetQuery = {"resource" : self.uri };
+
+            if(!isNull(sheetIndex))
+                clearSheetQuery.index = sheetIndex;
+
+            self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION).deleteMany(clearSheetQuery, function(err, result){
+                if(isNull(err) || err.errmsg === "ns not found")
+                {
+                    callback(err, result);
+                }
+                else
+                {
+                    callback(err, result);
+                }
+
+            })
+        }
+
+        const async = require('async');
+        async.series([clearDataRecords, clearSheetRecord], callback);
     }
     else
     {
@@ -172,11 +260,11 @@ DataStoreConnection.prototype.clearData = function(callback) {
     }
 };
 
-DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, callback, sheetName) {
+DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, callback, sheetName, sheetIndex) {
     const self = this;
 
-    if(isNull(sheetName))
-        sheetName = DataStoreConnection.defaultSheetName;
+    if(isNull(sheetIndex))
+        sheetIndex = 0;
 
     const createNewEntries = function(entries, callback) {
         
@@ -186,7 +274,7 @@ DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, ca
         for(let i = 0; i < entries.length; i++)
         {
             let obj = {};
-            obj["sheet"] = sheetName;
+            obj["sheet_index"] = sheetIndex;
             obj["row"] = self.counter;
             obj["data"] = entries[i];
 
@@ -214,14 +302,30 @@ DataStoreConnection.prototype.appendArrayOfObjects = function(arrayOfRecords, ca
     }
 };
 
-DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfRecords, callback, sheetName) {
+DataStoreConnection.prototype.updateDataFromArrayOfObjects = function(arrayOfRecords, callback, sheetName, sheetIndex) {
     const self = this;
 
     if(!isNull(self.client))
     {
         self.clearData(function(err, result){
-            self.appendArrayOfObjects(arrayOfRecords, callback, sheetName);
-        });
+            if(isNull(err))
+            {
+                self.createSheetRecord(sheetName, sheetIndex, function(err, result){
+                    if(isNull(err))
+                    {
+                        self.appendArrayOfObjects(arrayOfRecords, callback, sheetName, sheetIndex);
+                    }
+                    else
+                    {
+                        callback(1, "Unable to create Sheet Record for sheet "+sheetName+ ", with index " + sheetIndex + " of resource " + self.resourceUri);
+                    }
+                });
+            }
+            else
+            {
+                callback(1, "Unable to Delete existing records for sheet "+sheetName+ ", with index " + sheetIndex + " of resource " + self.resourceUri);
+            }
+        }, sheetIndex);
     }
     else
     {
@@ -273,9 +377,10 @@ DataStoreConnection.deleteAllDataOfAllResources = function(callback) {
         {
             return callback(err, "Unable to open the connection to the DataStoreConnection!");
         }
-
     });
 };
+
+DataStoreConnection.SHEETS_CATALOG_COLLECTION = "sheets_catalog";
 
 module.exports.DataStoreConnection = DataStoreConnection;
 

@@ -229,40 +229,41 @@ describe("Upload files into testFolder1 of Private project", function () {
         //     });
         // });
 
-        it("Should upload a CSV file successfully and extract its data content to the datastore", function (done) {
-            userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
-            {
-                fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, csvMockFile, function (err, res)
-                {
-                    res.statusCode.should.equal(200);
-                    res.body.should.be.instanceof(Array);
-                    res.body.length.should.equal(1);
-                    const newResourceUri = res.body[0].uri;
-
-                    fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
-                    {
-                        csvMockFile.md5.should.equal(md5(res.body));
-                        res.statusCode.should.equal(200);
-
-                        fileUtils.downloadDataByUri( agent, newResourceUri, function (error, res)
-                        {
-                            should.equal(error, null);
-                            res.statusCode.should.equal(200);
-                            const downloadJSON = path.join(Config.tempFilesDir,"json_dump1.json");
-                            md5(res.text).should.equal(jsonResultMD5);
-
-                            fileUtils.downloadDataByUriInCSV(agent, newResourceUri, function (error, res)
-                            {
-                                const downloadCSV = path.join(Config.tempFilesDir,"csv_dump1.csv");
-                                res.statusCode.should.equal(200);
-                                md5(res.text).should.equal(csvResultMD5);
-                                done();
-                            });
-                        });
-                    });
-                });
-            });
-        });
+        // it("Should upload a CSV file successfully and extract its data content to the datastore", function (done) {
+        //     userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
+        //     {
+        //         fileUtils.uploadFile(true, agent, privateProject.handle, testFolder1.name, csvMockFile, function (err, res)
+        //         {
+        //             res.statusCode.should.equal(200);
+        //             res.body.should.be.instanceof(Array);
+        //             res.body.length.should.equal(1);
+        //             const newResourceUri = res.body[0].uri;
+        //
+        //             fileUtils.downloadFileByUri(true, agent, newResourceUri, function (error, res)
+        //             {
+        //                 csvMockFile.md5.should.equal(md5(res.body));
+        //                 res.statusCode.should.equal(200);
+        //
+        //                 fileUtils.downloadDataByUri( agent, newResourceUri, function (error, res)
+        //                 {
+        //                     should.equal(error, null);
+        //                     res.statusCode.should.equal(200);
+        //                     const downloadJSON = path.join(Config.tempFilesDir,"json_dump1.json");
+        //                     fs.writeFileSync(downloadJSON, res.text);
+        //                     md5(res.text).should.equal(jsonResultMD5);
+        //
+        //                     fileUtils.downloadDataByUriInCSV(agent, newResourceUri, function (error, res)
+        //                     {
+        //                         const downloadCSV = path.join(Config.tempFilesDir,"csv_dump1.csv");
+        //                         res.statusCode.should.equal(200);
+        //                         md5(res.text).should.equal(csvResultMD5);
+        //                         done();
+        //                     });
+        //                 });
+        //             });
+        //         });
+        //     });
+        // });
 
         it("Should upload a XLSX file successfully and extract its data content to the datastore", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent)
@@ -286,7 +287,7 @@ describe("Upload files into testFolder1 of Private project", function () {
                             
                             const downloadJSON = path.join(Config.tempFilesDir,"json_dump2.json");
 
-                            //fs.writeFileSync(downloadJSON, res.text);
+                            fs.writeFileSync(downloadJSON, res.text);
 
                             md5(res.text).should.equal(jsonResultMD5);
 
@@ -299,8 +300,8 @@ describe("Upload files into testFolder1 of Private project", function () {
                                 // const downloadCSV = path.join(Config.tempFilesDir,"csv_dump2.csv");
                                 // //fs.writeFileSync(downloadCSV, res.text);
                                 // fs.unlinkSync(downloadCSV);
-                            }, "Sheet1");
-                        }, "Sheet1");
+                            }, 0);
+                        }, 0);
                     });
                 });
             });
@@ -333,8 +334,8 @@ describe("Upload files into testFolder1 of Private project", function () {
                                 res.statusCode.should.equal(200);
                                 md5(res.text).should.equal(csvResultMD5);
                                 done();
-                            }, "Sheet1");
-                        }, "Sheet1");
+                            }, 0);
+                        }, 0);
                     });
                 });
             });
@@ -366,8 +367,8 @@ describe("Upload files into testFolder1 of Private project", function () {
                                 res.statusCode.should.equal(200);
                                 md5(res.text).should.equal(csvResultMD5);
                                 done();
-                            }, "Sheet1");
-                        }, "Sheet1");
+                            }, 0);
+                        }, 0);
                     });
                 });
             });
@@ -405,8 +406,8 @@ describe("Upload files into testFolder1 of Private project", function () {
                                 res.statusCode.should.equal(200);
                                 md5(res.text).should.equal(csvResultMD5WithPageAndSkip);
                                 done();
-                            }, null, 200, 50);
-                        }, null, 200, 50);
+                            }, 0, 200, 50);
+                        }, 0, 200, 50);
                     });
                 });
             });
