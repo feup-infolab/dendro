@@ -1408,7 +1408,7 @@ exports.rm = function(req, res){
                                 {
                                     if(isNull(folder))
                                     {
-                                        callback(null, null);
+                                        return callback(null, folder);
                                     }
                                     else
                                     {
@@ -1425,44 +1425,20 @@ exports.rm = function(req, res){
                                         folder.delete(function(err, result){
                                             if(isNull(err))
                                             {
-                                                res.status(200).json({
-                                                    "result" : "success",
-                                                    "message" : "Successfully deleted " + resourceToDelete
-                                                });
-                                                callback(true, result);
+                                                const msg = "Successfully deleted " + resourceToDelete;
+                                                return callback(null, msg);
                                             }
                                             else
                                             {
-                                                if(err === 404)
-                                                {
-                                                    const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. Error reported : " + result;
-                                                    console.error(error);
-                                                    res.writeHead(404, error);
-                                                    res.end();
-                                                }
-                                                else
-                                                {
-                                                    res.status(500).json(
-                                                        {
-                                                            "result" : "error",
-                                                            "message" : "Error deleting " + resourceToDelete + ". Error reported : " + result
-                                                        }
-                                                    );
-                                                    callback(err);
-                                                }
+                                                return callback(err, result);
                                             }
                                         }, userUri, true, req.query.really_delete);
                                     }
                                 }
                                 else
                                 {
-                                    res.status(500).json(
-                                        {
-                                            "result" : "error",
-                                            "message" : "Unable to retrieve resource with uri " + resourceToDelete + ". Error reported : " + folder
-                                        }
-                                    );
-                                    callback(err);
+                                    const msg = "Unable to retrieve resource with uri " + resourceToDelete + ". Error reported : " + folder;
+                                    return callback(err, msg);
                                 }
                             });
                         }
@@ -1474,7 +1450,7 @@ exports.rm = function(req, res){
                                 {
                                     if(isNull(file))
                                     {
-                                        callback(null, null);
+                                        return callback(null, false);
                                     }
                                     else
                                     {
@@ -1487,54 +1463,74 @@ exports.rm = function(req, res){
                                         file.delete(function(err, result){
                                             if(isNull(err))
                                             {
-                                                res.status(200).json({
-                                                    "result" : "success",
-                                                    "message" : "Successfully deleted " + resourceToDelete
-                                                });
-                                                callback(err);
+                                                return callback(null, result);
                                             }
                                             else
                                             {
-                                                if(err === 404)
-                                                {
-                                                    const error = "There was already a prior attempt to delete this file. The file is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceToDelete;
-                                                    console.error(error);
-                                                    res.writeHead(404, error);
-                                                    res.end();
-                                                    callback(err);
-                                                }
-                                                else
-                                                {
-                                                    res.status(500).json(
-                                                        {
-                                                            "result" : "error",
-                                                            "message" : "Error deleting " + resourceToDelete + ". Error reported : " + result
-                                                        }
-                                                    );
-                                                    callback(err);
-                                                }
+                                                return callback(err, result);
                                             }
                                         }, userUri, reallyDelete);
                                     }
                                 }
                                 else
                                 {
-                                    res.status(500).json(
-                                        {
-                                            "result" : "error",
-                                            "message" : "Unable to retrieve resource with uri " + resourceToDelete
-                                        }
-                                    );
-                                    callback(err);
+                                    const msg = "Unable to retrieve resource with uri " + resourceToDelete;
+                                    return callback(err, msg);
                                 }
                             });
-                        }
+                        };
 
-                        const async = require("async");
-                        async.tryEach([
-                            deleteFolder,
-                            deleteFile
-                        ]);
+                        const sendResponse = function(err, result)
+                        {
+                            if(isNull(err))
+                            {
+                                const msg = "Successfully deleted " + resourceToDelete;
+                                res.status(200).json({
+                                    "result" : "success",
+                                    "message" : msg
+                                });
+                            }
+                            else if(err === 404)
+                            {
+                                const msg = "There was already a prior attempt to delete this file file or folder. The file or folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + resourceToDelete;
+                                console.error(msg);
+                                res.writeHead(404, msg);
+                                res.end();
+                                return callback(err, msg);
+                            }
+                            else
+                            {
+                                const msg = "Error deleting " + resourceToDelete + ". Error reported : " + result;
+                                res.status(500).json(
+                                    {
+                                        "result" : "error",
+                                        "message" : msg
+                                    }
+                                );
+                            }
+                        };
+
+                        if(result.isA(File))
+                        {
+                            deleteFile(function(err, result){
+                                sendResponse(err, result);
+                            });
+                        }
+                        else if(result.isA(Folder))
+                        {
+                            deleteFile(function(err, result){
+                                sendResponse(err, result);
+                            });
+                        }
+                        else
+                        {
+                            res.status(500).json(
+                                {
+                                    "result" : "error",
+                                    "message" : "Error determining the type of " + resourceToDelete
+                                }
+                            );
+                        }
                     }
                 }
                 else

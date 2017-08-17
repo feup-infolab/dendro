@@ -56,6 +56,7 @@ describe("Upload files into testFolder1 of Private project", function () {
         });
     });
 
+    /*
     describe("[POST] [PRIVATE PROJECT] [Invalid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function() {
         it("Should give an error message when a project does not exist", function (done) {
             userUtils.loginUser(demouser1.username, demouser1.password, function (err, agent) {
@@ -94,6 +95,7 @@ describe("Upload files into testFolder1 of Private project", function () {
             });
         });
     });
+    */
 
     describe("[POST] [PRIVATE PROJECT] [Valid Cases] /project/" + privateProject.handle + "/data/:foldername?upload", function() {
         it("Should upload a ZIP file successfully", function (done) {

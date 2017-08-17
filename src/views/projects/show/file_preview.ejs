@@ -83,19 +83,17 @@
 <script type="text/javascript" src="/bower_components/reclinejs/src/view.multiview.js"></script>
 
 <div>
-    <div class="container">
-        <div class="row" ng-if="!preview_available()">
-            <br/>
-            <div class="col-xs-12">
-                <div class="alert alert-info">
-                    Dendro is not ready to build a preview for this resource.
-                </div>
+    <div class="row" ng-if="!preview_available()">
+        <br/>
+        <div class="col-xs-12">
+            <div class="alert alert-info">
+                Dendro is not ready to build a preview for this resource.
             </div>
         </div>
-        <div class="row" ng-if="preview_available()">
-            <br/>
-            <div id="data-viewer" class="col-xs-12">
-            </div>
+    </div>
+    <div class="row" ng-if="preview_available()">
+        <br/>
+        <div id="data-viewer" class="col-xs-12">
         </div>
     </div>
 </div>

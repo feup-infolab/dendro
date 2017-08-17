@@ -84,6 +84,7 @@ DataStoreConnection.prototype.createSheetRecord = function(sheetName, sheetIndex
         newSheetObject.header = sheetHeader;
     }
 
+    //TODO limpar existente (resource e sheet index) e substituir!
     self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
         .insert(newSheetObject, function(err, result){
             callback(err, result);
@@ -163,19 +164,19 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
 
             const getHeader = function(callback)
             {
-                const headerCursor = self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
-                    .find(
+                const getHeaderQueryObject = {
+                    "$and": [
                         {
-
-                            "$and": [
-                                {
-                                    "resource": self.resourceUri
-                                },
-                                {
-                                    "index": sheetIndex
-                                }
-                            ]
+                            "resource": self.resourceUri
                         },
+                        {
+                            "index": sheetIndex
+                        }
+                    ]
+                };
+
+                const headerCursor = self.client.collection(DataStoreConnection.SHEETS_CATALOG_COLLECTION)
+                    .find(getHeaderQueryObject,
                         {
                             "_id" : 0
                         });
@@ -187,21 +188,28 @@ DataStoreConnection.prototype.getDataByQuery = function(query, writeStream, skip
                         {
                             let headerRow = "";
                             let header = results[0].header;
-                            for(let i = 0; i < header.length; i++)
+                            if(!isNull(header))
                             {
-                                let headerColumn = header[i];
-                                headerRow+= "\"" + header[i] + "\"";
-
-                                if(i < header.length - 1)
+                                for(let i = 0; i < header.length; i++)
                                 {
-                                    headerRow += ",";
+                                    let headerColumn = header[i];
+                                    headerRow+= "\"" + header[i] + "\"";
+
+                                    if(i < header.length - 1)
+                                    {
+                                        headerRow += ",";
+                                    }
                                 }
+
+                                writeStream.write(headerRow);
+                                writeStream.write("\n");
+
+                                callback(null);
                             }
-
-                            writeStream.write(headerRow);
-                            writeStream.write("\n");
-
-                            callback(null);
+                            else
+                            {
+                                callback(1, "Unable to fetch the header of resource " + self.resourceUri);
+                            }
                         }
                         else
                         {
