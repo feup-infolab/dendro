@@ -1087,19 +1087,22 @@ Elements.ddr = {
     {
         type : DbConnection.boolean,
         control : Controls.input_box,
-        locked : true
+        locked : true,
+        api_readable : true
     },
     processingData :
     {
         type : DbConnection.boolean,
         control : Controls.input_box,
-        locked : true
+        locked : true,
+        api_readable : true
     },
     hasDataProcessingError :
     {
         type : DbConnection.string,
         control : Controls.input_box,
-        locked : true
+        locked : true,
+        api_readable : true
     }
 };
 

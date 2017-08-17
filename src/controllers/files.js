@@ -2287,9 +2287,9 @@ exports.data = function(req, res){
             {
                 if(!isNull(file) && file instanceof File)
                 {
-                    if(file.ddr.hasDataProcessingError)
+                    if(!isNull(file.ddr.hasDataProcessingError))
                     {
-                        res.status(400).json({
+                        res.status(500).json({
                             result : "error",
                             error : file.ddr.hasDataProcessingError
                         });
@@ -2328,7 +2328,7 @@ exports.data = function(req, res){
                                 else
                                 {
                                     console.error(error);
-                                    res.status(400).json({
+                                    res.status(500).json({
                                         result : "error",
                                         message : result
                                     });
