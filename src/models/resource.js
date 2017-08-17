@@ -239,7 +239,7 @@ Resource.prototype.deleteAllMyTriples = function(callback, customGraphUri)
  * @param value
  * @param callback
  */
-Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, callback, valueInPrefixedForm, db)
+Resource.prototype.deleteDescriptorTriples = function(descriptorInPrefixedForm, callback, valueInPrefixedForm, customGraphUri)
 {
     const self = this;
 

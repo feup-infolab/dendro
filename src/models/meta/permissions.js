@@ -494,7 +494,6 @@ Permissions.require = function(permissionsRequired, req, res, next) {
         {
             console.log("[REQUEST] : Checking for permissions on request " + req.originalUrl);
             console.log(JSON.stringify(permissionsRequired, null, 2));
-
         }
 
         const async = require("async");

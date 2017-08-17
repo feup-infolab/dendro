@@ -278,7 +278,13 @@ DataStoreConnection.prototype.clearData = function(callback, sheetIndex) {
     {
         const clearDataRecords = function(callback)
         {
-            self.client.collection(self.collection).deleteMany({ "sheet_index" : sheetIndex }, function(err, result){
+            let deleteFilterObject = {};
+            if(!isNull(sheetIndex))
+            {
+                deleteFilterObject["sheet_index"] =  sheetIndex;
+            }
+
+            self.client.collection(self.collection).deleteMany(deleteFilterObject, function(err, result){
                 if(isNull(err))
                 {
                     self.client.collection(self.collection).count({}, function(err, result){

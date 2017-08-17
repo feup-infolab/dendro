@@ -1088,6 +1088,18 @@ Elements.ddr = {
         type : DbConnection.boolean,
         control : Controls.input_box,
         locked : true
+    },
+    processingData :
+    {
+        type : DbConnection.boolean,
+        control : Controls.input_box,
+        locked : true
+    },
+    hasDataProcessingError :
+    {
+        type : DbConnection.boolean,
+        control : Controls.input_box,
+        locked : true
     }
 };
 

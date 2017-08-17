@@ -180,14 +180,14 @@ File.deleteOnLocalFileSystem = function(absPathToFile, callback)
 
     if(isWin)
     {
-        command = `rd /s /q "${absPath}"`
+        command = `rd /s /q "${absPathToFile}"`
     }
     else
     {
-        command = `rm -rf ${absPath}`;
+        command = `rm -rf ${absPathToFile}`;
     }
 
-    InformationElement.isSafePath(absPath, function(err, isSafe){
+    InformationElement.isSafePath(absPathToFile, function(err, isSafe){
         if(!err && isSafe)
         {
             exec(command, {}, function (error, stdout, stderr)
@@ -259,7 +259,41 @@ File.prototype.saveWithFileAndContents = function(localFilePath, indexConnection
         },
         function(callback)
         {
-            self.extractDataAndSaveIntoDataStore(localFilePath, callback);
+            let processingDataDescriptor = new Descriptor({
+                prefixedForm : "ddr:processingData",
+                value : true
+            });
+
+            self.insertDescriptors(processingDataDescriptor, function(err, result){
+                self.extractDataAndSaveIntoDataStore(localFilePath, function(err, result){
+                    if (isNull(err))
+                    {
+                        self.deleteDescriptorTriples("ddr:processingData", function(err, result){
+                            self.deleteDescriptorTriples("ddr:hasProcessingError", function(err, result){});
+
+                            let hasDataContentTrue = new Descriptor({
+                                prefixedForm : "ddr:hasDataContent",
+                                value : true
+                            });
+
+                            self.insertDescriptors([hasDataContentTrue], function(err, result){});
+                        });
+                    }
+                    else
+                    {
+                        let hasDataProcessingErrorTrue= new Descriptor({
+                            prefixedForm : "ddr:hasDataProcessingError",
+                            value : true
+                        });
+
+                        self.deleteDescriptorTriples("ddr:processingData", function(err, result){
+                            self.insertDescriptors(hasDataProcessingErrorTrue, function(err, result){});
+                        });
+
+                    }
+                });
+                callback(err, self);
+            });
         }
     ], function(err){
         callback(err, self);
@@ -282,6 +316,17 @@ File.prototype.deleteThumbnails = function () {
     }
 };
 
+File.prototype.deleteDatastoreData = function (callback) {
+    const self = this;
+
+    DataStoreConnection.create(self.uri, function(err, connection){
+        if(isNull(err) && connection instanceof DataStoreConnection)
+        {
+            connection.clearData(callback);
+        }
+    });
+};
+
 File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDelete) {
     const self = this;
 
@@ -292,6 +337,7 @@ File.prototype.delete = function (callback, uriOfUserDeletingTheFile, reallyDele
                     if (isNull(err)) {
                         gfs.connection.delete(self.uri, function (err, result) {
                             self.deleteThumbnails();
+                            self.deleteDatastoreData();
                             return callback(err, result);
                         });
                     }

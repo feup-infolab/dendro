@@ -707,7 +707,18 @@ exports.upload = function(req, res)
     const restart = req.query.restart;
     let md5_checksum = req.query.md5_checksum;
 
-    const saveTemporaryFilesAfterFinishingUpload = function (files, callback) {
+    const sendResponse = function(status, responseObject){
+        if (isNull(status))
+        {
+            res.json(responseObject);
+        }
+        else
+        {
+            res.status(status).json(responseObject);
+        }
+    };
+
+    const saveFilesAfterFinishingUpload = function (files, callback) {
         const fileNames = [];
 
         if (files instanceof Array) {
@@ -801,7 +812,8 @@ exports.upload = function(req, res)
                 return callback(err, results);
             });
         }
-        else {
+        else
+        {
             return callback(500, {
                 result: "error",
                 message: "Unknown error submitting files. Malformed message?",
@@ -810,7 +822,7 @@ exports.upload = function(req, res)
         }
     };
 
-    const processChunkedUpload = function() {
+    const processChunkedUpload = function(upload, callback) {
         if (!isNull(upload))
         {
             const form = new multiparty.Form({maxFieldSize: 8192, maxFields: 10, autoFiles: false});
@@ -855,14 +867,46 @@ exports.upload = function(req, res)
                                     name: upload.filename
                                 }];
 
-                                saveTemporaryFilesAfterFinishingUpload(function(status, responseObject){
-                                    if (isNull(status))
-                                    {
-                                        res.json(responseObject);
+                                md5File(upload.temp_file, function (err, hash) {
+                                    if (isNull(err)) {
+                                        if (md5_checksum !== hash) {
+                                            callback(400, {
+                                                result: "error",
+                                                message: "File was corrupted during transfer. Please repeat.",
+                                                error: "invalid_checksum",
+                                                calculated_at_server: hash,
+                                                calculated_at_client: md5_checksum
+                                            });
+                                        }
+                                        else
+                                        {
+                                            //TODO replace with final processing of files (Saving + metadata)
+                                            saveFilesAfterFinishingUpload(req.files, function(err, result){
+                                                if(isNull(err))
+                                                {
+                                                    callback(null, {
+                                                        result: "ok",
+                                                        message: "Files saved successfully",
+                                                        details: result
+                                                    });
+                                                }
+                                                else
+                                                {
+                                                    callback(500, {
+                                                        result: "error",
+                                                        message: "Unable to save files after buffering: " + result,
+                                                        error: result
+                                                    });
+                                                }
+                                            })
+                                        }
                                     }
-                                    else
-                                    {
-                                        res.status(status).json(responseObject);
+                                    else {
+                                        callback(500, {
+                                            result: "error",
+                                            message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
+                                            error: hash
+                                        });
                                     }
                                 });
                             }
@@ -876,11 +920,10 @@ exports.upload = function(req, res)
                         }
                         else
                         {
-                            res.status(500).json(
-                                {
-                                    result: "error",
-                                    message: "There was an error writing a part of the upload to the server."
-                                });
+                            callback(500, {
+                                result: "error",
+                                message: "There was an error writing a part of the upload to the server."
+                            });
                         }
                     });
                 }
@@ -903,7 +946,7 @@ exports.upload = function(req, res)
         }
     };
 
-    const processNormalUpload = function() {
+    const processNormalUpload = function(callback) {
         const readFilesFromRequestBody = function(callback) {
             let files = [],
                 filesCounter = 0,
@@ -971,16 +1014,7 @@ exports.upload = function(req, res)
             readFilesFromRequestBody,
             function(files)
             {
-                saveTemporaryFilesAfterFinishingUpload(files, function(status, responseObject){
-                    if (isNull(status))
-                    {
-                        res.json(responseObject);
-                    }
-                    else
-                    {
-                        res.status(status).json(responseObject);
-                    }
-                });
+                saveFilesAfterFinishingUpload(files, callback);
             }
         ]);
     };
@@ -1011,7 +1045,7 @@ exports.upload = function(req, res)
                                 }
                                 else
                                 {
-                                    res.status(400).json({
+                                    sendResponse(400, {
                                         result : "result",
                                         message : "Error resetting upload."
                                     });
@@ -1078,7 +1112,7 @@ exports.upload = function(req, res)
                             }
                             else
                             {
-                                res.status(500).json({
+                                sendResponse(500, {
                                     result: "error",
                                     message: "There was an error registering the new upload.",
                                     error: err
@@ -1110,35 +1144,11 @@ exports.upload = function(req, res)
         {
             if(!isNull(upload.md5_checksum) && upload.md5_checksum.match(/^[a-f0-9]{32}$/))
             {
-                //TODO OMG this needs to be flattened using async!!! Callback onion!!
-                md5File(file.path, function (err, hash) {
-                    if (isNull(err)) {
-                        if (md5_checksum !== hash) {
-                            return callback(400, {
-                                result: "error",
-                                message: "File was corrupted during transfer. Please repeat.",
-                                error: "invalid_checksum",
-                                calculated_at_server: hash,
-                                calculated_at_client: md5_checksum
-                            });
-                        }
-                        else
-                        {
-                            processChunkedUpload();
-                        }
-                    }
-                    else {
-                        return callback(500, {
-                            result: "error",
-                            message: "Unable to calculate the MD5 checksum of the uploaded file: " + file.name,
-                            error: hash
-                        });
-                    }
-                });
+                processChunkedUpload(upload, sendResponse);
             }
             else
             {
-                return callback(400, {
+                return sendResponse(400, {
                     result: "error",
                     message: "Missing md5_checksum parameter or invalid parameter specified. It must match regex /^[a-f0-9]{32}$/. You need to supply a valid MD5 sum of your file for starting an upload.",
                     files: fileNames
@@ -1147,7 +1157,7 @@ exports.upload = function(req, res)
         }
         else
         {
-            processNormalUpload();
+            processNormalUpload(sendResponse);
         }
     }
 };
@@ -1518,7 +1528,7 @@ exports.rm = function(req, res){
                         }
                         else if(result.isA(Folder))
                         {
-                            deleteFile(function(err, result){
+                            deleteFolder(function(err, result){
                                 sendResponse(err, result);
                             });
                         }
