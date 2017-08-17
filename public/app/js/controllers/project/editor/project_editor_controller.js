@@ -355,6 +355,22 @@ angular.module('dendroApp.controllers')
             $scope.shared.selected_file = null;
         };
 
+        $scope.select_all_files = function(selected)
+        {
+            if($scope.shared.folder_contents != null && $scope.shared.folder_contents instanceof Array)
+            {
+                for(var i = 0; i < $scope.shared.folder_contents.length; i++)
+                {
+                    $scope.shared.folder_contents[i].selected = selected;
+                }
+            }
+
+            if(!selected)
+            {
+                $scope.shared.selected_file = null;
+            }
+        };
+
         $scope.file_explorer_selected_contains_deleted = function()
         {
             var selected_files = $scope.get_selected_files();

@@ -460,6 +460,12 @@ angular.module('dendroApp.controllers')
         }
     };
 
+    $scope.toggle_select_all_files = function()
+    {
+        $scope.shared.multiple_selection_active = !$scope.shared.multiple_selection_active;
+        $scope.select_all_files($scope.shared.multiple_selection_active);
+    };
+
     $scope.download_folder = function()
     {
         windowService.download_url($scope.get_current_url(), "?download");
