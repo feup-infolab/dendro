@@ -259,41 +259,7 @@ File.prototype.saveWithFileAndContents = function(localFilePath, indexConnection
         },
         function(callback)
         {
-            let processingDataDescriptor = new Descriptor({
-                prefixedForm : "ddr:processingData",
-                value : true
-            });
-
-            self.insertDescriptors(processingDataDescriptor, function(err, result){
-                self.extractDataAndSaveIntoDataStore(localFilePath, function(err, result){
-                    if (isNull(err))
-                    {
-                        self.deleteDescriptorTriples("ddr:processingData", function(err, result){
-                            self.deleteDescriptorTriples("ddr:hasProcessingError", function(err, result){});
-
-                            let hasDataContentTrue = new Descriptor({
-                                prefixedForm : "ddr:hasDataContent",
-                                value : true
-                            });
-
-                            self.insertDescriptors([hasDataContentTrue], function(err, result){});
-                        });
-                    }
-                    else
-                    {
-                        let hasDataProcessingErrorTrue= new Descriptor({
-                            prefixedForm : "ddr:hasDataProcessingError",
-                            value : true
-                        });
-
-                        self.deleteDescriptorTriples("ddr:processingData", function(err, result){
-                            self.insertDescriptors(hasDataProcessingErrorTrue, function(err, result){});
-                        });
-
-                    }
-                });
-                callback(err, self);
-            });
+            self.extractDataAndSaveIntoDataStore(localFilePath, callback);
         }
     ], function(err){
         callback(err, self);
@@ -563,6 +529,51 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
     const self = this;
     let dataStoreWriter;
 
+    let processingDataDescriptor = new Descriptor({
+        prefixedForm : "ddr:processingData",
+        value : true
+    });
+
+    const markFileAsProcessingData = function(callback)
+    {
+        self.insertDescriptors(processingDataDescriptor, function(err, result){
+            callback(err);
+        });
+    };
+
+    const markDataOK = function(callback)
+    {
+        self.deleteDescriptorTriples("ddr:hasProcessingError", function(err, result){
+            let hasDataContentTrue = new Descriptor({
+                prefixedForm : "ddr:hasDataContent",
+                value : true
+            });
+
+            self.insertDescriptors([hasDataContentTrue], function(err, result){
+                callback(err);
+            });
+        });
+    };
+
+    const markErrorProcessingData = function(err, callback)
+    {
+        let hasDataProcessingErrorTrue= new Descriptor({
+            prefixedForm : "ddr:hasDataProcessingError",
+            value : err
+        });
+
+        self.insertDescriptors([hasDataProcessingErrorTrue], function(err, result){
+            callback(err);
+        });
+    };
+
+    const markFileDataProcessed = function(callback)
+    {
+        self.deleteDescriptorTriples("ddr:processingData", function(err, result){
+            callback(err);
+        });
+    };
+
     const xlsxFileParser = function (filePath, callback){
 
         function safe_decode_range(range) {
@@ -763,6 +774,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
     if(Config.dataStoreCompatibleExtensions[self.ddr.fileExtension] && !isNull(parser))
     {
         async.waterfall([
+            markFileAsProcessingData,
             function(callback)
             {
                 DataStoreConnection.create(self.uri, function(err, conn)
@@ -786,21 +798,32 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
             {
                 parser(location, function (err)
                 {
-                    callback(err);
+                    if(!isNull(err))
+                    {
+                        markErrorProcessingData(err, function(){
+                            callback(err, result);
+                        });
+                    }
+                    else
+                    {
+                        callback(err);
+                    }
                 });
-            }
+            },
         ], function(err, results){
-            if(!err)
-            {
-                self.ddr.hasDataContent = true;
-                self.save(function(err, result){
-                    callback(err, result);
-                });
-            }
-            else
-            {
-                callback(err, results);
-            }
+            markFileDataProcessed(function(){
+                if(!err)
+                {
+                    self.ddr.hasDataContent = true;
+                    self.save(function(err, result){
+                        callback(err, result);
+                    });
+                }
+                else
+                {
+                    callback(err, results);
+                }
+            })
         });
     }
     else
@@ -835,7 +858,7 @@ File.prototype.rebuildData = function(callback)
                             }
                             else
                             {
-                                callback(err, result);
+                                callback(err, "Error parsing the data inside the file. Does the first row of all your sheets contain only alphanumeric characters and is there a header for every column with non-empty cells? Error returned was : " + err.message);
                             }
                         });
                     }

@@ -1097,7 +1097,7 @@ Elements.ddr = {
     },
     hasDataProcessingError :
     {
-        type : DbConnection.boolean,
+        type : DbConnection.string,
         control : Controls.input_box,
         locked : true
     }

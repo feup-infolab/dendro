@@ -46,7 +46,8 @@
                                     <td class="filename-tablecell">
                                         <small>{{file.nie.title}}</small>
                                         <span ng-show="file.ddr.processingData" class="label label-info">Processing data...</span>
-                                        <span ng-show="file.ddr.hasDataProcessingError" class="label label-error">Data extraction error</span>
+                                        <span ng-show="file.ddr.hasDataContent" class="label label-success">Data OK</span>
+                                        <span ng-show="file.ddr.hasDataProcessingError" class="label label-warning">Data extraction error</span>
                                         <span ng-show="file.ddr.deleted" class="label label-warning">Deleted</span>
                                     </td>
                                 </tr>

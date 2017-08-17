@@ -2287,7 +2287,14 @@ exports.data = function(req, res){
             {
                 if(!isNull(file) && file instanceof File)
                 {
-                    if(file.ddr.hasDataContent)
+                    if(file.ddr.hasDataProcessingError)
+                    {
+                        res.status(400).json({
+                            result : "error",
+                            error : file.ddr.hasDataProcessingError
+                        });
+                    }
+                    else if(file.ddr.hasDataContent)
                     {
                         if(req.query.format === "csv")
                         {
@@ -2305,7 +2312,7 @@ exports.data = function(req, res){
                         if(!isNull(Config.dataStoreCompatibleExtensions[file.ddr.fileExtension]))
                         {
                             file.rebuildData(function(err, result){
-                                if(!err)
+                                if(isNull(err))
                                 {
                                     if(req.query.format === "csv")
                                     {
@@ -2320,11 +2327,10 @@ exports.data = function(req, res){
                                 }
                                 else
                                 {
-                                    const error = resourceURI + " has no data.";
                                     console.error(error);
                                     res.status(400).json({
                                         result : "error",
-                                        message : error
+                                        message : result
                                     });
                                 }
                             });

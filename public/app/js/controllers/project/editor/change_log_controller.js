@@ -62,7 +62,7 @@ angular.module('dendroApp.controllers')
             $scope.getting_change_log = true;
 
             /**INIT**/
-            metadataService.get_recent_changes_of_resource(windowService.get_current_url())
+            metadataService.get_recent_changes_of_resource($scope.get_calling_uri())
                 .then(function(response)
                 {
                     var recent_versions = response.data;
