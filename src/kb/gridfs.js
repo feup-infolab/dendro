@@ -176,27 +176,49 @@ GridFSConnection.prototype.delete = function(fileUri, callback, customBucket) {
 
     if(!isNull(self.gfs) && !isNull(self.db))
     {
-        let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
-        bucket.delete(fileUri, function (err)
+        let collectionName;
+        if(!isNull(customBucket))
         {
+            collectionName = customBucket;
+        }
+        else
+        {
+            collectionName = "fs.files";
+
+        }
+
+        const collection = self.db.collection(collectionName);
+
+        collection.findOne({"filename": fileUri }, { _id : 1 }, function (err, obj) {
             if (isNull(err))
             {
-                // Verify that the file no longer exists
-                self.db.find(fileUri, function (err, exists)
+                let bucket = new GridFSBucket(self.db, {bucketName: customBucket});
+                bucket.delete(obj._id, function (err)
                 {
-                    if (isNull(err) && !exists)
+                    if (isNull(err))
                     {
-                        return callback(null, "File " + fileUri + "successfully deleted");
+                        // Verify that the file no longer exists
+                        collection.findOne({"filename": fileUri } , function (err, exists)
+                        {
+                            if (isNull(err) && !exists)
+                            {
+                                return callback(null, "File " + fileUri + "successfully deleted");
+                            }
+                            else
+                            {
+                                return callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
+                            }
+                        });
                     }
                     else
                     {
-                        return callback(err, "Error verifying deletion of file " + fileUri + ". Error reported " + exists);
+                        return callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
                     }
                 });
             }
             else
             {
-                return callback(err, "Error deleting file " + fileUri + ". Error reported " + err);
+                return callback(err);
             }
         });
     }

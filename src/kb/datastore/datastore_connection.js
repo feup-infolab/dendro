@@ -323,7 +323,7 @@ DataStoreConnection.prototype.clearData = function(callback, sheetIndex) {
 
         const clearSheetRecord = function(callback)
         {
-            let clearSheetQuery = {"resource" : self.uri };
+            let clearSheetQuery = {"resource" : self.resourceUri };
 
             if(!isNull(sheetIndex))
                 clearSheetQuery.index = sheetIndex;
