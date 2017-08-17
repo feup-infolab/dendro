@@ -212,7 +212,7 @@ angular.module('dendroApp.controllers')
     $scope.clear_selection_and_get_parent_metadata = function()
     {
         $scope.clear_selected_files();
-        $scope.load_metadata();
+        return $scope.load_metadata();
     };
 
     $scope.toggle_select_file_at_index_for_multiple_selection = function(index)

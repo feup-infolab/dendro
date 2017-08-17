@@ -51,6 +51,7 @@ exports.show_deep = function(req, res) {
 
                                 result.is_project_root = false;
                                 result.is_a_file = resource.isA(File);
+                                result.data_processing_error = resource.ddr.hasDataProcessingError;
 
                                 res.set("Content-Type", contentType);
                                 res.set("Content-disposition", "attachment; filename=\"" + result.nie.title + "\"");
