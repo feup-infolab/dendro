@@ -69,16 +69,34 @@
         <div class="col-md-3 col-xs-12 col-sm-3" ng-controller="fileBrowserCtrl" ng-init="init()">
             <div class="row">
                 <div class="col-xs-12">
-                    <a href="#" ng-hide="showing_a_file()"><img id="upload_button" data-loading-text="Uploading..." ng-click="toggle_upload_area()" src="/images/icons/add.png"></a>
-                    <a href="#" ng-hide="showing_a_file()"><img id="new_folder_button" data-loading-text="Creating folder..." ng-click="mkdir()" src="/images/icons/folder_add.png"></a>
-                    <a href="#"><img id="download_folder_button" data-loading-text="Preparing Package..." ng-click="download_folder()" src="/images/icons/download.png"></a>
-
-                    <a href="#" ng-hide="showing_project_root() || showing_a_file()"><img id="backup_button" data-loading-text="Preparing Package..." ng-click="backup_folder()" src="/images/icons/folder_vertical_zipper.png"></a>
-                    <a href="#" ng-hide="showing_project_root() || showing_a_file()"><img id="restore_button" data-loading-text="Restoring..." ng-click="toggle_restore_area()" src="/images/icons/site_backup_and_restore.png"></a>
+                    <!-- Split button -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-default" ng-click="toggle_upload_area()">
+                            <img class="icon16" id="upload_button" data-loading-text="Uploading..." src="/images/icons/page_white_get.png"> Upload files
+                        </button>
+                        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <span class="caret"></span>
+                            <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li ng-click="mkdir()"><a href="#" ng-hide="showing_a_file()"><img class="icon16" id="new_folder_button" data-loading-text="Creating folder..." src="/images/icons/folder_add.png">Add folder</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li ng-click="copy()" ><a href="#"><img class="icon16" id="copy_button" src="/images/icons/page_copy.png">Copy</a></li>
+                            <li ng-click="cut()"><a href="#"><img class="icon16" id="cut_button"  src="/images/icons/cut.png">Cut</a></li>
+                            <li ng-click="paste()"><a href="#"><img class="icon16" id="paste_button" src="/images/icons/page_paste.png">Paste</a></li>
+                            <li ng-click="rename()" ng-hide="showing_project_root()"><a href="#"><img class="icon16" id="rename_button" src="/images/icons/textfield_rename.png">Rename</a></li>
+                            <li role="separator" class="divider"></li>
+                            <li ng-click="download_folder()"><a href="#"><img class="icon16" id="download_folder_button" data-loading-text="Preparing Package..." src="/images/icons/arrow_down.png">Download</a></li>
+                            <li ng-click="backup_folder()" ><a href="#" ng-hide="showing_project_root() || showing_a_file()"><img class="icon16" id="backup_button" data-loading-text="Preparing Package..." src="/images/icons/folder_vertical_zipper.png">Backup</a></li>
+                            <li role="separator" class="divider" ng-hide="showing_project_root() || showing_a_file()"></li>
+                            <li ng-click="toggle_restore_area()" ><a href="#" ng-hide="showing_project_root() || showing_a_file()"><img class="icon16" id="restore_button" data-loading-text="Restoring..." src="/images/icons/site_backup_and_restore.png">Restore from backup</a></li>
+                        </ul>
+                    </div>
 
                     <a href="#" ng-hide="showing_a_file()"><img id="show_deleted_files_button" ng-class="{active: shared.showing_deleted_files, 'btn-info': shared.showing_deleted_files}" data-loading-text="Restoring..." ng-click="toggle_show_deleted_files()" src="/images/icons/bin_recycle.png"></a>
                     <a href="#" ng-hide="showing_a_file()"><img id="toggle_multiple_selection" ng-class="{active: shared.multiple_selection_active, 'btn-info': shared.multiple_selection_active}" ng-click="toggle_multiple_selection()"  src="/images/icons/check_box_list.png"></a>
                     <a href="#" ng-hide="showing_a_file()"><img id="toggle_select_all" ng-click="toggle_select_all_files()"  src="/images/icons/check_boxes_series.png"></a>
+
                 </div>
 
                 <script type="text/javascript">

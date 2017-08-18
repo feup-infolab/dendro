@@ -1744,7 +1744,7 @@ exports.mkdir = function(req, res){
 
             if(!newFolderTitle.match(/^[^\\\/:*?"<>|]{1,}$/g))
             {
-                res.status(500).json(
+                res.status(400).json(
                     {
                         "result" : "error",
                         "message" : "invalid file name specified"
@@ -2453,4 +2453,87 @@ exports.owner_project = function(req, res){
 
     });
 };
+
+
+exports.rename = function(req, res){
+    const resourceURI = req.params.requestedResourceUri;
+    const newName = req.query.rename;
+
+    if(!isNull(newName))
+    {
+        if(newName.match(/^[^\\\/:*?"<>|]{1,}$/g))
+        {
+            InformationElement.findByUri(resourceURI, function(err, ie){
+                if(isNull(err))
+                {
+                    if(!isNull(ie))
+                    {
+                        let parsePath = require('parse-filepath');
+                        const parsed = parsePath(ie.nie.title);
+
+                        ie.nie.title = newName + parsed.ext;
+
+                        ie.save(function(err, result){
+                            if(isNull(err))
+                            {
+                                res.json({
+                                    result : "ok",
+                                    message : "File successfully renamed."
+                                });
+                            }
+                            else
+                            {
+                                const error = "Error occurred while renaming resource : " + resourceURI + ": " + JSON.stringify(result);
+                                console.error(error);
+                                res.status(500).json({
+                                    result : "error",
+                                    message : error
+                                });
+                            }
+                        });
+                    }
+                    else
+                    {
+                        const error = "Non-existent resource : " + resourceURI;
+                        console.error(error);
+                        res.status(404).json({
+                            result : "error",
+                            message : error
+                        });
+                    }
+                }
+                else
+                {
+                    const error = "Error accessing resource : " + resourceURI + ":" + ie;
+                    console.error(error);
+                    res.status(500).json({
+                        result : "error",
+                        message : error
+                    });
+                }
+
+            });
+        }
+        else
+        {
+            res.status(400).json(
+                {
+                    "result" : "error",
+                    "message" : "Invalid new name specified. "
+                }
+            );
+        }
+    }
+    else
+    {
+        res.status(400).json(
+            {
+                "result" : "error",
+                "message" : "No new name supplied! "
+            }
+        );
+    }
+};
+
+
 

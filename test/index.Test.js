@@ -20,7 +20,7 @@ global.tests = {};
 
 //require(Pathfinder.absPathInTestsFolder("/cleanEverything.Test.js"));
 
-require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__upload/routes.project.privateProject.data.testFolder1.__upload.Test.js"));
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/a_filename/__rename/routes.project.privateProject.data.testFolder1.a_filename.__rename.Test.js"));
 
 return;
 
@@ -363,3 +363,6 @@ require(Pathfinder.absPathInTestsFolder("/routes/project/metadata_only_project/d
  //destroy graphs
  require('./models/kb/db.Test.js');
  */
+
+//test file uploads
+require(Pathfinder.absPathInTestsFolder("/routes/project/private_project/data/testFolder1/__upload/routes.project.privateProject.data.testFolder1.__upload.Test.js"));

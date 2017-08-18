@@ -1,7 +1,7 @@
 const Pathfinder = global.Pathfinder;
 const Config = require(Pathfinder.absPathInSrcFolder("models/meta/config.js")).Config;
 let supertest = require('supertest');
-let targetUrl;
+let _ = require('underscore');
 
 const binaryParser = function (res, cb) {
     res.setEncoding("binary");
@@ -28,13 +28,13 @@ const jsonParser = function (res, cb) {
 
 module.exports.uploadFile = function(acceptsJSON, agent, projectHandle, folderName, file, cb)
 {
-    targetUrl = "/project/" + projectHandle + "/data/" + folderName + "?upload";
+    const targetUrl = "/project/" + projectHandle + "/data/" + folderName + "?upload";
 
     if(acceptsJSON)
     {
         agent
             .post(targetUrl)
-            .send({ md5_checksum: file.md5_checksum})
+            .send({ md5_checksum: file.md5})
             .set("Accept", "application/json")
             .attach('file', file.location)
             .end(function(err, res) {
@@ -45,7 +45,7 @@ module.exports.uploadFile = function(acceptsJSON, agent, projectHandle, folderNa
     {
         agent
             .post(targetUrl)
-            .send({ md5_checksum: file.md5_checksum})
+            .send({ md5_checksum: file.md5})
             .attach('file', file.location)
             .end(function(err, res) {
                 cb(err, res);
@@ -55,7 +55,7 @@ module.exports.uploadFile = function(acceptsJSON, agent, projectHandle, folderNa
 
 module.exports.downloadFileByUri = function(acceptsJSON, agent, uri, cb)
 {
-    targetUrl = uri + "?download";
+    const targetUrl = uri + "?download";
 
     if(acceptsJSON)
     {
@@ -118,7 +118,7 @@ module.exports.downloadDataByUriInCSV = function(agent, uri, cb, sheet, skip, pa
 
 module.exports.downloadFile = function(acceptsJSON, agent, projectHandle, folderName, file, cb)
 {
-    targetUrl = "/project/" + projectHandle + "/data/" + folderName + "/" + file.name + "?download";
+    const targetUrl = "/project/" + projectHandle + "/data/" + folderName + "/" + file.name + "?download";
 
     if(acceptsJSON)
     {
@@ -137,5 +137,54 @@ module.exports.downloadFile = function(acceptsJSON, agent, projectHandle, folder
                 cb(err, res);
             });
     }
+};
+
+module.exports.renameFile = function(acceptsJSON, agent, projectHandle, folderName, fileName, newName, cb)
+{
+    const parentUrl = "/project/" + projectHandle + "/data/" + folderName;
+
+    agent
+        .get(parentUrl)
+        .query(
+            {
+                ls : ""
+            })
+        .set("Accept", "application/json")
+        .end(function(err, res) {
+            const contents = JSON.parse(res.text);
+            const file = _.find(contents, function(file){
+                return file.nie.title === fileName;
+            });
+
+            if(!file)
+            {
+                cb("File with name " + fileName + " not found in " + folderName, res);
+            }
+            else
+            {
+                if(acceptsJSON)
+                {
+                    const targetUrl = file.uri;
+                    agent
+                        .post(targetUrl)
+                        .query(
+                            {
+                                rename : newName
+                            })
+                        .set("Accept", "application/json")
+                        .end(function(err, res) {
+                            cb(err, res);
+                        });
+                }
+                else
+                {
+                    agent
+                        .post(targetUrl)
+                        .end(function(err, res) {
+                            cb(err, res);
+                        });
+                }
+            }
+        });
 };
 

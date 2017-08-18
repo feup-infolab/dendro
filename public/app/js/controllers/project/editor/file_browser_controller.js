@@ -174,7 +174,36 @@ angular.module('dendroApp.controllers')
                             $scope.load_folder_contents();
                         }).catch(function(error){
                             console.error("Unable to create new folder " + JSON.stringify(error));
-                            windowService.show_popup('error', ' There was an error creating the new folder', 'Server returned status code ' + status + " and message :\n" + data);
+                            windowService.show_popup('error', ' There was an error creating the new folder', 'Server returned status code ' + status + " and message :\n" + error);
+                        });
+                    }
+                }
+            }
+        });
+    };
+
+    $scope.rename = function() {
+        bootbox.prompt('Please enter the new name', function(newName) {
+            if(newName != null)
+            {
+
+                if (!newName.match(/^[^\\\/:*?"<>|]{1,}$/g))
+                {
+                    bootbox.alert("Invalid name specified", function ()
+                    {
+                    });
+                }
+                else
+                {
+                    if (newName != null)
+                    {
+                        filesService.rename(newName,
+                            $scope.get_calling_uri()
+                        ).then(function(result){
+                            $scope.load_folder_contents();
+                        }).catch(function(error){
+                            console.error("Unable to rename resource: " + JSON.stringify(error));
+                            windowService.show_popup('error', ' There was an error renaming the resource', 'Server returned status code ' + status + " and message :\n" + error);
                         });
                     }
                 }

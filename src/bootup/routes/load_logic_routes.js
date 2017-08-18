@@ -953,6 +953,12 @@ const loadRoutes = function(app, callback)
                             handler: datasets.export_to_repository,
                             permissions: modificationPermissionsBranch,
                             authentication_error: "Permission denied : cannot export resource because you do not have permissions to edit resources inside this project."
+                        },
+                        {
+                            queryKeys: ['rename'],
+                            handler: files.rename,
+                            permissions: modificationPermissionsBranch,
+                            authentication_error: "Permission denied : cannot rename resource because you do not have permissions to edit resources inside this project."
                         }
                     ],
                     delete: [
