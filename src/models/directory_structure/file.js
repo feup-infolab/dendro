@@ -801,7 +801,7 @@ File.prototype.extractDataAndSaveIntoDataStore = function(tempFileLocation, call
                     if(!isNull(err))
                     {
                         markErrorProcessingData(err, function(){
-                            callback(err, result);
+                            callback(err);
                         });
                     }
                     else

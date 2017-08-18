@@ -190,13 +190,22 @@ Animations (uncomment to have animations)
 }
 .image1_stacked {
   position: relative;
-  top: 0;
-  left: 0;
+  top: 0px;
+  left: 0px;
 }
 .image2_stacked {
   position: absolute;
   top: 0px;
   left: 0px;
+}
+.image1_stacked_file_browser {
+  width: 32;
+  height: 32;
+}
+.image2_stacked_file_browser {
+  position: absolute;
+  top: -20px;
+  left: 12px;
 }
 .cropArea {
   background: #e4e4e4;

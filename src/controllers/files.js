@@ -284,63 +284,84 @@ exports.serve = function(req, res){
     const downloadFolder = function (requestedResourceURI, res) {
         Folder.findByUri(requestedResourceURI, function (err, folderToDownload) {
             if (isNull(err)) {
-                const mimeType = Config.mimeType("zip");
-                const fileName = folderToDownload.nie.title + ".zip";
+                if(!isNull(folderToDownload) && folderToDownload instanceof Folder)
+                {
+                    const includeMetadata = (!isNull(req.query.backup));
 
-                res.writeHead(200,
-                    {
-                        "Content-disposition": "attachment; filename=\"" + fileName + "\"",
-                        "Content-Type": mimeType
-                    }
-                );
+                    folderToDownload.zipAndDownload(includeMetadata, function (err, writtenFilePath) {
+                        if (isNull(err)) {
+                            if (!isNull(writtenFilePath)) {
+                                const fs = require("fs");
+                                const fileStream = fs.createReadStream(writtenFilePath);
 
-                const includeMetadata = (!isNull(req.query.backup));
+                                const mimeType = Config.mimeType("zip");
+                                const fileName = folderToDownload.nie.title + ".zip";
 
-                folderToDownload.zipAndDownload(includeMetadata, function (err, writtenFilePath) {
-                    if (isNull(err)) {
-                        if (!isNull(writtenFilePath)) {
-                            const fs = require("fs");
-                            const fileStream = fs.createReadStream(writtenFilePath);
-
-                            res.on('end', function () {
-                                Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr) {
-                                    if (err) {
-                                        console.error("Unable to delete " + writtenFilePath);
+                                res.writeHead(200,
+                                    {
+                                        "Content-disposition": "attachment; filename=\"" + fileName + "\"",
+                                        "Content-Type": mimeType
                                     }
-                                    else {
-                                        console.log("Deleted " + writtenFilePath);
-                                    }
+                                );
+
+                                res.on('end', function () {
+                                    Folder.deleteOnLocalFileSystem(parentFolderPath, function (err, stdout, stderr) {
+                                        if (err) {
+                                            console.error("Unable to delete " + writtenFilePath);
+                                        }
+                                        else {
+                                            console.log("Deleted " + writtenFilePath);
+                                        }
+                                    });
                                 });
-                            });
 
-                            fileStream.pipe(res);
+                                fileStream.pipe(res);
+                            }
+                            else {
+                                const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
+                                console.error(error);
+                                res.status(500).write("Error : " + error + "\n");
+                                res.end();
+                            }
                         }
                         else {
-                            const error = "There was an error attempting to fetch the requested resource : " + requestedResourceURI;
-                            console.error(error);
-                            res.status(500).write("Error : " + error + "\n");
-                            res.end();
-                        }
-                    }
-                    else {
-                        if (err === 404) {
-                            const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
-                            console.error(error);
-                            res.writeHead(404, error);
-                            res.end();
-                        }
-                        else {
-                            console.error("Unable to produce temporary file to download " + self.uri + " Error returned : " + writtenFilePath);
-                        }
+                            if (err === 404) {
+                                const error = "There was already a prior attempt to delete this folder. The folder is now deleted but still appears in the file explorer due to a past error. Try deleting it again to fix the issue. " + requestedResourceURI;
+                                console.error(error);
+                                res.status(404).json({
+                                    result : "error",
+                                    message : error
+                                });
+                            }
+                            else {
+                                const error = "Unable to produce temporary file to download " + self.uri + " Error returned : " + writtenFilePath;
+                                console.error(error);
+                                res.status(500).json({
+                                    result : "error",
+                                    message : error
+                                });
+                            }
 
-                    }
-                });
+                        }
+                    });
+                }
+                else
+                {
+                    const error = "Non-existent folder. Is this a file instead of a folder? : " + requestedResourceURI;
+                    console.error(error);
+                    res.status(404).json({
+                        result : "error",
+                        message : error
+                    });
+                }
             }
             else {
-                const error = "Non-existent folder. Is this a file instead of a folder? : " + requestedResourceURI;
+                const error = "Error fetching folder" + requestedResourceURI;
                 console.error(error);
-                res.writeHead(404, error);
-                res.end();
+                res.status(500).json({
+                    result : "error",
+                    message : error
+                });
             }
         });
     };

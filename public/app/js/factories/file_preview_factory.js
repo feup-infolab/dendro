@@ -10,7 +10,7 @@ angular.module('dendroApp.factories')
                     return false;
                 }
                 else{
-                    var fileExtension = fileExtension.toLowerCase();
+                    fileExtension = fileExtension.toLowerCase();
                     if(this.load_views()[fileExtension] != null){
                         return true;
                     }
