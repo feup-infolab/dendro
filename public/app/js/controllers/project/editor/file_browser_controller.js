@@ -201,6 +201,7 @@ angular.module('dendroApp.controllers')
                             $scope.get_calling_uri()
                         ).then(function(result){
                             $scope.load_folder_contents();
+                            windowService.show_popup('success', ' There was an error renaming the resource', 'Server returned status code ' + status + " and message :\n" + error);
                         }).catch(function(error){
                             console.error("Unable to rename resource: " + JSON.stringify(error));
                             windowService.show_popup('error', ' There was an error renaming the resource', 'Server returned status code ' + status + " and message :\n" + error);
@@ -209,6 +210,31 @@ angular.module('dendroApp.controllers')
                 }
             }
         });
+    };
+
+    $scope.cut = function() {
+        $scope.cut_files = $scope.get_selected_files();
+        if($scope.cut_files.length > 0)
+            windowService.show_popup('info',  $scope.cut_files.length + " files cut", "Go to the target folder and paste them");
+        else
+            windowService.show_popup('info',  "Nothing selected", "Please select the files before cutting");
+    };
+
+    $scope.cut = function() {
+        $scope.copied_files = $scope.get_selected_files();
+        if($scope.copied_files.length > 0)
+            windowService.show_popup('info',  $scope.copied_files.length + " files copied", "Go to the target folder and paste them");
+        else
+            windowService.show_popup('info',  "Nothing selected", "Please select the files before copying");
+    };
+
+    $scope.paste = function() {
+        if($scope.cut_files.length > 0)
+            filesService.move($scope.cut_files, $scope.get_calling_uri());
+        if($scope.copied_files.length > 0)
+            filesService.copy($scope.cut_files, $scope.get_calling_uri());
+        else
+            windowService.show_popup('info',  "Nothing selected", "Please select the files before cutting");
     };
 
     $scope.upload_callback = function(err, result)

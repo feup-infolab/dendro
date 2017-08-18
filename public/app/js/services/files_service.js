@@ -86,6 +86,48 @@ angular.module('dendroApp.services')
             }
         };
 
+        this.rename = function(newName, resourceUri)
+        {
+            if (newName !=null)
+            {
+                var renameUrl = resourceUri + "?rename=" +newName;
+
+                return $http({
+                    method: "POST",
+                    url: renameUrl,
+                    data: JSON.stringify({}),
+                    contentType: "application/json",
+                    headers: {'Accept': "application/json"}
+                });
+            }
+        };
+
+        this.paste = function(resourcesToPaste, targetFolderUri)
+        {
+            var pasteUrl = targetFolderUri + "?paste";
+
+            return $http({
+                method: "POST",
+                url: pasteUrl,
+                data: JSON.stringify(resourcesToPaste),
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
+        this.move = function(resourcesToPaste, targetFolderUri)
+        {
+            var pasteUrl = targetFolderUri + "?move";
+
+            return $http({
+                method: "POST",
+                url: pasteUrl,
+                data: JSON.stringify(resourcesToPaste),
+                contentType: "application/json",
+                headers: {'Accept': "application/json"}
+            });
+        };
+
         this.rm = function(fileOrFolder, forever)
         {
             var uri = fileOrFolder.uri;
